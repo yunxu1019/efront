@@ -64,7 +64,7 @@ var test = function (JSON) {
             var start = new Date();
             try {
                 var res = call(arg, null, space);
-            } catch{
+            } catch {
                 res = "error";
             }
             var delta = new Date - start;
@@ -79,10 +79,88 @@ var test = function (JSON) {
     });
 
 };
+var test2 = function (JSON) {
+    var data = [{
+        "name": i18n(`\u4ee3\u7406\u8def\u5f84`, `Proxy Path`),
+        "type": "input",
+        "key": "url",
+        "comment": "",
+        "size": "120",
+        "unit": "bit",
+        "ratio": 0.125,
+        "required": true
+    }, {
+        "name": i18n(`\u4e8c\u7ef4\u7801`, `QR code`),
+        "type": "1byte",
+        "key": "url",
+        "comment": "",
+        "size": "1",
+        "unit": "byte",
+        "ratio": 1,
+        "readonly": true
+    }, {
+        "name": i18n(`\u771f\u5b9e\u8def\u5f84`, `Real path`),
+        "type": "url",
+        "key": "realpath",
+        "comment": "",
+        "size": "300",
+        "unit": "bit",
+        "ratio": 0.125
+    }, {
+        "name": i18n(`\u52a8\u4f5c`, `action`),
+        "type": "select",
+        "key": "action",
+        "comment": "",
+        "options": [{
+            "name": "跳转",
+            "value": 0
+        }, {
+            "name": "转发",
+            "value": 1
+        }],
+        "size": "100",
+        "unit": "bit",
+        "ratio": 0.125
+    }, {
+        "name": i18n(`\u72b6\u6001`, `state`),
+        "type": "select",
+        "key": "status",
+        "comment": "",
+        "options": [{
+            "name": "启用",
+            "value": 0
+        }, {
+            "name": "禁用",
+            "value": 1
+        }],
+        "size": "100",
+        "unit": "bit",
+        "ratio": 0.125
+    }, {
+        "name": i18n(``, ``),
+        "type": "byte",
+        "key": "",
+        "comment": "",
+        "options": {
+            name: "访问",
+            do(o) {
+                var url = o.url;
+                if (!/^\//.test(url))
+                    url = "/" + url;
+                window.open(url, null);
+            }
+        },
+        "size": 1,
+        "unit": "byte",
+        "ratio": 1,
+        "readonly": true
+    }];
+    assert(JSON.stringify(data, null, 4), JSON0.stringify(data, null, 4))
+}
 function JSON_test() {
     window.JSON0 = JSON0;
     window.JSON = void 0;
     delete modules.JSON;
-    modules.init("JSON", test);
+    modules.init("JSON", test2);
     window.JSON = JSON0;
 }

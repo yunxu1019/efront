@@ -199,11 +199,11 @@ var getString = function (object, filter, space) {
         while (cx < dx) {
             key = ks ? ks[cx] : cx;
             var backlength = str.length;
-            if (backlength > 1) str += ',';
+            if (cx > 0) str += ',';
             if (space) str += '\n' + new Array(objects.length + 1).join(space);
             if (ks) {
-                str += (toString(key) + ":");
-                if (space) str += (" ");
+                str += toString(key) + ":";
+                if (space) str += " ";
             };
             var v = get(object[key]);
             if (isObject(v)) {
@@ -221,7 +221,7 @@ var getString = function (object, filter, space) {
         }
         if (cx === dx) {
             if (dx > 0) {
-                if (space) str += ('\n' + new Array(objects.length).join(space))
+                if (space) str += '\n' + new Array(objects.length).join(space)
             }
             str += ks ? '}' : ']';
             pop();
