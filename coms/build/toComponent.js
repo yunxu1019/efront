@@ -194,9 +194,22 @@ function toComponent(responseTree, noVersionInfo) {
         if (type === 'string') key = _strings.encode(key);
         return destMap[getEfrontKey(key, type)];
     };
-    var saveCode = function (module_body, module_key, reqMap) {
-        var this_module_params = {};
+    var saveCode = function (module_body, module_key, reqMap, occurs) {
+        var this_module_params = Object.create(null);
         var needAwaits = false;
+        var appendExtractedParam = function ($key) {
+            if (this_module_params[$key]) return this_module_params[$key];
+            var $arg = $key;
+            var id = 0;
+            while ($arg in occurs) {
+                $arg = $key + ++id;
+            }
+            occurs[$arg] = true;
+            this_module_params[$key] = $arg;
+            module_body.splice(module_body.length >> 1, 0, $key);
+            module_body.splice(module_body.length - 1, 0, $arg);
+            return $arg;
+        }
         var setMatchedConstString = function (k, isReq) {
             if (/^(['"`])user?\s+(strict|asm|strip)\1$/i.test(k)) return k;
             if (k.length < 3) return k;
@@ -223,20 +236,12 @@ function toComponent(responseTree, noVersionInfo) {
             }
             if (!memery.BREAK) return k;
             var $key = getEfrontKey(k, 'string');
-            if (!this_module_params[$key]) {
-                this_module_params[$key] = true;
-                module_body.splice(module_body.length >> 1, 0, $key);
-                module_body.splice(module_body.length - 1, 0, $key);
-            }
+            $key = appendExtractedParam($key);
             return $key;
         };
         var setMatchedConstRegExp = function (k) {
             var $key = getEfrontKey(k, 'regexp');
-            if (!this_module_params[$key]) {
-                this_module_params[$key] = true;
-                module_body.splice(module_body.length >> 1, 0, $key);
-                module_body.splice(module_body.length - 1, 0, $key);
-            }
+            $key = appendExtractedParam($key);
             return $key;
         };
         var module_string = module_body[module_body.length - 1];
@@ -427,9 +432,9 @@ function toComponent(responseTree, noVersionInfo) {
             }
             var dependence = response.dependence;
             if (dependence) {
-                result.push([k, dependence.require, dependence.requiredMap, [].concat(dependence, dependence.args, String(response.data || '').slice(dependence.offset))]);
+                result.push([k, dependence.require, dependence.requiredMap, [].concat(dependence, dependence.args, String(response.data || '').slice(dependence.offset)), response.occurs]);
             }
-            else result.push([k, null, null, [response.data]]);
+            else result.push([k, null, null, [response.data], response.occurs]);
         }
     }
     if (result.length === 1) {
@@ -442,11 +447,11 @@ function toComponent(responseTree, noVersionInfo) {
         }
     }
     console.info("正在合成");
-    if (array_map && array_map.data) saveCode([String(array_map.data)], "map");
+    if (array_map && array_map.data) saveCode([String(array_map.data)], "map", null, array_map.occurs);
     var circle_result, PUBLIC_APP, public_index, last_result_length = result.length, origin_result_length = last_result_length
     while (result.length) {
         for (var cx = result.length - 1, dx = 0; cx >= dx; cx--) {
-            var [k, required, reqMap, module_body] = result[cx];
+            var [k, required, reqMap, module_body, occurs] = result[cx];
 
             required = (required || []).map(k => reqMap[k]);
             var ok = true;
@@ -471,7 +476,7 @@ function toComponent(responseTree, noVersionInfo) {
                 result.splice(cx, 1);
                 var startTime = new Date;
                 console.info(`压缩(${origin_result_length - result.length}/${origin_result_length}):`, k);
-                saveCode(module_body, k, reqMap);
+                saveCode(module_body, k, reqMap, occurs);
                 responseTree[k].time += new Date - startTime;
             }
         }

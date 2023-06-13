@@ -126,6 +126,24 @@ class Code extends Array {
     set scoped(w) {
         this._scoped = w;
     }
+    get occurs() {
+        var rest = [this.scoped];
+        var occurs = Object.create(null);
+        Object.assign(occurs, this.scoped.envs);
+        while (rest.length) {
+            var scoped = rest.pop();
+            for (var k in scoped.vars) {
+                if (k in occurs) continue;
+                occurs[k] = true;
+            }
+            for (var k in scoped.lets) {
+                if (k in occurs) continue;
+                occurs[k] = true;
+            }
+            rest.push(...scoped);
+        }
+        return occurs;
+    }
     getUndecleared() {
         var res = Object.create(null);
         for (var k in this.envs) {

@@ -430,11 +430,10 @@ var loadJsBody = function (data, filename, lessdata, commName, className, htmlDa
     })
     data = code_body.toString();
     var params = globals.map(g => globalsmap[g]);
-
     return {
         imported: globals,
         required: required_paths,
-        occurs: allVariables,
+        occurs: code.occurs,
         data,
         isAsync,
         typeofs,
@@ -530,6 +529,8 @@ var buildResponse = function ({ imported, prequoted, params, data, required, occ
     if (isAsync) data = "@" + data;
     // [参数长度*2 参数列表]? [字符串列表长度*2 字符串数组]? 代码块
     data = (_arguments.length ? length + _arguments : "") + (strs && strs.length > 2 && imported.length > 0 ? strlength + strs : '') + (parseInt(data.slice(0, 3), 36) % 2 === 0 || /^\w{1,6}\[/.test(data) && parseInt(data.slice(0, 6), 36) % 2 === 0 ? ";" : "") + data;
+    data = Buffer.from(data);
+    data.occurs = occurs;
     return data;
 };
 var getFileData = function (fullpath) {
@@ -919,7 +920,6 @@ function commbuilder(buffer, filename, fullpath, watchurls) {
                 }
             }
             data = buildResponse(data, compress);
-            data = Buffer.from(data);
             data.path = fullpath;
             data.time = new Date - timeStart + promise.time;
             return data;

@@ -63,19 +63,17 @@ var trimStringLiteral = function (block) {
     }
     return block_string;
 };
-var paramsMap = Object.create(null);
+var paramsMap = null;
 var module_string = '';
-function breakcode(data, args) {
-    if (!args) return [data];
+function breakcode(data, occurs) {
+    if (!occurs) return [data];
     module_string = data;
-    Object.keys(args).forEach(function (key) {
-        paramsMap[key] = true;
-    });
+    paramsMap = occurs;
     var code_blocks = scanner(module_string);
     module_string = code_blocks.map(trimStringLiteral).join("");
-    var res = Object.keys(paramsMap).filter(k => !hasOwnProperty.call(args, k));
+    var res = Object.keys(paramsMap).filter(k => !hasOwnProperty.call(occurs, k));
     var val = res.map(k => paramsMap[k]);
-    paramsMap = Object.create(null);
+    paramsMap = null;
     data = module_string;
     module_string = '';
     return [data, res, val];

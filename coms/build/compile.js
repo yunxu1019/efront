@@ -144,6 +144,7 @@ async function compile(buildInfo, lastBuildTime, destroot) {
         var resolve = function () {
             if (responseText instanceof Buffer) {
                 responseTime = responseText.time || 0;
+                buildInfo.occurs = responseText.occurs;
             }
             Object.assign(buildInfo, {
                 needed: writeNeeded,
@@ -159,6 +160,8 @@ async function compile(buildInfo, lastBuildTime, destroot) {
             if (responseText instanceof Promise) {
                 responseText.then(function (data) {
                     buildInfo.data = data;
+                    buildInfo.time = data.time;
+                    buildInfo.occurs = data.occurs;
                     ok(buildInfo);
                     linesEnabled++;
                 });
