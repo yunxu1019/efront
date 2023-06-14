@@ -136,9 +136,15 @@ var skipAssignment = function (o, cx) {
                 next();
                 needpunc = false;
             }
-            else if (/^(do|if|while|for|switch|with)$/.test(o.text)) {
+            else if (/^(do|if|while|switch|with)$/.test(o.text)) {
                 if (o.text === 'if') ifdeep++;
                 next();
+                next();
+                break;
+            }
+            else if (o.text === 'for') {
+                next();
+                if (o.type === STRAP && o.text === 'await') next();
                 next();
                 break;
             }
@@ -163,9 +169,13 @@ var skipAssignment = function (o, cx) {
                 needpunc = false;
                 break loop;
             }
-            else {
+            else if (o.isend && !ifdeep) {
                 next();
-                needpunc = false;
+                break loop;
+            }
+            else {
+                needpunc = !o.transive;
+                next();
             }
             break;
         default:

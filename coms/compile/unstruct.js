@@ -24,6 +24,7 @@ var _break = function (body, cx, result, iscontinue) {
                 if (!b.breaks) b.breaks = [];
                 var _b = scanner2('return []');
                 _b.ret_ = true;
+                _b.brk = true;
                 if (iscontinue) _b[1].continue = s, s.continue = true;
                 b.breaks.push(_b[1]);
                 pushstep(result, _b);
@@ -41,6 +42,7 @@ var _break = function (body, cx, result, iscontinue) {
                 if (!b.breaks) b.breaks = [];
                 var _b = scanner2("return []");
                 _b.ret_ = true;
+                _b.brk = true;
                 if (iscontinue) _b[1].continue = b, b.continue = true;
                 b.breaks.push(_b[1]);
                 pushstep(result, _b);
@@ -302,6 +304,7 @@ var pushstep = function (result, step) {
         if (needcomma(q)) q.push({ type: STAMP, text: ';' });
         if (!ishalf(q)) {
             q.ret_ = step.ret_;
+            q.brk = step.brk;
         }
         q.push(...step);
         q.await_ = step.await_;
@@ -888,6 +891,7 @@ var getblock = function (body, cx) {
         cx++;
     }
     var b = body.slice(ax, cx);
+    while (o && o.type & (SPACE | COMMENT)) o = body[++cx];
     b.next = o;
     return b;
 };
@@ -916,9 +920,11 @@ function toqueue(body, getname, ret = false, result = []) {
             if (isbr) continue;
             var findex = iftop[cx] - 1;
             var p = result[findex];
-            p.pop();
-            p.push(scanner2(`[${result.length - findex},0]`)[0]);
-            relink(p);
+            if (!p.brk) {
+                p.pop();
+                p.push(scanner2(`[${result.length - findex},0]`)[0]);
+                relink(p);
+            }
         }
         for (var cx = 1, dx = iftop.length - 2; cx < dx; cx++) {
             var isbr = iftop[cx++];
@@ -946,6 +952,7 @@ function toqueue(body, getname, ret = false, result = []) {
                     var r = result[cx];
                     if (r.indexOf(b) >= 0) { break }
                 }
+                if (cx < 0) throw console.log(result.map(r => createString(r)), e.text, createString([b.prev, b])), "break语句异常";
                 end.push({ type: VALUE, text: b.continue ? b.continue.contat - cx : result.length - cx }, { type: STAMP, text: "," }, { type: VALUE, text: "0" });
                 relink(end);
             }
