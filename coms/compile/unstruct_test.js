@@ -75,6 +75,7 @@ test("switch(a){case 1:case 2:break;}", "if (a === 1) return [1, 0]; if (a === 2
 test("switch(a){case 1:case 2:x=1;}", "if (a === 1) return [1, 0]; if (a === 2) return [1, 0]; return [2, 0];\r\n x = 1; return [1, 0]", true);
 test("switch(a){case 1:case 2:x=1;}", "if (a === 1) return [1, 0]; if (a === 2) return [1, 0]; return [2, 0];\r\n x = 1; return [1, 0]", true);
 test("with(a){ a = 1}", `if (_ = with_("a", [a])) _.a = 1; else a = 1;`, true);
+test("try{a=2+1}catch(e){return;}", 'return [65537, 7];\r\n _ = 2 + 1; a = _; return [0, 9];\r\n e = @; return [undefined, 2];\r\n return [1, 9]', true);
 test("try{a=2+1}catch(e){}", 'return [1, 7];\r\n _ = 2 + 1; a = _; return [0, 9];\r\n return [1, 9]', true);
 test("try{a=2+1}catch(e){a=3}", 'return [65537, 7];\r\n _ = 2 + 1; a = _; return [0, 9];\r\n e = @; a = 3; return [0, 9];\r\n return [1, 9]', true);
 test("(function(){})", '_ = function () {}; (_)', true);

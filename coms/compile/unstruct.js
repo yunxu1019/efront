@@ -286,7 +286,9 @@ var _while = function (body, cx, unblock, result) {
     return cx;
 };
 var pushstep = function (result, step) {
-    if (!step.length) return;
+    if (isempty(step, SPACE)) {
+        return;
+    }
     var q = result[result.length - 1];
     if (!q) {
         result.push(step);
@@ -349,7 +351,7 @@ var patchstep = function (r, nextindex, h) {
         relink(r);
     }
 };
-var flusqueue = function (result, queue) {
+var flushqueue = function (result, queue) {
     var savedLength = result.length;
     var savedIndex = savedLength - 1;
     var prev = result[savedIndex];
@@ -362,21 +364,6 @@ var flusqueue = function (result, queue) {
     }
 };
 
-var addresult = function (result, step) {
-    if (!step.length) return;
-    var cx, mx = 0, n;
-    var awaited = step.awaited;
-    var queue = [];
-    do {
-        while (step[mx] && step[mx].type === STAMP && /^[,;]$/.test(step[mx].text)) mx++;
-        cx = step.indexOf(NEXT, mx);
-        n = step.slice(mx, mx = cx < 0 ? step.length : cx + 1);
-        if (awaited) n.awaited = awaited, awaited = false;
-        n.name = step.name;
-        queue.push(n);
-    } while (mx < step.length);
-    flusqueue(result, queue);
-};
 var _do = function (body, cx, unblock, result) {
     var o = body[cx];
     var label = o;
@@ -425,7 +412,10 @@ var _return = function (r, nextindex) {
         r.await_ = true;
     }
     if (needcomma(r)) r.push({ type: STAMP, text: ';' });
-    else if (r.length) r[r.length - 1].text = ';';
+    else if (r.length) {
+        var re = r[r.length - 1];
+        if (re.type === STAMP && re.text === ',') re.text = ';';
+    }
     r.push(...x);
     relink(r);
 };
@@ -466,7 +456,6 @@ var _invoke = function (t, getname) {
     for (var cx = 0; cx < t.length; cx++) {
         var o = t[cx];
         if (needbreak(o)) {
-            if (needcomma(queue)) queue.push({ type: STAMP, text: ',' });
             var s = splice(t, bx, cx + 1 - bx);
             if (cx > 0) s.name = s[0].text;
             else s.name = qname;
@@ -508,7 +497,7 @@ var _invoke = function (t, getname) {
             }
             nameindex = _nameindex;
             if (!cache.length) continue;
-            if (queue.length) flusqueue(result, queue), queue = [];
+            if (queue.length) flushqueue(result, queue), queue = [];
             for (var c of cache) pushstep(result, c);
             cache = [];
             var n = o.next;
@@ -527,7 +516,7 @@ var _invoke = function (t, getname) {
     }
     if (queue.length) {
         queue.push(t);
-        flusqueue(result, queue);
+        flushqueue(result, queue);
     }
     else if (t.length) {
         var t0 = t[0];
@@ -535,7 +524,7 @@ var _invoke = function (t, getname) {
             t.unshift(...scanner2(`${qname}=${qname}`));
             relink(t);
         }
-        addresult(result, t);
+        pushstep(result, t);
     }
     return result;
 };
@@ -554,10 +543,18 @@ var ishalf = function (q) {
     if (!e) return false;
     return e.type === SCOPED && e.entry === '(' && e.prev && e.prev.type === STRAP && /^if$/.test(e.prev.text) || e.type === STRAP && /^else$/.test(e.text);
 }
+var isempty = function (q, ignore_types) {
+    for (var a of q) {
+        if (!(a.type & ignore_types || a.type === STAMP && /^[,;]$/.test(a.text))) return false;
+    }
+    return true;
+}
 var needcomma = function (q) {
-    if (!q.length) return false;
-    var e = q[q.length - 1];
+    if (isempty(q, COMMENT | SPACE)) return false;
     if (ishalf(q)) return false;
+    var i = q.length - 1;
+    var e = q[i];
+    while (e.type & (SPACE | COMMENT)) e = q[--i];
     return !needbreak(e);
 };
 var patchname = function (d, getname) {
@@ -598,9 +595,9 @@ var ternary = function (body, getname, ret) {
                 patchname(d, getname);
                 pushstep(d, stepReturn(1, 0, d));
                 pushstep(c, stepReturn(d.length + 1, 0, c));
-                addresult(res, scanner2(`if(${getCondition(b, function (b) {
+                pushstep(res, scanner2(`if(${getCondition(b, function (b) {
                     b = ternary(b, getname, true);
-                    for (var b of b) addresult(res, b);
+                    for (var b of b) pushstep(res, b);
                     return b;
                 }, true)})return [1,0]`));
                 var q = res[res.length - 1];

@@ -1,6 +1,5 @@
 var scanner2 = require("../compile/scanner2");
 var scanner = require("../compile/scanner");
-var downLevel = require("../compile/downLevel");
 var path = require("path");
 var _strings = require("../basic/strings");
 var memery = require("../efront/memery");
@@ -105,7 +104,7 @@ function toComponent(responseTree, noVersionInfo) {
     var result = [];
     var libsTree = Object.create(null);
     var has_outside_require = false;
-    var outsideAsync = downLevel.isAsync;
+    var outsideAsync = false;
 
 
     var destMap = Object.create(null), dest = [];
@@ -248,9 +247,6 @@ function toComponent(responseTree, noVersionInfo) {
         var [, isAsync, isYield] = /^(@?)(\*?)/.exec(module_string);
         if (isAsync || isYield) module_string = module_string.slice(+!!isAsync + +!!isYield);
         if (isAsync) outsideAsync = true;
-        if (!memery.UPLEVEL) {
-            module_string = downLevel(module_string, isAsync, isYield);
-        }
         var code_blocks = scanner(module_string);
         var requireReg = /(?<=\brequire\s*\(\s*)['"`]/gy;
         var hasRequire = module_body.slice(0, module_body.length >> 1).indexOf('require') >= 0;
@@ -431,6 +427,7 @@ function toComponent(responseTree, noVersionInfo) {
                 response.data = String(data);
             }
             var dependence = response.dependence;
+            if (response.isAsync) outsideAsync = true;
             if (dependence) {
                 result.push([k, dependence.require, dependence.requiredMap, [].concat(dependence, dependence.args, String(response.data || '').slice(dependence.offset)), response.occurs]);
             }

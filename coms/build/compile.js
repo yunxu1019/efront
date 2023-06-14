@@ -145,6 +145,9 @@ async function compile(buildInfo, lastBuildTime, destroot) {
             if (responseText instanceof Buffer) {
                 responseTime = responseText.time || 0;
                 buildInfo.occurs = responseText.occurs;
+                buildInfo.isYield = responseText.isYield;
+                buildInfo.isAsync = responseText.isAsync;
+                buildInfo.isBroken = responseText.isBroken;
             }
             Object.assign(buildInfo, {
                 needed: writeNeeded,
@@ -162,6 +165,9 @@ async function compile(buildInfo, lastBuildTime, destroot) {
                     buildInfo.data = data;
                     buildInfo.time = data.time;
                     buildInfo.occurs = data.occurs;
+                    buildInfo.isAsync = data.isAsync;
+                    buildInfo.isYield = data.isYield;
+                    buildInfo.isBroken = data.isBroken;
                     ok(buildInfo);
                     linesEnabled++;
                 });

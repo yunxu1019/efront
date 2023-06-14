@@ -1383,8 +1383,8 @@ var down = function (scoped) {
         if (funcMark) {
             var argname = _letname("_");
             unstruct.debug = downLevel.debug;
-            var code = unawait(scoped.body, _getname, argname);
             var body = scanner2(`return ${funcMark}()`);
+            var code = unawait(scoped.body, _getname, argname);
             code.forEach(function (c) {
                 var f = scanner2(`function(${c.awaited ? argname : ''}){\r\n}`);
                 if (!c.length) f[2].push(...scanner2('return [1,0]'));

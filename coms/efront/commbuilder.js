@@ -226,6 +226,7 @@ var loadJsBody = function (data, filename, lessdata, commName, className, htmlDa
         return: hasReturn,
         yield: isYield
     } = code;
+    var isBroken = false;
     if (commbuilder.typeofMap) {
         var typeofs = [];
         Object.keys(undeclares).forEach(k => {
@@ -387,12 +388,11 @@ var loadJsBody = function (data, filename, lessdata, commName, className, htmlDa
         if (!memery.UPLEVEL) {
             if (!memery.BREAK) code.detour(false);
             code = downLevel.code(code);
+            isBroken = true;
         }
         var {
             vars: declares,
             used: allVariables,
-            async: isAsync,
-            yield: isYield,
             envs: undeclares
         } = code;
         code_body = code;
@@ -402,11 +402,10 @@ var loadJsBody = function (data, filename, lessdata, commName, className, htmlDa
         code.relink();
         code.detour();
         code = downLevel.code(code);
+        isBroken = true;
         var {
             vars: declares,
             used: allVariables,
-            async: isAsync,
-            yield: isYield,
             envs: undeclares
         } = code;
         code_body = code;
@@ -443,6 +442,7 @@ var loadJsBody = function (data, filename, lessdata, commName, className, htmlDa
         isAsync,
         typeofs,
         isYield,
+        isBroken,
         prequoted,
         params
     };
@@ -497,7 +497,7 @@ var rethink = function (mmap, imported, refname) {
     });
     return realimport;
 };
-var buildResponse = function ({ imported, prequoted, params, data, required, occurs, isAsync, isYield }, compress) {
+var buildResponse = function ({ imported, prequoted, params, data, required, occurs, isAsync, isYield, isBroken }, compress) {
     if (!islive && compress !== false) {
         if (memery.BREAK) var [data, args, strs] = breakcode(data, occurs), strs = `[${strs}]`;
         else args = [], strs = "[]";
@@ -528,12 +528,17 @@ var buildResponse = function ({ imported, prequoted, params, data, required, occ
     if (prequoted) {
         data = prequoted.map(a => a.text).join('') + data;
     }
-    if (isYield) data = "*" + data;
-    if (isAsync) data = "@" + data;
+    if (!isBroken) {
+        if (isYield) data = "*" + data;
+        if (isAsync) data = "@" + data;
+    }
     // [参数长度*2 参数列表]? [字符串列表长度*2 字符串数组]? 代码块
     data = (_arguments.length ? length + _arguments : "") + (strs && strs.length > 2 && imported.length > 0 ? strlength + strs : '') + (parseInt(data.slice(0, 3), 36) % 2 === 0 || /^\w{1,6}\[/.test(data) && parseInt(data.slice(0, 6), 36) % 2 === 0 ? ";" : "") + data;
     data = Buffer.from(data);
     data.occurs = occurs;
+    data.isAsync = isAsync;
+    data.isYield = isYield;
+    data.isBroken = isBroken;
     return data;
 };
 var getFileData = function (fullpath) {
@@ -947,8 +952,8 @@ commbuilder.parse = function (data, filename = 'main', fullpath = './main.js', c
 };
 commbuilder.break = function (data, filename, fullpath, compress) {
     var parsed = commbuilder.parse(data, filename, fullpath, compress, true);
-    var { imported, params, data, required, occurs, isAsync, isYield } = parsed;
+    var { imported, params, data, required, occurs, isAsync, isYield, isBroken } = parsed;
     var [data, res, val] = breakcode(data, occurs);
-    return [data, res, val, isAsync, isYield];
+    return [data, res, val, isAsync, isYield, isBroken];
 }
 module.exports = commbuilder;

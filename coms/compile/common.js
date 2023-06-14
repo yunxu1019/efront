@@ -121,26 +121,35 @@ var skipAssignment = function (o, cx) {
             break;
         case STRAP:
             if (needpunc) {
-                if (/^catch$/.test(o.text)) {
-                    next();
-                    next();
-                    needpunc = false;
-                    break;
-                }
-                if (!/^(in|instanceof|of|else|as|finally)$/.test(o.text)) break loop;
+                if (!/^(in|instanceof|of|else|as)$/.test(o.text)) break loop;
                 if (o.text === 'else') {
                     if (!ifdeep) break loop;
                     ifdeep--;
+                    needpunc = false;
                 }
-
                 next();
                 needpunc = false;
             }
-            else if (/^(do|if|while|switch|with)$/.test(o.text)) {
+            else if (/^(try|catch|finally)$/.test(o.text)) {
+                next();
+                if (o.entry === "(") next();
+                next();
+            }
+            else if (o.text === 'else') {
+                ifdeep--;
+                needpunc = false;
+                next();
+            }
+            else if (/^(if|while|with|switch)$/.test(o.text)) {
                 if (o.text === 'if') ifdeep++;
                 next();
                 next();
                 break;
+            }
+            else if (o.text === 'do') {
+                next();
+                next();
+                next();
             }
             else if (o.text === 'for') {
                 next();
@@ -174,7 +183,6 @@ var skipAssignment = function (o, cx) {
                 break loop;
             }
             else {
-                needpunc = !o.transive;
                 next();
             }
             break;
