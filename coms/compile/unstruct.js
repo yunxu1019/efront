@@ -673,6 +673,7 @@ var ternary = function (body, getname, ret) {
             eq.text = "=";
             var q2 = explist2[explist2.length - 1];
             an = q2.name;
+            asn = scanner2(an);
         }
         else an = n;
         ass.push(equals[i], ...asn);
@@ -788,14 +789,9 @@ var _express = function (body, getname, ret) {
                 cache.push(b, p);
                 continue;
             }
-            var name = getname(nameindex);
-            var n = scanner2(name);
-            q.name = name;
-            n.index = nameindex;
-            n.push(b.pop());
-
+            var pb = b.pop();
             if (cache.length) nameindex = cache[cache.length - 2].index;
-            else if (isor) n.pop(), q.push(...scanner2(`${getname(nameindex)}=`), ...b);
+            else if (isor) q.push(...scanner2(`${getname(nameindex)}=`), ...b);
 
             while (cache.length && cache[cache.length - 1] >= p) {
                 if (needcomma(q)) q.push({ type: STAMP, text: ',' });
@@ -805,10 +801,12 @@ var _express = function (body, getname, ret) {
                 if (p0 > powermap["="] || isawait) q.push(...scanner2(`${getname(t.index)}=`));
                 q.push.apply(q, t);
                 q.push.apply(q, b);
+                b = scanner2(`${getname(t.index)}`);
+                nameindex = t.index;
                 if (isawait) q.push(NEXT);
             }
-            nameindex++;
-            if (maxindex < nameindex) maxindex = nameindex;
+            var name = getname(nameindex);
+            q.name = name;
             if (isor) {
                 if (o.text === '||') {
                     q.push(RE);
@@ -822,7 +820,12 @@ var _express = function (body, getname, ret) {
                 hasor = true;
                 nameindex = 0;
             } else {
+                var n = scanner2(name);
+                n.index = nameindex;
+                n.push(pb);
+                nameindex++;
                 cache.push(n, p);
+                if (maxindex < nameindex) maxindex = nameindex;
             }
         }
         else {

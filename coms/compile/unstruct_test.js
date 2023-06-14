@@ -57,7 +57,7 @@ test("if(await a) await b", "_ = a; return [_, 1];\r\n if (!@) return [2, 0]; _ 
 test("for(a in b)", "for (a in b)", true);
 test("for(var a in b) a.push()", "for (var a in b) a.push()", true);
 test("for(;;)", "return [0, 0]", true);
-test("for(a = os[Symbol.iterator] || os[Symbol.asyncIterator] || Array.prototype[Symbol.iterator], a = a.call(os), b = a.next(); !b.done && (o = b.value, true); b = a.next())", "_0 = Symbol.iterator; _ = os[_0]; if (_) return [1, 0]; _0 = Symbol.asyncIterator; _ = os[_0]; if (_) return [1, 0]; _0 = Symbol.iterator; _ = Array.prototype[_0];\r\n a = _; _ = a.call(os); a = _; _ = a.next(); b = _; return [1, 0];\r\n _ = !b.done; if (!_) return [1, 0]; _0 = b.value; o = _0; _ = (true);\r\n if (!_) return [1, 0]; _ = a.next(); b = _; return [-1, 0]", true);
+test("for(a = os[Symbol.iterator] || os[Symbol.asyncIterator] || Array.prototype[Symbol.iterator], a = a.call(os), b = a.next(); !b.done && (o = b.value, true); b = a.next())", "_ = Symbol.iterator; _ = os[_]; if (_) return [1, 0]; _ = Symbol.asyncIterator; _ = os[_]; if (_) return [1, 0]; _ = Symbol.iterator; _ = Array.prototype[_];\r\n a = _; _ = a.call(os); a = _; _ = a.next(); b = _; return [1, 0];\r\n _ = !b.done; if (!_) return [1, 0]; _ = b.value; o = _; _ = (true);\r\n if (!_) return [1, 0]; _ = a.next(); b = _; return [-1, 0]", true);
 test("for(a=0;a<1;a++)if(a==0)continue", `a = 0; return [1, 0];\r\n _ = a < 1; if (!_) return [2, 0]; _ = a == 0; if (_) return [1, 0]; return [1, 0];\r\n _ = a++; return [-1, 0]`, true);
 test("for(a=0;a<10;a++) await a", "a = 0; return [1, 0];\r\n _ = a < 10; if (!_) return [2, 0]; _ = a; return [_, 1];\r\n _ = @; _ = a++; return [-1, 0]", true);
 test("for(a=0;a<10;a++) await a, await b", "a = 0; return [1, 0];\r\n _ = a < 10; if (!_) return [3, 0]; _ = a; return [_, 1];\r\n _ = @; _ = b; return [_, 1];\r\n _ = @; _ = a++; return [-2, 0]", true);
@@ -85,6 +85,9 @@ test(`url += (/\\?/.test(url) ? "&" : "?") + datas;`, '_ = /\\?/.test(url); if (
 test(`a = newname.querySelector("input,textarea").value = c.name.replace(/\\/$/, '')`, `_ = c.name.replace(/\\/$/, ''); newname.querySelector("input,textarea").value = _; a = _`, true);
 test(`if (selected[f.url]) f.selected = true;`, `_ = f.url; _ = selected[_]; if (!_) return [1, 0]; f.selected = true; return [1, 0]`, true);
 test(`location.protocol  + parseURL(a.b).host `, `_ = a.b; _ = parseURL(_); location.protocol + _.host`, true);
+test(`var base = location.protocol + "//" + parseURL(this.$scope.data.host).host + "/";`, `_ = location.protocol + "//", _0 = this.$scope.data.host; _0 = parseURL(_0); _ = _ + _0.host, _ = _ + "/"; base = _`, true);
+test(`a=a+b*c+c*d`, `_ = b * c, _ = a + _, _0 = c * d, _ = _ + _0; a = _`, true);
+test(`cc.name += "<f test></f>"`, `_ = cc.name + "<f test></f>"; cc.name = _`, true);
 test("yield a", 'return [a, 3]', true);
 test("throw a", 'throw a', true);
 test("debugger", 'debugger', true);
