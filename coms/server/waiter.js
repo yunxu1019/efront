@@ -184,6 +184,9 @@ var doOptions = async function (req, res, type) {
                 if (!env) break;
                 res.env = env;
                 res.referer = req.headers.referer;
+                req.once('close', () => {
+                    removeFromList(liveload, res);
+                });
                 return liveload.mount(type[2], res);
             }
             break;
