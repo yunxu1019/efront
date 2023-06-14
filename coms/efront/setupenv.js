@@ -84,7 +84,6 @@ var pollyfill = function (dst, src = dst) {
                 namemap[path.join(__dirname, '../basic')] = true;
                 if (memery.POLYFILL) {
                     namemap[path.join(__dirname, '../basic_')] = true;
-                    namemap[path.join(__dirname, '../typescript-helpers')] = true;
                 }
                 if (dst.LIBS_PATH !== undefined) String(dst.LIBS_PATH).split(",").forEach(p => {
                     namemap[p] = true;

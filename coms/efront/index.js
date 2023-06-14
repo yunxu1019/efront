@@ -18,7 +18,7 @@ var detect = function (module_path, matchIndex = true) {
         path.join(__dirname, '../../'),
         path.join(__dirname, '../../coms'),
         path.join(__dirname, '../../coms/basic'),
-        path.join(__dirname, '../../coms/typescript-index')
+        path.join(__dirname, '../../coms/basic_'),
     );
     if (/^[\\\/]/.test(module_path)) {
         search_path = search_path.concat(apppath, compath);
@@ -695,7 +695,7 @@ var commands = {
         detectPromise.then(function (f) {
             memery.islive = true;
             setenv({
-                comm: './,basic,typescript-helpers',
+                comm: './,basic,basic_',
                 coms_path: './,' + path.join(__dirname, '..'),
             }, false);
             require("./setupenv");
