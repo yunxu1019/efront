@@ -209,7 +209,7 @@ function snapSentenceHead(o) {
             p = o.prev;
             if (!p) break;
         }
-        var maybeprop = o.type === SCOPED && o.entry !== "{" || o.type === EXPRESS && /^\./.test(o.text);
+        var maybeprop = o.type === SCOPED && o.entry !== "{" || o.type === EXPRESS && /^[\.\[]/.test(o.text);
         if (p.type === EXPRESS) {
             if (maybeprop || /\.$/.test(p.text)) {
                 o = p;
@@ -490,7 +490,7 @@ var createScoped = function (parsed, wash) {
                                 if (mustyield !== false && o.next) {
                                     if (o.next.type === STRAP && !/^(?:instanceof|in|of|from|as)$/.test(o.next.text)
                                         || o.next.type === STAMP && /[!~]/.test(o.next.text)
-                                        || o.next.type === EXPRESS && /^\./.test(o.next.text)
+                                        || o.next.type === EXPRESS && !/^[\.\[]/.test(o.next.text)
                                         || o.next.type & (VALUE | QUOTED | SCOPED)
                                     ) {
                                         mustyield = true;
@@ -722,7 +722,7 @@ var createScoped = function (parsed, wash) {
                             || (VALUE | QUOTED | SCOPED) & o.type
                             || EXPRESS === o.type && !/\.$/.test(o.text)) {
                             if ((VALUE | QUOTED | PROPERTY | LABEL) & next.type) break;
-                            if (EXPRESS === next.type && !/^\./.test(next.text)) break;
+                            if (EXPRESS === next.type && !/^[\.\[]/.test(next.text)) break;
                             if (next.type === SCOPED && next.entry === "{") break;
                             if (next.type === STRAP && !next.isExpress) break;
                         }
@@ -1097,7 +1097,7 @@ var createString = function (parsed) {
                 break;
             default:
                 if (o instanceof Object) {
-                    if (o.prev && o.prev.type === EXPRESS && o.type === EXPRESS && (/^\./.test(o.text) || /\.$/.test(o.prev.text)));
+                    if (o.prev && o.prev.type === EXPRESS && o.type === EXPRESS && (/^[\.\[]/.test(o.text) || /\.$/.test(o.prev.text)));
                     else if ((STRAP | EXPRESS | PROPERTY | COMMENT | VALUE) & lasttype && (STRAP | EXPRESS | PROPERTY | VALUE) & o.type) {
                         result.push(" ");
                     }
