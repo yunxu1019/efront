@@ -937,7 +937,7 @@ var unforin = function (o, getnewname_, killobj) {
     );
     insert1(o.queue, o.prev, ...s);
     splice(o, 0, o.length, ...scanner2(`${kname}=0;${kname}<${tname}.length&&`));
-    var c = scanner2(`(${m.text}=${tname}[${kname}]);${kname}++`);
+    var c = scanner2(`(${m.text}=${tname}[${kname}],true);${kname}++`);
     insert1(o, null, ...c);
 };
 
@@ -1358,7 +1358,7 @@ var down = function (scoped) {
                 if (!hp) break a;
                 if (hp.text === 'for') {
                     unforof(hp.next, getdeepname, scoped.used);
-                    killed = unforin(scoped.head, getdeepname, _killobj.bind(null, _getlocal)) !== false;
+                    if (funcMark) killed = unforin(scoped.head, getdeepname, _killobj.bind(null, _getlocal)) !== false;
                     // unforcx(scoped.head, getdeepname);
                 }
                 else if (hp.text === 'catch') {

@@ -23,8 +23,7 @@ var _break = function (body, cx, result, iscontinue) {
             if (b.type === LABEL && b.text === label) {
                 if (!b.breaks) b.breaks = [];
                 var _b = scanner2('return []');
-                _b.ret_ = true;
-                _b.brk = true;
+                _b.ret_ = -1;
                 if (iscontinue) _b[1].continue = s, s.continue = true;
                 b.breaks.push(_b[1]);
                 pushstep(result, _b);
@@ -41,8 +40,7 @@ var _break = function (body, cx, result, iscontinue) {
             if (b.type !== LABEL) {
                 if (!b.breaks) b.breaks = [];
                 var _b = scanner2("return []");
-                _b.ret_ = true;
-                _b.brk = true;
+                _b.ret_ = -1;
                 if (iscontinue) _b[1].continue = b, b.continue = true;
                 b.breaks.push(_b[1]);
                 pushstep(result, _b);
@@ -148,7 +146,7 @@ var _switch = function (body, cx, unblock, result, getname) {
         for (var q of q) if (q.length) pushstep(result, q);
         var qe = q;
         if (qe.name) var case_ = scanner2(`if(${qn}===${qe.name})return[]`);
-        else case_ = scanner2(`return[]`), case_.ret_ = true;
+        else case_ = scanner2(`return[]`), case_.ret_ = -1;
         pushstep(result, case_);
         var by = cy;
         m = o[cy];
@@ -156,7 +154,7 @@ var _switch = function (body, cx, unblock, result, getname) {
         tmp.push(result.length - 1, case_[case_.length - 1], o.slice(by, cy));
     }
     if (!result[result.length - 1].ret_) {
-        case_ = scanner2(`return[]`), case_.ret_ = true;
+        case_ = scanner2(`return[]`), case_.ret_ = -1;
         pushstep(result, case_);
         tmp.push(result.length - 1, case_[case_.length - 1], []);
     }
@@ -306,7 +304,7 @@ var pushstep = function (result, step) {
         if (needcomma(q)) q.push({ type: STAMP, text: ';' });
         if (!ishalf(q)) {
             q.ret_ = step.ret_;
-            q.brk = step.brk;
+            q.ifbrk = step.ifbrk;
         }
         q.push(...step);
         q.await_ = step.await_;
@@ -381,7 +379,7 @@ var _do = function (body, cx, unblock, result) {
 };
 var stepReturn = function (value, type, q) {
     var r = scanner2(`return [${value},${type}]`);
-    r.ret_ = true;
+    r.ret_ = type === 2 ? type : true;
     if (q && q.length) r.name = q[q.length - 1].name;
     return r;
 }
@@ -904,9 +902,11 @@ var ifpatch = function (result, autoskip) {
     if (!result.length) return;
     if (autoskip !== false) {
         var rs = result[result.length - 1];
-        if (rs.ret_ && !rs.await_) return;
+        if (rs.ret_ !== true && rs.ret_) return;
     }
     var re = stepReturn(1, 0);
+    re.ret_ = -2;
+    re.ifbrk = autoskip !== undefined;
     pushstep(result, re);
 };
 function toqueue(body, getname, ret = false, result = []) {
@@ -917,7 +917,7 @@ function toqueue(body, getname, ret = false, result = []) {
             if (isbr) continue;
             var findex = iftop[cx] - 1;
             var p = result[findex];
-            if (!p.brk) {
+            if (p.ifbrk) {
                 p.pop();
                 p.push(scanner2(`[${result.length - findex},0]`)[0]);
                 relink(p);
@@ -1051,7 +1051,7 @@ function toqueue(body, getname, ret = false, result = []) {
                 while (body[cx] !== o.next) cx++;
                 o = o.next;
                 isbr = isbreak(o);
-                if (!isbr) ifpatch(result);
+                if (!isbr) ifpatch(result, true);
                 iftop.push(result.length);
                 elseif = true;
             }
@@ -1091,8 +1091,8 @@ function toqueue(body, getname, ret = false, result = []) {
                     var bn = body.next;
                     if (bn && bn.type === STAMP && bn.text === ';') bn = bn.next;
                     var inif = bn && bn.type === STRAP && bn.text === 'else';
-                    if (inif) ifpatch(result);
-                    else if (!isbr) ifpatch(result);
+                    if (inif) ifpatch(result, true);
+                    else if (!isbr) ifpatch(result, true);
                     uniftop();
                     if (inif) ifpatch(result, false);
                     iftop = null;
