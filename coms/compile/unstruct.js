@@ -442,7 +442,7 @@ var isEvalScope = function (o) {
     return false;
 }
 var _invoke = function (t, getname) {
-    var nameindex = 0;;
+    var nameindex = 0;
     var getdeepname = function (deep = 0) {
         return getname(nameindex + deep)
     };
@@ -473,6 +473,7 @@ var _invoke = function (t, getname) {
                     while (cy < o.length && o[cy].type & (SPACE | COMMENT)) cy++;
                     var ay = cy;
                     cy = skipAssignment(o, cy);
+                    if (cy === ay || ay >= o.length) continue;
                     var m = o[ay];
                     if (cy === ay + 1 && (m.type === EXPRESS && !/[\.\[]/.test(m.text) || m.type === VALUE || m.type === QUOTED && !m.length)) {
                         continue;
