@@ -474,7 +474,7 @@ var _invoke = function (t, getname) {
                 var ey = cy;
                 if (ay === ey || ay >= o.length) continue;
                 var m = o.slice(ay, ey);
-                if (m.length === 1 && (m[0].type === EXPRESS && !/\./.test(m[0].text) || m[0].type === VALUE || m[0].type === QUOTED && !m[0].length)) {
+                if (m.length === 1 && (m[0].type === EXPRESS && !/[\.\[]/.test(m[0].text) || m[0].type === VALUE || m[0].type === QUOTED && !m[0].length)) {
                     continue;
                 }
                 var q = toqueue(m, getdeepname, true);
@@ -518,7 +518,7 @@ var _invoke = function (t, getname) {
     }
     else if (t.length) {
         var t0 = t[0];
-        if (t0.type === EXPRESS && /^\./.test(t0.text) || t0.type & (STAMP | STRAP) && powermap[t0.text] < powermap.new) {
+        if (t0.type === EXPRESS && /^[\.\[]/.test(t0.text) || t0.type & (STAMP | STRAP) && powermap[t0.text] < powermap.new) {
             t.unshift(...scanner2(`${qname}=${qname}`));
             relink(t);
         }
