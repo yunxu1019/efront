@@ -466,6 +466,19 @@ var _invoke = function (t, getname) {
             var _nameindex = nameindex;
             remove_end_comma(o);
             var iseval = isEvalScope(o);
+            var constStart = 0;
+            if (!iseval) {
+                for (var cy = 0; cy < o.length; cy++) {
+                    while (cy < o.length && o[cy].type & (SPACE | COMMENT)) cy++;
+                    var ay = cy;
+                    cy = skipAssignment(o, cy);
+                    var m = o[ay];
+                    if (cy === ay + 1 && (m.type === EXPRESS && !/[\.\[]/.test(m.text) || m.type === VALUE || m.type === QUOTED && !m.length)) {
+                        continue;
+                    }
+                    constStart = cy + 1;
+                }
+            }
             for (var cy = 0; cy < o.length; cy++) {
                 var by = cy;
                 while (cy < o.length && o[cy].type & (SPACE | COMMENT)) cy++;
@@ -474,16 +487,17 @@ var _invoke = function (t, getname) {
                 var ey = cy;
                 if (ay === ey || ay >= o.length) continue;
                 var m = o.slice(ay, ey);
-                if (m.length === 1 && (m[0].type === EXPRESS && !/[\.\[]/.test(m[0].text) || m[0].type === VALUE || m[0].type === QUOTED && !m[0].length)) {
+                if (m.length === 1 && (m[0].type === EXPRESS && !/[\.\[]/.test(m[0].text) && ay >= constStart || m[0].type === VALUE || m[0].type === QUOTED && !m[0].length)) {
                     continue;
                 }
-                var q = toqueue(m, getdeepname, true);
-                var qe = q[q.length - 1];
                 if (!iseval || m[m.length - 1] === o.last) {
+                    var q = toqueue(m, getdeepname, 1);
+                    var qe = q[q.length - 1];
                     splice(o, by, ey - by, { text: qe.name, type: EXPRESS });
                     cy = by + 1;
                 }
                 else {
+                    var q = toqueue(m, getdeepname, false);
                     while (cy < o.length && o[cy].type & (SPACE | COMMENT)) cy++;
                     var c = o[cy];
                     if (c && c.type & STAMP && /^[,;]$/.test(c.text)) cy++;
@@ -617,6 +631,12 @@ var ternary = function (body, getname, ret) {
         var bd = equalsend ? body.slice(equalsend) : body;
         if (!ret && equcount === 1 && canbeOnce(bd)) {
             res = [bd];
+        }
+        else if (ret === 1 && !equcount && canbeOnce(bd)) {
+            var name = getname(0);
+            var r = [{ type: EXPRESS, text: name }, { type: STAMP, text: '=' }, ...bd]
+            r.name = name;
+            res = [r];
         }
         else {
             res = _express(bd, getname, equalsend > skip || ret);
