@@ -200,7 +200,10 @@ function () {
 _2 = !_["done"]; if (!_2) return [1, 0]; o = _["value"]; _2 = (true)
 },
 function () {
-if (!_2) return [1, 0]; noSymbol; _2 = _0["next"](); _ = _2; return [-1, 0]
+if (!_2) return [2, 0]; noSymbol; _2 = _0["next"](); return [_2, 1]
+},
+function (_1) {
+_2 = _1; _ = _2; return [-2, 0]
 })
 var _, _0, _2`)
 assert(downLevel(`for await(var [o,s] of os) noSymbol`), `return async_(
@@ -217,7 +220,10 @@ function () {
 _3 = !_["done"]; if (!_3) return [1, 0]; _1 = _["value"]; o = _1[0]; s = _1[1]; _3 = (true)
 },
 function () {
-if (!_3) return [1, 0]; noSymbol; _3 = _0["next"](); _ = _3; return [-1, 0]
+if (!_3) return [2, 0]; noSymbol; _3 = _0["next"](); return [_3, 1]
+},
+function (_2) {
+_3 = _2; _ = _3; return [-2, 0]
 })
 var o, s, _, _0, _1, _3`)
 assert(downLevel(`for(o of os) noSymbol`), `for (_ = 0, _0 = os["length"]; _ < _0 && (o = os[_], true); _++) noSymbol\r\nvar _, _0`)
