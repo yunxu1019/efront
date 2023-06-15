@@ -8,7 +8,8 @@ var THROW = { type: STRAP, text: "@throw" };// return;
 var YIELD = { type: STRAP, text: "@yield" };// return;
 var NEXT = { type: STRAP, text: "@next" };// return;
 var _break = function (body, cx, result, iscontinue) {
-    if (!result.length || result[result.length - 1].ret_) return;
+    var re = result[result.length - 1];
+    if (!result.length || re.ret_ && !re.await_ && re.ret_ !== -2) return;
     var label;
     do {
         var o = body[++cx];
@@ -37,7 +38,7 @@ var _break = function (body, cx, result, iscontinue) {
     else {
         for (var cx = labels.length - 1; cx >= 0; cx--) {
             var b = labels[cx];
-            if (b.type !== LABEL) {
+            if (b.type !== LABEL && (!iscontinue || b.text !== 'switch')) {
                 if (!b.breaks) b.breaks = [];
                 var _b = scanner2("return []");
                 _b.ret_ = -1;
