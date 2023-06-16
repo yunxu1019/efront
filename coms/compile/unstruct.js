@@ -577,6 +577,29 @@ var patchname = function (d, getname) {
         splice(de, 0, 0, { type: EXPRESS, text: getname(0) }, { type: STAMP, text: "=" });
         de.name = getname(0);
     }
+};
+var popexp = function (explist) {
+    var asn = explist[explist.length - 1];
+    var n;
+    if (!asn.ret_) {
+        explist.pop();
+    }
+    if (!asn.ret_ && asn.length) {
+        if (asn.name) {
+            asn = createExpressList(asn);
+            if (asn.length > 1) {
+                explist.push(...asn.slice(0, asn.length - 1));
+            }
+            asn = asn.pop();
+            asn.shift();
+            asn.shift();
+        }
+    }
+    else {
+        n = asn.name;
+        asn = [{ type: EXPRESS, text: n }];
+    }
+    return [asn, n];
 }
 var ternary = function (body, getname, ret) {
     var getnextname = function (i) {
@@ -587,6 +610,7 @@ var ternary = function (body, getname, ret) {
     var equalsend = 0;
     var skip = 0;
     var equcount = 0;
+    var hascalcequ = false;
     for (var cx = 0, dx = body.length; cx < dx; cx++) {
         var o = body[cx];
         if (o.type === STRAP && /^(var|let|const)$/.test(o.text)) {
@@ -626,12 +650,13 @@ var ternary = function (body, getname, ret) {
             }
         }
         else if (powermap[o.text] === powermap["="]) {
-            if (!question.length) equalsend = cx + 1, equcount += o.text.length;
+            if (!question.length) equalsend = cx + 1, equcount++;
+            if (o.text.length > 1) hascalcequ = true;
         }
     }
     if (!res.length) {
         var bd = equalsend ? body.slice(equalsend) : body;
-        if (!ret && equcount === 1 && canbeOnce(bd)) {
+        if (!ret && equcount === 1 && !hascalcequ && canbeOnce(bd)) {
             res = [bd];
         }
         else if (ret === 1 && !equcount && canbeOnce(bd)) {
@@ -653,6 +678,7 @@ var ternary = function (body, getname, ret) {
     // if (!q) throw `语法错误: <red>${createString(body)}</red> \r\n行列位置: ${equals[0].row}:${equals[0].col}`
     var n = q.name;
     var i = equals.length - 1;
+    var isSimpleAssign = true;
     while (i >= 0) {
         var p = equals[i];
         while (p && p.type & (SPACE | COMMENT)) p = equals[--i];
@@ -667,7 +693,12 @@ var ternary = function (body, getname, ret) {
         }
         if (ai < 0) ai = 0;
         var ass = equals.slice(ai, i);
-        if (n) var asn = [{ type: EXPRESS, text: n }];
+        var eq = equals[i];
+        if (isSimpleAssign) isSimpleAssign = ret !== 1 && canbeTemp(ass);
+        if (isSimpleAssign && eq.text === '=') {
+            [asn, n = createString(ass)] = popexp(explist);
+        }
+        else if (n) var asn = [{ type: EXPRESS, text: n }];
         else asn = explist.pop();
         for (var a of ass) {
             if (a.type === SCOPED) {
@@ -684,17 +715,21 @@ var ternary = function (body, getname, ret) {
             }
         }
         var an = '';
-        var eq = equals[i];
         if (eq.text.length > 1) {
             var punc = eq.text.slice(0, eq.text.length - 1);
             var bdtmp = [...scanner2(createString(ass)), { type: STAMP, text: punc }, ...asn];
             relink(bdtmp);
             var explist2 = _express(bdtmp, getname, true);
+            if (isSimpleAssign) {
+                [asn, an = createString(ass)] = popexp(explist2);
+            }
+            else {
+                var q2 = explist2[explist2.length - 1];
+                an = q2.name;
+                asn = scanner2(an);
+            }
             for (var e of explist2) pushstep(explist, e);
             eq.text = "=";
-            var q2 = explist2[explist2.length - 1];
-            an = q2.name;
-            asn = scanner2(an);
         }
         else an = n;
         ass.push(equals[i], ...asn);
@@ -703,6 +738,7 @@ var ternary = function (body, getname, ret) {
         ass.name = an;
         patchstep(ass, ass.length, 0);
         pushstep(explist, ass);
+        isSimpleAssign = false;
         i = ai - 1;
         n = an;
     }

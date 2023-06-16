@@ -120,7 +120,7 @@ textSpan: highlightSpan.textSpan,
 isWriteAccess: highlightSpan.kind === "writtenReference" /* writtenReference */ }, highlightSpan.isInString && { isInString: true }, highlightSpan.contextSpan && { contextSpan: highlightSpan.contextSpan })) }`);
 assert(downLevel(`async()=>({ [argitem.sort ? argitem.sort : 'date']: "desc" })`), `function () { return async_(
 function () {
-_0 = {}; _ = _0; if (!argitem.sort) return [1, 0]; _1 = argitem.sort; return [2, 0]
+_ = {}; if (!argitem.sort) return [1, 0]; _1 = argitem.sort; return [2, 0]
 },
 function () {
 _1 = 'date'; return [1, 0]
@@ -191,7 +191,7 @@ function () {
 _2 = Symbol["asyncIterator"]; _2 = os[_2]; if (_2) return [1, 0]; _2 = Symbol["iterator"]; _2 = os[_2]; if (_2) return [1, 0]; _2 = Symbol["iterator"]; _2 = Array["prototype"][_2]
 },
 function () {
-_0 = _2; _2 = _0["call"](os); _0 = _2; _2 = _0["next"](); return [_2, 1]
+_0 = _2; _0 = _0["call"](os); _2 = _0["next"](); return [_2, 1]
 },
 function (_1) {
 _2 = _1; _ = _2; return [1, 0]
@@ -211,7 +211,7 @@ function () {
 o; s; _3 = Symbol["asyncIterator"]; _3 = os[_3]; if (_3) return [1, 0]; _3 = Symbol["iterator"]; _3 = os[_3]; if (_3) return [1, 0]; _3 = Symbol["iterator"]; _3 = Array["prototype"][_3]
 },
 function () {
-_0 = _3; _3 = _0["call"](os); _0 = _3; _3 = _0["next"](); return [_3, 1]
+_0 = _3; _0 = _0["call"](os); _3 = _0["next"](); return [_3, 1]
 },
 function (_2) {
 _3 = _2; _ = _3; return [1, 0]
@@ -242,13 +242,13 @@ assert(downLevel("if(a){}[r, g, b] = rgb4s(r, g, b, s)"), "if (a) {} _ = rgb4s(r
 assert(downLevel(`{c,[c]:b,...a}=a`), `c = a.c, b = a[c], a = rest_(a, ["c", c])`)
 assert(downLevel(`async()=>name = require("./$split")(name)["join"]("/");`), `function () { return async_(
 function () {
-_0 = require("./$split")(name)["join"]("/"); name = _0; return [_0, 2]
+name = require("./$split")(name)["join"]("/"); return [name, 2]
 })
 var _0 };`);
 i++//异步或步进函数
 assert(downLevel(`function *(){yield *a}`), `function () { return aster_(
 function () {
-_; _0 = 0; _3 = a["length"]; _1 = _3; return [1, 0]
+_; _0 = 0; _1 = a["length"]; return [1, 0]
 },
 function () {
 _3 = _0 < _1; if (!_3) return [1, 0]; _ = a[_0]; _3 = (true)
@@ -266,13 +266,13 @@ function () {
 a; _2 = Symbol["iterator"]; _2 = b[_2]; if (_2) return [1, 0]; _2 = Symbol["asyncIterator"]; _2 = b[_2]; if (_2) return [1, 0]; _2 = Symbol["iterator"]; _2 = Array["prototype"][_2]
 },
 function () {
-_0 = _2; _2 = _0["call"](b); _0 = _2; _2 = _0["next"](); _ = _2; return [1, 0]
+_0 = _2; _0 = _0["call"](b); _ = _0["next"](); return [1, 0]
 },
 function () {
 _2 = !_["done"]; if (!_2) return [1, 0]; a = _["value"]; _2 = (true)
 },
 function () {
-if (!_2) return [1, 0]; Symbol; _2 = _0["next"](); _ = _2; return [-1, 0]
+if (!_2) return [1, 0]; Symbol; _ = _0["next"](); return [-1, 0]
 })
 var a, _, _0, _2 }`)
 assert(downLevel(`a={async a(){var b =c;return 1}}`), `a = (_ = {},
@@ -308,6 +308,6 @@ function () {
 if (!a) return [1, 0]; return [2, 0]
 },
 function () {
-_0 = getRequestProtocol(url) + "//", _0 = _0 + location; location = _0; return [1, 0]
+_0 = getRequestProtocol(url) + "//", location = _0 + location; return [1, 0]
 })
 var _0 }`);
