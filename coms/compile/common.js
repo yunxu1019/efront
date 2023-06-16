@@ -979,10 +979,11 @@ var needBreakBetween = function (prev, next) {
 };
 var relink = function (list) {
     var pi = 0, p = null;
+    list.first = p;
     for (var cx = 0, dx = list.length; cx < dx; cx++) {
         var o = list[cx];
         o.prev = p;
-        if (o.type === COMMENT || o.type === SPACE) continue;
+        if (o.type & (COMMENT | SPACE)) continue;
         if (!p) list.first = o;
         while (pi < cx) list[pi++].next = o;
         p = o;

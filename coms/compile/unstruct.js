@@ -687,7 +687,8 @@ var ternary = function (body, getname, ret) {
         var eq = equals[i];
         if (eq.text.length > 1) {
             var punc = eq.text.slice(0, eq.text.length - 1);
-            var bdtmp = ass.concat({ type: STAMP, text: punc }, ...asn);
+            var bdtmp = [...scanner2(createString(ass)), { type: STAMP, text: punc }, ...asn];
+            relink(bdtmp);
             var explist2 = _express(bdtmp, getname, true);
             for (var e of explist2) pushstep(explist, e);
             eq.text = "=";
@@ -990,7 +991,9 @@ function toqueue(body, getname, ret = false, result = []) {
         var o = body[cx];
         while (o && (o.type & (SPACE | COMMENT) || o.type === STAMP && /^[,;]$/.test(o.text))) o = body[++cx];
         if (bx < cx) {
-            pushstep(result, body.slice(bx, cx));
+            var b = body.slice(bx, cx);
+            relink(b);
+            pushstep(result, b);
             bx = cx;
         }
         if (!o) break;
