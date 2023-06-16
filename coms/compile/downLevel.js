@@ -1395,7 +1395,9 @@ var down = function (scoped) {
             });
             splice(scoped.body, 0, scoped.body.length);
             if (markcodes.length || argcodes.length) {
-                splice(scoped.body, 0, 0, ...scanner2(markcodes.concat(argcodes).join(';') + ";\r\n"));
+                argcodes = scanner2(markcodes.concat(argcodes).join(';') + ";\r\n");
+                _killobj(_getname, argcodes);
+                splice(scoped.body, 0, 0, ...argcodes);
             }
             splice(scoped.body, scoped.body.length, 0, ...body);
             for (var k in envs) if (!(k in scoped.envs)) vars[k] = true;
