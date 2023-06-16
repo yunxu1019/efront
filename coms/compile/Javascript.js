@@ -347,7 +347,7 @@ Javascript.prototype.detour = function detour(o, ie) {
                     o = replace(o, ...scan(text));
                     continue;
                 }
-                text = text.replace(/\.([^\.\[\!\=\:]+)/g, (_, a) => ie === undefined || this.strap_reg.test(a) ? `[${strings.recode(a)}]` : _);
+                text = text.replace(/\.([^\.\[\!\=\:]+)/g, (_, a) => ie === undefined || this.strap_reg.test(a) || /#/.test(a) ? `[${strings.recode(a)}]` : _);
                 if (hasdot) text = "..." + text;
                 o.text = text;
                 break;
