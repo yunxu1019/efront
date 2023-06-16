@@ -26,7 +26,7 @@ class Item extends Array {
         this.extended = mark !== false;
         if (value && value.constructor === Item) this.value = value.value;
         else this.value = value;
-        if (value.children instanceof Array) {
+        if (value && value.children instanceof Array) {
             var children = value.children.map(item => new Item(item));
             children.forEach(item => item.parent = item);
             this.push.apply(this, children);
