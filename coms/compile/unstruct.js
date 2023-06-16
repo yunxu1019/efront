@@ -989,6 +989,10 @@ function toqueue(body, getname, ret = false, result = []) {
     do {
         var o = body[cx];
         while (o && (o.type & (SPACE | COMMENT) || o.type === STAMP && /^[,;]$/.test(o.text))) o = body[++cx];
+        if (bx < cx) {
+            pushstep(result, body.slice(bx, cx));
+            bx = cx;
+        }
         if (!o) break;
         while (labels.length) {
             var e = labels[labels.length - 1];

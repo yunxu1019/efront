@@ -96,3 +96,5 @@ test("throw a", 'throw a', true);
 test("debugger", 'debugger', true);
 test("a(b,b+=1)", '_ = b; _0 = b + 1; b = _0; a(_, _0)', true);
 test("while(a){if(b){if(c);else d;continue;}}", 'if (!a) return [4, 0]; if (!b) return [3, 0]; if (!c) return [1, 0]; return [2, 0];\r\n d; return [1, 0];\r\n return [-2, 0];\r\n return [-3, 0]', true);
+test("/*abc*/", '/*abc*/', true);
+test("//aaa", '//aaa', true);
