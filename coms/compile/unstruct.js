@@ -578,6 +578,9 @@ var patchname = function (d, getname) {
         de.name = getname(0);
     }
 };
+var clone = function (o) {
+    return Object.assign({}, o, { prev: null, next: null });
+};
 var popexp = function (explist) {
     var asn = explist[explist.length - 1];
     var n;
@@ -717,7 +720,7 @@ var ternary = function (body, getname, ret) {
         var an = '';
         if (eq.text.length > 1) {
             var punc = eq.text.slice(0, eq.text.length - 1);
-            var bdtmp = [...scanner2(createString(ass)), { type: STAMP, text: punc }, ...asn];
+            var bdtmp = [...ass.map(clone), { type: STAMP, text: punc }, ...asn];
             relink(bdtmp);
             var explist2 = _express(bdtmp, getname, true);
             if (isSimpleAssign) {
