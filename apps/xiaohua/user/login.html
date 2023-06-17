@@ -2,22 +2,22 @@
     <div class="bg"></div>
     <div>
         ${avatar}
-        <name readonly placeholder=${i18n`name`} ng-model='username'></name>
-        <pswd placeholder=${i18n`password`} ng-model='password'></pswd>
+        <name readonly placeholder="${i18n`用户名`}" ng-model='username'></name>
+        <pswd placeholder="${i18n`密码`}" ng-model='password'></pswd>
         <button type="submit" ng-if='!login.ing'>
-            <span ng-if='!username'>${i18n(`游客`, "Guest")}</span>${i18n`login`}</button>
+            <span ng-if='!username'>${i18n`游客`}</span>${i18n`登录`}</button>
         <button ng-if='login.ing' class='busy'>
-            <span ng-if='!username'>${i18n(`游客`, "Guest")}</span>${i18n('登录中', 'Logon')}</button>
+            <span ng-if='!username'>${i18n`游客`}</span>${i18n`登录中`}</button>
     </div>
 </form>
 <form class="setting-form" ng-if=settings.show onsubmit="event.preventDefault()">
     <div class="bg"></div>
     <div>
-        <input placeholder="${i18n`name`}" ng-model='settings.edit' />
+        <input placeholder="${i18n`文件路径`}" ng-model='settings.edit' />
     </div>
     <div class="btn-groups">
-        <button ng-click="settings.data=settings.edit,settings.show=false">确定</button>
-        <button type=white ng-click="settings.show=false;">取消</button>
+        <button ng-click="settings.data=settings.edit,settings.show=false">${i18n`确定`}</button>
+        <button type=white ng-click="settings.show=false;">${i18n`取消`}</button>
     </div>
 </form>
 <button class="setting" ng-click='settings.show=!settings.show,settings.edit=settings.data'>
