@@ -35,7 +35,7 @@ instanceof`.trim().split(/[,\s]+/);
 class Javascript extends Program {
     straps = straps;
     value_reg = /^(false|true|null|Infinity|NaN|undefined|eval)$/
-    transive_reg = /^(new|var|let|const|yield|void|in|of|typeof|delete|case|return|await|export|default|instanceof|throw|extends|import|from)$/
+    transive_reg = /^(new|var|let|const|yield|void|in|of|typeof|delete|case|return|await|default|instanceof|throw|extends|import|from)$/
     strapexp_reg = /^(new|void|typeof|delete|class|function|await)/;
     forceend_reg = /^(return|yield|break|continue|debugger)$/;
     classstrap_reg = /^(class|function|async)$/;
@@ -571,7 +571,9 @@ var removeExport = function (c, i, code) {
         code.splice(i + 1, 0, ...scan(`=`));
         var nn = n.next;
         var d = nn.text;
-        if (used[d]) used[d].forEach(a => a.text = `exports.${d}`);
+        if (used[d]) used[d].forEach(a => {
+            if (!a.kind) a.text = `exports.${d}`;
+        });
         delete used[d];
         delete envs[d];
         return;

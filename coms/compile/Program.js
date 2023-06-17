@@ -151,7 +151,6 @@ class Program {
     forceend_reg = /^(return|break|continue)$/;
     classstrap_reg = /^(class)$/;
     extends_reg = /^(extends)$/;
-    export_reg = /^(export)$/;
     spaces = spaceDefined;
     nocase = false
     lastIndex = 0
@@ -585,7 +584,6 @@ class Program {
                     }
                     else if (last.type === STRAP) {
                         if (last.isend);
-                        else if (this.export_reg.test(last.text));
                         else scope.isObject = queue.inExpress;
                     }
                 }
