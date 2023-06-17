@@ -1,11 +1,11 @@
 titlebar("请求计时工具", [], false);
-var _input = createElement(input);
+var _input = input();
 css(_input, "width:100%;height:50px;margin:10px 0;");
-var request_time_count = createElement(_input);
+var request_time_count = _input.cloneNode();
 request_time_count.setAttribute("placeholder", "输入请求次数");
-var request_time_url = createElement(_input);
+var request_time_url = _input.cloneNode();
 request_time_url.setAttribute("placeholder", "输入url");
-var request_time_label = createElement(div);
+var request_time_label = div();
 var request_time_button = button("请求");
 var request_stop_button = button("停止");
 css(request_time_button, "background-color:#f34;width:100%;height:50px;margin:10px 0;color:#fff;")
@@ -45,7 +45,7 @@ onclick(request_time_button, request)
 onclick(request_stop_button, function () {
     stoped = true;
 });
-var page = createElement(div);
+var page = div();
 css(page, "padding-top:50px;");
 appendChild(page, request_time_count, request_time_label, request_time_url, request_time_button, request_stop_button);
 function main() {
