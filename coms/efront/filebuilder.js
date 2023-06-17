@@ -22,6 +22,7 @@ var liveload = () => `function () {
             if (xhr.readyState !== 4) setTimeout(reload, 200 * reloadCount);
         };
         xhr.send();
+        window.onbeforeunload = function(){ xhr.onerror = null; xhr.abort(); };
     };
     reload();
 }`;
