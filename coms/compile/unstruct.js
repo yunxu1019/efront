@@ -454,6 +454,12 @@ var _invoke = function (t, getname) {
     var bx = 0;
     for (var cx = 0; cx < t.length; cx++) {
         var o = t[cx];
+        if (o.type === STRAP && o.text === 'function') {
+            while (o && o.entry !== "{") o = o.next;
+            cx = t.indexOf(o, cx);
+            continue;
+        }
+
         if (needbreak(o)) {
             var s = splice(t, bx, cx + 1 - bx);
             if (cx > 0) s.name = s[0].text;
@@ -510,7 +516,7 @@ var _invoke = function (t, getname) {
                 nameindex++;
             }
             nameindex = _nameindex;
-            if (!cache.length) continue;
+            // if (!cache.length) continue;
             if (queue.length) flushqueue(result, queue), queue = [];
             for (var c of cache) pushstep(result, c);
             cache = [];
@@ -579,8 +585,28 @@ var patchname = function (d, getname) {
     }
 };
 var clone = function (o) {
-    return Object.assign({}, o, { prev: null, next: null });
+    return Object.assign(o instanceof Array ? [] : {}, o, { prev: null, next: null });
 };
+var popass = function (explist) {
+    var asn = explist.pop();
+    var n;
+    if (!asn.ret_ && asn.length) {
+        asn = createExpressList(asn);
+        if (asn.length > 1) {
+            explist.push(...asn.slice(0, asn.length - 1));
+            asn = asn.pop();
+        }
+        else {
+            n = true;
+            asn = asn.pop();
+        }
+    }
+    else {
+        n = asn.name;
+        asn = [{ type: EXPRESS, text: n }];
+    }
+    return [asn, n];
+}
 var popexp = function (explist) {
     var asn = explist[explist.length - 1];
     var n;
@@ -605,15 +631,19 @@ var popexp = function (explist) {
     return [asn, n];
 }
 var ternary = function (body, getname, ret) {
+    var eqused = 0;
     var getnextname = function (i) {
-        return getname(i + 1);
+        return getname(i + eqused);
     };
     var question = [];
-    var res = [];
+    var exphead = [];
     var equalsend = 0;
     var skip = 0;
     var equcount = 0;
     var hascalcequ = false;
+    var equals = [];
+    var explist = [];
+    var hasquestion = false;
     for (var cx = 0, dx = body.length; cx < dx; cx++) {
         var o = body[cx];
         if (o.type === STRAP && /^(var|let|const)$/.test(o.text)) {
@@ -630,53 +660,59 @@ var ternary = function (body, getname, ret) {
             if (!question.length) {
                 var b = body.slice(equalsend, bx);
                 relink(b);
-                var c = toqueue(body.slice(bx + 1, cx), getname, true);
-                var d = toqueue(body.slice(cx + 1), getname, true);
-                patchname(c, getname);
-                patchname(d, getname);
+                var c = toqueue(body.slice(bx + 1, cx), getnextname, true);
+                var d = toqueue(body.slice(cx + 1), getnextname, true);
+                patchname(c, getnextname);
+                patchname(d, getnextname);
                 pushstep(d, stepReturn(1, 0, d));
                 pushstep(c, stepReturn(d.length + 1, 0, c));
-                pushstep(res, scanner2(`if(${getCondition(b, function (b) {
-                    b = ternary(b, getname, true);
-                    for (var b of b) pushstep(res, b);
+                pushstep(explist, scanner2(`if(${getCondition(b, function (b) {
+                    b = ternary(b, getnextname, true);
+                    for (var b of b) pushstep(explist, b);
                     return b;
                 }, true)})return [1,0]`));
-                var q = res[res.length - 1];
-                var qi = res.length - 1;
+                var q = explist[explist.length - 1];
+                var qi = explist.length - 1;
                 var qe = q[q.length - 1];
                 if (c.length) {
-                    pushstep(res, c[0]);
-                    res.push(...c.slice(1));
+                    pushstep(explist, c[0]);
+                    explist.push(...c.slice(1));
                 }
-                qe.text = String(res.length - qi);
-                res.push(...d);
+                qe.text = String(explist.length - qi);
+                explist.push(...d);
+                hasquestion = true;
+                break;
             }
         }
         else if (powermap[o.text] === powermap["="]) {
+            var ass = toqueue(body.slice(equalsend, cx), getnextname, false);
+            var [ass1, n = ++eqused] = popass(ass);
+            exphead.push(...ass);
+            equals.push(...ass1, o);
             if (!question.length) equalsend = cx + 1, equcount++;
             if (o.text.length > 1) hascalcequ = true;
         }
     }
-    if (!res.length) {
+    if (!hasquestion) {
         var bd = equalsend ? body.slice(equalsend) : body;
         if (!ret && equcount === 1 && !hascalcequ && canbeOnce(bd)) {
-            res = [bd];
+            explist = [bd];
         }
         else if (ret === 1 && !equcount && canbeOnce(bd)) {
-            var name = getname(0);
+            var name = getnextname(0);
             var r = [{ type: EXPRESS, text: name }, { type: STAMP, text: '=' }, ...bd]
             r.name = name;
-            res = [r];
+            explist = [r];
         }
         else {
-            res = _express(bd, getname, equalsend > skip || ret);
+            explist = _express(bd, getnextname, equalsend > skip || ret);
         }
     }
     if (equalsend === skip) {
-        return res;
+        return explist;
     }
-    var equals = body.slice(skip, equalsend);
-    var explist = res;
+    relink(equals);
+    explist.unshift(...exphead);
     var q = explist[explist.length - 1];
     // if (!q) throw `语法错误: <red>${createString(body)}</red> \r\n行列位置: ${equals[0].row}:${equals[0].col}`
     var n = q.name;
@@ -703,26 +739,12 @@ var ternary = function (body, getname, ret) {
         }
         else if (n) var asn = [{ type: EXPRESS, text: n }];
         else asn = explist.pop();
-        for (var a of ass) {
-            if (a.type === SCOPED) {
-                if (a.entry === '[') {
-                    var q = ternary(a, getnextname, true);
-                    for (var q of q) {
-                        if (q.length) pushstep(explist, q);
-                    }
-                    splice(a, 0, a.length, { type: EXPRESS, text: q.name });
-                }
-                else if (a.entry === '(') {
-                    _invoke(a);
-                }
-            }
-        }
         var an = '';
         if (eq.text.length > 1) {
             var punc = eq.text.slice(0, eq.text.length - 1);
             var bdtmp = [...ass.map(clone), { type: STAMP, text: punc }, ...asn];
             relink(bdtmp);
-            var explist2 = _express(bdtmp, getname, true);
+            var explist2 = _express(bdtmp, getnextname, true);
             if (isSimpleAssign) {
                 [asn, an = createString(ass)] = popexp(explist2);
             }
@@ -737,7 +759,7 @@ var ternary = function (body, getname, ret) {
         else an = n;
         ass.push(equals[i], ...asn);
         relink(ass);
-        if (evals.length) ass[0].set = getname(0);
+        if (evals.length) ass[0].set = getnextname(0);
         ass.name = an;
         patchstep(ass, ass.length, 0);
         pushstep(explist, ass);
