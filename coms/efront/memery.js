@@ -200,7 +200,7 @@ var memery = module.exports = {
     HTTP_PORT: get('HTTP_PORT', 80),
     HTTPS_PORT: get('HTTPS_PORT', 443),
     WATCH_PORT: get('WATCH_PORT', 0),
-    ENTRY_NAME: get('ENTRY_NAME, EXPORT_NAME', 'main, Main, MAIN, <文件名>'),
+    ENTRY_NAME: get('ENTRY_NAME, EXPORT_NAME', 'main, Main, MAIN, <文件名>, <file name>'),
     TRANSFER: get('TRANSFER,TRANSFER_LINK,TRANSFER_HOST,TRANS,TRANS_LINK,TRANS_HOST'),
     WATCH_PROJECT_VERSION: 0,
     EXTT: get("EXTT, EXT, EXTT_NAME, EXT_NAME, PUBLIC_EXTT, PUBLIC_EXT"),

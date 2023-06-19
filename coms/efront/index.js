@@ -174,16 +174,16 @@ var detectEnvironment = function (comm) {
     });
 };
 console.setLogger('help', function (...args) {
-    console.line('<cyan>帮助</cyan>', ...args, `\r\n`);
+    console.line(`<cyan>${i18n`帮助`}</cyan>`, ...args, `\r\n`);
 });
 var showHelpLine = function (line) {
     console.help(format(line));
 }
 var showHelpInfo = function (help) {
     var { info, commands } = help;
-    showHelpLine(`${info ? info + ", " : info}可以使用的命令语法有：`);
+    showHelpLine(i18n`${info ? info + ", " : info}可以使用的命令语法有：`);
     commands.forEach(a => showHelpLine(`efront ${a}`));
-    showTopicInfo(commands, '其中');
+    showTopicInfo(commands, i18n`其中`);
 };
 var format = s => s
     .replace(/[a-z][_a-z]*/g, "<blue2>$&</blue2>")
@@ -192,10 +192,7 @@ var format = s => s
     .replace(/\-+|\=+/g, "<gray>$&</gray>")
     .replace(/\|/g, "<gray>|</gray>");
 var gettopic = function (w) {
-    var t = topics[w].split(',');
-    if (/\|/.test(t[0])) t.default = t[0].replace(/^[\s\S]*?\|([\s\S]*)$/, "$1");
-    t[0] = t[0].replace(/\|[\s\S]*$/, '');
-    return t;
+    return topics[w];
 };
 var showTopicInfo = function (commands, prefix = '') {
     var tips = {};
@@ -212,14 +209,14 @@ var showTopicInfo = function (commands, prefix = '') {
     if (!tips) return;
     var msg = prefix + tips1;
     if (tips.default && !~tips.indexOf(tips.default) && tips.length > 1) tips.splice(1, 0, tips.default);
-    if (tips.length > 1) msg += ", 可能的取值有 " + tips.slice(1).join(", ");
-    if (tips.default) msg += ", 默认值是" + tips.default;
+    if (tips.length > 1) msg += i18n`, 可能的取值有 ${tips.slice(1).join(", ")}`;
+    if (tips.default) msg += `, 默认值是${+ tips.default}`;
     showHelpLine(msg);
 };
 
 var transform = function (readfrom, writeto, run) {
     if (!writeto) {
-        return console.error("请指定输出文件名！");
+        return console.error(i18n`请指定输出文件名！`);
     }
     detect(readfrom).then(function (fullpath) {
         fs.readFile(fullpath, function (error, data) {
@@ -438,7 +435,7 @@ var commands = {
 
     },
     link(address) {
-        this.request(address).then(console.line.bind(console, '<cyan>连接号</cyan>'));
+        this.request(address).then(console.line.bind(console, `<cyan>${i18n`连接号`}</cyan>`));
     },
     care(address, linkid) {
         var opt = this.parse(address);
@@ -448,13 +445,13 @@ var commands = {
         };
         var commands = this;
         var run = function (res, type) {
-            console.line(`<cyan>${type || '消息'}</cyan>`, res, '\r\n');
+            console.line(`<cyan>${type || i18n`消息`}</cyan>`, res, '\r\n');
             commands.request(opt, true).then(run, error);
         };
 
         var req = function (res) {
             opt.path = '/:care-' + res;
-            run(res, '连接到');
+            run(res, i18n`连接到`);
         };
         if (linkid) {
             req(linkid);
@@ -472,10 +469,10 @@ var commands = {
         if (!value1) {
             helps.sort((a, b) => a.commands[0] > b.commands[0] ? 1 : a.commands[0] < b.commands[0] ? -1 : 0);
             var length = Math.max.apply(Math, helps.map(a => a.commands[0].length));
-            showHelpLine('可以使用的命令有：');
+            showHelpLine(i18n`可以使用的命令有：`);
             helps.forEach(({ info, commands, hide }) => !hide && showHelpLine(`efront ${commands[0]}${" ".repeat(length - commands[0].length)} ${info}`));
-            showHelpLine("如要显示更具体的信息，请使用: efront help COMMAND|VARIABLES")
-            showTopicInfo("COMMAND|VARIABLES", '其中');
+            showHelpLine(i18n`如要显示更具体的信息，请使用:${" efront help COMMAND|VARIABLES"}`)
+            showTopicInfo("COMMAND|VARIABLES", `其中`);
             return;
         }
         if (value1.toLowerCase() in helps) {
@@ -489,7 +486,7 @@ var commands = {
             showTopicInfo(value1);
             return;
         }
-        showHelpLine(`目前没有与 ${value1} 相关的帮助信息！`);
+        showHelpLine(i18n`目前没有与 ${value1} 相关的帮助信息！`);
     },
     async docs() {
         setAppnameAndPorts(arguments);
@@ -504,7 +501,7 @@ var commands = {
         require("./setupenv");
         require("../server/main");
         var ported = await wait(function () { return memery.proted }, 200);
-        if (ported) showHelpLine('可以通过浏览器访问打开的端口以查看文档');
+        if (ported) showHelpLine(i18n`可以通过浏览器访问打开的端口以查看文档`);
     },
     demo() {
         memery.islive = true;
@@ -517,20 +514,20 @@ var commands = {
         setAppnameAndPorts(arguments);
         require("./setupenv");
         require("../server/main");
-        showHelpLine(`可以通过浏览器访问已打开的端口以查看示例项目:${memery.APP}`);
+        showHelpLine(i18n`可以通过浏览器访问已打开的端口以查看示例项目:${memery.APP}`);
     },
     create(srcname, appname) {
         var folders = fs.readdirSync(process.cwd());
         var names = ["_envs", "coms", "apps", "pages"];
         if (folders.length === 1) {
             if (!~names.indexOf(folders[0])) {
-                throw new Error("请在空目录或efront目录执行创建操作!");
+                throw new Error(i18n`请在空目录或efront目录执行创建操作!`);
             }
         } else if (folders.length) {
             var reg = new RegExp(names.join("|"));
             if (folders.indexOf("_envs") < 0) {
                 if (folders.filter(a => reg.test(a)).length < 2) {
-                    throw new Error("请在空目录或efront目录执行创建操作!");
+                    throw new Error(i18n`请在空目录或efront目录执行创建操作!`);
                 }
             }
         }
@@ -561,9 +558,9 @@ var commands = {
         };
         if (!appname) {
             fs.readdir(process.cwd(), function (error, files) {
-                if (error) throw new Error("没有权限！");
+                if (error) throw new Error(i18n`没有权限！`);
                 if (files.length > 0) {
-                    if (!memery.FORCE) throw new Error("当前文件夹不为空！");
+                    if (!memery.FORCE) throw new Error(i18n`当前文件夹不为空！`);
                 }
                 create(process.cwd());
             });
@@ -575,9 +572,9 @@ var commands = {
             fs.mkdirSync(distpath);
         }
         fs.readdir(distpath, function (error, files) {
-            if (error) throw new Error("没有权限！");
+            if (error) throw new Error(i18n`没有权限！`);
             if (files.length > 0) {
-                throw new Error("项目文件夹已存在且不为空！");
+                throw new Error(i18n`项目文件夹已存在且不为空！`);
             }
             create(distpath);
         });
@@ -611,11 +608,11 @@ var commands = {
         var showres = function () {
             var plist = Object.keys(pathmap);
             if (!plist.length) {
-                console.info("当前用户没有可执行文件的扫描路径\r\n");
+                console.info(i18n`当前用户没有可执行文件的扫描路径\r\n`);
                 return;
             }
             else {
-                console.info("当前可执行文件的扫描路有\r\n");
+                console.info(i18n`当前可执行文件的扫描路有\r\n`);
                 console.log(plist.join("\r\n"));
             }
         }
@@ -655,7 +652,7 @@ var commands = {
     },
     pathxrm(pathname) {
         this.setxpath(pathname, true);
-        console.log("删除成功！");
+        console.log(i18n`删除成功！`);
     },
     async password() {
         await new Promise(ok => setTimeout(ok, require("../basic/isProduction") ? 0 : 360));
@@ -680,7 +677,7 @@ var commands = {
         args.push("--efront");
         if (restArgv.length) args.push.apply(args, restArgv);
         if (!appname) {
-            console.line("请输入要启动的程序!");
+            console.line(i18n`请输入要启动的程序!`);
             return;
         }
         var fullpath = process.cwd();
@@ -773,7 +770,7 @@ var commands = {
             res.on("abort", console.error);
         };
         var warn = function () {
-            console.warn("确认公网 IP 时存在异常！");
+            console.warn(i18n`确认公网 IP 时存在异常！`);
         };
         require("http").get("http://ipv4.efront.cc/ip.jsp", listener).on('error', warn);
         require("http").get("http://us.efront.cc/ip.jsp", listener).on('error', warn);
@@ -802,7 +799,7 @@ helps.forEach(function (help) {
         }
     });
 });
-topics.COMMAND += "," + Object.keys(helps).filter(k => /^[a-z]+$/.test(k));
+topics.COMMAND.push(Object.keys(helps).filter(k => /^[a-z]+$/.test(k)));
 var run = function (type, value1, value2, value3) {
     if (type) type = type.toLowerCase();
     if (!type) {
@@ -823,10 +820,10 @@ var run = function (type, value1, value2, value3) {
                 var mm = memery.all();
                 var km = Object.keys(mm);
                 if (!km.length) {
-                    console.info("没有自定义的环境变量\r\n");
+                    console.info(i18n`没有自定义的环境变量\r\n`);
                 }
                 else {
-                    console.info(`已设置如下 ${km.length} 个环境变量：\r\n\r\n`);
+                    console.info(i18n`已设置如下 ${km.length} 个环境变量：\r\n\r\n`);
                     for (var k in mm) {
                         console.line("  ", `<green2>${k}</green2>`, "= ");
                         console.log(mm[k]);
@@ -834,7 +831,7 @@ var run = function (type, value1, value2, value3) {
                     console.log();
                     console.log();
                 }
-                console.info(`未修改过的默认变量如下：\r\n\r\n`);
+                console.info(i18n`未修改过的默认变量如下：\r\n\r\n`);
                 var md = false;
                 for (var k in memery.defaults) {
                     if (k in mm) continue;
@@ -850,7 +847,7 @@ var run = function (type, value1, value2, value3) {
                     if (k.toUpperCase() !== k || k === 'EFRONT' || isEmpty(memery[k])) continue;
                     if (!md) {
                         md = true;
-                        console.info(`其他环境变量如下：\r\n\r\n`)
+                        console.info(i18n`其他环境变量如下：\r\n\r\n`)
                     }
                     console.line("  ", `<gray>${k}</gray>`, "= ");
                     console.log(memery[k]);
@@ -949,10 +946,10 @@ var run = function (type, value1, value2, value3) {
         if (isRun) {
             commands.run.apply(commands, argv);
         } else {
-            console.warn(`不支持该命令<red2> ${type} </red2>`);
+            console.warn(i18n`不支持该命令<red2> ${type} </red2>`);
             var cmds = search(type, Object.keys(helps).filter(k => !/^\d/.test(k)).map(k => ({ key: k })), "key");
             if (cmds.length) {
-                console.line(" 如下命令与您输入的命令相似：\r\n");
+                console.line(i18n` 如下命令与您输入的命令相似：\r\n`);
                 var tagLength = 0;
                 var matched = [];
                 for (var c of cmds) {
@@ -982,12 +979,12 @@ var __exit = process.exit;
 var quit = function (e) {
     if (quit.name === 'quit') {
         console.begin("red2");
-        console.line(" 错误 ");
+        console.line(i18n` 错误 `);
         console.log(e);
         console.end();
     } else {
         console.error(e);
-        console.line("异常退出");
+        console.line(i18n`异常退出`);
     }
 
     __exit.call(process, 1);

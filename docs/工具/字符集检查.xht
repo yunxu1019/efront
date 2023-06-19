@@ -52,19 +52,19 @@
         padding: 0 20px;
     }
 </style>
-<h2>字符集检查工具</h2>
+<h2>${i18n`字符集检查工具`}</h2>
 <div style="text-align: right;padding: 0 20px;">
-    <button @click="check">检查</button>
+    <button @click="check">${i18n`检查`}</button>
 </div>
 <div>
     <field>
-        <label>要检查的字符集区间（unicode）</label>
+        <label>${i18n`要检查的字符集区间`}（unicode）</label>
         <padding>
             <div textarea contenteditable="true" -model="ranges"></div>
         </padding>
     </field>
     <field>
-        <label>当前浏览器支持的字符集区间(unicode)</label>
+        <label>${i18n`当前浏览器支持的字符集区间`}(unicode)</label>
         <padding>
             <div textarea contenteditable="true" -model="result"></div>
         </padding>
@@ -96,7 +96,7 @@
         return parseInt(str, 16);
     }
     var check = async function () {
-        var elem = alert("正在检查", false);
+        var elem = alert(i18n`正在检查`, false);
         var reg = /\\(x[0-9a-f]{2}|u[0-9a-f]{4}|u\{[0-9a-f]+\})/ig;
         var dist0 = [];
         ranges.replace(/<\/?\w+\/?>/g, '').replace(new RegExp(`${reg.source}(?:-${reg.source})?|${/[\s\S]/.source}`, 'ig'), function (_, a, b) {
@@ -119,7 +119,7 @@
                 continue;
             }
             b = fromHex(b);
-            elem.setText(`正在检查${_}`);
+            elem.setText(i18n`正在检查${_}`);
             await new Promise(a => setTimeout(a, 20));
             var start = a;
             var temp = [];
@@ -147,7 +147,7 @@
             dist1[i][0] = `<a>${dist1[i][0]}</a>`;
             return `<w>${a}</w>`;
         })
-        elem.setText("检查完成", 600);
+        elem.setText(i18n`检查完成`, 600);
         ranges = dist1.map(a => a[0]).join("");
         result = dist.join("");
     }

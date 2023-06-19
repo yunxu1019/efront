@@ -34,9 +34,11 @@
         color: #fff;
         padding: 10px 16px;
     }
-    [body]{
+
+    [body] {
         background: #222;
     }
+
     :scope {
         height: 100%;
         width: 100%;
@@ -55,7 +57,7 @@
 </style>
 <h2 head -bind="help?.info"></h2>
 <div body>
-    <div>可以使用的命令有：</div>
+    <div>${i18n`可以使用的命令有：`}</div>
     <m -repeat="c in help?.cmds">
         <cmds></cmds>
         <topic></topic>
@@ -82,10 +84,14 @@
             });
         },
         topic(elem, s) {
-            if (!s.topics.length) return;
-            elem.innerHTML = "其中，" + s.topics.filter(a => scope.dict[a]).map(a => {
-                var [n, d] = scope.dict[a].split('|');
-                return `${a}是${n}，默认值是${d}`;
+            var topics = s.topics.filter(a => scope.dict[a]);
+            if (!topics.length) return;
+            elem.innerHTML = i18n`其中，` + topics.map(a => {
+                var d = scope.dict[a];
+                var t = i18n`${a}是${d[0]}`;
+                if (d.length > 1) t += i18n`，可取值有${d.slice(1).join('、')}`;
+                if (d.default) t += i18n`，默认值是${d.default}`;
+                return t;
             }).join('；');
         }
     }

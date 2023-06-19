@@ -77,27 +77,27 @@
 <script>
     var menus = [
         {
-            name: "efront 简介",
+            name: i18n`efront简介`,
             children: [
-                { name: "使用说明", md: "readme.md" },
-                { name: "兼容性说明", md: "coms/basic_/readme.md" },
-                { name: "版本说明", md: "docs/版本说明.md" },
-                { name: "与前端框架对比", md: "docs/compare.md" },
-                // { name: "notive", md: "docs/notive.md" },
+                { name: i18n`使用说明`, md: i18n`readme.md` },
+                { name: i18n`兼容性说明`, md: i18n`coms/basic_/readme.md` },
+                { name: i18n`版本说明`, md: i18n`docs/版本说明.md` },
+                { name: i18n`与前端框架对比`, md: i18n`docs/compare.md` },
+                // { name: i18n`notive`, md: "docs/notive.md" },
             ]
         },
         {
-            name: "组件库",
+            name: i18n`组件库`,
             closed: true,
             children: []
         },
         {
-            name: "小工具",
+            name: i18n`小工具`,
             closed: true,
             children: [
-                "字符集检查",
-                "国际化",
-            ].map(a => ({ name: a, path: "/工具/" + a }))
+                { name: i18n`字符集检查`, path: "/工具/字符集检查" },
+                { name: i18n`国际化`, path: "/工具/国际化" }
+            ]
         }
     ];
     zimoli.register("/mark");
@@ -107,7 +107,7 @@
         if (!window.require) return;
         return menuList(null, [
             {
-                "name": "开发者选项",
+                "name": i18n`开发者选项`,
                 do() {
                     window.require("electron").ipcRenderer.send("window", "open-dev-tools");
                     window.resizeBy(400, 0);
@@ -123,14 +123,14 @@
     var initCommandsDocs = async function () {
         var helps = await init("docs$helps");
         var m = {
-            name: "命令参考",
+            name: i18n`命令参考`,
             closed: true,
             children: [
-                { name: "防御系", a: "f" },
-                { name: "强攻系", a: "q" },
-                { name: "辅助系", a: "z" },
-                { name: "控制系", a: "k" },
-                { name: "暗器系", a: "a" }
+                { name: i18n`防御系`, a: "f" },
+                { name: i18n`强攻系`, a: "q" },
+                { name: i18n`辅助系`, a: "z" },
+                { name: i18n`控制系`, a: "k" },
+                { name: i18n`暗器系`, a: "a" }
             ]
         };
         m.children.forEach(a => {

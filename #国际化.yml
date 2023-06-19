@@ -1,3 +1,576 @@
+- zh-CN: readme.md
+  en:    readme-en.md
+
+- zh-CN: coms/basic_/readme.md
+  en:    coms/basic_/readme-en.md
+
+- zh-CN: docs/版本说明.md
+  en:    docs/version-desc.md
+
+- zh-CN: docs/compare.md
+  en:    docs/compare-en.md
+
+- zh-CN: efront简介
+  en:    Introduction to efront
+
+- zh-CN: 使用说明
+  en:    Instructions for use
+
+- zh-CN: 兼容性说明
+  en:    Compatibility Description
+
+- zh-CN: 版本说明
+  en:    Version Description
+
+- zh-CN: 与前端框架对比
+  en:    Compared to the front-end framework
+
+- zh-CN: 组件库
+  en:    Component Library
+
+- zh-CN: 小工具
+  en:    Small tools
+
+- zh-CN: 字符集检查
+  en:    Character Set Check
+
+- zh-CN: 国际化
+  en:    internationalization
+
+- zh-CN: 开发者选项
+  en:    Developer Options
+
+- zh-CN: 命令参考
+  en:    Command Reference
+
+- zh-CN: 防御系
+  en:    Defense system
+
+- zh-CN: 强攻系
+  en:    Strong Attack System
+
+- zh-CN: 辅助系
+  en:    Auxiliary system
+
+- zh-CN: 控制系
+  en:    Control system
+
+- zh-CN: 暗器系
+  en:    Hidden Weapon System
+
+- zh-CN: 有样式表
+  en:    With Style Sheet
+
+- zh-CN: 有文档
+  en:    With documentation
+
+- zh-CN: 有测试代码
+  en:    With test code
+
+- zh-CN: "环境依赖项:"
+  en:    "Environmental dependencies:"
+
+- zh-CN: 无环境依赖项
+  en:    No environmental dependencies
+
+- zh-CN: "导入项:"
+  en:    "Import items:"
+
+- zh-CN: 无导入项
+  en:    No import items
+
+- zh-CN: 清理
+  en:    clean up
+
+- zh-CN: 载入测试代码
+  en:    Load Test Code
+
+- zh-CN: 运行
+  en:    working
+
+- zh-CN: 简介
+  en:    brief introduction
+
+- zh-CN: 试试
+  en:    Try it out
+
+- zh-CN: 字符集检查工具
+  en:    Character Set Checker
+
+- zh-CN: 检查
+  en:    inspect
+
+- zh-CN: 要检查的字符集区间
+  en:    Character set interval to check
+
+- zh-CN: 当前浏览器支持的字符集区间
+  en:    The character set range supported by the current browser
+
+- zh-CN: 正在检查
+  en:    Checking
+
+- zh-CN: 正在检查$1
+  en:    Checking $1
+
+- zh-CN: 检查完成
+  en:    Inspection completed
+
+- zh-CN: 正在提取
+  en:    Extracting
+
+- zh-CN: 提取完成
+  en:    Extraction completed
+
+- zh-CN: 加载中
+  en:    Loading
+
+- zh-CN: 无数据
+  en:    No data
+
+- zh-CN: 共$1个
+  en:    $1 in total
+
+- zh-CN: 序号
+  en:    Serial number
+
+- zh-CN: "翻译结果仅做为参考，未必完美替换，语法参考:"
+  en:    "The translation results are only for reference and may not be a perfect replacement. Grammar reference:"
+
+- zh-CN: 国际化工具仅在浏览器支持 showDirectoryPicker 时可用
+  en:    International chemical tools are only available when the browser supports showDirectoryPicker
+
+- zh-CN: 选择代码文件夹
+  en:    Select Code Folder
+
+- zh-CN: 导出到文件
+  en:    Export to file
+
+- zh-CN: 国际化翻译缺失：
+  en:    "Lack of international translation:"
+
+- zh-CN: "翻译:"
+  en:    "Translation:"
+
+- zh-CN: "跳过了缺少参数的请求:$1 $2 $3\r\n缺少参数：$4"
+  en:    
+
+- zh-CN: ", 可能的取值有 $1"
+  en:    Possible values are $1
+
+- zh-CN: 修改国际化参数
+  en:    Modify internationalization parameters
+
+- zh-CN: 国际化参数
+  en:    Internationalization parameters
+
+- zh-CN: appid和密钥不能只有一个！
+  en:    The appid and key cannot have only one!
+
+- zh-CN: 提示
+  en:    prompt
+
+- zh-CN: appid及密钥申请地址
+  en:    AppID and key application address
+
+- zh-CN: 目标语言
+  en:    target language
+
+- zh-CN: efront目前使用的翻译接口免费额度受限，如果遇到翻译失败的情况，您可以自己申请一个appid和密钥配置后使用
+  en:    "The free quota of the translation interface currently used by efront is limited. If you encounter translation failure, you can apply for an appid and key configuration yourself before using it"
+
+- zh-CN: 中文
+  en:    Chinese
+
+- zh-CN: 繁体中文
+  en:    Traditional Chinese
+
+- zh-CN: 英语
+  en:    English
+
+- zh-CN: 日语
+  en:    Japanese
+
+- zh-CN: 法语
+  en:    French
+
+- zh-CN: 俄语
+  en:    Russian
+
+- zh-CN: 韩语
+  en:    Korean
+
+- zh-CN: 德语
+  en:    German
+
+- zh-CN: 意大利语
+  en:    Italian
+
+- zh-CN: 泰语
+  en:    Thai
+
+- zh-CN: 越南语
+  en:    Vietnamese language
+
+- zh-CN: 阿拉伯语
+  en:    Arabic
+
+- zh-CN: 荷兰语
+  en:    Dutch language
+
+- zh-CN: 芬兰语
+  en:    Finnish language
+
+- zh-CN: 希腊语
+  en:    Greek
+
+- zh-CN: 西班牙语
+  en:    Spanish
+
+- zh-CN: 匈牙利语
+  en:    Hungarian language
+
+- zh-CN: 瑞典语
+  en:    Swedish language
+
+- zh-CN: 丹麦语
+  en:    Danish language
+
+- zh-CN: 捷克语
+  en:    Czech language
+
+- zh-CN: 保加利亚语
+  en:    Bulgarian language
+
+- zh-CN: 爱沙尼亚语
+  en:    Estonian language
+
+- zh-CN: 罗马尼亚语
+  en:    Romanian language
+
+- zh-CN: 斯洛文尼亚语
+  en:    Slovene language
+
+- zh-CN: 字符串
+  en:    character string
+
+- zh-CN: 已翻译
+  en:    Translated
+
+- zh-CN: 出现文件
+  en:    File appears
+
+- zh-CN: 出现次数
+  en:    Number of occurrences
+
+- zh-CN: 只看中文
+  en:    Only read Chinese
+
+- zh-CN: 暂不支持翻译其他语言
+  en:    Translation from other languages is currently not supported
+
+- zh-CN: 一键百度
+  en:    One click Baidu
+
+- zh-CN: yml文件
+  en:    Yml file
+
+- zh-CN: 数据无法解析
+  en:    Data cannot be parsed
+
+- zh-CN: 多次设置的id相同的api:%c$1
+  en:    Api with the same id set multiple times:%c $1
+
+- zh-CN: 跳过了缺少参数的请求:$1 $2 $3\r\n缺少参数：$4
+  en:    
+
+- zh-CN: 没有找到对应的接口 id $1.
+  en:    No corresponding interface id $1 was found
+
+- zh-CN: 没有指定配置文件的路径，请使用data.loadConfig加载配置
+  en:    There is no specified path for the configuration file. Please use data.loadConfig to load the configuration
+
+- zh-CN: 已使用默认的报错工具，您可以使用 $1 替换! 本信息在仅在开发环境显示。
+  en:    "The default error reporting tool has been used, you can replace it with $1! This information is only displayed in the development environment."
+
+- zh-CN: 请求被覆盖
+  en:    Request Overwritten
+
+- zh-CN: 请求已取消
+  en:    Request canceled
+
+- zh-CN: serviceId 只能是字符串
+  en:    ServiceId can only be a string
+
+- zh-CN: 只支持object类型的数据！
+  en:    Only data of object type is supported!
+
+- zh-CN: 帮助
+  en:    help
+
+- zh-CN: $1可以使用的命令语法有：
+  en:    "The command syntax that can be used for $1 is:"
+
+- zh-CN: 其中
+  en:    among
+
+- zh-CN: 请指定输出文件名！
+  en:    Please specify the output file name!
+
+- zh-CN: 连接号
+  en:    Dash
+
+- zh-CN: 消息
+  en:    news
+
+- zh-CN: 连接到
+  en:    connection to
+
+- zh-CN: 可以使用的命令有：
+  en:    "The commands that can be used are:"
+
+- zh-CN: 如要显示更具体的信息，请使用:$1
+  en:    
+
+- zh-CN: 目前没有与 $1 相关的帮助信息！
+  en:    There is currently no help information related to $1!
+
+- zh-CN: 可以通过浏览器访问打开的端口以查看文档
+  en:    Open ports can be accessed through a browser to view documents
+
+- zh-CN: 可以通过浏览器访问已打开的端口以查看示例项目:$1
+  en:    
+
+- zh-CN: 请在空目录或efront目录执行创建操作!
+  en:    Please perform the creation operation in an empty or front directory!
+
+- zh-CN: 当前文件夹不为空！
+  en:    The current folder is not empty!
+
+- zh-CN: 项目文件夹已存在且不为空！
+  en:    The project folder already exists and is not empty!
+
+- zh-CN: 当前用户没有可执行文件的扫描路径
+  en:    The current user does not have a scan path for executable files
+
+- zh-CN: 当前可执行文件的扫描路有
+  en:    The scan path for the current executable file is
+
+- zh-CN: 删除成功！
+  en:    Successfully deleted!
+
+- zh-CN: 请输入要启动的程序!
+  en:    Please enter the program you want to start!
+
+- zh-CN: 确认公网 IP 时存在异常！
+  en:    There is an exception when confirming the public IP address!
+
+- zh-CN: 没有自定义的环境变量
+  en:    No custom environment variables
+
+- zh-CN: 已设置如下 $1 个环境变量：
+  en:    "The following $1 environment variables have been set:"
+
+- zh-CN: 未修改过的默认变量如下：
+  en:    "The unmodified default variables are as follows:"
+
+- zh-CN: 其他环境变量如下：
+  en:    "Other environmental variables are as follows:"
+
+- zh-CN: 不支持该命令<red2> $1 </red2>
+  en:    The command is not supported<red2>$1</red2>
+
+- zh-CN: 如下命令与您输入的命令相似：
+  en:    "The following command is similar to the one you entered:"
+
+- zh-CN: 错误
+  en:    error
+
+- zh-CN: 异常退出
+  en:    Abnormal exit
+
+- zh-CN: YAML无法处理环形数据，请使用JSAM代替！
+  en:    "YAML cannot process circular data, please use JSAM instead!"
+
+- zh-CN: 其中，
+  en:    "Among them,"
+
+- zh-CN: $1是$2
+  en:    $1 is $2
+
+- zh-CN: ，可取值有$1
+  en:    ", can take values of $1"
+
+- zh-CN: ，默认值是$1
+  en:    ", the default value is $1"
+
+- zh-CN: 显示版本号
+  en:    Display version number
+
+- zh-CN: 显示efront的安装路径
+  en:    Display the installation path of efront
+
+- zh-CN: 显示帮助信息
+  en:    display help information
+
+- zh-CN: 启动文档服务器
+  en:    Start Document Server
+
+- zh-CN: 查看efront自身占用的内存
+  en:    View the memory occupied by efront itself
+
+- zh-CN: 启动示例项目服务器
+  en:    Start sample project server
+
+- zh-CN: 创建应用，项目目录允许创建第二个应用
+  en:    "Create an application, the project directory allows for the creation of a second application"
+
+- zh-CN: 创建简单应用，独占项目目录的单应用
+  en:    Create a simple application that monopolizes the project directory as a single application
+
+- zh-CN: 创建空应用
+  en:    Create an empty application
+
+- zh-CN: 自动识别环境并启动开发环境服务器
+  en:    Automatically identify the environment and start the development environment server
+
+- zh-CN: 在项目文件夹启动生产环境服务器
+  en:    Start the production environment server in the project folder
+
+- zh-CN: 在项目文件夹启动开发环境服务器
+  en:    Start the development environment server in the project folder
+
+- zh-CN: 在当前文件夹启动服务器
+  en:    Start the server in the current folder
+
+- zh-CN: 显示本机ip地址
+  en:    Display local IP address
+
+- zh-CN: 编译项目
+  en:    Compile Project
+
+- zh-CN: 监测文件变化，自动编译更新的部分并输出到指定目录
+  en:    "Monitor file changes, automatically compile updated parts and output them to the specified directory"
+
+- zh-CN: 关闭efront服务器
+  en:    Turn off the efront server
+
+- zh-CN: 连接一台efront服务器，取得连接号
+  en:    Connect to an efront server and obtain the Dash
+
+- zh-CN: 用一个连接号登录本机的efront服务器，接收并打印消息
+  en:    Log in to the front server of the local machine with a Dash to receive and print messages
+
+- zh-CN: 向一个连接号发送消息
+  en:    Send a message to a Dash
+
+- zh-CN: 检查文件或文件夹中的外部变量
+  en:    Check for External variable in a file or folder
+
+- zh-CN: 执行按efront方式加载的代码
+  en:    Executing code loaded in front mode
+
+- zh-CN: 查找含有指定的外部变量的文件
+  en:    Find the file containing the specified External variable
+
+- zh-CN: 从指定路径创建压缩文件
+  en:    Create a compressed file from the specified path
+
+- zh-CN: 对json数据进行签名
+  en:    Signing JSON data
+
+- zh-CN: 根据模块的搜索路径查找真实路径
+  en:    Find the real path based on the search path of the module
+
+- zh-CN: 格式化代码
+  en:    formatting code
+
+- zh-CN: 导出与指定的对象路径关联的代码
+  en:    Export code associated with the specified object path
+
+- zh-CN: 清理代码，删除已声明未使用的代码
+  en:    "Clean up code, delete declared unused code"
+
+- zh-CN: 设置环境变量
+  en:    Set environment variables
+
+- zh-CN: 列出已配置的环境变量
+  en:    List configured environment variables
+
+- zh-CN: 创建国际化文案表
+  en:    Create an international copy table
+
+- zh-CN: 将指定的路径添加到可执行文件的扫描路径
+  en:    Add the specified path to the scan path of the executable file
+
+- zh-CN: 从可执行文件的扫描路径中移除指定的路径
+  en:    Remove the specified path from the scan path of the executable file
+
+- zh-CN: 设置远程访问的密码
+  en:    Set password for remote access
+
+- zh-CN: 创建windows平台的一键安装包
+  en:    Create a one click installation package for the Windows platform
+
+- zh-CN: 从压缩文件提取源文件
+  en:    Extract source files from compressed files
+
+- zh-CN: 命令名
+  en:    Command Name
+
+- zh-CN: 您的应用名
+  en:    Your app name
+
+- zh-CN: 源项目
+  en:    source item
+
+- zh-CN: http端口
+  en:    HTTP port
+
+- zh-CN: https端口
+  en:    HTTPS port
+
+- zh-CN: 变量名
+  en:    Variable name
+
+- zh-CN: efront服务器地址
+  en:    Efront server address
+
+- zh-CN: efront服务器提供的连接号
+  en:    The Dash provided by the efront server
+
+- zh-CN: 文本消息
+  en:    Text message
+
+- zh-CN: 软件发布目录
+  en:    Software Release Catalog
+
+- zh-CN: 安装包的路径
+  en:    Path to Install Package
+
+- zh-CN: json文件所在的路径
+  en:    The path where the JSON file is located
+
+- zh-CN: 签名
+  en:    autograph
+
+- zh-CN: 文件或文件夹的路径
+  en:    Path to file or folder
+
+- zh-CN: 代码文件的路径
+  en:    Path to code file
+
+- zh-CN: 源文件的模糊路径
+  en:    Fuzzy path of source file
+
+- zh-CN: 目标文件的模糊路径
+  en:    Fuzzy path of the target file
+
+- zh-CN: 对象的属性路径
+  en:    The property path of the object
+
+- zh-CN: 缩进空格数
+  en:    Indent spaces
+
 - zh-CN: 文件路径
   en:    File Path
 
@@ -20,7 +593,7 @@
   en:    Server Exception $1
 
 - zh-CN: $1之前需要使用$2命令在$3上设置$4
-  en:    Before $1, you need to use the $2 command to set $4 on $3
+  en:    "Before $1, you need to use the $2 command to set $4 on $3"
 
 - zh-CN: 请输入服务器密码
   en:    Please enter the server password

@@ -39,12 +39,12 @@
         vertical-align: middle;
     }
 </style>
-<p><span>翻译结果仅做为参考，未必完美替换，语法参考<a @click="zimoli.go('/组件/basic/i18n.js',{mark:true})">i18n.js</a></span></p>
-<p -if="!window.showDirectoryPicker" error>国际化工具仅在浏览器支持 showDirectoryPicker 时可用</p>
+<p><span>${i18n`翻译结果仅做为参考，未必完美替换，语法参考:`}<a @click="zimoli.go('/组件/basic/i18n.js',{mark:true})">i18n.js</a></span></p>
+<p -if="!window.showDirectoryPicker" error>${i18n`国际化工具仅在浏览器支持 showDirectoryPicker 时可用`}</p>
 <div -else>
-    <button @click="chooseFolder">选择代码文件夹</button>
-    <button @click="editCode()">修改国际化参数</button>
-    <button style="float:right" -if="tableData.length" @click="exportCSV">导出到文件</button>
+    <button @click="chooseFolder">${i18n`选择代码文件夹`}</button>
+    <button @click="editCode()">${i18n`修改国际化参数`}</button>
+    <button style="float:right" -if="tableData.length" @click="exportCSV">${i18n`导出到文件`}</button>
     <hr />
     <form>
         <checkbox -src="filters" @change="runFilter"></checkbox>
@@ -73,10 +73,10 @@
     var editCode = function () {
         supports.forEach(s => s.checked = false);
         detailScope.supports.forEach(s => s.checked = true);
-        var editor = frame$edit("国际化参数", {
+        var editor = frame$edit(i18n`国际化参数`, {
             submit(form) {
                 if (form.appid && !form.sign || form.sign && !form.appid) {
-                    return "appid和密钥不能只有一个！";
+                    return i18n`appid和密钥不能只有一个！`;
                 }
                 detailScope.supports = supports.filter(s => s.checked);
                 var smap = {};
@@ -87,14 +87,14 @@
             }
         }, {
             fields: [
-                { name: "提示", readonly: true, key: 'apply_info', type: 'text' },
-                { name: "appid及密钥申请地址", readonly: true, key: 'apply_url', type: 'anchor' },
-                { name: "appid", key: 'appid', type: 'input' },
-                { name: "密钥", key: 'sign', type: "input" },
-                { name: "目标语言", type: 'checkbox', options: supports }
+                { name: i18n`提示`, readonly: true, key: 'apply_info', type: 'text' },
+                { name: i18n`appid及密钥申请地址`, readonly: true, key: 'apply_url', type: 'anchor' },
+                { name: i18n`appid`, key: 'appid', type: 'input' },
+                { name: i18n`密钥`, key: 'sign', type: "input" },
+                { name: i18n`目标语言`, type: 'checkbox', options: supports }
             ], data: {
                 apply_url: 'https://fanyi-api.baidu.com/',
-                apply_info: 'efront目前使用的翻译接口免费额度受限，如果遇到翻译失败的情况，您可以自己申请一个appid和密钥配置后使用',
+                apply_info: i18n`efront目前使用的翻译接口免费额度受限，如果遇到翻译失败的情况，您可以自己申请一个appid和密钥配置后使用`,
                 appid: baiduFanyiConfig.appid,
                 sign: baiduFanyiConfig.sign
             }
@@ -295,41 +295,41 @@
     //     祖鲁语: ["zu", "Zulu"]
     // };
     var supports = [
-        { name: "中文", id: "zh", lang: "zh-CN" },
-        { name: "繁体中文", id: "cht", lang: "zh-TW" },
-        { name: "英语", id: "en", lang: "en" },
-        // { name: "文言文", id: "wyw" },
-        // { name: "粤语", id: "yue" },
-        { name: "日语", id: "jp", lang: "ja" },
-        { name: "法语", id: "fra", lang: 'fr' },
-        { name: "俄语", id: "ru", lang: 'ru' },
-        { name: "韩语", id: "kor", lang: "ko" },
-        { name: "德语", id: "de", lang: "de" },
-        { name: "意大利语", id: "it", lang: 'it' },
-        { name: "泰语", id: "th", lang: "th" },
-        { name: "越南语", id: "vie", lang: 'vi' },
-        { name: "阿拉伯语", id: "ara", lang: "ar" },
-        { name: "荷兰语", id: "nl", lang: "nl" },
-        { name: "芬兰语", id: "fin", lang: "fi" },
-        { name: "希腊语", id: "el", lang: "el" },
-        { name: "西班牙语", id: "spa", lang: "es" },
-        // { name: "葡萄牙语", id: "pt", lang: /pt\-(BR|PT)/ },
-        { name: "匈牙利语", id: "hu", lang: 'hu' },
-        { name: "瑞典语", id: "swe", lang: 'sv' },
-        { name: "丹麦语", id: "dan", lang: 'da' },
-        { name: "捷克语", id: "cs", lang: 'cs' },
-        // { name: "波兰语", id: "pl" },
-        { name: "保加利亚语", id: "bul", lang: "bg" },
-        { name: "爱沙尼亚语", id: "est", lang: 'et' },
-        { name: "罗马尼亚语", id: "rom", lang: 'ro' },
-        { name: "斯洛文尼亚语", id: "slo", lang: 'sl' },
+        { name: i18n`中文`, id: "zh", lang: "zh-CN" },
+        { name: i18n`繁体中文`, id: "cht", lang: "zh-TW" },
+        { name: i18n`英语`, id: "en", lang: "en" },
+        // { name: i18n`文言文`, id: "wyw" },
+        // { name: i18n`粤语`, id: "yue" },
+        { name: i18n`日语`, id: "jp", lang: "ja" },
+        { name: i18n`法语`, id: "fra", lang: 'fr' },
+        { name: i18n`俄语`, id: "ru", lang: 'ru' },
+        { name: i18n`韩语`, id: "kor", lang: "ko" },
+        { name: i18n`德语`, id: "de", lang: "de" },
+        { name: i18n`意大利语`, id: "it", lang: 'it' },
+        { name: i18n`泰语`, id: "th", lang: "th" },
+        { name: i18n`越南语`, id: "vie", lang: 'vi' },
+        { name: i18n`阿拉伯语`, id: "ara", lang: "ar" },
+        { name: i18n`荷兰语`, id: "nl", lang: "nl" },
+        { name: i18n`芬兰语`, id: "fin", lang: "fi" },
+        { name: i18n`希腊语`, id: "el", lang: "el" },
+        { name: i18n`西班牙语`, id: "spa", lang: "es" },
+        // { name: i18n`葡萄牙语`, id: "pt", lang: /pt\-(BR|PT)/ },
+        { name: i18n`匈牙利语`, id: "hu", lang: 'hu' },
+        { name: i18n`瑞典语`, id: "swe", lang: 'sv' },
+        { name: i18n`丹麦语`, id: "dan", lang: 'da' },
+        { name: i18n`捷克语`, id: "cs", lang: 'cs' },
+        // { name: i18n`波兰语`, id: "pl" },
+        { name: i18n`保加利亚语`, id: "bul", lang: "bg" },
+        { name: i18n`爱沙尼亚语`, id: "est", lang: 'et' },
+        { name: i18n`罗马尼亚语`, id: "rom", lang: 'ro' },
+        { name: i18n`斯洛文尼亚语`, id: "slo", lang: 'sl' },
     ];
     supports.forEach(s => s.key = s.id);
     var getAllText = function (data, f) {
         try {
             if (/^\s*(\<\!--[\s\S]*?--\>\s*)*<!doctype\s/i.test(data)) return [];
             if (/\.(xht|vue)$/i.test(f.name)) {
-                var { scripts, outerHTML: htmltext, attributes = '', tagName, styles } = compile$scanner2(data, 'html').scoped;
+                var { scripts, innerHTML, outerHTML: htmltext = innerHTML, attributes = '', tagName, styles } = compile$scanner2(data, 'html').scoped;
                 data = compile$wraphtml(htmltext) + ";\r\n" + scripts.join("\r\n");
             }
             else if (/\.html?$/i.test(f.name)) {
@@ -346,20 +346,20 @@
     };
     var 已找到的字符串 = [];
     var fields = [
-        { name: "字符串", key: "text", width: 280 },
-        { name: "已翻译", key: "liang", width: 80 },
-        { name: "出现文件", key: "files", width: 200 },
-        { name: "出现次数", key: "count", width: 80 },
+        { name: i18n`字符串`, key: "text", width: 280 },
+        { name: i18n`已翻译`, key: "liang", width: 80 },
+        { name: i18n`出现文件`, key: "files", width: 200 },
+        { name: i18n`出现次数`, key: "count", width: 80 },
     ];
     var filters = {
         key: "filter",
         options: [
             {
-                name: "只看中文", key: "cnonly", get checked() {
+                name: i18n`只看中文`, key: "cnonly", get checked() {
                     return true;
                 },
                 set checked(v) {
-                    alert('暂不支持翻译其他语言', 'warn');
+                    alert(i18n`暂不支持翻译其他语言`, 'warn');
                 },
                 test(a) {
                     return /[\u3400-\ufad9\u{20000}-\u{2a6d6}\u{2fa1d}]/u.test(a.text);
@@ -411,7 +411,7 @@
         if (!detailWindow) {
             detailWindow = view();
             on('submit')(detailWindow, e => e.preventDefault());
-            detailWindow.innerHTML = `<div head>翻译: "<span -bind="item?.text"></span>"<drop @click="close()"></drop></div><lattice itemwidth=260 -src="s in supports" body><field style="display:inline-block;padding:0 0 6px 12px;" ><label style="padding-left:0"><span -bind="s.name"></span>(<span -bind="s.lang"></span>)</label><textarea -model="fanyi[s.id]" class='body' style="resize:none"></textarea></field></lattice><div foot><a style="float:left" @click="baidu">一键百度</a></div>`;
+            detailWindow.innerHTML = `<div head>${i18n`翻译: `}"<span -bind="item?.text"></span>"<drop @click="close()"></drop></div><lattice itemwidth=260 -src="s in supports" body><field style="display:inline-block;padding:0 0 6px 12px;" ><label style="padding-left:0"><span -bind="s.name"></span>(<span -bind="s.lang"></span>)</label><textarea -model="fanyi[s.id]" class='body' style="resize:none"></textarea></field></lattice><div foot><a style="float:left" @click="baidu">${i18n`一键百度`}</a></div>`;
             drag.on(detailWindow, detailWindow.firstElementChild);
             resize.on(detailWindow);
             css(detailWindow, `position:absolute;left:0;top:0;bottom:0;width:260px;`);
@@ -502,7 +502,7 @@
             tmap[e.path].push(t);
         }
         for (var e of result) {
-            msg.setText("正在提取 " + e.path);
+            msg.setText(i18n`正在提取 ` + e.path);
             var data = await readText(e);
             var texts = getAllText(data, e);
             for (var t of texts) {
@@ -514,7 +514,7 @@
                 }
             }
         }
-        msg.setText("提取完成");
+        msg.setText(i18n`提取完成`);
         var result = [];
         var preMap = Object.create(null);
         for (var e of pretrans) {
@@ -525,6 +525,7 @@
                 for (var { lang: k, id } of supports) {
                     if (!d[k]) continue;
                     if (preMap[d[k]] && preMap[d[k]] !== d) continue loop;
+                    if (/\\r/.test(d[k])) console.log(d[k]);
                     preMap[d[k]] = d;
                     liang++;
                     fanyi[id] = d[k];
@@ -563,10 +564,10 @@
             objs.push(o);
         }
         var f = await window.showSaveFilePicker({
-            suggestedName: "#国际化.yml",
+            suggestedName: `#国际化.yml`,
             excludeAcceptAllOption: true,
             types: [{
-                description: 'yml文件',
+                description: i18n`yml文件`,
                 accept: { 'text/plain': ['.yml'] },
             }],
         });

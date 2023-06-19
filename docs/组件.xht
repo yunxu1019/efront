@@ -99,25 +99,25 @@
 <xmenu -src="(t,i) in tags" @active="saveTagIndex(i)"></xmenu>
 <h2 head>
     <span -bind="name"></span>
-    <b -if="doc?.less" l>有样式表</b>
-    <b -if="doc?.mark" w>有文档</b>
-    <b -if="doc?.test" t>有测试代码</b>
+    <b -if="doc?.less" l>${i18n`有样式表`}</b>
+    <b -if="doc?.mark" w>${i18n`有文档`}</b>
+    <b -if="doc?.test" t>${i18n`有测试代码`}</b>
 </h2>
 <div body -if="tags[0].actived">
     <container -if="doc?.url" .src="doc.url">
     </container>
     <p4 envs>
         <span -if="envs?.length">
-            环境依赖项:&nbsp; <m -repeat="c in envs" -bind="c"> </m>
+            ${i18n`环境依赖项:`}&nbsp; <m -repeat="c in envs" -bind="c"> </m>
         </span>
-        <span -else> 无环境依赖项 </span>
+        <span -else> ${i18n`无环境依赖项`} </span>
     </p4>
     <p4 imported>
         <span -if="required?.length">
-            导入项:&nbsp;<m -repeat="c in required" -bind="c"></m>
+            ${i18n`导入项:`}&nbsp;<m -repeat="c in required" -bind="c"></m>
         </span>
         <span -else>
-            无导入项
+            ${i18n`无导入项`}
         </span>
     </p4>
 </div>
@@ -126,9 +126,9 @@
     <resultpad .result #coderesult></resultpad>
 </div>
 <div foot -if="tags[1].actived">
-    <a -if="doc?.test" @click="clearpad()">清理</a>
-    <a -if="doc?.test" @click="loadcode()">载入测试代码</a>
-    <btn @click="execute()">运行</btn>
+    <a -if="doc?.test" @click="clearpad()">${i18n`清理`}</a>
+    <a -if="doc?.test" @click="loadcode()">${i18n`载入测试代码`}</a>
+    <btn @click="execute()">${i18n`运行`}</btn>
 </div>
 <script>
     var commaps = Object.create(null);
@@ -380,8 +380,8 @@
         }
     };
     var tags = [
-        { name: "简介" },
-        { name: "试试" }
+        { name: i18n`简介` },
+        { name: i18n`试试` }
     ];
     tags[data.getInstance("docscode").tagIndex | 0].actived = true;
     var actived = tags.map(t => t.actived);

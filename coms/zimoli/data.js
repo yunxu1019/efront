@@ -360,7 +360,7 @@ var parseData = function (sourceText) {
             sourceText = parseYML(sourceText);
         }
     } catch (e) {
-        throw "数据无法解析";
+        throw i18n`数据无法解析`;
     }
     return sourceText;
 };
@@ -422,7 +422,7 @@ function createApiMap(data) {
         fixApi(api, href);
         if (hasOwnProperty.call(apiMap, api.id)) {
             const lastApi = apiMap[api.id];
-            console.warn(`多次设置的id相同的api:%c${api.id}`, 'color:red');
+            console.warn(i18n`多次设置的id相同的api:%c${api.id}`, 'color:red');
             console.log(`[${api.name}](${lastApi.method} ${api.url})\r\n 被 [${api.name}](${lastApi.method} ${lastApi.url}) 覆盖`);
         }
         apiMap[api.id] = api;
@@ -534,7 +534,7 @@ var privates = {
             }
             if (lacks.length) {
 
-                console.log(`跳过了缺少参数的请求:${api.id} ${api.name} ${api.url}\r\n缺少参数：${lacks.join(', ')}`);
+                console.log(i18n`跳过了缺少参数的请求:${api.id} ${api.name} ${api.url}\r\n缺少参数：${lacks.join(', ')}`);
                 return false;
             }
         }
@@ -544,7 +544,7 @@ var privates = {
         return this.getConfigPromise().then((apiMap) => {
             serviceId = serviceId.replace(/[\?\:][\s\S]*$/, "");
             const api = apiMap[serviceId];
-            if (!api) throw new Error(`没有找到对应的接口 id ${serviceId}.`);
+            if (!api) throw new Error(i18n`没有找到对应的接口 id ${serviceId}.`);
             return extend({}, api, { root: apiMap });
         });
     },
@@ -632,7 +632,7 @@ var privates = {
     getConfigPromise() {
         if (!configPormise) {
             if (!_configfileurl) {
-                throw new Error("没有指定配置文件的路径，请使用data.loadConfig加载配置");
+                throw new Error(i18n`没有指定配置文件的路径，请使用data.loadConfig加载配置`);
             }
             var p = this.loadIgnoreConfig('get', _configfileurl);
             p.loading.abort = function () { };
@@ -652,7 +652,7 @@ var getInstanceId = function () {
 var error_report = isProduction ? alert : function (error, type) {
     error_report = alert;
     error_report(error, type);
-    console.info("已使用默认的报错工具，您可以使用 data.setReporter(error_reporter,error_finder) 替换! 本信息在仅在开发环境显示。");
+    console.info(i18n`已使用默认的报错工具，您可以使用 ${"data.setReporter(error_reporter,error_finder)"} 替换! 本信息在仅在开发环境显示。`);
 };
 
 var error_check = function (data) { };
@@ -714,8 +714,8 @@ var unbindInstance = function (instanceId, callback) {
         delete instanceListenerMap[instanceId];
     }
 };
-var OUTDATE = new Error("请求被覆盖");
-var ABORTED = new Error("请求已取消");
+var OUTDATE = new Error(i18n`请求被覆盖`);
+var ABORTED = new Error(i18n`请求已取消`);
 var data = {
     decodeStructure,
     encodeStructure,
@@ -881,7 +881,7 @@ var data = {
     },
     asyncInstance(sid, params, parse) {
         // 不同参数的请求互不影响
-        if (typeof sid !== "string") throw new Error("serviceId 只能是字符串");
+        if (typeof sid !== "string") throw new Error(i18n`serviceId 只能是字符串`);
         var id = parse instanceof Function || params ? getInstanceId() : 0;
         if (id) this.removeInstance(id);
         var response = this.getInstance(id || sid);
@@ -1133,7 +1133,7 @@ var data = {
     },
     rebuildInstance(instance, data, old = instance) {
         if (instance === data) return;
-        if (!isObject(instance)) throw new Error("只支持object类型的数据！");
+        if (!isObject(instance)) throw new Error(i18n`只支持object类型的数据！`);
         if (!isObject(data)) data = { data }, data.toString = data.valueOf = toDataString;
         if (instance instanceof Array) instance.splice(0, instance.length);
         var sample = new LoadingArray;

@@ -1,4 +1,6 @@
 
+[English version](./readme-en.md)
+
  *efront* 是一个开发工具，可以独立开发项目，也可以仅使用其一项功能
 # efront 思想
 1. 每个文件只导出一份数据，这一份数据可以是 boolean,number,string,function,object,bigint,null,undefined 中的任意一种
@@ -17,7 +19,7 @@
 6. `efront` 服务器提供跨域中转功能
 7. `efront` 编译导出的组件对可能造成代码可读的字符串和属性进行提取和加密
 
-# 基本命令（部分命令适用于windows）
+# 基本命令（部分命令适用于windows，其他系统类似）
 
 ## 1. 下载安装
 
@@ -30,19 +32,26 @@ npm install -g efront
 
 ## 2. 查看帮助系统
 
+命令行帮助命令如下
 ```bat
 efront help
+```
+
+也可以用如下命令启动文档服务器，用浏览器查看帮助信息
+
+```bat
+efront docs
 ```
 
 ## 3. 启动开发环境服务器
 
 ```bat
 efront live
-efront live HTTP_PORT
-efront live HTTP_PORT HTTPS_PORT
+efront live HTTP端口
+efront live HTTP端口 HTTPS端口
 ```
 
-其中端口号为数字，可以不输入，更多使用方案可以查看帮助系统。要禁用https服务端口开启时的警告信息，可以配置自己的ssl证书路径和证书密码。
+其中`HTTP端口`和`HTTPS端口`为数字，可以不输入，更多使用方案可以查看帮助系统。要禁用https服务端口开启时的警告信息，可以配置自己的ssl证书路径和证书密码。
 
 ## 4. 压缩编译项目
 
@@ -121,8 +130,8 @@ efront 默认读取当前路径下的`_envs/`和用户目录的`.efront/_envs/`�
 * efront 启动的服务器，默认提供跨域中转的功能，可以在index.html的头部脚本中设置`window.cross_host='https://somehost/'`指定一个具体的efront服务器实例供cross方法使用
 * efront 默认禁用了首页的缓存功能，如果要启用，可以在头部script中加入 `window.preventCache=false;`
 * efront 默认禁止在iframe中运行，如果要开启，可以在头部script中加入 `window.PREVENT_FRAMEWORK_MODE=false;`
-* efront 默认的初始化脚本是`zimoli('/main');`，可以在body标签上加上`main-path=...`属性指定初始化脚本的路径
-* efront 默认将`page_path`指向的路径中的`.ts,.js,.less,.html`文件识别为页面文件，可以在index.html加上`<script src='libpath/*' type=deleteoncompile></script>`，其中`libpath/*`指向静态文件的路径，efront编译过程将识别并做出正确的处理
+* efront应用的默认初始化脚本是`zimoli('/main');`，可以在body标签上加上`main-path=...`属性指定初始化脚本的路径
+* efront 默认将`page_path`指向的路径中的`.ts,.js,.mjs,.cjs,.less,.html,.xht,.vue`文件识别为页面文件，可以在index.html加上`<script src='libpath/*' type=deleteoncompile></script>`，其中`libpath/*`指向静态文件的路径，efront编译过程将识别并做出正确的处理
 * 如果仅做为跨域服务器使用，可以将开发环境的url改写为如下形式，以使返回结果加上跨域头：
 1. 转发http 用 `*` `http://EFRONT_HOST/*BACKEND_HOST/PATHNAME`
 2. 转发https 用 `**` `http://EFRONT_HOST/**BACKEND_HOST/PATHNAME`
@@ -132,7 +141,7 @@ efront 默认读取当前路径下的`_envs/`和用户目录的`.efront/_envs/`�
 
 # 注意事项
 
-* efront版本更新后，不一定兼容老版本的项目，如果出现不兼容的情况，可以回退到之前的版本。efront发布的项目或组件中含有发布项目时所用的efront版本。如果是独立组件，版本信息一般在组件文件的头部，如果是项目，版本信息在项目的index.html中。安将指定的版本的命令如下
+* efront版本更新后，尽可能兼容老版本的项目，如果出现不兼容的情况，可以回退到之前的版本。efront发布的项目或组件中含有发布项目时所用的efront版本。如果是独立组件，版本信息一般在组件文件的头部，如果是项目，版本信息在项目的index.html中。安将指定的版本的命令如下
   ```bat
     npm install -g efront@版本号
   ```

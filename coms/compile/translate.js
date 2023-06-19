@@ -4,11 +4,11 @@ var strings = require("../basic/strings");
 var program = null;
 var patchTranslate = function (c) {
     if (c.length) {
-        c.translate = c.map((o, i) => o.type === PIECE ? strings.decode(`\`${o.text}\``) : `$${i + 1 >> 1}`).join('');
+        c.translate = c.map((o, i) => o.type === PIECE ? strings.decode(`\`${o.text}\``) : `$${i + 1 >> 1}`).join('').replace(/\r\n|\r|\n/g, '\r\n');
     }
     else {
         if (/^['"`]/.test(c.text) && c.text.length > 2) {
-            var text = strings.decode(c.text);
+            var text = strings.decode(c.text).replace(/\r\n|\r|\n/g, '\r\n');
             c.translate = text;
         }
     }
@@ -89,7 +89,7 @@ function translate([imap, supports], code) {
     var getm = function (tt) {
         tt = tt.trim();
         if (!imap[tt]) {
-            console.warn(`<yellow>国际化翻译缺失：</yellow>${tt}`);
+            console.warn(`<yellow>${i18n`国际化翻译缺失：`}</yellow>${tt}`);
             imap[tt] = supports.map(_ => tt);
         }
         return imap[tt].map(m => strings.encode(m || tt, '`'));

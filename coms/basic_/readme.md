@@ -97,7 +97,7 @@
     ```javascript
     Array.prototype.slice.call(objNodeList,...)
     ```
-    `ie8`及以下浏览器不支持call`NodeList`等dom对象，而当前`efront`和内部使用的`typescript`转换的代码都没有处理这一细节，所以暂时不要在dom操作相关的语句中使用类似`[...aaa]`,`{...aaa}`,`function(...args){}`的高级语法，以避免转换后的代码出问题。
+    `ie8`及以下浏览器不支持call`NodeList`等dom对象，而当前`efront`和之前内部使用的`typescript`转换的代码都没有处理这一细节，所以暂时不要在dom操作相关的语句中使用类似`[...aaa]`,`{...aaa}`,`function(...args){}`的高级语法，以避免转换后的代码出问题。
     ```javascript
     var div = document.createElement("div");
     div.innerHTML = `<abcd><span></span></abcd>`;

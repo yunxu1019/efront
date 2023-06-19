@@ -6,7 +6,7 @@
     var basepath = path.join(String(__efront), 'coms');
     if (req.id) {
         var compath = path.join(basepath, req.id);
-        if (!comm_file_reg.test(req.id) || !/^\.\./.test(path.relative(compath, basepath))) return forbidden("禁止访问");
+        if (!comm_file_reg.test(req.id) || !/^\.\./.test(path.relative(compath, basepath))) return forbidden(i18n[req.headers["accept-language"]]`禁止访问`);
         return fs.readFile(compath);
     }
 
