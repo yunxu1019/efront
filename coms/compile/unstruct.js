@@ -440,7 +440,14 @@ var isEvalScope = function (o) {
         return o === h;
     }
     return false;
-}
+};
+var ispropcall = function (o) {
+    var n = o.next;
+    if (!n || n.type !== SCOPED && n.entry !== '(') return false;
+    if (o.type === EXPRESS && snapExpressHead(o) !== o) return true;
+    if (o.type === SCOPED && o.entry === '[' && snapExpressHead(o) !== o) return true;
+    return false;
+};
 var _invoke = function (t, getname) {
     var nameindex = 0;
     var getdeepname = function (deep = 0) {
@@ -521,7 +528,7 @@ var _invoke = function (t, getname) {
             for (var c of cache) pushstep(result, c);
             cache = [];
             var n = o.next;
-            if (n && !needbreak(n)) {
+            if (n && !needbreak(n) && !ispropcall(o)) {
                 var h = snapExpressHead(o);
                 var hx = t.lastIndexOf(h, cx);
                 var fs = splice(t, hx, cx + 1 - hx, { type: EXPRESS, text: getname(nameindex) });

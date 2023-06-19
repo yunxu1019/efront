@@ -101,3 +101,4 @@ test("/*abc*/", '/*abc*/', true);
 test("//aaa", '//aaa', true);
 test("menus[0].name+='aaa'", "_ = menus[0]; _0 = _.name + 'aaa'; _.name = _0", true);
 test("menus[a+b].name+='aaa'", "_ = a + b; _ = menus[_]; _0 = _.name + 'aaa'; _.name = _0", true);
+test("menus[a+b]()", "_ = a + b; menus[_]()", true);
