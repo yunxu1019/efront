@@ -1,7 +1,7 @@
 var scanner2 = require("./scanner2");
 var strings = require("../basic/strings");
 var Program = scanner2.Program;
-var { STAMP, SCOPED, STRAP, EXPRESS, COMMENT, SPACE, PROPERTY, VALUE, LABEL, QUOTED, rename, getDeclared, skipAssignment, createScoped, createString, splice, relink, snapExpressHead } = require("./common");
+var { STAMP, SCOPED, STRAP, EXPRESS, COMMENT, SPACE, PROPERTY, VALUE, LABEL, QUOTED, rename, getDeclared, skipAssignment, createScoped, createString, splice, relink, snapExpressHead, needBreakBetween } = require("./common");
 var splice2 = function (q, from, to, ...a) {
     var cx = q.indexOf(from);
     if (cx < 0) throw console.log(splice2.caller, console.format('\r\n<red2>自</red2>'), from && createString([from]), console.format('\r\n<yellow>至</yellow>'), to && createString([to]), console.format(`\r\n<cyan>码列</cyan>`), createString(q)), '结构异常';
@@ -652,6 +652,9 @@ var killspr = function (body, i, _getobjname, killobj) {
             var cx = body.lastIndexOf(r, i);
             var dx = body.indexOf(p, cx) + 1;
             var h1 = h[h.length - 1];
+            if (r.prev && needBreakBetween(r.prev, r)) {
+                h.unshift({ type: STAMP, text: ';' });
+            }
             splice(h1, h1.length, 0, ...splice(body, cx, dx - cx, ...h));
             i += cx - dx + h.length;
             if (p.type === EXPRESS && !p.text) {
