@@ -26,7 +26,10 @@ var scan = function (text) {
             prop = strings.decode(data);
             data = '';
         }
-        if (!value) value = eval2(data);
+        if (!value) {
+            if (/^['"]$/.test(rowtype)) data = rowtype + data + rowtype;
+            value = eval2(data);
+        }
         data = '';
         while (parents.length) {
             if (parents[parents.length - 1]) break;

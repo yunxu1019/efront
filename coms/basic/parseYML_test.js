@@ -36,7 +36,9 @@ var text = [
     `{"a":-12.e-61}`,
     `{"a":+12.e-61}`,
     `{"a":12.e-61}`,
-    `{"a":"[b,c,\\"d]"}`,
+    `{"a":"[b,c,\r\n\\"d]"}`,
+` - zh-CN: "跳过了缺少参数的请求:$1 $2 $3\\r\\n缺少参数：$4"
+    en:    "Skipped request with missing parameters: $1 $2 $3"`,
     text
 ];
 var test = function (text) {

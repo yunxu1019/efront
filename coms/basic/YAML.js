@@ -1,6 +1,6 @@
 var string = function (a) {
-    if (/^#|\s#|\:\s|\[\]\{\}\'\"/i.test(a)) {
-        a = strings.encode(a);
+    if (/^#|\s#|\:(\s|$)|[\[\]\{\}\'\",\r\n\u2028\u2029]/i.test(a)) {
+        a = strings.encode(a, '"', false);
     }
     return a;
 }
@@ -24,7 +24,7 @@ var stringify = function (data) {
         }
         result.push(v);
     };
-    var circelError = new Error("YAML无法处理环形数据，请使用JSAM代替！");
+    var circelError = new Error(i18n`YAML无法处理环形数据，请使用JSAM代替！`);
     loop: while (objpath.length) {
         var data = objpath[objpath.length - 1];
         if (isArray(data)) {
