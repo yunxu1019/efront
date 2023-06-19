@@ -633,7 +633,8 @@ var init = function (url, then, prebuilds) {
     return res;
 };
 var forceRequest = {
-    Promise: true
+    Promise: true,
+    i18n: true
 };
 var removeGlobalProperty = function (property) {
     forceRequest[property] = true;

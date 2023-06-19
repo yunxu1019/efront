@@ -207,7 +207,7 @@ var loadJsBody = function (data, filename, lessdata, commName, className, htmlDa
         translate(this["#"], code);
         if (commName === "i18n") {
             let lm = code.used.languageMap;
-            if (lm && lm[0].next && lm[0].next.next) lm[0].next.next.push(...scanner2(`${this["#"][1].map((a, i) => JSON.stringify(a) + ":" + i).join(",")}`));
+            if (lm && lm[0].next && lm[0].next.next) lm[0].next.next.push(...scanner2(`={${this["#"][1].map((a, i) => JSON.stringify(a) + ":" + i).join(",")}}`)[1]);
         }
     }
     if (memery.AUTOEVAL) {
