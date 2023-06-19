@@ -652,13 +652,14 @@ var killspr = function (body, i, _getobjname, killobj) {
             var cx = body.lastIndexOf(r, i);
             var dx = body.indexOf(p, cx) + 1;
             var h1 = h[h.length - 1];
+            var h0 = h[0];
             if (r.prev && needBreakBetween(r.prev, r)) {
                 h.unshift({ type: STAMP, text: ';' });
             }
             splice(h1, h1.length, 0, ...splice(body, cx, dx - cx, ...h));
             i += cx - dx + h.length;
             if (p.type === EXPRESS && !p.text) {
-                var cx = h[0].lastIndexOf(p);
+                var cx = h0.lastIndexOf(p);
                 if (cx >= 0) splice(h1, cx, 1);
             }
         }
