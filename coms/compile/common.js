@@ -753,6 +753,7 @@ var createScoped = function (parsed, wash) {
                     if (scoped.length) _scoped.push(scoped);
                 }
                 if (isArrow) {
+                    scoped.isArrow = true;
                     if (!thisscope.insett && used.this) thisscope.insett = true;
                     if (!argscope.inseta && used.arguments) argscope.inseta = true;
                 }

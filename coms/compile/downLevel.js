@@ -1326,13 +1326,13 @@ var down = function (scoped) {
     };
 
     var markcodes = [];
-    if (scoped.isfunc && scoped.used.this && (funcMark || scoped.insett)) {
+    if (scoped.isfunc && scoped.used.this && (funcMark && !scoped.isArrow || scoped.insett)) {
         let tn = _getname("this_");
         rename(scoped.used, "this", tn);
         scoped.used.this.forEach(o => o.origin = 'this');
         markcodes.push(`${tn}=this`);
     }
-    if (scoped.isfunc && scoped.used.arguments && (funcMark || scoped.inseta)) {
+    if (scoped.isfunc && scoped.used.arguments && (funcMark && !scoped.isArrow || scoped.inseta)) {
         let an = _getname("arguments_");
         scoped.used.arguments.forEach(o => o.origin = 'arguments');
         rename(scoped.used, "arguments", an);
