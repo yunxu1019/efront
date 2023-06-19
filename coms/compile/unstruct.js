@@ -21,7 +21,8 @@ var _break = function (body, cx, result, iscontinue) {
         var s;
         for (var cx = labels.length - 1; cx >= 0; cx--) {
             var b = labels[cx];
-            if (b.type === LABEL && b.text === label) {
+            if (b.type === LABEL && b.text === label + ":") {
+                if (!s) s = b;
                 if (!b.breaks) b.breaks = [];
                 var _b = scanner2('return []');
                 _b.ret_ = -1;
@@ -982,7 +983,7 @@ var getblock = function (body, cx) {
     return b;
 };
 var labels = [];
-var scopes = [];
+var scopes = [null];
 var isbreak = function (o) {
     if (o.type !== STRAP) return false;
     return /^(break|continue)$/.test(o.text) ||
@@ -1000,6 +1001,24 @@ var ifpatch = function (result, autoskip) {
     re.ifbrk = autoskip !== undefined;
     pushstep(result, re);
 };
+var poplabel = function (result) {
+    if (!labels.length) return;
+    var e = labels.pop();
+    if (e.breaks) {
+        while (e.breaks.length) {
+            var b = e.breaks.pop();
+            var end = b;
+            for (var cx = result.length - 1; cx >= 0; cx--) {
+                var r = result[cx];
+                if (r.indexOf(b) >= 0) { break }
+            }
+            if (cx < 0) throw console.log(result.map(r => createString(r)), e.text, createString([b.prev, b])), "break语句异常";
+            end.push({ type: VALUE, text: b.continue ? b.continue.contat - cx : result.length - cx }, { type: STAMP, text: "," }, { type: VALUE, text: "0" });
+            relink(end);
+        }
+    }
+};
+
 function toqueue(body, getname, ret = false, result = []) {
     var retn = false;
     var uniftop = function () {
@@ -1029,23 +1048,9 @@ function toqueue(body, getname, ret = false, result = []) {
         toqueue(block, getname, true, result);
         return result[result.length - 1];
     };
-    var poplabel = function () {
-        if (!labels.length) return;
-        var e = labels.pop();
-        if (e.breaks) {
-            while (e.breaks.length) {
-                var b = e.breaks.pop();
-                var end = b;
-                for (var cx = result.length - 1; cx >= 0; cx--) {
-                    var r = result[cx];
-                    if (r.indexOf(b) >= 0) { break }
-                }
-                if (cx < 0) throw console.log(result.map(r => createString(r)), e.text, createString([b.prev, b])), "break语句异常";
-                end.push({ type: VALUE, text: b.continue ? b.continue.contat - cx : result.length - cx }, { type: STAMP, text: "," }, { type: VALUE, text: "0" });
-                relink(end);
-            }
-        }
-    };
+    var _poplabel = function () {
+        poplabel(result);
+    }
     var cx = 0, bx = 0;
     var iftop = null;
     var brk = function (text, YIELD) {
@@ -1069,12 +1074,17 @@ function toqueue(body, getname, ret = false, result = []) {
             var e = labels[labels.length - 1];
             if (e.type !== LABEL) break;
             if (scopes.lastIndexOf(e.scope) >= 0) break;
-            poplabel();
+            _poplabel();
         }
 
         if (o.type === LABEL) {
             o.scope = scopes[scopes.length - 1];
             labels.push(o);
+            var next = o.next;
+            if (next && next.type === SCOPED && next.entry === '{') {
+                ifpatch(result);
+                o.contat = result.length;
+            }
             bx = ++cx;
             continue;
         }
@@ -1118,28 +1128,28 @@ function toqueue(body, getname, ret = false, result = []) {
             if (o.text === 'for') {
                 labels.push(o);
                 cx = _for(body, cx, unblock, result);
-                poplabel();
+                _poplabel();
                 bx = cx;
                 continue;
             }
             if (o.text === 'while') {
                 labels.push(o);
                 cx = _while(body, cx, unblock, result);
-                poplabel();
+                _poplabel();
                 bx = cx;
                 continue;
             }
             if (o.text === 'do') {
                 labels.push(o);
                 cx = _do(body, cx, unblock, result);
-                poplabel();
+                _poplabel();
                 bx = cx;
                 continue;
             }
             if (o.text === 'switch') {
                 labels.push(o);
                 cx = _switch(body, cx, unblock, result, getname);
-                poplabel();
+                _poplabel();
                 bx = cx;
                 continue;
             }
@@ -1237,6 +1247,7 @@ module.exports = function (body, newname, ret) {
         return tmpnames[i];
     };
     var res = toqueue(body, getname, false);
+    while (labels.length) poplabel(res);
     ret_ = ret0;
     return res;
 };
