@@ -160,7 +160,7 @@ You can also click on [github](https://github.com/yunxu1019/efront/issues). The 
 [efront Online Documents](http://efront.cc/docs/)
 
 [efront Compatibility Description](coms/basic_/readme-en.md)
-&nbsp;&nbsp;[Version Introduction](docs/version-spec.md)
+&nbsp;&nbsp;[Version Introduction](docs/version-desc.md)
 &nbsp;&nbsp;[Compared to the front-end framework](docs/compare-en.md)
 
 [酷酷千百易云音乐](http://efront.cc/kugou/)
