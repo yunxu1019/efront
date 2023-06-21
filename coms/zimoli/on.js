@@ -1,6 +1,6 @@
 "use strict";
 if (document.efronton) return document.efronton;
-var is_addEventListener_enabled = "addEventListener" in window;
+var is_addEventListener_enabled = !!window.addEventListener;
 // Edg 禁用passive原因：无滚动条的元素上纵向滚动时触发整个页面回弹
 // Chrome 禁用passive原因：无滚动条的元素上横向滚动触发浏览器导航
 var supportPassive = false, preventPassive = /Edg|Chrome/.test(navigator.userAgent);
@@ -270,9 +270,8 @@ var remove = function (k, hk, [eventtypes, handler, context]) {
             element[hk] = null;
             if (element.removeEventListener) {
                 element.removeEventListener(k, hs.h, getListenerOption(eventtypes, k));
-            } else {
-                if (element["on" + k] === hs.h) element["on" + k] = null;
             }
+            if (element["on" + k] === hs.h) element["on" + k] = null;
         }
     }
 };
@@ -427,7 +426,7 @@ var invoke = function (event, type, pointerType) {
 
 (function () {
     var pointeractive = null;
-    if ("onpointerdown" in window || document.efronton) return;
+    if ("onpointerdown" in document || document.efronton) return;
     var getPointerType = function (event) {
         return event.type.replace(/(start|move|end|cancel|down|up|leave|out|over|enter)$/i, '');
     };
