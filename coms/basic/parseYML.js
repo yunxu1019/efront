@@ -27,7 +27,7 @@ var scan = function (text) {
             data = '';
         }
         if (!value) {
-            if (/^['"]$/.test(rowtype)) data = rowtype + data + rowtype;
+            if (/^['"]$/.test(rowtype) && !jsonlikes.length) data = rowtype + data + rowtype;
             value = eval2(data);
         }
         data = '';
