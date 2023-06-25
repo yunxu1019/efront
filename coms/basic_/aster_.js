@@ -1,7 +1,10 @@
 class Generator {
     constructor(f) {
         this.state = "suspended";
-        this.exec = f;
+        this.exec = f.bind(this, this.return, this.throw, function (value, next) {
+            this.exec = next;
+            this.value = value;
+        });
     };
     throw(e) {
         delete this.exec;
@@ -13,15 +16,12 @@ class Generator {
         this.state = "closed";
         return { value: undefined, done: true };
     }
-    next() {
+    next(arg) {
         if (this.exec) {
             var exec = this.exec;
             delete this.exec;
             delete this.value;
-            exec(this.return, this.throw, (value, exec) => {
-                this.value = value;
-                this.exec = exec;
-            });
+            exec(arg);
         }
         return { value: this.value, done: !this.exec };
     }

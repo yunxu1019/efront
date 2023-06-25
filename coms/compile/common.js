@@ -373,6 +373,19 @@ var snapExpressFoot = function (o) {
     }
     return o;
 };
+var mustBeYield = function (o) {
+    if (!o.next) return;
+    var mustyield = false;
+    if (o.next.type === STRAP && !/^(?:instanceof|in|of|from|as)$/.test(o.next.text)
+        || o.next.type === STAMP && /[!~]/.test(o.next.text)
+        || o.next.type === EXPRESS && !/^[\.\[]/.test(o.next.text)
+        || o.next.type & (VALUE | QUOTED | SCOPED)
+    ) {
+        mustyield = true;
+    }
+    return mustyield;
+
+}
 var createScoped = function (parsed, wash) {
     var used = Object.create(null); var vars = Object.create(null), lets = vars;
     var scoped = [], funcbody = scoped, argscope = scoped, thisscope = scoped;
@@ -439,11 +452,11 @@ var createScoped = function (parsed, wash) {
                             o.type = STRAP;
                             continue;
                         }
-                        if ((!o.prev || o.prev.type !== STAMP || o.prev.text === ';') && (!o.next || o.next.type !== STAMP || o.next.text === '*')) {
+                        if (mustBeYield(o)) {
                             o.type = STRAP;
                             funcbody.aster = true;
-                            continue;
                         }
+                        continue;
                     }
                     if (o.next && o.next.type === STAMP && o.next.text === "=>") {
                         isScope = true;
@@ -496,17 +509,8 @@ var createScoped = function (parsed, wash) {
                                         break;
                                     };
                                 }
-                                if (mustyield !== false && o.next) {
-                                    if (o.next.type === STRAP && !/^(?:instanceof|in|of|from|as)$/.test(o.next.text)
-                                        || o.next.type === STAMP && /[!~]/.test(o.next.text)
-                                        || o.next.type === EXPRESS && !/^[\.\[]/.test(o.next.text)
-                                        || o.next.type & (VALUE | QUOTED | SCOPED)
-                                    ) {
-                                        mustyield = true;
-                                    }
-                                }
+                                if (mustyield !== false) mustyield = mustBeYield(o);
                                 if (mustyield) funcbody.aster = true;
-                                else o.type = EXPRESS;
                                 continue;
                             }
                             funcbody.yield = true;

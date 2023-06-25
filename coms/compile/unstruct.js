@@ -394,7 +394,7 @@ var needbreak = function (o) {
 var isretn = function (o) {
     return o === RETURN || o === NEXT || o === YIELD || o === THROW;
 }
-var _return = function (r, nextindex) {
+var _return = function (r) {
     var name = r.name;
     var e = r[r.length - 1];
     if (!isretn(e)) return;
@@ -404,11 +404,12 @@ var _return = function (r, nextindex) {
     if (e === RETURN) {
         x = stepReturn(name, 2);
     }
-    else if (e === YIELD) {
-        x = stepReturn(name, 3);
-    }
     else if (e === THROW) {
         x = scanner2(`throw ${name}`);
+    }
+    else if (e === YIELD) {
+        x = stepReturn(name, 3);
+        r.await_ = true;
     }
     else if (e === NEXT) {
         x = stepReturn(name, 1);
@@ -567,9 +568,13 @@ var _invoke = function (t, getname) {
 };
 
 var _await = function (t) {
-    if (t[0].type === STRAP && t[0].text === 'await') {
-        t.shift();
-        return true;
+    var t0 = t[0];
+    if (t0.type === STRAP) {
+        var iw = 0;
+        if (t0.text === 'await') iw = 1;
+        else if (t0.text === 'yield') iw = 3;
+        if (iw) t.shift();
+        return iw;
     }
     return false;
 };
@@ -940,13 +945,14 @@ var _express = function (body, getname, ret) {
                 if (needcomma(q)) q.push({ type: STAMP, text: ',' });
                 var p0 = cache.pop();
                 var t = cache.pop();
-                var isawait = _await(t);
-                if (p0 > powermap["="] || isawait) q.push(...scanner2(`${getname(t.index)}=`));
+                var iw = _await(t);
+                if (p0 > powermap["="] || iw) q.push(...scanner2(`${getname(t.index)}=`));
                 q.push.apply(q, t);
                 q.push.apply(q, b);
                 b = scanner2(`${getname(t.index)}`);
                 nameindex = t.index;
-                if (isawait) q.push(NEXT);
+                if (iw === 1) q.push(NEXT);
+                else if (iw === 3) q.push(YIELD);
             }
             var name = getname(nameindex);
             q.name = name;
@@ -985,15 +991,16 @@ var _express = function (body, getname, ret) {
         if (needcomma(q)) q.push({ type: STAMP, text: ',' });
         nameindex = cache[cache.length - 1].index;
         var t = cache.pop();
-        var isawait = _await(t, nameindex);
+        var iw = _await(t, nameindex);
         if (!t.length && canbeTemp(b) && b[0].text === getname(nameindex)) {
         }
         else {
-            if (p > powermap["="] && (ret || cache.length > 0 || isawait)) q.push(...scanner2(`${getname(nameindex)}=`));
+            if (p > powermap["="] && (ret || cache.length > 0 || iw)) q.push(...scanner2(`${getname(nameindex)}=`));
             q.push.apply(q, t);
             q.push.apply(q, b);
         }
-        if (isawait) q.push(NEXT);
+        if (iw === 1) q.push(NEXT);
+        else if (iw === 3) q.push(YIELD);
         needname = true;
         b = [{ type: EXPRESS, text: getname(nameindex) }];
     }
@@ -1040,7 +1047,7 @@ var scopes = [null];
 var isbreak = function (o) {
     if (o.type !== STRAP) return false;
     return /^(break|continue)$/.test(o.text) ||
-        /^(yield|return)$/.test(o.text) && (o.isend || skipAssignment(o.next) === o.next.next && canbeTemp([o.next]));
+        /^(return)$/.test(o.text) && (o.isend || skipAssignment(o.next) === o.next.next && canbeTemp([o.next]));
 };
 
 var ifpatch = function (result, autoskip) {
@@ -1150,10 +1157,10 @@ function toqueue(body, getname, ret = false, result = []) {
             continue;
         }
         a: if (o.type === STRAP) {
-            if (/^(new|typeof|await|delete|void|debugger)$/.test(o.text)) {
+            if (/^(new|typeof|yield|await|delete|void|debugger)$/.test(o.text)) {
                 break a;
             }
-            if (brk("yield", YIELD)) break a;
+            // if (brk("yield", YIELD)) break a;
             if (brk("return", RETURN)) break a;
             if (brk("throw", THROW)) break a;
             if (/^(async|function|class)$/.test(o.text)) {

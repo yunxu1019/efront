@@ -35,9 +35,11 @@ test('a * a || b * c * c ** d', "_ = a * a; if (_) return [1, 0]; _ = b * c, _0 
 test('a * a ?? b * c * c ** d', "_ = a * a; if (_ !== null && _ !== undefined) return [1, 0]; _ = b * c, _0 = c ** d, _ * _0", true);
 test('a * a && await b*c', "_ = a * a; if (!_) return [2, 0]; _ = b; return [_, 1];\r\n _ = @; _ * c", true);
 test("await a", "_ = a; return [_, 1]", true);
-test("yield a", "return [a, 3]", true);
+test("yield a", "_ = a; return [_, 3]", true);
 test("await a()", "_ = a(); return [_, 1]", true);
 test("yield a()", "_ = a(); return [_, 3]", true);
+test("a = await a()", "_ = a(); return [_, 1];\r\n _ = @; a = _", true);
+test("a = yield a()", "_ = a(); return [_, 3];\r\n _ = @; a = _", true);
 test("(1+ +1)", "_ = +1, _ = 1 + _; (_)", true);
 test("await a(await b)", "_ = b; return [_, 1];\r\n _ = @; _ = a(_); return [_, 1]", true);
 test("await a(await b).s(await c)", "_ = b; return [_, 1];\r\n _ = @; _ = a(_); _0 = c; return [_0, 1];\r\n _0 = @; _ = _.s(_0); return [_, 1]", true);
@@ -99,7 +101,6 @@ test(`location.protocol  + parseURL(a.b).host `, `_ = a.b; _ = parseURL(_); loca
 test(`var base = location.protocol + "//" + parseURL(this.$scope.data.host).host + "/";`, `_ = location.protocol + "//", _0 = this.$scope.data.host; _0 = parseURL(_0); _ = _ + _0.host, base = _ + "/"`, true);
 test(`a=a+b*c+c*d`, `_ = b * c, _ = a + _, _0 = c * d, a = _ + _0`, true);
 test(`cc.name += "<f test></f>"`, `_ = cc.name + "<f test></f>"; cc.name = _`, true);
-test("yield a", 'return [a, 3]', true);
 test("throw a", 'throw a', true);
 test("debugger", 'debugger', true);
 test("a(b,b+=1)", '_ = b; _0 = b + 1; b = _0; a(_, _0)', true);
