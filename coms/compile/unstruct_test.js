@@ -35,7 +35,7 @@ test('a * a || b * c * c ** d', "_ = a * a; if (_) return [1, 0]; _ = b * c, _0 
 test('a * a ?? b * c * c ** d', "_ = a * a; if (_ !== null && _ !== undefined) return [1, 0]; _ = b * c, _0 = c ** d, _ * _0", true);
 test('a * a && await b*c', "_ = a * a; if (!_) return [2, 0]; _ = b; return [_, 1];\r\n _ = @; _ * c", true);
 test("await a", "_ = a; return [_, 1]", true);
-test("yield a", "_ = a; return [_, 3]", true);
+test("yield a", "return [a, 3]", true);
 test("await a()", "_ = a(); return [_, 1]", true);
 test("yield a()", "_ = a(); return [_, 3]", true);
 test("a = await a()", "_ = a(); return [_, 1];\r\n _ = @; a = _", true);
@@ -102,6 +102,8 @@ test(`var base = location.protocol + "//" + parseURL(this.$scope.data.host).host
 test(`a=a+b*c+c*d`, `_ = b * c, _ = a + _, _0 = c * d, a = _ + _0`, true);
 test(`cc.name += "<f test></f>"`, `_ = cc.name + "<f test></f>"; cc.name = _`, true);
 test("throw a", 'throw a', true);
+test("throw a,b", 'a; throw b', true);
+test("return a,b", 'a; return [b, 2]', true);
 test("debugger", 'debugger', true);
 test("a(b,b+=1)", '_ = b; _0 = b + 1; b = _0; a(_, _0)', true);
 test("while(a){if(b){if(c);else d;continue;}}", 'if (!a) return [4, 0]; if (!b) return [3, 0]; if (!c) return [1, 0]; return [2, 0];\r\n d; return [1, 0];\r\n return [-2, 0];\r\n return [-3, 0]', true);

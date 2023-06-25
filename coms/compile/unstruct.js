@@ -1,4 +1,4 @@
-var { SPACE, COMMENT, EXPRESS, STRAP, QUOTED, STAMP, SCOPED, VALUE, LABEL, createString, skipAssignment, isHalfSentence, splice, relink, createExpressList, snapExpressHead, snapExpressFoot } = require("./common");
+var { SPACE, COMMENT, EXPRESS, STRAP, QUOTED, STAMP, SCOPED, VALUE, LABEL, createString, skipAssignment, skipSentenceQueue, isHalfSentence, splice, relink, createExpressList, snapExpressHead, snapExpressFoot } = require("./common");
 var scanner2 = require("./scanner2");
 var RE = { type: STRAP, text: "@re" };// if (_) return
 var RZ = { type: STRAP, text: "@rz" };// if (!_) return
@@ -297,8 +297,10 @@ var pushstep = function (result, step) {
         result.push(step);
     }
     else if (q.await_) {
-        if (!step.awaited) step.unshift(...scanner2(`${q.name}=${ret_};`)), relink(step);
-        step.awaited = true;
+        if (!step.awaited) {
+            step.unshift(...scanner2(`${q.name}=${ret_};`)), relink(step);
+            step.awaited = true;
+        }
         result.push(step);
     }
     else if (q.ret_) {
@@ -314,6 +316,7 @@ var pushstep = function (result, step) {
         q.push(...step);
         q.await_ = step.await_;
         q.name = step.name;
+        q.skip = !!step.skip;
         step = q;
         relink(q);
     }
@@ -409,7 +412,7 @@ var _return = function (r) {
     }
     else if (e === YIELD) {
         x = stepReturn(name, 3);
-        r.await_ = true;
+        r.await_ = !r.skip;
     }
     else if (e === NEXT) {
         x = stepReturn(name, 1);
@@ -951,8 +954,10 @@ var _express = function (body, getname, ret) {
                 q.push.apply(q, b);
                 b = scanner2(`${getname(t.index)}`);
                 nameindex = t.index;
-                if (iw === 1) q.push(NEXT);
-                else if (iw === 3) q.push(YIELD);
+                if (iw) {
+                    if (iw === 1) q.push(NEXT);
+                    else if (iw === 3) q.push(YIELD);
+                }
             }
             var name = getname(nameindex);
             q.name = name;
@@ -999,8 +1004,10 @@ var _express = function (body, getname, ret) {
             q.push.apply(q, t);
             q.push.apply(q, b);
         }
-        if (iw === 1) q.push(NEXT);
-        else if (iw === 3) q.push(YIELD);
+        if (iw) {
+            if (iw === 1) q.push(NEXT);
+            else if (iw === 3) q.push(YIELD);
+        }
         needname = true;
         b = [{ type: EXPRESS, text: getname(nameindex) }];
     }
@@ -1105,8 +1112,8 @@ function toqueue(body, getname, ret = false, result = []) {
             }
         };
     };
-    var unblock = function (block) {
-        toqueue(block, getname, true, result);
+    var unblock = function (block, ret = true) {
+        toqueue(block, getname, ret, result);
         return result[result.length - 1];
     };
     var _poplabel = function () {
@@ -1114,9 +1121,10 @@ function toqueue(body, getname, ret = false, result = []) {
     }
     var cx = 0, bx = 0;
     var iftop = null;
-    var brk = function (text, YIELD) {
+    var brk = function (text, YIELD, skip) {
         if (o.text !== text) return;
         retn = [YIELD];
+        retn.skip = skip;
         ret = true;
         bx = ++cx;
         return retn;
@@ -1157,12 +1165,12 @@ function toqueue(body, getname, ret = false, result = []) {
             continue;
         }
         a: if (o.type === STRAP) {
-            if (/^(new|typeof|yield|await|delete|void|debugger)$/.test(o.text)) {
+            if (/^(new|typeof|delete|await|void|debugger)$/.test(o.text)) {
                 break a;
             }
-            // if (brk("yield", YIELD)) break a;
-            if (brk("return", RETURN)) break a;
-            if (brk("throw", THROW)) break a;
+            if (brk("yield", YIELD, skipAssignment)) break a;
+            if (brk("return", RETURN, skipSentenceQueue)) break a;
+            if (brk("throw", THROW, skipSentenceQueue)) break a;
             if (/^(async|function|class)$/.test(o.text)) {
                 // cx = skipAssignment(body, cx);
                 // var f = body.slice(bx, cx);
@@ -1272,13 +1280,22 @@ function toqueue(body, getname, ret = false, result = []) {
             bx = cx;
             continue;
         }
-        cx = skipAssignment(body, cx);
+        if (retn && retn.skip) {
+            o = retn.skip(o);
+            cx = body.indexOf(o, cx);
+            if (cx < 0) cx = body.length;
+        }
+        else cx = skipAssignment(body, cx);
         var b = body.slice(bx, cx);
-        bx = cx;
-        b = ternary(b, getname, ret);
-        for (var a of b) pushstep(result, a);
+        bx = cx
+        var a = null;
+        for (b of createExpressList(b)) {
+            if (isempty(b)) continue;
+            b = ternary(b, getname, ret);
+            for (a of b) pushstep(result, a);
+        }
         if (retn) {
-            if (b.length) retn.name = b[b.length - 1].name;
+            if (a) retn.name = a.name;
             pushstep(result, retn);
         }
         else {
