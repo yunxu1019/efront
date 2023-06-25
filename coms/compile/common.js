@@ -517,6 +517,7 @@ var createScoped = function (parsed, wash) {
                             mergeTo(used, used0);
                             mapDeclared(m, declared);
                             continue loop;
+                        case "static":
                         case "function":
                             isFunction = true;
 
@@ -543,7 +544,6 @@ var createScoped = function (parsed, wash) {
                                     o = o.next;
                                 }
                             }
-
                             isScope = true;
                             break;
                         case "for":

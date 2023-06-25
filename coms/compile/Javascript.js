@@ -195,9 +195,16 @@ Javascript.prototype.setType = function (o) {
         if (o.type & (VALUE | QUOTED | STRAP)) {
             o.isprop = this.isProperty(o);
         }
-        else if (o.type === SCOPED && o.entry === '[') {
-            if (queue.isObject) o.isprop = this.isProperty(o);
-            if (queue.isClass) o.isprop = !last || last.isprop || last.type === STAMP && last.text === ';';
+        else if (o.type === SCOPED) {
+            if (o.entry === '[') {
+                if (queue.isObject) o.isprop = this.isProperty(o);
+                if (queue.isClass) o.isprop = !last || last.isprop || last.type === STAMP && last.text === ';';
+            }
+            else if (o.entry === "{") {
+                if (last && last.type === PROPERTY && last.text === 'static') {
+                    last.type = STRAP;
+                }
+            }
         }
         else if (o.type === STAMP) {
             o.isprop = o.text === "*" && (!last || /^[,;]$/.test(last.text) || queue.isClass && isShortMethodEnd(last));

@@ -495,7 +495,14 @@ var killcls = function (body, i, getname_) {
             var k = prop.static ? clz.name : `${clz.name}["prototype"]`;
             var d = prop.static ? static_ : define_;
             if (prop.get || prop.set || prop.static) {
-                setprop(prop, k, d, defines);
+                if (prop.name) {
+                    setprop(prop, k, d, defines);
+                }
+                else if (prop.static) {
+                    var value = scanner2(`(function(){}())`);
+                    splice(value[0], 2, 1, ...prop.value)
+                    splice(foot, 0, foot.length, value[0]);
+                }
             }
             else if (/^(?:\.constructor|\[(['"`])constructor\1\])$/.test(prop.name)) {
                 constructor = prop.value;

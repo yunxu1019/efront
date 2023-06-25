@@ -53,6 +53,7 @@ assert(downLevel(`function (a=b,[c],d,e=f){}`), "function (a, arg1, d, e) { if (
 assert(downLevel(`function (arg1=b,[c],d,e=f){}`), "function (arg1, arg2, d, e) { if (arg1 === undefined) arg1 = b; var c = arg2[0]; if (e === undefined) e = f; }")
 i++// class降级
 assert(downLevel(`class a {}`), "function a() {}")
+assert(downLevel(`class a { static{ a.a=1}}`), "function a() {}; (function () { a.a = 1 }())")
 assert(downLevel(`if(a) a = 1; class a {}`), "if (a) a = 1; function a() {}")
 assert(downLevel(`async function(){if(a) a = 1; class a {}}`), `function () { return async_(
 function () {
