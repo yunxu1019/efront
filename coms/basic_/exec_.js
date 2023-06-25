@@ -1,22 +1,23 @@
 var exec_ = function (args, ok, oh, int) {
-    var p = null, index = 0, r, finished = false, t = this;
+    var p = null, index = 0, r, e, finished = false, t = this;
     var next = function (arg) {
         p = arg;
         run();
     };
-    var catches = [], catch_;
+    var catches = [], catch_, throwed;
     var thro = function (err) {
         if (catch_) {
             fina();
         }
         else if (catches.length) {
             catch_ = catches.pop();
-            [index, p] = catch_;
+            [index, p, throwed] = catch_;
             index += p & 0xffff;
             if (p >>> 16) {
                 next(err);
             }
             else {
+                e = err;
                 fina();
             }
         }
@@ -44,7 +45,10 @@ var exec_ = function (args, ok, oh, int) {
     }
     var run = function () {
         var args_length = args.length, i;
-        if (finished && !catch_ || index >= args_length) return ok(r);
+        if (!catch_ || index >= args_length) {
+            if (throwed) return oh();
+            if (finished) return ok(r);
+        }
         while (index < args_length) {
             try {
                 [p, i] = args[index].call(t, p) || [1, 0];
@@ -61,7 +65,8 @@ var exec_ = function (args, ok, oh, int) {
                     else return next(p);
                 case 2: return finished = true, retn(p); // return p;
                 case 3: return index++, int(p, next); // yield p;
-                case 7: index++; catches.push([index, p]); break; // try start
+                case 7: index++; catches.push([index, p]); break; // try catch finally?
+                case 8: index++; catches.push([index, p, 1]); break; // try finally
                 case 9: return p ? fine() : fina(); // finally
                 default: throw "代码异常！";
             }

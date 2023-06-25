@@ -30,6 +30,8 @@ var Symbol = this.Symbol || function () {
     };
     try {
         Object.defineProperty(Array.prototype, Symbol.iterator, { value: iterator, enumerable: false })
-    } catch { }
+    } catch {
+        Array.prototype[Symbol.iterator] = iterator;
+    }
     return Symbol;
 }();

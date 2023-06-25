@@ -1,7 +1,7 @@
 var scanner2 = require("./scanner2");
 var strings = require("../basic/strings");
 var Program = scanner2.Program;
-var { STAMP, SCOPED, STRAP, EXPRESS, COMMENT, SPACE, PROPERTY, VALUE, LABEL, QUOTED, rename, isHalfSentence, getDeclared, skipAssignment, createScoped, createString, splice, relink, snapExpressHead, needBreakBetween } = require("./common");
+var { STAMP, SCOPED, STRAP, EXPRESS, COMMENT, SPACE, PROPERTY, VALUE, LABEL, QUOTED, rename, isHalfSentence, skipFunction, getDeclared, skipAssignment, skipSentenceQueue, createScoped, createString, splice, relink, snapExpressHead, needBreakBetween } = require("./common");
 var splice2 = function (q, from, to, ...a) {
     var cx = q.indexOf(from);
     if (cx < 0) throw console.log(splice2.caller, console.format('\r\n<red2>自</red2>'), from && createString([from]), console.format('\r\n<yellow>至</yellow>'), to && createString([to]), console.format(`\r\n<cyan>码列</cyan>`), createString(q)), '结构异常';
@@ -755,7 +755,7 @@ var killobj = function (body, getobjname, getletname, getname_, letname_, deep =
                         var y = scanner2(`for(var ${name} of) yield ${name};`);
                         y[2].type = STRAP;
                         splice(y[1], y[1].length, 0, ...splice(body, i, n - i));
-                        unforof(y[1], getname_.bind(null, '_'), y.used);
+                        unforof(y[0], getname_.bind(null, '_'), y.used);
                         splice(body, i - 1, 1, ...y);
                     }
                     i++;
@@ -926,7 +926,7 @@ var unforin = function (o, getnewname_, killobj) {
     if (n.type !== STRAP || n.text !== 'in') {
         return false;
     }
-    if (ises3(o, killobj) && ises3(o.next, killobj)) return;
+    if (ises3(o.first, killobj) && ises3(o.next, killobj)) return;
     var prev = o.prev;
     while (prev && prev.type === LABEL) prev = prev.prev;
     var pp = prev && prev.prev;
@@ -955,6 +955,8 @@ var unforin = function (o, getnewname_, killobj) {
 
 var unforof = function (o, getnewname, used) {
     var hasawait = false;
+    var r = o;
+    o = o.next;
     if (o.type === STRAP && o.text === 'await') {
         hasawait = true;
         splice2(o.queue, o, o.next);
@@ -994,7 +996,14 @@ var unforof = function (o, getnewname, used) {
         splice(o, o.length, 0, { type: STAMP, text: ',' });
     }
     if (useSimpleLoop) splice(o, o.length, 0, ...scanner2(`${iname}=0,${gname}=${oname}["length"];${iname}<${gname}&&(${createString([p])}=${oname}[${iname}],true);${iname}++`));
-    else rootenvs.Symbol = true, splice(o, o.length, 0, ...scanner2(`${gname}=${hasawait ? `${oname}[Symbol["asyncIterator"]]||${oname}[Symbol["iterator"]]` : `${oname}[Symbol["iterator"]]`}||Array["prototype"][Symbol["iterator"]],${gname}=${gname}["call"](${oname}),${iname}=${hasawait ? "await " : ''}${gname}["next"]();!${iname}["done"]&&(${createString([p])}=${iname}["value"],true);${iname}=${hasawait ? 'await ' : ''}${gname}["next"]()`));
+    else {
+        rootenvs.Symbol = true, splice(o, o.length, 0, ...scanner2(`${gname}=${hasawait ? `${oname}[Symbol["asyncIterator"]]||${oname}[Symbol["iterator"]]` : `${oname}[Symbol["iterator"]]`}||Array["prototype"][Symbol["iterator"]],${gname}=${gname}["call"](${oname}),${iname}=${hasawait ? "await " : ''}${gname}["next"]();!${iname}["done"]&&(${createString([p])}=${iname}["value"],true);${iname}=${hasawait ? 'await ' : ''}${gname}["next"]()`));
+        var n = o.next;
+        n = skipSentenceQueue(n);
+        var tf = scanner2(`try{}finally{if(${iname}&&!${iname}["done"]&&isFunction(${gname}["return"]))${gname}["return"]()}`);
+        splice(tf[1], 0, 0, ...splice2(r.queue, r, n, ...tf));
+        rootenvs.isFunction = true;
+    }
     relink(o);
 };
 var unarrow = function (body, i, killobj, letname_) {
@@ -1154,9 +1163,10 @@ var killret = function (body, labels = Object.create(null), gettmpname) {
                 lbls.push(lbl);
             }
         }
-        else if (o.type === SCOPED) {
-            killret(o, labels, gettmpname);
-            if (o.entry === '{') unlabel = true;
+        else if (o.type === SCOPED && o.entry === "{") {
+            if (o.isClass || o.isObject);
+            else killret(o, labels, gettmpname);
+            unlabel = true;
         }
         else if (o.type === STAMP && o.text === ';') {
             unlabel = true;
@@ -1165,16 +1175,22 @@ var killret = function (body, labels = Object.create(null), gettmpname) {
             for (var lbl of lbls) delete labels[lbl];
             lbls = [];
         }
+        if (o.type === STAMP && o.text === "=>") {
+            o = skipFunction(o);
+            continue;
+        }
         if (o.type !== STRAP) {
             o = o.next;
             continue;
         }
         switch (o.text) {
+            case "async":
+            case "class":
             case "function":
-                while (o && o.type !== SCOPED || o.entry !== '{') o = o.next;
-                break;
+                o = skipFunction(o);
+                continue;
             case "return":
-                if (o.next && !o.isend) insert1(body, o.next, ...scanner2(`${gettmp()}=1,`));
+                if (o.next && !o.isend) insert1(body, o.next, ...scanner2(`${gettmp(1, o.next)}=1,`));
                 else insert1(body, o.next, ...scanner2(`${gettmp()}=1,void 0`)), o.isend = false;
                 breakmap[o.text] = 1;
                 break;
@@ -1370,7 +1386,7 @@ var down = function (scoped) {
                 if (hp && hp.type === STRAP && hp.text === 'await') hp = hp.prev;
                 if (!hp) break a;
                 if (hp.text === 'for') {
-                    unforof(hp.next, getdeepname, scoped.used);
+                    unforof(hp, getdeepname, scoped.used);
                     if (funcMark) killed = unforin(scoped.head, getdeepname, _killobj.bind(null, _getlocal)) !== false;
                     // unforcx(scoped.head, getdeepname);
                 }

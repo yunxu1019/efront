@@ -64,28 +64,31 @@ var _try = function (body, cx, unblock, result, getname) {
     var final = stepReturn(0, 9);
     pushstep(result, final);
     o = o.next;
-    if (o.type !== STRAP || o.text !== 'catch') throw `缺少catch语句`;
-    o = o.next;
-    var arg = [];
     var catchoffset = result.length;
-    if (o.type === SCOPED && o.entry === "(") {
-        var e = o.first;
-        if (e) {
-            arg = scanner2(`${e.text}=${ret_ || "@"};`);
+    if (o.type === STRAP && o.text === 'catch') {
+        o = o.next;
+        var arg = [];
+        if (o.type === SCOPED && o.entry === "(") {
+            var e = o.first;
+            if (e) {
+                arg = scanner2(`${e.text}=${ret_ || "@"};`);
+            }
+            o = o.next;
+        }
+        var ai = result.length;
+        unblock(o);
+        if (ai < result.length) {
+            if (arg.length) result[ai].unshift(...arg), result[ai].awaited = true, relink(result[ai]);
+            if (!result[result.length - 1].ret_) pushstep(result, stepReturn(0, 9));
         }
         o = o.next;
     }
-    var ai = result.length;
-    unblock(o);
-    if (ai < result.length) {
-        if (arg.length) result[ai].unshift(...arg), result[ai].awaited = true, relink(result[ai]);
-        if (!result[result.length - 1].ret_) pushstep(result, stepReturn(0, 9));
-    }
-    o = o.next;
+    else tse[2].text = '8';
     var finishoffset = result.length;
     if (o && o.type === STRAP && o.text === 'finally') {
         o = o.next;
         unblock(o);
+        o = o.next;
     }
     tse[0].text = String(catchoffset - tryoffset | finishoffset - catchoffset << 16);
     var finalend = stepReturn(1, 9);

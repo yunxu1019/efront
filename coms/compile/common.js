@@ -195,6 +195,20 @@ function skipSentenceQueue(o) {
     } while (o && o.type === STAMP && o.text === ',' ? o = o.next : false);
     return o;
 }
+function skipFunction(o) {
+    if (o.type === STRAP && o.text === 'async') o = o.next;
+    if (o.type !== STRAP) return skipAssignment(o);
+    if (o.text === 'function') {
+        while (o && (o.type !== SCOPED || o.entry !== '{')) o = o.next;
+        return o.next;
+    }
+    if (o.text === 'class') {
+        while (!o.isClass) o = o.next;
+        while (o.isClass) o = o.next;
+        return o;
+    }
+    return o;
+}
 function snapSentenceHead(o) {
     // 只检查一级
     while (o && o.prev) {
@@ -1258,6 +1272,7 @@ module.exports = {
     relink,
     setqueue,
     replace,
+    skipFunction,
     isHalfSentence,
     splice,
     mergeTo
