@@ -994,7 +994,7 @@ var unforof = function (o, getnewname, used) {
         splice(o, o.length, 0, { type: STAMP, text: ',' });
     }
     if (useSimpleLoop) splice(o, o.length, 0, ...scanner2(`${iname}=0,${gname}=${oname}["length"];${iname}<${gname}&&(${createString([p])}=${oname}[${iname}],true);${iname}++`));
-    else rootenvs.Symbol = true, splice(o, o.length, 0, ...scanner2(`${gname}=${hasawait ? `${oname}[Symbol["asyncIterator"]]||${oname}[Symbol["iterator"]]` : `${oname}[Symbol["iterator"]]||${oname}[Symbol["asyncIterator"]]`}||Array["prototype"][Symbol["iterator"]],${gname}=${gname}["call"](${oname}),${iname}=${hasawait ? "await " : ''}${gname}["next"]();!${iname}["done"]&&(${createString([p])}=${iname}["value"],true);${iname}=${hasawait ? 'await ' : ''}${gname}["next"]()`));
+    else rootenvs.Symbol = true, splice(o, o.length, 0, ...scanner2(`${gname}=${hasawait ? `${oname}[Symbol["asyncIterator"]]||${oname}[Symbol["iterator"]]` : `${oname}[Symbol["iterator"]]`}||Array["prototype"][Symbol["iterator"]],${gname}=${gname}["call"](${oname}),${iname}=${hasawait ? "await " : ''}${gname}["next"]();!${iname}["done"]&&(${createString([p])}=${iname}["value"],true);${iname}=${hasawait ? 'await ' : ''}${gname}["next"]()`));
     relink(o);
 };
 var unarrow = function (body, i, killobj, letname_) {
