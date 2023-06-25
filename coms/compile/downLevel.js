@@ -1,7 +1,7 @@
 var scanner2 = require("./scanner2");
 var strings = require("../basic/strings");
 var Program = scanner2.Program;
-var { STAMP, SCOPED, STRAP, EXPRESS, COMMENT, SPACE, PROPERTY, VALUE, LABEL, QUOTED, rename, getDeclared, skipAssignment, createScoped, createString, splice, relink, snapExpressHead, needBreakBetween } = require("./common");
+var { STAMP, SCOPED, STRAP, EXPRESS, COMMENT, SPACE, PROPERTY, VALUE, LABEL, QUOTED, rename, isHalfSentence, getDeclared, skipAssignment, createScoped, createString, splice, relink, snapExpressHead, needBreakBetween } = require("./common");
 var splice2 = function (q, from, to, ...a) {
     var cx = q.indexOf(from);
     if (cx < 0) throw console.log(splice2.caller, console.format('\r\n<red2>自</red2>'), from && createString([from]), console.format('\r\n<yellow>至</yellow>'), to && createString([to]), console.format(`\r\n<cyan>码列</cyan>`), createString(q)), '结构异常';
@@ -446,6 +446,7 @@ var rootenvs = null, rootHyper;
 var killcls = function (body, i, getname_) {
     var extends_ = [];
     var o = body[i];
+    var ishalf = isHalfSentence(body, i - 1);
     var start = o;
     var decName = !o.isExpress && o.next.type === EXPRESS && o.next.text;
     while (o) {
@@ -561,7 +562,7 @@ var killcls = function (body, i, getname_) {
     var s = i;
     i = body.indexOf(o, i);
     if (i < 0) i = body.length;
-    if (head.length > 1 || start.isExpress) {
+    if (head.length > 1 || start.isExpress || ishalf && defines.length) {
         splice(defines, defines.length, 0, ...scanner2(`\r\nreturn ${clz.name}`))
         if (decName) splice(func, 0, 0, ...scanner2(`var ${decName}=`));
         splice(body, s, i - s, ...func);
@@ -571,7 +572,7 @@ var killcls = function (body, i, getname_) {
             splice(invokes, invokes.length, 0, { text: ';', type: STAMP }, ...defines);
         }
         splice(body, s, i - s, ...invokes);
-        if (o) insert1(body, o, { type: SPACE, text: '\r\n' });
+        if (o && o.type & ~(SPACE | STAMP) && invokes.length) insert1(body, o, { type: SPACE, text: '\r\n' });
     }
     return i;
 };
@@ -1206,6 +1207,7 @@ var killret = function (body, labels = Object.create(null), gettmpname) {
     }
     return breakmap;
 }
+
 var down = function (scoped) {
     var inAsync = scoped.async;
     var inAster = scoped.yield;
@@ -1436,7 +1438,7 @@ var downcode = downLevel.code = function (code) {
     code.keepcolor = false;
     if (rootenvs.slice_) {
         delete rootenvs.slice_;
-        if (!code.vars.slice_) splice(code.scoped.body, 0, 0, ...scanner2('var slice_ = Array["prototype"]["slice"];\r\n'));
+        if (!code.vars.slice_) splice(code, 0, 0, ...scanner2('var slice_ = Array["prototype"]["slice"];\r\n'));
     }
     rootenvs = null;
     return code;

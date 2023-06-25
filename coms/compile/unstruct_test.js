@@ -81,7 +81,14 @@ test("try{a=2+1}catch(e){}", 'return [1, 7];\r\n a = 2 + 1; return [0, 9];\r\n r
 test("try{a=2+1}catch(e){a=3}", 'return [65537, 7];\r\n a = 2 + 1; return [0, 9];\r\n e = @; a = 3; return [0, 9];\r\n return [1, 9]', true);
 test("(function(){})", '_ = function () {}; (_)', true);
 test("(1+2*function(){}())", '_ = 2 * function () {}(), _ = 1 + _; (_)', true);
-test("function a(){}", 'function a() {}', true);
+test("function a(){}", 'a = function a() {}', true);
+test("if(1) function a(){}", 'if (false) return [1, 0]; a = function a() {}; return [1, 0]', true);
+test("if(1) {function a(){}}", 'if (false) return [1, 0]; a = function a() {}; return [1, 0]', true);
+test("if(a) a = 1;function a(){}", "a = function a() {}; if (!a) return [1, 0]; a = 1; return [1, 0]", true);
+test("if(a) a = 1;async function a(){}", "a = async function a() {}; if (!a) return [1, 0]; a = 1; return [1, 0]", true);
+test("if(a) a = 1;async function* a(){}", "a = async function* a() {}; if (!a) return [1, 0]; a = 1; return [1, 0]", true);
+test("if(a) a = 1;class a{}", "a = class a{}; if (!a) return [1, 0]; a = 1; return [1, 0]", true);
+test("if(a) a = 1;function* a(){}", "a = function* a() {}; if (!a) return [1, 0]; a = 1; return [1, 0]", true);
 test("await new Promise(function(){})", '_ = function () {}; _ = new Promise(_); return [_, 1]', true);
 test(`onerror({ status: xhr.status, response: "Cookie解析异常!", toString: toResponse })`, '_ = { status: xhr.status, response: "Cookie解析异常!", toString: toResponse }; onerror(_)', true);
 test(`if (!/^https\\:\\/\\/|^s\\/\\//.test(url)) console.warn("请使用https访问如下路径:" + url)`, '_ = /^https\\:\\/\\/|^s\\/\\//.test(url); if (_) return [1, 0]; _ = "请使用https访问如下路径:" + url; _ = console.warn(_); return [1, 0]', true);

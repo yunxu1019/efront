@@ -76,14 +76,9 @@ var skipAssignment = function (o, cx) {
                     needpunc = false;
                     break;
                 default:
-                    if (/^[!~\+\-]+$/.test(o.text)) {
-                        needpunc = false;
-                        next();
-                        break;
-                    }
-                    if (!needpunc) break loop;
                     needpunc = false;
                     next();
+                    break;
             }
             break;
         case SCOPED:
@@ -1187,6 +1182,24 @@ var createExpressList = function (code) {
     }
     return list;
 };
+var isHalfSentence = function (body, i) {
+    var a = body[i];
+    while (a && a.type & (SPACE | COMMENT)) a = body[--i];
+    if (!a) return false;
+    if (a.type === STRAP && a.text === 'else') return true;
+    if (a.type !== SCOPED || a.entry !== "(") return false;
+    a = a.prev;
+    if (!a || a.type !== STRAP) return false;
+    if (a.text === 'while') {
+        var p = a.prev;
+        if (!p || p.type !== SCOPED || p.entry !== '{' || !p.prev) return true;
+        p = p.prev;
+        if (p.type !== STRAP || p.text !== 'do') return true;
+        return false;
+    }
+    return /^(if|for|with)$/.test(a.text);
+};
+
 var splice = function (queue, index, size, ...args) {
     if (index < 0) index += queue.length;
     var p = queue[index];
@@ -1245,6 +1258,7 @@ module.exports = {
     relink,
     setqueue,
     replace,
+    isHalfSentence,
     splice,
     mergeTo
 };

@@ -53,6 +53,13 @@ assert(downLevel(`function (a=b,[c],d,e=f){}`), "function (a, arg1, d, e) { if (
 assert(downLevel(`function (arg1=b,[c],d,e=f){}`), "function (arg1, arg2, d, e) { if (arg1 === undefined) arg1 = b; var c = arg2[0]; if (e === undefined) e = f; }")
 i++// class降级
 assert(downLevel(`class a {}`), "function a() {}")
+assert(downLevel(`if(a) a = 1; class a {}`), "if (a) a = 1; function a() {}")
+assert(downLevel(`async function(){if(a) a = 1; class a {}}`), `function () { return async_(
+function () {
+a = function a() {}; if (!a) return [1, 0]; a = 1; return [1, 0]
+})
+var a, _0 }`)
+assert(downLevel(`if(a) class b{ c(){}};`), `if (a) var b = function (b) { b["prototype"].c = function () {}\r\nreturn b }(function b() {});`)
 assert(downLevel(`class a {a=1}`), "function a() { this.a = 1 }")
 assert(downLevel(`class a {a=1; b(){}}`), `function a() { this.a = 1; }; a["prototype"].b = function () {}`)
 assert(downLevel(`=class a {a=1; b(){}}`), `= function (a) { a["prototype"].b = function () {}\r\nreturn a }(function a() { this.a = 1; })`)
@@ -242,9 +249,9 @@ assert(downLevel("if(a){}[r, g, b] = rgb4s(r, g, b, s)"), "if (a) {} _ = rgb4s(r
 assert(downLevel(`{c,[c]:b,...a}=a`), `c = a.c, b = a[c], a = rest_(a, ["c", c])`)
 assert(downLevel(`async()=>name = require("./$split")(name)["join"]("/");`), `function () { return async_(
 function () {
-name = require("./$split")(name)["join"]("/"); return [name, 2]
+_0 = require("./$split"); _1 = _0(name); name = _1["join"]("/"); return [name, 2]
 })
-var _0 };`);
+var _0, _1 };`);
 i++//异步或步进函数
 assert(downLevel(`function *(){yield *a}`), `function () { return aster_(
 function () {
@@ -308,6 +315,6 @@ function () {
 if (!a) return [1, 0]; return [2, 0]
 },
 function () {
-_0 = getRequestProtocol(url) + "//", location = _0 + location; return [1, 0]
+_1 = getRequestProtocol(url); _0 = _1 + "//", location = _0 + location; return [1, 0]
 })
-var _0 }`);
+var _0, _1 }`);

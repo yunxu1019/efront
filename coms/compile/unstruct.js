@@ -1,4 +1,4 @@
-var { SPACE, COMMENT, EXPRESS, STRAP, QUOTED, STAMP, SCOPED, VALUE, LABEL, createString, skipAssignment, splice, relink, createExpressList, snapExpressHead, snapExpressFoot } = require("./common");
+var { SPACE, COMMENT, EXPRESS, STRAP, QUOTED, STAMP, SCOPED, VALUE, LABEL, createString, skipAssignment, isHalfSentence, splice, relink, createExpressList, snapExpressHead, snapExpressFoot } = require("./common");
 var scanner2 = require("./scanner2");
 var RE = { type: STRAP, text: "@re" };// if (_) return
 var RZ = { type: STRAP, text: "@rz" };// if (!_) return
@@ -462,12 +462,18 @@ var _invoke = function (t, getname) {
     var bx = 0;
     for (var cx = 0; cx < t.length; cx++) {
         var o = t[cx];
-        if (o.type === STRAP && o.text === 'function') {
-            while (o && o.entry !== "{") o = o.next;
+        a: if (o.type === STRAP) {
+            if (/^(async|function)/.test(o.text)) while (o && o.entry !== "{") o = o.next;
+            else if (o.text === 'class') {
+                while (o && !o.isClass) o = o.next;
+                var n = o.next;
+                while (n && n.isClass) o = n, n = n.next;
+            }
+            else break a;
             cx = t.indexOf(o, cx);
+            if (cx < 0) cx = t.length;
             continue;
         }
-
         if (needbreak(o)) {
             var s = splice(t, bx, cx + 1 - bx);
             if (cx > 0) s.name = s[0].text;
@@ -638,6 +644,7 @@ var popexp = function (explist) {
     }
     return [asn, n];
 }
+
 var ternary = function (body, getname, ret) {
     var eqused = 0;
     var getnextname = function (i) {
@@ -777,6 +784,39 @@ var ternary = function (body, getname, ret) {
     }
     return explist;
 };
+var prefunc = function (sbody) {
+    var fx = 0;
+    for (var cx = 0, dx = sbody.length; cx < dx; cx++) {
+        var o = sbody[cx];
+        var bx = cx;
+        while (o && o.type & (SPACE | COMMENT)) o = sbody[++cx];
+        if (!o) break;
+        if (o.type === STRAP && /^(async|function|class)$/.test(o.text)) {
+            if (!o.isExpress) {
+                var ex = skipAssignment(sbody, cx);
+                var fname = '';
+                o = o.next;
+                while (o.type & (STRAP | STAMP)) o = o.next;
+                if (o.type === EXPRESS) fname = o.text;
+                if (fname) {
+                    if (isHalfSentence(sbody, cx - 1)) {
+                        splice(sbody, cx, 0, { type: EXPRESS, text: fname }, { type: STAMP, text: "=" });
+                    }
+                    else {
+                        var sb = splice(sbody, bx, ex - bx);
+                        splice(sbody, fx, 0, { type: EXPRESS, text: fname }, { type: STAMP, text: "=" }, ...sb);
+                        fx += ex - bx + 2;
+                    }
+                    ex += 2;
+                    dx += 2;
+                }
+                cx = ex;
+                continue;
+            }
+        }
+    }
+};
+
 var isFunctionOnly = function (body) {
     for (var cx = 2, dx = body.length; cx < dx; cx++) {
         if (body[cx].type & (SPACE | COMMENT)) continue;
@@ -784,9 +824,14 @@ var isFunctionOnly = function (body) {
     }
     var o = body[cx];
     if (!o) return false;
-    if (o.type === STRAP && o.text === 'function') {
-        while (o && o.entry !== "{") o = body[cx++];
-        if (!o) return false;
+    if (o.type === STRAP) {
+        if (/^(async|function)$/.test(o.text)) while (o && o.entry !== "{") o = body[cx++];
+        else if (o.text === 'class') {
+            while (o && !o.isClass) o = body[cx++];
+            while (o && (o.type & (SPACE | COMMENT) || o.isClass)) o = body[cx++];
+        }
+        else return false;
+        if (!o) return true;
     }
     else return false;
     for (; cx < dx; cx++) {
@@ -861,8 +906,13 @@ var _express = function (body, getname, ret) {
     for (; cx < dx; cx++) {
         var o = body[cx];
         if (o.type & (COMMENT | SPACE)) continue;
-        if (o.type === STRAP && o.text === 'function') {
-            while (o && (o.type !== SCOPED || o.entry !== '{')) o = body[++cx];
+        a: if (o.type === STRAP) {
+            if (/^(async|function)$/.test(o.text)) while (o && (o.type !== SCOPED || o.entry !== '{')) o = body[++cx];
+            else if (o.text === 'class') {
+                while (o && !o.isClass) o = body[++cx];
+                while (o && (o.type & (SPACE | COMMENT) || o.isClass)) o = body[++cx];
+            }
+            else break a;
             continue;
         }
         if (o.type & (STRAP | STAMP)) {
@@ -956,7 +1006,7 @@ var _express = function (body, getname, ret) {
     }
     if (needname) q.name = getname(nameindex);
     relink(q);
-    if (isFunctionOnly(q)) {
+    if (isFunctionOnly(q, 2)) {
         result = [q];
     }
     else {
@@ -1021,6 +1071,7 @@ var poplabel = function (result) {
 
 function toqueue(body, getname, ret = false, result = []) {
     var retn = false;
+    if (!ret) prefunc(body);
     var uniftop = function () {
         for (var cx = 4, dx = iftop.length; cx < dx; cx += 4) {
             var isbr = iftop[cx - 3];
@@ -1213,7 +1264,7 @@ function toqueue(body, getname, ret = false, result = []) {
         }
         cx = skipAssignment(body, cx);
         var b = body.slice(bx, cx);
-        bx = ++cx;
+        bx = cx;
         b = ternary(b, getname, ret);
         for (var a of b) pushstep(result, a);
         if (retn) {
