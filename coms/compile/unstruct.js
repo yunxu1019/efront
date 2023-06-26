@@ -1290,7 +1290,12 @@ function toqueue(body, getname, ret = false, result = []) {
         bx = cx
         var a = null;
         for (b of createExpressList(b)) {
-            if (isempty(b)) continue;
+            if (isempty(b, SPACE | COMMENT)) {
+                if (a) b.name = a.name;
+                a = b;
+                pushstep(result, a);
+                continue;
+            }
             b = ternary(b, getname, ret);
             for (a of b) pushstep(result, a);
         }
