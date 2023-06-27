@@ -676,7 +676,7 @@ class Program {
         var spaces = this.spaces.join("");
         tokens = Object.keys(tokens).join("");
         tokens = this.compile(tokens) + spaces;
-        var express = `[^${tokens}]+`;
+        var express = `(?:\\\\u\\{[^\\}]+\\}|[^${tokens}])+`;
         var flagUnicode = supportUnicodeRegExp ? 'u' : '';
         this.express_reg = new RegExp(`^${express}$`, flagUnicode);
         this.space_reg = new RegExp(`^[${spaces}]+$`, flagUnicode);

@@ -31,26 +31,34 @@ function encode(str, q = "\"", escapeUnicode = true) {
     else str = str.replace(unescapeReg, unescapeFun);
     return q + str + q;
 }
-function decode(s) {
-    var r = /^(['"`])([\s\S]*)\1$/.exec(s);
-    if (!r) return s;
-    return r[2].replace(/\\u\{[0-9a-f]+\}|\\u[0-9a-f]{4}|\\x[0-9a-f]{2}|\\([0-7]{1,3}|[\s\S])/ig, (a, b) => {
-        if (!b) {
-            a = parseInt(a.slice(2).replace(/^\{(.*)\}$/, '$1'), 16);
-            if (a > 0xffff) {
-                a -= 0x10000;
-                return String.fromCharCode((0b11011000 | a >> 18) << 8 | a >> 10 & 0xff, (0b11011100 | a >> 8 & 0b00000011) << 8 | a & 0xff);
-            }
-            return String.fromCharCode(a);
-        }
+var esc = function (a) {
+    a = parseInt(a.slice(2).replace(/^\{(.*)\}$/, '$1'), 16);
+    if (a > 0xffff) {
+        a -= 0x10000;
+        return String.fromCharCode((0b11011000 | a >> 18) << 8 | a >> 10 & 0xff, (0b11011100 | a >> 8 & 0b00000011) << 8 | a & 0xff);
+    }
+    return String.fromCharCode(a);
+};
+function uncode(s) {
+    return s.replace(/\\u(?:\{[0-9a-f]+\}|[0-9a-f]{4})/ig, esc);
+}
+function kicode(s) {
+    return s.replace(/\\(?:u\{[0-9a-f]+\}|u[0-9a-f]{4}|x[0-9a-f]{2}|([0-7]{1,3}|[\s\S]))/ig, (a, b) => {
+        if (!b) return esc(a);
         if (unescapeMap.hasOwnProperty(a)) return unescapeMap[a];
         if (/^[0-7]+$/.test(b)) return String.fromCharCode(parseInt(b, 8));
         return b;
     });
 }
+function decode(s) {
+    var r = /^(['"`])([\s\S]*)\1$/.exec(s);
+    if (!r) return s;
+    return kicode(r[2]);
+}
+
 function recode(s) {
     s = decode(s);
     s = encode(s);
     return s;
 }
-module.exports = { encode, decode, recode };
+module.exports = { encode, decode, recode, kicode, uncode };

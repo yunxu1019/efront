@@ -940,7 +940,9 @@ var mapDeclared = function (map, declared) {
     }
     return map;
 };
+var { uncode } = require("../basic/strings");
 var saveTo = function (used, k, o) {
+    k = uncode(k);
     if (!(used[k] instanceof Array)) used[k] = [];
     used[k].push(o);
 };

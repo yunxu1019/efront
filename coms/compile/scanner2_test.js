@@ -4,7 +4,7 @@ var esprima// = require("../esprima/index");
 // var typescript = require("../typescript/index");
 var console = require("../reptile/colored_console");
 var scanner = require("./scanner2");
-var data = fs.readFileSync(path.join(__dirname, "../typescript/index.js")).toString();
+var data //= fs.readFileSync(path.join(__dirname, "../typescript/index.js")).toString();
 var data2 = fs.readFileSync(path.join(__dirname, "./scanner2.js")).toString();
 // data='{ \r\na( ){ return a;} }';
 function test(parser, name) {
@@ -107,6 +107,10 @@ function testSpaceLess() {
     var m = scanner(`if(n<0)return'_f("'+t+'")('+e+")"`);
     console.log(m.toString());
 }
+function testUnicode() {
+    var m = scanner(`\\u{0042}\\u0042=1`);
+    console.log(m.toString())
+}
 Program.debug = true;
 // testSpeed();
 // testVariables();
@@ -119,6 +123,7 @@ Program.debug = true;
 // testJsx3();
 // testJsxOnlyHtml();
 // testSpaceLess();
-testArrow();
+// testArrow();
+testUnicode();
 // var typescript = require("../typescript/index");
 // typescript.transpile(data.toString(), { noEmitHelpers: true });
