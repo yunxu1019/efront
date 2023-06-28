@@ -544,8 +544,20 @@ class Program {
             }
             var isdigit = this.number_reg.test(m);
             if (this.value_reg.test(m) || isdigit) {
-                save(VALUE);
                 queue.inExpress = true;
+                if (isdigit && lasttype === STAMP) {
+                    var last = queue.last;
+                    var prev = last.prev;
+                    if ((!prev || prev.type & (STAMP | STRAP)) && /^[+\-]+$/.test(last.text)) {
+                        last.type = VALUE;
+                        last.text += m;
+                        lasttype = VALUE;
+                        last.end = end;
+                        last.isdigit = true;
+                        continue;
+                    }
+                }
+                save(VALUE);
                 continue;
             }
             if (this.express_reg.test(m)) {
