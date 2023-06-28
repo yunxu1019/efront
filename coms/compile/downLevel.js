@@ -995,7 +995,7 @@ var unforof = function (o, getnewname, used) {
         splice(o, o.length, 0, ...mo);
         splice(o, o.length, 0, { type: STAMP, text: ',' });
     }
-    if (useSimpleLoop) splice(o, o.length, 0, ...scanner2(`${iname}=0,${gname}=${oname}["length"];${iname}<${gname}&&(${createString([p])}=${oname}[${iname}],true);${iname}++`));
+    if (useSimpleLoop) splice(o, o.length, 0, ...scanner2(`${iname}=0;${iname}<${oname}["length"]&&(${createString([p])}=${oname}[${iname}],true);${iname}++`));
     else {
         rootenvs.Symbol = true, splice(o, o.length, 0, ...scanner2(`${gname}=${hasawait ? `${oname}[Symbol["asyncIterator"]]||${oname}[Symbol["iterator"]]` : `${oname}[Symbol["iterator"]]`}||Array["prototype"][Symbol["iterator"]],${gname}=${gname}["call"](${oname}),${iname}=${hasawait ? "await " : ''}${gname}["next"]();!${iname}["done"]&&(${createString([p])}=${iname}["value"],true);${iname}=${hasawait ? 'await ' : ''}${gname}["next"]()`));
         var n = o.next;
