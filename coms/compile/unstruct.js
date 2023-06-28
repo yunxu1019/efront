@@ -502,7 +502,7 @@ var _invoke = function (t, getname) {
                     cy = skipAssignment(o, cy);
                     if (cy === ay || ay >= o.length) continue;
                     var m = o[ay];
-                    if (cy === ay + 1 && (m.type === EXPRESS && !/[\.\[]/.test(m.text) || m.type === VALUE || m.type === QUOTED && !m.length)) {
+                    if (cy === ay + 1 && (m.type === EXPRESS && (strip || !/[\.\[]/.test(m.text)) || m.type === VALUE || m.type === QUOTED && !m.length)) {
                         continue;
                     }
                     constStart = cy + 1;
@@ -890,7 +890,7 @@ var canbeTemp = function (body) {
     if (body[cx] !== body[dx]) return false;
     var o = body[cx];
     if (!o) return false;
-    return o.type === EXPRESS && !/[\.\[]/.test(o.text) || o.type === VALUE || o.type === QUOTED && !o.length;
+    return o.type === EXPRESS && (strip || !/[\.\[]/.test(o.text)) || o.type === VALUE || o.type === QUOTED && !o.length;
 };
 var _express = function (body, getname, ret) {
     if (canbeTemp(body)) {
@@ -1312,7 +1312,9 @@ function toqueue(body, getname, ret = false, result = []) {
     return result;
 }
 var ret_ = '';
+var strip = false;
 module.exports = function (body, newname, ret) {
+    strip = body.strip;
     if (ret) ret = isString(ret) ? ret : newname();
     var ret0 = ret_;
     var ret1 = null;
