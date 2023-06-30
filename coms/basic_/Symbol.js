@@ -20,10 +20,10 @@ var Symbol = this.Symbol || function () {
     Symbol.iterator = Symbol('iterator');
     Symbol.asyncIterator = Symbol('asyncIterator');
     var iterator = function () {
-        var arr = this, cx = 0, dx = arr.length;
+        var arr = this, cx = 0;
         return {
             next() {
-                if (cx < dx) return { value: arr[cx++], done: false };
+                if (cx < arr.length) return { value: arr[cx++], done: false };
                 return { value: undefined, done: true };
             }
         }
