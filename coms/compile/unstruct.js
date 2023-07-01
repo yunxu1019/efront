@@ -139,6 +139,7 @@ var _switch = function (body, cx, unblock, result, getname) {
     var m = o.first;
     var tmp = [];
     while (o[cy] !== m) cy++;
+    var default_ = null, case_ = null;
     while (cy < o.length) {
         var block = getblock(o, ++cy);
         cy += block.length;
@@ -150,23 +151,25 @@ var _switch = function (body, cx, unblock, result, getname) {
         var q = ternary(block, getnextname, true);
         for (var q of q) if (q.length) pushstep(result, q);
         var qe = q;
-        if (qe.name) var case_ = scanner2(`if(${qn}===${qe.name})return[]`);
-        else case_ = scanner2(`return[]`), case_.ret_ = -1;
-        pushstep(result, case_);
+        if (qe.name) case_ = scanner2(`if(${qn}===${qe.name})return[]`), pushstep(result, case_);
+        else default_ = case_ = scanner2(`return[]`), default_.ret_ = -1;
         var by = cy;
         m = o[cy];
         while (m && (m.type !== STRAP || !/^(default|case)$/i.test(m.text))) m = o[++cy];
         tmp.push(result.length - 1, case_[case_.length - 1], o.slice(by, cy));
     }
-    if (!result[result.length - 1].ret_) {
-        case_ = scanner2(`return[]`), case_.ret_ = -1;
-        pushstep(result, case_);
-        tmp.push(result.length - 1, case_[case_.length - 1], []);
+    if (!default_) {
+        default_ = scanner2(`return[]`), default_.ret_ = -1;
+        tmp.push(result.length - 1, default_[default_.length - 1], []);
     }
+    var default_r = default_[default_.length - 1];
+    pushstep(result, default_);
+    default_r.index = result.length - 1;
     while (tmp.length) {
         cy = tmp.shift();
         q = tmp.shift();
         block = tmp.shift();
+        if (default_r === q) cy = default_r.index;
         q.push({ type: VALUE, text: String(result.length - cy) }, { type: STAMP, text: "," }, { type: VALUE, text: '0' });
         relink(q);
         unblock(block);
