@@ -1248,6 +1248,17 @@ var replace = function (o, ...args) {
     var i = queue.indexOf(o);
     if (i >= 0) splice(queue, i, 1, ...args);
 };
+var isEval = function (o) {
+    if (o.entry === "[") {
+        var h = snapExpressHead(o);
+        return o !== h;
+    }
+    else if (o.entry === '(') {
+        var h = snapExpressHead(o);
+        return o === h;
+    }
+    return false;
+};
 
 module.exports = {
     /*   1 */COMMENT,
@@ -1274,6 +1285,7 @@ module.exports = {
     skipSentenceQueue,
     needBreakBetween,
     saveTo,
+    isEval,
     rename,
     relink,
     setqueue,

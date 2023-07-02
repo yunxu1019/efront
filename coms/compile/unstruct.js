@@ -1,4 +1,4 @@
-var { SPACE, COMMENT, EXPRESS, STRAP, QUOTED, STAMP, SCOPED, VALUE, LABEL, createString, skipAssignment, skipSentenceQueue, isHalfSentence, splice, relink, createExpressList, snapExpressHead, snapExpressFoot } = require("./common");
+var { SPACE, COMMENT, EXPRESS, STRAP, QUOTED, STAMP, SCOPED, VALUE, LABEL, isEval, createString, skipAssignment, skipSentenceQueue, isHalfSentence, splice, relink, createExpressList, snapExpressHead, snapExpressFoot } = require("./common");
 var scanner2 = require("./scanner2");
 var RE = { type: STRAP, text: "@re" };// if (_) return
 var RZ = { type: STRAP, text: "@rz" };// if (!_) return
@@ -441,17 +441,6 @@ var remove_end_comma = function (o) {
         splice(o, cx, o.length - cx);
     }
 };
-var isEvalScope = function (o) {
-    if (o.entry === "[") {
-        var h = snapExpressHead(o);
-        return o !== h;
-    }
-    else if (o.entry === '(') {
-        var h = snapExpressHead(o);
-        return o === h;
-    }
-    return false;
-};
 var ispropcall = function (o) {
     var n = o.next;
     if (!n || n.type !== SCOPED && n.entry !== '(') return false;
@@ -496,7 +485,7 @@ var _invoke = function (t, getname) {
         if (o.type === SCOPED && (o.entry === '[' || o.entry === "(")) {
             var _nameindex = nameindex;
             remove_end_comma(o);
-            var iseval = isEvalScope(o);
+            var iseval = o.iseval = isEval(o);
             var constStart = 0;
             if (!iseval) {
                 for (var cy = 0; cy < o.length; cy++) {
