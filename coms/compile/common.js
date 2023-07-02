@@ -522,6 +522,7 @@ var createScoped = function (parsed, wash) {
                         case "var":
                         case "import":
                             var m = vars;
+                            if (o.next.type === QUOTED) break;
                         case "let":
                         case "const":
                             m = m || lets;

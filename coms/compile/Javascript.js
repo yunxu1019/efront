@@ -464,10 +464,14 @@ Javascript.prototype.detour = function detour(o, ie) {
 };
 
 var removeImport = function (c, i, code) {
-    var { used, envs, vars } = code;
-    var [dec, map, o] = getDeclared(c.next);
-    if (dec.length !== 1 || !o) throw new Error("代码结构异常！");
-    if (o.type !== STRAP || o.text !== 'from') throw new Error("缺少from语句");
+    var next = c.next;
+    if (next && next.type !== QUOTED) {
+        var { used, envs, vars } = code;
+        var [dec, map, o] = getDeclared(c.next);
+        if (dec.length !== 1 || !o) throw new Error("代码结构异常！");
+        if (o.type !== STRAP || o.text !== 'from') throw new Error("缺少from语句");
+    }
+    else o = c;
     var n = o.next;
     if (!n || n.type !== QUOTED) throw new Error("缺少导入路径！");
     var oi = code.indexOf(o, i);
@@ -478,7 +482,8 @@ var removeImport = function (c, i, code) {
     used.require.push(q[0]);
     var cs = code.splice(oi + 1, nsi - oi - 1, ...q);
     q[1].push.apply(q[1], cs);
-    relink(q[1])
+    relink(q[1]);
+    if (!dec) return;
     var name = dec[0];
     var na = dec.attributes[0];
     o.type = STAMP;
