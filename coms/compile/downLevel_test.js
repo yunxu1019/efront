@@ -8,8 +8,8 @@ assert = function (a, b) {
 }
 // 声明及解构
 assert(downLevel(`var [name, type, options] = piece, key, repeat;`), 'var name = piece[0], type = piece[1], options = piece[2], key, repeat;');
-assert(downLevel(`const`), '');
-assert(downLevel(`let`), '');
+assert(downLevel(`const`), 'const');
+assert(downLevel(`let`), 'let');
 assert(downLevel(`var`), '');
 assert(downLevel(`{let a; function b(){a};return;}`), `if (tmp = 0, tmp0 =function (a) { a; function b() { a }; return tmp = 1, void 0; }(a)) { if (tmp === 1) return tmp0; }
 var tmp, a, tmp0`);

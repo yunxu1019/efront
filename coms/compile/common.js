@@ -492,13 +492,17 @@ var createScoped = function (parsed, wash) {
                         case "as":
                         case "from":
                             break;
-                        case "var":
-                        case "import":
-                            var m = vars;
-                            if (o.next.type === QUOTED) break;
                         case "let":
                         case "const":
-                            m = m || lets;
+                            m = lets;
+                            if (!o.next || o.next.type !== EXPRESS && (o.next.type !== SCOPED || o.next.entry === "(" || !o.next.next || o.next.next.type !== STAMP || !/^=$/.test(o.next.next.text))) {
+                                o.type = EXPRESS;
+                                continue;
+                            }
+                        case "import":
+                            if (!o.next || o.next.type === QUOTED) break;
+                        case "var":
+                            var m = m || vars;
                             var [declared, used0, o0, skiped] = getDeclared(o.next, s);
                             while (skiped.length) {
                                 var o1 = run(skiped[0], 0);
