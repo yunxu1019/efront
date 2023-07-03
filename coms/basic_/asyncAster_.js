@@ -36,7 +36,7 @@ class AsyncGenerator {
     }
 
 }
-Generator.prototype[Symbol.asyncIterator] = function () {
+AsyncGenerator.prototype[Symbol.asyncIterator] = function () {
     return this;
 }
 function asyncAster_() {
