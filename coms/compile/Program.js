@@ -293,7 +293,7 @@ class Program {
                         temp = temp.prev;
                     }
                     queue.inExpress = false;
-                    if (last.type === EXPRESS) {
+                    if (last.type & (EXPRESS | STRAP | VALUE | QUOTED)) {
                         // label
                         last.type = LABEL;
                         last.text += ":";

@@ -74,7 +74,6 @@ Javascript.prototype.fixType = function (o) {
     var last = o.prev;
     if (m === 'yield') {
         var temp = queue;
-        var type = STRAP;
         if (type === STRAP) while (temp) {
             if (temp.entry != "{" || !temp.prev || temp.prev.type !== SCOPED || temp.prev.entry !== '(') {
                 temp = temp.queue;
@@ -97,6 +96,15 @@ Javascript.prototype.fixType = function (o) {
             }
             temp = temp.queue;
         }
+        if (!temp) type = EXPRESS;
+        if (type === STRAP) {
+            pp = last
+            if (pp && pp.type === STAMP && pp.text === "*") pp = last.prev;
+            if (pp && pp.type === STRAP && /^(?:function|class)$/.test(pp.text)) {
+                type = EXPRESS;
+            }
+        }
+        o.type = type;
     }
 
     switch (type) {

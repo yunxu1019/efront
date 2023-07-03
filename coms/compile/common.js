@@ -448,17 +448,6 @@ var createScoped = function (parsed, wash) {
                         funcbody.async = true;
                         continue;
                     }
-                    if (o.text === 'yield') {
-                        if (funcbody.aster === true) {
-                            o.type = STRAP;
-                            continue;
-                        }
-                        if (mustBeYield(o)) {
-                            o.type = STRAP;
-                            funcbody.aster = true;
-                        }
-                        continue;
-                    }
                     if (o.next && o.next.type === STAMP && o.next.text === "=>") {
                         isScope = true;
                         isArrow = true;
@@ -499,22 +488,6 @@ var createScoped = function (parsed, wash) {
                                 continue;
                             }
                             funcbody.async = funcbody.await = true;
-                            break;
-                        case "yield":
-                            if (!funcbody.aster) {
-                                var mustyield = undefined;
-                                var tmp = id;
-                                if (body) while (body[++tmp] !== o.next) {
-                                    if (body[tmp].type === SPACE) {
-                                        mustyield = false;
-                                        break;
-                                    };
-                                }
-                                if (mustyield !== false) mustyield = mustBeYield(o);
-                                if (mustyield) funcbody.aster = true;
-                                continue;
-                            }
-                            funcbody.yield = true;
                             break;
                         case "as":
                         case "from":
@@ -629,7 +602,7 @@ var createScoped = function (parsed, wash) {
                     lets = vars;
                     if (isFunction) {
                         vars.this = true, vars.arguments = true;
-                        scoped.aster = isAster;
+                        scoped.yield = scoped.aster = isAster;
                         thisscope = scoped;
                         argscope = scoped;
                     }
