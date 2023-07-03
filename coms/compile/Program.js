@@ -227,7 +227,7 @@ class Program {
                     /[=>]$/.test(scope.text) && /[^>=]/.test(m) ||
                     /[?]$/.test(scope.text) && /[^?\.=\:]/.test(m) ||
                     /[,;]$/.test(scope.text) ||
-                    scope.end !== start) {
+                    /^[!~]$/.test(m) || scope.text !== m && /^[\+\-]$/.test(m)) {
                 } else {
                     scope.end = end;
                     scope.text = text.slice(scope.start, scope.end);

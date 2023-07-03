@@ -238,7 +238,7 @@ Javascript.prototype.setType = function (o) {
     }
     if (o.type === STAMP) {
         if (!last || last.type & (STAMP | STRAP)) {
-            o.unary = /^[^=;,\*]$|.[^\=]$/.test(o.text);
+            o.unary = /^[^=;,\*]$|.[^\=\>\<\|\&\^]$/.test(o.text);
         }
     }
 };
