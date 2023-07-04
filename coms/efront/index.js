@@ -989,8 +989,6 @@ var quit = function (e) {
 
     __exit.call(process, 1);
 };
-process.on("uncaughtException", quit);
-process.on("unhandledRejection", quit);
 process.on("exit", function () {
     if (!/win32/.test(process.platform)) {
         console.log();
