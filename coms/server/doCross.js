@@ -167,7 +167,7 @@ async function cross(req, res, referer) {
             delete headers["transfer-encoding"];
             delete headers["connection"];
         }
-        if (!res.closed) {
+        if (!res_closed) {
             if (/get/i.test(req.method) && (record.enabled || /^[\.&~]/.test(jsonlike)) && response.statusCode === 200) {
                 record($url, request, response, req, res);
             } else {
@@ -179,8 +179,9 @@ async function cross(req, res, referer) {
         }
     };
     req.cross_count = require('../efront/memery').RECROSS_LIMIT;
+    var res_closed;
     var onerror = function (e) {
-        if (res.closed) return;
+        if (res_closed) return;
         var code;
         switch (e && e.code) {
             case "ECONNRESET":
@@ -202,7 +203,7 @@ async function cross(req, res, referer) {
             if (!res.headersSent) res.writeHead(code, {});
             res.end(String(e));
         }
-        res.closed = true;
+        res_closed = true;
     };
     var fetch = function () {
         var request = http.request(Object.assign({
