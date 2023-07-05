@@ -62,6 +62,7 @@ var danceIcon = lazy(async function (theta) {
  */
 function draw(buffer) {
     danceIcon(buffer.theta);
+    if (!buffer.length) return;
     var canvas = this;
     var context = canvas.getContext("2d");
     if (canvas.width !== canvas.offsetWidth * devicePixelRatio) canvas.width = canvas.offsetWidth * devicePixelRatio;

@@ -187,7 +187,6 @@ var $scope = {
         if (inc !== false) ++this.playid;
         $scope.playing = false;
         let _audio = $scope.audio;
-        ns.disable();
         if (_audio && _audio.pause instanceof Function) _audio.pause();
         render.refresh();
     },
@@ -196,7 +195,7 @@ var $scope = {
         select(elem, $scope.activeList, null);
     },
     draw(buf) {
-        if (!player || !player.offsetHeight || !$scope.dance) return;
+        if (!player || !player.offsetHeight || !$scope.dance) return cast($scope.dance, { theta: $scope.quickTheta || 0 });
         buf = Array.prototype.map.call(buf, a => (a / 128.0 - 1) * 2 / 9 + 0.6);
         var width = freePixel(player.offsetWidth);
         var height = 72;
@@ -258,7 +257,6 @@ var $scope = {
             $scope.playing = true;
             let _audio = $scope.audio;
             if (_audio.play instanceof Function) {
-                if (ns.wake) ns.enable();
                 _audio.play();
             }
             return;
@@ -275,23 +273,18 @@ var $scope = {
          * @type {HTMLAudioElement}
          */
         var _audio = document.createElement("audio");
-        _audio.onended = function () {
-            ns.disable();
-        };
-        if (hasContext) {
-            // ios设备目前未找到可视化方案
+        if (hasContext && !/iPhone/.test(navigator.userAgent)) {
+            // ios设备添加可视化后，无法背景播放
             var context = new AudioContext;
             var source = context.createMediaElementSource(_audio);
             analyser = context.createAnalyser();
             analyser.fftSize = dancingArray.length;
             source.connect(analyser);
-            _audio.crossOrigin = "anonymous";
-            source.crossOrigin = 'anonymous';
             source.connect(context.destination);
+            _audio.crossOrigin = "anonymous";
         }
         if (_audio.play) {
             _audio.ontimeupdate = $scope.update;
-            if (ns.wake) ns.enable();
             _audio.play();//安卓4以上的播放功能要在用户事件中调用;
         } else {
             // <embed id="a_player_ie8" type="audio/mpeg" src="a.mp3" autostart="false"></embed>
@@ -327,10 +320,8 @@ var $scope = {
                 if ($scope.audio === _audio) {
                     playState.error = true;
                 }
-                if (ns) ns.disable();
             };
             delete playState.error;
-            if (ns.wake) ns.enable();
             _audio.src = hasContext && music.type !== "qqjt" ? cross.getCrossUrl(response.url) : response.url;
             _audio.play();
             data.setInstance('musicList', distlist, true);
@@ -435,20 +426,6 @@ var createControls = function () {
     return player;
 };
 var ns = document.addEventListener && new thirdParty$NoSleep;
-data.bindInstance("play-mode", function (e) {
-    if (!ns) return;
-    if (e.wake) {
-        ns.wake = true;
-        if ($scope.playing) {
-            $scope.pause();
-            $scope.play();
-        }
-    }
-    else if (ns) {
-        ns.wake = false;
-        ns.disable();
-    }
-});
 
 var player = function (player) {
     render(player, $scope);
