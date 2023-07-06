@@ -11,7 +11,7 @@ function queue(list, count = 1, context = null) {
         context = temp;
     }
     return new Promise(function (ok, oh) {
-        var cx = 0;
+        var cx = list.skip || 0;
         var result = [];
         var promised = false;
         var error_count = 0;
@@ -22,8 +22,9 @@ function queue(list, count = 1, context = null) {
         var next = function () {
             run();
         };
+        var _count = count;
         var run = function () {
-            if (error_count && count === 1) return promised = null;
+            if (error_count >= _count) return promised = null;
             if (cx >= list.length) return promised = null, count = 0, Promise.all(result).then(ok, oh);
             var saved_cx = cx;
             var args = list[cx];
