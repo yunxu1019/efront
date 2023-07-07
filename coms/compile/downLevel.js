@@ -97,11 +97,14 @@ var killdec = function (queue, i, getobjname, _var = 'var', killobj) {
         }
         else {
             var objname = getobjname(deep);
-            write(v, `(${objname}=${k},${objname}!==undefined?${objname}:)`, x < total - 1);
+            var tmpv = scanner2(`${index++ > 0 ? ',' : ''}${objname}=${k}`)
+            splice(queue, i, 0, ...tmpv);
+            i += tmpv.length;
+            write(v, `${objname}!==undefined?${objname}:`, x < total - 1);
             var skiped = splice2(d[2], d[3], d[4]);
             killobj(skiped);
-            splice(queue[i - 1], queue[i - 1].length, 0, ...skiped);
-            // i += skiped.length;
+            splice(queue, i, 0, ...skiped);
+            i += skiped.length;
         }
         index++;
     };
@@ -547,6 +550,7 @@ var killcls = function (body, i, getname_) {
     var ishalf = isHalfSentence(body, i - 1);
     var start = o;
     var decName = !o.isExpress && o.next.type === EXPRESS && o.next.text;
+    var isExpress = o.isExpress;
     while (o) {
         o = o.next;
         if (!o) break;
@@ -617,7 +621,9 @@ var killcls = function (body, i, getname_) {
         }
         relink(o);
         if (invokes.length) insert1(invokes, null, { type: STAMP, text: ',' });
-        insert1(invokes, null, ...scanner2('function ' + name));
+        var fname = scanner2('function ' + name);
+        if (isExpress) fname[0].isExpress = true;
+        insert1(invokes, null, ...fname);
         if (base) {
             constructor[1].push(...scanner2('return this'))
             relink(constructor[1]);
@@ -667,7 +673,7 @@ var killcls = function (body, i, getname_) {
     var s = i;
     i = body.indexOf(o, i);
     if (i < 0) i = body.length;
-    if (head.length > 1 || start.isExpress || ishalf && defines.length) {
+    if (head.length > 1 || start.isExpress && (defines.length) || ishalf && defines.length) {
         splice(defines, defines.length, 0, ...scanner2(`\r\nreturn ${clz.name}`))
         if (decName) splice(func, 0, 0, ...scanner2(`var ${decName}=`));
         splice(body, s, i - s, ...func);
@@ -1128,7 +1134,7 @@ var unforof = function (o, getnewname, used, killobj) {
     else {
         rootenvs.Symbol = true;
         splice(o, o.length, 0, ...scanner2(`${gname}=${hasawait ? `${oname}[Symbol["asyncIterator"]]||${oname}[Symbol["iterator"]]` : `${oname}[Symbol["iterator"]]`}||Array["prototype"][Symbol["iterator"]],${gname}=${gname}["call"](${oname}),${iname}=${hasawait ? "await " : ''}${gname}["next"]();!${iname}["done"]&&(,true);${iname}=${hasawait ? 'await ' : ''}${gname}["next"]()`, innerJs));
-        splice(p, p.length, 0, ...scanner2(`=${iname}["value"]`));
+        splice(p, p.length, 0, ...scanner2(`=${hasawait ? 'await ' : ''}${iname}["value"]`, innerJs));
         killdec(p, 0, getpname, null, killobj);
         if (p.length) splice(o[o.length - 7 - hasawait], 0, 0, ...p);
         else splice(o[o.length - 7 - hasawait], 0, 1);

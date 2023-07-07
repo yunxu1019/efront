@@ -325,6 +325,11 @@ var pushstep = function (result, step) {
     }
     _return(step);
 };
+var patchresult = function (result) {
+    for (var cx = 0, dx = result.length; cx < dx; cx++) {
+        patchstep(result[cx], result.length - cx, 0);
+    }
+};
 var patchstep = function (r, nextindex, h) {
     var name = r.name;
     var o, i, x, p, n;
@@ -361,17 +366,9 @@ var patchstep = function (r, nextindex, h) {
     }
 };
 var flushqueue = function (result, queue) {
-    var savedLength = result.length;
-    var savedIndex = savedLength - 1;
-    var prev = result[savedIndex];
-    if (prev) var patch = prev.length;
     for (var q of queue) pushstep(result, q);
-    queue = [];
-    if (ret_) {
-        if (prev) patchstep(prev, result.length - savedIndex, patch || 0);
-        result.slice(savedLength).forEach((a, i) => patchstep(a, result.length - savedLength - i, 0));
-    }
 };
+
 
 var _do = function (body, cx, unblock, result) {
     var o = body[cx];
@@ -559,9 +556,9 @@ var _invoke = function (t, getname) {
         }
         pushstep(result, t);
     }
+    if (ret_) patchresult(result, 0);
     return result;
 };
-
 var _await = function (t) {
     var t0 = t[0];
     if (t0.type === STRAP) {
@@ -678,10 +675,12 @@ var ternary = function (body, getname, ret) {
             if (!question.length) {
                 var b = body.slice(equalsend, bx);
                 relink(b);
-                var c = toqueue(body.slice(bx + 1, cx), getnextname, true);
-                var d = toqueue(body.slice(cx + 1), getnextname, true);
-                patchname(c, getnextname);
-                patchname(d, getnextname);
+                var c = toqueue(equals.concat(body.slice(bx + 1, cx)), getnextname, true);
+                var d = toqueue(equals.concat(body.slice(cx + 1)), getnextname, true);
+                if (!equals.length && ret) {
+                    patchname(d, getnextname);
+                    patchname(c, getnextname);
+                }
                 pushstep(d, stepReturn(1, 0, d));
                 pushstep(c, stepReturn(d.length + 1, 0, c));
                 pushstep(explist, scanner2(`if(${getCondition(b, function (b) {
@@ -699,8 +698,11 @@ var ternary = function (body, getname, ret) {
                 qe.text = String(explist.length - qi);
                 explist.push(...d);
                 hasquestion = true;
-                break;
+                return explist;
             }
+        }
+        else if (o.text === "=>") {
+            cx = skipAssignment(body, cx + 1);
         }
         else if (powermap[o.text] === powermap["="]) {
             var ass = toqueue(body.slice(equalsend, cx), getnextname, false);
@@ -723,6 +725,7 @@ var ternary = function (body, getname, ret) {
             explist = [r];
         }
         else {
+            if (equals.length && bd.length === 1 && bd[0].type === SCOPED && bd[0].entry === '(' && skipAssignment(bd[0], 0) === bd[0].length) bd = bd[0];
             explist = _express(bd, getnextname, equalsend > skip || ret);
         }
     }

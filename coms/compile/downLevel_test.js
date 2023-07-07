@@ -34,7 +34,7 @@ assert(downLevel(`[...[a]]=[1]`), 'a = [1][0]');
 assert(downLevel(`[...[a]]=[...[1]]`), 'a = [1][0]');
 assert(downLevel(`[a[a]]=[1]`), 'a[a] = [1][0]');
 assert(downLevel(`[a,b]=[b,a]`), '_ = [b, a], a = _[0], b = _[1]\r\nvar _');
-assert(downLevel(`var {c:a=2}=b`), 'var a = (_ = b.c, _ !== undefined ? _ : 2)\r\nvar _');
+assert(downLevel(`var {c:a=2}=b`), 'var _ = b.c, a = _ !== undefined ? _ : 2\r\nvar _');
 assert(downLevel(`var {"c":a}=b`), 'var a = b["c"]');
 assert(downLevel(`var {1:a}=b`), 'var a = b[1]');
 assert(downLevel(`var [,a]=b`), 'var a = b[1]');
@@ -203,7 +203,7 @@ assert(downLevel(`function (a,...,c){}`), `function (a, c) { c = arguments["leng
 assert(downLevel(`(...a) => k`), `var slice_ = Array["prototype"]["slice"];\r\nfunction () { var a = slice_["call"](arguments, 0); return k }`)
 assert(downLevel(`for await(o of os) noSymbol`), `return async_(
 function () {
-return [7, 8]
+return [8, 8]
 },
 function () {
 _2 = Symbol["asyncIterator"]; _2 = os[_2]; if (_2) return [1, 0]; _2 = Symbol["iterator"]; _2 = os[_2]; if (_2) return [1, 0]; _2 = Symbol["iterator"]; _2 = Array["prototype"][_2]
@@ -215,13 +215,16 @@ function (_1) {
 _2 = _1; _ = _2; return [1, 0]
 },
 function () {
-_2 = !_["done"]; if (!_2) return [1, 0]; o = _["value"]; _2 = (true)
+_2 = !_["done"]; if (!_2) return [2, 0]; _2 = _["value"]; return [_2, 1]
+},
+function (_1) {
+_2 = _1; o = _2; _2 = (true)
 },
 function () {
 if (!_2) return [2, 0]; noSymbol; _2 = _0["next"](); return [_2, 1]
 },
 function (_1) {
-_2 = _1; _ = _2; return [-2, 0]
+_2 = _1; _ = _2; return [-3, 0]
 },
 function () {
 return [0, 9]
@@ -238,7 +241,7 @@ return [1, 9]
 var _, _0, _2`)
 assert(downLevel(`for await(var [o,s] of os) noSymbol`), `return async_(
 function () {
-return [10, 8]
+return [11, 8]
 },
 function () {
 o; s; _5 = Symbol["asyncIterator"]; _5 = os[_5]; if (_5) return [1, 0]; _5 = Symbol["iterator"]; _5 = os[_5]; if (_5) return [1, 0]; _5 = Symbol["iterator"]; _5 = Array["prototype"][_5]
@@ -250,7 +253,10 @@ function (_4) {
 _5 = _4; _ = _5; return [1, 0]
 },
 function () {
-_5 = !_["done"]; if (!_5) return [1, 0]; _1 = _["value"]; _6 = Symbol["iterator"]; _6 = _1[_6]; if (_6) return [1, 0]; _6 = Symbol["iterator"]; _6 = Array["prototype"][_6]
+_5 = !_["done"]; if (!_5) return [5, 0]; _5 = _["value"]; return [_5, 1]
+},
+function (_4) {
+_5 = _4; _1 = _5; _6 = Symbol["iterator"]; _6 = _1[_6]; if (_6) return [1, 0]; _6 = Symbol["iterator"]; _6 = Array["prototype"][_6]
 },
 function () {
 _6 = (_6); _2 = _6["call"](_1); _3 = undefined; _3 = _2["next"](); o = _3["value"]; _3 = _2["next"](); s = _3["value"]; _9 = !_3; if (_9) return [1, 0]; _9 = !_3["done"]
@@ -265,7 +271,7 @@ function () {
 if (!_5) return [2, 0]; noSymbol; _5 = _0["next"](); return [_5, 1]
 },
 function (_4) {
-_5 = _4; _ = _5; return [-5, 0]
+_5 = _4; _ = _5; return [-6, 0]
 },
 function () {
 return [0, 9]

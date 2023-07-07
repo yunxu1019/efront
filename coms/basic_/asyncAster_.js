@@ -3,8 +3,8 @@ class AsyncGenerator {
         this.state = "suspended";
         this.exec = f.bind(this, this.return.bind(this), this.throw.bind(this), (value, next) => {
             delete this.promise;
-            this.return(value);
             this.exec = next;
+            this.resolve(value);
         })
     };
     throw(e) {

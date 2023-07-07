@@ -42,7 +42,7 @@ var harness = await async function () {
         return 0;
     });
     codes.forEach(c => extend(vars, c.vars));
-    return new Function("$262", 'print', codes.join("\r\n") + `\r\nreturn {${Object.keys(vars).map(a => `${a}:${a}`).join(',')}}`)($262, console.fail);
+    return new Function("$262", 'print', codes.join("\r\n") + `\r\nreturn {${Object.keys(vars).map(a => `${a}:${a}`).join(',')}}`)($262, console.info);
 }();
 await async function () {
     extend(harness, {
@@ -50,9 +50,12 @@ await async function () {
         async_,
         asyncAster_,
         isFunction,
+        restIter_,
+        rest_,
         exec_,
-    });
-    var rest = [testpath];
+    })
+    extend(global, harness);
+    var rest = [path.join(testpath, 'test')];
     var ignore = [
         "dynamic-import",
         "intl402",
@@ -72,7 +75,7 @@ await async function () {
         }
     }
     // testFiles = testFiles.slice(4053,9153);
-    // testFiles.skip = 4053;
+    testFiles.skip = 0;
     var currentTest, currentText;
     var currentIndex = 0;
     var running = false;
@@ -95,14 +98,10 @@ await async function () {
                 displayErrors: false,
             };
             running = true;
-            if (code.envs.$DONE) await new Promise(function (ok, oh) {
-                harness.$DONE = function (e) {
-                    if (e) oh(e);
-                    else ok();
-                };
-                vm.runInNewContext(text, harness, ctxOptions);
-            });
-            else vm.runInNewContext(text, harness, ctxOptions);
+            if (code.envs.$DONE) harness.$DONE = function (e) {
+                if (e) console.fail(ti, f + "\r\n"), console.log(currentText), console.trace(e), process.exit();
+            };
+            vm.runInThisContext(text, ctxOptions);
             running = false;
         };
         var ti = `${i}/${testFiles.length}`;
@@ -131,7 +130,11 @@ await async function () {
                 await runText(data);
             } catch (e) { de = null };
         } catch { de = null; }
-        if (!text && de) throw de;
+        if (!text && de) {
+            console.log(de)
+            console.fail(ti, f);
+            throw de;
+        }
         console.pass(path.relative(testpath, f));
     }, 1, null);
     console.log(`\r\n完成 ${testFiles.length} 个测试项！`);

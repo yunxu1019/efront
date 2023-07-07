@@ -20,7 +20,7 @@ test('a * a + b * c * c ** d', "_ = a * a, _0 = b * c, _1 = c ** d, _0 = _0 * _1
 test('a * a || b * c * c ** d', "_ = a * a @re _ = b * c, _0 = c ** d, _ * _0");
 test('a * a || b * c || c * d', "_ = a * a @re _ = b * c @re c * d");
 test('a || b || c', "_ = a; if (_) return [1, 0]; _ = b; if (_) return [1, 0]; c", true);
-test('a?b:c', "if (!a) return [1, 0]; _ = b; return [2, 0];\r\n _ = c; return [1, 0]");
+test('a?b:c', "if (!a) return [1, 0]; b; return [2, 0];\r\n c; return [1, 0]");
 test('a * a && b * c * c ** d', "_ = a * a @rz _ = b * c, _0 = c ** d, _ * _0");
 test('a = 1 + 2', "a = 1 + 2", true);
 test('a = b', "a = b", true);
@@ -38,6 +38,8 @@ test('a * a ?? b * c * c ** d', "_ = a * a; if (_ !== null && _ !== undefined) r
 test('a * a && await b*c', "_ = a * a; if (!_) return [2, 0]; _ = b; return [_, 1];\r\n _ = @; _ * c", true);
 test("await a", "_ = a; return [_, 1]", true);
 test("yield a", "return [a, 3]", true);
+test("!a.done&&(b=await a.value)", "_ = !a.done; if (!_) return [2, 0]; _ = a.value; return [_, 1];\r\n _ = @; b = _; (_)", true);
+test("a=1?2:3",`if (false) return [1, 0]; a = 2; return [2, 0];\r\n a = 3; return [1, 0]`)
 test("await a()", "_ = a(); return [_, 1]", true);
 test("yield a()", "_ = a(); return [_, 3]", true);
 test("a = await a()", "_ = a(); return [_, 1];\r\n _ = @; a = _", true);

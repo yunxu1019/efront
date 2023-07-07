@@ -71,7 +71,7 @@ var exec_ = function (args, ok, oh, int) {
                         try {
                             return p.then(next, thro);
                         } catch (e) {
-                            return thro(e);
+                            return Promise.reject(e).then(next, thro);
                         }
                     }
                     else return next(p);
