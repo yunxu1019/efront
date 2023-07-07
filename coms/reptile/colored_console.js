@@ -97,10 +97,10 @@ var write = function (hasNewLine, str) {
         bgColor = colors[bg] || "",
         reset = colors.Reset;
     var hasNewLine = /^(warn|error|pass|fail)$/.test(log);
-    var logger = function (...args) {
+    var logger = function () {
         var label = fgColor + bgColor + info + reset;
         var time_stamp = '';
-        var str = [time_stamp, label, ...args.map(a => renderColor(a))].join(" ");
+        var str = [time_stamp, label].concat(Array.prototype.map.call(arguments, a => renderColor(a))).join(" ");
         write1(hasNewLine, str);
     };
     colored[log] = logger;
@@ -120,7 +120,7 @@ var formatRows = function (arg, rows, deep, entry, leave) {
     var space = new Array(deep).join("    ");
     var deepspace = new Array(deep + 1).join("    ");
     var lens = rows.slice(0, 100).map(r => r.replace(colorReg, '').replace(/[\u00ff-\uffff]/g, '00').length);
-    var maxLength = Math.max(...lens) + 2;
+    var maxLength = Math.max.apply(Math, lens) + 2;
     var itemcount = (process.stdout.columns - deepspace.length - 10) / maxLength | 0;
     if (rows.length > itemcount) {
         if (itemcount * itemcount > rows.length + process.stdout.columns) itemcount = Math.ceil(Math.sqrt(rows.length + process.stdout.columns));
@@ -162,9 +162,9 @@ var formatRows = function (arg, rows, deep, entry, leave) {
         }
         else {
             for (var cx = 0, dx = rows.length; cx < dx; cx += itemcount) {
-                res.push([rows[cx], ...rows.slice(cx + 1, cx + itemcount).map((r, i) => {
+                res.push([rows[cx]].concat(rows.slice(cx + 1, cx + itemcount).map((r, i) => {
                     return Array(Math.max(maxLength[i] - lens[cx + i], 0)).join(" ") + r;
-                })].join(', '));
+                })).join(', '));
             }
         }
     }
@@ -265,11 +265,11 @@ colored.time = function (date = new Date, str) {
     write1(true, colors.BgGray + colors.FgWhite2 + formatDate.call(date) + str + colors.Reset);
 };
 
-colored.type = function (...args) {
-    write1(false, args.map(a => format(a)).join(' '));
+colored.type = function () {
+    write1(false, Array.prototype.map.call(arguments, a => format(a)).join(' '));
 };
-colored.line = function (...args) {
-    write1(true, args.map(a => format(a)).join(' '));
+colored.line = function () {
+    write1(true, Array.prototype.map.call(arguments, a => format(a)).join(' '));
 };
 var _log = console.log;
 colored.log = function () {
