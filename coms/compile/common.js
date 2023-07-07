@@ -600,10 +600,10 @@ var createScoped = function (parsed, wash) {
                     if (isFunction) {
                         vars.this = true, vars.arguments = true;
                         scoped.yield = scoped.aster = isAster;
-                        scoped.await = scoped.async = isAsync;
                         thisscope = scoped;
                         argscope = scoped;
                     }
+                    scoped.await = scoped.async = isAsync;
                     scoped.isfunc = true;
                     isFunction = true;
                     if (function_obj) function_obj.scoped = scoped;

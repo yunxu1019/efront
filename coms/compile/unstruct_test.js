@@ -1,9 +1,11 @@
 var unstruct = require('./unstruct');
 var scanner2 = require("./scanner2");
-var { createString } = require("./common");
-var r = 10;
+var { createString, STRAP } = require("./common");
+var r = 12;
+var innerjs = new Javascript;
+innerjs.defaultType = STRAP;
 function test(codetext, expect, ret = false) {
-    var code = scanner2(codetext), i = -2;
+    var code = scanner2(codetext, innerjs), i = -2;
     try { code = unstruct(code, () => ++i >= 0 ? "_" + i : '_', ret && "@"); } catch (e) { console.log(r); throw e }
     assert(code.map(createString).join(";\r\n "), expect, r++);
 }

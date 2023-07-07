@@ -62,7 +62,7 @@ var killdec = function (queue, i, getobjname, _var = 'var', killobj) {
                 while (iter.index < inc) iter.next();
                 k = iter.tname + `["value"]`;
             }
-            else k = tmpname + (/^\./.test(k) ? [`["${k.slice(1)}"]`] : k);
+            else k = tmpname + k;
         }
         if (v.attributes) {
             tmpname = k;
@@ -107,11 +107,11 @@ var killdec = function (queue, i, getobjname, _var = 'var', killobj) {
     };
     var doged, total;
     var write = function (sname, value, hasnext) {
-        if (!sname[0].istmp && hasnext) {
+        if (value && (sname.length === 1 && sname[0].text === tmpname) && hasnext) {
             tmpname = getobjname(deep++);
             if (index > 0) splice(queue, i++, 0, { type: STAMP, text: ',' });
-            var q = scanner2(`${tmpname}=`);
-            splice(queue, i, 0, ...q, ...sname);
+            var q = scanner2(`${tmpname}=${sname[0].text}`);
+            splice(queue, i, 0, ...q);
             i += q.length;
             index++;
         }
@@ -181,6 +181,8 @@ var killdec = function (queue, i, getobjname, _var = 'var', killobj) {
         var head = d.attributes.slice(0, at);
         for (var r of rest) if (r[1] === name) return d.attributes.forEach(dec);
         var [name, at, a] = d["..."];
+        if (name[0].text === "...") name.shift();
+        else name[0].text = name[0].text.replace(/^\.\.\./, '');
         var dp = 0;
         if (d.entry === '{') {
             var map = Object.create(null);
@@ -505,7 +507,7 @@ var getprop = function (o, m) {
         if (!prop.short) prop.value = splice2(o, s, m);
         else splice2(o, s, m);
     }
-    else prop.value = [];
+    else if (!prop.value) prop.value = [];
     return [prop, m];
 };
 var setprop = function (prop, k, d, q) {
@@ -852,9 +854,9 @@ var killobj = function (body, getobjname, getletname, getname_, letname_, deep =
                         var name = getname_("_");
                         var y = scanner2(`for await(var ${name} of)yield ${name}`, innerJs);
                         splice(y[2], y[2].length, 0, ...splice(body, i, n - i));
-                        splice.debug=true;
+                        splice.debug = true;
                         splice(body, i - 1, 1, ...y);
-                        splice.debug=false;
+                        splice.debug = false;
                         innerJs.setType(y[1]);
                         if (y[1].type === EXPRESS) splice(body, i, 1);
                         unforof(y[0], getname_.bind(null, '_'), y.used, deepkill);

@@ -83,7 +83,8 @@ var setStrapExpress = function (mark_type, mark_text, prop, o, default_type) {
                 temp = temp.queue;
                 continue;
             }
-            pp = temp.prev.prev;
+            temp = temp.prev;
+            pp = temp.prev;
         }
         else {
             temp = temp.queue;
@@ -99,11 +100,20 @@ var setStrapExpress = function (mark_type, mark_text, prop, o, default_type) {
             type = pp && pp.type === mark_type && pp.text === mark_text ? STRAP : EXPRESS;
             break;
         }
-        if (pp && pp.type === EXPRESS) pp = pp.prev;
-        if (pp && pp.prev && pp.prev.type === STRAP && pp.prev.text === "function") {
-            pp = pp.prev;
+        var tn = temp.next;
+        var isfunc = false;
+        if (tn && tn.type === STAMP && tn.text === '=>') isfunc = true;
+        if (!isfunc) {
+            if (pp && pp.type === EXPRESS) pp = pp.prev;
+            if (pp && pp.prev && pp.prev.type === STRAP && pp.prev.text === "function") {
+                pp = pp.prev;
+                isfunc = true;
+            }
+            else {
+                isfunc = pp && pp.type === STRAP && pp.text === 'function';
+            }
         }
-        if (pp && pp.type === STRAP && pp.text === 'function') {
+        if (isfunc) {
             var chk = pp[prop];
             type = (chk && chk.type === mark_type && chk.text === mark_text) ? STRAP : EXPRESS;
             break;
