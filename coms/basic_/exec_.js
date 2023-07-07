@@ -1,3 +1,4 @@
+var tick = Promise.resolve();
 var exec_ = function (args, ok, oh, int) {
     var p = null, index = 0, r, e, finished = false, t = this;
     var next = function (arg) {
@@ -46,12 +47,17 @@ var exec_ = function (args, ok, oh, int) {
     var run = function () {
         var args_length = args.length, i;
         if (!catch_ || index >= args_length) {
-            if (throwed) return oh();
+            if (throwed) {
+                return oh(e);
+            }
             if (finished) return ok(r);
         }
+        catch_ = null;
         while (index < args_length) {
             try {
-                [p, i] = args[index].call(t, p) || [1, 0];
+                var a = args[index].call(t, p) || [1, 0];
+                p = a[0];
+                i = a[1];
             } catch (e) {
                 p = null;
                 thro(e);
@@ -61,18 +67,28 @@ var exec_ = function (args, ok, oh, int) {
                 case 0: index += p; break; // reflow
                 case 1:
                     index++; // await p;
-                    if (p && isFunction(p.then)) return p.then(next, thro);
+                    if (p && isFunction(p.then)) {
+                        try {
+                            return p.then(next, thro);
+                        } catch (e) {
+                            return thro(e);
+                        }
+                    }
                     else return next(p);
                 case 2: return finished = true, retn(p); // return p;
                 case 3: return index++, int(p, next); // yield p;
                 case 7: index++; catches.push([index, p]); break; // try catch finally?
                 case 8: index++; catches.push([index, p, 1]); break; // try finally
                 case 9: return p ? fine() : fina(); // finally
-                default: throw "代码异常！";
+                default: throw console.log(a), "代码异常！";
             }
         }
-        catch_ = null;
         retn();
     };
+    var ticked = false;
+    tick.then(() => {
+        if (ticked) return oh(e);
+        ticked = true;
+    })
     next();
 };

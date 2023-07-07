@@ -1,30 +1,37 @@
 class AsyncGenerator {
     constructor(f) {
         this.state = "suspended";
-        this.exec = f.bind(this, this.return, this.throw, (value, next) => {
-            this.exec = next;
+        this.exec = f.bind(this, this.return.bind(this), this.throw.bind(this), (value, next) => {
             delete this.promise;
-            this.resolve({ value, done: false });
+            this.return(value);
+            this.exec = next;
         })
     };
     throw(e) {
         delete this.exec;
         this.state = "closed";
-        return Promise.reject(e);
+        this.reject(e);
     }
-    return(value) {
+    return(v) {
         delete this.exec;
         this.state = "closed";
-        return Promise.resolve({ value: undefined, done: true });
+        this.value = v;
+        this.resolve(v);
     }
     next(a) {
+        delete this.value;
         if (this.exec) {
             var exec = this.exec;
             delete this.exec;
-            delete this.value;
-            this.promise = new Promise(ok => {
+            this.promise = new Promise((ok, oh) => {
                 this.resolve = ok;
+                this.reject = oh;
                 exec(a);
+            }).then((v) => {
+                return {
+                    value: v,
+                    done: !!this.exec
+                }
             });
             return this.promise;
         }
@@ -32,12 +39,11 @@ class AsyncGenerator {
             var next = () => this.next(a);
             return this.promise.then(next, next);
         }
-        return Promise.resolve({ value: undefined, done: true });
+        return Promise.resolve({ value: this.value, done: true });
     }
-
-}
-AsyncGenerator.prototype[Symbol.asyncIterator] = function () {
-    return this;
+    [Symbol.asyncIterator]() {
+        return this;
+    }
 }
 function asyncAster_() {
     return new AsyncGenerator(exec_.bind(this, arguments));

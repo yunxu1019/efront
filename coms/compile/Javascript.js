@@ -39,6 +39,7 @@ class Javascript extends Program {
     strapexp_reg = /^(new|void|typeof|delete|class|function|await)/;
     forceend_reg = /^(return|yield|break|continue|debugger)$/;
     classstrap_reg = /^(class|function|async)$/;
+    defaultType = EXPRESS;
 }
 var propresolve_reg = /^(static|get|set|async)$/;
 
@@ -67,46 +68,60 @@ Javascript.prototype.isProperty = function (o) {
     }
     return false;
 };
-Javascript.prototype.fixType = function (o) {
+var setStrapExpress = function (mark_type, mark_text, prop, o, default_type) {
+    var temp = o.queue;
     var type = o.type;
-    var queue = o.queue;
-    var m = o.text;
-    var last = o.prev;
-    if (m === 'yield') {
-        var temp = queue;
-        if (type === STRAP) while (temp) {
-            if (temp.entry != "{" || !temp.prev || temp.prev.type !== SCOPED || temp.prev.entry !== '(') {
+    var prev = o.prev;
+    if (prev && prev.type === STRAP && /^(?:function|class|let|const|var)$/.test(prev.text)) {
+        o.type = EXPRESS;
+        return;
+    }
+    if (type === STRAP) while (temp) {
+        if (temp.entry === '(') var pp = temp.prev;
+        else if (temp.entry === "{") {
+            if (!temp.prev || temp.prev.type !== SCOPED || temp.prev.entry !== '(') {
                 temp = temp.queue;
                 continue;
             }
-            var pp = temp.prev.prev;
-            var isprop = pp.isprop;
-            if (pp && pp.type === EXPRESS || pp.isprop) pp = pp.prev;
-            if (!pp || pp.type === STRAP && pp.text !== 'function') {
-                temp = temp.queue;
-                continue;
-            }
-            if (pp.type === STAMP && pp.text === "*" && (pp.isprop || pp.prev && pp.prev.type === STRAP && pp.prev.text === "function")) {
+            pp = temp.prev.prev;
+        }
+        else {
+            temp = temp.queue;
+            continue;
+        }
+        if (pp && pp.isprop) {
+            pp = pp.prev;
+            if (pp && pp.type === mark_type && pp.text === mark_text) {
                 type = STRAP;
                 break;
             }
-            if (isprop || pp.type === STRAP && pp.text === "function") {
-                type = EXPRESS;
-                break;
-            }
-            temp = temp.queue;
+            if (pp && pp.type === STAMP && pp.text === '*') pp = pp.prev;
+            type = pp && pp.type === mark_type && pp.text === mark_text ? STRAP : EXPRESS;
+            break;
         }
-        if (!temp) type = EXPRESS;
-        if (type === STRAP) {
-            pp = last
-            if (pp && pp.type === STAMP && pp.text === "*") pp = last.prev;
-            if (pp && pp.type === STRAP && /^(?:function|class)$/.test(pp.text)) {
-                type = EXPRESS;
-            }
+        if (pp && pp.type === EXPRESS) pp = pp.prev;
+        if (pp && pp.prev && pp.prev.type === STRAP && pp.prev.text === "function") {
+            pp = pp.prev;
         }
-        o.type = type;
+        if (pp && pp.type === STRAP && pp.text === 'function') {
+            var chk = pp[prop];
+            type = (chk && chk.type === mark_type && chk.text === mark_text) ? STRAP : EXPRESS;
+            break;
+        }
+        temp = temp.queue;
     }
-
+    if (!temp) type = default_type;
+    o.type = type;
+}
+var setYieldExpress = setStrapExpress.bind(null, STAMP, "*", 'next');
+var setAwaitExpress = setStrapExpress.bind(null, STRAP, "async", 'prev');
+Javascript.prototype.fixType = function (o) {
+    var m = o.text;
+    if (m === 'yield') setYieldExpress(o, this.defaultType);
+    else if (m === 'await') setAwaitExpress(o, this.defaultType);
+    var last = o.prev;
+    var type = o.type;
+    var queue = o.queue;
     switch (type) {
         case QUOTED:
             if (this.isProperty(o)) type = PROPERTY;
@@ -248,11 +263,12 @@ var insertBefore = function (o) {
     var os = [].slice.call(arguments, 1);
     queue.splice.apply(queue, [index, 0].concat(os));
     var prev = o && o.prev, next = o;
+    var desc = { value: queue, configurable: true, enumerable: false }
     for (var o of os) {
         if (prev) prev.next = o;
         else queue.first = o;
         o.prev = prev;
-        Object.defineProperty(o, 'queue', { value: queue });
+        Object.defineProperty(o, 'queue', desc);
         prev = o;
     }
     o.next = next;
@@ -265,11 +281,12 @@ var insertAfter = function (o) {
     var os = [].slice.call(arguments, 1);
     queue.splice.apply(queue, [index, 0].concat(os));
     var prev = o, next = o && o.next;
+    var desc = { value: queue, configurable: true, enumerable: false }
     for (var o of os) {
         if (prev) prev.next = o;
         else queue.first = o;
         o.prev = prev;
-        Object.defineProperty(o, 'queue', { value: queue });
+        Object.defineProperty(o, 'queue', desc);
         prev = o;
     }
     o.next = next;

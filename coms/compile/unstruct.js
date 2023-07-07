@@ -514,7 +514,7 @@ var _invoke = function (t, getname) {
                 if (!iseval || m[m.length - 1] === o.last) {
                     var q = toqueue(m, getdeepname, 1);
                     var qe = q[q.length - 1];
-                    splice(o, by, ey - by, { text: qe.name, type: EXPRESS });
+                    splice(o, by, ey - by, ...qe ? [{ text: qe.name, type: EXPRESS }] : []);
                     cy = by + 1;
                 }
                 else {
@@ -607,7 +607,7 @@ var clone = function (o) {
 var popass = function (explist) {
     var asn = explist.pop();
     var n;
-    if (!asn.ret_ && asn.length) {
+    if (asn && !asn.ret_ && asn.length) {
         asn = createExpressList(asn);
         if (asn.length > 1) {
             explist.push(...asn.slice(0, asn.length - 1));
@@ -619,7 +619,7 @@ var popass = function (explist) {
         }
     }
     else {
-        n = asn.name;
+        n = asn && asn.name;
         asn = [{ type: EXPRESS, text: n }];
     }
     return [asn, n];

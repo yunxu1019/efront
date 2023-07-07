@@ -362,7 +362,7 @@ var snapExpressFoot = function (o) {
             n = o.next;
         }
         if (!n) break;
-        if (n.type === SCOPED && o.entry !== '{'
+        if (n.type === SCOPED && (o.entry !== '{' || o.isObject)
             || /\.$/.test(o.text) && !o.isdigit
             || n.type === EXPRESS && /^\??\.[^\.]/.test(n.text)
             || n.type === QUOTED && (n.length || /^\`/.test(n.text))
@@ -390,6 +390,7 @@ var mustBeYield = function (o) {
 var createScoped = function (parsed, wash) {
     var used = Object.create(null); var vars = Object.create(null), lets = vars;
     var scoped = [], funcbody = scoped, argscope = scoped, thisscope = scoped;
+    funcbody.isroot = true;
     scoped.body = parsed;
     scoped.isfunc = true;
     var run = function (o, id, body) {
@@ -440,13 +441,9 @@ var createScoped = function (parsed, wash) {
                 case VALUE:
                     if (o.isdigit) break;
                 case EXPRESS:
+                    // if (o.text === 'readFileAsync') console.log(o)
                     if (o.prev && o.prev.type === EXPRESS) {
                         if (/\.$/.test(o.prev.text)) break;
-                    }
-                    if (o.text === 'await' && funcbody.async !== false) {
-                        o.type = STRAP;
-                        funcbody.async = true;
-                        continue;
                     }
                     if (o.next && o.next.type === STAMP && o.next.text === "=>") {
                         isScope = true;
@@ -483,11 +480,6 @@ var createScoped = function (parsed, wash) {
                             funcbody.return.push(o);
                             break;
                         case "await":
-                            if (funcbody.async === false) {
-                                o.type = EXPRESS;
-                                continue;
-                            }
-                            funcbody.async = funcbody.await = true;
                             break;
                         case "as":
                         case "from":
@@ -495,7 +487,7 @@ var createScoped = function (parsed, wash) {
                         case "let":
                         case "const":
                             m = lets;
-                            if (!o.next || o.next.type !== EXPRESS && (o.next.type !== SCOPED || o.next.entry === "(" || !o.next.next || o.next.next.type !== STAMP || !/^=$/.test(o.next.next.text))) {
+                            if (!o.next || o.next.type !== EXPRESS && (o.next.type !== SCOPED || o.next.entry === "(")) {
                                 o.type = EXPRESS;
                                 continue;
                             }
@@ -545,8 +537,9 @@ var createScoped = function (parsed, wash) {
                             break;
                         case "for":
                             o = o.next;
-                            if (o.type === STRAP && o.text === 'await') {
-                                funcbody.async = funcbody.await = true;
+                            if (o.type !== SCOPED && o.text === 'await') {
+                                if (o.type === EXPRESS) o.type = STRAP;
+                                funcbody.await = funcbody.async = true;
                                 o = o.next;
                             }
                             isScope = true;
@@ -607,10 +600,10 @@ var createScoped = function (parsed, wash) {
                     if (isFunction) {
                         vars.this = true, vars.arguments = true;
                         scoped.yield = scoped.aster = isAster;
+                        scoped.await = scoped.async = isAsync;
                         thisscope = scoped;
                         argscope = scoped;
                     }
-                    scoped.async = isAsync;
                     scoped.isfunc = true;
                     isFunction = true;
                     if (function_obj) function_obj.scoped = scoped;
@@ -722,7 +715,7 @@ var createScoped = function (parsed, wash) {
                     } while (o);
                 }
                 var map = isFunction ? vars : lets;
-                var keepscope = !!scoped.body || !!scoped.head;
+                var keepscope = !!scoped.body || !!scoped.head || isArrow;
                 if (!keepscope) for (var k in map) {
                     keepscope = true;
                     break;
@@ -751,7 +744,6 @@ var createScoped = function (parsed, wash) {
                 }
                 if (isClass) delete lets.super, delete lets.this, thisscope = _thisscope;
                 if (isFunction) {
-                    if (used.yield) _scoped.yield = false;
                     funcbody = _funcbody;
                     if (!isArrow) {
                         delete vars.this;
@@ -780,10 +772,18 @@ var createScoped = function (parsed, wash) {
         }
     }
     if (vars.yield) scoped.yield = false;
+    if (vars.await) scoped.await = false;
     if (scoped.yield !== false && envs.yield) {
-        scoped.yield = true;
+        used.yield.forEach(o => o.type = STRAP);
+        scoped.yield = scoped.aster = true;
         delete envs.yield;
         delete used.yield;
+    }
+    if (scoped.await !== false && envs.await) {
+        used.await.forEach(o => o.type = STRAP);
+        scoped.await = scoped.async = true;
+        delete envs.await;
+        delete used.await;
     }
     delete envs.eval;
     scoped.envs = envs;
@@ -814,6 +814,19 @@ var getDeclared = function (o, kind, queue) {
             }
         }
         switch (o.type) {
+            case SCOPED:
+                if (snapExpressFoot(o) === o) {
+                    var [d, u, _, s] = getDeclared(o.first, kind, o);
+                    while (s.length) skiped.push.apply(skiped, s.splice(0, 1024));
+                    mergeTo(used, u);
+                    if (d.length || d.attributes.length) declared.push(d);
+                    if (!prop) prop = declared["..."] ? declared["..."][1] - index : `[${index}]`;
+                    d.entry = o.entry;
+                    o.kind = kind;
+                    attributes.push([prop, d]);
+                    o = o.next;
+                    break;
+                }
             case STAMP:
                 if (o.text === "*" && o.next) {
                     if (o.next.type === STRAP && o.next.text === 'as') {
@@ -833,10 +846,12 @@ var getDeclared = function (o, kind, queue) {
             case EXPRESS:
             case STRAP:
             case VALUE:
-                var n = o.text.replace(/^\.\.\.|\.\.\.$/g, '');
-                declared.push(n);
-                var isdots = n !== o.text;
-                if (!isdots && !prop) {
+                var isrest = /^\.\.\./.test(o.text);
+                var n = o;
+                var k = o.text;
+                if (isrest) declared.push(k = k.slice(3))
+                else if (o.text) declared.push(k);
+                if (!isrest && !prop) {
                     if (queue && queue.entry === '{') {
                         if (o.type & (EXPRESS | STRAP)) {
                             if (/^\[/.test(o.text)) prop = o.text;
@@ -849,22 +864,14 @@ var getDeclared = function (o, kind, queue) {
                     }
                     else prop = declared["..."] ? declared["..."][1] - index : `[${index}]`;
                 }
-                if (isdots) declared["..."] = [n, index];
-                else attributes.push([prop, n]);
+                var f = snapExpressFoot(o);
+                if (k) saveTo(used, k, o);
+                var s = [o];
+                while (o !== f) o = o.next, s.push(o);
+                if (isrest) declared["..."] = [s, index];
+                else attributes.push([prop, s]);
                 o.kind = kind;
-                saveTo(used, n, o);
-                o = o.next;
-                break;
-            case SCOPED:
-                var [d, u, _, s] = getDeclared(o.first, kind, o);
-                while (s.length) skiped.push.apply(skiped, s.splice(0, 1024));
-                mergeTo(used, u);
-                declared.push(d);
-                if (!prop) prop = declared["..."] ? declared["..."][1] - index : `[${index}]`;
-                d.entry = o.entry;
-                o.kind = kind;
-                attributes.push([prop, d]);
-                o = o.next;
+                o = f.next;
                 break;
             default:
                 console.log(o);
@@ -875,13 +882,7 @@ var getDeclared = function (o, kind, queue) {
             case STRAP:
                 if (/^(in|of)$/.test(o.text)) {
                     o = o.next;
-                    var o0 = skipAssignment(o);
-                    do {
-                        skiped.push(o);
-                        o = o.next;
-                    } while (o !== o0);
-                    o = o0;
-                    break;
+                    break loop;
                 }
                 break loop;
             case STAMP:
@@ -889,6 +890,7 @@ var getDeclared = function (o, kind, queue) {
                     o.prev.equal = o;
                     o = o.next;
                     var o0 = skipAssignment(o);
+                    if (isrest) throw "余集变量不能有默认值";
                     attributes[attributes.length - 1].push(queue, o, o0);
                     while (o !== o0) {
                         skiped.push(o);
@@ -988,8 +990,11 @@ var relink = function (list) {
     return list;
 };
 var setqueue = function (list, queue = list) {
-    var v = { value: queue }
-    for (var o of list) Reflect.deleteProperty(o, 'queue'), Reflect.defineProperty(o, 'queue', v);
+    /**
+     * @type {PropertyDescriptor}
+     */
+    var v = { value: queue, configurable: true, enumerable: false };
+    for (var o of list) delete o.queue, Object.defineProperty(o, 'queue', v);
 };
 
 var createString = function (parsed) {
@@ -1006,7 +1011,6 @@ var createString = function (parsed) {
             ) {
                 if (o.type !== EXPRESS || !/^(\.[^\.]|\[)/.test(o.text) && !prev.tag && !o.tag) {
                     result.push(" ");
-                    if (createString.debug && !o.text) console.log(o.type, o.text, o)
                     lasttype = SPACE
                 }
             }

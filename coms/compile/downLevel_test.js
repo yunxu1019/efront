@@ -28,6 +28,11 @@ assert(downLevel(`var {a}=b`), 'var a = b.a');
 assert(downLevel(`var {a}=1`), 'var a = 1 .a');
 assert(downLevel(`var {a}=1.1`), 'var a = 1.1 .a');
 assert(downLevel(`var {c:a}=b`), 'var a = b.c');
+assert(downLevel(`[...[a]]=[1]`), 'a = [1][0]');
+assert(downLevel(`[...[a]]=[...[1]]`), 'a = [1][0]');
+assert(downLevel(`[a[a]]=[1]`), 'a[a] = [1][0]');
+assert(downLevel(`[a,b]=[b,a]`), '_ = [b, a], a = _[0], b = _[1]\r\nvar _');
+assert(downLevel(`var {c:a=2}=b`), 'var a = (_ = b.c, _ !== undefined ? _ : 2)\r\nvar _');
 assert(downLevel(`var {"c":a}=b`), 'var a = b["c"]');
 assert(downLevel(`var {1:a}=b`), 'var a = b[1]');
 assert(downLevel(`var [,a]=b`), 'var a = b[1]');
@@ -36,9 +41,9 @@ assert(downLevel(`var {1:a}=b`), 'var a = b[1]');
 assert(downLevel(`var {.1:a}=b`), 'var a = b[.1]');
 assert(downLevel(`var {a,[a]:c}=b`), 'var a = b.a, c = b[a]');
 assert(downLevel(`var {a}=a`), 'var a = a.a');
-assert(downLevel(`var {a,b}=a`), 'var _ = a, a = a.a, b = _.b');
+assert(downLevel(`var {a,b}=a`), 'var _ = a, a = a.a, b = _.b\r\nvar _');
 assert(downLevel(`var {a:{a:{a}}}=b`), 'var a = b.a.a.a');
-assert(downLevel(`var {a,[a]:c}={}`), 'var _ = {}, a = _.a, c = _[a]');
+assert(downLevel(`var {a,[a]:c}={}`), 'var _ = {}, a = _.a, c = _[a]\r\nvar _');
 assert(downLevel(`={a,[a]:c}={}`), '= _ = {}, a = _.a, c = _[a]\r\nvar _');
 var tmp = scanner2(`var {window}=this`); tmp.helpcode = false; tmp.detour(); assert(downLevel.code(tmp).toString(), `var window = this["window"]`);
 assert(downLevel(`function (){var [a]=a;}`), "function () { var a = a[0]; }")
@@ -187,7 +192,7 @@ assert(downLevel(`(a)=>k`), "function (a) { return k }")
 assert(downLevel(`(a=1)=>k`), "function (a) { if (a === undefined) a = 1; return k }")
 assert(downLevel(`([a])=>b`), "function (arg) { var a = arg[0]; return b }")
 assert(downLevel(`map(([a])=>a)`), "map(function (arg) { var a = arg[0]; return a })")
-assert(downLevel(`var [_, R, G, B, A] = rgbHex.exec(color).map(a => parseInt(a + a, 16));`), "var _0 = rgbHex.exec(color).map(function (a) { return parseInt(a + a, 16) }), _ = _0[0], R = _0[1], G = _0[2], B = _0[3], A = _0[4];")
+assert(downLevel(`var [_, R, G, B, A] = rgbHex.exec(color).map(a => parseInt(a + a, 16));`), "var _0 = rgbHex.exec(color).map(function (a) { return parseInt(a + a, 16) }), _ = _0[0], R = _0[1], G = _0[2], B = _0[3], A = _0[4];\r\nvar _0")
 assert(downLevel(`if (/^(?:select|input|textarea)$/i.test(initialEvent.target.tagName) || getTargetIn(a => a.nodrag || a.hasAttribute('nodrag'), initialEvent.target)) return;`), "if (/^(?:select|input|textarea)$/i.test(initialEvent.target.tagName) || getTargetIn(function (a) { return a.nodrag || a.hasAttribute('nodrag') }, initialEvent.target)) return;")
 i++// 对象收集
 assert(downLevel(`function (a,...b){}`), `var slice_ = Array["prototype"]["slice"];\r\nfunction (a) { var b = slice_["call"](arguments, 1); }`)
@@ -220,7 +225,7 @@ function () {
 return [0, 9]
 },
 function () {
-_2 = _ &&! _["done"]; if (!_2) return [1, 0]; _2 = _0["return"]; _2 = isFunction(_2)
+_2 = _; if (!_2) return [1, 0]; _2 = !_["done"]; if (!_2) return [1, 0]; _2 = _0["return"]; _2 = isFunction(_2)
 },
 function () {
 if (!_2) return [1, 0]; _2 = _0["return"](); return [1, 0]
@@ -255,7 +260,7 @@ function () {
 return [0, 9]
 },
 function () {
-_3 = _ &&! _["done"]; if (!_3) return [1, 0]; _3 = _0["return"]; _3 = isFunction(_3)
+_3 = _; if (!_3) return [1, 0]; _3 = !_["done"]; if (!_3) return [1, 0]; _3 = _0["return"]; _3 = isFunction(_3)
 },
 function () {
 if (!_3) return [1, 0]; _3 = _0["return"](); return [1, 0]
@@ -264,12 +269,12 @@ function () {
 return [1, 9]
 })
 var o, s, _, _0, _1, _3`)
-assert(downLevel(`for(o of os) noSymbol`), `for (_ = 0, _0 = os["length"]; _ < _0 && (o = os[_], true); _++) noSymbol\r\nvar _, _0`)
-assert(downLevel(`for(var o of os) Symbol`), `try { for (var o, _0 = os[Symbol["iterator"]] || Array["prototype"][Symbol["iterator"]], _0 = _0["call"](os), _ = _0["next"](); !_["done"] && (o = _["value"], true); _ = _0["next"]()) Symbol } finally { if (_ &&! _["done"] && isFunction(_0["return"])) _0["return"]() }\r\nvar _, _0`)
-assert(downLevel(`for(var o of os) Symbol`), `try { for (var o, _0 = os[Symbol["iterator"]] || Array["prototype"][Symbol["iterator"]], _0 = _0["call"](os), _ = _0["next"](); !_["done"] && (o = _["value"], true); _ = _0["next"]()) Symbol } finally { if (_ &&! _["done"] && isFunction(_0["return"])) _0["return"]() }\r\nvar _, _0`)
-assert(downLevel(`for(var o of o)Symbol`), `try { for (var o, _1 = o, _0 = _1[Symbol["iterator"]] || Array["prototype"][Symbol["iterator"]], _0 = _0["call"](_1), _ = _0["next"](); !_["done"] && (o = _["value"], true); _ = _0["next"]()) Symbol } finally { if (_ &&! _["done"] && isFunction(_0["return"])) _0["return"]() }\r\nvar _, _0, _1`)
-assert(downLevel(`for(var [a] of os)Symbol`), `try { for (var a, _0 = os[Symbol["iterator"]] || Array["prototype"][Symbol["iterator"]], _0 = _0["call"](os), _ = _0["next"](); !_["done"] && (a = _["value"][0], true); _ = _0["next"]()) Symbol } finally { if (_ &&! _["done"] && isFunction(_0["return"])) _0["return"]() }\r\nvar _, _0`)
-assert(downLevel(`for(var [a,b] of os)Symbol`), `try { for (var a, b, _0 = os[Symbol["iterator"]] || Array["prototype"][Symbol["iterator"]], _0 = _0["call"](os), _ = _0["next"](); !_["done"] && (_1 = _["value"], a = _1[0], b = _1[1], true); _ = _0["next"]()) Symbol } finally { if (_ &&! _["done"] && isFunction(_0["return"])) _0["return"]() }\r\nvar _, _0, _1`)
+assert(downLevel(`for(o of os) noSymbol`), `for (_ = 0; _ < os["length"] && (o = os[_], true); _++) noSymbol\r\nvar _, _0`)
+assert(downLevel(`for(var o of os) Symbol`), `try { for (var o, _0 = os[Symbol["iterator"]] || Array["prototype"][Symbol["iterator"]], _0 = _0["call"](os), _ = _0["next"](); !_["done"] && (o = _["value"], true); _ = _0["next"]()) Symbol } finally { if (_ && !_["done"] && isFunction(_0["return"])) _0["return"]() }\r\nvar _, _0`)
+assert(downLevel(`for(var o of os) Symbol`), `try { for (var o, _0 = os[Symbol["iterator"]] || Array["prototype"][Symbol["iterator"]], _0 = _0["call"](os), _ = _0["next"](); !_["done"] && (o = _["value"], true); _ = _0["next"]()) Symbol } finally { if (_ && !_["done"] && isFunction(_0["return"])) _0["return"]() }\r\nvar _, _0`)
+assert(downLevel(`for(var o of o)Symbol`), `try { for (var o, _1 = o, _0 = _1[Symbol["iterator"]] || Array["prototype"][Symbol["iterator"]], _0 = _0["call"](_1), _ = _0["next"](); !_["done"] && (o = _["value"], true); _ = _0["next"]()) Symbol } finally { if (_ && !_["done"] && isFunction(_0["return"])) _0["return"]() }\r\nvar _, _0, _1`)
+assert(downLevel(`for(var [a] of os)Symbol`), `try { for (var a, _0 = os[Symbol["iterator"]] || Array["prototype"][Symbol["iterator"]], _0 = _0["call"](os), _ = _0["next"](); !_["done"] && (a = _["value"][0], true); _ = _0["next"]()) Symbol } finally { if (_ && !_["done"] && isFunction(_0["return"])) _0["return"]() }\r\nvar _, _0`)
+assert(downLevel(`for(var [a,b] of os)Symbol`), `try { for (var a, b, _0 = os[Symbol["iterator"]] || Array["prototype"][Symbol["iterator"]], _0 = _0["call"](os), _ = _0["next"](); !_["done"] && (_1 = _["value"], a = _1[0], b = _1[1], true); _ = _0["next"]()) Symbol } finally { if (_ && !_["done"] && isFunction(_0["return"])) _0["return"]() }\r\nvar _, _0, _1`)
 assert(downLevel(`[...a]=a`), `var slice_ = Array["prototype"]["slice"];\r\na = slice_["call"](a, 0)`)
 assert(downLevel(`[c,...a]=a`), `var slice_ = Array["prototype"]["slice"];\r\nc = a[0], a = slice_["call"](a, 1)`)
 assert(downLevel(`[...a]=a`), `var slice_ = Array["prototype"]["slice"];\r\na = slice_["call"](a, 0)`)
@@ -286,10 +291,10 @@ var _0, _1 };`);
 i++//异步或步进函数
 assert(downLevel(`function *(){yield *a}`), `function () { return aster_(
 function () {
-_; _0 = 0; _1 = a["length"]; return [1, 0]
+_; _0 = 0; return [1, 0]
 },
 function () {
-_3 = _0 < _1; if (!_3) return [1, 0]; _ = a[_0]; _3 = (true)
+_3 = _0 < a["length"]; if (!_3) return [1, 0]; _ = a[_0]; _3 = (true)
 },
 function () {
 if (!_3) return [2, 0]; return [_, 3]
@@ -319,7 +324,7 @@ function () {
 return [0, 9]
 },
 function () {
-_2 = _ &&! _["done"]; if (!_2) return [1, 0]; _2 = _0["return"]; _2 = isFunction(_2)
+_2 = _; if (!_2) return [1, 0]; _2 = !_["done"]; if (!_2) return [1, 0]; _2 = _0["return"]; _2 = isFunction(_2)
 },
 function () {
 if (!_2) return [1, 0]; _2 = _0["return"](); return [1, 0]

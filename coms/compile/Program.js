@@ -190,7 +190,7 @@ class Program {
         var program = this;
         var queue_push = function (scope) {
             var last = queue.last;
-            Object.defineProperty(scope, 'queue', { value: queue, enumerable: false });
+            Object.defineProperty(scope, 'queue', { value: queue, enumerable: false, configurable: true });
             scope.prev = last;
             if (scope.type !== COMMENT && scope.type !== SPACE) {
                 var keeplast = program.setType(scope) === false;
@@ -200,6 +200,7 @@ class Program {
                     while (queue[queue.length - 1] !== last) queue.pop();
                     last.end = scope.end;
                     last.text = text.slice(last.start, last.end);
+                    queue.last = last;
                     return;
                 }
                 if (queue.last !== last && queue.last !== o) {
@@ -254,6 +255,7 @@ class Program {
                     else queue.question++;
                     break;
                 case "=":
+                    queue.inExpress = true;
                     if (last.type === SCOPED && last.entry === "{") {
                         if (!last.isObject) {
                             setObject(last);
@@ -592,7 +594,10 @@ class Program {
                         if (last.text === ':') {
                             scope.isObject = queue.inExpress;
                         }
-                        else scope.isObject = !/^(;|\+\+|\-\-|=>)$/.test(last.text);
+                        else queue.inExpress = scope.isObject = !/^(;|\+\+|\-\-|=>)$/.test(last.text);
+                    }
+                    else if (last.type === EXPRESS && last.text === '...') {
+                        scope.isObject = true;
                     }
                     else if (last.type === STRAP) {
                         if (last.isend);
