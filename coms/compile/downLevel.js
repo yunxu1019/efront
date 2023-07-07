@@ -149,18 +149,18 @@ var killdec = function (queue, i, getobjname, _var = 'var', killobj) {
         iname = getobjname(deep++);
         tname = getobjname(deep);
         init() {
-            var init = scanner2(`,${this.iname}=(${tmpname}[Symbol["iterator"]]||Array["prototype"][Symbol["iterator"]])["call"](${tmpname}),${this.tname}=undefined`);
+            var init = scanner2(`${index++ > 0 ? ',' : ''}${this.iname}=(${tmpname}[Symbol["iterator"]]||Array["prototype"][Symbol["iterator"]])["call"](${tmpname}),${this.tname}=undefined`);
             splice(queue, i, 0, ...init);
             i += init.length;
         }
         return() {
-            var retn = scanner2(`,${this.tname}=(!${this.tname}||!${this.tname}["done"])&& isFunction(${this.iname}["return"])&&${this.iname}["return"]()`);
+            var retn = scanner2(`${index++ > 0 ? "," : ''}${this.tname}=(!${this.tname}||!${this.tname}["done"])&& isFunction(${this.iname}["return"])&&${this.iname}["return"]()`);
             rootenvs.isFunction = true;
             splice(queue, i, 0, ...retn);
             i += retn.length;
         }
         next() {
-            var inext = scanner2(`,${this.tname}=${this.iname}["next"]()`);
+            var inext = scanner2(`${index++ > 0 ? "," : ""}${this.tname}=${this.iname}["next"]()`);
             splice(queue, i, 0, ...inext);
             i += inext.length;
             this.index++;

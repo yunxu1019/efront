@@ -298,6 +298,7 @@ class Program {
                     if (last.type & (EXPRESS | STRAP | VALUE | QUOTED)) {
                         // label
                         last.type = LABEL;
+                        if (last.text === '"qqjt"') console.log(last.prev, last.isExpress, "last");
                         last.text += ":";
                         last.end = end;
                         return;
@@ -317,8 +318,8 @@ class Program {
                 text: m
             }
             if (type === STRAP) {
-                if (forceend_reg.test(m)) scope.isend = false;
-                if (this.transive_reg.test(m)) scope.transive = true;
+                if (forceend_reg.test(m)) scope.isend = false, queue.inExpress = false;
+                if (this.transive_reg.test(m)) scope.transive = true, queue.inExpress = true;
             }
             if (isdigit) scope.isdigit = true;
             lasttype = type;
@@ -432,6 +433,7 @@ class Program {
                             scope.entry = m;
                             scope.type = QUOTED;
                             scope.start = index;
+                            scope.isExpress = queue.inExpress;
                             push_parents(scope);
                             queue.inTag = 0;
                             start = index;
@@ -469,6 +471,7 @@ class Program {
                 var scope = [];
                 var quote = this.quote_map[m];
                 scope.type = this.comment_entry.test(m) ? COMMENT : QUOTED;
+                scope.isExpress = queue.inExpress;
                 scope.start = start;
                 push_parents(scope);
                 if (quote.tag) {
