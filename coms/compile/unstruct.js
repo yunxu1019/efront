@@ -326,9 +326,7 @@ var pushstep = function (result, step) {
     _return(step);
 };
 var patchresult = function (result) {
-    for (var cx = 0, dx = result.length; cx < dx; cx++) {
-        patchstep(result[cx], result.length - cx, 0);
-    }
+    for (var cx = 0, dx = result.length; cx < dx; cx++)patchstep(result[cx], result.length - cx, 0);
 };
 var patchstep = function (r, nextindex, h) {
     var name = r.name;
@@ -343,6 +341,7 @@ var patchstep = function (r, nextindex, h) {
             r.splice(i, 1, ...scanner2(_withget(b.text)));
         }
     }
+    var changed = false;
     for (i = r.length - 1; i >= h; i--) {
         o = r[i];
         if (o === RZ) {
@@ -355,6 +354,7 @@ var patchstep = function (r, nextindex, h) {
             x = scanner2(`if(${name}!==null&&${name}!== undefined)return [${nextindex},0]`);
         }
         else continue;
+        changed = true;
         var p = o.prev;
         if (!p || p.type === STAMP && p.text === ";");
         else x.unshift({ type: STAMP, text: ";" });
@@ -362,8 +362,9 @@ var patchstep = function (r, nextindex, h) {
         if (!n || n.type === STAMP && n.text === ';');
         else x.push({ type: STAMP, text: ';' });
         r.splice(i, 1, ...x);
-        relink(r);
     }
+    if (changed) relink(r);
+    return changed;
 };
 var flushqueue = function (result, queue) {
     for (var q of queue) pushstep(result, q);
@@ -1137,12 +1138,18 @@ function toqueue(body, getname, ret = false, result = []) {
         while (labels.length) {
             var e = labels[labels.length - 1];
             if (e.type !== LABEL) break;
-            if (scopes.lastIndexOf(e.scope) >= 0) break;
+            var ei = scopes.lastIndexOf(e.scope);
+            if (ei === scopes.length - 1) {
+                if (cx < e.final) break;
+            }
+            else if (ei >= 0) break;
             _poplabel();
         }
 
         if (o.type === LABEL) {
             o.scope = scopes[scopes.length - 1];
+            o.final = body.indexOf(skipSentenceQueue(o.next), cx);
+            if (o.final < 0) o.final = body.length;
             labels.push(o);
             var next = o.next;
             if (next && next.type === SCOPED && next.entry === '{') {

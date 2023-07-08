@@ -1253,37 +1253,39 @@ var killarg = function (head, body, _getname, setarg = true) {
     }
     return [namemap, argcodes];
 };
-var revar = function (scoped) {
-    if (!scoped.body) return;
-    var killed = [];
-    var rm = function (o, i) {
-        if (o.type === STRAP && /^(const|let|var)$/.test(o.text)) {
-            var q = o.queue;
-            if (!q) return;
-            var n = o;
-            var s = i, v = o;
-            if (o.next) do {
-                o = n.next;
-                n = o.next;
-                if (n && n.type === STRAP && n.text === 'in') break;
-                if (n && n.text === '=') {
-                    n = skipAssignment(n);
-                }
-                else {
-                    i = q.indexOf(o.prev, i);
-                    var j = n ? q.indexOf(n, i) : q.length;
-                    splice(q, i, j - i);
-                }
-            } while (n && n.type === STAMP && n.text === ',');
-            if (q[s] === v) splice(q, s, 1);
-            if (killed.indexOf(q) < 0) killed.push(q);
+var revar = function (body) {
+    for (var i = 0; i < body.length; i++) {
+        var o = body[i];
+        if (o.type === STRAP) {
+            if (/^(const|let|var)$/.test(o.text)) {
+                var q = body;
+                if (!q) return;
+                splice(q, i, 1)
+                o = o.next;
+                var s = i, v = o;
+                if (o) do {
+                    var n = snapExpressFoot(o).next;
+                    if (n && n.type === STRAP && /^(in|of)$/.test(n.text)) break;
+                    if (n && n.text === '=') {
+                        n = skipAssignment(n);
+                    }
+                    else {
+                        i = q.indexOf(o, i);
+                        var j = n ? q.indexOf(n, i) + 1 : q.length;
+                        splice(q, i, j - i);
+                    }
+                } while (n && n.type === STAMP && n.text === ',');
+                i = s - 1;
+            }
+            else if (/^function$/.test(o.text)) {
+                o = skipFunction(o);
+                i = indexof(body, o, i);
+            }
         }
         else if (o.length) {
-            backEach(o, rm);
+            revar(o);
         }
-    };
-    backEach(scoped.body, rm);
-    killed.forEach(relink);
+    }
 };
 var killret = function (body, labels = Object.create(null), gettmpname) {
     var o = body.first;
@@ -1564,6 +1566,7 @@ var down = function (scoped) {
             var body = scanner2(`return ${funcMark}()`);
             var code = unawait(scoped.body, _getname, argname);
             code.forEach(function (c) {
+                revar(c);
                 var f = scanner2(`function(${c.awaited ? argname : ''}){\r\n}`);
                 if (!c.length) f[2].push(...scanner2('return [1,0]'));
                 else f[2].push(...c);
@@ -1580,7 +1583,6 @@ var down = function (scoped) {
             splice(scoped.body, scoped.body.length, 0, ...body);
             for (var k in envs) if (!(k in scoped.envs)) vars[k] = true;
             delete vars[argname];
-            revar(scoped);
             scoped.vars = Object.create(null);
             scoped.async = false;
             scoped.yield = false;

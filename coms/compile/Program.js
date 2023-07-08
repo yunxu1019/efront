@@ -298,7 +298,6 @@ class Program {
                     if (last.type & (EXPRESS | STRAP | VALUE | QUOTED)) {
                         // label
                         last.type = LABEL;
-                        if (last.text === '"qqjt"') console.log(last.prev, last.isExpress, "last");
                         last.text += ":";
                         last.end = end;
                         return;
