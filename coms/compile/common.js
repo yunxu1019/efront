@@ -474,6 +474,7 @@ var createScoped = function (parsed, wash) {
 
                 case STRAP:
                     var s = o.text;
+                    var m = null;
                     switch (s) {
                         case "return":
                             if (!funcbody.return) funcbody.return = [];
@@ -494,7 +495,8 @@ var createScoped = function (parsed, wash) {
                         case "import":
                             if (!o.next || o.next.type === QUOTED) break;
                         case "var":
-                            var m = m || vars;
+                            m = m || vars;
+                            if (s === 'var' && m !== vars) console.log(m === vars, m === lets, s);
                             var [declared, used0, o0, skiped] = getDeclared(o.next, s);
                             while (skiped.length) {
                                 var o1 = run(skiped[0], 0);
