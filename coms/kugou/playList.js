@@ -10,7 +10,6 @@ var $scope = {
     song: kugou$song,
     padding,
     swap,
-    wakeEnabled: !!document.addEventListener,
     mode: playModes[playModeIndex],
     switchMode() {
         playModeIndex++;
