@@ -11,6 +11,7 @@ async function testCatch(Promise) {
         }).then(null, function () {
             console.log("catch2");
         });
+        console.log("done");
     } catch (e) {
         console.log(e)
     }

@@ -18,7 +18,9 @@ if (cookiesData) {
 }
 
 var digest = function () {
-    dispatch('render', window);
+    Promise.resolve().then(function(){
+        dispatch('render', window);
+    });
 };
 if (/Trident/i.test(navigator.userAgent)) digest = lazy(digest, 60);
 var cross = cross_.bind(function (callback, onerror) {

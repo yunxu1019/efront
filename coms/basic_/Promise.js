@@ -18,14 +18,11 @@ if (!Promise) {
     var queue = [];
     var running = false;
     var run = function (q) {
-        running = true;
         while (queue.length) {
             var threads = queue.splice(0, queue.length);
             for (var t of threads) {
-                if (!t.oked && !t.ohed) continue;
                 var PromiseRejectReactions = t.PromiseRejectReactions.splice(0, t.PromiseRejectReactions.length);
                 var PromiseFulfillReactions = t.PromiseFulfillReactions.splice(0, t.PromiseFulfillReactions.length);
-
                 if (t.oked) {
                     for (var r of PromiseFulfillReactions) {
                         r.call(null, t.oked[0]);
@@ -49,8 +46,9 @@ if (!Promise) {
         running = false;
     };
     var fire = function (p) {
-        if (running) return queue.push(p);
         queue.push(p);
+        if (running) return;
+        running = true;
         requestAnimationFrame(run);
     };
     var Promise = function (executor) {
@@ -72,39 +70,38 @@ if (!Promise) {
             p.ohed = arguments;
             fire(p);
         };
-        fire(p);
         executor(ResolvingFunctions_resolve, ResolvingFunctions_reject);
     };
-    Promise.prototype = {
-        then(onok, onoh) {
-            var resolve, reject;
-            var promise = new Promise(function (ok, oh) {
-                if (onok) resolve = function (a) {
-                    try {
-                        a = onok(a);
-                        ok(a);
-                    } catch (e) {
-                        oh(e, onok, onoh);
-                    }
-                };
-                if (onoh) reject = function (a) {
-                    try {
-                        a = onoh.apply(null, arguments);
-                        ok(a);
-                    } catch (e) {
-                        oh(e, onok, onoh);
-                    }
-                };
-            })
-            if (resolve) this.PromiseFulfillReactions.push(resolve);
-            if (reject) this.PromiseRejectReactions.push(reject);
-            if (this.oked || this.ohed) fire(this);
-            return promise;
-        },
-        "catch"(f) {
-            return this.then(null, f);
-        },
+    Promise.prototype.then = function (onok, onoh) {
+        var resolve, reject;
+        var promise = new Promise(function (ok, oh) {
+            if (onok) resolve = function (a) {
+                try {
+                    a = onok(a);
+                    ok(a);
+                } catch (e) {
+                    oh(e, onok, onoh);
+                }
+            };
+            else resolve = ok;
+            if (onoh) reject = function (a) {
+                try {
+                    a = onoh.apply(null, arguments);
+                    ok(a);
+                } catch (e) {
+                    oh(e, onok, onoh);
+                }
+            };
+            else reject = oh;
+        })
+        if (resolve) this.PromiseFulfillReactions.push(resolve);
+        if (reject) this.PromiseRejectReactions.push(reject);
+        if (this.oked || this.ohed) fire(this);
+        return promise;
     }
+    Promise.prototype.catch = function (f) {
+        return this.then(null, f);
+    };
     Promise.all = function (penddings) {
         return new Promise(function (ok, oh) {
             if (!(penddings && penddings.length)) {
