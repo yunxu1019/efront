@@ -10,6 +10,8 @@ var innerJs = new Javascript;
 innerJs.defaultType = common.STRAP;
 // 声明及解构
 assert(downLevel(`var [name, type, options] = piece, key, repeat;`), 'var name = piece[0], type = piece[1], options = piece[2], key, repeat;');
+assert(downLevel(`var [] = piece, key,[]= repeat;`), 'var key;');
+assert(downLevel(`var [] = piece, key,[]`), 'var key');
 assert(downLevel(`const`), 'const');
 assert(downLevel(`let`), 'let');
 assert(downLevel(`var`), '');
@@ -17,7 +19,12 @@ assert(downLevel(`{let a; function b(){a};return;}`), `if (tmp = 0, tmp0 =functi
 var tmp, a, tmp0`);
 assert(downLevel(`const a,b,c`), 'var a, b, c');
 assert(downLevel(`let a,b,c`), 'var a, b, c');
-assert(downLevel(`var a;{let a,b,c}`), 'var a; { var a0, b, c }');
+assert(downLevel(`for(let a in b)`), 'for (var a in b)');
+assert(downLevel(`a;for(let a in b)`), 'a; for (var a0 in b)');
+assert(downLevel(`for(let a in b)setTimeout(function(){console.log(a)})`), 'for (var a in b)(function (a) { setTimeout(function () { console.log(a) }) }(a))\r\nvar tmp, a');
+assert(downLevel(`var a;{let a,b,c}`), 'var a; { var a0 = undefined, b = undefined, c = undefined }');
+assert(downLevel(`var a;{let {a,b},c=1}`), 'var a; { var a0 = undefined, b = undefined, c = 1 }');
+assert(downLevel(`var a;{let {a,b},c}`), 'var a; { var a0 = undefined, b = undefined, c = undefined }');
 assert(downLevel(`var {a,b,c}`), 'var a, b, c');
 assert(downLevel(`let {a,b,c}`), 'var a, b, c');
 assert(downLevel(`const {a,b,c}`), 'var a, b, c');

@@ -43,7 +43,7 @@ var unslice = function (arr) {
     };
 };
 // 解构赋值
-var killdec = function (queue, i, getobjname, _var = 'var', killobj) {
+var killdec = function (queue, i, getobjname, _var = 'var', killobj, islet) {
     var tmpname = '';
     var index = 0;
     var deep = 0;
@@ -127,6 +127,9 @@ var killdec = function (queue, i, getobjname, _var = 'var', killobj) {
         }
         splice(queue, i, 0, ...sname);
         i += sname.length;
+        if (!value && islet) {
+            value = "undefined";
+        }
         if (value) {
             var q = scanner2("=" + value);
             splice(queue, i, 0, ...q);
@@ -236,17 +239,27 @@ var killdec = function (queue, i, getobjname, _var = 'var', killobj) {
         var o = queue[i];
         var next = snapExpressFoot(o).next;
         tmpname = '';
+        var index0 = index;
+        var hasnext = false;
         if (!next || next.type !== STAMP || next.text !== '=') {
             // 只声明不赋值的语句
-            var hasnext = next && next.type === STAMP && next.text === ',';
+            hasnext = next && next.type === STAMP && next.text === ',';
             if (hasnext) next = next.next;
             var n = indexof(queue, next, i);
+            if (islet && o.type === EXPRESS) {
+                if (!next || next.type !== STRAP || !/^(in|of)$/.test(next.text)) splice(queue, i + 1, 0, ...scanner2('=undefined'));
+                n += 2;
+            }
             if (o.type === SCOPED) {
-                var [o0] = splice(queue, i, n - i);
-                unslice(o0);
-                var [[d]] = getDeclared(o0);
+                var prev = o.prev;
+                if (prev && prev.type === STAMP && prev.text === ',') i = queue.lastIndexOf(prev, i), index = 1;
+                else index = 0;
+                splice(queue, i, n - i);
+                unslice(o);
+                var [[d]] = getDeclared(o);
                 dog(d);
                 n = i = indexof(queue, next, i);
+                if (hasnext && index0 < index) splice(queue, i, 0, { type: STAMP, text: ',' }), i++, n++;
                 if (hasnext) continue loop;
             }
             else if (hasnext) {
@@ -260,6 +273,7 @@ var killdec = function (queue, i, getobjname, _var = 'var', killobj) {
         var objs = [];
         do {
             var next = snapExpressFoot(o).next;
+            hasnext = next && next.type === STAMP && next.text === ',';
             if (!next || next.type !== STAMP || next.text !== "=") {
                 // 赋值结束
                 if (tmpname) {
@@ -274,6 +288,7 @@ var killdec = function (queue, i, getobjname, _var = 'var', killobj) {
                 if (!next || next.type === STAMP && /^[,;]$/.test(next.text)) {
                     if (o.type === EXPRESS && !/[\.\[]/.test(o.text) && snapExpressFoot(o) === o) {
                         tmpname = o.text;
+                        if (hasnext) next = next.next;
                         splice(queue, i, indexof(queue, o = next, i) - i);
                         i = indexof(queue, o, i);
                     }
@@ -282,13 +297,16 @@ var killdec = function (queue, i, getobjname, _var = 'var', killobj) {
             }
             if (o.type === SCOPED) {
                 var n = indexof(queue, next.next, i);
-                var [o0] = splice(queue, i, n - i);
-                unslice(o0);
-                delete o0.next;
-                if (o0.length && getDeclared(o0).length > 0) objs.push(o0);
+                var prev = o.prev;
+                if (prev && prev.type === STAMP && prev.text === ',') i = queue.lastIndexOf(prev, i), index = 1;
+                else index = 0;
+                splice(queue, i, n - i);
+                unslice(o);
+                delete o.next;
+                if (o.length && getDeclared(o).length > 0) objs.push(o);
             }
             else if (o.type === EXPRESS && !/[\.\[]/.test(o.text) && snapExpressFoot(o) === o) {
-                if (!tmpname) tmpname = o.text, index++;
+                if (!tmpname) tmpname = o.text;
             }
             o = next.next;
             i = indexof(queue, o, i);
@@ -298,6 +316,7 @@ var killdec = function (queue, i, getobjname, _var = 'var', killobj) {
                 var [[d]] = getDeclared(objs[0]);
                 var a = single(d, '');
                 if (a) {
+                    if (index > 0) splice(queue, i++, 0, { type: STAMP, text: ',' });
                     splice(queue, i, 0, ...a[1], { type: STAMP, text: "=" });
                     i += 2;
                     var i2 = skipAssignment(queue, i);
@@ -328,6 +347,10 @@ var killdec = function (queue, i, getobjname, _var = 'var', killobj) {
             var [[d]] = getDeclared(o0);
             dog(d);
         }
+        if (hasnext && index > index0) {
+            splice(queue, i++, 0, { type: STAMP, text: ',' });
+        }
+        index = 0;
     }
     // relink(queue);
     return i;
@@ -692,7 +715,7 @@ var indexof = function (list, o, i) {
         i = list.indexOf(o, i);
         if (i < 0) i = list.length;
     }
-    else if (i < list.length) i++;
+    else i = list.length;
     return i;
 };
 // 数组或参数展开
@@ -870,8 +893,8 @@ var killobj = function (body, getobjname, getletname, getname_, letname_, deep =
                     i++;
                     break;
                 case "let":
-                case "const":
                     islet = body.keeplet !== false;
+                case "const":
                 case "var":
                     splice(body, i, 1);
                     i = killdec(body, i, _getdeepname, 'var', deepkill, islet);
