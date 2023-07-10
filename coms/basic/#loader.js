@@ -164,7 +164,7 @@ var readFile = function (names, then) {
 
 };
 var createFunction = function (name, body, args, isAsync, isYield) {
-    return window.eval(`[${isAsync ? 'async ' : ''}function${isYield ? "*" : ""}/*${name}*/(${args || ''}){\r\n${body}\r\n}][0]`);
+    return window.eval(`[${isAsync ? 'async ' : ''}function${isYield ? "*" : ""}/*${name}*/(${args || ''}){\r\n${body}\r\n}][0]`, name);
 };
 
 var FILE_NAME_REG = /^https?\:|\.(html?|css|asp|jsp|php)$/i;

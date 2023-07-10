@@ -153,8 +153,12 @@ function efront() {
     };
     Window.prototype = global;
     var window = new Window;
+    var colors = require("../reptile/colors");
     Object.assign(window, {
         require,
+        eval(str, filename) {
+            return require("vm").runInThisContext(str, { filename: `${colors.FgYellow} ${filename} ${colors.Reset}` });
+        },
         setTimeout(f, timerout) {
             var args = [].slice.call(arguments, 2);
             var handle = setTimeout(function () {
