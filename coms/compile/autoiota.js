@@ -81,7 +81,7 @@ var arrayFillMap = function (a, i, as) {
     if (!nnn || nnn.type !== SCOPED || nnn.entry !== '(') return;
     var mn = nnn.next;
     var f = n.first;
-    var mnn = mn.next;
+    var mnn = mn && mn.next;
     if (!f || f.type !== VALUE || !f.isdigit ||
         !mn || mn.type !== EXPRESS || mn.text !== '.map' ||
         !mnn || mnn.type !== SCOPED || mnn.entry !== "(" ||
