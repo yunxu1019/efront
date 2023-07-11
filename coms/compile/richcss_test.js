@@ -12,3 +12,4 @@ test(`a{ &b{a:1}}`,`ab{a:1;}`);
 test(`a{ &.b{a:1}}`,`a.b{a:1;}`);
 test(`a{ &[b]{a:1}}`,`a[b]{a:1;}`);
 test(`a{ &[b]:nth-child(1){a:1}}`,`a[b]:nth-child(1){a:1;}`);
+test(`a,b{c{a:1}}`,`a c,b c{a:1;}`);

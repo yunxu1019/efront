@@ -97,17 +97,19 @@ var getFromScopeList = function (name, varsList, value) {
 var fixBase = function (b, a) {
     return a.split(/,\s*/).map(a => {
         var replaced = false;
-        a = a.replace(/(:scope|&)/g, function (match) {
-            replaced = true;
-            return b;
-        });
-        if (!replaced) {
-            if (/^[>~+]/.test(a)) {
-                a = b + a;
+        return b.split(/\s*,\s*/).map(b => {
+            var a1 = a.replace(/(:scope|&)/g, function (match) {
+                replaced = true;
+                return b;
+            });
+            if (!replaced) {
+                if (/^[>~+]/.test(a)) {
+                    a1 = b + a;
+                }
+                else a1 = b + " " + a;
             }
-            else a = b + " " + a;
-        }
-        return a;
+            return a1;
+        }).join(",");
     }).join(",");
 }
 function evalscoped(scoped, scopeNames, base = '') {
