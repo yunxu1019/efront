@@ -512,7 +512,7 @@ var _invoke = function (t, getname) {
                 if (!iseval || m[m.length - 1] === o.last) {
                     var q = toqueue(m, getdeepname, 1);
                     var qe = q[q.length - 1];
-                    splice(o, by, ey - by, ...qe ? [{ text: qe.name, type: EXPRESS }] : []);
+                    splice(o, by, ey - by, ...qe ? scanner2(qe.name) : []);
                     cy = by + 1;
                 }
                 else {
@@ -641,7 +641,7 @@ var popexp = function (explist) {
     }
     else {
         n = asn.name;
-        asn = [{ type: EXPRESS, text: n }];
+        asn = scanner2(n);
     }
     return [asn, n];
 }
@@ -759,7 +759,7 @@ var ternary = function (body, getname, ret) {
         if (isSimpleAssign && eq.text === '=') {
             [asn, n = createString(ass)] = popexp(explist);
         }
-        else if (n) var asn = [{ type: EXPRESS, text: n }];
+        else if (n) var asn = scanner2(n);
         else asn = explist.pop();
         var an = '';
         if (eq.text.length > 1) {
