@@ -9,7 +9,6 @@ var {
     Error,
     Function,
     Array,
-    localStorage,
     Promise,
     setTimeout,
     clearTimeout,
@@ -248,7 +247,7 @@ var hasOwnProperty = {}.hasOwnProperty;
 var loadModule = function (url, then, prebuilds = {}) {
     var name = url.replace(/[\*~][\s\S]*$/, '');
     if (/^(?:module|exports|define|require|window|global|undefined)$/.test(name)) return then();
-    if ((hasOwnProperty.call(prebuilds, url)) || hasOwnProperty.call(modules, url) || (!/^on/.test(name) && window[name] !== null && window[name] !== void 0 && !hasOwnProperty.call(forceRequest, name))
+    if ((hasOwnProperty.call(prebuilds, url)) || hasOwnProperty.call(modules, url) || (!hasOwnProperty.call(forceRequest, name) && !/^on/.test(name) && window[name] !== null && window[name] !== void 0)
     ) return then();
     preLoad(url);
     var key = keyprefix + url;
@@ -512,10 +511,17 @@ var init = function (url, then, prebuilds) {
         return modules[url];
     }
     var name = url.replace(/[\*~][\s\S]*$/, '');
-    if (!/^on/.test(name) && window[name] !== null && window[name] !== void 0 && !hasOwnProperty.call(forceRequest, name)) {
-        modules[name] = window[name]
-        if (then) then(modules[name]);
-        return modules[name];
+    if (!hasOwnProperty.call(forceRequest, name) && name in window && !/^on/.test(name)) {
+        try {
+            var value = window[name];
+            if (value !== null && value !== void 0) {
+                modules[name] = value;
+                if (then) then(value);
+                return value;
+            }
+        } catch {
+            window.alert(name);
+        }
     }
     var oks = [];
     if (then) oks.push(then);
@@ -766,7 +772,7 @@ var initPixelDecoder = function () {
 };
 var flush_to_storage_timer = 0,
     responseTree_storageKey = "zimoliAutoSavedResponseTree" + location.pathname;
-var saveResponseTreeToStorage = preventCodeStorage ? function () { } : function () {
+var saveResponseTreeToStorage = preventCodeStorage || !localStorage ? function () { } : function () {
     var responseTextArray = [];
     for (var k in versionTree) {
         if (hasOwnProperty.call(responseTree, k)) responseTextArray.push(
@@ -774,7 +780,7 @@ var saveResponseTreeToStorage = preventCodeStorage ? function () { } : function 
         );
     }
     var data = responseTextArray.join("，");
-    localStorage && localStorage.setItem(responseTree_storageKey, data);
+    localStorage.setItem(responseTree_storageKey, data);
 };
 var loadResponseTreeFromStorage = preventCodeStorage ? function () { } : function () {
     "use ./crc.js";
@@ -791,11 +797,7 @@ var loadResponseTreeFromStorage = preventCodeStorage ? function () { } : functio
     };
     var preLoadResponseTree = {};
     var preLoadVersionTree = {};
-    if (localStorage) load();
-    else init("localStorage", function (_localStorage) {
-        localStorage = _localStorage;
-        load();
-    });
+    load();
     preLoad = function (responseName) {
         if (hasOwnProperty.call(responseTree, responseName)) return;
         var version = preLoadVersionTree[responseName];
@@ -871,6 +873,7 @@ var initIfNotDefined = function (defined, path, onload) {
     if (defined === void 0) init(path, a => onload(a) | hook(--requires_count));
     else hook(--requires_count);
 };
+try { var localStorage = window.localStorage; } catch { forceRequest.localStorage = forceRequest.sessionStorage = true }
 
 if (localStorage) loadResponseTreeFromStorage();
 initIfNotDefined([].map, "[]map", map => map);
