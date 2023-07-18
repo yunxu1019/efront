@@ -571,6 +571,7 @@ var killcls = function (body, i, getname_) {
     var extends_ = [];
     var o = body[i];
     var ishalf = isHalfSentence(body, i - 1);
+    var hasnew = o.prev && o.prev.type === STRAP && o.prev.text === 'new';
     var start = o;
     var decName = !o.isExpress && o.next.type === EXPRESS && o.next.text;
     var isExpress = o.isExpress;
@@ -592,7 +593,7 @@ var killcls = function (body, i, getname_) {
         }
         if (o.type !== STRAP || o.text !== 'class') break;
     }
-    var func = scanner2("function(){}()");
+    var func = scanner2("(function(){}())")[0];
     var [, head, defines, invokes] = func;
     var foot = [];
     var base = '';
@@ -699,7 +700,8 @@ var killcls = function (body, i, getname_) {
     if (head.length > 1 || start.isExpress && (defines.length) || ishalf && defines.length) {
         splice(defines, defines.length, 0, ...scanner2(`\r\nreturn ${clz.name}`))
         if (decName) splice(func, 0, 0, ...scanner2(`var ${decName}=`));
-        splice(body, s, i - s, ...func);
+        if (hasnew) splice(body, s, i - s, func);
+        else splice(body, s, i - s, ...func);
     }
     else {
         if (defines.length) {
