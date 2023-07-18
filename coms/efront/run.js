@@ -143,12 +143,6 @@ var timeoutHandles = {};
 var intervalHandles = {};
 var requestHandles = [];
 function efront() {
-    function Storage() { }
-    Storage.prototype = {
-        getItem() { },
-        setItem() { }
-    };
-
     var Window = function () {
     };
     Window.prototype = global;

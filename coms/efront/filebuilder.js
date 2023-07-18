@@ -145,7 +145,7 @@ var buildreload = function (buff) {
 };
 var str2array = require("./str2array");
 var indexreg = new RegExp(`(${str2array(memery.INDEX_NAME).join('|')})\\.[^\/\\\.]+$`);
-if (memery.islive) builder = function (buff, name, fullpath) {
+if (memery.istest) builder = function (buff, name, fullpath) {
     var dev = buff;
     if (/\.(?:jsp|php|asp)$/i.test(fullpath)) {
         dev = function (req, res) {

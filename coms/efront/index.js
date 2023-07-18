@@ -591,8 +591,10 @@ var commands = {
     start() {
         memery.WAITER_NUMBER = 1;
         setAppnameAndPorts(arguments);
-        require("./setupenv");
-        require("../server/main");
+        detectEnvironment().then(function(){
+            require("./setupenv");
+            require("../server/main");
+        });
     },
     set(key, value) {
         setenv({ [key]: value });

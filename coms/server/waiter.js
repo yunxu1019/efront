@@ -179,7 +179,7 @@ var doOptions = async function (req, res, type) {
             res.write("efront " + require("../../package.json").version);
             break;
         case "live":
-            if (memery.islive) {
+            if (memery.istest) {
                 let env = getRequestEnv(req);
                 if (!env) break;
                 res.env = env;

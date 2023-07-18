@@ -115,13 +115,17 @@ var fixpath = function (key) {
         case 2:
             exports[key] = url.split(/[,;]/).map(u => u ? path.normalize(u).replace(/^\.[\/\\]|^\.$/, '') : u).join(",");
             break;
+        case 3:
+            exports[key] = url.split(/[,;]/).map(u => u ? path.resolve(u).replace(/^\.[\/\\]|^\.$/, '').replace(/\\/g, '/') : u).join(",");
+            break;
         default:
             if (url !== exports[key]) exports[key] = url;
     }
 };
 var geturlpath = name => get(name, null, 1);
 var getdirpath = (name, _default) => get(name, _default, 2);
-var PUBLIC_PATH = getdirpath("PUBLIC_PATH", 'public');
+var getfullpath = (name, _default) => get(name, _default, 3);
+var PUBLIC_PATH = getfullpath("PUBLIC_PATH", 'public');
 var webindex, indexreg;
 var str2array = require("./str2array");
 var _memery = {
@@ -151,6 +155,9 @@ var _ifempty = {
 };
 var memery = module.exports = {
     islive: undefined,
+    get istest() {
+        return this.webroot === this.PAGE_PATH;
+    },
     proted: undefined,
     loghead: get('LOGHEAD, LOG'),
     defaults,
@@ -204,8 +211,8 @@ var memery = module.exports = {
     TRANSFER: get('TRANSFER,TRANSFER_LINK,TRANSFER_HOST,TRANS,TRANS_LINK,TRANS_HOST'),
     WATCH_PROJECT_VERSION: 0,
     EXTT: get("EXTT, EXT, EXTT_NAME, EXT_NAME, PUBLIC_EXTT, PUBLIC_EXT"),
-    ENVS_PATH: getdirpath("ENVS_PATH, ENV_PATH, CONFIG_PATH, CONF_PATH"),
-    COMS_PATH: getdirpath("COMS_PATH,COMM_PATH"),
+    ENVS_PATH: getfullpath("ENVS_PATH, ENV_PATH, CONFIG_PATH, CONF_PATH"),
+    COMS_PATH: getfullpath("COMS_PATH,COMM_PATH"),
     SCITER: get("SCITER,QUICKJS,QJS", false),
     I18NNAME: get("I18N_FILENAME,I18N_NAME,I18NFILE,I18NNAME", '#国际化.yml'),
     get PROXY() {
@@ -220,11 +227,11 @@ var memery = module.exports = {
     set NOPROXY(v) {
         noproxy = v;
     },
-    PAGE_PATH: getdirpath("PAGE_PATH, PAGES_PATH, APPS_PATH"),
-    APIS_PATH: getdirpath("APIS_PATH, AAPI_PATH, APPS_PATH"),
-    LIBS_PATH: getdirpath("LIBS_PATH, LIB_PATH"),
-    FILE_PATH: getdirpath("FILE_PATH"),
-    ICON_PATH: getdirpath("ICON_PATH, CONS_PATH, CCON_PATH, ICONS_PATH"),
+    PAGE_PATH: getfullpath("PAGE_PATH, PAGES_PATH, APPS_PATH"),
+    APIS_PATH: getfullpath("APIS_PATH, AAPI_PATH, APPS_PATH"),
+    LIBS_PATH: getfullpath("LIBS_PATH, LIB_PATH"),
+    FILE_PATH: getfullpath("FILE_PATH"),
+    ICON_PATH: getfullpath("ICON_PATH, CONS_PATH, CCON_PATH, ICONS_PATH"),
     get PUBLIC_PATH() { return PUBLIC_PATH },
     set PUBLIC_PATH(v) {
         PUBLIC_PATH = v;
@@ -239,7 +246,7 @@ var memery = module.exports = {
     POLYFILL: get("POLYFILL"),
     SOURCEDIR: get("SOURCEDIR", false),
     SYMBOL: get("SYMBOLS, SYMBOL, SYMBOLS_REG, SYMBOL_REGEXP, REGEXP"),
-    DESTPATH: getdirpath("DESTPATH, DEST_PATH"),
+    DESTPATH: getfullpath("DESTPATH, DEST_PATH"),
     PUBLIC_NAME: get("PUBLIC_NAME", ''),
     IN_WATCH_MODE: get("IN_WATCH_MODE", false),
     ENCRYPT: get("ENCRYPT, CRYPT, ENCODE", true),

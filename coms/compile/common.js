@@ -1028,7 +1028,7 @@ var createString = function (parsed) {
                         tmp = tmp.replace(/^\/[\/\*]\s*\<\!--\s*/, '');
                         cacheresult = [];
                         result = cacheresult;
-                        result.push("/* <!-- 开发辅助代码: */");
+                        result.push("/* [[ 开发辅助代码: */");
                     }
                     if (/--\!?\>\s*(?:\*\/)?$/.test(tmp) && result !== finalresult) {
                         if (!opentmp) tmp = tmp.replace(/^\/[\/\*]\s*/, '');
@@ -1036,7 +1036,7 @@ var createString = function (parsed) {
                         if (tmp) {
                             result.push(tmp);
                         }
-                        result.push("/* --> */");
+                        result.push("/* ]] */");
                         opentmp = true;
                         if (helpcode && cacheresult) finalresult = finalresult.concat(cacheresult), cacheresult = [];
                         result = finalresult;
