@@ -26,13 +26,44 @@ if (globalStorage) {
         localStorage = window.localStorage
     }
     catch { }
-    if (!localStorage) localStorage = {
-        setItem() {
-        },
-        getItem() {
-            return null;
-        },
-        removeItem() {
+    var _localStorageKeys = [];
+    var _values = Object.create(null);
+
+    if (!localStorage) localStorage = new class Storage {
+        setItem(key, value) {
+            value = String(value);
+            key = String(key);
+            if (!(key in _values)) {
+                if (!(key in this)) Object.defineProperty(this, key, {
+                    get() {
+                        return _values[key];
+                    }, configurable: true
+                });
+                _localStorageKeys.push(key);
+            }
+            _values[key] = value;
+        }
+        getItem(key) {
+            return key in _values ? _values[key] : null;
+        }
+        clear() {
+            _localStorageKeys.forEach(k => {
+                delete this[k];
+                delete _values[k];
+            });
+            _localStorageKeys.splice(0, _localStorageKeys.length);
+        }
+        key(i) {
+            return _localStorageKeys[i] || null;
+        }
+        get length() {
+            return _localStorageKeys.length;
+        }
+        removeItem(key) {
+            if (delete _values[key]) {
+                delete this[key];
+                removeFromList(_localStorageKeys, key);
+            }
         }
     };
 }
