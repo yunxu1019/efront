@@ -613,7 +613,7 @@ var removeExport = function (c, i, code) {
         var nn = n.next;
         var d = nn.text;
         if (used[d]) used[d].forEach(a => {
-            if (!a.kind) a.text = `exports.${d}`;
+            if (!a.kind) a.text = `exports.` + a.text;
         });
         delete used[d];
         delete envs[d];
