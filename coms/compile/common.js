@@ -344,11 +344,12 @@ var snapExpressHead = function (o) {
 var snapExpressFoot = function (o) {
     while (o && o.next) {
         var n = null;
+        var isExpress = o.isExpress;
         if (o.type & STRAP) {
             n = o;
             if (n.text === 'new') n = n.next;
             if (n.text === 'function') {
-                while (n && n.type !== SCOPED || n.entry !== '{') n = n.next;
+                while (n && (n.type !== SCOPED || n.entry !== '{')) n = n.next;
             }
             else if (n.text === 'class') {
                 var n = o;
@@ -357,12 +358,13 @@ var snapExpressFoot = function (o) {
             }
             else break;
             o = n;
+            n = o && o.next;
         }
         else if (o.type & (EXPRESS | QUOTED | VALUE | SCOPED)) {
             n = o.next;
         }
         if (!n) break;
-        if (n.type === SCOPED && (o.entry !== '{' || o.isObject)
+        if (n.type === SCOPED && (o.entry !== '{' || isExpress)
             || /\.$/.test(o.text) && !o.isdigit
             || n.type === EXPRESS && /^\??\.[^\.]/.test(n.text)
             || n.type === QUOTED && (n.length || /^\`/.test(n.text))

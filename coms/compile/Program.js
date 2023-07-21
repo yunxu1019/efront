@@ -535,7 +535,7 @@ class Program {
                 if (!this.classstrap_reg.test(m)) queue.inExpress = this.transive_reg.test(m);
                 else {
                     var last = queue.last;
-                    if (!last) queue.inExpress = false;
+                    if (!last);
                     else if (last.type === STAMP) {
                         queue.inExpress = !/^(;|\+\+|\-\-)$/.test(last.text);
                     }
