@@ -9,6 +9,7 @@ assert = function (a, b) {
 var innerJs = new Javascript;
 innerJs.defaultType = common.STRAP;
 // 声明及解构
+assert(downLevel(`var [data, args, strs] = breakcode(data, occurs), strs = []`), 'var _ = breakcode(data, occurs), data = _[0], args = _[1], strs = _[2], strs = []\r\nvar _');
 assert(downLevel(`var [name, type, options] = piece, key, repeat;`), 'var name = piece[0], type = piece[1], options = piece[2], key, repeat;');
 assert(downLevel(`var [] = piece, key,[]= repeat;`), 'var key;');
 assert(downLevel(`var [] = piece, key,[]`), 'var key');

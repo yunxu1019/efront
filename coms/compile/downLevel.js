@@ -339,7 +339,9 @@ var killdec = function (queue, i, getobjname, _var = 'var', killobj, islet) {
             splice(queue, i, 0, { type: EXPRESS, text: tmpname }, { type: STAMP, text: "=" });
             i += 2;
             var i2 = skipAssignment(queue, i);
+            var n = queue[i2];
             killobj(queue.slice(i, i = i2));
+            if (hasnext) splice(queue, i, 1);
             index++;
         }
         for (var o0 of objs) {
