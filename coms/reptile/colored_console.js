@@ -179,7 +179,7 @@ var format = function (arg, deep = 0) {
         if (deep > 1) return "<green>" + strings.encode(arg) + "</green>";
         return arg;
     }
-    if (typeof arg === 'function') return `<cyan>[${arg.__proto__.constructor.name}${arg.name ? ": " + arg.name : " (匿名)"}]</cyan>`;
+    if (typeof arg === 'function') return `<cyan>[${arg.constructor.name}${arg.name ? ": " + arg.name : " (匿名)"}]</cyan>`;
     if (/^(number|boolean)$/.test(typeof arg)) return '<yellow>' + arg + "</yellow>";
     if (arg === undefined) return "<gray>undefined</gray>";
     if (typeof arg === "object") {
@@ -194,12 +194,12 @@ var format = function (arg, deep = 0) {
         }
         if (arg instanceof Buffer || arg instanceof ArrayBuffer || arg instanceof SharedArrayBuffer) {
             var data = new Uint8Array(arg.buffer || arg, arg.byteOffset || 0, arg.byteLength);
-            return `<magenta><${arg.__proto__.constructor.name} ${Array.prototype.slice.call(data, 0, 20).map(a => a < 16 ? "0" + a.toString(16) : a.toString(16)).join(' ')}${arg.byteLength > 20 ? ` ... 其他 ${arg.byteLength - 20} 字节` : ''}></megenta>`;
+            return `<magenta><${arg.constructor.name} ${Array.prototype.slice.call(data, 0, 20).map(a => a < 16 ? "0" + a.toString(16) : a.toString(16)).join(' ')}${arg.byteLength > 20 ? ` ... 其他 ${arg.byteLength - 20} 字节` : ''}></megenta>`;
         }
         else if (isFinite(arg.length)) {
             var entry = "[";
             var leave = "]";
-            entry = `${arg.__proto__.constructor.name}(${arg.length})${entry}`;
+            entry = `${arg.constructor.name}(${arg.length})${entry}`;
             if (arg.length === 0) return entry + leave;
             if (deep > 3 && deep + arg.length > 5) return `${entry} ... ${leave}`;
             deepobjs.push(arg);

@@ -157,7 +157,7 @@ var buildHtml = function (html, code, outsideMain, responseTree) {
         });
 
     if (isZimoliDetected)
-        html = html.replace(/(<\/head>)/i, (_, head) => `\r\n<script compiledinfo="${ReleaseTime} by efront ${require(path.join(__dirname, "../../package.json")).version}"${outsideMain ? ` src="${outsideMain}"` : ''}>${outsideMain ? "" : `\r\n<!--\r\n${code}\r\n-->\r\n`}</script>\r\n${head}`);
+        html = html.replace(/(<\/head>)/i, (_, head) => `\r\n<script compiledinfo="${ReleaseTime} by efront ${require("../../package.json").version}"${outsideMain ? ` src="${outsideMain}"` : ''}>${outsideMain ? "" : `\r\n<!--\r\n${code}\r\n-->\r\n`}</script>\r\n${head}`);
     if (memory.IN_WATCH_MODE) {
         let WATCH_PORT = memory.WATCH_PORT;
         let reloadVersion = memory.WATCH_PROJECT_VERSION;

@@ -8,7 +8,6 @@ echo %cd%
 set coms_path=./coms
 set page_path=./coms
 set public_path=./public
-set export_to=node
 set page=./
 set app=efront/index.js
 set extt=.js

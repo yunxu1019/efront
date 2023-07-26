@@ -591,7 +591,7 @@ var commands = {
     start() {
         memery.WAITER_NUMBER = 1;
         setAppnameAndPorts(arguments);
-        detectEnvironment().then(function(){
+        detectEnvironment().then(function () {
             require("./setupenv");
             require("../server/main");
         });
@@ -955,13 +955,14 @@ var run = function (type, value1, value2, value3) {
                 var tagLength = 0;
                 var matched = [];
                 for (var c of cmds) {
-                    var h = helps[c.__proto__.key];
+                    var key = (c.__proto__ ? c.__proto__ : Object.getPrototypeOf(c)).key;
+                    var h = helps[key];
                     if (matched.indexOf(h) < 0) {
                         matched.push(h);
                         h.matches = [];
                         h.matched = [];
                     }
-                    h.matches.push(c.__proto__.key);
+                    h.matches.push(key);
                     h.matched.push(c.key);
                 }
                 for (var c of matched) {

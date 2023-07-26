@@ -24,7 +24,6 @@ async function getPassword(name) {
                     break;
                 case 13:// enter
                     process.stdin.off("data", ondata);
-                    process.stdin.uncork();
                     process.stdout.write('\r\n');
                     ok(passwords.join(''));
                     break;
@@ -33,15 +32,15 @@ async function getPassword(name) {
                     passwords.push(a);
             }
         }
-        process.stdin.on("data", ondata);
         process.stdin.setRawMode(true);
-        process.stdin.ref();
+        process.stdin.on("data", ondata);
+        process.stdin.resume();
     });
     p.then(a => {
         process.stdin.setRawMode(false);
-        process.stdin.unref()
+        process.stdin.pause();
     }, function () {
-        process.stdin.unref();
+        process.stdin.pause();
     });
     return p;
 }
@@ -70,7 +69,7 @@ module.exports = {
     },
     requestPassword() {
         requestPassword().then(function (a) {
-            userdata.setPassword(a);
+            return userdata.setPassword(a);
         }, console.error);
     },
 };

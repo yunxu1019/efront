@@ -66,9 +66,13 @@ var setHeader2 = function (k, v) {
     this.setHeader(k, v);
 };
 var indexexts = require("../efront/str2array")(memery.INDEX_EXTENSIONS);
+var denoexts = require("../efront/str2array")(memery.DENO_EXTENSIONS);
 var indexlist = memery.webindex;
 var indexlist2 = [""].concat(indexlist);
 var indexexts2 = [""].concat(indexexts);
+var denoindex = memery.denoindex;
+if (!~denoexts.indexOf("")) denoexts.unshift('');
+
 var indexreg = memery.indexreg;
 /**
  * 返回数据
@@ -147,7 +151,7 @@ var adapter = function (data, url, req, res) {
         }
     }
     if (url) {
-        data = getfile(url, indexlist);
+        data = getfile(url, req.deno ? denoindex : indexlist);
         return adapter(data, "", req, res);
     }
     if (!req.direct && memery.DIRECT) {
@@ -184,7 +188,8 @@ var doGet = module.exports = async function (req, res) {
     var id = /\:/.test(req.url) ? req.url.replace(/^[\s\S]*?\:([\s\S]*?)([\?][\s\S]*)?$/, "$1") : null;
     req.id = id;
     var exts = [''];
-    if (url[url.length - 1] !== '/') exts = indexexts2;
+    req.deno = /^Deno\//.test(req.headers["user-agent"]);
+    if (url[url.length - 1] !== '/') exts = req.deno ? denoexts : indexexts2;
     var data = getfile(url, exts);
     if (data instanceof Promise) {
         return data.then(function (data) {

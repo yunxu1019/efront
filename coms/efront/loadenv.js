@@ -1,6 +1,6 @@
 var fs = require("fs");
 var path = require("path");
-var gbk2utf8 = require("../reptile/gbk2utf8");
+var gbk2utf8 = typeof decodeGBK === 'function' ? decodeGBK : String;
 var reg_set = /^\s*@?\s*(?:set|setx|export)\s+(.*?)\s*=\s*(['"`]?)([\s\S]*)\2$/im;
 var reg_call = /^\s*@?\s*call\s+(["]?)(.+?)\1([\s\S]*)$/i;
 var reg_for = /^\s*@?\s*for\s+([%\w]+)\s+in\s*\((.*?)\)\s*do\s+(.*?)$/i;

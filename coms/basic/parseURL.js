@@ -78,5 +78,5 @@ function parseURL(url) {
     obj.locate(url);
     return obj;
 }
-// mdn说__proto__这玩意在deno上不支持，吓我一跳，2023-01-04亲测支持
+// mdn说__proto__这玩意在deno上不支持，吓我一跳，2023-01-04亲测支持， 2023-07-27已不支持
 module.exports = parseURL;

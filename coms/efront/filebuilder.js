@@ -74,7 +74,7 @@ var buildjsp = function (buff, realpath) {
                 return this.path;
             },
             path: path.join(__dirname, '../..'),
-            version: require(path.join(__dirname, "../../package.json")).version
+            version: require(__dirname, "../../package.json").version
         },
         req: null, res: null, request: null, response: null, context: null,
         remoteAddress: null, textplain: null, forbidden: null,

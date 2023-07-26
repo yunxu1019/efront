@@ -126,7 +126,7 @@ var geturlpath = name => get(name, null, 1);
 var getdirpath = (name, _default) => get(name, _default, 2);
 var getfullpath = (name, _default) => get(name, _default, 3);
 var PUBLIC_PATH = getfullpath("PUBLIC_PATH", 'public');
-var webindex, indexreg;
+var webindex, indexreg, denoindex;
 var str2array = require("./str2array");
 var _memery = {
 };
@@ -239,6 +239,8 @@ var memery = module.exports = {
     },
     EXPORT_TO: get("EXPORT_TO, TARGET"),
     EXPORT_AS: get("EXPORT_AS, EXPORT"),
+    DENO: get("DENO, DENO_TARGET", false),
+    NODE: get("NODE, NODE_TARGET", false),
     RELEASE: get("RELEASE,INCLUDE_REQUIRED", 0),
     PREFIX: get("PREFIX", ''),
     COMMENT: get("COMMENT", false),
@@ -270,12 +272,17 @@ var memery = module.exports = {
     REPORT: get("REPORT"),
     EXTRACT: get("EXTRACT, EXTRACT_MAIN_SCRIPT, EXTRACT_MAIN, EXTRACT_SCRIPT"),
     INDEX_NAME: get("INDEX_NAME", "default|index"),
+    DENO_EXTENSIONS: get("DENO_EXTENSIONS", '.js'),
     INDEX_EXTENSIONS: get("INDEX_EXTENSIONS", '.html,.htm,.jsp,.asp,.php'),
     NODEID: get("NODEID,DHTID,DHT", Buffer.from([101, 102, 114, 111, 110, 116, 46, 99, 99].concat(Array(11).fill(0).map(() => Math.random() * 256 | 0))).toString("hex")),
     CORS: get("CORS,CORP,Cross-Origin-Resource-Policy", true),
     get webindex() {
         if (!webindex) webindex = require("./mixin")(this.INDEX_NAME, '.', str2array(this.INDEX_EXTENSIONS).map(a => a.replace(/^\./, ''))).map(a => a.join(''));
         return webindex;
+    },
+    get denoindex() {
+        if (!denoindex) denoindex = require("./mixin")(this.INDEX_NAME, '.', str2array(this.DENO_EXTENSIONS).map(a => a.replace(/^\./, ''))).map(a => a.join(""));
+        return denoindex;
     },
     get indexreg() {
         if (!indexreg) indexreg = new RegExp(`(${/(?:[\/\\]|^)/.source + str2array(this.INDEX_NAME).join("|")})(${/\./.source + str2array(this.INDEX_EXTENSIONS).map(a => a.replace(/^\./, '')).join("|")})$`, 'i')

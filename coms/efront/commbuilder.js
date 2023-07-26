@@ -18,6 +18,7 @@ var translate = require("../compile/translate");
 var $split = require("./$split");
 var backEach = require("../basic/backEach");
 var downLevel = require("../compile/downLevel");
+var isbooted = typeof seek === 'function';
 // var downLevel = require("./downLevel");
 var skipreg = /^\s*(['"`])use\s+(strict|asm|strip)\1(?:\s*;)?\s*$/;
 var breakflag = null;
@@ -118,7 +119,7 @@ var replaceIncludes = function (data) {
         return `var ${realName}=require(${q}${p}${q})${c || ''}`;
     });
 };
-var loadUseBody = function (source, fullpath, watchurls) {
+var loadUseBody = async function (source, fullpath, watchurls) {
     var replacer = function (data, realPath) {
         watchurls.push(realPath);
         var realName = path.basename(realPath).replace(/\..*$/, "") || "main";
@@ -151,7 +152,14 @@ var loadUseBody = function (source, fullpath, watchurls) {
         }
         return data;
     };
-    return bindLoadings(useInternalReg, source, fullpath, replacer);
+    source = await bindLoadings(useInternalReg, source, fullpath, replacer);
+    if (!isbooted || !memery.AUTOEVAL) return source;
+    return bindLoadings(/require\((['"`])([^'"`\)]*?\.json)\1\)\.[\w\.\u007f-\uffff]+/g, source, fullpath, function (data, realpath, match) {
+        var json = JSON.parse(data);
+        match = match.replace(/^[\s\S]*\)\./, '');
+        var data = seek(json, match);
+        return typeof data !== 'object' ? JSON.stringify(data) : match;
+    })
 };
 var getRequiredPaths = function (data) {
     var pathReg = /\b(?:go|popup|zimoli)\(\s*(['"`])([^\{\}]+?)\1[\s\S]*?\)/g;

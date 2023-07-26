@@ -19,7 +19,7 @@ if (fs.existsSync('data/shared.json')) fs.rename('data/shared.json', 'data/share
     if (error) return;
     getFile('data/shared.txt');
 });
-var configpath = path.join(os.userInfo().homedir, '.efront/shared.json');
+var configpath = path.join(os.homedir(), '.efront/shared.json');
 var configpath1 = configpath.replace(/\.json$/g, ".txt");
 if (fs.existsSync(configpath)) {
     fs.rename(configpath, configpath1, function (error) {

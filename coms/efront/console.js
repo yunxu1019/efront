@@ -5,7 +5,7 @@ var colors = require("../reptile/colors");
 var console = module.exports = global.console;
 var path = require("path");
 if (console.type) return module.exports;
-var version = `efront/(${String(require(path.join(__dirname, "../../package.json")).version).replace(/^(\w*(?:\.\w*)?)[\s\S]*$/, "$1")})`;
+var version = `efront/(${String(require("../../package.json").version).replace(/^(\w*(?:\.\w*)?)[\s\S]*$/, "$1")})`;
 var lastLogTime = -Infinity;
 var logTime = function (str = '') {
     lastLogTime = new Date;

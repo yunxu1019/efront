@@ -11,7 +11,6 @@ pwd
 export coms_path=./coms
 export page_path=./coms
 export public_path=./public
-export export_to=node
 export page=./
 export app=efront/index.js
 export extt=.js
