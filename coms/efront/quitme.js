@@ -16,8 +16,8 @@ if (require("../message").isPrimary) {
             output: process.stdout
         });
         rl.addListener("SIGINT", function () {
+            rl.close();
             if (exit instanceof Function) {
-                rl.close();
                 exit();
             } else {
                 process.exit();

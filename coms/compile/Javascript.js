@@ -508,6 +508,18 @@ var removeImport = function (c, i, code) {
     }
     else o = c;
     var n = o.next;
+    var t = null;
+    if (n && n.type === EXPRESS) {
+        t = Object.create(null);
+        var ts = n.text.split(".")
+        for (var e of ts) {
+            t[e] = true;
+        }
+        var ni = code.indexOf(n, i);
+        removeFromList(used[ts[0]], n);
+        splice(code, ni, 1);
+        n = n.next;
+    }
     if (!n || n.type !== QUOTED) throw new Error("缺少导入路径！");
     var oi = code.indexOf(o, i);
     var ns = skipAssignment(n);
@@ -515,6 +527,7 @@ var removeImport = function (c, i, code) {
     var q = scan(`require()`);
     if (!used.require) used.require = [], envs.require = true;
     used.require.push(q[0]);
+    Object.assign(q[0], t);
     var cs = code.splice(oi + 1, nsi - oi - 1, ...q);
     q[1].push.apply(q[1], cs);
     relink(q[1]);
