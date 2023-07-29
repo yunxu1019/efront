@@ -9,6 +9,7 @@ function test(codetext, expect, ret = false) {
     try { code = unstruct(code, () => ++i >= 0 ? "_" + i : '_', ret && "@"); } catch (e) { console.log(r); throw e }
     assert(code.map(createString).join(";\r\n "), expect, r++);
 }
+test('var o = loaded[f.name] = f.isFile() ? new File(p, rebuild, limit) : new Directory(p, rebuild, limit)', "_ = f.name; _0 = f.isFile(); if (!_0) return [1, 0]; _0 = new File(p, rebuild, limit); loaded[_] = _0; o = _0; return [2, 0];\r\n _0 = new Directory(p, rebuild, limit); loaded[_] = _0; o = _0; return [1, 0]");
 test('a+b', "a + b");
 test('var a = b', "a = b");
 test('a + !c', "_ = !c, a + _");

@@ -699,6 +699,7 @@ var ternary = function (body, getname, ret) {
                 qe.text = String(explist.length - qi);
                 explist.push(...d);
                 hasquestion = true;
+                explist.unshift(...exphead);
                 return explist;
             }
         }
