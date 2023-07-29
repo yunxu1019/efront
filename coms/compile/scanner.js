@@ -319,6 +319,7 @@ function block_code_scanner(index, blocks = [], keepdeep = Infinity) {
         return tempIndex;
     };
     var saved_index = index;
+    var start_index = index;
     var c, deep = 0;
     var length = this.length;
     var reg = /[\/\{\}'"`]/g;
@@ -348,8 +349,8 @@ function block_code_scanner(index, blocks = [], keepdeep = Infinity) {
                     // return/a/
                     //switch case break,while continue,break abcd;
                     var tempIndex = lookback.call(this, index - 1);
-                    isReg = tempIndex < 0 || /[[|,+=*~?:&\^{\(\/><;%\-!]/.test(this[tempIndex]);
-                    if (!isReg && tempIndex >= 5) {
+                    isReg = tempIndex <= start_index || /[[|,+=*~?:&\^{\(\/><;%\-!]/.test(this[tempIndex]);
+                    if (!isReg && tempIndex >= start_index + 5) {
                         var last_pice = this.slice(Math.max(tempIndex - 50, 0), tempIndex + 1);
                         isReg = /return\s*$|([)};:{]|[^\.\s]\s+)(continue|break|case)\s*$/.test(last_pice);
                         isReg = isReg || /([)};:{]|[^\.\s]\s+)(?:continue|break)\s+([\w\u0100-\u2027\u2030-\uffff]+?)$/.test(last_pice);

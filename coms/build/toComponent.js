@@ -250,8 +250,22 @@ function toComponent(responseTree, noVersionInfo) {
         var code_blocks = scanner(module_string);
         var requireReg = /(?<=\brequire\s*\(\s*)['"`]/gy;
         var hasRequire = module_body.slice(0, module_body.length >> 1).indexOf('require') >= 0;
-        module_string = code_blocks.map(function (block) {
-
+        var replaceMatchedString = function (block) {
+            if (block.type === block.template_quote_scanner) {
+                var { start, end } = block;
+                if (block.children) {
+                    var res = [];
+                    for (var c of block.children) {
+                        res.push(
+                            module_string.slice(start, c.start),
+                            replaceMatchedString(c).trim()
+                        );
+                        start = c.end;
+                    }
+                    res.push(module_string.slice(start, end));
+                    return res.join('');
+                }
+            }
             var block_string = module_string.slice(block.start, block.end);
             if (block.type === block.single_quote_scanner || block.type === block.double_quote_scanner) {
                 if (hasRequire) {
@@ -266,7 +280,8 @@ function toComponent(responseTree, noVersionInfo) {
                 return setMatchedConstRegExp(block_string);
             }
             return block_string;
-        }).join("");
+        };
+        module_string = code_blocks.map(replaceMatchedString).join("");
         module_string = `${isAsync ? "async " : ""}function${isYield ? "*" : ""}(${module_body.slice(module_body.length >> 1, module_body.length - 1)}){${compress ? "" : "\r\n"}${module_string}${compress ? "" : "\r\n"}}`;
         if (compress) {
             module_string = scanner2(module_string).press(keepspace).toString();
@@ -630,7 +645,7 @@ function toComponent(responseTree, noVersionInfo) {
                 prefix.unshift(`require = Deno[Deno.internal].requireImpl.Module.createRequire(/${/^file:\/\/\//.source}/.test(Deno.mainModule)?Deno.mainModule.replace(/${/^file:\/\/\//.source}/, ''):Deno.cwd().replace(/${/\\/.source}/g,'/')+"/")`);
             }
             if (prefix.length) {
-                prefix = [`if(typeof Deno === 'object'){var ${prefix.join(',')};Deno[Deno.internal].node.initialize()}`];
+                prefix = [`if(typeof Deno === 'object'){var ${prefix.join(',')};Deno[Deno.internal].node.initialize();}`];
             }
             if (destMap.global) {
                 prefix[prefix.length - 1] += (`else global = require("vm").runInThisContext("global")`);
