@@ -292,11 +292,14 @@ function toComponent(responseTree, noVersionInfo) {
             if (a === "__dirname" || a === "__filename") {
                 initDirname();
                 var realpath = module_key.replace(/\$/g, '/');
-                var realdir = getEfrontKey(realpath, 'dirname');
                 var filename = path.relative(SOURCEDIR, responseTree[module_key].realpath);
                 var dirname = path.dirname(filename).replace(/\\/g, '/');
-                saveOnly(`[${getEncodedIndex('__dirname', 'builtin')},function(a){return a(${JSON.stringify(a === '__filename' ? filename : dirname)})}]`, realdir);
-                return destMap[realdir];
+                realpath = a === '__filename' ? filename : dirname;
+                var realkey = getEfrontKey(realpath, 'dirname');
+                if (!/\]$/.test(dest[destMap[realkey] - 1])) {
+                    saveOnly(`[${getEncodedIndex('__dirname', 'builtin')},function(a){return a(${JSON.stringify(realpath)})}]`, realkey);
+                }
+                return destMap[realkey];
             }
             if (!isFinite(index)) {
                 if (memery.EMIT) console.warn("编译异常", module_key, a);
