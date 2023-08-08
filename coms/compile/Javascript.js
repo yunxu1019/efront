@@ -523,7 +523,7 @@ var removeImport = function (c, i, code) {
     if (!n || n.type !== QUOTED) throw new Error("缺少导入路径！");
     var oi = code.indexOf(o, i);
     var ns = skipAssignment(n);
-    var nsi = code.indexOf(ns, i);
+    var nsi = ns ? code.indexOf(ns, i) : code.length;
     var q = scan(`require()`);
     if (!used.require) used.require = [], envs.require = true;
     used.require.push(q[0]);
