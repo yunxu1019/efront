@@ -500,13 +500,13 @@ Javascript.prototype.detour = function detour(o, ie) {
 
 var removeImport = function (c, i, code) {
     var next = c.next;
+    var { used, envs, vars } = code;
     if (next && next.type !== QUOTED) {
-        var { used, envs, vars } = code;
         var [dec, map, o] = getDeclared(c.next);
         if (dec.length !== 1 || !o) throw new Error("代码结构异常！");
         if (o.type !== STRAP || o.text !== 'from') throw new Error("缺少from语句");
     }
-    else o = c;
+    else code.splice(i, 1), o = c;
     var n = o.next;
     var t = null;
     if (n && n.type === EXPRESS) {
