@@ -21,6 +21,7 @@ const {
     snapExpressHead,
     splice,
     relink,
+    setqueue,
     replace,
     skipAssignment,
 } = require("./common");
@@ -354,7 +355,7 @@ var hasComma = function (c) {
 var removeQuote = function (o, c, i) {
     if (hasComma(c)) return;
     if (!isFinite(i)) i = o.indexOf(c);
-    o.splice(i, 1, ...c);
+    splice(o, i, 1, ...c);
     var ch = c[0];
     var cf = c[c.length - 1];
     ch.prev = c.prev;
@@ -531,6 +532,7 @@ var removeImport = function (c, i, code) {
     var cs = code.splice(oi + 1, nsi - oi - 1, ...q);
     q[1].push.apply(q[1], cs);
     relink(q[1]);
+    setqueue(q[1]);
     if (!dec) return;
     var name = dec[0];
     var na = dec.attributes[0];
@@ -695,6 +697,7 @@ Javascript.prototype.fix = function (code) {
         });
     }
     relink(code);
+    setqueue(code);
 }
 Javascript.prototype.createString = createString;
 Javascript.prototype.createScoped = createScoped;
