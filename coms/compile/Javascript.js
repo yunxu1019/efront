@@ -58,7 +58,7 @@ Javascript.prototype.isProperty = function (o) {
             return /^(\+\+|\-\-|;)$/.test(prev.text);
         }
         if (prev.type === EXPRESS && !/\.$/.test(prev.text)) return true;
-        if (~[SCOPED, VALUE, QUOTED, PROPERTY].indexOf(prev.type)) return true;
+        if (prev.type & (SCOPED | VALUE | QUOTED | PROPERTY)) return true;
     }
     if (!prev) return false;
     if (prev.type === PROPERTY && propresolve_reg.test(prev.text)) {
@@ -207,7 +207,7 @@ var isShortMethodEnd = function (o) {
     if (o.type !== SCOPED || o.entry !== "(") return false;
     o = o.prev;
     if (!o) return false;
-    return o.type === PROPERTY;
+    return o.isprop;
 };
 
 Javascript.prototype.setType = function (o) {
@@ -226,7 +226,7 @@ Javascript.prototype.setType = function (o) {
         else if (o.type === SCOPED) {
             if (o.entry === '[') {
                 if (queue.isObject) o.isprop = this.isProperty(o);
-                if (queue.isClass) o.isprop = !last || last.isprop || last.type === STAMP && last.text === ';';
+                if (queue.isClass) o.isprop = !last || last.isprop || last.type === STAMP && last.text === ';' || isShortMethodEnd(last);
             }
             else if (o.entry === "{") {
                 if (last && last.type === PROPERTY && last.text === 'static') {
