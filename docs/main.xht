@@ -43,12 +43,27 @@
     }
 
     menu {
+        margin: 0;
         width: var(--leftwidth);
         margin-left: -var(--leftwidth);
         height: 100%;
         display: inline-block;
         min-width: 200px;
         max-width: 600px;
+    }
+
+    titlebar {
+        background: #2c2c2c;
+        -webkit-app-region: drag;
+
+        >.drop {
+            -webkit-app-region: no-drag;
+            vertical-align: top;
+            right: 20px;
+            box-sizing: border-box;
+            padding: 0 7px;
+            line-height: 44px;
+        }
     }
 
     div1 {
@@ -204,6 +219,20 @@
     };
     var page = document.createElement('grid');
     page.innerHTML = template;
+    if (window.require) {
+        var title = document.createElement('titlebar');
+        title.innerHTML = document.title;
+        css(page, { paddingTop: "44px" })
+        css(title, { height: '44px', lineHeight: '44px' });
+        page.insertBefore(title, page.firstChild);
+        var close = drop();
+        title.appendChild(close);
+        onclick(close, function () {
+            window.close();
+        })
+        titlebar(title, false);
+        drag.on(close, window);
+    }
     render(page, scope);
     var s = scrollbar();
     on("mounted")(page, initMenus);
