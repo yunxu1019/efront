@@ -506,8 +506,9 @@ var removeImport = function (c, i, code) {
         var [dec, map, o] = getDeclared(c.next);
         if (dec.length !== 1 || !o) throw new Error("代码结构异常！");
         if (o.type !== STRAP || o.text !== 'from') throw new Error("缺少from语句");
+        var oi = code.indexOf(o, i);
     }
-    else code.splice(i, 1), o = c;
+    else code.splice(i, 1), o = c, oi = i - 1;
     var n = o.next;
     var t = null;
     if (n && n.type === EXPRESS) {
@@ -522,7 +523,6 @@ var removeImport = function (c, i, code) {
         n = n.next;
     }
     if (!n || n.type !== QUOTED) throw new Error("缺少导入路径！");
-    var oi = code.indexOf(o, i);
     var ns = skipAssignment(n);
     var nsi = ns ? code.indexOf(ns, i) : code.length;
     var q = scan(`require()`);
