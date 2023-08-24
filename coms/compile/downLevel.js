@@ -989,19 +989,6 @@ var killobj = function (body, getobjname, getletname, getname_, letname_, deep =
     }
 };
 
-// 字面量 false|true|null|Infinity|NaN|undefined|arguments|this|eval|super
-var power_map = {};
-[
-    '=,+=,-=,*=,/=,%=,|=,&=,^=,**=,~=',
-    '=>', '?,:', '&&,||', '&,|,^',
-    'instanceof,in,==,>=,<=,>,<,!=,!==,===,!in,!instanceof',
-    '>>,>>>,<<', '+,-', '*,/,%', '**',
-    'typeof,await,yield,!,~', '++,--'
-].forEach((pp, i) => {
-    pp.split(",").forEach(p => {
-        power_map[p] = i + 1;
-    })
-});
 var unawait = function (body, getname, argname) {
     return unstruct(body, function () {
         return getname("_");
