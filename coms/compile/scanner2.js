@@ -181,7 +181,7 @@ class Code extends Array {
 var avoidMap = null;
 var typeMap = Object.create(null);
 function scan(text, type = "js", lastIndex = 0) {
-    if (isFinite(type)) lastIndex = +type, type = arguments[1];
+    if (isFinite(type)) lastIndex = +type, type = arguments[2] || type;
     var program = typeMap[type];
     if (!program) switch (type) {
         case "html":

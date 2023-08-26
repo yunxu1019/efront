@@ -245,8 +245,8 @@ var killCircle = function () {
 // -->
 var hasOwnProperty = {}.hasOwnProperty;
 var loadModule = function (url, then, prebuilds = {}) {
-    var name = url.replace(/[\*~][\s\S]*$/, '');
-    if (/^(?:module|exports|define|require|window|global|undefined)$/.test(name)) return then();
+    var name = url.replace(/[\#\*~\?][\s\S]*$/, '');
+    if (/^(?:module|exports|define|import_meta|require|window|global|undefined)$/.test(name)) return then();
     if ((hasOwnProperty.call(prebuilds, url)) || hasOwnProperty.call(modules, url) || (!hasOwnProperty.call(forceRequest, name) && !/^on/.test(name) && window[name] !== null && window[name] !== void 0)
     ) return then();
     preLoad(url);
@@ -383,49 +383,56 @@ var getArgs = function (text, aftfix) {
     return [argNames || [], functionBody, args || [], required || '', strs || [], !!isAsync, !!isYield];
 };
 var get_relatives = function (name, required, prefix = "") {
-    var required_base = name.replace(/[^\/\$]+$/, "");
-    required_base = required_base.replace(/^\.?[\/\$]+/, "");
-    var is_page = /^\//.test(name);
     return required.map(r => {
-        var r1 = r;
-        var base = required_base;
-        if (/^\.*[\/]/.test(r1)) {
-            r1 = r1.replace(/^\.\//, '');
-            while (/\.\.[\/\$]/.test(r1)) {
-                if (/^[\\\/\$\.]*$/.test(base)) {
-                    break;
-                }
-                base = base.replace(/[^\/\$]*[\/\$]$/, '');
-                r1 = r1.slice(3);
-            }
-            base = base.replace(/^[\/\$]/, '');
-            if (/^\//.test(r1)) {
-                base = '';
-                r1 = r1.slice(1);
-            }
-            if (is_page) {
-                base = "/" + base;
-            }
-            if (!/^\.*\//.test(base)) {
-                base = prefix + base;
-            }
-            if (prefix) {
-                base = base.replace(/\$/g, "/");
-                r1 = r1.replace(/\$/g, '/');
-            } else {
-                base = base.replace(/\//g, "$");
-                r1 = r1.replace(/\//g, '$');
-            }
-            var r2 = base + r1;
-        } else {
-            var r2 = r1.replace(/\//g, '$');
-        }
-        if (is_page) {
-            r2 = r2.replace(/\$([\s\S])/g, '/$1');
-        }
-        return r2;
+        return resolve(r, name, prefix);
     });
 };
+function resolve(r1, base, prefix = '') {
+    var is_page = /^\//.test(base);
+    base = base.replace(/[^\/\$]+$/, "").replace(/^\.?[\/\$]+/, "");
+    if (/^\.*[\/]/.test(r1)) {
+        r1 = r1.replace(/^\.\//, '');
+        while (/\.\.[\/\$]/.test(r1)) {
+            if (/^[\\\/\$\.]*$/.test(base)) {
+                break;
+            }
+            base = base.replace(/[^\/\$]*[\/\$]$/, '');
+            r1 = r1.slice(3);
+        }
+        base = base.replace(/^[\/\$]/, '');
+        if (/^\//.test(r1)) {
+            base = '';
+            r1 = r1.slice(1);
+        }
+        if (is_page) {
+            base = "/" + base;
+        }
+        if (!/^\.*\//.test(base)) {
+            base = prefix + base;
+        }
+        if (prefix) {
+            base = base.replace(/\$/g, "/");
+            r1 = r1.replace(/\$/g, '/');
+        } else {
+            base = base.replace(/\//g, "$");
+            r1 = r1.replace(/\//g, '$');
+        }
+        var r2 = base + r1;
+    } else {
+        var r2 = r1.replace(/\//g, '$');
+    }
+    if (is_page) {
+        r2 = r2.replace(/\$([\s\S])/g, '/$1');
+    }
+    return r2;
+
+}
+function Meta(url) {
+    this.url = url;
+}
+Meta.prototype.resolve = function (url) {
+    return resolve(url, this.url);
+}
 var createModule = function (exec, originNames, compiledNames, prebuilds = {}) {
     var module = {};
     var exports = module.exports = {};
@@ -433,7 +440,7 @@ var createModule = function (exec, originNames, compiledNames, prebuilds = {}) {
     var required = exec.required;
     if (required) required = required.map(a => loadedModules[keyprefix + a]);
     var argsList = originNames.map(function (aName) {
-        var argName = aName.replace(/[\*~][\s\S]*$/, '');
+        var argName = aName.replace(/[\#\*~\?][\s\S]*$/, '');
         if (hasOwnProperty.call(prebuilds, argName)) {
             return prebuilds[argName];
         }
@@ -444,6 +451,9 @@ var createModule = function (exec, originNames, compiledNames, prebuilds = {}) {
         if (argName === "exports") {
             isModuleInit = true;
             return exports;
+        }
+        if (argName === 'import_meta') {
+            return new Meta(exec.file);
         }
         if (/^(?:window|global|undefined)$/.test(argName)) return window[argName];
         if (argName === "require") {
@@ -510,7 +520,7 @@ var init = function (url, then, prebuilds) {
         if (then) then(modules[url]);
         return modules[url];
     }
-    var name = url.replace(/[\*~][\s\S]*$/, '');
+    var name = url.replace(/[\#\*~\?][\s\S]*$/, '');
     if (!hasOwnProperty.call(forceRequest, name) && name in window && !/^on/.test(name)) {
         try {
             var value = window[name];

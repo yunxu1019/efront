@@ -498,7 +498,6 @@ var createScoped = function (parsed, wash) {
                             if (!o.next || o.next.type === QUOTED) break;
                         case "var":
                             m = m || vars;
-                            if (s === 'var' && m !== vars) console.log(m === vars, m === lets, s);
                             var [declared, used0, o0, skiped] = getDeclared(o.next, s);
                             while (skiped.length) {
                                 var o1 = run(skiped[0], 0);
@@ -790,6 +789,7 @@ var createScoped = function (parsed, wash) {
         delete used.await;
     }
     delete envs.eval;
+    delete envs.new;
     scoped.envs = envs;
     return scoped;
 };
@@ -1244,8 +1244,27 @@ var isEval = function (o) {
         var h = snapExpressHead(o);
         return o === h;
     }
-    return false;
+    return true;
 };
+var canbeTemp = function (body, strip = false) {
+    var cx = 0, dx = body.length - 1;
+    while (cx < dx) {
+        if (body[cx].type & (SPACE | COMMENT)) {
+            cx++;
+            continue;
+        }
+        if (body[dx].type & (SPACE | COMMENT)) {
+            dx--;
+            continue;
+        }
+        break;
+    }
+    if (body[cx] !== body[dx]) return false;
+    var o = body[cx];
+    if (!o) return false;
+    return o.type === EXPRESS && (strip || !/[\.\[]/.test(o.text)) || o.type === VALUE || o.type === QUOTED && !o.length;
+};
+
 
 module.exports = {
     /*   1 */COMMENT,
@@ -1277,6 +1296,7 @@ module.exports = {
     relink,
     setqueue,
     replace,
+    canbeTemp,
     skipFunction,
     isHalfSentence,
     splice,

@@ -8,6 +8,17 @@ assert = function (a, b) {
 }
 var innerJs = new Javascript;
 innerJs.defaultType = common.STRAP;
+// 运算符
+assert(downLevel(`a??b`), 'nullish_(a, b)', true);
+assert(downLevel(`a**b`), 'power_(a, b)', true);
+assert(downLevel(`a.c**b`), 'power_(a.c, b)', true);
+assert(downLevel(`a??=b`), 'a = nullish_(a, b)', true);
+assert(downLevel(`a**=b`), 'a = power_(a, b)', true);
+assert(downLevel(`a+=b+c**d`), 'a += b + power_(c, d)', true);
+assert(downLevel(`a(c**=d)`), 'a(c = power_(c, d))', true);
+assert(downLevel(`a(c.b.d**=d)`), 'a((_ = c.b, _.d = power_(_.d, d)))\r\nvar _', true);
+assert(downLevel(`a(c.b[a.b]**=d)`), 'a((_ = c.b, _[_0 = a.b] = power_(_[_0], d)))\r\nvar _, _0', true);
+assert(downLevel(`c.b[a.b]**=d`), '_ = c.b, _[_0 = a.b] = power_(_[_0], d)\r\nvar _, _0', true);
 // 声明及解构
 assert(downLevel(`var [data, args, strs] = breakcode(data, occurs), strs = []`), 'var _ = breakcode(data, occurs), data = _[0], args = _[1], strs = _[2], strs = []\r\nvar _');
 assert(downLevel(`var [name, type, options] = piece, key, repeat;`), 'var name = piece[0], type = piece[1], options = piece[2], key, repeat;');
@@ -16,6 +27,7 @@ assert(downLevel(`var [] = piece, key,[]`), 'var key');
 assert(downLevel(`const`), 'const');
 assert(downLevel(`let`), 'let');
 assert(downLevel(`var`), '');
+assert(downLevel(`new.target`), 'undefined');
 assert(downLevel(`{let a; function b(){a};return;}`), `if (tmp = 0, tmp0 =function (a) { a; function b() { a }; return tmp = 1, void 0; }(a)) { if (tmp === 1) return tmp0; }
 var tmp, a, tmp0`);
 assert(downLevel(`const a,b,c`), 'var a, b, c');

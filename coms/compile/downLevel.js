@@ -1,7 +1,7 @@
 var scanner2 = require("./scanner2");
 var strings = require("../basic/strings");
 var Program = scanner2.Program;
-var { STAMP, SCOPED, STRAP, EXPRESS, COMMENT, SPACE, PROPERTY, VALUE, LABEL, QUOTED, snapExpressFoot, rename, isHalfSentence, skipFunction, getDeclared, skipAssignment, skipSentenceQueue, createScoped, createString, splice, relink, snapExpressHead, needBreakBetween } = require("./common");
+var { STAMP, SCOPED, STRAP, EXPRESS, COMMENT, SPACE, PROPERTY, VALUE, LABEL, QUOTED, snapExpressFoot, isEval, canbeTemp, rename, isHalfSentence, skipFunction, getDeclared, skipAssignment, skipSentenceQueue, createScoped, createString, splice, relink, snapExpressHead, needBreakBetween } = require("./common");
 var splice2 = function (q, from, to, ...a) {
     var cx = q.indexOf(from);
     if (cx < 0) throw console.log(splice2.caller, console.format('\r\n<red2>自</red2>'), from && createString([from]), console.format('\r\n<yellow>至</yellow>'), to && createString([to]), console.format(`\r\n<cyan>码列</cyan>`), createString(q)), '结构异常';
@@ -867,6 +867,9 @@ var killobj = function (body, getobjname, getletname, getname_, letname_, deep =
         killobj(o, getobjname, getletname, getname_, letname_, deep);
         if (o.await_) body.await_ = true;
     };
+    var _getnewname = function () {
+        return getname_("_");
+    };
     while (i < body.length) {
         var o = body[i];
         var islet = false;
@@ -979,11 +982,15 @@ var killobj = function (body, getobjname, getletname, getname_, letname_, deep =
                 i = unarrow(body, i, deepkill, letname_);
                 continue;
             }
+            else i = newpunc(body, i, _getnewname);
         }
         else if (o.isdigit) {
             if (/^0[^\.]/.test(o.text)) {
                 o.text = String(eval(o.text));
             }
+        }
+        else if (o.type === EXPRESS) {
+            if (o.text === 'new.target') o.text = 'undefined';
         }
         i++;
     }
@@ -1386,6 +1393,101 @@ var killret = function (body, labels = Object.create(null), gettmpname) {
         o = o.next;
     }
     return breakmap;
+}
+
+var newpunc = function (body, i, newname) {
+    var o = body[i];
+    var t = o.text;
+    if (t.length === 3 && /^(\?\?|\*\*|&&|\|\|)=$/.test(t)) {
+        i++;
+        var punc = t.slice(0, 2);
+        o.text = '=';
+        var f = skipAssignment(body, i);
+        var sentence = splice(body, i, f - i);
+        for (var s of sentence) {
+            if (s.type === STAMP && /[^!=]=$/.test(s.text)) {
+                var temp = scanner2(`()`)
+                splice(temp[0], 0, 0, ...sentence);
+                sentence = temp;
+                break;
+            }
+        }
+        var h = snapExpressHead(o.prev);
+        if (!h) return;
+        var rt = h.type === EXPRESS && h.text;
+        var p = o.prev;
+        var hi = body.lastIndexOf(h, i);
+        if (
+            h === p && h.type === EXPRESS && !/\.[\s\S]*\./.test(rt) && !/\[[^\]]*\]\[[^\]]*\]/.test(rt)) {
+            splice(sentence, 0, 0, ...scanner2(rt + punc));
+            hi = i;
+        }
+        else if (p && h === p.prev && p.type === SCOPED && p.entry === "[" && !/[\.\[]/.test(rt)) {
+            if (canbeTemp(p)) {
+                var name = p.first.text;
+            }
+            else {
+                var name = newname();
+                splice(p, 0, 0, ...scanner2(`${name}=`));
+            }
+            splice(sentence, 0, 0, ...scanner2(`${rt}[${name}]` + punc));
+            hi = i;
+        }
+        else {
+            var n = null;
+            var name = newname();
+            var pt = p.type === EXPRESS && p.text;
+            splice(body, i - 1, 1);
+            if (p.type === EXPRESS && (n = /^(?:[\s\S]*[^\.])?(\.[^\.]*|\[[^\]]*\])$/.exec(pt))) {
+                var n = n[1];
+                p.text = pt.slice(0, pt.length - n.length);
+                splice(sentence, 0, 0, ...scanner2(`,${name}${n}=${name}${n}${punc}`));
+            }
+            else if (p.type === SCOPED && p.entry === '[') {
+                if (canbeTemp(p)) {
+                    var name2 = p.first.text;
+                }
+                else {
+                    var name2 = newname();
+                    splice(p, 0, 0, ...scanner2(`${name2}=`));
+                }
+                splice(body, i - 2, 1);
+                splice(sentence, 0, 0, ...scanner2(`,${name}`), p, ...scanner2(`=${name}[${name2}]${punc}`));
+                p = p.prev;
+            }
+            else {
+                var n = p.text.replace(/^\./, '');
+                var pp = p.prev;
+                if (pp.type === EXPRESS) pp.text = pp.text.replace(/\.$/, '');
+                splice(sentence, 0, 0, ...scanner2(`,${name}.${n}=${name}.${n}${punc}`));
+            }
+            splice(sentence, 0, 0, ...scanner2(`${name}=`), ...splice(body, hi, i));
+            var hp = h.prev;
+            if ((!hp || hp.type === STAMP && /[,=>]$/.test(hp.text)) && !isEval(body)) {
+                var temp = scanner2(`()`)
+                splice(temp[0], 0, 0, ...sentence);
+                sentence = temp;
+            }
+        }
+        splice(body, hi, 0, ...sentence);
+        hi--;
+    }
+    else {
+        hi = i;
+        if (/^(\?\?|\*\*)$/.test(t)) {
+            var l = powermap.puncLeft(o);
+            var r = powermap.puncRight(o);
+            var li = body.lastIndexOf(l, i);
+            var ri = body.indexOf(r, i);
+            var name = t === '??' ? 'nullish_' : "power_";
+            o.text = ',';
+            sentence = scanner2(`${name}()`)
+            splice(sentence[1], 0, 0, ...splice(body, li, 1 + ri - li));
+            splice(body, li, 0, ...sentence);
+            hi = li;
+        }
+    }
+    return hi;
 }
 
 var down = function (scoped) {

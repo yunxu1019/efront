@@ -1,4 +1,4 @@
-var { SPACE, COMMENT, EXPRESS, STRAP, QUOTED, STAMP, SCOPED, VALUE, LABEL, isEval, createString, skipAssignment, skipSentenceQueue, isHalfSentence, splice, relink, createExpressList, snapExpressHead, snapExpressFoot } = require("./common");
+var { SPACE, COMMENT, EXPRESS, STRAP, QUOTED, STAMP, SCOPED, VALUE, LABEL, canbeTemp: _canbeTemp, isEval, createString, skipAssignment, skipSentenceQueue, isHalfSentence, splice, relink, createExpressList, snapExpressHead, snapExpressFoot } = require("./common");
 var scanner2 = require("./scanner2");
 var RE = { type: STRAP, text: "@re" };// if (_) return
 var RZ = { type: STRAP, text: "@rz" };// if (!_) return
@@ -871,24 +871,6 @@ var canbeOnce = function (body) {
     }
     return true;
 };
-var canbeTemp = function (body) {
-    var cx = 0, dx = body.length - 1;
-    while (cx < dx) {
-        if (body[cx].type & (SPACE | COMMENT)) {
-            cx++;
-            continue;
-        }
-        if (body[dx].type & (SPACE | COMMENT)) {
-            dx--;
-            continue;
-        }
-        break;
-    }
-    if (body[cx] !== body[dx]) return false;
-    var o = body[cx];
-    if (!o) return false;
-    return o.type === EXPRESS && (strip || !/[\.\[]/.test(o.text)) || o.type === VALUE || o.type === QUOTED && !o.length;
-};
 var _express = function (body, getname, ret) {
     if (canbeTemp(body)) {
         var q = [];
@@ -1316,6 +1298,9 @@ function toqueue(body, getname, ret = false, result = []) {
 }
 var ret_ = '';
 var strip = false;
+var canbeTemp = function (body) {
+    return _canbeTemp(body, strip);
+};
 module.exports = function (body, newname, ret) {
     strip = body.strip;
     if (ret) ret = isString(ret) ? ret : newname();

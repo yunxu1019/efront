@@ -675,12 +675,17 @@ Javascript.prototype.fix = function (code) {
             code.envs.require = true;
         }
         var requires = code.used.require;
-        imports.forEach(m => {
-            m.text = 'require';
+        imports = imports.filter(m => {
+            if (/^import\.meta($|\.)/.test(m.text)) {
+                m.text = m.text.replace(/\./, '_');
+                return true;
+            }
+            m.text = m.text.replace(/^import/g, 'require');
             requires.push(m);
         });
         delete code.used.import;
         delete code.envs.import;
+        if (imports.length) code.used.import_meta = imports;
     }
     if (code.exportDecs) {
         var exportDecs = code.exportDecs;

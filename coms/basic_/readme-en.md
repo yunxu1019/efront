@@ -11,7 +11,16 @@
     import(...)
     ```
  The result imported with `import (...)`, efront will not actively wrap a layer of Promise. If you use `await` in the root scope of the module, the returned result is an instance of `Promise`. Otherwise, what you export in the imported file will be the result of this `import(...)`. If you are unsure about the content of the imported file and do not blindly use methods such as `import(...).then (...)`, you can use `await import(...)` to wait for the import to complete.
+
 3. ```javascript
+    import.meta
+    import.meta.url
+    import.meta.resolve()
+    new.target
+    ```
+    If the above features are used, the compilation can be successful, but it is inconsistent with the content of the native high-level code. Where `import.meta.url` will be the relative path (excluding` file:///... `), and does not include `?` or `#`. the `new.target` will always be `undefined` and should not be used as much as possible.
+
+1. ```javascript
     (function (a){
         if (a === void 0) a = 1;
         a = 1;
@@ -29,7 +38,7 @@
     ```
     `arguments` that are not in strict mode and do not have default values will be changed by statements in the code, while the other two cases will not. When the `efront` and `typescript` move the default value assignment statement into the function body, they do not handle this detail, that is, the original read-only `arguments` may be changed by the statement inside the function. Some of the components provided in efront may also have issues that prevent them from being downgraded for use. If you find any related issues, please feel free to provide feedback to me and I will handle them as soon as possible.
 
-4. ```javascript
+2. ```javascript
     async function () {
         await ...;
         arguments;

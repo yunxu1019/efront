@@ -12,6 +12,14 @@
     ```
     用`import(...)`导入的结果，efront不会主动包装一层Promise，如果你在模块的根作用域中中使用了`await`，返回结果就是一个`Promise`的实例，否则你在导入的文件内导出了什么，这个`import(...)`的结果就是什么。如果你不确定导入文件的内容，不盲目使用`import(...).then(...)`这类的方法，可以使用`await import(...)`等待导入完成。
 3. ```javascript
+    import.meta
+    import.meta.url
+    import.meta.resolve()
+    new.target
+    ```
+    如果用到以上几个特性，可编译成功，但与原生高级代码的内容不一致。其中`import.meta.url`将是相对路径（不含`file:///...`），且不包含`?`或`#`的参数部分，new.target将始终为`undefined`，尽量不要使用。
+
+4. ```javascript
     (function (a){
         if (a === void 0) a = 1;
         a = 1;
@@ -29,7 +37,7 @@
     ```
     非严格模式且没有默认值的`arguments`是会被代码中的语句改掉的，而其他两种情况不会。`efront`和`typescript`在把默认值赋值的语句移动到函数体内时，都没有处理这一细节，即原来只读的`arguments`可能被函数内的语句改掉。`efront`内提供的一些组件，可能也会有一部分有因此而无法降级使用的问题，如果您发现了相关的问题，可以向我反馈，我会尽快处理。
 
-4. ```javascript
+5. ```javascript
     async function () {
         await ...;
         arguments;
@@ -42,7 +50,7 @@
     ```
     `typescript` 转换这两类新型函数后，`arguments`对象的内容有误。这不是一个难解决的问题，应该只是`typescript`已发现但不愿解决的问题。`efront`在降级编译时临时使用变量重命名的方法对代码中的`arguments`进行替换使其内容与原生高级代码一致。
 
-5. ```javascript
+6. ```javascript
     Object.keys
     Object.create
     Array.prototype.map
@@ -53,7 +61,7 @@
     Function.prototype.bind
     ```
     以上几个方法`ie9+`系列浏览器已支持，但`ie8`及以下版本不支持，如果没有指定`--no-polyfill`参数`efront`在降级编译期会使用`[]map.js`中提供的方法进行修补，这些方法会在加载器检测到浏览器不支持`[].map`时进行初始化
-6. ```javascript
+7. ```javascript
     Array.prototype.fill
     Array(3).fill(0) // 类似这种的将变成[0,0,0]一个常量数组
     var [a,b,c]=Array(3).fill(0).map((_,i)=>i+1) // 类似这种用于生成常量并赋值的，将直接变成赋值语句 var a=1,b=2,c=3
@@ -61,11 +69,11 @@
     ```
     `Array(...).fill(...).map(...)`这种写法经常被`efront`开发者用来生成自增赋值序列，并且非所有运行环境都支持，所以包括其它显式用到`Array.prototype.fill`的几种写法都会被替换。为了目标代码的性能考虑，这种替换在自动常量化之前就要执行，所以不再支持用`polyfill`的开关进行关闭。如果要关闭，请使用参数`--no-autoeval`将自动常量化的功能一同关闭。
 
-7. ```javascript
+8.  ```javascript
     Object.assign
     ```
     Object.assign,`ie`系列浏览器均不支持，由于经常被`efront`开发者使用，在降级编译期，如果没有指定`--no-polyfill`参数，将由`efront`处理成替代品[extend](../basic/extend.js)
-8. ```javascript
+9. ```javascript
     Promise
     Promise.prototype.then
     Promise.prototype.catch
@@ -75,13 +83,13 @@
     Promise.resolve
     ```
     `Promise`对象也是`ie`系列浏览器均不支持的。`efront`实现的`Promise`与原生的特性并不一致，仅在运行环境不支持的时候进行替代。比如由`.then`触发的方法与`setTimeout`触发的方法执行的先后顺序会与高级的运行环境有所区别，但也会保持在当前语境执行后再执行相关的语句。以上没有提到的`Promise`相关的方法均不支持，如`Promise.prototype.finally`，如果您使用了这些缺失的特性，就只能自己实现或找类似[core-js](https://github.com/zloirock/core-js)的库填充了
-9.  ```javascript
+10. ```javascript
     obj.if
     obj.catch
     obj.for
     ```
     类似这种用`.`取属性的语句，由于属性名与`js`的保留字一样，`ie6`等浏览器会报错，但您可以在`efront`提供的环境中放心使用。因为`efront`本身就会把取属性的语句处理掉。
-10. `ie8`及以下浏览器中存在的一些与现代`js`标准不同的特性，`efront`提供的组件可能不兼容，在为这类环境进行应用开发时，应避免使用。
+11. `ie8`及以下浏览器中存在的一些与现代`js`标准不同的特性，`efront`提供的组件可能不兼容，在为这类环境进行应用开发时，应避免使用。
     ```javascript
     Object.defineProperty(...);
     ({
