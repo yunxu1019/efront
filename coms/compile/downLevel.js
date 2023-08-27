@@ -1437,6 +1437,7 @@ var newpunc = function (body, i, newname) {
             var n = null;
             var name = newname();
             var pt = p.type === EXPRESS && p.text;
+            var hp = h.prev;
             splice(body, i - 1, 1);
             if (p.type === EXPRESS && (n = /^(?:[\s\S]*[^\.])?(\.[^\.]*|\[[^\]]*\])$/.exec(pt))) {
                 var n = n[1];
@@ -1462,8 +1463,7 @@ var newpunc = function (body, i, newname) {
                 splice(sentence, 0, 0, ...scanner2(`,${name}.${n}=${name}.${n}${punc}`));
             }
             splice(sentence, 0, 0, ...scanner2(`${name}=`), ...splice(body, hi, i));
-            var hp = h.prev;
-            if ((!hp || hp.type === STAMP && /[,=>]$/.test(hp.text)) && !isEval(body)) {
+            if (!isEval(body) || hp && hp.type === STAMP && /[=>]$/.test(hp.text)) {
                 var temp = scanner2(`()`)
                 splice(temp[0], 0, 0, ...sentence);
                 sentence = temp;
