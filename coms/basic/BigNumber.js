@@ -58,15 +58,71 @@ var fixde = function (numstr, fractionDigits, compare) {
     if (neg) res = '-' + res;
     return res;
 };
-class BigNumber {
-    constructor(value) {
-        if (!this || this.constructor !== BigNumber) {
-            return new BigNumber(value);
-        }
-        this.value = value;
+var vmap = Object.create(null);
+var vsrc = [];
+var adds = function (s, c) {
+    for (var cx = 0, dx = s.length; cx < dx; cx++) {
+        vmap[s.charAt(cx)] = c + cx;
+        vsrc[c + cx] = s.charAt(cx);
     }
-    toString() {
-        return this.value;
+}
+adds("0123456789", 0);
+adds("abcdefghijklmnopqrstuvwxyz", 10);
+class BigNumber {
+    constructor(value, system_scale) {
+        if (!this || this.constructor !== BigNumber) {
+            return new BigNumber(value, system_scale);
+        }
+        system_scale = system_scale | 0;
+        if (!system_scale) system_scale = 10;
+        if (system_scale <= 1 || system_scale > 36) throw new Error("进制错误！");
+        var num = '0';
+        var dotOccurs;
+        var scale = system_scale;
+        if (system_scale <= 36) {
+            value = value.toLowerCase();
+        }
+        for (var v of value) {
+            if (v === '.') {
+                dotOccurs = true;
+                continue;
+            }
+            if (v === '_') continue;
+            if (v === ',') continue;
+            if (dotOccurs) {
+                num = BigNumber.add(num, BigNumber.div(vmap[v], scale, BigNumber.DECIMAL_DIGIT))
+                scale = BigNumber.prd(scale, system_scale);
+            }
+            else {
+                num = BigNumber.add(BigNumber.prd(num, scale), vmap[v]);
+            }
+        }
+        this.value = num;
+    }
+    static DECIMAL_DIGIT = 120;
+    toString(system_scale) {
+        system_scale |= 0;
+        if (!system_scale || system_scale === 10) return this.value;
+        if (system_scale <= 1 || system_scale > 36) throw new Error("进制错误！");
+        var [s, n, m] = prepare(this.value);
+        var dist = [];
+        while (n && n !== "0") {
+            var n0 = BigNumber.div(n, system_scale, 0);
+            var a = BigNumber.sub(n, BigNumber.prd(n0, system_scale));
+            n = n0;
+            dist.unshift(vsrc[+a]);
+        }
+        if (m && m !== "0") {
+            var c = 0;
+            dist.push('.');
+            while (m !== "0") {
+                [a, m = '0'] = BigNumber.prd("0." + m, system_scale).split('.');
+                dist.push(vsrc[+a]);
+                if (++c > BigNumber.DECIMAL_DIGIT || !m) break;
+            }
+        }
+        if (s) dist.unshift('-');
+        return dist.join('');
     };
     add(bignumber) {
         return new BigNumber(BigNumber.add(this.value, bignumber));
@@ -82,8 +138,8 @@ class BigNumber {
     }
     static fix(numstr, fractionDigits) {
         fractionDigits = +fractionDigits || 0;
-        if (fractionDigits < 0 || fractionDigits > 100) {
-            throw new Error("小数位数只能是0和100之间的数字");
+        if (fractionDigits < 0 || fractionDigits > BigNumber.DECIMAL_DIGIT) {
+            throw new Error(`小数位数只能是0和${BigNumber.DECIMAL_DIGIT}之间的数字`);
         }
         return fixde(numstr, fractionDigits, 4);
     }
