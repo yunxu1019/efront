@@ -26,7 +26,10 @@ var split = function (s, n) {
     return r;
 };
 var fixme = function (neg, res, nl) {
-    if (nl > 0) res = res.slice(0, res.length - nl) + "." + res.slice(res.length - nl).replace(/0+$/, '');
+    if (nl > 0) {
+        if (res.length < nl) res = repeat0(nl - res.length) + res;
+        res = res.slice(0, res.length - nl) + "." + res.slice(res.length - nl).replace(/0+$/, '');
+    }
     res = res.replace(/^0+(?!\.)/, '');
     if (/^\./.test(res)) res = '0' + res;
     if (neg) res = '-' + res;
