@@ -148,7 +148,7 @@
                     o.text = keys.map(k => /^\</.test(k) || !k ? k : `<express>${k}</express>`).join(".");
                     break;
                 case STRAP:
-                    if (/^(if|else|switch|case|do|while|for|break|continue|default|import|from|as|export|try|catch|finally|await|yield|return)/.test(text))
+                    if (/^(if|else|switch|case|do|while|for|break|continue|default|import|from|as|export|try|catch|finally|await|yield|return)$/.test(text))
                         o.text = `<flow>${o.text}</flow>`;
                     else o.text = `<strap>${o.text}</strap>`;
                     break;
