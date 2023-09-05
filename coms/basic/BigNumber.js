@@ -82,7 +82,13 @@ class BigNumber {
         if (system_scale <= 36) {
             value = value.toLowerCase();
         }
+        var sign = false;
         for (var v of value) {
+            if (v === "-") {
+                sign = !sign;
+                continue;
+            }
+            if (v === '+') continue;
             if (v === '.') {
                 dotOccurs = true;
                 continue;
@@ -97,12 +103,13 @@ class BigNumber {
                 num = BigNumber.add(BigNumber.prd(num, scale), vmap[v]);
             }
         }
+        if (sign) num = '-' + num;
         this.value = num;
     }
     static DECIMAL_DIGIT = 120;
     toString(system_scale) {
         system_scale |= 0;
-        if (!system_scale || system_scale === 10) return this.value;
+        if (!system_scale || system_scale === 10) return this.value || "0";
         if (system_scale <= 1 || system_scale > 36) throw new Error("进制错误！");
         var [s, n, m] = prepare(this.value);
         var dist = [];
@@ -121,6 +128,7 @@ class BigNumber {
                 if (++c > BigNumber.DECIMAL_DIGIT || !m) break;
             }
         }
+        if (!dist.length) dist.push("0");
         if (s) dist.unshift('-');
         return dist.join('');
     };
