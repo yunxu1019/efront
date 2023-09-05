@@ -1,32 +1,62 @@
-var couple = function (source, marker) {
+var pinyin = null;
+init("pinyin").then(py => pinyin = py);
+var isABC = a => /^[a-zA-Z]$/.test(a);
+var couple = function (source, marker, pinyin) {
+    var isLike = function () {
+        var is = isABC(s), im = isABC(m);
+        if (is && im) return s.toLowerCase() === m.toLowerCase();
+        if (im) {
+            if (pinyin.py(s).indexOf(m.toLowerCase()) < 0) return false;
+            var py = pinyin.pinyin(s).split('|');
+            var i = 2;
+            var t = c2 + ct;
+            for (var p of py) {
+                while (i + t <= marker.length && p.indexOf(marker.slice(t, i + t).toLowerCase()) === 0) i++;
+            }
+            c2 += i - 2;
+            dt = setDt();
+            return true;
+        }
+        return false;
+    };
+    var setDt = function () {
+        var d1 = len1 - c1;
+        var d2 = len2 - c2;
+        return d1 > d2 ? d2 : d1;
+    };
     var len1 = source.length;
     var len2 = marker.length;
     var match = "", begin1 = len1, begin2 = len2;
+    var end2 = begin2;
     for (var cx = -len1, dx = len2; cx < dx; cx++) {
         var c1 = cx >= 0 ? 0 : -cx;
         var c2 = cx >= 0 ? cx : 0;
-        var d1 = len1 - c1;
-        var d2 = len2 - c2;
+        var cc = c2;
         var start = 0, end = 0;
-        for (var ct = 0, dt = d1 > d2 ? d2 : d1; ct < dt; ct++) {
-            if (source[c1 + ct] === marker[c2 + ct]) {
+        for (var ct = 0, dt = setDt(); ct < dt; ct++) {
+            var s = source[c1 + ct];
+            var m = marker[c2 + ct];
+            if (s === m || pinyin && isLike()) {
                 end = ct + 1;
                 if (end === dt && end - start > match.length) {
                     match = source.slice(c1 + start, c1 + end);
                     begin1 = c1 + start;
-                    begin2 = c2 + start;
+                    begin2 = cc + start;
+                    end2 = c2 + end;
                 }
             } else {
                 if (end - start > match.length) {
                     match = source.slice(c1 + start, c1 + end);
                     begin1 = c1 + start;
-                    begin2 = c2 + start;
+                    begin2 = cc + start;
+                    end2 = c2 + end;
                 }
+                cc = c2;
                 start = ct + 1;
             }
         }
     }
-    return [match, begin1, begin2];
+    return [match, begin1, begin2, end2];
 };
 var MARK_PRE1, MARK_PRE2, _PRE1, _PRE2 = _PRE1 = "<b>";
 var MARK_AFT1, MARK_AFT2, _AFT1, _AFT2 = _AFT1 = "</b>";
@@ -52,31 +82,32 @@ var power = function (source, search) {
     if (!search || !source) {
         return [0, source];
     }
-    var matchers = couple(source, search);
+    var matchers = couple(source, search, pinyin);
     var match_text = matchers[0];
-    var match_start2 = matchers[1];
+    var match_start = matchers[1];
     if (search.length === 1) {
         var p = 0;
-        var res = source.replace(new RegExp(search.replace(/[\\\*\?\+\(\)\[]/g, "\\$&"), "g"), (m, i) => {
+        var res = source.replace(new RegExp(search.replace(/[\\\*\?\+\(\)\[]/g, "\\$&"), "ig"), (m, i) => {
             if (!p) p = .1 / (1 + i);
-            return MARK_PRE1 + search + MARK_AFT1;
+            return MARK_PRE1 + m + MARK_AFT1;
         });
         return [p, res];
     }
-    if (match_text.length > 1) {
-        var match_text_pre = source.slice(0, match_start2);
-        var match_text_aft = source.slice(match_start2 + match_text.length);
+    if (matchers[3] - matchers[2] > 1) {
+        var match_text_pre = source.slice(0, match_start);
+        var match_text_aft = source.slice(match_start + match_text.length);
         var pp = 0, ap = 0;
         var p = match_text.length;
         p = match_text.length;
-        if (match_start2) p += .1 / match_start2 - .2;
+        if (match_start) p += .1 / match_start - .2;
         if (match_text_pre.length > 1) {
             [pp, match_text_pre] = power(match_text_pre, search);
         }
         if (match_text_aft.length > 1) {
             [ap, match_text_aft] = power(match_text_aft, search);
         }
-        if (match_text.length !== search.length) {
+        if (matchers[3] - matchers[2] !== search.length) {
+            console.log(matchers, search.length)
             p += (pp + ap) / source.length / search.length * .01 - .2;
         }
         return [p, match_text_pre.concat(MARK_PRE1, match_text, MARK_AFT1, match_text_aft)];
