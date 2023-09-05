@@ -636,6 +636,11 @@ var removeExport = function (c, i, code) {
     }
     var nn = n.next;
     if (!nn) throw new Error('缺少导出项！');
+    if (nn.type === SCOPED && nn.entry !== '{' && c.prev) {
+        if (c.prev.type !== STAMP || c.prev.text !== ';') {
+            code.splice(i++, 0, { type: STAMP, text: ';' });
+        }
+    }
     var oi = code.indexOf(nn, i);
     if (!code.exportDecs) {
         code.exportDecs = [];
