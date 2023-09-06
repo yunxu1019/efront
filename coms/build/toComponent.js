@@ -248,8 +248,9 @@ function toComponent(responseTree, noVersionInfo) {
         if (isAsync || isYield) module_string = module_string.slice(+!!isAsync + +!!isYield);
         if (isAsync) outsideAsync = true;
         var code_blocks = scanner(module_string);
-        var requireReg = /(?<=\brequire\s*\(\s*)['"`]/gy;
-        var hasRequire = module_body.slice(0, module_body.length >> 1).indexOf('require') >= 0;
+        var argList = module_body.slice(0, module_body.length >> 1)
+        var hasRequire = argList.indexOf('require') >= 0 || argList.indexOf('init') >= 0 || argList.indexOf('popup') >= 0;
+        var requireReg = new RegExp(`(?<=\\b(?:${argList.filter(a => /^(require|init|popup)$/.test(a))})\\s*\\(\\s*)['"\`]`, 'gy');
         var replaceMatchedString = function (block) {
             if (block.type === block.template_quote_scanner) {
                 var { start, end } = block;

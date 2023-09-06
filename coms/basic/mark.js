@@ -1,5 +1,5 @@
-var pinyin = null;
-init("pinyin").then(py => pinyin = py);
+var _pinyin = null;
+Promise.resolve(init("pinyin")).then(py => _pinyin = py);
 var isABC = a => /^[a-zA-Z]$/.test(a);
 var couple = function (source, marker, pinyin) {
     var isLike = function () {
@@ -82,7 +82,7 @@ var power = function (source, search) {
     if (!search || !source) {
         return [0, source];
     }
-    var matchers = couple(source, search, pinyin);
+    var matchers = couple(source, search, _pinyin);
     var match_text = matchers[0];
     var match_start = matchers[1];
     if (search.length === 1) {
@@ -107,7 +107,6 @@ var power = function (source, search) {
             [ap, match_text_aft] = power(match_text_aft, search);
         }
         if (matchers[3] - matchers[2] !== search.length) {
-            console.log(matchers, search.length)
             p += (pp + ap) / source.length / search.length * .01 - .2;
         }
         return [p, match_text_pre.concat(MARK_PRE1, match_text, MARK_AFT1, match_text_aft)];
