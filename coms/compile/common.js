@@ -441,7 +441,7 @@ var createScoped = function (parsed, wash) {
                         break;
                     }
                 case VALUE:
-                    if (o.isdigit) break;
+                    if (o.isdigit || /^(null|false|true)$/.test(o.text)) break;
                 case EXPRESS:
                     // if (o.text === 'readFileAsync') console.log(o)
                     if (o.prev && o.prev.type === EXPRESS) {
@@ -771,7 +771,7 @@ var createScoped = function (parsed, wash) {
     var envs = Object.create(null);
     for (var u in used) {
         if (!(u in vars)) {
-            if (!/^(true|false|null|this|arguments)$/.test(u)) envs[u] = true;
+            if (!/^(this|arguments)$/.test(u)) envs[u] = true;
         }
     }
     if (vars.yield) scoped.yield = false;
