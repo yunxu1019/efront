@@ -8,12 +8,12 @@ var couple = function (source, marker, pinyin) {
         if (im) {
             if (pinyin.py(s).indexOf(m.toLowerCase()) < 0) return false;
             var py = pinyin.pinyin(s).split('|');
-            var i = 2;
+            var i = 1;
             var t = c2 + ct;
             for (var p of py) {
-                while (i + t <= marker.length && p.indexOf(marker.slice(t, i + t).toLowerCase()) === 0) i++;
+                if (p.length + t <= marker.length && p.indexOf(marker.slice(t, p.length + t).toLowerCase()) === 0) i = p.length;
             }
-            c2 += i - 2;
+            c2 += i - 1;
             dt = setDt();
             return true;
         }
