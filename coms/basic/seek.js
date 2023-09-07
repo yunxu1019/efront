@@ -8,6 +8,7 @@ var seek = function (object, seeker) {
     if (seeker instanceof Function) {
         return seeker(object);
     }
+    if (typeof seeker === 'number') return object[seeker];
     if (typeof seeker === "string") {
         if (/^(['"`])[\s\S]*$/i.test(seeker)) return seeker.replace(/^(['"`])([\s\S*])\1?$/, "$2");
         if (seeker === '' || seeker === ".") return object;
