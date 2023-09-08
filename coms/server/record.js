@@ -100,32 +100,14 @@ function record($url, request, response, req, res) {
     };
     var buffers = [];
     var headers = response.headers;
+    response = decodeHttpResponse(response);
     response.on("data", function (data) {
         buffers.push(data);
     });
     response.on('error', _error);
 
     response.on("end", function () {
-        var data = Buffer.concat(buffers);
-        switch (headers["content-encoding"]) {
-            case "gzip":
-                require("zlib").gunzip(data, _write);
-                break;
-            case "br":
-                require("zlib").brotliDecompress(data, _write);
-                break;
-            case "deflate":
-                require("zlib").inflate(data, _write);
-                break;
-            case null:
-            case "":
-            case undefined:
-                _write(null, data, false);
-                break;
-            default:
-                console.warn(response.headers["content-encoding"], "content-encoding not support!");
-                _write(null, data, false);
-        }
+        _write(null, Buffer.concat(buffers), false);
     });
     return true;
 }

@@ -31,6 +31,7 @@ var helps = [
     ["z", i18n`格式化代码`, "format MODULE_PATH TARGET_PATH TABSIZE"],
     ["z", i18n`导出与指定的对象路径关联的代码`, "pick MODULE_PATH TARGET_PATH KEYPATH"],
     ["z", i18n`清理代码，删除已声明未使用的代码`, "wash MODULE_PATH TARGET_PATH"],
+    ["z", i18n`从网络下载文件，类似unix中的wget`, "get WEB_PATH ALIAS", "wget WEB_PATH ALIAS"],
     ["k", i18n`设置环境变量`, "setenv --NAME1=VALUE1 --NAME2=VALUE2", "setenv NAME VALUE", "set --NAME1=VALUE1", "set --NAME="],
     ["k", i18n`列出已配置的环境变量`, "listenv", "env"],
     ["-", i18n`创建国际化文案表`, "translate APPNAME"],

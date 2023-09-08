@@ -356,8 +356,6 @@ var commands = {
             host: '127.0.0.1',
             rejectUnauthorized: false,
             allowHTTP1: true,
-
-            path: '/:link',
         };
         if (address instanceof Object) {
             return Object.assign(address, Object.assign(opt, address));
@@ -369,9 +367,10 @@ var commands = {
         } else if (/^\:[\w]*$/.test(address)) {
             opt.path = "/" + address;
         } else {
-            var match = /^([a-z]*?\/\/|[a-z]\w*?\:\/\/)?([\w\.]*?)(\:\d+)?(\/\:?[\w\/]*)?$/i.exec(address);
+
+            var match = parseURL(address);
             if (match) {
-                var [_, protocol, host, port, pathname] = match;
+                var { protocol, host, port, pathname } = match;
                 if (protocol) {
                     protocol = protocol.replace(/\/*$/, '');
                     switch (protocol) {
@@ -392,6 +391,25 @@ var commands = {
         }
         return opt;
     },
+    async get(url, dist) {
+        if (!url) return console.error("请输入网络路径！");
+        var opt = this.parse(url);
+        opt.method = 'get';
+        if (!dist) dist = url.replace(/[\\\/]+$/, '').replace(/^[\s\S]*?([^\\\/]+)$/, "$1");
+        if (!dist) return console.error("无法确定文件名");
+        var stream;
+        await this.request(opt, function (chunk) {
+            if (chunk) {
+                if (!stream) stream = fs.createWriteStream(dist, { start: 0 });
+                stream.write(chunk);
+            }
+            else {
+                stream.end();
+                stream.close();
+            }
+        });
+        console.log("完成：" + dist);
+    },
     request(address, quitable = false) {
         var opt = this.parse(address);
         return new Promise(function (ok, oh) {
@@ -403,18 +421,25 @@ var commands = {
                     req.destroy();
                 });
             }
-            var data = [];
             var response = function (res) {
+                var data = [];
+                var error = false;
+                if (res.statusCode !== 200) {
+                    error = true;
+                }
+                res = decodeHttpResponse(res);
                 res.on("end", function () {
                     var text = Buffer.concat(data).toString();
-                    if (res.statusCode !== 200) {
+                    if (error) {
                         oh(text || res.statusMessage);
                         if (quitme) quitme();
-                    } else {
-                        ok(text);
+                        return;
                     }
+                    ok(text);
+                    if (isFunction(quitable)) quitable(), quitme();
                 });
                 res.on("data", function (chunk) {
+                    if (!error && isFunction(quitable)) return quitable(chunk);
                     data.push(chunk);
                 });
             };
@@ -435,6 +460,8 @@ var commands = {
 
     },
     link(address) {
+        var address = this.parse(address);
+        address.path = '/:link';
         this.request(address).then(console.line.bind(console, `<cyan>${i18n`连接号`}</cyan>`));
     },
     care(address, linkid) {
@@ -583,6 +610,7 @@ var commands = {
     dev(appname, http_port, https_port) {
         startDevelopEnv(appname, http_port, https_port);
     },
+
     live(http_port, https_port) {
         detectEnvironment().then(function () {
             startDevelopEnv(memery.APP || "", http_port, https_port);
