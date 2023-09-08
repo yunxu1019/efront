@@ -44,7 +44,7 @@
             if (!v) i = 0;
             else v = v * Math.pow(2, 23 - i) - (1 << 23), i = i + 127;
             v = s << 31 | i << 23 | v & 0x7fffff;
-            return [v >> 24 & 0xff, v >> 16 & 0xff, v >> 8 & 0xff, v >> 0xff].map(hex).join('');
+            return [v >> 24 & 0xff, v >> 16 & 0xff, v >> 8 & 0xff, v & 0xff].map(hex).join('');
         },
         set 浮点数机器码(v) {
             v = parseInt(v, 16);
