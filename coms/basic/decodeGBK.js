@@ -64,9 +64,9 @@ while (ex.length) {
 decodeGBK.codeFor = function (string) {
     var dist = [];
     for (var cx = 0, dx = string.length; cx < dx; cx++) {
-        var c = pam[string.charAt(cx)];
+        var c = pam[string.charAt(cx)] || string.charCodeAt(cx);
         if (c > 0x7f) {
-            dist.push(c & 0xff, c >> 8);
+            dist.push(c >> 8, c & 0xff);
         } else {
             dist.push(c);
         }
