@@ -499,12 +499,21 @@ Javascript.prototype.detour = function detour(o, ie) {
     }
 };
 
+var patchname = function (prefix, a, r) {
+    var t = a.text;
+    var hasdot = /^\.\.\./.test(t);
+    if (hasdot) t = t.slice(3);
+    if (r) t = t.replace(/^[^\.\[]+/, r);
+    t = prefix + t;
+    if (hasdot) t = "..." + t;
+    a.text = t;
+};
 var removeImport = function (c, i, code) {
     var next = c.next;
     var { used, envs, vars } = code;
     if (next && next.type !== QUOTED) {
         var [dec, map, o] = getDeclared(c.next);
-        if (dec.length !== 1 || !o) throw new Error("代码结构异常！");
+        if (!o) throw new Error("代码结构异常！");
         if (o.type !== STRAP || o.text !== 'from') throw new Error("缺少from语句");
         var oi = code.indexOf(o, i);
     }
@@ -534,20 +543,31 @@ var removeImport = function (c, i, code) {
     relink(q[1]);
     setqueue(q[1]);
     if (!dec) return;
-    var name = dec[0];
+    var name = null;
     var na = dec.attributes[0];
     o.type = STAMP;
     o.text = '=';
     c.text = 'var';
-    if (typeof name === 'string' && name !== '*') {
-        if (na[0] !== '*') {
-            used[name].forEach(u => {
-                u.text = u.text.replace(/^[^\.\[]+/g, '$&.default');
-            });
+    dec.forEach(function (name1, i) {
+        if (typeof name1 === 'string' && name1 !== '*') {
+            if (na[i] === '*') {
+                if (name) {
+                    used[name1].forEach(u => {
+                        u.text = u.text.replace(/^[^\.\[]+/, name);
+                    });
+                }
+                else name = name1;
+            }
+            else {
+                if (!name) name = name1;
+                used[name1].forEach(u => {
+                    patchname(name, u, ".default");
+                });
+            }
         }
-    }
-    else {
-        var name = strings.decode(q[1].last.text)
+    })
+    if (!name) {
+        name = strings.decode(q[1].last.text)
             .replace(/\.[^\.\/\\]+$/, '')
             .split(/[\/\\\:\{\}\[\]\.\+\-\*\/\!\~\|\:;,'"`\(\)\>\<\?\^%&\s]+/)
             .filter(a => !!a).pop();
@@ -557,16 +577,18 @@ var removeImport = function (c, i, code) {
             name = name.replace(/\d+$/, '') + ++id;
         }
         used[name] = [];
-        if (dec[0] !== "*") dec[0].forEach((dn, i) => {
-            var da = dec[0].attributes[i];
+    }
+    dec.forEach(function (d) {
+        if (d instanceof Array) d.forEach((dn, i) => {
+            var da = d.attributes[i][0];
             if (used[dn]) used[dn].forEach(u => {
-                u.text = name + da[0];
+                patchname(name, u, da);
                 used[name].push(u);
             });
             delete used[dn];
             delete vars[dn];
         });
-    }
+    });
     var u = { type: EXPRESS, text: name };
     code.splice(i + 1, oi - i - 1, u);
     used[name].push(u);
@@ -628,7 +650,9 @@ var removeExport = function (c, i, code) {
         var nn = n.next;
         var d = nn.text;
         if (used[d]) used[d].forEach(a => {
-            if (!a.kind) a.text = `exports.` + a.text;
+            if (!a.kind) {
+                patchname('exports.', a);
+            }
         });
         delete used[d];
         delete envs[d];
