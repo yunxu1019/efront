@@ -55,11 +55,24 @@ var ex = [
 ];
 var map = [];
 var inc = 0, codeindex = 0;
+var pam = Object.create(null);
 while (ex.length) {
     inc += ex.shift();
     var tmp = inc + ex.shift();
-    while (inc <= tmp) map[inc++] = txt[codeindex++];
+    while (inc <= tmp) pam[map[inc] = txt[codeindex++]] = inc++;
 }
+decodeGBK.codeFor = function (string) {
+    var dist = [];
+    for (var cx = 0, dx = string.length; cx < dx; cx++) {
+        var c = pam[string.charAt(cx)];
+        if (c > 0x7f) {
+            dist.push(c & 0xff, c >> 8);
+        } else {
+            dist.push(c);
+        }
+    }
+    return dist;
+};
 
 function decodeGBK(buff) {
     var temp = 0;

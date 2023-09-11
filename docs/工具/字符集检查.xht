@@ -10,9 +10,16 @@
         display: inline-block;
         position: relative;
         vertical-align: top;
+        padding-bottom: 44px;
+    }
+
+    field:nth-child(n+2) [textarea] {
+        border: 1px solid #999;
+        outline: none;
     }
 
     label {
+        margin-top: -44px;
         padding: 0 20px;
     }
 
@@ -25,7 +32,7 @@
 
     [textarea] {
         width: 100%;
-        height: 200px;
+        height: 100%;
         display: block;
         border: 1.2px solid;
         overflow-x: hidden;
@@ -50,25 +57,46 @@
 
     button {
         padding: 0 20px;
+        margin-left: 20px;
     }
 </style>
 <h2>${i18n`字符集检查工具`}</h2>
-<div style="text-align: right;padding: 0 20px;">
-    <button @click="check">${i18n`检查`}</button>
+<div style="text-align: right;padding: 0 20px;margin-top: -30px;">
+    <button @click="encode=utf8;check()">${i18n`检查utf8`}</button>
+    <button @click="encode=gbk;check()">${i18n`检查gbk`}</button>
 </div>
 <div>
     <field>
-        <label>${i18n`要检查的字符集区间`}（unicode）</label>
+        <label>${i18n`要检查的字符集区间(双字节以内)`}</label>
         <padding>
             <div textarea contenteditable="true" -model="ranges"></div>
         </padding>
     </field>
     <field>
-        <label>${i18n`当前浏览器支持的字符集区间`}(unicode)</label>
+        <label>${i18n`当前浏览器支持的字符集区间`}</label>
         <padding>
             <div textarea contenteditable="true" -model="result"></div>
         </padding>
     </field>
+    <field style="width: 100%;">
+        <label><span -bind="encode.name"></span>${i18n`编码`}</label>
+        <padding>
+            <div textarea contenteditable="true" -model="result8"></div>
+        </padding>
+    </field>
+    <field>
+        <label>${i18n`识别为unicode后的字符`}</label>
+        <padding>
+            <div textarea contenteditable="true" -model="resultu"></div>
+        </padding>
+    </field>
+    <field>
+        <label>${i18n`识别为gbk后的字符`}</label>
+        <padding>
+            <div textarea contenteditable="true" -model="resultk"></div>
+        </padding>
+    </field>
+
 </div>
 <script>
     var checkOne = function (one) {
@@ -95,9 +123,9 @@
         var str = hex.replace(/^[xu]/, '').replace(/^\{([\s\S]+)\}$/, '$1');
         return parseInt(str, 16);
     }
+    var reg = /\\(x[0-9a-f]{2}|u[0-9a-f]{4}|u\{[0-9a-f]+\})/ig;
     var check = async function () {
         var elem = alert(i18n`正在检查`, false);
-        var reg = /\\(x[0-9a-f]{2}|u[0-9a-f]{4}|u\{[0-9a-f]+\})/ig;
         var dist0 = [];
         ranges.replace(/<\/?\w+\/?>/g, '').replace(new RegExp(`${reg.source}(?:-${reg.source})?|${/[\s\S]/.source}`, 'ig'), function (_, a, b) {
             dist0.push([_, a, b]);
@@ -142,16 +170,46 @@
             }
             dist.push(temp.join(''))
         }
-        dist = dist.map((a, i) => {
-            if (a.toUpperCase() === dist1[i][0].toUpperCase()) return a;
-            dist1[i][0] = `<a>${dist1[i][0]}</a>`;
-            return `<w>${a}</w>`;
-        })
-        elem.setText(i18n`检查完成`, 600);
+        var w = a => `<a>${a}</a>`;
+        var n = a => a;
+        var marks = dist.map((a, i) => a.toUpperCase() === dist1[i][0].toUpperCase() ? n : w);
+        result = dist.map((a, i) => {
+            if (marks[i] === n) return a;
+            dist1[i][0] = `<w>${dist1[i][0]}</w>`;
+            return `<a>${a}</a>`;
+        }).join('')
+        elem.setText(i18n`正在生成报告`);
         ranges = dist1.map(a => a[0]).join("");
-        result = dist.join("");
+        var hex = a => a ? a < 0xf ? "0" + a.toString(16) : a.toString(16) : '';
+        var utf8 = [];
+        var gbk = [];
+        var unc = [];
+        dist.forEach((a, i) => {
+            var [start, end = start] = a.split('-');
+            var m = marks[i];
+            for (var cx = fromHex(start.slice(1)), dx = fromHex(end.slice(1)); cx <= dx; cx++) {
+                var u = encode.do(String.fromCharCode(cx));
+                utf8.push(m(u.map(hex).join('')));
+                gbk.push(m(decodeGBK(u)));
+                try {
+                    unc.push(m(decodeUTF8(u)));
+                } catch (e) { }
+            }
+        });
+        result8 = utf8.join(" ").toUpperCase();
+        resultu = unc.join(' ');
+        resultk = gbk.join(' ');
+        elem.setText(i18n`检查完成`, 600);
     }
-    var ranges = /\xAA\xB5\xBA\xC0-\xD5\xD8-\xF2\xF8-\u02af\u0388-\u038A\u038C\u038E-\u03A1\u03A3-\u03F5\u03F7-\u0481\u048A-\u052f\u0531-\u0556\u0559\u0561-\u0587\u05D0-\u05EA\u05F0-\u05F2\u0620-\u064A\u066E\u066F\u0671-\u06D3\u06D5\u06E5\u06E6\u06EE\u06EF\u06FA-\u06FC\u06FF\u0710\u0712-\u072F\u074D-\u07A5\u07B1\u07CA-\u07EA/.source
+    var utf8 = { name: 'utf8', do: encodeUTF8 };
+    var gbk = { name: 'gbk', do: decodeGBK.codeFor };
+    var encode = {};
+    var target = 'utf8';
+    var results = '';
+    var result8 = '';
+    var resultk = '';
+    var resultu = '';
+    var ranges = "我要这铁棒有何用" + /\xAA\xB5\xBA\xC0-\xD5\xD8-\xF2\xF8-\u02af\u0388-\u038A\u038C\u038E-\u03A1\u03A3-\u03F5\u03F7-\u0481\u048A-\u052f\u0531-\u0556\u0559\u0561-\u0587\u05D0-\u05EA\u05F0-\u05F2\u0620-\u064A\u066E\u066F\u0671-\u06D3\u06D5\u06E5\u06E6\u06EE\u06EF\u06FA-\u06FC\u06FF\u0710\u0712-\u072F\u074D-\u07A5\u07B1\u07CA-\u07EA/.source
     var result = '';
 
 </script>

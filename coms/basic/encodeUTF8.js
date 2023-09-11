@@ -52,4 +52,5 @@ function encodeUTF8(string) {
     }
     return dist;
 }
+encodeUTF8.number = numberUTF8;
 module.exports = encodeUTF8
