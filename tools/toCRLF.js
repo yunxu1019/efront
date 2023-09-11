@@ -10,20 +10,21 @@ var replace = function (dir, deep) {
     }
     if (dir.match(/node_modules/)) {
         if (typeof deep !== "number") {
-           return console.error("不要在这个层级未知的地方下手！");
+            return console.error("不要在这个层级未知的地方下手！");
         }
     }
-    if(deep<0){
+    if (deep < 0) {
         return;
     }
     if (fs.statSync(dir).isDirectory()) {
         fs.readdirSync(dir).forEach(function (name) {
-            replace(path.join(dir, name),--deep);
+            replace(path.join(dir, name), deep - 1);
         });
-    } else if (dir.match(/\.(?:jsx?|css|less|html?|md|json)$/)) {
+    } else if (dir.match(/\.(?:jsx?|css|less|html?|md|json|h|c|cc|cpp|inc)$/)) {
         var buffer = fs.readFileSync(dir);
         var data = String(buffer).replace(/\r\n|\r|\n|\u2028|\u2029/g, "\r\n");
         fs.writeFileSync(dir, data);
+        console.log(dir);
     }
 }
-replace("./",5);
+replace("./", 5);
