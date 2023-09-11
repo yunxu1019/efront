@@ -499,15 +499,6 @@ Javascript.prototype.detour = function detour(o, ie) {
     }
 };
 
-var patchname = function (prefix, a, r) {
-    var t = a.text;
-    var hasdot = /^\.\.\./.test(t);
-    if (hasdot) t = t.slice(3);
-    if (r) t = t.replace(/^[^\.\[]+/, r);
-    t = prefix + t;
-    if (hasdot) t = "..." + t;
-    a.text = t;
-};
 var removeImport = function (c, i, code) {
     var next = c.next;
     var { used, envs, vars } = code;
@@ -561,7 +552,7 @@ var removeImport = function (c, i, code) {
             else {
                 if (!name) name = name1;
                 used[name1].forEach(u => {
-                    patchname(name, u, ".default");
+                    compile$patchname(name, u, ".default");
                 });
             }
         }

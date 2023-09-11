@@ -1265,7 +1265,6 @@ var canbeTemp = function (body, strip = false) {
     return o.type === EXPRESS && (strip || !/[\.\[]/.test(o.text)) || o.type === VALUE || o.type === QUOTED && !o.length;
 };
 
-
 module.exports = {
     /*   1 */COMMENT,
     /*   2 */SPACE,

@@ -693,8 +693,10 @@ async function getXhtPromise(data, filename, fullpath, watchurls) {
         htmltext = `{toString:()=>${compile$wraphtml(scoped.outerHTML || scoped.innerHTML)}}`;
         return loadJsBody.call(this, jsData, filename, styles, commName, className, htmltext);
     }
+    htmltext = compile$wraphtml(htmltext);
     var scope = Object.keys(Object.assign({}, scoped.vars, scoped.envs)).filter(e => e in this || e in jscope.used);
     if (scope.length) {
+        var htcode = scanner2(htmltext);
         var jsvars = Object.assign({}, jscope.vars, scoped.vars);
         var jsenvs = jscope.envs;
         for (var k in jsvars) if (k in jsenvs) delete jsenvs[k];
@@ -703,17 +705,21 @@ async function getXhtPromise(data, filename, fullpath, watchurls) {
                 o.text = `/*${o.text}*/`;
                 o.type = jscode.COMMENT;
             }
-        })
+        });
+        var htmlchanged = false;
         scope = scope.filter(k => {
             if (!jsvars[k]) return true;
             delete jsvars[k];
             delete scope[k];
             if (jscode.used[k]) {
-                jscode.used[k].forEach(o => {
-                    o.text = xhtmain + "." + o.text;
-                });
+                compile$patchlist(xhtmain + ".", jscode.used[k]);
+            }
+            if (htcode.used[k]) {
+                htmlchanged = true;
+                compile$patchlist(xhtmain + '.', htcode.used[k]);
             }
         });
+        if (htmlchanged) htmltext = htcode.toString();
         scope = `var ${Object.keys(jsvars).concat(xhtmain).join(',')}={${scope.join(",")}};`;
         jsData = jscode.toString();
     }
@@ -725,7 +731,7 @@ async function getXhtPromise(data, filename, fullpath, watchurls) {
 var ${xhtmain}=function(){
     ${scope}
     ${jsData}
-    return [${compile$wraphtml(htmltext)},${xhtmain}];
+    return [${htmltext},${xhtmain}];
 };
 function ${commName}(elem){
     var [template,scope]=${xhtmain}();
@@ -737,7 +743,7 @@ function ${commName}(elem){
 }`: `
 var ${xhtmain}=function(){
     ${jsData}
-    return ${compile$wraphtml(htmltext)};
+    return ${htmltext};
 }
 function ${commName}(elem){
     ${createElement}
