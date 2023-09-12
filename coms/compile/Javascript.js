@@ -573,6 +573,7 @@ var removeImport = function (c, i, code) {
         if (d instanceof Array) d.forEach((dn, i) => {
             var da = d.attributes[i][0];
             if (used[dn]) used[dn].forEach(u => {
+                if (used[name].indexOf(u) >= 0) return;
                 patchname(name, u, da);
                 used[name].push(u);
             });
