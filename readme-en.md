@@ -157,12 +157,11 @@ You can also click on [github](https://github.com/yunxu1019/efront/issues). The 
 
 # Related Links
 
-[efront Online Documents](http://efront.cc/docs/)
+[efront Online Documents](https://efront.cc/docs/)
 
 [efront Compatibility Description](coms/basic_/readme-en.md)
 &nbsp;&nbsp;[Version Introduction](docs/version-desc.md)
 &nbsp;&nbsp;[Compared to the front-end framework](docs/compare-en.md)
 
-[酷酷千百易云音乐](http://efront.cc/kugou/)
-
-&nbsp;&nbsp;[白前看图](https://efront.cc/baiplay)
+[白前看图](https://efront.cc/baiplay)
+&nbsp;&nbsp;[酷酷千百易云音乐](https://efront.cc/kugou/)
