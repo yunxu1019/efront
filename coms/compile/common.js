@@ -1005,6 +1005,7 @@ var createString = function (parsed) {
     var keepspace = parsed.keepspace !== false;
     var helpcode = parsed.helpcode;
     var lasttype = SPACE;
+    var keepcomment = keepspace && parsed.comment !== false;
     var result = [], cacheresult, finalresult = result;
     var helpcolor = parsed.keepcolor === false;
     var run = (o, i, a) => {
@@ -1023,7 +1024,7 @@ var createString = function (parsed) {
             case COMMENT:
                 // 每一次要远行，我都不得不对自己的物品去粗取精。取舍之间，什么重要，什么不是那么重要，都有了一道明显的分界线。
                 var tmp = o.text, opentmp = false;
-                if (!keepspace || helpcode) {
+                if (helpcode) {
                     if (/^\/[\/\*]\s*\<\!--/.test(tmp)) {
                         opentmp = true;
                         if (/^\/\*/.test(tmp)) opentmp = 2;
@@ -1048,7 +1049,7 @@ var createString = function (parsed) {
                         if (tmp) result.push("\r\n", tmp);
                     }
                 }
-                if (keepspace && !opentmp) {
+                if (keepcomment && !opentmp) {
                     if (lasttype !== SPACE && lasttype !== EXPRESS) result.push(" ");
                     result.push(tmp);
                 }
@@ -1102,7 +1103,7 @@ var createString = function (parsed) {
             default:
                 if (o instanceof Object) {
                     if (o.prev && o.prev.type === EXPRESS && o.type === EXPRESS && (/^[\.\[]/.test(o.text) || /\.$/.test(o.prev.text)));
-                    else if ((STRAP | EXPRESS | PROPERTY | COMMENT | VALUE) & lasttype && (STRAP | EXPRESS | PROPERTY | VALUE) & o.type) {
+                    else if ((STRAP | EXPRESS | PROPERTY | COMMENT | VALUE) & lasttype && (STRAP | EXPRESS | PROPERTY | VALUE | LABEL) & o.type) {
                         result.push(" ");
                     }
                     else if (o.prev && o.type === STAMP && !/^([,;])$/.test(o.text)) {
