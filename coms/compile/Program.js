@@ -153,6 +153,7 @@ class Program {
     extends_reg = /^(extends)$/;
     spaces = spaceDefined;
     nocase = false
+    keepspace = false;
     lastIndex = 0
     compile(s) {
         return s.replace(/\\[\s\S]|[\[\]\(\)\{\}\+\.\-\*\?\$\^\|\\\/ ]/g, function (m) {
@@ -192,7 +193,7 @@ class Program {
             var last = queue.last;
             Object.defineProperty(scope, 'queue', { value: queue, enumerable: false, configurable: true });
             scope.prev = last;
-            if (scope.type !== COMMENT && scope.type !== SPACE) {
+            if (!(scope.type & (COMMENT | SPACE))) {
                 var keeplast = program.setType(scope) === false;
                 if (keeplast) {
                     if (queue.last !== last) last = queue.last;
@@ -237,12 +238,7 @@ class Program {
                 }
             }
             var last = queue.last;
-            if (type === SPACE) {
-                if (last && last.isend === false) {
-                    last.isend = true;
-                    queue.inExpress = false;
-                }
-            }
+            if (type === SPACE);
             else if (type !== STAMP);
             else if (m === ";") {
                 if (last && last.isend === false) last.isend = true;
@@ -526,7 +522,14 @@ class Program {
                     m = m.replace(/^[^\r\n\u2028\u2029]+/, '').replace(/\r\n|\r|\n|\u2028|\u2029/g, "\r\n");
                     row += m.replace(/[^\r\n]+/g, '').length >> 1;
                     colstart = match.index + m.replace(/[^\r\n]+$/, '').length - 1;
+                    if (last && last.isend === false) {
+                        last.isend = true;
+                        queue.inExpress = false;
+                    }
                     save(SPACE);
+                }
+                else {
+                    if (this.keepspace) save(SPACE);
                 }
                 lasttype = SPACE;
                 continue;
