@@ -1,6 +1,6 @@
 // 组合工具
 var isEmpty = require("../basic/isEmpty");
-var str2array = require("./str2array");
+var str2array = require("../basic/str2array");
 var combine = require("../basic/combine");
 function minxin() {
     var argsList = [].map.call(arguments, a => {

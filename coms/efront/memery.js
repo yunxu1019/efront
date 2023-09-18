@@ -127,7 +127,7 @@ var getdirpath = (name, _default) => get(name, _default, 2);
 var getfullpath = (name, _default) => get(name, _default, 3);
 var PUBLIC_PATH = getfullpath("PUBLIC_PATH", 'public');
 var webindex, indexreg, denoindex;
-var str2array = require("./str2array");
+var str2array = require("../basic/str2array");
 var _memery = {
 };
 var _ifempty = {

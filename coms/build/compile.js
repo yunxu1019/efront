@@ -2,7 +2,6 @@
 var fs = require("fs");
 var path = require("path");
 var getDepedence = require("./getDependence");
-var detectWithExtension = require("./detectWithExtension");
 var searchPath = require("./searchPath");
 var window = {
     setTimeout,

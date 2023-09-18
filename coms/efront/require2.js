@@ -1,4 +1,3 @@
-var detectWithExtension = require("../build/detectWithExtension");
 var commbuilder = require("./commbuilder");
 var userdata = require("../server/userdata");
 var lock = require("./lock");

@@ -1,7 +1,6 @@
 var fs = require("fs");
 var path = require("path");
 var environment = require("./environment");
-var detectWithExtension = require("./detectWithExtension");
 var {
     PUBLIC_PATH,
     APP,

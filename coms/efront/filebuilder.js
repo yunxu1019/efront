@@ -143,7 +143,7 @@ var buildreload = function (buff) {
     buff = Buffer.from(data);
     return buff;
 };
-var str2array = require("./str2array");
+var str2array = require("../basic/str2array");
 var indexreg = new RegExp(`(${str2array(memery.INDEX_NAME).join('|')})\\.[^\/\\\.]+$`);
 if (memery.istest) builder = function (buff, name, fullpath) {
     var dev = buff;

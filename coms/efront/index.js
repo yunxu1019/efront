@@ -7,7 +7,7 @@ require("./console");
 var loadenv = require("./loadenv");
 var memery = require("./memery");
 var { helps, topics } = require("../docs/helps");
-var detectWithExtension = require("../build/detectWithExtension");
+var detectWithExtension = require("../reptile/detectWithExtension");
 var detect = function (module_path, matchIndex = true) {
     var search_path = [];
     var joinpath = a => path.join.apply(path, a);
