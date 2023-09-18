@@ -522,6 +522,7 @@ class Program {
                     m = m.replace(/^[^\r\n\u2028\u2029]+/, '').replace(/\r\n|\r|\n|\u2028|\u2029/g, "\r\n");
                     row += m.replace(/[^\r\n]+/g, '').length >> 1;
                     colstart = match.index + m.replace(/[^\r\n]+$/, '').length - 1;
+                    var last = queue.last;
                     if (last && last.isend === false) {
                         last.isend = true;
                         queue.inExpress = false;
