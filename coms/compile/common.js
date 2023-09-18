@@ -13,7 +13,7 @@ const [
     /*1024 */PROPERTY,
 ] = new Array(20).fill(0).map((_, a) => 1 << a);
 // --------------//1//2/////////////////////////22/////////////2//2//3//4/////4////////3/////3//////3//3//////3///////211/////////////2//////2//////1///
-var number_reg = /^(?:(?:0x[0-9a-f]+|0b\d+|0o\d+)(?:_[0-9a-f]+)*|(?:(?:(?:\d+_)*\d+|\d*)\.\d+(?:_\d+)*|(?:\d+_)*\d+\.?))(?:e[\+\-]?\d+(?:_\d+)*|[mn])?$/i;
+var number_reg = /^(?:(?:0x[0-9a-f]+|0b\d+|0o\d+)(?:_[0-9a-f]+)*|(?:(?:(?:\d+_)*\d+|\d*)\.\d+(?:_\d+)*|(?:\d+_)*\d+\.?))(?:e[\+\-]?\d+(?:_\d+)*|[mniul]|ll)?$/i;
 var equal_reg = /^(?:[\+\-\*\/~\^&\|%]|\*\*|>>>?|<<)?\=$|^(?:\+\+|\-\-)$/;
 var skipAssignment = function (o, cx) {
     var next = arguments.length === 1 ? function () {
@@ -1005,7 +1005,7 @@ var createString = function (parsed) {
     var keepspace = parsed.keepspace !== false;
     var helpcode = parsed.helpcode;
     var lasttype = SPACE;
-    var keepcomment = keepspace && parsed.comment !== false;
+    var keepcomment = parsed.comment !== false;
     var result = [], cacheresult, finalresult = result;
     var helpcolor = parsed.keepcolor === false;
     var run = (o, i, a) => {
@@ -1023,6 +1023,7 @@ var createString = function (parsed) {
         switch (o.type) {
             case COMMENT:
                 // 每一次要远行，我都不得不对自己的物品去粗取精。取舍之间，什么重要，什么不是那么重要，都有了一道明显的分界线。
+                if (!keepcomment) break;
                 var tmp = o.text, opentmp = false;
                 if (helpcode) {
                     if (/^\/[\/\*]\s*\<\!--/.test(tmp)) {
@@ -1049,7 +1050,7 @@ var createString = function (parsed) {
                         if (tmp) result.push("\r\n", tmp);
                     }
                 }
-                if (keepcomment && !opentmp) {
+                if (!opentmp) {
                     if (lasttype !== SPACE && lasttype !== EXPRESS) result.push(" ");
                     result.push(tmp);
                 }
