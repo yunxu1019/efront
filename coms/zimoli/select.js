@@ -182,7 +182,7 @@ function select(target, list, removeOnSelect, direction) {
                 }
                 return o.selected;
             });
-            if (deepEqual.shallow(lastSelected, selected)) return;
+            if (shallowEuqal(lastSelected, selected)) return;
             lastSelected = selected;
             if (hasIcon) {
                 var icon = selected.length === 1 && selected[0].getAttribute('icon');
@@ -198,7 +198,7 @@ function select(target, list, removeOnSelect, direction) {
         };
         var initList = function () {
             var allOptions = [].concat.apply([], target.querySelectorAll("option"));
-            if (deepEqual.shallow(allOptions, savedOptions)) return;
+            if (shallowEuqal(allOptions, savedOptions)) return;
             savedOptions = allOptions;
             list = selectList(allOptions, !!target.multiple, !!target.editable);
             setListValue();

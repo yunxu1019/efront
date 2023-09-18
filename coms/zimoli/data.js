@@ -936,7 +936,7 @@ var data = {
         var promise1 = instance.loading_promise;
         if (promise1) {
             var params = promise1.params;
-            if (deepEqual.shallow(params1, params)) {
+            if (shallowEqual(params1, params)) {
                 return instance;
             }
         }

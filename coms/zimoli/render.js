@@ -216,7 +216,7 @@ var createRepeat = function (search, id = 0) {
         var result = getter(this);
         var origin = result;
         result = extend(result instanceof Array ? [] : {}, result);
-        if (savedOrigin === origin && deepEqual.shallow(savedValue, result)) return;
+        if (savedOrigin === origin && shallowEqual(savedValue, result)) return;
         var changes = getChanges(result, savedValue);
         if (!changes) return;
         savedValue = result;
@@ -442,7 +442,7 @@ var createBinder = function (binder) {
         var oldValue;
         this.renders.push(function () {
             var value = getter(this);
-            if (deepEqual.shallow(value, oldValue)) return;
+            if (shallowEqual(value, oldValue)) return;
             var oldv = oldValue;
             oldValue = value;
             if (isNode(value) || isArray(value)) {
