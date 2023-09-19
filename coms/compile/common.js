@@ -1005,7 +1005,7 @@ var createString = function (parsed) {
     var keepspace = parsed.keepspace !== false;
     var helpcode = parsed.helpcode;
     var lasttype = SPACE;
-    var keepcomment = parsed.comment !== false;
+    var uncomment = parsed.comment === false;
     var result = [], cacheresult, finalresult = result;
     var helpcolor = parsed.keepcolor === false;
     var run = (o, i, a) => {
@@ -1023,7 +1023,7 @@ var createString = function (parsed) {
         switch (o.type) {
             case COMMENT:
                 // 每一次要远行，我都不得不对自己的物品去粗取精。取舍之间，什么重要，什么不是那么重要，都有了一道明显的分界线。
-                if (!keepcomment) break;
+                if (uncomment) break;
                 var tmp = o.text, opentmp = false;
                 if (helpcode) {
                     if (/^\/[\/\*]\s*\<\!--/.test(tmp)) {
@@ -1050,7 +1050,7 @@ var createString = function (parsed) {
                         if (tmp) result.push("\r\n", tmp);
                     }
                 }
-                if (!opentmp) {
+                if (keepspace && !opentmp) {
                     if (lasttype !== SPACE && lasttype !== EXPRESS) result.push(" ");
                     result.push(tmp);
                 }
