@@ -77,9 +77,9 @@ test("do{await b}while(a)", "_ = b; return [_, 1];\r\n _ = @; if (a) return [-1,
 test("switch(a){case 1:}", "if (a === 1) return [1, 0]; return [1, 0]", true);
 test("switch(a){case 1: default:}", "if (a === 1) return [1, 0]; return [1, 0]", true);
 test("switch(a.a){case 1:}", "_ = a.a; if (_ === 1) return [1, 0]; return [1, 0]", true);
-test("switch(a){case 1:break;}", "if (a === 1) return [1, 0]; return [1, 0]", true);
-test("switch(a){case 1:break;case 2:break;}", "if (a === 1) return [1, 0]; if (a === 2) return [1, 0]; return [1, 0]", true);
-test("switch(a){case 1:case 2:break;}", "if (a === 1) return [1, 0]; if (a === 2) return [1, 0]; return [1, 0]", true);
+test("switch(a){case 1:break;}", "if (a === 1) return [1, 0]", true);
+test("switch(a){case 1:break;case 2:break;}", "if (a === 1) return [1, 0]; if (a === 2) return [1, 0]", true);
+test("switch(a){case 1:case 2:break;}", "if (a === 1) return [1, 0]; if (a === 2) return [1, 0]", true);
 test("switch(a){case 1:case 2:x=1;}", "if (a === 1) return [1, 0]; if (a === 2) return [1, 0]; return [2, 0];\r\n x = 1; return [1, 0]", true);
 test("switch(a){case 1:case 2:x=1;}", "if (a === 1) return [1, 0]; if (a === 2) return [1, 0]; return [2, 0];\r\n x = 1; return [1, 0]", true);
 test("with(a){ a = 1}", `if (_ = with_("a", [a])) _.a = 1; else a = 1;`, true);
@@ -121,5 +121,6 @@ test("menus[a+b].name+='aaa'", "_ = a + b; _ = menus[_]; _0 = _.name + 'aaa'; _.
 test("menus[a+b]()", "_ = a + b; menus[_]()", true);
 test(`switch(a){default: a;case 1:b;}`, 'if (a === 1) return [2, 0]; return [1, 0];\r\n a; return [1, 0];\r\n b; return [1, 0]', true);
 test("loop:{a=b;if(a) continue loop}", "a = b; if (a) return [0, 0]", true);
-test("if(a)try{}finally{}else a;", 'if (!a) return [4, 0]; return [1, 8];\r\nreturn [0, 9];\r\nreturn [1, 9];\r\nreturn [2, 0];\r\na; return [1, 0]')
-test("if(a)try{}finally{}else;", 'if (!a) return [4, 0]; return [1, 8];\r\nreturn [0, 9];\r\nreturn [1, 9];\r\nreturn [1, 0]');
+test("if(a)try{}finally{}else a;", 'if (!a) return [4, 0]; return [1, 8];\r\n return [0, 9];\r\n return [1, 9];\r\n return [2, 0];\r\n a; return [1, 0]')
+test("if(a)try{}finally{}else;", 'if (!a) return [4, 0]; return [1, 8];\r\n return [0, 9];\r\n return [1, 9];\r\n return [1, 0]');
+test("b:while(t){switch(a){case c:break b;}}", 'if (!t) return [1, 0]; if (a === c) return [1, 0]; return [0, 0]');

@@ -7,9 +7,7 @@ var RETURN = { type: STRAP, text: "@ret" };// return;
 var THROW = { type: STRAP, text: "@throw" };// return;
 var YIELD = { type: STRAP, text: "@yield" };// return;
 var NEXT = { type: STRAP, text: "@next" };// return;
-var _break = function (body, cx, result, iscontinue) {
-    var re = result[result.length - 1];
-    if (!result.length || re.ret_ && !re.await_ && re.ret_ !== -2) return;
+var mount_break = function (body, cx, b1s, iscontinue) {
     var label;
     do {
         var o = body[++cx];
@@ -24,11 +22,11 @@ var _break = function (body, cx, result, iscontinue) {
             if (b.type === LABEL && b.text === label + ":") {
                 if (!s) s = b;
                 if (!b.breaks) b.breaks = [];
-                var _b = scanner2('return []');
-                _b.ret_ = -1;
-                if (iscontinue) _b[1].continue = s, s.continue = true;
-                b.breaks.push(_b[1]);
-                pushstep(result, _b);
+                if (iscontinue) s.continue = true;
+                b1s.forEach(b1 => {
+                    if (iscontinue) b1.continue = s
+                    b.breaks.push(b1);
+                });
                 break;
             }
             else {
@@ -41,16 +39,24 @@ var _break = function (body, cx, result, iscontinue) {
             var b = labels[cx];
             if (b.type !== LABEL && (!iscontinue || b.text !== 'switch')) {
                 if (!b.breaks) b.breaks = [];
-                var _b = scanner2("return []");
-                _b.ret_ = -1;
-                if (iscontinue) _b[1].continue = b, b.continue = true;
-                b.breaks.push(_b[1]);
-                pushstep(result, _b);
+                if (iscontinue) b.continue = true;
+                b1s.forEach(b1 => {
+                    if (iscontinue) b1.continue = b;
+                    b.breaks.push(b1);
+                })
                 break;
             }
         }
     }
     return bx;
+}
+var _break = function (body, cx, result, iscontinue) {
+    var re = result[result.length - 1];
+    if (!result.length || re.ret_ && !re.await_ && re.ret_ !== -2) return;
+    var _b = scanner2('return []');
+    _b.ret_ = -1;
+    pushstep(result, _b);
+    mount_break(body, cx, [_b[1]], iscontinue);
 };
 var _try = function (body, cx, unblock, result, getname) {
     var o = body[cx];
@@ -140,11 +146,13 @@ var _switch = function (body, cx, unblock, result, getname) {
     var tmp = [];
     while (o[cy] !== m) cy++;
     var default_ = null, case_ = null;
+    var cbindex = 0, cblength = 0;
     while (cy < o.length) {
         var block = getblock(o, ++cy);
         cy += block.length;
         while (cy < o.length && o[cy].type & (SPACE | COMMENT)) cy++;
         cy++;
+        while (cy < o.length && o[cy].type & (SPACE | COMMENT)) cy++;
         var getnextname = function (deep) {
             return getname(deep + 1);
         };
@@ -152,18 +160,43 @@ var _switch = function (body, cx, unblock, result, getname) {
         for (var q of q) if (q.length) pushstep(result, q);
         var qe = q;
         if (qe.name) case_ = scanner2(`if(${qn}===${qe.name})return[]`), pushstep(result, case_);
-        else default_ = case_ = scanner2(`return[]`), default_.ret_ = -1;
+        else default_ = case_ = scanner2(`return[]`), default_.ret_ = -2;
         var by = cy;
         m = o[cy];
         while (m && (m.type !== STRAP || !/^(default|case)$/i.test(m.text))) m = o[++cy];
-        tmp.push(result.length - 1, case_[case_.length - 1], o.slice(by, cy));
+        var cbody = o.slice(by, cy);
+        var cb0 = cbody[0];
+        if (cb0 && cb0.type === STRAP && (cb0.text === "break" || cb0.text === 'continue')) {
+            if (!cblength) {
+                var brks = [case_[case_.length - 1]];
+                while (tmp.length > cbindex) {
+                    tmp.pop();
+                    brks.push(tmp.pop());
+                    tmp.pop();
+                };
+                mount_break(cbody, 0, brks, cb0.text === 'continue');
+                cblength = 0;
+                cbindex = tmp.length;
+                continue;
+            }
+            cbindex = tmp.length + 3;
+            cblength = 0;
+        }
+        while (cbody.length) {
+            var cbe = cbody[cbody.length - 1];
+            if (cbe.type === SPACE) cbody.pop();
+            else if (cbe.type === STAMP && cbe.text === ';') cbody.pop();
+            else break;
+        }
+        cblength += cbody.length;
+        tmp.push(result.length - 1, case_[case_.length - 1], cbody);
     }
     if (!default_) {
-        default_ = scanner2(`return[]`), default_.ret_ = -1;
-        tmp.push(result.length - 1, default_[default_.length - 1], []);
+        default_ = scanner2(`return[]`), default_.ret_ = -2;
+        if (tmp.length) tmp.push(result.length - 1, default_[default_.length - 1], []);
     }
     var default_r = default_[default_.length - 1];
-    pushstep(result, default_);
+    if (tmp.length) pushstep(result, default_);
     default_r.index = result.length - 1;
     while (tmp.length) {
         cy = tmp.shift();
