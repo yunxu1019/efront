@@ -111,6 +111,16 @@ function testUnicode() {
     var m = scanner(`\\u{0042}\\u0042=1`);
     console.log(m.toString())
 }
+function testComment() {
+    var m = scanner(`SDL_MAX_SINT8   ((Sint8)0x7F)           /* 127 */`);
+    console.log(m[m.length - 1].type === common.COMMENT);
+    m.comment = false;
+    console.log(common.createString(m));
+}
+function testQuote() {
+    var m = scanner(`(sizeof(("table")) / sizeof(("table")[0]))`);
+    console.log(m.toString());
+}
 Program.debug = true;
 // testSpeed();
 // testVariables();
@@ -124,6 +134,8 @@ Program.debug = true;
 // testJsxOnlyHtml();
 // testSpaceLess();
 // testArrow();
-testUnicode();
+// testUnicode();
+// testComment();
+testQuote();
 // var typescript = require("../typescript/index");
 // typescript.transpile(data.toString(), { noEmitHelpers: true });
