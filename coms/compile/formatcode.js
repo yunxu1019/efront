@@ -14,7 +14,7 @@ function format(code, step) {
         var lowspace = rest.pop();
         var cp = code.prev;
         var cpp = cp && cp.prev;
-        if(cpp && cpp.type === STRAP && cpp.text==="switch"){
+        if (cpp && cpp.type === STRAP && cpp.text === "switch") {
             lowspace += step;
         }
         var space = lowspace + step;
@@ -37,10 +37,15 @@ function format(code, step) {
                         code.push({ type: SPACE, text: lowspace });
                     }
                 }
+                if (breakline && e.type === STAMP) {
+                    if (e.text === ':' && !e.inExpress) {
+                        if (code[code.length - 1].type === SPACE) code.pop();
+                    }
+                }
                 code.push(e);
                 if (e.type === SCOPED) rest.push(space, e);
             }
-            if (breakline && (e.type === STAMP && /^[,;]$/.test(e.text) || !code.isClass && !code.isObject)) hasCommaBefore = !code.isObject && e.text === ',', code.push({ type: SPACE, text: hasCommaBefore ? deepspace: space });
+            if (breakline && (e.type === STAMP && /^[,;]$/.test(e.text) || !code.isClass && !code.isObject)) hasCommaBefore = !code.isObject && e.text === ',', code.push({ type: SPACE, text: hasCommaBefore ? deepspace : space });
         }
         if (breakline) {
             var hasspaceend = code[code.length - 1].type === SPACE;
