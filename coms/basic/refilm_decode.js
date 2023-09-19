@@ -275,13 +275,13 @@ function parse(piece) {
             }
         };
         var is = function (a) {
-            var reg = /^[\*\+\-\!\-\$&\?\~]|[\*\+\-\!\-\$&\?\~]$/;
+            var reg = /^[\*\+\-\!\-&\?\~]|^\$(?!\d)|[\*\+\-\!\-\$&\?\~]$/;
             if (!reg.test(a)) return a;
             required = test(/^\*|\*$/, a);
             if (test(/^[\+]|[\+]$/, a)) inlist = true;
             if (test(/^[\!]|[\!]$/, a)) inlist = false;
             hidden = test(/^\-|\-$/, a);
-            readonly = test(/^[\$&]|[\$&]$/, a);
+            readonly = test(/^&|\$(?!\d)|[\$&]$/, a);
             delete_onempty = test(/^\?|\?$/, a);
             delete_onsubmit = test(/^\~|\~$/, a);
             return a.replace(reg, '');
@@ -331,6 +331,7 @@ function parse(piece) {
             type = d + 'bit/' + t;
         }
         var sizematch = /^(\-?\d+|\-?\d*\.\d+)?([YZEPTGMK]i?b?|bytes?|bits?|words?|dword|real[48]|long|B|[^\/]*)([\/]|$|\s|\=)/i.exec(type);
+        if (!sizematch[1] && /^\$\d/.test(sizematch[2])) sizematch = null;
         if (sizematch) {
             var [size_text, size = 1, unit, eq] = sizematch;
             if (unit && /^i?b?$/i.test(unit.slice(1))) {
