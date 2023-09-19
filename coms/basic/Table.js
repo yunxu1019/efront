@@ -56,6 +56,7 @@ class Table extends Array {
         var searchtext = this.searchText;
         var fields = this.searchFields ? this.searchFields : this.fields;
         var power = 0;
+        var s = o;
         if (isNode(o)) {
             o = extend({
                 name: o.name,
@@ -68,6 +69,7 @@ class Table extends Array {
             }, o);
         }
         else o = isObject(o) ? Object.create(o) : new o.constructor(o);
+        o.$origin = s;
         for (var f of fields) {
             var name = seek(o, f.key);
             if (isEmpty(name) || !isString(name)) continue;
@@ -90,14 +92,14 @@ class Table extends Array {
         this.update();
     }
     async update() {
+        var origin = this.searched ? this.splice(0, this.length).map(o => o.$origin) : [];
         this.searched = 0;
-        this.splice(0, this.length);
         var source = this.sorted ? this.sorted : this.source;
         if (!source) return;
         var searchid = ++this.searchid;
         this.complete = false;
         this.coverCount = 0;
-        if (this.searchText) for (var o of source) {
+        if (this.searchText) for (var o of origin.length ? origin.concat(source) : source) {
             this.addItem(o);
             if (++this.searched % 600 === 0) {
                 if (isFunction(this.callback)) this.callback();
