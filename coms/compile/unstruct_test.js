@@ -40,7 +40,7 @@ test('a * a && await b*c', "_ = a * a; if (!_) return [2, 0]; _ = b; return [_, 
 test("await a", "_ = a; return [_, 1]", true);
 test("yield a", "return [a, 3]", true);
 test("!a.done&&(b=await a.value)", "_ = !a.done; if (!_) return [2, 0]; _ = a.value; return [_, 1];\r\n _ = @; b = _; (_)", true);
-test("a=1?2:3",`if (false) return [1, 0]; a = 2; return [2, 0];\r\n a = 3; return [1, 0]`)
+test("a=1?2:3", `if (false) return [1, 0]; a = 2; return [2, 0];\r\n a = 3; return [1, 0]`)
 test("await a()", "_ = a(); return [_, 1]", true);
 test("yield a()", "_ = a(); return [_, 3]", true);
 test("a = await a()", "_ = a(); return [_, 1];\r\n _ = @; a = _", true);
@@ -121,3 +121,5 @@ test("menus[a+b].name+='aaa'", "_ = a + b; _ = menus[_]; _0 = _.name + 'aaa'; _.
 test("menus[a+b]()", "_ = a + b; menus[_]()", true);
 test(`switch(a){default: a;case 1:b;}`, 'if (a === 1) return [2, 0]; return [1, 0];\r\n a; return [1, 0];\r\n b; return [1, 0]', true);
 test("loop:{a=b;if(a) continue loop}", "a = b; if (a) return [0, 0]", true);
+test("if(a)try{}finally{}else a;", 'if (!a) return [4, 0]; return [1, 8];\r\nreturn [0, 9];\r\nreturn [1, 9];\r\nreturn [2, 0];\r\na; return [1, 0]')
+test("if(a)try{}finally{}else;", 'if (!a) return [4, 0]; return [1, 8];\r\nreturn [0, 9];\r\nreturn [1, 9];\r\nreturn [1, 0]');

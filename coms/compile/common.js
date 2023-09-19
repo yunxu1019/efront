@@ -132,6 +132,7 @@ var skipAssignment = function (o, cx) {
                 next();
             }
             else if (o.text === 'else') {
+                if (ifdeep <= 0) break loop;
                 ifdeep--;
                 needpunc = false;
                 next();
@@ -140,7 +141,6 @@ var skipAssignment = function (o, cx) {
                 if (o.text === 'if') ifdeep++;
                 next();
                 next();
-                break;
             }
             else if (o.text === 'do') {
                 next();
@@ -151,14 +151,12 @@ var skipAssignment = function (o, cx) {
                 next();
                 if (o.type === STRAP && o.text === 'await') next();
                 next();
-                break;
             }
             else if (o.text === "class") {
                 next();
                 while (o && !o.isClass) next();
                 while (o && o.isClass) next();
                 needpunc = true;
-                break;
             }
             else if (o.text === "function") {
                 next();
@@ -167,7 +165,6 @@ var skipAssignment = function (o, cx) {
                 if (o) next();
                 if (o) next();
                 needpunc = true;
-                break;
             }
             else if (o.text === 'debugger') {
                 next();
