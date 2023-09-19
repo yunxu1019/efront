@@ -65,8 +65,8 @@ var setHeader2 = function (k, v) {
     if (this.headersSent !== false) return;
     this.setHeader(k, v);
 };
-var indexexts = require("../efront/str2array")(memery.INDEX_EXTENSIONS);
-var denoexts = require("../efront/str2array")(memery.DENO_EXTENSIONS);
+var indexexts = str2array(memery.INDEX_EXTENSIONS);
+var denoexts = str2array(memery.DENO_EXTENSIONS);
 var indexlist = memery.webindex;
 var indexlist2 = [""].concat(indexlist);
 var indexexts2 = [""].concat(indexexts);
@@ -84,7 +84,7 @@ var indexreg = memery.indexreg;
 var response = function (data, url, req, res) {
     message.count({ path: url, update: true });
     var setHeader = setHeader2.bind(res);
-    var requiredVersion = req.headers["if-modified-since"];
+    var requiredVersion = getHeader(req.headers, "if-modified-since");
     if (requiredVersion && data.stat && new Date(requiredVersion) - new Date(data.stat.mtime.toUTCString()) >= 0) {
         res.writeHead(304, {});
     }
@@ -165,9 +165,8 @@ var adapter = function (data, url, req, res) {
         req.url = "/" + (/^https:/i.test(p.protocol) ? '~~' : !p.protocol ? "&" : "~") + p.host + p.path + req.url;
         return doCross(req, res);
     }
-
     res.writeHead(404, utf8);
-    res.end(i18n[req.headers["accept-language"]]`未找到指定的资源`);
+    res.end(i18n[getHeader(req.headers, "accept-language")]`未找到指定的资源`);
 };
 /**
  * doGet
@@ -188,7 +187,7 @@ var doGet = module.exports = async function (req, res) {
     var id = /\:/.test(req.url) ? req.url.replace(/^[\s\S]*?\:([\s\S]*?)([\?][\s\S]*)?$/, "$1") : null;
     req.id = id;
     var exts = [''];
-    req.deno = /^Deno\//.test(req.headers["user-agent"]);
+    req.deno = /^Deno\//.test(getHeader(req.headers, "user-agent"));
     if (url[url.length - 1] !== '/') exts = req.deno ? denoexts : indexexts2;
     var data = getfile(url, exts);
     if (data instanceof Promise) {
