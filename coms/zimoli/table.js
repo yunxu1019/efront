@@ -527,7 +527,7 @@ function table(elem) {
         render(this, $scope, this.$parentScopes.concat(this.$scope));
         $scope.data = Table.from(fields, await data);
         $scope.data.callback = function () {
-            if ($scope.tbody0) $scope.tbody0.go($scope.tbody0.index());
+            render.digest();
         };
     })
     autodragchildren(
