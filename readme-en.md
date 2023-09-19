@@ -30,6 +30,13 @@ Global installation of efront from NPM
 npm install -g efront
 ```
 
+```
+If you just want to test limited efront functions via [deno](https://deno.land/), you may fire your code as bellow:
+```
+deno run --allow-all http://efront.cc/ help
+```
+
+
 ## 2. View Help System
 
 The command line help commands are as follows
