@@ -99,7 +99,12 @@ class Table extends Array {
         var searchid = ++this.searchid;
         this.complete = false;
         this.coverCount = 0;
-        if (this.searchText) for (var o of origin.length ? origin.concat(source) : source) {
+        if (origin.length) {
+            if (origin.length >= 160) origin = origin.slice(0, 80);
+            source = source.filter(a => origin.indexOf(a) < 0);
+            source = origin.concat(source);
+        }
+        if (this.searchText) for (var o of source) {
             this.addItem(o);
             if (++this.searched % 600 === 0) {
                 if (isFunction(this.callback)) this.callback();
