@@ -1,5 +1,6 @@
 var require = window.require;
 var fs, path;
+var document = window.document;
 function test(url) {
     var data = fs.readFileSync(url);
     data = String(data);
@@ -39,7 +40,7 @@ function analyse_test(text) {
     fs = require("fs");
     path = require("path");
     if (text) return analyse(text);
-    testxml("/book/金山打字");
+    if (document) testxml("/book/金山打字");
     // testcode("/work/efront/coms/basic");
 
     testblog("炒面.txt");
