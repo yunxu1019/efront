@@ -29,10 +29,10 @@
 ```bat
 npm install -g efront
 ```
-如果要在[deno](https://deno.land/)上运行`efront`，您可以使用如下命令
+<!-- 如果要在[deno](https://deno.land/)上运行`efront`，您可以使用如下命令
 ```
 deno run --allow-all http://efront.cc/ help
-```
+``` -->
 
 ## 2. 查看帮助系统
 

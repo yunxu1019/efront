@@ -29,12 +29,11 @@ Global installation of efront from NPM
 ```bat
 npm install -g efront
 ```
-
-```
+<!-- 
 If you just want to test limited efront functions via [deno](https://deno.land/), you may fire your code as bellow:
-```
+```shell
 deno run --allow-all http://efront.cc/ help
-```
+``` -->
 
 
 ## 2. View Help System
