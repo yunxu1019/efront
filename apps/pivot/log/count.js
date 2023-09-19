@@ -1,6 +1,6 @@
 var fields = refilm`
-路径/path html
-访问量/count
+访问量/count money/10
+路径/path html/20
 `;
 function main() {
     var page = div();
