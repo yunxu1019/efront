@@ -1,0 +1,1 @@
+global.Deno ? (a, k) => a.get(k) : (a, k) => a[k];

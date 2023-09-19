@@ -4,7 +4,7 @@ var onreload = function () {
     liveload.reload(this);
 };
 function getRequestEnv(req) {
-    var referer = req.headers.referer;
+    var referer = getHeader(req.headers, 'referer');
     if (!referer) return null;
     var appname = parseURL(referer).pathname;
     appname = appname.replace(/^\/|\/[^\/]*$/g, '');

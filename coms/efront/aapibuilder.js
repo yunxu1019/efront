@@ -94,6 +94,7 @@ function request(fullpath, data, info) {
 }
 var multithreadingApiMap = {};
 var multithreading_requestCount = 0;
+var getHeader = require('../server/getHeader');
 module.exports = async function aapibuilder(buffer, filename, fullpath) {
     if (require.cache) delete require.cache[fullpath];
     delete multithreadingApiMap[fullpath];
@@ -102,7 +103,7 @@ module.exports = async function aapibuilder(buffer, filename, fullpath) {
     }
     await request(fullpath);
     return function ApiManager(req, res) {
-        var i18k = req.headers["accept-language"];
+        var i18k = getHeader(req.headers, "accept-language");
         var request_accept_time = Date.now();
         return getParameters(req, i18n).then(function (data) {
             try {

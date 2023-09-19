@@ -324,7 +324,7 @@ File.prototype.update = async function () {
     var id = ++that.dataid;
     var stats = await statFile(that.pathname);
     if (id !== that.dataid) return that.promise;
-    if (!(stats instanceof fs.Stats)) {
+    if (stats instanceof Error) {
         return that.data = stats;
     }
     if (+stats.mtime === that.mtime) {

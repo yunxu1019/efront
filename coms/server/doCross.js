@@ -2,7 +2,7 @@
 var parseURL = require("../basic/parseURL");
 var cert = server$cert;
 var { Http2ServerResponse, Http2ServerRequest } = require("http2");
-var headersKeys = "Content-Type,Content-Length,User-Agent,Accept-Language,Accept-Encoding,Range,If-Range,Last-Modified".split(",");
+var headersKeys = "Content-Type,Content-Length,User-Agent,Accept-Language,Accept-Encoding,Range,If-Range,Last-Modified".toLowerCase().split(",");
 var privateKeys = {};
 "Cookie,Connection,Referer,Host,Origin,Authorization".split(",").forEach(k => privateKeys[k] = privateKeys[k.toLowerCase()] = true);
 var record = require("./record");
@@ -51,7 +51,9 @@ async function parseUrl(hostpath, real) {
     return { jsonlike, realpath, hostpath, headers };
 }
 // https://github.com/nodejs/node/blob/02a0c74861c3107e6a9a1752e91540f8d4c49a76/lib/_http_common.js :204
-const tokenRegExp = /^[\^_`a-zA-Z\-0-9!#$%&'*+.|~]+$/
+const tokenRegExp = /^[\^_`a-zA-Z\-0-9!#$%&'*+.|~]+$/;
+// https://github.com/nodejs/node/blob/02a0c74861c3107e6a9a1752e91540f8d4c49a76/lib/_http_common.js :214
+const headerCharRegex = /[^\t\x20-\x7e\x80-\xff]/;
 /**
  * Verifies that the given val is a valid HTTP token
  * per the rules defined in RFC 7230
@@ -79,10 +81,10 @@ async function cross(req, res, referer) {
         // $data = $cross['data'],//不再接受数据参数，如果是get请直接写入$url，如果是post，请直接post
         var method = req.method;//$_SERVER['REQUEST_METHOD'];
         var _headers = req.headers;
-        req.referer = _headers.referer;
-        if (cross.referer.test(_headers.referer) && !headers.referer) {
-            headers.referer = hostpath + parseUrl(_headers.referer, false).realpath;
-        } else if (_headers.referer || _headers.origin === 'null') {
+        req.referer = getHeader(_headers, 'referer');
+        if (cross.referer.test(req.referer) && !headers.referer) {
+            headers.referer = hostpath + parseUrl(req.referer, false).realpath;
+        } else if (req.referer || getHeader(_headers, 'origin') === 'null') {
             headers.referer = hostpath;
         }
     }
@@ -98,17 +100,24 @@ async function cross(req, res, referer) {
         }
     }
     headersKeys.forEach(function (key) {
-        key = key.toLowerCase();
-        if (!headers[key] && _headers[key]) {
-            headers[key] = _headers[key];
-        }
+        var v = getHeader(_headers, key);
+        if (!headers[key] && v) headers[key] = v;
     });
-    for (var k in _headers) {
-        if (privateKeys.hasOwnProperty(k)) {
-            continue;
+    if (isFunction(_headers.keys)) {
+        for (let key of _headers.keys()) {
+            if (privateKeys.hasOwnProperty(k)) continue;
+            let v = _headers.get(key);
+            if (!headers[key] && v && checkIsHttpToken(key)) headers[key] = v;
         }
-        if (!headers[k] && _headers[k] && checkIsHttpToken(k)) {
-            headers[k] = _headers[k];
+    }
+    else {
+        for (var k in _headers) {
+            if (privateKeys.hasOwnProperty(k)) {
+                continue;
+            }
+            if (!headers[k] && _headers[k] && checkIsHttpToken(k)) {
+                headers[k] = _headers[k];
+            }
         }
     }
     var http, options, agent;
@@ -171,7 +180,7 @@ async function cross(req, res, referer) {
             if (/get/i.test(req.method) && (record.enabled || /^[\.&~]/.test(jsonlike)) && response.statusCode === 200) {
                 record($url, request, response, req, res);
             } else {
-                res.writeHead(response.statusCode === 301 && req.headers.authorization ? 302 : response.statusCode, headers);
+                res.writeHead(response.statusCode === 301 && getHeader(req.headers, "authorization") ? 302 : response.statusCode, headers);
                 response.pipe(res);
             }
         } else {

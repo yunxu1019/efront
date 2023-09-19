@@ -10,7 +10,7 @@ var message = require("../message");
 var net = require("net");
 message.listen();
 var cert = server$cert;
-require("../efront/quitme");
+var quitme = require("../efront/quitme");
 var { HTTPS_PORT, HTTP_PORT } = memery;
 HTTP_PORT = +HTTP_PORT || 0;
 HTTPS_PORT = +HTTPS_PORT || 0;
@@ -21,6 +21,7 @@ if (memery.IPV4FIRST && dns.setDefaultResultOrder) dns.setDefaultResultOrder("ip
 var closeListener = function () {
     if (!portedServersList.filter(s => s && s.listening).length) {
         safeQuitProcess();
+        if (isFunction(quitme)) quitme();
     }
 };
 require("./watch").start();
@@ -29,6 +30,7 @@ var safeQuitProcess = function () {
     require("./watch").close();
     memery.islive = false;
     portedServersList.forEach((server) => {
+        if (!server.listening) return;
         server.removeAllListeners();
         var timeout = setTimeout(function () {
             process.exit();
@@ -183,7 +185,7 @@ var doOptions = async function (req, res, type) {
                 let env = getRequestEnv(req);
                 if (!env) break;
                 res.env = env;
-                res.referer = req.headers.referer;
+                res.referer = getHeader(req.headers, "referer");
                 req.once('close', () => {
                     removeFromList(liveload, res);
                 });
@@ -250,7 +252,7 @@ var doOptions = async function (req, res, type) {
         default:
             needLogin = true;
     }
-    if (needLogin && !await require("./checkAuth")(req.headers.authorization, remoteAddress)) {
+    if (needLogin && !await require("./checkAuth")(getHeader(req.headers, 'authorization'), remoteAddress)) {
         res.writeHead(401, utf8error);
         res.write("无权访问");
         needLogin = false;
@@ -384,7 +386,7 @@ var doOptions = async function (req, res, type) {
     res.end();
 };
 var parseURL = require("../basic/parseURL");
-var ppid = process.ppid;
+var ppid = process.ppid || process.pid;
 var version = `efront-${require("../../package.json").version}/` + ppid;
 var utf8error = {
     "Content-Type": "text/plain;charset=UTF-8"
@@ -440,7 +442,7 @@ var setHeader = function (crypted, k, v) {
  * @this {net.Server}
  */
 var requestListener = async function (req, res) {
-    req.socket.unref();
+    if (req.socket.unref) req.socket.unref();
     try {
         var remoteAddress = require("./remoteAddress")(req);
     } catch {
@@ -527,12 +529,12 @@ var requestListener = async function (req, res) {
     }
 
     req.protocol = this === server1 ? 'http:' : 'https:';
-    var req_access_origin = req.headers["origin"];
-    var req_access_headers = req.headers["access-control-request-headers"];
-    var req_access_method = req.headers["access-control-request-method"];
+    var req_access_origin = getHeader(req.headers, "origin");
+    var req_access_headers = getHeader(req.headers, "access-control-request-headers");
+    var req_access_method = getHeader(req.headers, "access-control-request-method");
     if (memery.CORS) {
         req_access_origin && res.setHeader("Access-Control-Allow-Origin", req_access_origin);
-        /^cross/i.test(req.headers["sec-fetch-site"]) && res.setHeader("Cross-Origin-Resource-Policy", "cross-origin");
+        /^cross/i.test(getHeader(req.headers, "sec-fetch-site")) && res.setHeader("Cross-Origin-Resource-Policy", "cross-origin");
         /^https:/i.test(req_access_origin) && res.setHeader("Access-Control-Allow-Credentials", true);
         req_access_headers && res.setHeader("Access-Control-Allow-Headers", req_access_headers);
         req_access_method && res.setHeader("Access-Control-Allow-Methods", req_access_method);
@@ -570,18 +572,18 @@ var requestListener = async function (req, res) {
     if (doCross.prefix.test(req.url)) {
         return doCross(req, res, false);
     }
-    if (doCross.referer.test(req.headers.referer)) {
-        return doCross(req, res, req.headers.referer);
+    if (doCross.referer.test(getHeader(req.headers, 'referer'))) {
+        return doCross(req, res, getHeader(req.headers, 'referer'));
     }
-    if (/^\/\*{1,2}$/.test(req.url) && !req.headers.authorization || /^\/\*{3,}$/.test(req.url)) {
+    if (/^\/\*{1,2}$/.test(req.url) && !getHeader(req.headers, "authorization") || /^\/\*{3,}$/.test(req.url)) {
         res.writeHead(401, {
             "WWW-Authenticate": "Basic",
         });
         res.end(`<script>location.href="/"</script>`);
         return;
     }
-    else if (req.headers.authorization) {
-        var auth = Buffer.from(req.headers.authorization.replace(/^Basic\s+/i, ''), 'base64').toString();
+    else if (getHeader(req.headers, "authorization")) {
+        var auth = Buffer.from(getHeader(req.headers, "authorization").replace(/^Basic\s+/i, ''), 'base64').toString();
         if (/^~~/.test(auth)) {
             auth = auth.replace(/\:$/, '');
             req.url = "/" + auth + req.url.replace(/^\/\*+/, '');
@@ -596,7 +598,7 @@ var requestListener = async function (req, res) {
     } catch (e) {
         req.url = unescape(req.url);
     }
-    if (req.headers.range) {
+    if (getHeader(req.headers, "range")) {
         return doFile(req, res);
     }
     var match = req.url.match(/\/ccon\/(.*?)\.([\da-f]+)\.png$/i);
@@ -657,6 +659,7 @@ var checkServerState = function (http, port0) {
             rejectUnauthorized: false,// 放行证书不可用的网站
             path: '/:' + v
         }, httpsOptions), function (response) {
+            req.destroy();
             var powered = response.headers["powered-by"];
             if (type) return ok();
             if (powered === version) {
@@ -800,13 +803,13 @@ var httpsOptions = {
 var createHttpsServer = function () {
     if (httpsOptions.pfx || httpsOptions.cert && httpsOptions.key) {
         HTTPS_PORT = +HTTPS_PORT || 443;
-        server2 = http2.createSecureServer(httpsOptions, requestListener).setTimeout(0);
+        server2 = http2.createSecureServer(httpsOptions, requestListener);
         initServer.call(server2, HTTPS_PORT);
     }
 };
 
 var createHttpServer = function () {
-    server1 = http.createServer(requestListener).setTimeout(0);
+    server1 = http.createServer(requestListener);
     if (getIntVersion(process.version) >= getIntVersion('12.19.0')) {
         server0 = net.createServer(netListener);
         initServer.call(server0, HTTP_PORT);
@@ -814,7 +817,103 @@ var createHttpServer = function () {
         initServer.call(server1, HTTP_PORT);
     }
 };
+var Deno = global.Deno;
 
+if (Deno) {
+
+    var Response = global.Response;
+    var TransformStream = global.TransformStream;
+    var ServerResponse = class ServerResponse {
+        constructor(e) {
+            Object.defineProperty(this, '_req', { value: e, configurable: false });
+        }
+        headers = {};
+        writeHead(status, headers) {
+            Object.assign(this.headers, headers);
+            this.status = status;
+        }
+        get writer() {
+            if (!this._writer) {
+                var stream = new TransformStream;
+                Object.defineProperty(this, "_writer", { value: stream.writable.getWriter(), configurable: false });
+                this._req.respondWith(new Response(stream.readable, this));
+            }
+            return this._writer;
+        }
+        setHeader(k, v) {
+            this.headers[k] = v;
+        }
+        write(a) {
+            var b = Buffer.from(a);
+            b = new Uint8Array(b.buffer, b.byteOffset, b.byteLength);
+            this.writer.write(b);
+        }
+        end(a) {
+            if (a) this.write(a);
+            this.closed = true;
+            this.writer.close();
+        }
+        on(type, handle) {
+        }
+    }
+    var ServerRequest = class ServerRequest {
+        constructor(e, a) {
+            e = e.request;
+            a.remoteAddress = a.remoteAddr.hostname;
+            this.socket = a;
+            this.method = e.method;
+            var url = parseURL(e.url);
+            this.url = url.path;
+            this.headers = e.headers;
+            this.body = e.body;
+
+        }
+        on() { }
+        once() { }
+        pipe(a) {
+            console.log(this.body);
+            if (this.body) return this.body.pipe(a);
+            else a.end();
+        }
+    }
+    var serve = function (e, a) {
+        var res = new ServerResponse(e);
+        var req = new ServerRequest(e, a);
+        requestListener(req, res).catch(r => e.respondWith(new Response(String(r), { status: 500 })));
+    };
+    initServer = function (c) {
+        c.port = c.addr.port;
+        portedServersList.push(c);
+        var conn = async function (a) {
+            for await (var e of Deno.serveHttp(a)) serve(e, a);
+        };
+        var handler = async function (a) {
+            for await (var a of c) conn(a);
+        }
+        c.removeAllListeners = function () {
+        };
+        var close = c.close;
+        c.listening = true;
+        c.timeout = 0;
+        c.close = function (cb) {
+            c.listening = false;
+            Promise.resolve().then(function () {
+                close.call(c);
+                cb();
+            });
+        };
+        handler();
+        showServerInfo();
+    }
+    createHttpsServer = function () {
+        var c = Deno.listenTls(Object.assign({ port: +HTTPS_PORT || 443 }, httpsOptions));
+        initServer(c);
+    }
+    createHttpServer = function () {
+        var c = Deno.listen({ port: HTTP_PORT });
+        initServer(c);
+    };
+}
 process.on('exit', function () {
     if (process.stdin.unref) process.stdin.unref();
     if (process.stderr.unref) process.stderr.unref();

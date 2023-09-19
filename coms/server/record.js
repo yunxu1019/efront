@@ -70,14 +70,14 @@ function record($url, request, response, req, res) {
                     }${b} `)
                 ;
         }
-        if (/(text|javascript|json)/i.test(headers["content-type"]) || /^\s*<!/.test(data)) {
+        if (/(text|javascript|json)/i.test(getHeader(headers, "content-type")) || /^\s*<!/.test(data)) {
             // ```````//1------------------------------------------------------1// -2-- //////3 ///////// ----- 4 ----- /
             var reg0 = /(['"`])\/\/(.*?)\1/g;
             var reg = /([\.\]](?:src|href|url|)\s*=\s*|\ssrc\s*=|<(?:link|a)[^>]*\shref=|url\(|(?=['"`]))([`'"]?)http(s?):\/\/([^\/'"`\s\?\#]*)/gi;
             if (record.enabled) {
                 write(fullpath, data);
             }
-            var host = req.headers.host || parseURL(req.referer).host;
+            var host = getHeader(req.headers, 'host') || parseURL(req.referer).host;
             data = String(data).replace(reg0, (_, b, c) => `${b}${host ? '//' + host : ''}/&${c}${b}`)
                 .replace(reg, (_, a, b, c, d) => `${a}${b}/${mark}${c ? mark : ''}${d}`);
         } else {

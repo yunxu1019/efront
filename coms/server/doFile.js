@@ -65,7 +65,7 @@ function piperead(h, start, end, res, sign) {
  * @param {Http2ServerResponse} res
  */
 function doGetFile(req, res, filepath, code) {
-    var [, start, end] = String(req.headers.range).match(/bytes\s*=\s*(\d*)\s*\-\s*(\d*)/) || [];
+    var [, start, end] = String(getHeader(req.headers, "range")).match(/bytes\s*=\s*(\d*)\s*\-\s*(\d*)/) || [];
     if (!fs.existsSync(filepath)) {
         res.writeHead(404, utf8);
         res.end("文件不存在");
@@ -83,7 +83,7 @@ function doGetFile(req, res, filepath, code) {
             return;
         }
         if (stats.mtime) {
-            var modified = req.headers["if-modified-since"];
+            var modified = getHeader(req.headers, "if-modified-since");
             if (new Date(modified) - new Date(stats.mtime.toUTCString()) >= 0) {
                 res.writeHead(304, utf8);
                 res.end();
@@ -91,7 +91,7 @@ function doGetFile(req, res, filepath, code) {
             }
         }
         start = +start | 0;
-        if (!start || start < 0 || req.headers["if-range"] && req.headers["if-range"] !== stats.mtime.toUTCString()) {
+        if (!start || start < 0 || getHeader(req.headers, "if-range") && getHeader(req.headers, "if-range") !== stats.mtime.toUTCString()) {
             start = 0;
         }
         if (start > stats.size || end && end < start || start < 0) {
@@ -125,7 +125,7 @@ function doGetFile(req, res, filepath, code) {
                 "Content-Length": end ? end - start : stats.size - start,
                 "Last-Modified": stats.mtime.toUTCString()
             };
-            if (req.headers.range) {
+            if (getHeader(req.headers, "range")) {
                 headers["Accept-Ranges"] = "bytes";
                 headers["Content-Range"] = `bytes ${start}-${end ? end - 1 : ''}/${stats.size}`;
                 headers["access-control-expose-headers"] = "Content-Range,Accept-Ranges";
@@ -136,7 +136,7 @@ function doGetFile(req, res, filepath, code) {
                     headers['Content-Type'] = mime;
                 }
             }
-            res.writeHead(start === 0 && req.headers.range ? 206 : 200, headers);
+            res.writeHead(start === 0 && getHeader(req.headers, "range") ? 206 : 200, headers);
             piperead(h, start, end ? end : stats.size, res, sign);
         });
     });
@@ -168,7 +168,7 @@ function doPutFile(req, res, filepath, code) {
         res.end(`路径不存在`);
         return;
     }
-    var range = req.headers.range;
+    var range = getHeader(req.headers, "range");
     if (range) {
         var [start] = range.replace(/^\s*bytes\s*\=\s*/i, '').split(/\s*\-\s*/);
         start = +start || 0;
@@ -240,7 +240,7 @@ async function doFile(req, res) {
         filepath = filepath + extend;
     }
     if (!/get/i.test(req.method)) {
-        if (!checkAccess(filepath) && !await checkAuth(req.headers.authorization, remoteAddress(req))) {
+        if (!checkAccess(filepath) && !await checkAuth(getHeader(req.headers, "authorization"), remoteAddress(req))) {
             res.writeHead(406, utf8);
             res.end("拒绝访问");
             return;

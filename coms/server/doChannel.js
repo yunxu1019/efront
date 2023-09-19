@@ -42,7 +42,7 @@ async function doChannel(req, res) {
             dowith("channel-get", res.socket);
             break;
         case "post":
-            params = [id, req.headers["content-type"]];
+            params = [id, getHeader(req.headers, "content-type")];
             dowith("channel-post", req.socket);
             break;
         case "put":

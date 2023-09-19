@@ -44,8 +44,8 @@ var updateMap = async function () {
 async function getProxyURL(req) {
     await userdata.update(updateMap);
     var url = req.url;
-    if (req.headers.referer) {
-        var referer = req.headers.referer;
+    var referer = getHeader(req.headers, "referer");
+    if (referer) {
         var { pathname, query } = parseURL(referer);
         if (urlProxyMap[pathname]) {
             var querys = [];

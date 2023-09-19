@@ -96,7 +96,32 @@ Object.defineProperty(onmessage, 'isPrimary', { value: !cluster.isWorker && work
 var processPostMessage = function (msg, h) {
     if ((this.process || this).connected) this.send(msg, h);
 };
-if (onmessage.isPrimary) {
+if (global.Deno) {
+    onmessage.listen = function () { };
+    onmessage.close = function () { };
+    onmessage["abpi"] = require("./abpi");
+    onmessage["count"] = require("./count");
+    onmessage["log"] = require("./log");
+    onmessage.send = async function (key, params, onsuccess, onerror, onfinish) {
+        if (arguments.length === 3) {
+            onfinish = onsuccess;
+            onsuccess = null;
+        }
+        try {
+            var a = await onmessage[key](params);
+            if (onsuccess) onsuccess(a);
+        } catch (e) {
+            if (onerror) onerror(e);
+        }
+        finally {
+            if (onfinish) onfinish();
+        }
+    };
+    onmessage.broadcast = function (key, data) {
+        if (onmessage[key] instanceof Function) onmessage[key](data);
+    };
+}
+else if (onmessage.isPrimary) {
     onmessage["abpi"] = require("./abpi");
     onmessage["count"] = require("./count");
     onmessage["log"] = require("./log");

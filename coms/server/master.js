@@ -1,8 +1,6 @@
 "use strict";
 var message = require("../message");
 var clients = require("./clients");
-var similar = require("./similar");
-var JSAM = require("../basic/JSAM");
 var fs = require("fs");
 var path = require("path");
 var memery = require("../efront/memery");
@@ -128,13 +126,6 @@ message.addmark = function (m) {
         message.send(worker, 'addmark', m);
     });
 };
-message.receive = function ([cid, uid]) {
-    var client = clients.get(cid);
-    if (client) {
-        var msgs = client.getMessages(uid);
-        return msgs;
-    }
-};
 message.cluster = function ([id, methord, params]) {
     for (var w of waiters) {
         if (w.id === id) return new Promise(function (ok, oh) {
@@ -149,19 +140,6 @@ message.cluster = function ([id, methord, params]) {
 message.clusterList = function (id) {
     return waiters.map(w => w.id);
 };
-message.uptime = function () {
-    return process.uptime();
-};
-message.rehost = function () {
-    console.info("服务器重启");
-    var argv = process.__proto__ && process.__proto__.argv || process.argv;
-    end();
-    var child = require("child_process").spawn(argv[0], argv.slice(1), {
-        detached: true,
-        stdio: 'ignore'
-    });
-    child.unref();
-};
 var find = async function (key, params) {
     for (var c of waiters) {
         if (await message.invoke(c, key, params)) return c;
@@ -171,14 +149,6 @@ message.fend = async function ([k1, params1, k2, params2], socket) {
     var c = await find(k1, params1);
     if (!c) return socket.write("HTTP/1.1 404 Not Found\r\nConnection: close\r\n\r\n");
     message.send(c, k2, params2, socket);
-};
-var similar = require("./similar");
-message.logsimilar = function (a) {
-    a = JSON.parse(a);
-    similar.log(a);
-};
-message.allsimilar = function () {
-    return JSAM.stringify(similar.all());
 };
 
 require("../efront/quitme")(end);

@@ -15,7 +15,7 @@ var doPost = module.exports = async function (req, res) {
             return;
         }
     }
-    if (/MSIE|Trident/.test(req.headers["user-agent"])) {
+    if (/MSIE|Trident/.test(getHeader(req.headers, "user-agent"))) {
         var memery = require("../efront/memery");
         if (!memery.MSIE) {
             memery.MSIE = true;
