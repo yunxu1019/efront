@@ -312,6 +312,7 @@ var scan = function (data) {
 var detourTemplate = function (raw, params) {
     var spliter = { text: ",", type: STAMP };
     var template = scan(`extend([],{["raw"]:[]})`);
+    rootenvs.extend = true;
     var str0 = template[1].first;
     var str1 = template[1][2][2];
     for (var r of raw) {
@@ -364,19 +365,27 @@ var removeQuote = function (o, c, i) {
     if (c.next) c.next.prev = cf;
 }
 
-Javascript.prototype.detour = function detour(o, ie) {
-    var avoidMap = this.avoidMap;
+Javascript.prototype.detour = function (o, ie) {
+    context = this;
+    var envs = rootenvs = Object.create(null);
+    detour(o, ie);
+    rootenvs = null;
+    context = null;
+    return envs;
+}
+var context = null, rootenvs = null;
+function detour(o, ie) {
     while (o) {
         switch (o.type) {
             case SCOPED:
-                this.detour(o.first, ie);
+                detour(o.first, ie);
                 break;
             case EXPRESS:
                 var text = o.text.replace(/^\.\.\./, '');
                 var hasdot = o.text.length !== text.length;
-                if (avoidMap) {
+                if (context.avoidMap) {
                     var m = /^[^\.\[\]]+/.exec(o.text);
-                    if (m) { avoidMap[m[0]] = true; }
+                    if (m) { context.avoidMap[m[0]] = true; }
                 }
                 if (/\?\./.test(text)) {
                     text = renderExpress(text);
@@ -384,7 +393,7 @@ Javascript.prototype.detour = function detour(o, ie) {
                     o = replace(o, ...scan(text));
                     continue;
                 }
-                text = text.replace(/\.([^\.\[\!\=\:]+)/g, (_, a) => ie === undefined || this.strap_reg.test(a) || /#/.test(a) ? `[${strings.recode(a)}]` : _);
+                text = text.replace(/\.([^\.\[\!\=\:]+)/g, (_, a) => ie === undefined || context.strap_reg.test(a) || /#/.test(a) ? `[${strings.recode(a)}]` : _);
                 if (hasdot) text = "..." + text;
                 o.text = text;
                 break;
@@ -404,7 +413,7 @@ Javascript.prototype.detour = function detour(o, ie) {
                             else {
                                 c.entry = "(";
                                 c.leave = ")";
-                                this.detour(c.first, ie);
+                                detour(c.first, ie);
                                 splice(o, cx + 1, 0, { type: STAMP, text: ',' });
                                 removeQuote(o, c);
                             }
@@ -424,7 +433,7 @@ Javascript.prototype.detour = function detour(o, ie) {
                             } else {
                                 c.entry = '(';
                                 c.leave = ")";
-                                this.detour(c.first, ie);
+                                detour(c.first, ie);
                                 params.push(c);
                             }
                         }
@@ -460,7 +469,7 @@ Javascript.prototype.detour = function detour(o, ie) {
                 if (/^\[/.test(o.text)) break;
                 if (o.queue.isObject) {
                     var text = strings.recode(o.text);
-                    if (ie === undefined || o.prev && (o.prev.type !== STAMP || o.prev.text !== ",") || this.strap_reg.test(o.text)) {
+                    if (ie === undefined || o.prev && (o.prev.type !== STAMP || o.prev.text !== ",") || context.strap_reg.test(o.text)) {
                         text = `[${text}]`;
                     }
                     else if (ie !== false) {

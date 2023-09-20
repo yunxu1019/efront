@@ -154,13 +154,15 @@ class Code extends Array {
     // 提前处理属性
     break() {
         this.program.avoidMap = avoidMap;
-        this.program.detour(this.first);
+        var envs = this.program.detour(this.first);
+        if (this._scoped) extend(this.envs, envs);
         return this;
     }
     // 绕开低版本ie的异常属性
     detour(ie) {
         this.program.avoidMap = avoidMap;
-        this.program.detour(this.first, ie !== false);
+        var envs = this.program.detour(this.first, ie !== false);
+        if (this._scoped) extend(this.envs, envs);
         return this;
     }
     // 压缩
