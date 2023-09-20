@@ -766,7 +766,7 @@ var killspr = function (body, i, _getobjname, killobj) {
             var b = body.lastIndexOf(r, i);
             var ct = splice(body, b, i - b + 1, qt);
             var qq = ct[ct.length - 1];
-            var qb = scanner2("[]")[0];
+            var qb = scanner2("[null,]")[0];
             qb.push(...splice(qq, 0, qq.length, qb));
             ct[ct.length - 1].unshift({ type: STAMP, text: ',' });
             ct[ct.length - 1].unshift(...ct.slice(0, ct.length - 1).map(a => extend({}, a)));
