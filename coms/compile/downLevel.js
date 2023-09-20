@@ -735,11 +735,11 @@ var killspr = function (body, i, _getobjname, killobj) {
         var s = m;
         m = skipAssignment(m);
         s.text = s.text.replace(/^\.\.\./, '');
-        var q = scanner2(`slice_["call"]()`);
-        rootenvs.slice_ = true;
         var v = splice2(o, s, m);
         if (m) splice2(o, m, m = m.next);
         killobj(v);
+        var q = scanner2(`slice_["call"]()`);
+        rootenvs.slice_ = true;
         insert1(q[q.length - 1], null, ...v);
         return q;
     };
@@ -760,6 +760,23 @@ var killspr = function (body, i, _getobjname, killobj) {
     var next = o.next;
     if (o.entry === '(') {
         var r = snapExpressHead(o);
+        if (r.type === STRAP && r.text === "new") {
+            var qt = scanner2(`()`)[0];
+            r = r.next;
+            var b = body.lastIndexOf(r, i);
+            var ct = splice(body, b, i - b + 1, qt);
+            var qq = ct[ct.length - 1];
+            var qb = scanner2("[]")[0];
+            qb.push(...splice(qq, 0, qq.length, qb));
+            ct[ct.length - 1].unshift({ type: STAMP, text: ',' });
+            ct[ct.length - 1].unshift(...ct.slice(0, ct.length - 1).map(a => extend({}, a)));
+            ct.splice(ct.length - 1, 0, ...scanner2("['bind']['apply']"));
+            qt.push(...ct);
+            relink(qq)
+            relink(qb)
+            relink(qt)
+            return b;
+        }
         var rt = r.type === EXPRESS && r.text.replace(/^\.\.\./, '');
         var p = o.prev;
         if (r === o);
