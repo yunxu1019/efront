@@ -55,8 +55,8 @@ var _break = function (body, cx, result, iscontinue) {
     if (!result.length || re.ret_ && !re.await_ && re.ret_ !== -2) return;
     var _b = scanner2('return []');
     _b.ret_ = -1;
-    pushstep(result, _b);
     mount_break(body, cx, [_b[1]], iscontinue);
+    pushstep(result, _b);
 };
 var _try = function (body, cx, unblock, result, getname) {
     var o = body[cx];
