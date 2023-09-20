@@ -612,6 +612,7 @@ var removeExport = function (c, i, code) {
             o = n && n.next;
             var exp = scan(`\r\nexports.${prop}=`);
             exp.push(name);
+            name.isExpress = true;
             allexports.push(exp);
         }
         var ni = skipAssignment(code, i);
@@ -627,6 +628,7 @@ var removeExport = function (c, i, code) {
         n.type = STAMP;
         c.text = `exports.default`;
         code.exportDefault = true;
+        n.next.isExpress = true;
         c.type = EXPRESS;
         return;
     }
@@ -638,6 +640,7 @@ var removeExport = function (c, i, code) {
         }
         c.text = `exports.${dec[0]}`;
         c.type = EXPRESS;
+        n.isExpress = true;
         code.splice(i + 1, 0, ...scan(`=`));
         var nn = n.next;
         var d = nn.text;
