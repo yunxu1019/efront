@@ -19,7 +19,7 @@ assert(downLevel(`a(c**=d)`), 'a(c = power_(c, d))', true);
 assert(downLevel(`a(c.b.d**=d)`), 'a((_ = c.b, _.d = power_(_.d, d)))\r\nvar _', true);
 assert(downLevel(`a(c.b[a.b]**=d)`), 'a((_ = c.b, _[_0 = a.b] = power_(_[_0], d)))\r\nvar _, _0', true);
 assert(downLevel(`c.b[a.b]**=d`), '_ = c.b, _[_0 = a.b] = power_(_[_0], d)\r\nvar _, _0', true);
-// 声明及解构
+i++// 声明及解构
 assert(downLevel(`var [data, args, strs] = breakcode(data, occurs), strs = []`), 'var _ = breakcode(data, occurs), data = _[0], args = _[1], strs = _[2], strs = []\r\nvar _');
 assert(downLevel(`var [name, type, options] = piece, key, repeat;`), 'var name = piece[0], type = piece[1], options = piece[2], key, repeat;');
 assert(downLevel(`var [] = piece, key,[]= repeat;`), 'var key;');
@@ -80,7 +80,7 @@ assert(downLevel(`function (a=b,[c],d,e=f){}`), "function (a, arg1, d, e) { if (
 assert(downLevel(`function (arg1=b,[c],d,e=f){}`), "function (arg1, arg2, d, e) { if (arg1 === undefined) arg1 = b; var c = arg2[0]; if (e === undefined) e = f; }")
 i++// class降级
 assert(downLevel(`class a {}`), "function a() {}")
-var tmp = scanner2('export class a{a(){}}'); tmp.fix(); assert(downLevel.code(tmp).toString(), 'exports.a = function (a) { a["prototype"].a = function () {}\r\nreturn a }(function a() {})');
+var tmp = scanner2('export class a{a(){}}'); tmp.fix(); assert(downLevel.code(tmp).toString(), `exports.a = function (a) { a["prototype"].a = function () {}\r\nreturn a }(function a() {})`);
 assert(downLevel(`class a { static{ a.a=1}}`), "function a() {}; (function () { a.a = 1 }())")
 assert(downLevel(`if(a) a = 1; class a {}`), "if (a) a = 1; function a() {}")
 assert(downLevel(`async function(){if(a) a = 1; class a {}}`), `function () { return async_(
@@ -229,7 +229,7 @@ function () {
 return [8, 8]
 },
 function () {
-_2 = Symbol["asyncIterator"]; _2 = os[_2]; if (_2) return [1, 0]; _2 = Symbol["iterator"]; _2 = os[_2]; if (_2) return [1, 0]; _2 = Symbol["iterator"]; _2 = Array["prototype"][_2]
+_2 = Symbol["asyncIterator"]; _2 = os[_2]; if (_2) return [1, 0]; _2 = Symbol["iterator"]; _2 = os[_2]; if (_2) return [1, 0]; _2 = Array["prototype"]; _3 = Symbol["iterator"]; _2 = _2[_3]
 },
 function () {
 _0 = _2; _0 = _0["call"](os); _2 = _0["next"](); return [_2, 1]
@@ -261,13 +261,13 @@ if (!_2) return [1, 0]; _2 = _0["return"](); return [1, 0]
 function () {
 return [1, 9]
 })
-var _, _0, _2`)
+var _, _0, _2, _3`)
 assert(downLevel(`for await(var [o,s] of os) noSymbol`), `return async_(
 function () {
 return [11, 8]
 },
 function () {
-o; s; _5 = Symbol["asyncIterator"]; _5 = os[_5]; if (_5) return [1, 0]; _5 = Symbol["iterator"]; _5 = os[_5]; if (_5) return [1, 0]; _5 = Symbol["iterator"]; _5 = Array["prototype"][_5]
+o; s; _5 = Symbol["asyncIterator"]; _5 = os[_5]; if (_5) return [1, 0]; _5 = Symbol["iterator"]; _5 = os[_5]; if (_5) return [1, 0]; _5 = Array["prototype"]; _6 = Symbol["iterator"]; _5 = _5[_6]
 },
 function () {
 _0 = _5; _0 = _0["call"](os); _5 = _0["next"](); return [_5, 1]
@@ -279,16 +279,16 @@ function () {
 _5 = !_["done"]; if (!_5) return [5, 0]; _5 = _["value"]; return [_5, 1]
 },
 function (_4) {
-_5 = _4; _1 = _5; _6 = Symbol["iterator"]; _6 = _1[_6]; if (_6) return [1, 0]; _6 = Symbol["iterator"]; _6 = Array["prototype"][_6]
+_5 = _4; _1 = _5; _6 = Symbol["iterator"]; _6 = _1[_6]; if (_6) return [1, 0]; _6 = Array["prototype"]; _7 = Symbol["iterator"]; _6 = _6[_7]
 },
 function () {
-_6 = (_6); _2 = _6["call"](_1); _3 = undefined; _3 = _2["next"](); o = _3["value"]; _3 = _2["next"](); s = _3["value"]; _9 = !_3; if (_9) return [1, 0]; _9 = !_3["done"]
+_6 = (_6); _2 = _6["call"](_1); _3 = undefined; _3 = _2["next"](); o = _3["value"]; _3 = _2["next"](); s = _3["value"]; _10 = !_3; if (_10) return [1, 0]; _10 = !_3["done"]
 },
 function () {
-_9 = (_9); if (!_9) return [1, 0]; _9 = _2["return"]; _9 = isFunction(_9); if (!_9) return [1, 0]; _9 = _2["return"]()
+_10 = (_10); if (!_10) return [1, 0]; _10 = _2["return"]; _10 = isFunction(_10); if (!_10) return [1, 0]; _10 = _2["return"]()
 },
 function () {
-_3 = _9; _5 = (true)
+_3 = _10; _5 = (true)
 },
 function () {
 if (!_5) return [2, 0]; noSymbol; _5 = _0["next"](); return [_5, 1]
@@ -308,7 +308,7 @@ if (!_5) return [1, 0]; _5 = _0["return"](); return [1, 0]
 function () {
 return [1, 9]
 })
-var o, s, _, _0, _1, _2, _3, _5, _6, _7, _8, _9`);
+var o, s, _, _0, _1, _2, _3, _5, _6, _7, _8, _9, _10`);
 assert(downLevel(`for(o of os) noSymbol`), `for (_ = 0; _ < os["length"] && (o = os[_], true); _++) noSymbol\r\nvar _, _0`)
 assert(downLevel(`for(var o of os) Symbol`), `try { for (var o, _0 = os[Symbol["iterator"]] || Array["prototype"][Symbol["iterator"]], _0 = _0["call"](os), _ = _0["next"](); !_["done"] && (o = _["value"], true); _ = _0["next"]()) Symbol } finally { if (_ && !_["done"] && isFunction(_0["return"])) _0["return"]() }\r\nvar _, _0`)
 assert(downLevel(`for(var o of os) Symbol`), `try { for (var o, _0 = os[Symbol["iterator"]] || Array["prototype"][Symbol["iterator"]], _0 = _0["call"](os), _ = _0["next"](); !_["done"] && (o = _["value"], true); _ = _0["next"]()) Symbol } finally { if (_ && !_["done"] && isFunction(_0["return"])) _0["return"]() }\r\nvar _, _0`)
@@ -327,9 +327,9 @@ assert(downLevel("if(a){}[r, g, b] = rgb4s(r, g, b, s)"), "if (a) {} _ = rgb4s(r
 assert(downLevel(`{c,[c]:b,...a}=a`), `c = a.c, b = a[c], a = rest_(a, ["c", c])`)
 assert(downLevel(`async()=>name = require("./$split")(name)["join"]("/");`), `function () { return async_(
 function () {
-_0 = require("./$split"); _1 = _0(name); name = _1["join"]("/"); return [name, 2]
+_0 = require("./$split"); _0 = _0(name); name = _0["join"]("/"); return [name, 2]
 })
-var _0, _1 };`);
+var _0 };`);
 i++//异步或步进函数
 assert(downLevel(`function *(){yield *a}`), `function () { return aster_(
 function () {
@@ -351,7 +351,7 @@ function () {
 return [5, 8]
 },
 function () {
-a; _2 = Symbol["iterator"]; _2 = b[_2]; if (_2) return [1, 0]; _2 = Symbol["iterator"]; _2 = Array["prototype"][_2]
+a; _2 = Symbol["iterator"]; _2 = b[_2]; if (_2) return [1, 0]; _2 = Array["prototype"]; _3 = Symbol["iterator"]; _2 = _2[_3]
 },
 function () {
 _0 = _2; _0 = _0["call"](b); _ = _0["next"](); return [1, 0]
@@ -374,7 +374,7 @@ if (!_2) return [1, 0]; _2 = _0["return"](); return [1, 0]
 function () {
 return [1, 9]
 })
-var a, _, _0, _2 }`)
+var a, _, _0, _2, _3 }`)
 assert(downLevel(`a={async a(){var b =c;return 1}}`), `a = (_ = {},
 _.a = function () { return async_(\r\nfunction () {\r\nb = c; return [1, 2]\r\n})\r\nvar b }, _)\r\nvar _`)
 assert(downLevel(`async function(){return 1}`), `function () { return async_(\r\nfunction () {\r\nreturn [1, 2]\r\n}) }`)

@@ -474,7 +474,7 @@ var remove_end_comma = function (o) {
 };
 var ispropcall = function (o) {
     var n = o.next;
-    if (!n || n.type !== SCOPED && n.entry !== '(') return false;
+    if (!n || n.type !== SCOPED || n.entry !== '(') return false;
     if (o.type === EXPRESS && snapExpressHead(o) !== o) return true;
     if (o.type === SCOPED && o.entry === '[' && snapExpressHead(o) !== o) return true;
     return false;
@@ -490,6 +490,7 @@ var _invoke = function (t, getname) {
     queue.name = t.name;
     var qname = t.name;
     var bx = 0;
+    var lastlink = false;
     for (var cx = 0; cx < t.length; cx++) {
         var o = t[cx];
         a: if (o.type === STRAP) {
@@ -515,6 +516,7 @@ var _invoke = function (t, getname) {
         }
         if (o.type === SCOPED && (o.entry === '[' || o.entry === "(")) {
             var _nameindex = nameindex;
+            nameindex += lastlink;
             remove_end_comma(o);
             var iseval = o.iseval = isEval(o);
             var constStart = 0;
@@ -565,16 +567,19 @@ var _invoke = function (t, getname) {
             for (var c of cache) pushstep(result, c);
             cache = [];
             var n = o.next;
-            if (n && !needbreak(n) && !ispropcall(o)) {
-                var h = snapExpressHead(o);
-                var hx = t.lastIndexOf(h, cx);
-                var fs = splice(t, hx, cx + 1 - hx, { type: EXPRESS, text: getname(nameindex) });
-                fs.unshift(...scanner2(`${getname(nameindex)}=`));
-                relink(fs);
-                fs.name = getname(nameindex);
-                pushstep(result, fs);
-                nameindex++;
-                cx = hx - 1;
+            if (n && !needbreak(n)) {
+                lastlink = n.type === SCOPED;
+                if (!ispropcall(o)) {
+                    var h = snapExpressHead(o);
+                    var hx = t.lastIndexOf(h, cx);
+                    var fs = splice(t, hx, cx + 1 - hx, { type: EXPRESS, text: getname(nameindex) });
+                    fs.unshift(...scanner2(`${getname(nameindex)}=`));
+                    relink(fs);
+                    fs.name = getname(nameindex);
+                    pushstep(result, fs);
+                    cx = hx - 1;
+                }
+                if (!lastlink) nameindex++;
             }
         }
     }
