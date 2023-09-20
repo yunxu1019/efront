@@ -350,7 +350,6 @@ File.prototype.update = async function () {
             if (id !== that.dataid) return that.promise;
             if (typeof buffer === "string") buffer = Buffer.from(buffer);
             if (buffer instanceof Buffer) {
-                buffer = new Uint8Array(buffer.buffer, 0, buffer.length)
                 buffer.stat = stats;
                 if (!buffer.mime) {
                     var extend = String(that.pathname).match(/\.([^\.]*)$/);
