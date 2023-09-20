@@ -6,10 +6,8 @@ function concatTypedArray(buffs) {
     while (offset < total) {
         var b = buffs[inc++];
         if (b.buffer) b = new Uint8Array(b.buffer, b.byteOffset, b.byteLength);
-        for (var cx = 0, dx = b.length; cx < dx; cx++) {
-            res[offset + cx] = b[cx];
-        }
-        offset += dx;
+        res.set(b, offset);
+        offset += b.length;
     }
     return res;
 }
