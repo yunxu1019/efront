@@ -206,6 +206,7 @@ var removePrequoted = function (code) {
     return prequoted;
 };
 var loadJsBody = function (data, filename, lessdata, commName, className, htmlData) {
+    if (data.length > 0x200) console.info("编译", filename);
     data = trimNodeEnvHead(data);
     data = data.replace(/\bDate\(\s*(['"`])(.*?)\1\s*\)/g, (match, quote, dateString) => `Date(${+new Date(dateString)})`);
     var destpaths = commbuilder.prepare === false ? [] : getRequiredPaths(data);
@@ -357,7 +358,6 @@ var loadJsBody = function (data, filename, lessdata, commName, className, htmlDa
                 if (filename.length > 48) {
                     filename = ".." + filename.slice(filename.length - 46);
                 }
-                if (!hasReturn) console.info(`没有导出变量 文件：<gray>${shortpath(filename)}</gray>\r\n`);
             }
         }
     }
@@ -561,8 +561,6 @@ var getFileData = function (fullpath) {
         });
     });
 };
-var mimeTypes = require("../efront/mime");
-var shortpath = require("../basic/shortpath");
 var renderImageUrl = function (data, filepath) {
     var urlReg = [
         /\b(?:efront\-|data\-)?(?:src|ur[il])\s*\(\s*(['"`])([^,;\('"`\r\n\u2028\u2029]*?)\1\s*\)/ig,
@@ -570,7 +568,7 @@ var renderImageUrl = function (data, filepath) {
     ];
     var comsroot = this && this["/"] || [];
     var replacer = function (data, realpath, match) {
-        var mime = mimeTypes[path.extname(realpath).slice(1)];
+        var mime = require("../server/mime")[path.extname(realpath).slice(1)];
         var compath = inCom(realpath, comsroot);
         var pagepath = inPage(realpath);
         if (!mime || !compath && !pagepath) return match;
@@ -595,6 +593,7 @@ var renderImageUrl = function (data, filepath) {
     return bindLoadings(urlReg, data, filepath, replacer, false);
 };
 var renderLessData = function (data, lesspath, watchurls, className) {
+    if (data.length > 0x1000) console.info("编译", lesspath);
     if (!less) less = require("../less-node")(), less.PluginLoader = function () { };
     data = data || '';
     var importLessReg = /^\s*@(?:import)\s*(['"`]?)(.*?)\1(\s*;)?\s*$/im;
@@ -841,7 +840,6 @@ function getHtmlPromise(data, filename, fullpath, watchurls) {
 }
 
 function getScriptPromise(data, filename, fullpath, watchurls) {
-    if (path.isAbsolute(fullpath)) console.info("编译", fullpath);
     var [commName, lessName, className] = prepare(filename, fullpath);
     let htmlpath = fullpath.replace(/\.[cm]?[jt]sx?$/i, ".html");
     let lesspath = fullpath.replace(/\.[cm]?[jt]sx?$/i, ".less");
@@ -908,7 +906,7 @@ function commbuilder(buffer, filename, fullpath, watchurls) {
     } else {
         data = buffer;
         var extname = path.extname(fullpath);
-        if (extname) buffer.mime = mimeTypes[extname.slice(1)];
+        if (extname) buffer.mime = require("../server/mime")[extname.slice(1)];
     }
     if (promise) {
         var promise1 = promise.then((data) => {

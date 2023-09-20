@@ -2,7 +2,6 @@
 var path = require("path");
 var os = require("os");
 var fs = require("fs");
-var loadjson = require("../efront/loadjson");
 var getFile = function (configfilepath) {
     if (!fs.existsSync(configfilepath)) return;
     fs.readFile(configfilepath, function (error, data) {

@@ -4,7 +4,6 @@ var watch = require("./watch");
 var path = require("path");
 var isObject = require("../basic/isObject");
 var lazy = require("../basic/lazy");
-var mimes = require("../efront/mime");
 var loading_queue = [], loading_count = 0;
 var runPromiseInQueue = function () {
     if (loading_count > 2) return;
@@ -350,10 +349,13 @@ File.prototype.update = async function () {
             if (linked.length) await that.checkLinked();
             if (id !== that.dataid) return that.promise;
             if (typeof buffer === "string") buffer = Buffer.from(buffer);
-            if (buffer instanceof Buffer) buffer.stat = stats;
-            if (buffer && !buffer.mime) {
-                var extend = String(that.pathname).match(/\.([^\.]*)$/);
-                if (extend) buffer.mime = mimes[extend[1]];
+            if (buffer instanceof Buffer) {
+                buffer = new Uint8Array(buffer.buffer, 0, buffer.length)
+                buffer.stat = stats;
+                if (!buffer.mime) {
+                    var extend = String(that.pathname).match(/\.([^\.]*)$/);
+                    if (extend && Cache.mime) buffer.mime = Cache.mime[extend[1]];
+                }
             }
         } catch (e) {
             buffer = e;
@@ -441,6 +443,7 @@ var getPackageMain = function (url, data, map) {
     }
 }
 class Cache {
+    mime = null;
     updateid = 0;
     emitUpdate(updated) {
         if (this.onreload instanceof Function) this.onreload(updated);

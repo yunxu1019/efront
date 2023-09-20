@@ -1,7 +1,6 @@
-"use strict";
-var mime_data_file = require("path").join(__dirname, "../../data/mime.json");
+"use ../../data/mime.json";
+var mime_data_file = mime;
 var mimes = exports;
-var loadjson = require("../efront/loadjson").async;
 function cust(mime) {
     for (var k in mimes) {
         if (!(k in mime)) {
@@ -22,7 +21,4 @@ function cust(mime) {
         }
     }
 }
-function buildMime() {
-    loadjson(mime_data_file).then(cust).catch(console.error);
-};
-buildMime();
+Promise.resolve().then(cust);

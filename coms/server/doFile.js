@@ -6,7 +6,6 @@ var checkAccess = require("./checkAccess");
 var checkAuth = require("./checkAuth");
 var remoteAddress = require("./remoteAddress");
 var encode62 = require("../crypt/encode62");
-var mimes = require("../efront/mime");
 var root = require("../efront/memery").webroot;
 var cachePieceSize = 32 * 1024;
 var cacheCountLimit = 6000;
@@ -131,9 +130,9 @@ function doGetFile(req, res, filepath, code) {
                 headers["access-control-expose-headers"] = "Content-Range,Accept-Ranges";
             }
             if (extend) {
-                var mime = mimes[extend[1]];
-                if (mime) {
-                    headers['Content-Type'] = mime;
+                var mim1 = mime[extend[1]];
+                if (mim1) {
+                    headers['Content-Type'] = mim1;
                 }
             }
             res.writeHead(start === 0 && getHeader(req.headers, "range") ? 206 : 200, headers);

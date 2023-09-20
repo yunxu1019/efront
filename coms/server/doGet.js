@@ -13,6 +13,7 @@ var isObject = require("../basic/isObject");
 var FILE_BUFFER_SIZE = 64 * 1024 * 1024;
 var SERVER_ROOT_PATH = memery.webroot;
 var Cache = require("./cache");
+Cache.mime = mime;
 var getfile = function (url, exts) {
     return filecache.seek(url, exts);
 };
