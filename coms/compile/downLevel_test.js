@@ -192,6 +192,7 @@ assert(downLevel(`=[a,b,...c,d,e,f]`), `var slice_ = Array["prototype"]["slice"]
 assert(downLevel(`=[a,b,...c,d,e,f,...g]`), `var slice_ = Array["prototype"]["slice"];\r\n= [a, b]["concat"](slice_["call"](c), [d, e, f], slice_["call"](g))`)
 assert(downLevel(`=[a,b,...c,d,...e]`), `var slice_ = Array["prototype"]["slice"];\r\n= [a, b]["concat"](slice_["call"](c), [d], slice_["call"](e))`)
 assert(downLevel(`a(...b)`), `a["apply"](null, b)`)
+assert(downLevel(`a(..."b,c".split(","))`), `a["apply"](null, "b,c".split(","))`)
 assert(downLevel(`a(c,d,e,...b(...c))`), `var slice_ = Array["prototype"]["slice"];\r\na["apply"](null, [c, d, e]["concat"](slice_["call"](b["apply"](null, c))))`)
 assert(downLevel(`a(c,d,e,...b.a(...c))`), `var slice_ = Array["prototype"]["slice"];\r\na["apply"](null, [c, d, e]["concat"](slice_["call"](b.a["apply"](b, c))))`)
 assert(downLevel(`a(c,d,e,...b.a.c(...c))`), `var slice_ = Array["prototype"]["slice"];\r\na["apply"](null, [c, d, e]["concat"](slice_["call"]((_ = b.a).c["apply"](_, c))))\r\nvar _`)
