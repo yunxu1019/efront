@@ -92,7 +92,13 @@ class Table extends Array {
         this.update();
     }
     async update() {
-        var origin = this.searched ? this.splice(0, this.length).map(o => o.$origin) : [];
+        var origin = this.splice(0, this.length)
+        if (this.searched && this.source && this.searched !== this.source.length) {
+            origin = origin.map(o => o.$origin);
+        }
+        else {
+            origin = [];
+        }
         this.searched = 0;
         var source = this.sorted ? this.sorted : this.source;
         if (!source) return;
