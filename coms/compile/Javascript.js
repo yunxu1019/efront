@@ -507,7 +507,21 @@ function detour(o, ie) {
         if (o) o = o.next;
     }
 };
-
+var _splice_keepspace = function (a, i) {
+    var res = splice.apply(null, arguments);
+    if (res.length) {
+        var start = res[0].prev;
+        var end = res[res.length - 1].next;
+        if (!start) start = 0;
+        else start = start.row;
+        if (end) end = end.row;
+        var delta = end - start;
+        if (delta > 0) {
+            splice(a, i, 0, { type: SPACE, text: Array(delta + 1).join('\r\n') });
+        }
+    }
+    return res;
+}
 var removeImport = function (c, i, code) {
     var next = c.next;
     var { used, envs, vars } = code;
@@ -591,7 +605,7 @@ var removeImport = function (c, i, code) {
         });
     });
     var u = { type: EXPRESS, text: name };
-    code.splice(i + 1, oi - i - 1, u);
+    _splice_keepspace(code, i + 1, oi - i - 1, u);
     used[name].push(u);
     return u;
 };

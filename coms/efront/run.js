@@ -14,6 +14,7 @@ var mainLoaderPromise = new Promise(function (ok, oh) {
         ok(data.toString());
     });
 });
+var loadedmap = Object.create(null);
 function fromComponent(base) {
     var packer = require("./finalpacker").bind(this);
     var requestInternet = fromInternet("");
@@ -89,6 +90,7 @@ function fromComponent(base) {
                     }
                 }
             } else {
+                loadedmap[url.replace(/^(comm)\//, '')] = result.path;
                 result = result.toString();
             }
             onsuccess(result || '');
@@ -151,7 +153,7 @@ function efront() {
     Object.assign(window, {
         require,
         eval(str, filename) {
-            return require("vm").runInThisContext(str, { filename: `${colors.FgYellow} ${filename} ${colors.Reset}` });
+            return require("vm").runInThisContext(str, { filename: `${colors.FgYellow}${loadedmap[filename] || filename}${colors.Reset}` });
         },
         setTimeout(f, timerout) {
             var args = [].slice.call(arguments, 2);
