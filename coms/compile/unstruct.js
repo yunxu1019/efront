@@ -343,6 +343,10 @@ var pushstep = function (result, step) {
         if (q.await__) step.awaited = true;
         result.push(step);
     }
+    else if (isempty(step, COMMENT)) {
+        q.push(...step);
+        step = q;
+    }
     else {
         if (needcomma(q)) q.push({ type: STAMP, text: ';' });
         if (!ishalf(q)) {
