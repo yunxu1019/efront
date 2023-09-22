@@ -1,6 +1,6 @@
 var d = 0b10000000, s = 0b00111111;
 function numberUTF8(t, dist = []) {
-    if (t < 128) {//0b0xxxxxxx - 0b10xxxxxx
+    if (t > 0 && t < 128) {//0b0xxxxxxx - 0b10xxxxxx
         dist.push(0b00000000 | t)
     }
     else if (t < 2048) {// 0b110xxxxx 10xxxxxx
@@ -46,8 +46,7 @@ function numberUTF8(t, dist = []) {
 function encodeUTF8(string) {
     var dist = [], t;
     for (var cx = 0, dx = string.length; cx < dx; cx++) {
-        t = string.codePointAt(cx);
-        if (t > 0xffff) cx++;
+        t = string.charCodeAt(cx);
         numberUTF8(t, dist);
     }
     return dist;
