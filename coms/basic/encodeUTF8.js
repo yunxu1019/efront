@@ -1,6 +1,7 @@
 var d = 0b10000000, s = 0b00111111;
+var keep0 = true;
 function numberUTF8(t, dist = []) {
-    if (t > 0 && t < 128) {//0b0xxxxxxx - 0b10xxxxxx
+    if (t < 128 && (keep0 || t > 0)) {//0b0xxxxxxx - 0b10xxxxxx
         dist.push(0b00000000 | t)
     }
     else if (t < 2048) {// 0b110xxxxx 10xxxxxx
@@ -43,7 +44,8 @@ function numberUTF8(t, dist = []) {
     }
     return dist;
 }
-function encodeUTF8(string) {
+function encodeUTF8(string, encode0) {
+    keep0 = !encode0;
     var dist = [], t;
     for (var cx = 0, dx = string.length; cx < dx; cx++) {
         t = string.charCodeAt(cx);
