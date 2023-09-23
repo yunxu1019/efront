@@ -438,3 +438,4 @@ function olinde(v, vector) {
     }
     return v;
 }
+Matrix.norm = norm;
