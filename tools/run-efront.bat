@@ -1,7 +1,7 @@
 :<<a
 goto :win
 a
-dp=`dp=`cd $(dirname $0);cd $(dirname $(readlink $0)); pwd -P``
+dp=`cd $(dirname $0);cd $(dirname $(readlink $0)); pwd -P`
 export libs_path=$dp/../coms
 #export coms_path=./coms
 export libs=typescript,esprima,escodegen,esmangle,pngjs,less-node
