@@ -133,13 +133,17 @@ function enumref(scoped) {
             for (var rk in rs) {
                 var os = rs[rk];
                 if (os.wcount !== 1 || os.length < 2) continue;
-                var eq = null;
+                var eq = null, em = null;
                 loop: for (var o of os) {
                     if (o.equal) {
                         if (o.equal.text !== '=') break;
                         if (o.queue.kind) break;
                         if (o.queue !== scoped.body) break;
                         if (inCondition(o)) break;
+                        if (o.enumref) {
+                            em = o.enumref;
+                            continue;
+                        }
                         o = o.equal.next;
                         var n = skipAssignment(o);
                         var exps = [];
@@ -154,6 +158,10 @@ function enumref(scoped) {
                         }
                     }
                     else {
+                        if (em) {
+                            o.enumref = em;
+                            continue;
+                        }
                         if (!eq) break;
                         o.type = eq.type;
                         o.isdigit = true;
@@ -172,7 +180,7 @@ function atuoenum(scoped) {
     enumref(scoped);
 }
 var exports = module.exports = function main(code) {
-    atuoenum(code.scoped)
+    atuoenum(code.scoped);
     return code;
 }
 exports.createRefId = createRefId;
