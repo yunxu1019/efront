@@ -1,6 +1,13 @@
-function decodeUTF16(buff, be = false) {
+function decodeUTF16(buff, be) {
     var dist = [];
-    var dec = be ? (a, b) => a << 8 | b : (a, b) => b << 8 | a;
+    var LE = (a, b) => b << 8 | a;
+    var BE = (a, b) => a << 8 | b;
+    if (buff[0] === 0xfe && buff[1] === 0xff) {
+        be = true;
+    }
+    else if (buff[0] === 0xff && buff[1] === 0xfe) be = true;
+    else if (isEmpty(be)) be = false;
+    var dec = be ? BE : LE;
     for (var cx = 0, dx = buff.length; cx < dx; cx += 2) {
         var m = dec(buff[cx], buff[cx + 1]);
         var t;
