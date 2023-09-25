@@ -25,7 +25,7 @@ function numberUTF16LE(t, dist = []) {
     return dist;
 
 }
-function encodeUTF16(strings, be = true) {
+function encodeUTF16(strings, be = false) {
     var dist = [];
     var utf16 = be ? numberUTF16 : numberUTF16LE;
     for (var cx = 0, dx = strings.length; cx < dx; cx++) {

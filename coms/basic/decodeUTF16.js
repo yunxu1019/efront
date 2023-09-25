@@ -1,4 +1,4 @@
-function decodeUTF16(buff, be = true) {
+function decodeUTF16(buff, be = false) {
     var dist = [];
     var dec = be ? (a, b) => a << 8 | b : (a, b) => b << 8 | a;
     for (var cx = 0, dx = buff.length; cx < dx; cx += 2) {
