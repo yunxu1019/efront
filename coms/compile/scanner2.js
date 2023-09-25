@@ -208,7 +208,7 @@ function scan(text, type = "js", lastIndex = 0) {
     program.Code = Code;
     program.lastIndex = lastIndex;
     var res = program.exec(text);
-    res.program = program;
+    Object.defineProperty(res, "program", { value: program, enumerable: false })
     return res;
 }
 

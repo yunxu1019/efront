@@ -1099,7 +1099,7 @@ var createString = function (parsed) {
                 result.push(o.leave);
                 break;
             default:
-                if (o instanceof Object) {
+                if (o && typeof o === "object") {
                     if (o.prev && o.prev.type === EXPRESS && o.type === EXPRESS && (/^[\.\[]/.test(o.text) || /\.$/.test(o.prev.text)));
                     else if ((STRAP | EXPRESS | PROPERTY | COMMENT | VALUE) & lasttype && (STRAP | EXPRESS | PROPERTY | VALUE | LABEL) & o.type) {
                         result.push(" ");
@@ -1229,6 +1229,11 @@ var splice = function (queue, index, size, ...args) {
     setqueue(args, queue);
     return res;
 };
+var remove = function (o) {
+    var q = o.queue;
+    var i = q.indexOf(o);
+    if (i >= 0) splice(q, i, 1);
+};
 var replace = function (o, ...args) {
     var queue = o.queue;
     var i = queue.indexOf(o);
@@ -1280,6 +1285,7 @@ module.exports = {
     equal_reg,
     skipAssignment,
     getDeclared,
+    remove,
     createString,
     createScoped,
     createExpressList,

@@ -1,12 +1,14 @@
 var { SPACE, COMMENT, EXPRESS, STRAP, QUOTED, STAMP, SCOPED, VALUE, LABEL, canbeTemp: _canbeTemp, isEval, createString, skipAssignment, skipSentenceQueue, isHalfSentence, splice, relink, createExpressList, snapExpressHead, snapExpressFoot } = require("./common");
 var scanner2 = require("./scanner2");
-var RE = { type: STRAP, text: "@re" };// if (_) return
-var RZ = { type: STRAP, text: "@rz" };// if (!_) return
-var RD = { type: STRAP, text: "@rd" };// if (_) return
-var RETURN = { type: STRAP, text: "@ret" };// return;
-var THROW = { type: STRAP, text: "@throw" };// return;
-var YIELD = { type: STRAP, text: "@yield" };// return;
-var NEXT = { type: STRAP, text: "@next" };// return;
+var returnText = function () { return this.text };
+var NodeNotClone = o => Object.assign(Object.create(null), o, { toString: returnText });
+var RE = NodeNotClone({ type: STRAP, text: "@re" });// if (_) return
+var RZ = NodeNotClone({ type: STRAP, text: "@rz" });// if (!_) return
+var RD = NodeNotClone({ type: STRAP, text: "@rd" });// if (_) return
+var RETURN = NodeNotClone({ type: STRAP, text: "@ret" });// return;
+var THROW = NodeNotClone({ type: STRAP, text: "@throw" });// return;
+var YIELD = NodeNotClone({ type: STRAP, text: "@yield" });// return;
+var NEXT = NodeNotClone({ type: STRAP, text: "@next" });// return;
 var mount_break = function (body, cx, b1s, iscontinue) {
     var label;
     do {
@@ -77,7 +79,7 @@ var _try = function (body, cx, unblock, result, getname) {
         if (o.type === SCOPED && o.entry === "(") {
             var e = o.first;
             if (e) {
-                arg = scanner2(`${e.text}=${ret_ || "@"};`);
+                arg = rescan`${e}=${ret_ || "@"};`;
             }
             o = o.next;
         }
@@ -117,18 +119,28 @@ var _with = function (body, cx, unblock, result, getname) {
     evals.pop();
     return cx;
 };
+var _evals = function () {
+    var a = [];
+    if (evals.length) {
+        a.push(...evals[0]);
+        for (var cx = 1, dx = evals.length; cx < dx; cx++) {
+            a.push({ type: STAMP, text: ',' }, ...evals[cx]);
+        }
+    }
+    return a;
+}
 var _withget = function (text) {
     var index = text.indexOf('.');
     if (index < 0) index = text.length;
     var name = text.slice(0, index);
     var prop = text.slice(index);
-    return `withget_("${name}",[${evals.join(',')}],${name})${prop}`;
+    return rescan`withget_(${`"${name}"`},[${_evals()}],${name})${prop}`;
 };
 var _withset = function (text, tmpname, valname) {
     var index = text.indexOf(".");
     if (index < 0) index = text.length;
     var name = text.slice(0, index);
-    return `if(${tmpname}=with_("${name}",[${evals.join(",")}]))${tmpname}.${text}=${valname};else ${text}=${valname};`;
+    return rescan`if(${tmpname}=with_(${`"${name}"`},[${_evals()}]))${tmpname}.${text}=${valname};else ${text}=${valname};`;
 };
 var _switch = function (body, cx, unblock, result, getname) {
     var o = body[cx];
@@ -159,7 +171,7 @@ var _switch = function (body, cx, unblock, result, getname) {
         var q = ternary(block, getnextname, true);
         for (var q of q) if (q.length) pushstep(result, q);
         var qe = q;
-        if (qe.name) case_ = scanner2(`if(${qn}===${qe.name})return[]`), pushstep(result, case_);
+        if (qe.name) case_ = rescan`if(${qn}===${qe.name})return[]`, pushstep(result, case_);
         else default_ = case_ = scanner2(`return[]`), default_.ret_ = -2;
         var by = cy;
         m = o[cy];
@@ -248,7 +260,7 @@ var _for = function (body, cx, unblock, result) {
         var t = unblock(block1);
         if (t) {
             t = t && !t.await_ ? t.name : ret_;
-            var b = scanner2(`if(!${t})return []`);
+            var b = rescan`if(!${t})return []`;
             var be = b[b.length - 1];
             pushstep(result, b);
         }
@@ -281,13 +293,13 @@ var getCondition = function (o, unblock, not_) {
     if (not_) not = !not;
     if (f && f === o.last) {
         if (f.type & (EXPRESS | VALUE)) {
-            n = f.text;
+            n = cloneNode(f);
         }
         if (not && n) {
             if (f.type === VALUE) {
                 n = String(eval("!" + f.text));
             }
-            else n = "!" + n;
+            else n = rescan`!${n}`;
         }
     }
     if (!n) {
@@ -299,9 +311,9 @@ var getCondition = function (o, unblock, not_) {
             n = ret_;
         }
         else n = n.name;
-        if (not) n = "!" + n;
+        if (not) n = rescan`!${n}`;
     }
-    return n;
+    return cloneNode(n);
 }
 var _while = function (body, cx, unblock, result) {
     var o = body[cx];
@@ -310,7 +322,7 @@ var _while = function (body, cx, unblock, result) {
     o = o.next;
     while (body[cx] !== o) cx++;
     var i = result.length;
-    var b = scanner2(`if(${getCondition(o, unblock, true)})return []`);
+    var b = rescan`if (${getCondition(o, unblock, true)}) return []`;
     var be = b[b.length - 1];
     pushstep(result, b);
     relink(result[result.length - 1]);
@@ -321,7 +333,7 @@ var _while = function (body, cx, unblock, result) {
     var we = wend[wend.length - 1];
     pushstep(result, wend);
     we[0].text = String(1 + i - result.length);
-    be.push(...scanner2(`${result.length - i},0`));
+    be.push(...scanner2(`${result.length - i}, 0`));
     return cx;
 };
 var pushstep = function (result, step) {
@@ -334,7 +346,7 @@ var pushstep = function (result, step) {
     }
     else if (q.await_) {
         if (!step.awaited) {
-            step.unshift(...scanner2(`${q.name}=${ret_};`)), relink(step);
+            step.unshift(...rescan`${q.name}=${ret_};`), relink(step);
             step.awaited = true;
         }
         result.push(step);
@@ -372,23 +384,23 @@ var patchstep = function (r, nextindex, h) {
         o = r[i];
         if (o.set) {
             var [m, _, b] = r.splice(i, 3);
-            r.splice(i, 0, ...scanner2(_withset(m.text, m.set, b.text)));
+            r.splice(i, 0, ..._withset(m.text, m.set, b.text));
         }
         else if (o.get) {
-            r.splice(i, 1, ...scanner2(_withget(b.text)));
+            r.splice(i, 1, ..._withget(b.text));
         }
     }
     var changed = false;
     for (i = r.length - 1; i >= h; i--) {
         o = r[i];
         if (o === RZ) {
-            x = scanner2(`if(!${name})return [${nextindex},0]`);
+            x = rescan`if (!${name}) return [${nextindex}, 0]`;
         }
         else if (o === RE) {
-            x = scanner2(`if(${name})return [${nextindex},0]`);
+            x = rescan`if (${name}) return [${nextindex}, 0]`;
         }
         else if (o === RD) {
-            x = scanner2(`if(${name}!==null&&${name}!== undefined)return [${nextindex},0]`);
+            x = rescan`if (${name}!== null && ${name}!== undefined) return [${nextindex}, 0]`;
         }
         else continue;
         changed = true;
@@ -418,13 +430,13 @@ var _do = function (body, cx, unblock, result) {
     o = o.next.next;
 
     if (label.continue) ifpatch(result), label.contat = result.length;
-    var b = scanner2(`if(${getCondition(o, unblock)})return [${i - result.length},0]`);
+    var b = rescan`if (${getCondition(o, unblock)}) return [${i - result.length}, 0]`;
     pushstep(result, b);
     while (body[cx] !== o) cx++;
     return cx + 1;
 };
 var stepReturn = function (value, type, q) {
-    var r = scanner2(`return [${value},${type}]`);
+    var r = rescan`return [${value}, ${type}]`;
     r.ret_ = type === 2 ? type : true;
     if (q && q.length) r.name = q[q.length - 1].name;
     return r;
@@ -436,9 +448,9 @@ var isretn = function (o) {
     return o === RETURN || o === NEXT || o === YIELD || o === THROW;
 }
 var _return = function (r) {
-    var name = r.name;
     var e = r[r.length - 1];
     if (!isretn(e)) return;
+    var name = r.name;
     r.pop();
     r.ret_ = !ishalf(r);
     var x;
@@ -446,7 +458,7 @@ var _return = function (r) {
         x = stepReturn(name, 2);
     }
     else if (e === THROW) {
-        x = scanner2(`throw ${name}`);
+        x = rescan`throw ${name}`;
     }
     else if (e === YIELD) {
         x = stepReturn(name, 3);
@@ -511,7 +523,7 @@ var _invoke = function (t, getname) {
         }
         if (needbreak(o)) {
             var s = splice(t, bx, cx + 1 - bx);
-            if (cx > 0) s.name = s[0].text;
+            if (cx > 0) s.name = [cloneNode(s[0])];
             else s.name = qname;
             queue.push(s);
             cx = bx - 1;
@@ -551,7 +563,7 @@ var _invoke = function (t, getname) {
                 if (!iseval || m[m.length - 1] === o.last) {
                     var q = toqueue(m, getdeepname, 1);
                     var qe = q[q.length - 1];
-                    splice(o, by, ey - by, ...qe ? scanner2(qe.name) : []);
+                    splice(o, by, ey - by, ...qe ? cloneNode(qe.name) : []);
                     cy = by + 1;
                 }
                 else {
@@ -579,7 +591,7 @@ var _invoke = function (t, getname) {
                     var fs = splice(t, hx, cx + 1 - hx, { type: EXPRESS, text: getname(nameindex) });
                     fs.unshift(...scanner2(`${getname(nameindex)}=`));
                     relink(fs);
-                    fs.name = getname(nameindex);
+                    fs.name = [{ text: getname(nameindex), type: EXPRESS }];
                     pushstep(result, fs);
                     cx = hx - 1;
                 }
@@ -638,11 +650,8 @@ var patchname = function (d, getname) {
     var de = d[d.length - 1];
     if (de && !de.name) {
         splice(de, 0, 0, { type: EXPRESS, text: getname(0) }, { type: STAMP, text: "=" });
-        de.name = getname(0);
+        de.name = [{ text: getname(0), type: EXPRESS }];
     }
-};
-var clone = function (o) {
-    return Object.assign(o instanceof Array ? [] : {}, o, { prev: null, next: null });
 };
 var popass = function (explist) {
     var asn = explist.pop();
@@ -660,7 +669,7 @@ var popass = function (explist) {
     }
     else {
         n = asn && asn.name;
-        asn = [{ type: EXPRESS, text: n }];
+        asn = n;
     }
     return [asn, n];
 }
@@ -683,7 +692,7 @@ var popexp = function (explist) {
     }
     else {
         n = asn.name;
-        asn = scanner2(n);
+        asn = cloneNode(n);
     }
     return [asn, n];
 }
@@ -726,11 +735,12 @@ var ternary = function (body, getname, ret) {
                 }
                 pushstep(d, stepReturn(1, 0, d));
                 pushstep(c, stepReturn(d.length + 1, 0, c));
-                pushstep(explist, scanner2(`if(${getCondition(b, function (b) {
+                pushstep(explist, rescan`if (${getCondition(b, function (b) {
                     b = ternary(b, getnextname, true);
                     for (var b of b) pushstep(explist, b);
                     return b;
-                }, true)})return [1,0]`));
+                }, true)
+                    }) return [1, 0]`);
                 var q = explist[explist.length - 1];
                 var qi = explist.length - 1;
                 var qe = q[q.length - 1];
@@ -752,7 +762,7 @@ var ternary = function (body, getname, ret) {
             var ass = toqueue(body.slice(equalsend, cx), getnextname, false);
             var [ass1, n = ++eqused] = popass(ass);
             exphead.push(...ass);
-            equals.push(...ass1, o);
+            equals.push(...cloneNode(ass1), o);
             if (!question.length) equalsend = cx + 1, equcount++;
             if (o.text.length > 1) hascalcequ = true;
         }
@@ -779,7 +789,7 @@ var ternary = function (body, getname, ret) {
     relink(equals);
     explist.unshift(...exphead);
     var q = explist[explist.length - 1];
-    // if (!q) throw `语法错误: <red>${createString(body)}</red> \r\n行列位置: ${equals[0].row}:${equals[0].col}`
+    // if (!q) throw `语法错误: <red>${createString(body)}</red> \r\n行列位置: ${ equals[0].row }:${ equals[0].col }`
     var n = q.name;
     var i = equals.length - 1;
     var isSimpleAssign = true;
@@ -800,23 +810,23 @@ var ternary = function (body, getname, ret) {
         var eq = equals[i];
         if (isSimpleAssign) isSimpleAssign = ret !== 1 && canbeTemp(ass);
         if (isSimpleAssign && eq.text === '=') {
-            [asn, n = createString(ass)] = popexp(explist);
+            [asn, n = cloneNode(ass)] = popexp(explist);
         }
-        else if (n) var asn = scanner2(n);
+        else if (n && !isempty(n, SPACE | COMMENT)) var asn = n;
         else asn = explist.pop();
         var an = '';
         if (eq.text.length > 1) {
             var punc = eq.text.slice(0, eq.text.length - 1);
-            var bdtmp = [...ass.map(clone), { type: STAMP, text: punc }, ...asn];
+            var bdtmp = [...ass.map(cloneNode), { type: STAMP, text: punc }, ...asn];
             relink(bdtmp);
             var explist2 = _express(bdtmp, getnextname, true);
             if (isSimpleAssign) {
-                [asn, an = createString(ass)] = popexp(explist2);
+                [asn, an = cloneNode(ass)] = popexp(explist2);
             }
             else {
                 var q2 = explist2[explist2.length - 1];
                 an = q2.name;
-                asn = scanner2(an);
+                asn = cloneNode(an);
             }
             for (var e of explist2) pushstep(explist, e);
             eq.text = "=";
@@ -825,7 +835,7 @@ var ternary = function (body, getname, ret) {
         ass.push(equals[i], ...asn);
         relink(ass);
         if (evals.length) ass[0].set = getnextname(0);
-        ass.name = an;
+        if (an) ass.name = cloneNode(an);
         patchstep(ass, ass.length, 0);
         pushstep(explist, ass);
         isSimpleAssign = false;
@@ -916,7 +926,7 @@ var canbeOnce = function (body) {
 var _express = function (body, getname, ret) {
     if (canbeTemp(body)) {
         var q = [];
-        q.name = createString(body);
+        q.name = cloneNode(body);
         return [q];
     }
     var result = [];
@@ -980,8 +990,8 @@ var _express = function (body, getname, ret) {
                     else if (iw === 3) q.push(YIELD);
                 }
             }
-            var name = getname(nameindex);
-            q.name = name;
+            var name = [{ text: getname(nameindex), type: EXPRESS }];
+            q.name = cloneNode(name);
             if (isor) {
                 if (o.text === '||') {
                     q.push(RE);
@@ -995,7 +1005,7 @@ var _express = function (body, getname, ret) {
                 hasor = true;
                 nameindex = 0;
             } else {
-                var n = scanner2(name);
+                var n = cloneNode(name);
                 n.index = nameindex;
                 n.push(pb);
                 nameindex++;
@@ -1042,7 +1052,7 @@ var _express = function (body, getname, ret) {
             q.push(...b);
         }
     }
-    if (needname) q.name = getname(nameindex);
+    if (needname) q.name = [{ text: getname(nameindex), type: EXPRESS }];
     relink(q);
     if (isFunctionOnly(q, 2)) {
         result = [q];
@@ -1118,7 +1128,7 @@ function toqueue(body, getname, ret = false, result = []) {
             var p = result[findex];
             if (p.ifbrk) {
                 p.pop();
-                p.push(scanner2(`[${result.length - findex},0]`)[0]);
+                p.push(scanner2(`[${result.length - findex}, 0]`)[0]);
                 relink(p);
             }
         }
@@ -1266,10 +1276,10 @@ function toqueue(body, getname, ret = false, result = []) {
                 var n = getCondition(o, unblock, !isbr);
                 o = o.next;
                 if (isbr) {
-                    var c = scanner2(`if(${n})`);
+                    var c = rescan`if (${n})`;
                 }
                 else {
-                    var c = scanner2(`if(${n})return [0,0]`);
+                    var c = rescan`if (${n}) return [0, 0]`;
                 }
                 var ce = c[3];
                 pushstep(result, c);
@@ -1332,7 +1342,7 @@ function toqueue(body, getname, ret = false, result = []) {
         }
         else {
             var q = b[b.length - 1];
-            if (q && !q.length && q.name) pushstep(result, scanner2(q.name));
+            if (q && !q.length && q.name) pushstep(result, cloneNode(q.name));
         }
         retn = false;
     } while (cx < body.length);
