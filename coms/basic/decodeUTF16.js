@@ -1,7 +1,7 @@
 function decodeUTF16(buff, be = true) {
     var dist = [];
     var dec = be ? (a, b) => a << 8 | b : (a, b) => b << 8 | a;
-    for (var cx = 0, dx = buff; cx < dx; cx += 2) {
+    for (var cx = 0, dx = buff.length; cx < dx; cx += 2) {
         var m = dec(buff[cx], buff[cx + 1]);
         var t;
         if (m > 0b1101111111111111 || m < 0b1101100000000000) {
