@@ -611,7 +611,7 @@ function toComponent(responseTree, noVersionInfo) {
     realize = `function (a, c, s) {
     var ${declears};${realize}\r\n}`;
 
-    var versionInfo = noVersionInfo ? '' : `/*${new Date().toString()} by efront ${require("../../package.json").version}*/`;
+    var versionInfo = noVersionInfo ? '' : `/*${new Date().toString()} with efront ${require("../../package.json").version}*/`;
     var template = `([${versionInfo}].map${array_map ? simple_compress(" || " + polyfill_map) : ''}).call([${dest}],${simple_compress(realize)},[${thisContext || 'this?this.window||this.globalThis||global:globalThis'}])[${public_index}]()`;
     if (exportName) {
         if (exportName === 'export') {
