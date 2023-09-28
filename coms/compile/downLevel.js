@@ -358,7 +358,7 @@ var killdec = function (queue, i, getobjname, _var = 'var', killobj, islet) {
     return i;
 };
 // 键值对重组
-var killmap = function (body, i, _getobjname, killobj) {
+var killmap = function (body, i, _getobjname, _getnewname, killobj) {
     var o = body[i];
     if (!o.length) return indexof(body, o.next, i);
     var m = o.first;
@@ -432,6 +432,7 @@ var killmap = function (body, i, _getobjname, killobj) {
         insert1(q, null, { type: STAMP, text: ',' });
     }
     var define_ = Object.create(null);
+    var tempname = null;
     var t;
     while (m) {
         if (m.type === EXPRESS) {
@@ -479,7 +480,8 @@ var killmap = function (body, i, _getobjname, killobj) {
         var [prop, m] = getprop(o, m);
         if (!prop.value.length) insert1(prop.value, null, { type: EXPRESS, text: prop.name })
         else if (prop.sfunc === false) killobj(prop.value);
-        setprop(prop, _getobjname(), define_, q);
+        if ((prop.get || prop.set) && !tempname) tempname = _getnewname();
+        setprop(prop, _getobjname(), define_, q, tempname);
     }
 
     if (q) {
@@ -538,7 +540,7 @@ var getprop = function (o, m) {
     else if (!prop.value) prop.value = [];
     return [prop, m];
 };
-var setprop = function (prop, k, d, q) {
+var setprop = function (prop, k, d, q, tempname) {
     if (prop.sfunc !== false)
         // insert1(prop.value, prop.value[0], ...scanner2(`${prop.async ? "async " : ""}function${prop["*"] ? "*" : ''}`));
         insert1(prop.value, prop.value[0], ...scanner2(`function`));
@@ -551,17 +553,17 @@ var setprop = function (prop, k, d, q) {
             else pe = null;
         }
         if (!d[prop.name]) {
-            let tmp = scanner2(`\r\nObject["defineProperty"](${k},${prop.name},{})`);
+            let tmp = scanner2(`\r\nObject["defineProperty"](${k},${prop.name},(${tempname}={},${tempname}))`);
             insert1(q, null, ...tmp);
             if (pe) insert1(q, null, pe);
             tmp = tmp[tmp.length - 1];
             tmp = tmp[tmp.length - 1];
             d[prop.name] = tmp;
         }
-        if (d[prop.name].length) insert1(d[prop.name], null, { type: STAMP, text: ',' });
-        insert1(d[prop.name], null, { type: PROPERTY, text: prop.get ? "get" : "set" });
-        insert1(d[prop.name], null, { type: STAMP, text: ":" });
-        if (pv && pv.length) insert1(d[prop.name], null, ...pv);
+        insert1(d[prop.name], null, ...rescan`[${prop.get ? '"get"' : '"set"'}]=${pv},${tempname}`);
+        if (!pv) {
+            console.log(prop)
+        }
     }
     else {
         insert1(q, null, ...scanner2(`${q && q.length ? "\r\n" : ''}${k}${prop.name}=`));
@@ -569,7 +571,7 @@ var setprop = function (prop, k, d, q) {
     }
 }
 var rootenvs = null, rootHyper;
-var killcls = function (body, i, getname_) {
+var killcls = function (body, i, letname_, getname_) {
     var extends_ = [];
     var o = body[i];
     var ishalf = isHalfSentence(body, i - 1);
@@ -610,13 +612,14 @@ var killcls = function (body, i, getname_) {
         var scoped = o.scoped;
         var m = o.first;
         var name = extends_.pop();
-        if (!name && (base || extends_.length)) name = getname_('cls' + index);
+        if (!name && (base || extends_.length)) name = letname_('cls' + index);
         var assign = [];
         var constructor = scanner2('(){}');
         var define_ = Object.create(null);
         var static_ = Object.create(null);
         var clz = { name };
-        if (!clz.name) clz.name = getname_("cls" + index);
+        if (!clz.name) clz.name = letname_("cls" + index);
+        var tempname = null;
         while (m) {
             var [prop, m] = getprop(o, m);
             if (!prop.value.length) prop.value = scanner2('undefined;');
@@ -624,7 +627,8 @@ var killcls = function (body, i, getname_) {
             var d = prop.static ? static_ : define_;
             if (prop.get || prop.set || prop.static) {
                 if (prop.name) {
-                    setprop(prop, k, d, defines);
+                    if ((prop.get || prop.set) && !tempname) tempname = getname_("tmp");
+                    setprop(prop, k, d, defines, tempname);
                 }
                 else if (prop.static) {
                     var value = scanner2(`(function(){}())`);
@@ -931,7 +935,7 @@ var killobj = function (body, getobjname, getletname, getname_, letname_, deep =
                     i++;
                     break;
                 case "class":
-                    i = killcls(body, i, letname_);
+                    i = killcls(body, i, letname_, getname_);
                     break;
                 case "for":
                 case "function":
@@ -964,7 +968,7 @@ var killobj = function (body, getobjname, getletname, getname_, letname_, deep =
                     continue;
                 }
                 else {
-                    i = killmap(body, i, _getobjname, deepkill);
+                    i = killmap(body, i, _getobjname, _getnewname, deepkill);
                     // i = indexof(body, o, i);
                     continue;
                 }
@@ -1100,7 +1104,7 @@ var unforin = function (o, getnewname_, killobj) {
     var s = scanner2(`${sname}=`);
     insert1(s, null, ...splice2(o, n));
     insert1(s, null,
-        ...scanner2(`,${tname}=[];for(${hasdeclare ? 'var ' : ''}${hasdeclare ? f.text : kname} in ${sname})${tname}.push(${hasdeclare ? f.text : kname});`)
+        ...scanner2(`,${tname}=[];for(${hasdeclare ? 'var ' : ''}${hasdeclare ? f.text : kname} in ${sname})${tname}["push"](${hasdeclare ? f.text : kname});`)
     );
     insert1(o.queue, o.prev, ...s);
     splice(o, 0, o.length, ...scanner2(`${kname}=0;${kname}<${tname}["length"]&&`));

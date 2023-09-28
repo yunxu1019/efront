@@ -102,15 +102,19 @@ assert(downLevel(`class a extends class b{}{}`), `var a = function (b, a) { exte
 var this_ = b["apply"](this, arguments) || this;
 return this_ })`);
 assert(downLevel(`class a {get a(){}}`), `function a() {};
-Object["defineProperty"](a["prototype"], "a", { get: function () {} })`);
+Object["defineProperty"](a["prototype"], "a", (tmp = {}, tmp["get"] = function () {}, tmp))
+var tmp`);
 assert(downLevel(`class a {set a(){}}`), `function a() {};
-Object["defineProperty"](a["prototype"], "a", { set: function () {} })`);
+Object["defineProperty"](a["prototype"], "a", (tmp = {}, tmp["set"] = function () {}, tmp))
+var tmp`);
 assert(downLevel(`class a {get a(){}; get b(){}; set a(){}}`), `function a() {};
-Object["defineProperty"](a["prototype"], "a", { get: function () {}, set: function () {} });
-Object["defineProperty"](a["prototype"], "b", { get: function () {} });`);
+Object["defineProperty"](a["prototype"], "a", (tmp = {}, tmp["get"] = function () {}, tmp["set"] = function () {}, tmp));
+Object["defineProperty"](a["prototype"], "b", (tmp = {}, tmp["get"] = function () {}, tmp));
+var tmp`);
 assert(downLevel(`class a {set a(){}; get b(){}; set a(){}}`), `function a() {};
-Object["defineProperty"](a["prototype"], "a", { set: function () {}, set: function () {} });
-Object["defineProperty"](a["prototype"], "b", { get: function () {} });`);
+Object["defineProperty"](a["prototype"], "a", (tmp = {}, tmp["set"] = function () {}, tmp["set"] = function () {}, tmp));
+Object["defineProperty"](a["prototype"], "b", (tmp = {}, tmp["get"] = function () {}, tmp));
+var tmp`);
 i++// 属性降级
 assert(downLevel(`return ({b,async a(){}})`), `return ((_ = {},
 _.b = b,
@@ -180,8 +184,8 @@ assert(downLevel(`={...{},...c,b}`), `= (_ = extend({}, {}, c),
 _.b = b, _)\r\nvar _`);
 assert(downLevel(`={a(){},get c(){},b}`), `= (_ = {},
 _.a = function () {},
-Object["defineProperty"](_, "c", { get: function () {} }),
-_.b = b, _)\r\nvar _`);
+Object["defineProperty"](_, "c", (_0 = {}, _0["get"] = function () {}, _0)),
+_.b = b, _)\r\nvar _, _0`);
 assert(downLevel(`=[...a]`), `var slice_ = Array["prototype"]["slice"];\r\n= slice_["call"](a)`)
 assert(downLevel(`let a = [...a,...a()];`), `var slice_ = Array["prototype"]["slice"];\r\nvar a = slice_["call"](a)["concat"](slice_["call"](a()));`)
 assert(downLevel(`=[...a,...b]`), `var slice_ = Array["prototype"]["slice"];\r\n= slice_["call"](a)["concat"](slice_["call"](b))`)
