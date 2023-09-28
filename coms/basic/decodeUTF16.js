@@ -5,7 +5,7 @@ function decodeUTF16(buff, be) {
     if (buff[0] === 0xfe && buff[1] === 0xff) {
         be = true;
     }
-    else if (buff[0] === 0xff && buff[1] === 0xfe) be = true;
+    else if (buff[0] === 0xff && buff[1] === 0xfe) be = false;
     else if (isEmpty(be)) be = false;
     var dec = be ? BE : LE;
     for (var cx = 0, dx = buff.length; cx < dx; cx += 2) {
