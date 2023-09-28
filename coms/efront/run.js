@@ -19,7 +19,7 @@ var loadedmap = Object.create(null);
 function fromComponent(env, base) {
     var packer = require("./finalpacker").bind(env);
     var pathname = this.location.pathname;
-    var resolve_options = Object.assign({}, resolve_config, { paths: resolve_config.paths.concat(pathname) });
+    var resolve_options = Object.assign({}, resolve_config, { paths: [pathname].concat(resolve_config.paths) });
     var requestInternet = fromInternet("");
     var request = function (url, onsuccess, onerror) {
         var isdestroied = false;
