@@ -231,7 +231,7 @@ var _for = function (body, cx, unblock, result) {
         m = m.next;
     }
     var mn = m.next;
-    if (mn.type === STRAP && mn.text === 'in') {
+    if (mn.type === STRAP && /^(of|in)$/.test(mn.text)) {
         // 含有高级语法的 for in 语句在 ./downLevel.js 中预处理
         var dx = cx;
         var n = o.next;

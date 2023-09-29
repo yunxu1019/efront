@@ -126,53 +126,50 @@ function inCondition(o) {
 }
 
 function enumref(scoped) {
-    if (scoped.isfunc) {
-        var { refs } = scoped;
-        for (var k in refs) {
-            var rs = refs[k];
-            for (var rk in rs) {
-                var os = rs[rk];
-                if (os.wcount !== 1 || os.length < 2) continue;
-                var eq = null, em = null;
-                loop: for (var o of os) {
-                    if (o.equal) {
-                        if (o.equal.text !== '=') break;
-                        if (o.queue.kind) break;
-                        if (o.queue !== scoped.body) break;
-                        if (inCondition(o)) break;
-                        if (o.enumref) {
-                            em = o.enumref;
-                            continue;
-                        }
-                        o = o.equal.next;
-                        var n = skipAssignment(o);
-                        var exps = [];
-                        do {
-                            exps.push(o);
-                            o = o.next;
-                        } while (o && o !== n);
-                        if (exps.length !== 1) break loop;
-                        eq = exps[0];
-                        if (eq.type !== VALUE || !eq.isdigit) {
-                            eq = null;
-                        }
+    var { refs } = scoped;
+    for (var k in refs) {
+        var rs = refs[k];
+        for (var rk in rs) {
+            var os = rs[rk];
+            if (os.wcount !== 1 || os.length < 2) continue;
+            var eq = null, em = null, tp = null;
+            loop: for (var o of os) {
+                if (o.equal) {
+                    if (o.equal.text !== '=') break;
+                    if (o.queue.kind) break;
+                    if (o.queue !== scoped.body) break;
+                    if (inCondition(o)) break;
+                    if (o.enumref) {
+                        em = o.enumref;
+                        continue;
                     }
-                    else {
-                        if (em) {
-                            o.enumref = em;
-                            continue;
-                        }
-                        if (!eq) break;
-                        o.type = eq.type;
-                        o.isdigit = true;
-                        o.text = eq.text;
-                        removeRefs(o);
+                    o = o.equal.next;
+                    var n = skipAssignment(o);
+                    var exps = [];
+                    do {
+                        exps.push(o);
+                        o = o.next;
+                    } while (o && o !== n);
+                    if (exps.length !== 1) break loop;
+                    eq = exps[0];
+                    if (eq.type !== VALUE || !eq.isdigit) {
+                        eq = null;
                     }
+                }
+                else {
+                    if (em) {
+                        o.enumref = em;
+                        continue;
+                    }
+                    if (!eq) break;
+                    o.type = eq.type;
+                    o.isdigit = true;
+                    o.text = eq.text;
+                    removeRefs(o);
                 }
             }
         }
     }
-    scoped.forEach(enumref)
 }
 
 function atuoenum(scoped) {
@@ -180,8 +177,14 @@ function atuoenum(scoped) {
     enumref(scoped);
 }
 var exports = module.exports = function main(code) {
-    atuoenum(code.scoped);
+    var rest = [code.scoped];
+    while (rest.length) {
+        var s = rest.pop();
+        if (s.length) rest.push(...s);
+        atuoenum(s);
+    }
     return code;
 }
 exports.createRefId = createRefId;
 exports.createRefMap = createRefMap;
+exports.enumscoped = atuoenum;

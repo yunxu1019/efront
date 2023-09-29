@@ -16,4 +16,9 @@ t("var {a=1};console.log(a)", "var { a = 1 }; console.log(a)");
 t("if(c) a=1;console.log(a)", "if (c) a = 1; console.log(a)");
 t("console.log(a);a=1;", "console.log(a); a = 1;");
 t("console.log(a);var a=1;", "console.log(a); var a = 1;");
+t("var a=1;console.log(a++);", "var a = 1; console.log(a++);");
+t("for(;;){let a =1; console.log(a)}", "for (;;) { let a = 1; console.log(1) }");
+t("for(;;){a =1; console.log(a)}", "for (;;) { a = 1; console.log(1) }");
+t("a=2;for(;;){var a =1; console.log(a)}", "a = 2; for (;;) { var a = 1; console.log(1) }");
+t("for(;;){var a =1; console.log(a)} console.log(a)", "for (;;) { var a = 1; console.log(1) } console.log(a)");
 // t(fs.readFileSync(path.join(__dirname,"../zimoli/spacechar_test.js")).toString())
