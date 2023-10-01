@@ -226,6 +226,7 @@ var _for = function (body, cx, unblock, result) {
     var o = body[cx];
     var label = o;
     o = o.next;
+    if (o.type === STRAP && o.text === 'await') o = o.next;
     var m = o.first;
     if (m.type === STRAP && /^(let|const|var)$/.test(m.text)) {
         m = m.next;

@@ -65,6 +65,9 @@ test("if(await a) await b", "_ = a; return [_, 1];\r\n if (!@) return [2, 0]; _ 
 test("for(a in b)", "for (a in b)", true);
 test("for(var a in b) a.push()", "for (var a in b) a.push()", true);
 test("for(;;)", "return [0, 0]", true);
+test("for(a in b)", "for (a in b)", true);
+test("for(a of b)", "for (a of b)", true);
+test("for await(a of b)", "for await (a of b)", true);
 test("for(a = os[Symbol.iterator] || os[Symbol.asyncIterator] || Array.prototype[Symbol.iterator], a = a.call(os), b = a.next(); !b.done && (o = b.value, true); b = a.next())", "_ = Symbol.iterator; _ = os[_]; if (_) return [1, 0]; _ = Symbol.asyncIterator; _ = os[_]; if (_) return [1, 0]; _ = Symbol.iterator; _ = Array.prototype[_];\r\n a = _; a = a.call(os); b = a.next(); return [1, 0];\r\n _ = !b.done; if (!_) return [1, 0]; o = b.value; _ = (true);\r\n if (!_) return [1, 0]; b = a.next(); return [-1, 0]", true);
 test("for(a=0;a<1;a++)if(a==0)continue\r\n else a=1", `a = 0; return [1, 0];\r\n _ = a < 1; if (!_) return [3, 0]; _ = a == 0; if (_) return [2, 0]; return [1, 0];\r\n a = 1; return [1, 0];\r\n _ = a++; return [-2, 0]`, true);
 test("for(a=0;a<1;a++)if(a==0){continue} else {a=1}", `a = 0; return [1, 0];\r\n _ = a < 1; if (!_) return [3, 0]; _ = a == 0; if (!_) return [1, 0]; return [2, 0];\r\n a = 1; return [1, 0];\r\n _ = a++; return [-2, 0]`, true);
