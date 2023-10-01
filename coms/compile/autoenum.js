@@ -1,4 +1,4 @@
-var { skipAssignment, snapSentenceHead, EXPRESS, SCOPED, QUOTED, VALUE, STRAP, STAMP, number_reg, createString } = require("./common");
+var { skipAssignment, snapSentenceHead, snapExpressFoot, EXPRESS, SCOPED, QUOTED, VALUE, STRAP, STAMP, number_reg, createString } = require("./common");
 var strings = require("../basic/strings");
 
 var createRefId = function (o) {
@@ -50,6 +50,7 @@ var createRefId = function (o) {
     }
     return ids.join('');
 }
+var ignore = Symbol("ignore");
 var maplist = function (u) {
     var map = Object.create(null);
     for (var o of u) {
@@ -59,9 +60,33 @@ var maplist = function (u) {
             map[r].wcount = 0;
             map[r].ccount = 0;
         }
-        map[r].push(o);
-        if (o.equal || o.kind) map[r].wcount++;
-        if (o.called) map[r].ccount++;
+        var m = map[r];
+        m.push(o);
+        if (o.equal || o.kind) {
+            var typeref = o.typeref;
+            if (typeref && typeof typeref === 'object') {
+                typeref = typeref.typeref;
+                o.typeref = typeref;
+            }
+            if (typeref && typeref !== m.typeref) {
+                m.typeref = typeref;
+                m.wcount++;
+            }
+            else if (m.typeref) {
+                var n = o.next;
+                o[ignore] = true;
+                if (n.type === STAMP && /^(\+\+|\-\-)$/.test(n.text)) continue;
+                if (/^[\+\-]\=$/.test(n.text)) {
+                    var nn = n.next;
+                    if (nn && snapExpressFoot(nn) == nn && nn.isdigit && (nn.text & 0x1ff) === +nn.text) continue;
+                }
+                else if (!n || !/=$/.test(n.text)) continue;
+                o[ignore] = false;
+                m.wcount++;
+            }
+            else m.wcount++;
+        }
+        if (o.called) m.ccount++;
     }
     return map;
 }
@@ -69,7 +94,6 @@ function createRefMap(scoped) {
     var { used } = scoped;
     var refs = Object.create(null);
     for (var k in used) refs[k] = maplist(used[k]);
-    scoped.forEach(createRefMap);
     return scoped.refs = refs;
 }
 function removeRefs(o) {
@@ -134,11 +158,35 @@ function enumref(scoped) {
             if (os.wcount !== 1 || os.length < 2) continue;
             var eq = null, em = null, tp = null;
             loop: for (var o of os) {
-                if (o.equal) {
+                if (o.equal && !o[ignore]) {
                     if (o.equal.text !== '=') break;
                     if (o.queue.kind) break;
-                    if (o.queue !== scoped.body) break;
+                    var q = o.queue;
+                    if (q !== scoped.body) {
+                        if (q.entry === '(' && q.queue === scoped.body) {
+                            var qp = q.prev;
+                            if (qp.type === EXPRESS) qp = qp.prev;
+                            if (qp && qp.type === STRAP && qp.text === "await") qp = qp.prev;
+                            if (qp && qp.type === STRAP && qp.text === 'for') {
+                                var f = q.first;
+                                var fc = 0;
+                                while (f && f !== o) {
+                                    if (f.type === STAMP && f.text === ";") {
+                                        fc++;
+                                        if (fc > 1) break loop;
+                                    }
+                                    f = f.next;
+                                }
+                            }
+                        }
+                        else break;
+                    }
                     if (inCondition(o)) break;
+                    if (o.typeref) {
+                        tp = o.typeref;
+                        if (isObject(tp)) tp = tp.typeref;
+                        continue;
+                    }
                     if (o.enumref) {
                         em = o.enumref;
                         continue;
@@ -157,6 +205,10 @@ function enumref(scoped) {
                     }
                 }
                 else {
+                    if (tp) {
+                        o.typeref = tp;
+                        continue;
+                    }
                     if (em) {
                         o.enumref = em;
                         continue;
