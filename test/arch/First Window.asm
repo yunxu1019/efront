@@ -16,9 +16,9 @@ includelib gdi32.lib
 ;
 ;
 .data
-shcoreName db "shcore.dll",0
-dpiProcName db a"SetProcessDpiAwareness",0
-factorProc db a"GetScaleFactorForDevice",0
+shcoreName dw "shcore.dll",0
+dpiProcName byte "SetProcessDpiAwareness",0
+factorProc byte "GetScaleFactorForDevice",0
 fontFamily db "宋体",0
 factor dd 1
 wWidth dd 480
@@ -29,9 +29,9 @@ hInstance dd ?
 hWinMain dd ?
 
 .const
-szClassName db 'MyClass',0
-szCaptionMain db 'My first Window!'
-szText db 'Win32 汇编，简单又强大！'
+szClassName dw '东郭先生和狼',0,0
+szCaptionMain dw '首个窗口!',0,0
+szText dw 'Win32 汇编，简单又强大！',0,0
 ;
 ;
 ;
