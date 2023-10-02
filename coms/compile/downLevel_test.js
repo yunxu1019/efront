@@ -186,6 +186,7 @@ assert(downLevel(`={a(){},get c(){},b}`), `= (_ = {},
 _.a = function () {},
 Object["defineProperty"](_, "c", (_0 = {}, _0["get"] = function () {}, _0)),
 _.b = b, _)\r\nvar _, _0`);
+assert(downLevel(`if(){Promise.reslove({get then() {}})}`), `if () { Promise.reslove((_ = {},\r\nObject["defineProperty"](_, "then", (_0 = {}, _0["get"] = function () {}, _0)), _)) }\r\nvar _, _0`)
 assert(downLevel(`=[...a]`), `var slice_ = Array["prototype"]["slice"];\r\n= slice_["call"](a)`)
 assert(downLevel(`let a = [...a,...a()];`), `var slice_ = Array["prototype"]["slice"];\r\nvar a = slice_["call"](a)["concat"](slice_["call"](a()));`)
 assert(downLevel(`=[...a,...b]`), `var slice_ = Array["prototype"]["slice"];\r\n= slice_["call"](a)["concat"](slice_["call"](b))`)

@@ -561,9 +561,6 @@ var setprop = function (prop, k, d, q, tempname) {
             d[prop.name] = tmp;
         }
         insert1(d[prop.name], null, ...rescan`[${prop.get ? '"get"' : '"set"'}]=${pv},${tempname}`);
-        if (!pv) {
-            console.log(prop)
-        }
     }
     else {
         insert1(q, null, ...scanner2(`${q && q.length ? "\r\n" : ''}${k}${prop.name}=`));
@@ -1214,11 +1211,31 @@ var unarrow = function (body, i, killobj, letname_) {
     return nni;
 };
 var getname = function (vars, envs, k) {
-    if (!(k in vars) && !(k in envs)) return vars[k] = true, k;
+    var extra = this instanceof Array ? this : null;
+    a: if (!(k in vars) && !(k in envs)) {
+        if (extra) for (var e of extra) {
+            if (k in e) break a;
+        }
+        return vars[k] = true, k;
+    }
     var inc = /\d+$/.exec(k);
     if (inc) k = k.slice(0, k.length - inc[0].length), inc = 1 + +inc[0];
     else inc = 0;
-    while ((k + inc) in vars || (k + inc) in envs) inc++;
+    loop: while (true) {
+        var k0 = k + inc;
+        if (k0 in vars || k0 in envs) {
+            inc++;
+            continue;
+        }
+        if (extra) for (var e of extra) {
+            if (k0 in e) {
+                inc++;
+                continue loop;
+            }
+        }
+
+        break;
+    }
     vars[k + inc] = true;
     return k + inc;
 };
@@ -1663,7 +1680,7 @@ var down = function (scoped) {
         if (scoped.isfunc) return down(scoped);
         killlet(scoped);
         var saveddeep = fordeep;
-        var _getlocal = getname.bind(null, scoped.lets, scoped.envs);
+        var _getlocal = getname.bind([scoped.lets, scoped.envs], vars, envs);
         var getdeepname = function () {
             return gettmpname(--fordeep);
         };
