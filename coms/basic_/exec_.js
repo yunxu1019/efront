@@ -11,7 +11,7 @@ var exec_ = function (args, ok, oh, int) {
             fina();
         }
         else if (catches.length) {
-            catch_ = catches.pop();
+            catch_ = catches[catches.length - 1];
             [index, p, throwed] = catch_;
             index += p & 0xffff;
             if (p >>> 16) {
@@ -19,6 +19,7 @@ var exec_ = function (args, ok, oh, int) {
             }
             else {
                 e = err;
+                catches.pop();
                 fina();
             }
         }
