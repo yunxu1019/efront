@@ -193,16 +193,8 @@ function enumref(scoped) {
                     }
                     o = o.equal.next;
                     var n = skipAssignment(o);
-                    var exps = [];
-                    do {
-                        exps.push(o);
-                        o = o.next;
-                    } while (o && o !== n);
-                    if (exps.length !== 1) break loop;
-                    eq = exps[0];
-                    if (eq.type !== VALUE || !eq.isdigit) {
-                        eq = null;
-                    }
+                    if (!o || n !== o.next) break loop;
+                    if (o.type === VALUE && o.isdigit) eq = o;
                 }
                 else {
                     if (tp) {
