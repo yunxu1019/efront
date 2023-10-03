@@ -1116,6 +1116,7 @@ var createString = function (parsed) {
                                 || prev_prev.type & (EXPRESS | VALUE)
                             ) result.push(";");
                         }
+
                         else if (o.text === '*') {
                             if (keepspace && lasttype !== SPACE && (lasttype !== STRAP || o.prev && o.prev.text !== 'function')) result.push(" ");
                         }
@@ -1126,6 +1127,9 @@ var createString = function (parsed) {
                     if (o.type === VALUE) {
                         if (/^0[0-7]+$/.test(o.text)) {
                             o.text = '0o' + o.text.slice(1);
+                        }
+                        if (+o.text < 0 && /\-$/.test(result[result.length - 1])) {
+                            result.push(" ");
                         }
                     }
                     result.push(o.text);

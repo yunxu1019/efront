@@ -1,4 +1,4 @@
-var { skipAssignment, snapSentenceHead, snapExpressFoot, EXPRESS, SCOPED, QUOTED, VALUE, STRAP, STAMP, number_reg, createString } = require("./common");
+var { skipAssignment, snapSentenceHead, snapExpressFoot, EXPRESS, SPACE, SCOPED, QUOTED, VALUE, STRAP, STAMP, number_reg, createString } = require("./common");
 var strings = require("../basic/strings");
 
 var createRefId = function (o) {
