@@ -107,7 +107,7 @@ var detectEnvironment = function (comm) {
                 if (/page|^app|界面|页面|应用|系统/i.test(name)) {
                     // 高屋|瓴|楼|台|宫|阁|殿|庙|堂|会|场|司|衙|门|党|帮|派|族|山|庄|寺|教|家|城|店|军|队|团|师|营|苟
                     if (memery.PAGE_PATH === undefined) config.page_path = name;
-                } else if (/^src|source|^code|源|代码/i.test(name)) {
+                } else if (/^src|(^|[\_\-\s])source|^code|源|代码/i.test(name)) {
                     if (memery.PAGE_PATH === undefined) config.page_path = name;
                     coms_path.push(name);
                 } else if (/node_modules|lib|com|fun|depe|组件|模块|依赖|库|函数/i.test(name)) {
