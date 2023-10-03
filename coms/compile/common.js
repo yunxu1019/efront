@@ -1107,7 +1107,8 @@ var createString = function (parsed) {
                     else if (o.prev && o.type === STAMP && !/^([,;])$/.test(o.text)) {
                         if (result[result.length - 1] === " " || (lasttype === PROPERTY || !o.isExpress && o.prev && o.prev.type !== LABEL) && o.text === ':') { }
                         else if (lasttype === STAMP) {
-                            result.push(" ");
+                            var prev = o.prev;
+                            if (!prev.unary || /[\+\-]$/.test(prev.text) && prev.text === o.text) result.push(" ");
                         }
                         else if (/^(\+\+|\-\-)$/.test(o.prev.text) && o.prev.prev) {
                             var prev_prev = o.prev.prev;

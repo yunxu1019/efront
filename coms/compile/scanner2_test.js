@@ -121,6 +121,10 @@ function testQuote() {
     var m = scanner(`(sizeof(("table")) / sizeof(("table")[0]))`);
     console.log(m.toString());
 }
+function testMinus() {
+    var m = scanner(`a- - -!!!b`);
+    console.log(m.toString());
+}
 Program.debug = true;
 // testSpeed();
 // testVariables();
@@ -136,6 +140,7 @@ Program.debug = true;
 // testArrow();
 // testUnicode();
 // testComment();
-testQuote();
+// testQuote();
+testMinus();
 // var typescript = require("../typescript/index");
 // typescript.transpile(data.toString(), { noEmitHelpers: true });
