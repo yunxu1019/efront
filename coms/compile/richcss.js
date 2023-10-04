@@ -180,7 +180,6 @@ function evalscoped(scoped, scopeNames, base = '') {
         };
         var calcvars = function (v) {
             return v.replace(/(^|\s|[\]\)\(\[\-\+\*\/])(?:var\s*\(([\s\S]*?)\)|(--\S+|@[^\s\{\(\:\+\*\/]+|@\{[^\}@]*\}))/g, function (m, q, a, b) {
-                if (/\-/.test(b)) console.log(b)
                 return q + getFromScopeList(b || a.trim(), vlist, m.slice(q.length));
             });
         };
@@ -275,14 +274,12 @@ function richcss(text, scopeName, compress) {
     return result.rest.map(a => a.join("")).concat(result).map(a => {
         var ats = [];
         a = a.replace(/@\{(@[^\}]*)\}\s*/g, function (_, q) {
-            console.log(q)
             ats.push(q);
             return ''
         })
             .replace(/((?:[\+\-]+\s*)?(?:\d+(?:\.\d*)?|\.\d+))\s*(px|%|pt|cm|mm|r?em)?\s*([\/\*\+\-])\s*((?:[\+\-]+\s*)?(?:\d+(?:\.\d*)?|\.\d+))(px|%|pt|cm|mm|r?em)?/ig, function (_, d1, p1 = '', c, d2, p2 = '') {
                 d1 = eval(d1);
                 d2 = eval(d2);
-                console.log(_)
                 if (!p2) {
                     if (c === '*') {
                         return d1 * d2 + p1;
