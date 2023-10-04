@@ -20,24 +20,28 @@ var h = function (text) {
 var p = function (text) {
     if (text.length) return new Element("p", text);
 };
+var p2 = function (text) {
+    if (text.length) return new Element('div', text);
+}
 var li = function (c) {
     var li = new Element(li, c.replace(/^\*\s+|^[\d]+\.\s+/, ''));
     return li;
 }
 var list_elem = null, list_tag;
-var list = function (tag, text, li = 'li') {
+var list = function (tag, text, indent, li = 'li') {
     if (!list_elem || list_tag !== tag || list_elem !== content[content.length - 1]) {
         list_elem = new Element(tag);
+        list_elem.indent = indent;
         list_tag = tag;
         content.push(list_elem);
     }
     list_elem.appendChild(new Element(li, text.replace(/^\*\s+|^\d+\.\s+/, '')));
 };
-var ul = function (content) {
-    return list('ul', content);
+var ul = function (content, indent) {
+    return list('ul', content, indent);
 };
-var ol = function (content) {
-    return list('ol', content);
+var ol = function (content, indent) {
+    return list('ol', content, indent);
 };
 var tr = function (line) {
     if (/^[\|\-\s]+$/.test(line)) {
@@ -64,22 +68,31 @@ var tr = function (line) {
         return;
     }
     line = line.replace(/^\||\|$/g, '').split("|").map(t => `<td>${t}</td>`).join('');
-    return list('table', line, 'tr');
+    return list('table', line, NaN, 'tr');
 }
 function richtext(line) {
-    line = line.trim();
+    var tagIndent = /^\s+/.exec(line);
+    if (!tagIndent) tagIndent = 0;
+    else tagIndent = tagIndent[0].length;
+    line = line.slice(tagIndent);
     line = line.replace(/\[([\s\S]*?)\](?:\(([\s\S]*?)\))?|<(\w+)>[\s\S]*?<\/\3>/g, function (_, content, href) {
         if (/^\</.test(_)) return _;
         if (href) var href1 = ` href=${strings.recode(href)}`;
         return `<a${href1}>${content || href}</a>`;
     });
     var a;
-    if (/^#/.test(line)) a = h(line);
-    else if (/^\*\s+/.test(line)) ul(line);
-    else if (/^\d+\.\s+/.test(line)) ol(line);
+    if (/^#/.test(line)) content.push(h(line));
+    else if (/^\*\s+/.test(line)) ul(line, tagIndent);
+    else if (/^\d+\.\s+/.test(line)) ol(line, tagIndent);
     else if (/^\|/.test(line)) tr(line);
-    else a = p(line);
-    if (a) content.push(a);
+    else {
+        if (list_elem && list_elem === content[content.length - 1] && list_elem.indent <= tagIndent) {
+            list_elem.appendChild(p(line));
+        }
+        else {
+            content.push(p2(line));
+        }
+    }
 }
 /**
  * @type {Element}
@@ -87,7 +100,7 @@ function richtext(line) {
 var content;
 function markdown(text) {
     var c = content = [];
-    text.replace(/ *(`+|\*+)(\S[\s\S]*?)\1 */g, function (_, q, c, i) {
+    text.replace(/([ \t\v]*)(`+|\*+)(\S[\s\S]*?)\2([ \t\v]*)/g, function (_, s1, q, c, s2, i) {
         if (/^\*/.test(q)) {
             var m = q.length;
             if (m & 1) c = `<i>${c}</i>`;
@@ -96,11 +109,11 @@ function markdown(text) {
         }
         _ = codetext.encode(_.trim()).slice(1, -1);
         if (/[\*#\.]\s/.test(text.slice(i - 1, i + 1))) _ = " " + _;
-        if (q.length === 1) return `<m>${_}</m>`;
+        if (q.length === 1) return `${s1}<m>${_}</m>${s2}`;
         var t = /^\S+/.exec(c);
         if (t) t = t[0]; c = c.slice(t.length).replace(/^(\r\n|\r|\n)|\s+$/g, '');
         try {
-            return codetext(t, c);
+            return s1 + codetext(t, c) + s2;
         } catch (e) {
             console.error(e);
             return c;
