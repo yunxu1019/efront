@@ -53,10 +53,10 @@ var exec_ = function (args, ok, oh, int) {
             }
             if (finished) return ok(r);
         }
-        catch_ = null;
         while (index < args_length) {
             try {
                 var a = args[index].call(t, p) || [1, 0];
+                catch_ = null;
                 p = a[0];
                 i = a[1];
             } catch (e) {
