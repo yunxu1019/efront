@@ -1,6 +1,10 @@
 & {
     white-space: nowrap;
     overflow: auto;
+    background: #421;
+    border-top: 10px solid #000;
+    padding: 20px 40px 60px 40px;
+    // perspective: 3000px; 多嵌套一层，不起作用
 }
 
 &>div {
@@ -11,7 +15,11 @@
         z-index: 2;
         width: 60px;
         text-align: center;
-        color: green;
+        text-transform: uppercase;
+        font-family: 'Times New Roman', Times, serif;
+        font-style: italic;
+        font-weight: 900;
+        color: #999;
 
         &:before {
             content: "c";
@@ -26,6 +34,32 @@
 
     button {
         pointer-events: all;
+        transform-style: preserve-3d;
+
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        position: relative;
+
+        &.hover {
+            >.track {
+                box-shadow: none;
+                background: #fff1;
+            }
+
+            box-shadow: 0 0 12px -4px #0003;
+        }
+
+        &.active {
+            z-index: 0;
+
+            >.track {
+                background: #0003;
+                background: linear-gradient(0deg, #0003, #0000);
+            }
+
+            transform-origin: 30px -270px -10px;
+            transform:rotateX(-7deg);
+        }
+
     }
 
     &.odd {
@@ -34,10 +68,9 @@
             margin: 0 2px;
             width: 56px;
             background: #fff;
-            color: #333;
+            color: #aaa;
             height: 280px;
             padding: 80px 0 0 0;
-
             box-shadow: 0 0 20px -6px rgba(0, 0, 0, .3);
 
             span {
@@ -52,7 +85,7 @@
 
         button {
             width: 40px;
-            margin: 0 10px;
+            margin: 10px 10px;
             box-shadow: 0 0 20px -6px rgba(0, 0, 0, .3);
 
             &:nth-child(1) {
@@ -68,7 +101,7 @@
             color: #fff;
             height: 120px;
 
-            &:nth-child(7n+2) {
+            &:nth-child(2) {
                 margin-right: 70px;
             }
         }
