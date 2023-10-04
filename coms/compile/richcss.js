@@ -5,7 +5,7 @@ class Richcss extends Program {
     quotes = this.quotes.slice(0, 2);
     scopes = [["{", "}"]]
 }
-var presets = /^@(media|keyframes|layer|import|namespace|page|property|suppports", '@font-face', "@document|counter-style|charset|color-profile|container|font-feature-values|font-palette-values)(\s|\(|$)/i;
+var presets = /^@(media|keyframes|layer|import|namespace|page|property|suppports|font-face|document|counter-style|charset|color-profile|container|font-feature-values|font-palette-values)(\s|\(|$)/i;
 
 Richcss.prototype.setType = function (o) {
     var p = o.prev;
@@ -36,10 +36,39 @@ Richcss.prototype.setType = function (o) {
         }
     }
     if (!q.entry && o.type !== SCOPED) {
+        var p = q.last;
+        if (p && p.type === STAMP && p.text === ':') {
+            if (p.keep) return;
+        }
+        else if (o.type === STAMP && o.text === ':') {
+            if (p.type & (EXPRESS | PROPERTY)) {
+                o.keep = true;
+                return;
+            }
+        }
         if (o.type !== STAMP || o.text !== ";") return false;
     }
 };
+
 Richcss.prototype.createScoped = function (code) {
+    var setVarsUsed = function (s) {
+        var vars = null, used = null;
+        for (var cx = s.length - 1; cx >= 0; cx--) {
+            var { p: k, v } = s[cx];
+            if (/^\-\-|^@[^\{]/.test(k) && !("used" in v) && v.length) {
+                if (!vars) vars = {};
+                vars[k] = v.join(" ");
+                s.splice(cx, 1);
+            }
+            else {
+                if (!used) used = [];
+                used.push({ p: k, v });
+            }
+        }
+        if (used) used.reverse();
+        s.used = used;
+        s.vars = vars;
+    };
     var run = function (o) {
         var props = [];
         var values = null;
@@ -67,29 +96,20 @@ Richcss.prototype.createScoped = function (code) {
                     break;
                 case SCOPED:
                     var s = run(o.first);
-                    var vars = null, used = null;
-                    for (var { p: k, v } of s) {
-                        if (/^\-\-/.test(k)) {
-                            if (!vars) vars = {};
-                            vars[k] = v.join(" ");
-                        }
-                        else {
-                            if (!used) used = [];
-                            used.push({ p: k, v });
-                        }
-                    }
-                    values.used = used;
-                    values.vars = vars;
+                    values.used = s.used;
+                    values.vars = s.vars;
 
             }
             o = o.next;
         }
+        setVarsUsed(props);
         return props;
     };
     return run(code.first);
 };
 Richcss.prototype.createString = createString;
 var getFromScopeList = function (name, varsList, value) {
+    name = name.replace(/^@\{\s*(\S*)\s*\}$/g, '@$1');
     for (var cx = varsList.length - 1; cx >= 0; cx--) {
         var o = varsList[cx];
         if (name in o) return o[name];
@@ -116,10 +136,11 @@ var fixBase = function (b, a) {
     }).join(",");
 }
 function evalscoped(scoped, scopeNames, base = '') {
-    var root = scoped[":root"], scope = scoped[":scope"];
-    var vars = Object.create(null);
+    var root = scoped[":root"], scope = scoped[":scope"], and = scoped["&"];
+    var vars = extend(Object.create(null), scoped.vars);
     if (root) root.forEach(r => extend(vars, r.vars));
     if (scope) scope.forEach(s => extend(vars, s.vars));
+    if (and) and.forEach(s => extend(vars, s.vars));
     scopeNames.forEach(s => {
         var ss = scoped[s];
         if (ss) ss.forEach(s => {
@@ -132,7 +153,7 @@ function evalscoped(scoped, scopeNames, base = '') {
         var queue = [];
         for (var k in vars) {
             var v = vars[k];
-            while (/^\-\-/.test(v)) {
+            while (/^\-\-|^@[^\{]/.test(v)) {
                 if (queue.indexOf(v) >= 0) throw `变量环形引用，无法初始化：${queue}`;
                 queue.push(v);
                 v = getFromScopeList(v, vlist);
@@ -141,6 +162,7 @@ function evalscoped(scoped, scopeNames, base = '') {
         }
     };
     initvars(vars);
+
     var eval2 = function (props) {
         var rest = [];
         var result = [];
@@ -157,7 +179,8 @@ function evalscoped(scoped, scopeNames, base = '') {
             return res;
         };
         var calcvars = function (v) {
-            return v.replace(/(^|\s|[\]\)\(\[\-\+\*\/])(?:var\s*\(([\s\S]*?)\)|(--[^\s]+))/g, function (m, q, a, b) {
+            return v.replace(/(^|\s|[\]\)\(\[\-\+\*\/])(?:var\s*\(([\s\S]*?)\)|(--\S+|@[^\s\{\(\:\+\*\/]+|@\{[^\}@]*\}))/g, function (m, q, a, b) {
+                if (/\-/.test(b)) console.log(b)
                 return q + getFromScopeList(b || a.trim(), vlist, m.slice(q.length));
             });
         };
@@ -168,16 +191,20 @@ function evalscoped(scoped, scopeNames, base = '') {
                 if (presets.test(match[1])) continue;
                 p.base = base;
                 var [, name, args] = match;
-                args = args.split(",").map(a => a.trim());
-                p.args = args;
+                args = args.split(",").map(a => a.trim().split(':'));
+                p.argDefaults = args.map(a => a[1]);
+                args = p.args = args.map(a => a[0]);
                 p.reg = new RegExp(args.join("|"), 'g');
                 if (!methods[name]) methods[name] = [];
                 methods[name].push(function () {
                     var body = evalthis(this);
                     var valueMap = {};
-                    this.args.forEach((a, i) => {
-                        valueMap[a] = arguments[i];
-                    })
+                    var argDefaults = p.argDefaults;
+                    this.args.forEach((k, i) => {
+                        var a = arguments[i];
+                        if (a === undefined || a === null) a = argDefaults[i];
+                        valueMap[k] = a;
+                    });
                     var replace = text => text.replace(this.reg, function (name) {
                         if (name in valueMap) return valueMap[name];
                         return name;
@@ -192,6 +219,7 @@ function evalscoped(scoped, scopeNames, base = '') {
         }
         for (var { p: k, v: p } of props) {
             if (p.isMethod) continue;
+            k = calcvars(k);
             if (p.used) {
                 if (base && !p.rooted) p.base = fixBase(base, k);
                 else p.base = presets.test(k) ? `@{${k}}` : k;
@@ -203,7 +231,6 @@ function evalscoped(scoped, scopeNames, base = '') {
                 result.push(k, ":", calcvars(p.join(" ")), ';');
             }
             else {
-                k = calcvars(k);
                 var match = /^(@\S+)\s*\(([\s\S]*)\)$/.exec(k);
                 if (!match) continue;
                 if (presets.test(match[1])) continue;
@@ -228,12 +255,13 @@ function evalscoped(scoped, scopeNames, base = '') {
 var rcss = null;
 function richcss(text, scopeName, compress) {
     if (!rcss) rcss = new Richcss;
+    rcss.debug = true;
     var code = scanner2(text, rcss);
     var scopeNames = [];
     if (scopeName) code.forEach(c => {
         if (c.type === PROPERTY) {
             var replaced = false;
-            c.text = c.text.replace(/\:(scope|root)/g, function () {
+            c.text = c.text.replace(/\:(scope|root)|&/g, function () {
                 replaced = true;
                 return scopeName;
             });
@@ -246,10 +274,33 @@ function richcss(text, scopeName, compress) {
     var result = evalscoped(scoped, scopeNames, scopeName);
     return result.rest.map(a => a.join("")).concat(result).map(a => {
         var ats = [];
-        a = a.replace(/@\{([^\}]*)\}\s*/g, function (_, q) {
+        a = a.replace(/@\{(@[^\}]*)\}\s*/g, function (_, q) {
+            console.log(q)
             ats.push(q);
             return ''
         })
+            .replace(/((?:[\+\-]+\s*)?(?:\d+(?:\.\d*)?|\.\d+))\s*(px|%|pt|cm|mm|r?em)?\s*([\/\*\+\-])\s*((?:[\+\-]+\s*)?(?:\d+(?:\.\d*)?|\.\d+))(px|%|pt|cm|mm|r?em)?/ig, function (_, d1, p1 = '', c, d2, p2 = '') {
+                d1 = eval(d1);
+                d2 = eval(d2);
+                console.log(_)
+                if (!p2) {
+                    if (c === '*') {
+                        return d1 * d2 + p1;
+                    }
+                    if (c === '/') {
+                        return d1 / d2 + p1;
+                    }
+                }
+                else if (p1 === p2) {
+                    if (c === "+") {
+                        return (+d1 + +d2) + p1;
+                    }
+                    if (c === '-') {
+                        return (d1 - d2) + p1;
+                    }
+                }
+                return _;
+            })
         while (ats.length) {
             a = ats.pop() + `{${a}}`;
         }

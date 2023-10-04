@@ -657,10 +657,13 @@ class Program {
             if (a instanceof Array) {
                 a.forEach(a => {
                     quote_map[a] = q;
-                    tokens[a.charAt(0)] = true;
+                    if (a.length === 1) tokens[a] = true;
                 });
             }
-            else quote_map[a] = q, tokens[a.charAt(0)] = true;
+            else {
+                quote_map[a] = q
+                if (a.length === 1) tokens[a] = true;
+            }
             var r = q.slice(q[2] ? 2 : 3).concat(q[1]).map(q => {
                 if (q instanceof Array) {
                     q = q[q.length - 2];
@@ -688,11 +691,11 @@ class Program {
             var [a, b] = s;
             scope_entry[a] = b;
             scope_leave[b] = a;
-            tokens[a] = true;
-            tokens[b] = true;
+            if (a.length === 1) tokens[a] = true;
+            if (b.length === 1) tokens[b] = true;
         });
         this.stamps.forEach(s => {
-            tokens[s] = true;
+            if (s.length === 1) tokens[s] = true;
         });
         var scopes = this.scopes.map(a => a.join("")).join("");
         scopes = this.compile(scopes);

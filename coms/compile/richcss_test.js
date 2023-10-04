@@ -1,6 +1,8 @@
 var test = function (data, expect) {
     assert(richcss(data), expect);
 };
+test(`&{--a:1}a{opacity:--a}`, `a{opacity:1;}`);
+test(`:root{--a:1}a{opacity:--a}`, `a{opacity:1;}`);
 test(`:scope{--a:1}a{opacity:--a}`, `a{opacity:1;}`);
 test(`:scope{--b:--a;--a:1;}a{opacity:--b}`, `a{opacity:1;}`);
 test(`@a(@p,@b){@p{opacity:@b}}@a(a,1);`, `a{opacity:1;}`);
@@ -16,3 +18,10 @@ test(`a,b{c{a:1}}`,`a c,b c{a:1;}`);
 test(`@media(){div{a:1}}`,`@media(){div{a:1;}}`);
 test(`@keyframes a{%1{a:1}}`,`@keyframes a{%1{a:1;}}`);
 test(`@media screen and (max-width:200px){@keyframes a{%1{a:1}}}`,`@media screen and (max-width:200px){@keyframes a{%1{a:1;}}}`);
+test(`@a:1`, ``);
+test(`@a:1;a{a:@a}`, `a{a:1;}`);
+test(`@a:1;a{@{a}:@a}`, `a{1:1;}`);
+test(`@a:1;a{@a:2;@{a}:@a}`, `a{2:2;}`);
+test(`@a:1;@a{@a:2;@{a}:@a}`, `1{2:2;}`);
+test(`@b(@a:1){@a{a:b}}@b(2)`, `2{a:b;}`);
+test(`@a:1; a{a:@a/2}`, `a{a:0.5;}`);
