@@ -257,7 +257,7 @@ function main(elem) {
                     elem.innerHTML = '<span ng-bind=get()></span>';
                     render(elem, {
                         get() {
-                            if (!field.key) return;
+                            if (isEmpty(field.key)) return;
                             var value = seek(data, field.key);
                             if (field.options) {
                                 if (!field.optionsMap) {
