@@ -13,3 +13,6 @@ test(`a{ &.b{a:1}}`,`a.b{a:1;}`);
 test(`a{ &[b]{a:1}}`,`a[b]{a:1;}`);
 test(`a{ &[b]:nth-child(1){a:1}}`,`a[b]:nth-child(1){a:1;}`);
 test(`a,b{c{a:1}}`,`a c,b c{a:1;}`);
+test(`@media(){div{a:1}}`,`@media(){div{a:1;}}`);
+test(`@keyframes a{%1{a:1}}`,`@keyframes a{%1{a:1;}}`);
+test(`@media screen and (max-width:200px){@keyframes a{%1{a:1}}}`,`@media screen and (max-width:200px){@keyframes a{%1{a:1;}}}`);

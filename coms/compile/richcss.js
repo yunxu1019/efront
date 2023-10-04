@@ -5,6 +5,8 @@ class Richcss extends Program {
     quotes = this.quotes.slice(0, 2);
     scopes = [["{", "}"]]
 }
+var presets = /^@(media|keyframes|layer|import|namespace|page|property|suppports", '@font-face', "@document|counter-style|charset|color-profile|container|font-feature-values|font-palette-values)(\s|\(|$)/i;
+
 Richcss.prototype.setType = function (o) {
     var p = o.prev;
     if (o.type !== SCOPED) {
@@ -96,6 +98,7 @@ var getFromScopeList = function (name, varsList, value) {
 }
 var fixBase = function (b, a) {
     return a.split(/,\s*/).map(a => {
+        if (presets.test(a)) a = `@{${a}}`;
         var replaced = false;
         return b.split(/\s*,\s*/).map(b => {
             var a1 = a.replace(/(:scope|&)/g, function (match) {
@@ -162,6 +165,7 @@ function evalscoped(scoped, scopeNames, base = '') {
             if (p.used) {
                 var match = /^(@[^\s,]+)\s*\(\s*(@[^\s,]+\s*(?:,\s*@[^\s,]+\s*)*)?\)/.exec(k);
                 if (!match) continue;
+                if (presets.test(match[1])) continue;
                 p.base = base;
                 var [, name, args] = match;
                 args = args.split(",").map(a => a.trim());
@@ -190,7 +194,7 @@ function evalscoped(scoped, scopeNames, base = '') {
             if (p.isMethod) continue;
             if (p.used) {
                 if (base && !p.rooted) p.base = fixBase(base, k);
-                else p.base = k;
+                else p.base = presets.test(k) ? `@{${k}}` : k;
                 var value = evalthis(p);
                 if (value.rest.length) rest = rest.concat(value.rest);
                 if (value.length) rest.push([p.base, '{', value.join(""), "}"]);
@@ -202,6 +206,7 @@ function evalscoped(scoped, scopeNames, base = '') {
                 k = calcvars(k);
                 var match = /^(@\S+)\s*\(([\s\S]*)\)$/.exec(k);
                 if (!match) continue;
+                if (presets.test(match[1])) continue;
                 var [, name, params] = match;
                 params = params.split(",").map(a => a.trim());
                 var method = getFromScopeList(name, mlist);
@@ -239,5 +244,15 @@ function richcss(text, scopeName, compress) {
     })
     var { scoped } = code;
     var result = evalscoped(scoped, scopeNames, scopeName);
-    return result.rest.map(a => a.join("")).concat(result).join(compress ? "" : "\r\n");
+    return result.rest.map(a => a.join("")).concat(result).map(a => {
+        var ats = [];
+        a = a.replace(/@\{([^\}]*)\}\s*/g, function (_, q) {
+            ats.push(q);
+            return ''
+        })
+        while (ats.length) {
+            a = ats.pop() + `{${a}}`;
+        }
+        return a;
+    }).join(compress ? "" : "\r\n");
 }
