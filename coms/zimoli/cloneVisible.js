@@ -1,4 +1,4 @@
-var cloneProperties = "fontWeight,fontSize,fontFamily,color,textShadow,opacity,writingMode,blockSize,wordSpacing,letterSpacing,whiteSpace,lineHeight".split(",");// text-node
+var cloneProperties = "fontWeight,fontSize,fontFamily,color,textShadow,opacity,writingMode,blockSize,wordSpacing,letterSpacing,whiteSpace".split(",");// text-node
 var cloneProperties2 = "position,backdropFilter,filter,float,clear,margin,color,verticalAlign,textAlign,textShadow,opacity,boxShadow,overflow,textOverflow,wordBreak,webkitLineClamp,webkitBoxOrient,writingMode,blockSize,wordSpacing,letterSpacing,textIndent,lineHeight,display,appearance,webkitAppearance,MozAppearance".split(",");// element
 var pushProperty = function (key, props) {
     props.split(",").forEach(k => {
