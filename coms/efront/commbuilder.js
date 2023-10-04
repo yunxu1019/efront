@@ -724,18 +724,18 @@ async function getXhtPromise(data, filename, fullpath, watchurls) {
     }
     if (attributes) attributes = attributes.map(a => `elem.setAttribute("${a.name}",${a.value ? strings.recode(a.value) : '""'})`).join("\r\n");
     var createElement = tagName
-        ? `elem = document.createElement("${tagName}");`
-        : `if (!isElement(elem)) elem = document.createElement("${commName}");`;
+        ? `var elem = document.createElement("${tagName}");`
+        : `var elem =isElement(args[0])?args[0]:document.createElement("${commName}");`;
     var xht = scope ? `
 var ${xhtmain}=function(){
     ${scope}
     ${jsData}
     return [${htmltext},${xhtmain}];
 };
-function ${commName}(elem){
-    var [template,scope]=${xhtmain}();
+function ${commName}(...args){
     ${createElement}
     ${attributes}
+    var [template,scope]=${xhtmain}.call(elem,...args);
     elem.innerHTML = template;
     render(elem,scope)
     return elem;
@@ -744,10 +744,10 @@ var ${xhtmain}=function(){
     ${jsData}
     return ${htmltext};
 }
-function ${commName}(elem){
+function ${commName}(...args){
     ${createElement}
     ${attributes}
-    elem.innerHTML=${xhtmain}();
+    elem.innerHTML=${xhtmain}.call(elem,...args);
     return elem;
 }`;
     return loadJsBody.call(this, xht, filename, styles, commName, className)
