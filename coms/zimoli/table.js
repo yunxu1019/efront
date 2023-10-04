@@ -371,28 +371,23 @@ var getTdsOfSameRow = function (td) {
     return tds;
 };
 function setContextMenu(thead) {
-    var fields = this.fields.slice();
-    var scope = this;
-    var menuItems = fields.map(f => {
-        return {
-            name: f.name || "&nbsp;",
-            checked: !f.hidden,
-            width: f.width,
-            do() {
-                this.checked = !this.checked;
-                f.hidden = !this.checked;
-                scope.fields = fields.filter(f => !f.hidden);
-                var width = thead.scrollWidth / scope.fields.length;
-                if (!width || width < 200) width = 200;
-                forEachRow(thead, function (tr) {
-                    for (var td of tr.children) {
-                        if (td.offsetWidth > width) css(td, { width });
-                    }
-                });
-                setLazyFixedColumn.call(thead.parentNode, true)
+    var fields = this.originFields.slice();
+    var _do = function () {
+        this.checked = !this.checked;
+        var f = fields[this.index];
+        f.hidden = !this.checked;
+        scope.fields = fields.filter(f => !f.hidden);
+        var width = thead.scrollWidth / scope.fields.length;
+        if (!width || width < 200) width = 200;
+        forEachRow(thead, function (tr) {
+            for (var td of tr.children) {
+                if (td.offsetWidth > width) css(td, { width });
             }
-        }
-    });
+        });
+        setLazyFixedColumn.call(thead.parentNode, true)
+    };
+    var menuItems = fields.map((f, i) => ({ name: f.name || "&nbsp", index: i, width: f.width, key: f.key, checked: !f.hidden, do: _do }));
+    var scope = this;
     contextmenu(thead, menuItems);
 }
 function table(elem) {
@@ -468,11 +463,19 @@ function table(elem) {
         };
         vbox(table, 'x');
     };
-    care(table, async function ([fields, data]) {
+    care(table, async function (src) {
+        if (src instanceof Table) {
+            data = src;
+            fields = data.fields;
+        }
+        else if (src instanceof Array) {
+            var [fields, data] = src;
+        }
+        else throw new Error("table组件源数据错误！");
         if (_vbox) _vbox(), _vbox = null;
         watch(table, {
             find(text) {
-                if ($scope.data.constructor === Table){
+                if ($scope.data.constructor === Table) {
                     $scope.data.searchText = text;
                     $scope.data.update();
                 }
@@ -485,7 +488,8 @@ function table(elem) {
         markedRows = false;
         this.style.display = 'block';
         var $scope = {
-            fields,
+            originFields: fields,
+            fields: fields.filter(f => !f.hidden),
             isEmpty,
             hasFoot: true,
             setContextMenu,
