@@ -75,7 +75,7 @@ class Table extends Array {
             if (isEmpty(name) || !isString(name)) continue;
             if (name === searchtext) this.hasFullmatch = true;
             var [p, m] = mark.power(name, searchtext);
-            power += p;
+            if (p > power) power = p;
             if (p >= searchtext.length) this.coverCount++;
             if (!isEmpty(f.key)) o[f.key] = m;
             else o.name = m, o.toString = returnName, o.valueOf = returnName;
