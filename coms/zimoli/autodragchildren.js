@@ -340,6 +340,17 @@ var hooka = function (matcher, move, event, targetChild, isMovingSource) {
             offdragend();
         };
         var offdragstart = on('dragstart')(targetChild, function () {
+            var c = drag.shadow;
+            var zIndex = c.style.zIndex - 1;
+            var copyZIndex = function (e) {
+                e.style.zIndex = zIndex;
+                var z = zIndex - 1;
+                if (e.with) for (var w of e.with) w.style.zIndex = z;
+            };
+            if (zIndex > 2) {
+                previousElements.forEach(copyZIndex);
+                followedElements.forEach(copyZIndex);
+            }
             setOpacity(targetBox, draggingSourceOpacity);
         });
         var offdragend = on("dragend")(targetChild, function () {
@@ -350,6 +361,8 @@ var hooka = function (matcher, move, event, targetChild, isMovingSource) {
             remove(followedElements);
             previousElements.map(recover);
             followedElements.map(recover);
+            previousElements.splice(0, previousElements.length);
+            followedElements.splice(0, followedElements.length);
         });
         var offdragmove = on("dragmove")(targetChild, dragmove);
     }

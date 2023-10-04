@@ -76,6 +76,7 @@ function drag(target, initialEvent, preventOverflow, isMovingSource) {
                 extraTargets = [];
                 if (target.style) css(target, { zIndex: z });
             }
+            drag.shadow = clone;
             var [clone_left, clone_top] = getOffset(clone);
             extraClones = extraTargets.map(toCloneTarget);
             extraClones.forEach(addZIndex);
