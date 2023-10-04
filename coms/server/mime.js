@@ -21,4 +21,4 @@ function cust(mime) {
         }
     }
 }
-Promise.resolve(mime).then(cust);
+cust(mime);
