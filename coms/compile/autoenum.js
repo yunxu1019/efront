@@ -206,6 +206,7 @@ function enumref(scoped) {
                         continue;
                     }
                     if (!eq) break;
+                    if (o.short) continue;
                     o.type = eq.type;
                     o.isdigit = true;
                     o.text = eq.text;
