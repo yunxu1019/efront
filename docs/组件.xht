@@ -225,7 +225,7 @@
             if (envs[templateName]) {
                 delete envs[templateName];
                 var template = await cross("get", './components:' + modName + ".html");
-                codetext = `var ${templateName}={toString(){return \`${template.responseText}\`}};\r\n` + codetext;
+                codetext = `var ${templateName}={toString(){return \`${template.responseText.replace(/>\s+</g, '><')}\`}};\r\n` + codetext;
             }
             initcode(codetext);
         }
