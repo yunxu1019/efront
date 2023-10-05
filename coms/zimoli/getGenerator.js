@@ -23,20 +23,22 @@ var getGenerator = function (container, tagName = 'item') {
     if (container.$generator) return container.$generator;
     var template = document.createElement(container.tagName);
     var templates = [];
+    var hasAfter = false;
     for (let a of container.childNodes) {
         if (a.nodeType === 1 && a.hasAttribute('insert')) {
             if (!templates.length) a.$isbefore = true;
-            else a.$isafter = true;
+            else { a.$isafter = true; hasAfter = true; }
         }
-        else {
+        else if (hasAfter);
+        else if (a.nodeType === 1 || templates.length) {
             templates.push(a);
         }
     }
+    while (templates.length > 1 && templates[templates.length - 1].nodeType !== 1) templates.pop();
     if (templates.length < container.childNodes.length && templates.length >= 1) {
-        var c = document.createComment('lattice');
+        var c = document.createComment('generator');
         c.index = null;
         container.insertBefore(c, templates[0]);
-        templates.splice(1, templates.length - 1);
         var paddingCount = [].indexOf.call(container.childNodes, c);
         container.paddingCount = paddingCount;
     }

@@ -169,9 +169,9 @@ function ylist(container, generator, $Y) {
                 delete childrenMap[offset];
             }
             if (last_index > offset) {
-                if (item.nextElementSibling !== last_item) list.insertBefore(item, last_item);
+                if (item.nextElementSibling !== last_item) insertBeforeList(item, last_item);
             } else {
-                if (item.previousElementSibling !== item) list.insertBefore(item, getNextSibling(last_item));
+                if (item.previousElementSibling !== item) insertBeforeList(item, getNextSibling(last_item));
             }
             last_index = offset;
             item = getNodeTarget(item);
@@ -229,6 +229,17 @@ function ylist(container, generator, $Y) {
         } while (next.offsetTop === element.offsetTop);
         return next.offsetTop - element.offsetTop;
     };
+    var insertBeforeList = function (elem, flag) {
+        if(flag){
+            var w = elem.with;
+            if (w) {
+                if (w[w.length - 1].nextSibling === flag) return;
+            }
+            else if (elem.nextSibling === flag) return;
+        }
+        list.insertBefore(elem, flag);
+        if (elem.with) for (var w of elem.with) list.insertBefore(w, flag);
+    };
     var patchBottom = function (deltaY = 0) {
         var cache_height = list.offsetHeight;
         var childrenMap = getChildrenMap();
@@ -250,7 +261,7 @@ function ylist(container, generator, $Y) {
                 } else if (!restHeight) {
                     restHeight = cache_height;
                 }
-                list.insertBefore(item, getNextSibling(last_element));
+                insertBeforeList(item, getNextSibling(last_element));
             }
             item = getNodeTarget(item);
             if (!item.offsetHeight) {
@@ -315,7 +326,7 @@ function ylist(container, generator, $Y) {
             if (!item) {
                 item = createItem(offset);
                 if (!item) break;
-                list.insertBefore(item, first_element);
+                insertBeforeList(item, first_element);
                 item = getNodeTarget(item);
                 scrollTop += flag_element.offsetTop - offsetTop;
                 offsetTop = flag_element.offsetTop;
@@ -648,6 +659,7 @@ function list() {
     list.clean = function (src, old) {
         var children = (container || list).childNodes;
         children = Array.prototype.filter.call(children, c => {
+            if (c.index === null) return false;
             if (isFinite(c.index)) return true;
             if (c.nodeType === 1 && c.$comment && isFinite(c.$comment.index)) return true;
             return false;
