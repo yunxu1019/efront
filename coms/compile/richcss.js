@@ -276,28 +276,27 @@ function richcss(text, scopeName, compress) {
         a = a.replace(/@\{(@[^\}]*)\}\s*/g, function (_, q) {
             ats.push(q);
             return ''
+        }).replace(/((?:[\+\-]+)?(?:\d+(?:\.\d*)?|\.\d+))\s*(px|%|pt|cm|mm|r?em)?\s*([\/\*\+\-])\s+((?:[\+\-]+)?(?:\d+(?:\.\d*)?|\.\d+))(px|%|pt|cm|mm|r?em)?/ig, function (_, d1, p1 = '', c, d2, p2 = '') {
+            d1 = eval(d1);
+            d2 = eval(d2);
+            if (!p2) {
+                if (c === '*') {
+                    return d1 * d2 + p1;
+                }
+                if (c === '/') {
+                    return d1 / d2 + p1;
+                }
+            }
+            else if (p1 === p2) {
+                if (c === "+") {
+                    return (+d1 + +d2) + p1;
+                }
+                if (c === '-') {
+                    return (d1 - d2) + p1;
+                }
+            }
+            return _;
         })
-            .replace(/((?:[\+\-]+\s*)?(?:\d+(?:\.\d*)?|\.\d+))\s*(px|%|pt|cm|mm|r?em)?\s*([\/\*\+\-])\s*((?:[\+\-]+\s*)?(?:\d+(?:\.\d*)?|\.\d+))(px|%|pt|cm|mm|r?em)?/ig, function (_, d1, p1 = '', c, d2, p2 = '') {
-                d1 = eval(d1);
-                d2 = eval(d2);
-                if (!p2) {
-                    if (c === '*') {
-                        return d1 * d2 + p1;
-                    }
-                    if (c === '/') {
-                        return d1 / d2 + p1;
-                    }
-                }
-                else if (p1 === p2) {
-                    if (c === "+") {
-                        return (+d1 + +d2) + p1;
-                    }
-                    if (c === '-') {
-                        return (d1 - d2) + p1;
-                    }
-                }
-                return _;
-            })
         while (ats.length) {
             a = ats.pop() + `{${a}}`;
         }
