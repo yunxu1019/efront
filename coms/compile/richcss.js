@@ -56,7 +56,7 @@ Richcss.prototype.createScoped = function (code) {
         for (var cx = s.length - 1; cx >= 0; cx--) {
             var { p: k, v } = s[cx];
             if (/^\-\-|^@[^\{]/.test(k) && !("used" in v) && v.length) {
-                if (!vars) vars = {};
+                if (!vars) vars = Object.create(null);
                 vars[k] = v.join(" ");
                 s.splice(cx, 1);
             }
@@ -71,6 +71,7 @@ Richcss.prototype.createScoped = function (code) {
     };
     var run = function (o) {
         var props = [];
+        var propmap = Object.create(null);
         var values = null;
         loop: while (o) {
             switch (o.type) {
@@ -82,8 +83,8 @@ Richcss.prototype.createScoped = function (code) {
                     }
                     var pj = p.join(' ');
                     props.push({ p: pj, v: values = [] });
-                    if (!props[pj]) props[pj] = [];
-                    props[pj].push(values);
+                    if (!propmap[pj]) propmap[pj] = [];
+                    propmap[pj].push(values);
                     if (!o) break loop;
                     if (o.type === STAMP) break;
                     continue;
@@ -102,6 +103,7 @@ Richcss.prototype.createScoped = function (code) {
             }
             o = o.next;
         }
+        props.maps = propmap;
         setVarsUsed(props);
         return props;
     };
@@ -136,13 +138,14 @@ var fixBase = function (b, a) {
     }).join(",");
 }
 function evalscoped(scoped, scopeNames, base = '') {
-    var root = scoped[":root"], scope = scoped[":scope"], and = scoped["&"];
+    var smaps = scoped.maps;
+    var root = smaps[":root"], scope = smaps[":scope"], and = smaps["&"];
     var vars = extend(Object.create(null), scoped.vars);
     if (root) root.forEach(r => extend(vars, r.vars));
     if (scope) scope.forEach(s => extend(vars, s.vars));
     if (and) and.forEach(s => extend(vars, s.vars));
     scopeNames.forEach(s => {
-        var ss = scoped[s];
+        var ss = smaps[s];
         if (ss) ss.forEach(s => {
             extend(vars, s.vars), s.rooted = true;
         })
@@ -166,7 +169,7 @@ function evalscoped(scoped, scopeNames, base = '') {
     var eval2 = function (props) {
         var rest = [];
         var result = [];
-        var methods = {};
+        var methods = Object.create(null);
         mlist.push(methods);
         var evalthis = function (p) {
             if (p.vars) vlist.push(p.vars);
