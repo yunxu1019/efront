@@ -999,6 +999,7 @@ var setqueue = function (list, queue = list) {
 };
 
 var createString = function (parsed) {
+    var autospace = parsed.autospace !== false;
     var keepspace = parsed.keepspace !== false;
     var helpcode = parsed.helpcode;
     var lasttype = SPACE;
@@ -1007,7 +1008,7 @@ var createString = function (parsed) {
     var helpcolor = parsed.keepcolor === false;
     var run = (o, i, a) => {
         var prev = o.prev;
-        if (!((SPACE | COMMENT | STAMP | PIECE | SCOPED) & o.type) && prev && lasttype !== SPACE && keepspace) {
+        if (!((SPACE | COMMENT | STAMP | PIECE | SCOPED) & o.type) && prev && lasttype !== SPACE && autospace) {
             if ((QUOTED | SCOPED | STRAP | LABEL | COMMENT) & lasttype
                 || prev.type === STAMP && !prev.unary
             ) {
@@ -1048,12 +1049,12 @@ var createString = function (parsed) {
                     }
                 }
                 if (keepspace && !opentmp) {
-                    if (lasttype !== SPACE && lasttype !== EXPRESS) result.push(" ");
+                    if (autospace && lasttype !== SPACE && lasttype !== EXPRESS) result.push(" ");
                     result.push(tmp);
                 }
                 break;
             case SPACE:
-                if (keepspace) {
+                if (!autospace || keepspace) {
                     result.push(o.text);
                     lasttype = SPACE;
                     break;
@@ -1068,14 +1069,14 @@ var createString = function (parsed) {
                     break;
                 }
             case SCOPED:
-                if (keepspace && o.type !== QUOTED && (lasttype & (STRAP | COMMENT | STAMP)
+                if (autospace && o.type !== QUOTED && (lasttype & (STRAP | COMMENT | STAMP)
                     && (!o.prev || !/[\+\-\~\!]$/.test(o.prev.text) || /[\+\-]$/.test(o.prev.text) && (!o.prev.prev || !((STAMP | STRAP) & o.prev.prev.type)))
                     || lasttype === SCOPED && o.entry === "{"
                 )) result.push(" ");
                 result.push(o.entry);
                 if (o.length > 0) {
                     if (o.entry === "{" && o[0].type !== SPACE) {
-                        if (keepspace && lasttype !== PIECE) {
+                        if (autospace && lasttype !== PIECE) {
                             result.push(" ");
                         }
                     }
@@ -1093,7 +1094,7 @@ var createString = function (parsed) {
                         }
                     }
                     if (o.leave === "}" && o.entry === "{" && o[o.length - 1].type !== SPACE) {
-                        if (keepspace) result.push(" ");
+                        if (autospace) result.push(" ");
                     }
                 }
                 result.push(o.leave);
@@ -1102,13 +1103,13 @@ var createString = function (parsed) {
                 if (o && typeof o === "object") {
                     if (o.prev && o.prev.type === EXPRESS && o.type === EXPRESS && (/^[\.\[]/.test(o.text) || /\.$/.test(o.prev.text)));
                     else if ((STRAP | EXPRESS | PROPERTY | COMMENT | VALUE) & lasttype && (STRAP | EXPRESS | PROPERTY | VALUE | LABEL) & o.type) {
-                        result.push(" ");
+                        if (autospace) result.push(" ");
                     }
                     else if (o.prev && o.type === STAMP && !/^([,;])$/.test(o.text)) {
                         if (result[result.length - 1] === " " || (lasttype === PROPERTY || !o.isExpress && o.prev && o.prev.type !== LABEL) && o.text === ':') { }
                         else if (lasttype === STAMP) {
                             var prev = o.prev;
-                            if (!prev.unary || /[\+\-]$/.test(prev.text) && prev.text === o.text) result.push(" ");
+                            if (autospace) if (!prev.unary || /[\+\-]$/.test(prev.text) && prev.text === o.text) result.push(" ");
                         }
                         else if (/^(\+\+|\-\-)$/.test(o.prev.text) && o.prev.prev) {
                             var prev_prev = o.prev.prev;
@@ -1119,10 +1120,10 @@ var createString = function (parsed) {
                         }
 
                         else if (o.text === '*') {
-                            if (keepspace && lasttype !== SPACE && (lasttype !== STRAP || o.prev && o.prev.text !== 'function')) result.push(" ");
+                            if (autospace && lasttype !== SPACE && (lasttype !== STRAP || o.prev && o.prev.text !== 'function')) result.push(" ");
                         }
                         else if (!/^(\+\+|\-\-)$/.test(o.text) || o.prev && o.prev.type & (STAMP | STRAP)) {
-                            if (keepspace && lasttype !== SPACE) result.push(" ");
+                            if (autospace && lasttype !== SPACE) result.push(" ");
                         }
                     }
                     if (o.type === VALUE) {

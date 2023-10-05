@@ -259,14 +259,14 @@ function stringify(color) {
 	}
 	return "#" + [R, G, B].map(hex256).join("");
 }
-function doWith(manager, color, args) {
+function doWith(manager, color, ...args) {
 	var isparsed = color instanceof Array,
 		c = isparsed ? color : parse(color);
 	if (!c) {
 		console.warn(`颜色数据不正确:${color}`);
 		return color;
 	}
-	c = manager(c, args);
+	c = manager(c, ...args);
 	if (!isparsed) c = stringify(c);
 	return c;
 }
@@ -382,7 +382,89 @@ var gray4 = function (RGBA, A) {
 	return [r, g, b, A || a];
 };
 
+var saturate_rgb = function (RGBA, delta) {
+	var [r, g, b, a] = RGBA;
+	var h = rgb2h(r, g, b);
+	delta = percent(delta);
+	h += delta * 100;
+	[r, g, b] = rgb4h(r, g, b, h);
+	return [r, g, b, a];
+};
 
+var desaturate_rgb = function (RGBA, delta) {
+	delta = percent(delta);
+	return saturate_rgb(RGBA, -delta);
+};
+
+var lighten_rgb = function (RGBA, delta) {
+	var [r, g, b, a] = RGBA;
+	delta = percent(delta)
+	var l = rgb2v(r, g, b);
+	l += delta * 100;
+	[r, g, b] = rgb4v(r, g, b, l);
+	return [r, g, b, a];
+};
+
+var darken_rgb = function (RGBA, delta) {
+	delta = percent(delta);
+	return lighten_rgb(RGBA, -delta);
+};
+
+var fadein_rgb = function (RGBA, delta) {
+	delta = percent(delta);
+	var [r, g, b, a] = RGBA;
+	a += delta;
+	return [r, g, b, a];
+};
+
+var fadeout_rgb = function (RGBA, delta) {
+	delta = percent(delta);
+	return fadein_rgb(RGBA, -delta);
+};
+
+var fade_rgb = function (RGBA, alpha) {
+	var [r, g, b] = RGBA;
+	return [r, g, b, alpha];
+};
+
+var spin_rgb = function (RGBA, delta) {
+	var [r, g, b, a] = RGBA;
+	var s = rgb2s(r, g, b);
+	s += delta;
+	var [r, g, b] = rgb4s(r, g, b, s);
+	return [r, g, b, s];
+};
+
+var grayscale_rgb = function (RGBA) {
+	var [r, g, b, a] = RGBA;
+	[r, g, b] = rgb4s(r, g, b, 0);
+	return [r, g, b, a];
+};
+var grayluma_rgb = function (RGBA) {
+	var [r, g, b, a] = RGBA;
+	var v = rgb2v(r, g, b);
+	return [v, v, v, a];
+};
+var mix_rgb = function (RGBA, c2, power) {
+	var c1 = rgb2hsl(RGBA);
+	c1.push(RGBA[3]);
+	var rgba2 = parse(c2);
+	var c2 = rgb2hsl(rgba2);
+	c2.push(rgba2[3]);
+	return [0, 1, 2, 3].map(a => c1[a] * (1 - power) + c2[a] * power);
+};
+var tint_rgb = function (RGBA, power) {
+	return mix_rgb([255, 255, 255, RGBA[3]], RGBA, power);
+};
+var shade_rgb = function (RGBA, power) {
+	return mix_rgb([0, 0, 0, RGBA[3]], RGBA, power);
+};
+
+var wrap = function (f) {
+	return function () {
+		return doWith(f, ...arguments);
+	}
+};
 var random_base = Math.PI * Math.random() * 2;
 extend(color, {
 	setTransformer(transformer) {
@@ -394,6 +476,19 @@ extend(color, {
 	contrast(color, ratio) {
 		return doWith(contrast_rgb, color, ratio);
 	},
+	saturate: wrap(saturate_rgb),
+	desaturate: wrap(desaturate_rgb),
+	lighten: wrap(lighten_rgb),
+	darken: wrap(darken_rgb),
+	fadein: wrap(mix_rgb),
+	fadeout: wrap(fadeout_rgb),
+	fade: wrap(fade_rgb),
+	spin: wrap(spin_rgb),
+	mix: wrap(mix_rgb),
+	tint: wrap(tint_rgb),
+	shade: wrap(shade_rgb),
+	grayscale: wrap(grayscale_rgb),
+	grayluma: wrap(grayluma_rgb),
 	rgb2h,
 	rgb4h,
 	rgb2v,

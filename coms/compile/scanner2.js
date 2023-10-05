@@ -208,6 +208,7 @@ function scan(text, type = "js", lastIndex = 0) {
     program.Code = Code;
     program.lastIndex = lastIndex;
     var res = program.exec(text);
+    res.autospace = !program.keepspace;
     Object.defineProperty(res, "program", { value: program, enumerable: false })
     return res;
 }
