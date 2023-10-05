@@ -217,7 +217,7 @@ function evalscoped(scoped, scopeNames, base = '') {
             return res;
         };
         var calcvars = function (v) {
-            return v.replace(/(^|\s|[\]\)\(\[\-\+\*\/,;])(?:var\s*\(([\s\S]*?)\)|(--\S+|@[^\s\{\(\:\+\*\/,;]+|@\{[^\}@]*\}))/g, function (m, q, a, b) {
+            return v.replace(/(^|\s|[\]\)\(\[\-\+\*\/,;])(?:var\s*\(([\s\S]*?)\)|(--\S+|@[^\s\{\(\:\+\*\/,;\!\[\>\$\=\&\%\#\@\+'"`\?\.\/\|~]+|@\{[^\}@]*\}))/g, function (m, q, a, b) {
                 return q + getFromScopeList(b || a.trim(), vlist, m.slice(q.length));
             });
         };
