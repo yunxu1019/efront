@@ -14,46 +14,7 @@ const {
     number_reg,
 } = require("./common");
 var combine = require("../basic/combine");
-var setObject = function (o) {
-    o.isObject = true;
-    var needproperty = true;
-    for (var cx = 0; cx < o.length; cx++) {
-        var m = o[cx];
-        if (!needproperty) {
-            if (m.type === SCOPED && m.entry === '{') {
-                if (!m.isObject) setObject(m);
-                continue;
-            }
-            if (m.type !== STAMP || m.text !== ',') continue;
-        }
-        if (m.type === STAMP && m.text === ':') {
-            needproperty = false;
-            continue;
-        }
-        if (m.type === LABEL) {
-            o.splice(cx, 0, o[++cx].prev = m.next = m.next.prev = {
-                prev: m,
-                text: ':',
-                type: STAMP,
-                next: m.next,
-            });
-            m.type = PROPERTY;
-            m.text = m.text.replace(/\:$/, '');
-            m.isprop = true;
-            m.end--;
-            needproperty = false;
-            continue;
-        }
-        m.isprop = true;
-        if (m.type === EXPRESS || m.type === QUOTED) {
-            if (!/\./.test(m.text)) m.type = PROPERTY;
-        }
-        if (m.prev && m.prev.type === PROPERTY) {
 
-            m.prev.type = STRAP;
-        }
-    }
-};
 var sortRegExpSource = function (a, b) {
     if (a.indexOf(b) >= 0) return -1;
     if (b.indexOf(a) >= 0) return 1;
@@ -147,7 +108,6 @@ class Program {
     Code = Array;
     transive_reg = /^(new|void|case|break|continue|return|throw|extends|import)$/
     straps = "if,for".split(',');
-    colonstrap_reg = /^(case|default)$/;
     forceend_reg = /^(return|break|continue)$/;
     classstrap_reg = /^(class)$/;
     extends_reg = /^(extends)$/;
@@ -186,7 +146,6 @@ class Program {
         var Code = this.Code;
         var queue = new Code();
         var origin = queue;
-        var colonstrap_reg = this.colonstrap_reg;
         var forceend_reg = this.forceend_reg;
         var program = this;
         var queue_push = function (scope) {
@@ -237,74 +196,7 @@ class Program {
                     return;
                 }
             }
-            var last = queue.last;
-            if (type === SPACE);
-            else if (type !== STAMP);
-            else if (m === ";") {
-                if (last && last.isend === false) last.isend = true;
-                queue.inExpress = false;
-            }
-            else if (last) check: switch (m) {
-                case "?":
-                    queue.inExpress = true;
-                    if (!queue.question) queue.question = 1;
-                    else queue.question++;
-                    break;
-                case "=":
-                    queue.inExpress = true;
-                    if (last.type === SCOPED && last.entry === "{") {
-                        if (!last.isObject) {
-                            setObject(last);
-                        }
-                    }
-                case ",":
-                    if (queue.isObject) {
-                        if (last.type === PROPERTY) {
-                            last.short = true;
-                        }
-                    }
-                    queue.inExpress = true;
-                    break;
-                case ":":
-                    if (queue.question) {
-                        queue.question--;
-                        queue.inExpress = true;
-                        break;
-                    }
-                    if (queue.isObject) {
-                        if (last.type === PROPERTY || last.isprop) {
-                            queue.inExpress = true;
-                            break;
-                        }
-                        if (last.type === SCOPED && (!last.prev || !last.prev.type === STAMP && last.prev.text === ",")) {
-                            queue.inExpress = true;
-                        }
-                        break;
-                    }
-                    var temp = last;
-                    while (temp) {
-                        if (temp.type === STRAP && colonstrap_reg.test(temp.text)) {
-                            queue.inExpress = false;
-                            break check;
-                        }
-                        if (!temp.isExpress) break;
-                        temp = temp.prev;
-                    }
-                    queue.inExpress = false;
-                    if (last.type & (EXPRESS | STRAP | VALUE | QUOTED)) {
-                        // label
-                        last.type = LABEL;
-                        last.text += ":";
-                        last.end = end;
-                        return;
-                    }
-                    break;
-                default:
-                    queue.inExpress = true;
-            }
-            else {
-                queue.inExpress = true;
-            }
+
             var scope = {
                 type,
                 start,

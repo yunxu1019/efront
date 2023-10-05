@@ -1,4 +1,39 @@
 var { STAMP, PROPERTY, SCOPED, VALUE, EXPRESS, QUOTED, createString } = require("./common");
+class Richarg extends Program {
+    straps = [];
+    stamps = ',:'.split("");
+    quotes = this.quotes.slice(0, 2);
+    scopes = [["(", ")"], ["{", "}"], ["<", ">"], ["(", ")"]];
+}
+var rarg = new Richarg;
+var createArgMap = function (args) {
+    if (args) args = scanner2(args, rarg);
+    else args = [];
+    var map = Object.create(null);
+    var o = args.first;
+    var args = [];
+    while (o) {
+        if (!(o.type & (PROPERTY | EXPRESS))) {
+            throw new Error("参数异常！");
+        }
+        var k = o.text;
+        args.push(k);
+        o = o.next;
+        if (o && o.type === STAMP && o.text === ':') {
+            var v = []
+            o = o.next;
+            while (o && (o.type !== STAMP || o.text !== ',')) {
+                v.push(o);
+                o = o.next;
+            }
+            map[k] = createString(v);
+        }
+        if (o && o.type === STAMP && o.text === ',') o = o.next;
+    }
+    args.defaults = map;
+    return args;
+};
+
 class Richcss extends Program {
     straps = [];
     stamps = `;:`.split("");
@@ -182,34 +217,42 @@ function evalscoped(scoped, scopeNames, base = '') {
             return res;
         };
         var calcvars = function (v) {
-            return v.replace(/(^|\s|[\]\)\(\[\-\+\*\/])(?:var\s*\(([\s\S]*?)\)|(--\S+|@[^\s\{\(\:\+\*\/]+|@\{[^\}@]*\}))/g, function (m, q, a, b) {
+            return v.replace(/(^|\s|[\]\)\(\[\-\+\*\/,;])(?:var\s*\(([\s\S]*?)\)|(--\S+|@[^\s\{\(\:\+\*\/,;]+|@\{[^\}@]*\}))/g, function (m, q, a, b) {
                 return q + getFromScopeList(b || a.trim(), vlist, m.slice(q.length));
             });
         };
         for (var { p: k, v: p } of props) {
             if (p.used) {
-                var match = /^(@[^\s,]+)\s*\(\s*(@[^\s,]+\s*(?:,\s*@[^\s,]+\s*)*)?\)/.exec(k);
+                var match = /^([@\.#][^\s,]+)\s*\(([\s\S]*?)\)$/.exec(k);
                 if (!match) continue;
                 if (presets.test(match[1])) continue;
-                p.base = base;
                 var [, name, args] = match;
-                args = args.split(",").map(a => a.trim().split(':'));
-                p.argDefaults = args.map(a => a[1]);
-                args = p.args = args.map(a => a[0]);
-                p.reg = new RegExp(args.join("|"), 'g');
+                p.base = base;
+                args = createArgMap(args);
+                p.args = args;
+                p.reg = new RegExp(args.join("|") + /|@\{[^\}@]+\}/.source, 'g');
                 if (!methods[name]) methods[name] = [];
                 methods[name].push(function () {
                     var body = evalthis(this);
-                    var valueMap = {};
-                    var argDefaults = p.argDefaults;
+                    var valueMap = Object.create(null);
+                    var argDefaults = this.args.defaults;
                     this.args.forEach((k, i) => {
                         var a = arguments[i];
-                        if (a === undefined || a === null) a = argDefaults[i];
+                        if (a === undefined || a === null) a = calcvars(argDefaults[k]);
+                        else a = calcvars(a);
                         valueMap[k] = a;
                     });
                     var replace = text => text.replace(this.reg, function (name) {
-                        if (name in valueMap) return valueMap[name];
+                        if (/^\@\{/.test(name)) {
+                            var key = "@" + name.slice(2, -1);
+                            if (key in valueMap) return strings.decode(valueMap[key]);
+                        }
+                        else if (name in valueMap) return valueMap[name];
                         return name;
+                    });
+                    var vars = this.vars;
+                    if (vars) Object.keys(vars).forEach(k => {
+                        valueMap[k] = replace(calcvars(vars[k]));
                     });
                     var rest = body.rest.map(a => a.map(replace));
                     var body = body.map(replace);
@@ -233,7 +276,7 @@ function evalscoped(scoped, scopeNames, base = '') {
                 result.push(k, ":", calcvars(p.join(" ")), ';');
             }
             else {
-                var match = /^(@\S+)\s*\(([\s\S]*)\)$/.exec(k);
+                var match = /^([@\.#]\S+)\s*\(([\s\S]*)\)$/.exec(k);
                 if (!match) continue;
                 if (presets.test(match[1])) continue;
                 var [, name, params] = match;
@@ -279,7 +322,7 @@ function richcss(text, scopeName, compress) {
         a = a.replace(/@\{(@[^\}]*)\}\s*/g, function (_, q) {
             ats.push(q);
             return ''
-        }).replace(/((?:[\+\-]+)?(?:\d+(?:\.\d*)?|\.\d+))\s*(px|%|pt|cm|mm|r?em)?\s*([\/\*\+\-])\s+((?:[\+\-]+)?(?:\d+(?:\.\d*)?|\.\d+))(px|%|pt|cm|mm|r?em)?/ig, function (_, d1, p1 = '', c, d2, p2 = '') {
+        }).replace(/((?:[\+\-]+)?(?:\d+(?:\.\d*)?|\.\d+))\s*(px|%|pt|cm|mm|r?em)?\s*([\/\*]\s*|[\+\-]\s+)((?:[\+\-]+)?(?:\d+(?:\.\d*)?|\.\d+))(px|%|pt|cm|mm|r?em)?/ig, function (_, d1, p1 = '', c, d2, p2 = '') {
             d1 = eval(d1);
             d2 = eval(d2);
             if (!p2) {
@@ -299,7 +342,7 @@ function richcss(text, scopeName, compress) {
                 }
             }
             return _;
-        })
+        }).replace(/~\s*(['"`])((?:\\[\s\S]|[^'"`\\])*?)\1/g, '$2');
         while (ats.length) {
             a = ats.pop() + `{${a}}`;
         }
