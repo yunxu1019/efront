@@ -404,7 +404,7 @@ var createScoped = function (parsed, wash) {
             var function_obj = null;
             if (o.type === STAMP && equal_reg.test(o.text)) {
                 var p = snapExpressHead(o.prev);
-                if (!p) {
+                if (!p || p.type & (STRAP | STAMP)) {
                     let n = o.next;
                     if (n && n.type & (EXPRESS | VALUE)) {
                         n.equal = o;
@@ -1121,7 +1121,7 @@ var createString = function (parsed) {
                         else if (o.text === '*') {
                             if (keepspace && lasttype !== SPACE && (lasttype !== STRAP || o.prev && o.prev.text !== 'function')) result.push(" ");
                         }
-                        else if (!/^(\+\+|\-\-)$/.test(o.text)) {
+                        else if (!/^(\+\+|\-\-)$/.test(o.text) || o.prev && o.prev.type & (STAMP | STRAP)) {
                             if (keepspace && lasttype !== SPACE) result.push(" ");
                         }
                     }
