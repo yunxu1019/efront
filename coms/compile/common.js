@@ -1001,6 +1001,7 @@ var setqueue = function (list, queue = list) {
 var createString = function (parsed) {
     var autospace = parsed.autospace !== false;
     var keepspace = parsed.keepspace !== false;
+    var patchspace = autospace && keepspace;
     var helpcode = parsed.helpcode;
     var lasttype = SPACE;
     var uncomment = parsed.comment === false;
@@ -1008,7 +1009,7 @@ var createString = function (parsed) {
     var helpcolor = parsed.keepcolor === false;
     var run = (o, i, a) => {
         var prev = o.prev;
-        if (!((SPACE | COMMENT | STAMP | PIECE | SCOPED) & o.type) && prev && lasttype !== SPACE && autospace) {
+        if (!((SPACE | COMMENT | STAMP | PIECE | SCOPED) & o.type) && prev && lasttype !== SPACE && patchspace) {
             if ((QUOTED | SCOPED | STRAP | LABEL | COMMENT) & lasttype
                 || prev.type === STAMP && !prev.unary
             ) {
@@ -1049,7 +1050,7 @@ var createString = function (parsed) {
                     }
                 }
                 if (keepspace && !opentmp) {
-                    if (autospace && lasttype !== SPACE && lasttype !== EXPRESS) result.push(" ");
+                    if (patchspace && lasttype !== SPACE && lasttype !== EXPRESS) result.push(" ");
                     result.push(tmp);
                 }
                 break;
@@ -1069,21 +1070,21 @@ var createString = function (parsed) {
                     break;
                 }
             case SCOPED:
-                if (autospace && o.type !== QUOTED && (lasttype & (STRAP | COMMENT | STAMP)
+                if (patchspace && o.type !== QUOTED && (lasttype & (STRAP | COMMENT | STAMP)
                     && (!o.prev || !/[\+\-\~\!]$/.test(o.prev.text) || /[\+\-]$/.test(o.prev.text) && (!o.prev.prev || !((STAMP | STRAP) & o.prev.prev.type)))
                     || lasttype === SCOPED && o.entry === "{"
                 )) result.push(" ");
                 result.push(o.entry);
                 if (o.length > 0) {
                     if (o.entry === "{" && o[0].type !== SPACE) {
-                        if (autospace && lasttype !== PIECE) {
+                        if (patchspace && lasttype !== PIECE) {
                             result.push(" ");
                         }
                     }
                     lasttype = SPACE;
                     o.forEach(run);
                     if (o.prev && o.prev.type === STRAP && /^for$/.test(o.prev.text));
-                    else if (/^[,;]$/.test(result[result.length - 1]) && !keepspace) {
+                    else if (/^[,;]$/.test(result[result.length - 1]) && autospace && !keepspace) {
                         var last = o.last;
                         var lp = last && last.prev;
                         if (!lp) result.pop();
@@ -1094,7 +1095,7 @@ var createString = function (parsed) {
                         }
                     }
                     if (o.leave === "}" && o.entry === "{" && o[o.length - 1].type !== SPACE) {
-                        if (autospace) result.push(" ");
+                        if (patchspace) result.push(" ");
                     }
                 }
                 result.push(o.leave);
@@ -1120,10 +1121,10 @@ var createString = function (parsed) {
                         }
 
                         else if (o.text === '*') {
-                            if (autospace && lasttype !== SPACE && (lasttype !== STRAP || o.prev && o.prev.text !== 'function')) result.push(" ");
+                            if (patchspace && lasttype !== SPACE && (lasttype !== STRAP || o.prev && o.prev.text !== 'function')) result.push(" ");
                         }
                         else if (!/^(\+\+|\-\-)$/.test(o.text) || o.prev && o.prev.type & (STAMP | STRAP)) {
-                            if (autospace && lasttype !== SPACE) result.push(" ");
+                            if (patchspace && lasttype !== SPACE) result.push(" ");
                         }
                     }
                     if (o.type === VALUE) {
