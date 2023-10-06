@@ -248,6 +248,7 @@ Richcss.prototype.setType = function (o) {
     }
     if (!p) return;
     var q = o.queue;
+    p = q[q.length - 1];
     if (o.type & (PROPERTY | EXPRESS) && p && p === q[q.length - 1] && p.type & (PROPERTY | EXPRESS)) {
         return false;
     }
@@ -268,19 +269,6 @@ Richcss.prototype.setType = function (o) {
             q.last = p;
             return;
         }
-    }
-    if (!q.entry && o.type !== SCOPED) {
-        var p = q.last;
-        if (p && p.type === STAMP && p.text === ':') {
-            if (p.keep) return;
-        }
-        else if (o.type === STAMP && o.text === ':') {
-            if (p.type & (EXPRESS | PROPERTY)) {
-                o.keep = true;
-                return;
-            }
-        }
-        if (o.type === STAMP && o.text !== ";") return false;
     }
 };
 
@@ -336,7 +324,7 @@ Richcss.prototype.createScoped = function (code) {
                 }
                 o = n;
             }
-            else if (o) {
+            else if (o && o.type === SCOPED) {
                 v = run(o);
             }
             p.autospace = false;

@@ -38,3 +38,5 @@ test(`b{a:darken(#fff,10%)}`, `b{a:#f5f5f5;}`);
 test(`b{a:darken(hsl(90, 80%, 50%), 20%)}`, `b{a:#6cd205;}`);
 test(`b{a:darken(#6cd205, 20%)}`, `b{a:#58be00;}`);
 test(`b{a:darken(#7ff,10%)}`, `b{a:#6df5f5;}`);
+
+test(`:not(a):not(b){c:d}`, `:not(a):not(b){c:d;}`);
