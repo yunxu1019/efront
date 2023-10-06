@@ -1,4 +1,4 @@
-var { STAMP, PROPERTY, SCOPED, VALUE, EXPRESS, QUOTED, SPACE, COMMENT, createString } = require("./common");
+var { STAMP, PROPERTY, SCOPED, VALUE, EXPRESS, QUOTED, SPACE, COMMENT, createString, splice } = require("./common");
 class Richarg extends Program {
     straps = ["and"];
     stamps = ',:;'.split("");
@@ -230,7 +230,7 @@ macros.each = function (list, body) {
 
 class Richcss extends Program {
     straps = ["and"];
-    stamps = `;:`.split("");
+    stamps = `;:>+~&`.split("");
     quotes = rarg.quotes;
     keepspace = true;
     scopes = [["{", "}"], ["(", ")"]]
@@ -245,29 +245,20 @@ Richcss.prototype.setType = function (o) {
             o.type = PROPERTY;
             return;
         }
+        if (p.type === PROPERTY && o.type !== STAMP && o.type !== SCOPED) {
+            o.type = PROPERTY;
+            return;
+        }
     }
     if (!p) return;
-    var q = o.queue;
-    p = q[q.length - 1];
-    if (o.type & (PROPERTY | EXPRESS) && p && p === q[q.length - 1] && p.type & (PROPERTY | EXPRESS)) {
-        return false;
-    }
     if (o.type === SCOPED && o.entry === "{") {
         if (p && p.type & (PROPERTY | EXPRESS) && /@$/.test(p.text)) {
             return false;
         }
-        var pps = [];
-        while (p && !(p.type === STAMP && p.text === ';' || p.type === SCOPED)) {
-            pps.push(p);
+        while (p && (p.type !== SCOPED || p.entry !== "{") && (p.type !== STAMP || p.text !== ';')) {
+            p.isprop = true;
+            if (p.type !== SCOPED) p.type = PROPERTY;
             p = p.prev;
-        }
-        if (pps.length > 1) {
-            var i = q.lastIndexOf(p = pps.pop());
-            q.splice(i + 1, q.length);
-            p.type = PROPERTY;
-            p.end = pps[0].end;
-            q.last = p;
-            return;
         }
     }
 };
@@ -297,7 +288,10 @@ Richcss.prototype.createScoped = function (code) {
         for (var cx = 0, dx = code.length; cx < dx; cx++) {
             var o = code[cx];
             if (o && (o.type & (SPACE | COMMENT) || o.type === STAMP && o.text === ';')) continue;
-            if (o.type !== PROPERTY) throw new Error("结构异常");
+            if (o.type !== PROPERTY) {
+                console.log(createString([o]), o.type, createString(code))
+                throw new Error("结构异常");
+            }
             var p = [], v = [];
             while (o && (o.type !== SCOPED || o.entry !== "{")) {
                 if (o.type === STAMP) break;
@@ -365,7 +359,8 @@ var fixBase = function (b, a) {
         if (presets.test(a)) a = `@{${a}}`;
         var replaced = false;
         return b.split(/\s*,\s*/).map(b => {
-            var a1 = a.replace(/(:scope|&)/g, function (match) {
+            if (b === '&') return a;
+            var a1 = a.replace(/&/g, function (match) {
                 replaced = true;
                 return b;
             });
@@ -381,11 +376,10 @@ var fixBase = function (b, a) {
 }
 function evalscoped(scoped, scopeNames, base = '') {
     var smaps = scoped.maps;
-    var root = smaps[":root"], scope = smaps[":scope"], and = smaps["&"];
+    var root = smaps[":root"], scope = smaps[":scope"];
     var vars = extend(Object.create(null), scoped.vars);
     if (root) root.forEach(r => extend(vars, r.vars));
     if (scope) scope.forEach(s => extend(vars, s.vars));
-    if (and) and.forEach(s => extend(vars, s.vars));
     scopeNames.forEach(s => {
         var ss = smaps[s];
         if (ss) ss.forEach(s => {
@@ -532,15 +526,20 @@ function richcss(text, scopeName, compress) {
     rcss.debug = true;
     var code = scanner2(text, rcss);
     var scopeNames = [];
-    if (scopeName) code.forEach(c => {
+    if (scopeName) backEach(code, function (c, i) {
         if (c.type === PROPERTY) {
             var replaced = false;
-            c.text = c.text.replace(/\:(scope|root)|&/g, function () {
-                replaced = true;
-                return scopeName;
-            });
+            if (c.text === ':') {
+                var n = c.next;
+                if (n && n.type === PROPERTY && /^(scope|root)([\.@#]|$)/.test(n.text)) {
+                    var e = code.indexOf(n, i);
+                    c.text = scopeName + n.text.replace(/^(scope|root)/, '');
+                    replaced = true;
+                    splice(code, i + 1, e - i);
+                }
+            }
             if (replaced) {
-                scopeNames.push(c.text);
+                if (scopeNames.indexOf(c.text) < 0) scopeNames.push(c.text);
             }
         }
     })

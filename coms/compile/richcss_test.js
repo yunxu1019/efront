@@ -1,7 +1,7 @@
 var test = function (data, expect) {
     assert(richcss(data), expect);
 };
-test(`&{--a:1}a{opacity:--a}`, `a{opacity:1;}`);
+test(`&{--a:1;a{opacity:--a}}`, `a{opacity:1;}`);
 test(`:root{--a:1}a{opacity:--a}`, `a{opacity:1;}`);
 test(`:scope{--a:1}a{opacity:--a}`, `a{opacity:1;}`);
 test(`:scope{--b:--a;--a:1;}a{opacity:--b}`, `a{opacity:1;}`);
@@ -40,3 +40,8 @@ test(`b{a:darken(#6cd205, 20%)}`, `b{a:#58be00;}`);
 test(`b{a:darken(#7ff,10%)}`, `b{a:#6df5f5;}`);
 
 test(`:not(a):not(b){c:d}`, `:not(a):not(b){c:d;}`);
+assert(richcss(`:not(a):not(b){c:d}`, 'abc'), `abc :not(a):not(b){c:d;}`);
+assert(richcss(`&:not(a):not(b){c:d}`, 'abc'), `abc:not(a):not(b){c:d;}`);
+assert(richcss(`:scope{&:not(a):not(b){c:d}}`, 'abc'), `abc:not(a):not(b){c:d;}`);
+assert(richcss(`:root{&:not(a):not(b){c:d}}`, 'abc'), `abc:not(a):not(b){c:d;}`);
+assert(richcss(`&{&:not(a):not(b){c:d}}`, 'abc'), `abc:not(a):not(b){c:d;}`);
