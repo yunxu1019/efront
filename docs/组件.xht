@@ -214,7 +214,7 @@
                 }
             }
             else {
-                if (code.isExpressQueue()) codetext = "return " + codetext;
+                if (code.isExpressQueue()) codetext = "return " + codetext.trim();
                 else if (vars.main) codetext += '\r\nreturn main';
                 else if (vars.Main) codetext += '\r\nreturn Main';
                 else if (vars.MAIN) codetext += "\r\nreturn MAIN";
