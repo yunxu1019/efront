@@ -36,6 +36,8 @@ test(`&{a:calc(100% - 1px)}`, `&{a:calc(100% - 1px);}`);
 test(`&{a:calc(~"100% - 1px")}`, `&{a:calc(100% - 1px);}`);
 test(`&{a:calc(~"100vw - 1px")}`, `&{a:calc(100vw - 1px);}`);
 test(`&{a:calc(~"100px - 1px")}`, `&{a:99px;}`);
+test(`&{a:url(~"100px - 1px")}`, `&{a:url(100px - 1px);}`);
+test(`&{a:url("100px - 1px")}`, `&{a:url("100px - 1px");}`);
 test(`&{a:calc(100px - 1px)}`, `&{a:99px;}`);
 test(`.a(){b{a:2}} .a();`, `b{a:2;}`);
 test(`#a(){b{a:2}} #a();`, `b{a:2;}`);

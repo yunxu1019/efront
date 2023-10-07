@@ -21,6 +21,7 @@ var remove_quote = a => a.replace(/~\s*(['"`])((?:\\[\s\S]|[^'"`\\])*?)\1/g, '$2
 var replace_punc = function (a) {
     if (typeof a !== "string") return a;
     a = remove_quote(a);
+    if (/\(/.test(a)) return a;
     do {
         var replaced = false;
         a = a.replace(replaceHReg, function (_, d1, p1, c, d2, p2) {
@@ -89,10 +90,10 @@ var seprateFunc = function (express) {
                 sp.splice(0, sp.length);
             }
         }
-        else if (o.type === QUOTED && !/['"`]/.test(o.text)) {
+        else if (o.type === QUOTED && !/^['"`]/.test(o.text)) {
             if (sp.length) sps.push(killcalc(sp));
             sp.splice(0, sp.length);
-            sps.push(createString([o]));
+            sps.push(o.text);
         }
         else sp.push(o);
     }
