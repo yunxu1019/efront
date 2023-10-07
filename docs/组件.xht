@@ -200,7 +200,7 @@
             var cssWrap = `css-` + +new Date;
             if (scope.doc.test.indexOf(lessName) >= 0) {
                 lessData = await cross("get", "./components:" + modName + ".less");
-                lessData = compile$richcss(lessData.responseText, "." + cssWrap);
+                lessData = compile$素馨(lessData.responseText, "." + cssWrap);
                 if (code.isExpressQueue()) {
                     codetext = `return cless(${codetext},\`${lessData}\`,"${cssWrap}")`;
                 }
