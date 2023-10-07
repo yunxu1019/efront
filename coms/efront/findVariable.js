@@ -27,10 +27,10 @@ var log = function (p, vs, vmap) {
 }
 var logcount = function (count) {
     if (!count) {
-        console.info("没有找到指定的全局变量\r\n");
+        console.info(i18n`没有找到指定的全局变量\r\n`);
         return;
     }
-    console.type(`在以上 <cyan>${count}</cyan> 个文件中找到了指定的全局变量\r\n`);
+    console.type(i18n`在以上 ${`<cyan>${count}</cyan>`} 个文件中找到了指定的全局变量\r\n`);
 };
 module.exports = async function (variables, rootpath) {
     var vmap = Object.create(null);
@@ -56,9 +56,9 @@ module.exports = async function (variables, rootpath) {
         fullpath = path.normalize(fullpath);
         if (passed[fullpath]) continue;
         passed[fullpath] = true;
-        console.info("正在查找", fullpath);
+        console.info(i18n`正在查找`, fullpath);
         if (!fs.existsSync(fullpath)) {
-            console.error("路径不正在:", fullpath);
+            console.error(i18n`路径不正在:`, fullpath);
             continue;
         }
         var stats = await stat(fullpath);

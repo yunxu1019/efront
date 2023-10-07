@@ -1,3 +1,186 @@
+- zh-CN: 未没找到匹配的资源：$1
+  en:    "No matching resources found: $1"
+
+- zh-CN: 检查到$1可以正常访问
+  en:    Checked that $1 can be accessed normally
+
+- zh-CN: 服务器地址：$1
+  en:    "Server address: $1"
+
+- zh-CN: 正常访问
+  en:    Normal access
+
+- zh-CN: 端口被占用
+  en:    Port is occupied
+
+- zh-CN: 没有权限
+  en:    No permission
+
+- zh-CN: 端口打开失败
+  en:    Port opening failed
+
+- zh-CN: HTTPS端口正在使用默认证书，请不要在生产环境使用此功能！
+  en:    "HTTPS port is using default certificate, please do not use this feature in production environment!"
+
+- zh-CN: 没有找到指定的全局变量
+  en:    The specified global variable was not found
+
+- zh-CN: 在以上 $1 个文件中找到了指定的全局变量
+  en:    Found the specified global variable in the $1 file above
+
+- zh-CN: 正在查找
+  en:    Finding
+
+- zh-CN: "路径不正在:"
+  en:    "Path not in progress:"
+
+- zh-CN: "处理完成：$1\r\n            =>  $2"
+  en:    "Processing completed: $1\r\n                  =>  $2"
+
+- zh-CN: 请输入目标路径！
+  en:    Please enter the target path!
+
+- zh-CN: 请输入网络路径！
+  en:    Please enter the network path!
+
+- zh-CN: 无法确定文件名
+  en:    Unable to determine file name
+
+- zh-CN: 完成：
+  en:    "Complete:"
+
+- zh-CN: 服务器忙，请稍后再试！
+  en:    "The server is busy, please try again later!"
+
+- zh-CN: 重试
+  en:    retry 
+
+- zh-CN: $1秒后再试
+  en:    Try again in $1 second
+
+- zh-CN: $1分钟后再试
+  en:    Try again in $1 minute
+
+- zh-CN: $1小时后再试
+  en:    Try again in $1 hour
+
+- zh-CN: 过几天再试
+  en:    Try again in a few days
+
+- zh-CN: 操作过于频繁，请$1
+  en:    "Operation too frequent, please $1"
+
+- zh-CN: 禁止访问！
+  en:    Access prohibited!
+
+- zh-CN: 检查到未知环境变量
+  en:    Unknown environment variable detected
+
+- zh-CN: 发现重名配置
+  en:    Found duplicate name configuration
+
+- zh-CN: 注册表操作暂不支持当前操作系统！
+  en:    Registry operation currently does not support the current operating system!
+
+- zh-CN: 注册表操作不支持$1
+  en:    Registry operation does not support $1
+
+- zh-CN: 注册表操作不支持此项 $1
+  en:    Registry operation does not support this key $1
+
+- zh-CN: 启动失败
+  en:    Start failed
+
+- zh-CN: 格式错误
+  en:    Format error
+
+- zh-CN: 代码结构异常！
+  en:    Code structure exception!
+
+- zh-CN: 缺少from语句
+  en:    Missing from statement
+
+- zh-CN: 缺少导入路径！
+  en:    Missing import path!
+
+- zh-CN: 缺少导出名！
+  en:    Lack of guidance!
+
+- zh-CN: 标记不匹配
+  en:    Tag mismatch
+
+- zh-CN: 类型不支持
+  en:    Type not supported
+
+- zh-CN: 参数异常！
+  en:    Parameter exception!
+
+- zh-CN: "range参数错误:"
+  en:    "Range parameter error:"
+
+- zh-CN: each参数异常!
+  en:    Abnormal each parameter!
+
+- zh-CN: 结构异常
+  en:    Structural abnormalities
+
+- zh-CN: 请指定输出路径！
+  en:    Please specify the output path!
+
+- zh-CN: 输出路径已存在，并且不是文件夹！
+  en:    The output path already exists and is not a folder!
+
+- zh-CN: 正在重写ASM
+  en:    Rewriting ASM
+
+- zh-CN: 正在导出组件
+  en:    Exporting components
+
+- zh-CN: 正在编译项目
+  en:    Compiling project
+
+- zh-CN: 项目内未发面主页面
+  en:    Unpublished homepage within the project
+
+- zh-CN: 启动自动刷新服务失败！
+  en:    Failed to start automatic refresh service!
+
+- zh-CN: 编译异常
+  en:    Compilation exception
+
+- zh-CN: 正在合成
+  en:    Synthesizing
+
+- zh-CN: 在 $1 中检测到可能不存在的外部变量：
+  en:    "Detected external variables that may not exist in $1:"
+
+- zh-CN: "压缩($1/$2):"
+  en:    "Compression ($1/$2):"
+
+- zh-CN: 存在环形引用：$1
+  en:    "There is a circular reference: $1"
+
+- zh-CN: 没有可导出的文件！
+  en:    There are no files to export!
+
+- zh-CN: 缺少变量：
+  en:    "Missing variable:"
+
+- zh-CN: 缺少常量：
+  en:    "Missing constant:"
+
+- zh-CN: watch功能在当前操作系统可能无法使用！
+  en:    The watch function may not be available on the current operating system!
+
+- zh-CN: 正在写入文件..
+  en:    Writing file
+
+- zh-CN: 请不要在非发布目录写文件！
+  en:    Please do not write files in non published directories!
+
+- zh-CN: 请不要将文件写入非发布目录！
+  en:    Please do not write files to non publishing directories!
+
 - zh-CN: 十进制
   en:    Decimal system
 

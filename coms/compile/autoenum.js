@@ -9,7 +9,7 @@ var createRefId = function (o) {
         if (o.type === SCOPED) {
             if (o.entry !== '[') break;
             var t = o.last;
-            if (!t) throw new Error("格式错误");
+            if (!t) throw new Error(i18n`格式错误`);
             if (t.type === QUOTED) {
                 if (!t.length) {
                     if (/\.|^#/.test(t.text)) {

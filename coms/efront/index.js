@@ -237,7 +237,7 @@ var transform = function (readfrom, writeto, run) {
             }
             fs.writeFile(distpath, data, function (error) {
                 if (error) console.error(error);
-                else console.info(`处理完成：${fullpath}
+                else console.info(i18n`处理完成：${fullpath}
             =>  ${distpath}`);
             });
         })
@@ -247,7 +247,7 @@ var transform = function (readfrom, writeto, run) {
 var commands = {
     pack(readfrom, writeto) {
         if (!writeto) {
-            console.error("请输入目标路径！");
+            console.error(i18n`请输入目标路径！`);
             return;
         }
         require("../build/pack")(readfrom, writeto);
@@ -301,7 +301,7 @@ var commands = {
     },
     packexe(readfrom, writeto) {
         if (!writeto) {
-            console.error("请输入目标路径！");
+            console.error(i18n`请输入目标路径！`);
             return;
         }
         require("../build/packexe")(readfrom, writeto);
@@ -392,11 +392,11 @@ var commands = {
         return opt;
     },
     async get(url, dist) {
-        if (!url) return console.error("请输入网络路径！");
+        if (!url) return console.error(i18n`请输入网络路径！`);
         var opt = this.parse(url);
         opt.method = 'get';
         if (!dist) dist = url.replace(/[\\\/]+$/, '').replace(/^[\s\S]*?([^\\\/]+)$/, "$1");
-        if (!dist) return console.error("无法确定文件名");
+        if (!dist) return console.error(i18n`无法确定文件名`);
         var stream;
         await this.request(opt, function (chunk) {
             if (chunk) {
@@ -408,7 +408,7 @@ var commands = {
                 stream.close();
             }
         });
-        console.log("完成：" + dist);
+        console.log(i18n`完成：` + dist);
     },
     request(address, quitable = false) {
         var opt = this.parse(address);

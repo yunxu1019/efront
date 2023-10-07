@@ -45,11 +45,11 @@ var deepwr = function (dir, data) {
 }
 function write(responseTree, public_path) {
     var values = Object.values(responseTree).filter(a => !!a.destpath);
-    if (values.length) console.info("正在写入文件..");
+    if (values.length) console.info(i18n`正在写入文件..`);
     var PUBLIC_PATH = environment.PUBLIC_PATH;
-    if (!/^\.\.|^$/.test(path.relative(public_path, PUBLIC_PATH))) throw new Error("请不要在非发布目录写文件！");
+    if (!/^\.\.|^$/.test(path.relative(public_path, PUBLIC_PATH))) throw new Error(i18n`请不要在非发布目录写文件！`);
     return queue.call(values, function ({ destpath, data }) {
-        if (!/^\.\./.test(path.relative(destpath, PUBLIC_PATH))) throw new Error("请不要将文件写入非发布目录！");
+        if (!/^\.\./.test(path.relative(destpath, PUBLIC_PATH))) throw new Error(i18n`请不要将文件写入非发布目录！`);
         return deepwr(path.join(public_path, destpath), data);
     });
 }

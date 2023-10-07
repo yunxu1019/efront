@@ -648,8 +648,8 @@ var removeImport = function (c, i, code) {
     var { used, envs, vars } = code;
     if (next && next.type !== QUOTED) {
         var [dec, map, o] = getDeclared(c.next);
-        if (!o) throw new Error("代码结构异常！");
-        if (o.type !== STRAP || o.text !== 'from') throw new Error("缺少from语句");
+        if (!o) throw new Error(i18n`代码结构异常！`);
+        if (o.type !== STRAP || o.text !== 'from') throw new Error(i18n`缺少from语句`);
         var oi = code.indexOf(o, i);
     }
     else code.splice(i, 1), o = c, oi = i - 1;
@@ -666,7 +666,7 @@ var removeImport = function (c, i, code) {
         splice(code, ni, 1);
         n = n.next;
     }
-    if (!n || n.type !== QUOTED) throw new Error("缺少导入路径！");
+    if (!n || n.type !== QUOTED) throw new Error(i18n`缺少导入路径！`);
     var ns = skipAssignment(n);
     var nsi = ns ? code.indexOf(ns, i) : code.length;
     var q = scan(`require()`);
@@ -748,7 +748,7 @@ var removeExport = function (c, i, code) {
             var n = o.next;
             if (n && n.type === STRAP && n.text === 'as') {
                 var nn = n.next;
-                if (!nn) throw new Error("缺少导出名！");
+                if (!nn) throw new Error(i18n`缺少导出名！`);
                 prop = nn.text;
                 o = nn;
                 n = o.next;
@@ -766,7 +766,7 @@ var removeExport = function (c, i, code) {
         }
         return;
     }
-    if (n.type !== STRAP) throw new Error("代码结构异常！");
+    if (n.type !== STRAP) throw new Error(i18n`代码结构异常！`);
     if (n.text === 'default') {
         n.text = '=';
         n.type = STAMP;

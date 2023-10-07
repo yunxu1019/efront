@@ -15,12 +15,12 @@ class OSReg {
         return this.run('set', key, value);
     }
     run(cmd, key, value) {
-        if (!this.cmdmap || !this.pathmap) throw new Error("注册表操作暂不支持当前操作系统！");
+        if (!this.cmdmap || !this.pathmap) throw new Error(i18n`注册表操作暂不支持当前操作系统！`);
         if (!this.cmdmap.hasOwnProperty(cmd)) {
-            throw new Error(`注册表操作不支持${cmd}`);
+            throw new Error(i18n`注册表操作不支持${cmd}`);
         }
         if (!this.pathmap.hasOwnProperty(key)) {
-            throw new Error(`注册表操作不支持此项 ${key}`);
+            throw new Error(i18n`注册表操作不支持此项 ${key}`);
         }
         var cmdarg = this.cmdmap[cmd] + " " + this.pathmap[key];
         if (value) value = this.format(value);

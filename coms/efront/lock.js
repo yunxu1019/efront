@@ -15,7 +15,7 @@ var preventCached = function (interval = 60000, id, count = 0) {
         // 5天 1亿 
         // 90亿 两年
 
-        throw new Error("服务器忙，请稍后再试！");
+        throw new Error(i18n`服务器忙，请稍后再试！`);
     }
     if (!(interval > 2000)) interval = 2000;
     var index = getIndexFromOrderedArray(cached, id);
@@ -28,21 +28,23 @@ var preventCached = function (interval = 60000, id, count = 0) {
             // 单个ip 最多1个
             var seconds = (increase + interval + c.time - now) / 1000 + 1 | 0;
             if (seconds < 2) {
-                seconds = "重试";
+                seconds = i18n`重试`;
             }
             else if (seconds < 60) {
-                seconds = seconds + "秒后再试";
+                seconds = i18n`${seconds}秒后再试`;
             }
             else if (seconds < 3600) {
-                seconds = (seconds / 60 + 1 | 0) + "分钟后再试"
+                seconds = seconds / 60 + 1 | 0;
+                seconds = i18n`${seconds}分钟后再试`
             }
             else if (seconds < 86400) {
-                seconds = (seconds / 3600 + 1 | 0) + "小时后再试";
+                seconds = seconds / 3600 + 1 | 0
+                seconds = i18n`${seconds}小时后再试`;
             }
             else {
-                seconds = "过几天再试";
+                seconds = i18n`过几天再试`;
             }
-            throw new Error("操作过于频繁，请" + seconds);
+            throw new Error(i18n`操作过于频繁，请${seconds}`);
         }
         if (!c.count) c.count = 2;
         else c.count++;
@@ -59,7 +61,7 @@ var preventCached = function (interval = 60000, id, count = 0) {
         }
         if (multiCount[id].length >= 200) {
             if (multiCount[id][0] < now - interval * 10000) multiCount[id].shift();
-            else throw new Error("禁止访问！");
+            else throw new Error(i18n`禁止访问！`);
         }
         multiCount[id].push(now);
     }

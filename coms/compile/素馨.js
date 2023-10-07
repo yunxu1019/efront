@@ -125,7 +125,7 @@ var createArgMap = function (args, split = ',', equal = ':') {
     var args = [];
     while (o) {
         if (!(o.type & (PROPERTY | EXPRESS))) {
-            throw new Error("参数异常！");
+            throw new Error(i18n`参数异常！`);
         }
         var k = o.text;
         args.push(k);
@@ -174,7 +174,7 @@ macros.range = function () {
         }
         return result;
     }
-    throw new Error("range参数错误:" + arguments);
+    throw new Error(i18n`range参数错误:` + arguments);
 };
 macros.extract = function (list, index) {
     if (typeof list === 'string') list = list.split(',');
@@ -223,7 +223,7 @@ macros.grayluma = wrapColor(color.grayluma);
 macros.fade = wrapColor(color.fade);
 macros.each = function (list, body) {
     var match = /^(?:\s*[#\.]?\(([\s\S]*?)\))?\s*\{([\s\S]*)\}$/.exec(body);
-    if (!match) throw new Error("each参数异常!");
+    if (!match) throw new Error(i18n`each参数异常!`);
     var [_, args, content] = match;
     if (!content) return;
     content = 素馨(content);
@@ -336,7 +336,7 @@ var presets = /^@(media|keyframes|layer|import|namespace|page|property|suppports
             if (o && (o.type & (SPACE | COMMENT) || o.type === STAMP && o.text === ';')) continue;
             if (o.type !== PROPERTY) {
                 console.log(createString([o]), o.type, createString(code))
-                throw new Error("结构异常");
+                throw new Error(i18n`结构异常`);
             }
             var p = [], v = [];
             while (o && (o.type !== SCOPED || o.entry !== "{")) {

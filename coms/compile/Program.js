@@ -523,7 +523,7 @@ class Program {
                 pop_parents();
                 continue;
             }
-            if (this.scope_leave[m]) console.warn("标记不匹配", queue.entry, m, "queue:", `${queue.row}:${queue.col}`, "position:", `${row}:${index - colstart}\r\n`, text.slice(queue.start, index));
+            if (this.scope_leave[m]) console.warn(i18n`标记不匹配`, queue.entry, m, "queue:", `${queue.row}:${queue.col}`, "position:", `${row}:${index - colstart}\r\n`, text.slice(queue.start, index));
             if (this.stamp_reg.test(m)) {
                 save(STAMP);
             }

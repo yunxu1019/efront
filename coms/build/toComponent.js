@@ -303,7 +303,7 @@ function toComponent(responseTree, noVersionInfo) {
                 return destMap[realkey];
             }
             if (!isFinite(index)) {
-                if (memery.EMIT) console.warn("编译异常", module_key, a);
+                if (memery.EMIT) console.warn(i18n`编译异常`, module_key, a);
                 saveOnly(a, a);
                 index = destMap[a];
             }
@@ -462,7 +462,7 @@ function toComponent(responseTree, noVersionInfo) {
             return responseTree;
         }
     }
-    console.info("正在合成");
+    console.info(i18n`正在合成`);
     if (array_map && array_map.data) saveCode([String(array_map.data)], "map", null, array_map.occurs);
     var circle_result, PUBLIC_APP, public_index, last_result_length = result.length, origin_result_length = last_result_length
     while (result.length) {
@@ -482,7 +482,7 @@ function toComponent(responseTree, noVersionInfo) {
             }
             var errored = module_body.slice(0, module_body.length >> 1).filter(saveGlobal);
             if (errored.length) {
-                console.warn(`在 <yellow>${k}</yellow> 中检测到可能不存在的外部变量：`, `<cyan2>${errored.join("<gray>,</gray> ")}</cyan2>`);
+                console.warn(i18n`在 ${`<yellow>${k}</yellow>`} 中检测到可能不存在的外部变量：`, `<cyan2>${errored.join("<gray>,</gray> ")}</cyan2>`);
             }
             if (!responseTree[k].data) {
                 result.splice(cx, 1);
@@ -491,7 +491,7 @@ function toComponent(responseTree, noVersionInfo) {
             if (ok || circle_result) {
                 result.splice(cx, 1);
                 var startTime = new Date;
-                console.info(`压缩(${origin_result_length - result.length}/${origin_result_length}):`, k);
+                console.info(i18n`压缩(${origin_result_length - result.length}/${origin_result_length}):`, k);
                 saveCode(module_body, k, reqMap, occurs);
                 responseTree[k].time += new Date - startTime;
             }
@@ -504,7 +504,7 @@ function toComponent(responseTree, noVersionInfo) {
             }
             circle_result.forEach(k => saveOnly('""', k));
             console.warn(
-                `存在环形引用：[${circle_result.join('|')}]`
+                i18n`存在环形引用：${`[${circle_result.join('|')}]`}`
             );
         }
         last_result_length = result.length;
@@ -543,7 +543,7 @@ function toComponent(responseTree, noVersionInfo) {
     var constIndex = strings.map(s => getEncodedIndex(s, 'string') - 1)
     if (hasDirname) constIndex.push(getEncodedIndex(`__dirname`, "global") - 1);
 
-    if (!PUBLIC_APP) return console.error("没有可导出的文件！"), {};
+    if (!PUBLIC_APP) return console.error(i18n`没有可导出的文件！`), {};
     var stringr = {
         e: 'exec',
         q: 'split',
@@ -597,11 +597,11 @@ function toComponent(responseTree, noVersionInfo) {
     var declears = scanner2(realize).envs;
     declears = Object.keys(declears).filter(k => !/^[acs]$/.test(k)).map(k => {
         if (!stringr.hasOwnProperty(k)) {
-            throw new Error("缺少变量：" + k);
+            throw new Error(i18n`缺少变量：` + k);
         }
         var v = stringr[k];
         if (typeof v === 'string' && !/\[|^(this)$/.test(v)) {
-            if (strings.indexOf(v) < 0) throw new Error("缺少常量：" + v);
+            if (strings.indexOf(v) < 0) throw new Error(i18n`缺少常量：` + v);
             v = `s[${getEncodedIndex(v, "string") - 1}]`;
         }
         if (v !== undefined) return `${k} = ${v}`;

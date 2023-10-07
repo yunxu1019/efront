@@ -225,7 +225,7 @@ module.exports = function (mainpath, args) {
             mainLoaderPromise.then(function (loader) {
                 new Function(loader).call(window);
             }).catch(function (e) {
-                console.error("启动失败");
+                console.error(i18n`启动失败`);
             });
         }
     });

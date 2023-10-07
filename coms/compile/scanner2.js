@@ -201,7 +201,7 @@ function scan(text, type = "js", lastIndex = 0) {
                 program = type;
             }
             else {
-                console.log("类型不支持", type)
+                console.log(i18n`类型不支持`, type)
             }
             break;
     }

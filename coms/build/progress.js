@@ -11,7 +11,7 @@ var {
 } = environment;
 var PUBLIC_APP = /* process.argv[2] || */ APP.replace(/\.html?$/i, "");
 // if (!PUBLIC_APP) throw new Error("请配置要发布的项目名称！");
-if (!PUBLIC_PATH) throw new Error("请指定输出路径！");
+if (!PUBLIC_PATH) throw new Error(i18n`请指定输出路径！`);
 var reload = 0;
 var write = require("./write");
 var clean = require("./clean");
@@ -54,13 +54,13 @@ function builder(cleanAfterBuild = false, cleanBeforeBuild = false) {
         _finish(new Date - savedTime);
     };
     if (!fs.existsSync(PUBLIC_PATH)) fs.mkdirSync(PUBLIC_PATH);
-    if (fs.statSync(PUBLIC_PATH).isFile()) throw new Error("输出路径已存在，并且不是文件夹！");
+    if (fs.statSync(PUBLIC_PATH).isFile()) throw new Error(i18n`输出路径已存在，并且不是文件夹！`);
     var commbuilder = require("../efront/commbuilder");
     commbuilder.typeofMap = Object.create(null);
     var promise;
     if (public_app) {
         if (/\.asm$/i.test(public_app)) {
-            console.info("正在重写ASM <cyan>", public_app, '</cyan>\r\n');
+            console.info(i18n`正在重写ASM` + " <cyan>", public_app, '</cyan>\r\n');
             //导出组件
             var public_path = path.join(PUBLIC_PATH, public_app);
             setting.is_commponent_package = true;
@@ -68,7 +68,7 @@ function builder(cleanAfterBuild = false, cleanBeforeBuild = false) {
             var polyfills = [];
         } else {
             if (memery.EXTT === undefined) memery.EXTT = '.js';
-            console.info("正在导出组件 <cyan>", public_app, '</cyan>\r\n');
+            console.info(i18n`正在导出组件` + " <cyan>", public_app, '</cyan>\r\n');
             //导出组件
             var public_path = path.join(PUBLIC_PATH, public_app);
             setting.is_commponent_package = true;
@@ -88,7 +88,7 @@ function builder(cleanAfterBuild = false, cleanBeforeBuild = false) {
         //导出项目
         require("../efront/isLib").dispose();
         if (memery.EXTT === undefined) memery.EXTT = '.txt';
-        console.info("正在编译项目", `<cyan>${PUBLIC_APP}</cyan>\r\n`);
+        console.info(i18n`正在编译项目`, `<cyan>${PUBLIC_APP}</cyan>\r\n`);
         var public_path = path.join(PUBLIC_PATH, APP.replace(/\.html?$/i, ''));
         setting.is_commponent_package = false;
         setting.is_file_target = /\.html?$/i.test(memery.APP);
@@ -112,7 +112,7 @@ function builder(cleanAfterBuild = false, cleanBeforeBuild = false) {
                 }
             }
             if (!indexHTML) {
-                console.warn('项目内未发面主页面');
+                console.warn(i18n`项目内未发面主页面`);
             }
             polyfills = POLYFILL ? [
                 path.join(__dirname, "../", "basic_/Promise.js"),

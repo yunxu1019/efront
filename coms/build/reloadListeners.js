@@ -13,7 +13,7 @@ var listener = function (req, res) {
 var http = require("http");
 var server = http.createServer(listener);
 server.once("error", function () {
-    console.error("启动自动刷新服务失败！");
+    console.error(i18n`启动自动刷新服务失败！`);
 });
 var memery = require("../efront/memery");
 server.once("listening", function (event) {
