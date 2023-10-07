@@ -601,12 +601,6 @@ var requestListener = async function (req, res) {
     if (getHeader(req.headers, "range")) {
         return doFile(req, res);
     }
-    var match = req.url.match(/\/ccon\/(.*?)\.([\da-f]+)\.png$/i);
-    if (match) {
-        var name = match[1];
-        var color = parseInt(match[2], 16);
-        return res.end(doPost.ccon(name, color));
-    }
     if (memery.CHANNEL_ENABLED && /^\/\([\s\S]*\)/.test(req.url)) {
         return doChannel(req, res);
     };
@@ -663,7 +657,7 @@ var checkServerState = function (http, port0) {
             var powered = response.headers["powered-by"];
             if (type) return ok();
             if (powered === version) {
-                ok(`检查到${port}可以正常访问\r\n`);
+                ok(i18n`检查到${port}可以正常访问\r\n`);
                 if (!memery.proted) memery.proted = true;
             } else {
                 oh("<red>端口异常</red>");
@@ -688,7 +682,7 @@ var showServerInfo = async function () {
     var address = require("../efront/getLocalIP")();
     var port = portedServersList.map(a => a && a.port);
     var msg = [
-        `服务器地址：${address}`];
+        i18n`服务器地址：${address}`];
     var maxLength = 0;
     for (var cx = 0, dx = port.length; cx < dx; cx++) {
         var p = port[cx];
@@ -708,7 +702,7 @@ var showServerInfo = async function () {
         s.close(closeListener);
     };
     var showValid = function (i) {
-        console.info(msg[i + 1] + "\t<green>正常访问</green>\r\n");
+        console.info(msg[i + 1] + `\t<green>${i18n`正常访问`}</green>\r\n`);
     }
     var types = [];
     for (var cx = 1, dx = msg.length; cx < dx; cx++) {
@@ -739,16 +733,16 @@ var showServerError = function (error) {
     if (error instanceof Error) {
         switch (error.code) {
             case "EADDRINUSE":
-                error = `端口被占用`;
+                error = i18n`端口被占用`;
                 break;
             case "EACCES":
-                error = "没有权限";
+                error = i18n`没有权限`;
                 break;
             default:
                 error = error.code;
         }
     }
-    s.error = error || `端口打开失败`;
+    s.error = error || i18n`端口打开失败`;
     showServerInfo.call(s);
 };
 var portedServersList = [];
@@ -929,7 +923,7 @@ if (memery.PFX_PATH) {
 }
 else if (HTTPS_PORT) {
     loading++;
-    console.warn("<yellow>HTTPS端口正在使用默认证书，请不要在生产环境使用此功能！</yellow>");
+    console.warn(`<yellow>${i18n`HTTPS端口正在使用默认证书，请不要在生产环境使用此功能！`}</yellow>`);
     Object.assign(httpsOptions, cert);
     createHttpsServer();
 }

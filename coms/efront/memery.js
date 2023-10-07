@@ -24,7 +24,7 @@ var set = function (k, v) {
     else {
         k = k.toUpperCase();
         if (!(k in namemap)) {
-            console.warn("检查到未知环境变量", k);
+            console.warn(i18n`检查到未知环境变量`, k);
         }
         var n = namemap[k] || k;
     }
@@ -54,7 +54,7 @@ var get = function (name, _default, fix, limits) {
             namemap[k] = alias[0];
         }
         if (!isEmpty(_default)) {
-            if (!isEmpty(defaults[alias[0]])) console.warn("发现重名配置", alias);
+            if (!isEmpty(defaults[alias[0]])) console.warn(i18n`发现重名配置`, alias);
             defaults[alias[0]] = _default;
         }
     }
@@ -231,7 +231,6 @@ var memery = module.exports = {
     APIS_PATH: getfullpath("APIS_PATH, AAPI_PATH, APPS_PATH"),
     LIBS_PATH: getfullpath("LIBS_PATH, LIB_PATH"),
     FILE_PATH: getfullpath("FILE_PATH"),
-    ICON_PATH: getfullpath("ICON_PATH, CONS_PATH, CCON_PATH, ICONS_PATH"),
     get PUBLIC_PATH() { return PUBLIC_PATH },
     set PUBLIC_PATH(v) {
         PUBLIC_PATH = v;
@@ -264,7 +263,6 @@ var memery = module.exports = {
     AAPI: getdirpath("AAPI, APIS"),
     IMAG: getdirpath("IMAG, IMGS"),
     LIBS: getdirpath("LIBS, LIB"),
-    ICON: getdirpath("ICON, CCON, CONS, ICONS"),
     EMIT: get("EMIT,DEEP,LINK", true),
     FORCE: false,
     BREAK: get("BREAK,DETOUR"),

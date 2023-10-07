@@ -41,19 +41,12 @@ var doPost = module.exports = async function (req, res) {
             case "page":
                 res.end(result);
                 break;
-            case "ccon":
-                res.end(result);
-                break;
             case 404:
                 res.writeHead(404, utf8err);
-                res.end(`未没找到匹配的资源：${url}`);
+                res.end(i18n`未没找到匹配的资源：${url}`);
                 break;
             default:
                 res.end(result);
         }
     });
-};
-doPost.ccon = function (name, color) {
-    var data = finalpacker.ccon(name);
-    return finalpacker.color(String(data), color);
 };

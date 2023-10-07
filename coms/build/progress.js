@@ -123,7 +123,7 @@ function builder(cleanAfterBuild = false, cleanBeforeBuild = false) {
                     path.join(__dirname, "../", "zimoli/main.js"),
                     path.join(__dirname, "../", "zimoli/zimoli.js"),
                 ].concat(polyfills) : [],
-            ).concat(environment.ccons_root || []), lastBuildTime, public_path)
+            ), lastBuildTime, public_path)
                 .then(toApplication)
                 .then(function (response) {
                     var pbpath = public_path.replace(/[\/\\]+$/, '');

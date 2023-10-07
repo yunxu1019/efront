@@ -4,7 +4,6 @@ var parseURL = require("../basic/parseURL");
 var memery = require("./memery");
 var getCommap = require("./getCommap");
 var commbuilder = require("./commbuilder");
-var iconbuilder = require("./iconbuilder");
 var aapibuilder = require("./aapibuilder");
 var filebuilder = require("./filebuilder");
 var path = require("path");
@@ -64,8 +63,6 @@ var createManagersWithEnv = async function (env) {
     pagecache.onreload = update;
     var apicache = new Cache(mixpath(env.APIS_PATH, env.AAPI), aapibuilder);
     apicache.onreload = fireload;
-    var iconcache = new Cache(mixpath(env.ICON_PATH || require("path").join(__dirname, "../data/cons"), env.ICON), iconbuilder);
-    iconcache.onreload = fireload;
     var filecache = new Cache(mixpath(env.FILE_PATH || env.PAGE_PATH, env.FILE || env.PAGE), filebuilder, FILE_BUFFER_SIZE);
     filecache.onreload = fireload;
     var managers = {
@@ -84,17 +81,11 @@ var createManagersWithEnv = async function (env) {
             var exts = fixExtentions([".js", ".mjs", '.ts'], ext);
             return apicache.seek(name, exts);
         },
-        ccon(name, ext) {
-            var exts = fixExtentions([".png"], ext);
-            return iconcache.seek(name, exts);
-        },
         file(name, ext) {
             var exts = [ext]
             return filecache.seek(name, exts);
         },
-        color: iconbuilder.color
     }
-    managers.icon = managers.ccon;
     managers.api = managers.aapi;
     managers.colr = managers.color;
     return managers;
@@ -131,7 +122,7 @@ var exports = module.exports = async function (url, callback) {
     url = parseURL(url).pathname;
     var match = url.match(
         //////// 1 /////////        2           //// 3 //   4   /////////////////////
-        /[\/\:](comm|page|ccon|aa?pi)\/(.*?)(\.[\w]*)?(?:(?:\?|\#).*?)?$/i
+        /[\/\:](comm|page|aa?pi)\/(.*?)(\.[\w]*)?(?:(?:\?|\#).*?)?$/i
     );
     if (match) {
         var type = match[1],

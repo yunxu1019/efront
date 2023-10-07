@@ -1,6 +1,5 @@
 "use strict";
 var commbuilder = require("../efront/commbuilder");
-var iconbuilder = require("../efront/iconbuilder");
 var htmlbuilder = require("../efront/filebuilder");
 var asmbuilder = require("../efront/asmbuilder");
 var manybuilder = require("./unpublish");
@@ -34,7 +33,6 @@ function getBuildInfo(url) {
     if (match) {
         var {
             comms_root,
-            ccons_root,
             pages_root,
             PAGE_PATH,
             // aapis_root
@@ -120,12 +118,12 @@ function getBuildInfo(url) {
                     }
                 }
                 break;
-            case ".":
-                builder = iconbuilder;
-                extt = ".png";
-                fullpath = ccons_root instanceof Array ? ccons_root.map(c => path.join(c, name + extt)) : path.join(ccons_root, name + extt);
-                destpath = path.join("ccon", name);
-                break;
+            // case ".":
+            //     builder = iconbuilder;
+            //     extt = ".png";
+            //     fullpath = ccons_root instanceof Array ? ccons_root.map(c => path.join(c, name + extt)) : path.join(ccons_root, name + extt);
+            //     destpath = path.join("ccon", name);
+            //     break;
             // case "_":
             //     builder = aapibuilder;
             //     extt = ".js";

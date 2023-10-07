@@ -20,11 +20,9 @@ var {
 } = memery;
 var PAGE = env.PAGE || "";
 var COMM = env.COMM;
-var ICON = env.ICON;
 var AAPI = env.APIS || "";
 var PAGE_PATH = env.PAGE_PATH;
 var COMS_PATH = env.COMS_PATH;
-var ICON_PATH = env.ICON_PATH;
 var joinpath = ([a, b]) => path.resolve(path.join(a || '', b || ''));
 var comsroot_map = Object.create(null);
 var comms_root = mixin(env.COMS_PATH, env.COMM)
@@ -35,7 +33,6 @@ var comms_root_length = comms_root.length;
 var buildinpath = path.join(__dirname, '..');
 comms_root = comms_root.filter(a => path.resolve(a) !== buildinpath);
 if (comms_root.length < comms_root_length) comms_root.push(buildinpath);
-var ccons_root = ICON && ICON_PATH ? mixin(env.ICON_PATH, env.ICON).map(joinpath).filter(fs.existsSync) : [];
 var pages_root = mixin(env.PAGE_PATH, env.PAGE).map(joinpath).filter(fs.existsSync);
 if (memery.RESTCOMS) var rest_coms = mixin(env.COMS_PATH, memery.RESTCOMS).filter(a => fs.existsSync(joinpath(a)));
 POLYFILL = !/^(0|false|null)$/i.test(POLYFILL);
@@ -81,13 +78,11 @@ var ignore_path = PUBLIC_PATH.split(/[,;]/).concat((memery.ENVS_PATH || "./_envs
 module.exports = {
     comms_root,
     class_prefix: PREFIX || '',
-    ccons_root,
     pages_root,
     aapis_root,
     ignore_path,
     PAGE,
     COMM,
-    ICON,
     SOURCEDIR,
     AAPI,
     PUBLIC_PATH,

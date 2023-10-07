@@ -1,3 +1,4 @@
+console.error("图标组件的服务端已从efront移除，请勿使用！");
 var setBackGround, icon, icn;
 var binaryImagePathReg = /^https?\:|\.(?:png|gif|bmp|jpe?g)$/i;
 if (/MSIE\s*[2-8]/.test(navigator.userAgent)) {
