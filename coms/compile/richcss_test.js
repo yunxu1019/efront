@@ -57,3 +57,5 @@ assert(richcss(`&:not(a):not(b){c:d}`, 'abc'), `abc:not(a):not(b){c:d;}`);
 assert(richcss(`:scope{&:not(a):not(b){c:d}}`, 'abc'), `abc:not(a):not(b){c:d;}`);
 assert(richcss(`:root{&:not(a):not(b){c:d}}`, 'abc'), `abc:not(a):not(b){c:d;}`);
 assert(richcss(`&{&:not(a):not(b){c:d}}`, 'abc'), `abc:not(a):not(b){c:d;}`);
+assert(richcss(`:root>a{&:not(a):not(b){c:d}}`, '.abc-'), `.abc->a:not(a):not(b){c:d;}`);
+assert(richcss(`a>:root{&:not(a):not(b){c:d}}`, '.abc-'), `a>.abc-:not(a):not(b){c:d;}`);

@@ -402,8 +402,9 @@ var fixBase = function (b, a) {
         if (presets.test(a)) a = `@{${a}}`;
         var replaced = false;
         return b.split(/\s*,\s*/).map(b => {
-            if (b === '&') return a;
-            var a1 = a.replace(/&/g, function (match) {
+            b = b.replace(/^(&|\:scope|\:root)\s*/g, "");
+            if (!b) return a;
+            var a1 = a.replace(/&|\:scope|\:root/g, function (match) {
                 replaced = true;
                 return b;
             });
@@ -417,18 +418,12 @@ var fixBase = function (b, a) {
         }).join(",");
     }).join(",");
 }
-function evalscoped(scoped, scopeNames, base = '') {
+function evalscoped(scoped, base = '') {
     var smaps = scoped.maps;
     var root = smaps[":root"], scope = smaps[":scope"];
     var vars = extend(Object.create(null), scoped.vars);
     if (root) root.forEach(r => extend(vars, r.vars));
     if (scope) scope.forEach(s => extend(vars, s.vars));
-    scopeNames.forEach(s => {
-        var ss = smaps[s];
-        if (ss) ss.forEach(s => {
-            extend(vars, s.vars), s.rooted = true;
-        })
-    });
     var vlist = [vars];
     var mlist = [macros];
     var clist = [smaps];
@@ -568,26 +563,8 @@ function richcss(text, scopeName, compress) {
     if (!rcss) rcss = new Richcss;
     rcss.debug = true;
     var code = scanner2(text, rcss);
-    var scopeNames = [];
-    if (scopeName) backEach(code, function (c, i) {
-        if (c.type === PROPERTY) {
-            var replaced = false;
-            if (c.text === ':') {
-                var n = c.next;
-                if (n && n.type === PROPERTY && /^(scope|root)([\.@#]|$)/.test(n.text)) {
-                    var e = code.indexOf(n, i);
-                    c.text = scopeName + n.text.replace(/^(scope|root)/, '');
-                    replaced = true;
-                    splice(code, i + 1, e - i);
-                }
-            }
-            if (replaced) {
-                if (scopeNames.indexOf(c.text) < 0) scopeNames.push(c.text);
-            }
-        }
-    })
     var { scoped } = code;
-    var result = evalscoped(scoped, scopeNames, scopeName);
+    var result = evalscoped(scoped, scopeName);
     var queried = [];
     var getquried = function () {
         if (!queried.length) return "";
