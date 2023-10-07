@@ -398,7 +398,8 @@ var getFromScopeList = function (name, varsList, value = name) {
         }
     }
     return value;
-}
+};
+var removeSelectorSpace = a => a.trim().replace(/\s*([\+~\>])\s*/g, "$1");
 var fixBase = function (b, a) {
     return a.split(/,\s*/).map(a => {
         if (presets.test(a)) a = `@{${a}}`;
@@ -411,7 +412,7 @@ var fixBase = function (b, a) {
                 return b;
             });
             if (!replaced) {
-                if (/^[>~+]/.test(a)) {
+                if (/^[\>~\+]/.test(a) || /[\>~\+]$/.test(b)) {
                     a1 = b + a;
                 }
                 else a1 = b + " " + a;
@@ -421,6 +422,7 @@ var fixBase = function (b, a) {
     }).join(",");
 }
 function evalscoped(scoped, base = '') {
+    base = removeSelectorSpace(base);
     var smaps = scoped.maps;
     var root = smaps[":root"], scope = smaps[":scope"];
     var vars = extend(Object.create(null), scoped.vars);
@@ -530,6 +532,7 @@ function evalscoped(scoped, base = '') {
             if (p.isMethod) continue;
             if (p.used) {
                 k = calcvars(k);
+                k = removeSelectorSpace(k);
                 if (base && !p.rooted) p.base = fixBase(base, k);
                 else p.base = presets.test(k) ? `@{${k}}` : k;
                 if (p.vars) vlist.push(p.vars);

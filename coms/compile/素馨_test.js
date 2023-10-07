@@ -54,6 +54,9 @@ test(`b{a:darken(#6cd205, 20%)}`, `b{a:#58be00;}`);
 test(`b{a:darken(#7ff,10%)}`, `b{a:#6df5f5;}`);
 
 test(`:not(a):not(b){c:d}`, `:not(a):not(b){c:d;}`);
+test(`a>{b{a:b}}`, `a>b{a:b;}`);
+test(`a    >{b{a:b}}`, `a>b{a:b;}`);
+test(`a{>b{a:b}}`, `a>b{a:b;}`);
 assert(素馨(`:not(a):not(b){c:d}`, 'abc'), `abc :not(a):not(b){c:d;}`);
 assert(素馨(`&:not(a):not(b){c:d}`, 'abc'), `abc:not(a):not(b){c:d;}`);
 assert(素馨(`:scope{&:not(a):not(b){c:d}}`, 'abc'), `abc:not(a):not(b){c:d;}`);
