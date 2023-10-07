@@ -2,7 +2,6 @@
 var scanner2 = require("../compile/scanner2");
 var breakcode = require("../compile/breakcode");
 var strings = require("../basic/strings");
-var less;
 var inCom = require("./inCom");
 var inPage = require("./inPage");
 var fs = require("fs");
@@ -594,7 +593,6 @@ var renderImageUrl = function (data, filepath) {
 };
 var renderLessData = function (data, lesspath, watchurls, className) {
     if (data.length > 0x1000) console.info("编译", lesspath);
-    if (!less) less = require("../less-node")(), less.PluginLoader = function () { };
     data = data || '';
     var importLessReg = /^\s*@(?:import)\s*(['"`]?)(.*?)\1(\s*;)?\s*$/im;
     var replacer = function (data, realpath) {
@@ -609,15 +607,7 @@ var renderLessData = function (data, lesspath, watchurls, className) {
         .then((data) => renderImageUrl.call(this, data, lesspath))
         .then(function (lessdata) {
             var timeStart = new Date;
-            var lessData;
-            if (/\.xht$/.test(lesspath)) lessData = compile$richcss(lessdata, "." + className);
-            else less.render(`.${className}{\r\n${String(lessdata)}\r\n}`, {
-                compress: !islive,
-                filename: lesspath
-            }, function (err, data_2) {
-                if (err) return console.warn(err, lesspath);
-                lessData = data_2.css;
-            });
+            var lessData = compile$素馨(lessdata, "." + className);
             promise.time = new Date - timeStart;
             return lessData;
         }).then(function (lessData) {
