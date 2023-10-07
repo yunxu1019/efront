@@ -362,7 +362,7 @@
                     if (v === false) alert(i18n`暂不支持翻译其他语言`, 'warn');
                 },
                 test(a) {
-                    return /[\u3400-\ufad9\u{20000}-\u{2a6d6}\u{2fa1d}]/u.test(a.text);
+                    return !!a.fanyi || /[\u3400-\ufad9\u{20000}-\u{2a6d6}\u{2fa1d}]/u.test(a.text);
                 }
             }
         ]

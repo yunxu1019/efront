@@ -1,3 +1,33 @@
+- zh-CN: 数值换算
+  en:    Numerical conversion
+
+- zh-CN: 检查utf8
+  en:    Check utf8
+
+- zh-CN: 检查gbk
+  en:    Check gbk
+
+- zh-CN: 要检查的字符集区间(双字节以内)
+  en:    Character set interval to check (within double bytes)
+
+- zh-CN: 编码
+  en:    coding
+
+- zh-CN: 识别为unicode后的字符
+  en:    Characters recognized as unicode
+
+- zh-CN: 识别为gbk后的字符
+  en:    Characters recognized as gbk
+
+- zh-CN: 正在生成报告
+  en:    Generating report
+
+- zh-CN: 从网络下载文件，类似unix中的wget
+  en:    "Download files from the network, similar to wget in Unix"
+
+- zh-CN: 输入内容..
+  en:    Input content
+
 - zh-CN: readme.md
   en:    readme-en.md
 
@@ -152,10 +182,10 @@
   en:    "Translation:"
 
 - zh-CN: "跳过了缺少参数的请求:$1 $2 $3\r\n缺少参数：$4"
-  en:    
+  en:    "Skipped request $1 $2 $3 \r\n Missing parameters $4"
 
 - zh-CN: ", 可能的取值有 $1"
-  en:    Possible values are $1
+  en:    ", possible values are $1"
 
 - zh-CN: 修改国际化参数
   en:    Modify internationalization parameters
@@ -281,7 +311,7 @@
   en:    Api with the same id set multiple times:%c $1
 
 - zh-CN: 跳过了缺少参数的请求:$1 $2 $3\r\n缺少参数：$4
-  en:    
+  en:    Skipped request $1 $2 $3  Missing parameter $4
 
 - zh-CN: 没有找到对应的接口 id $1.
   en:    No corresponding interface id $1 was found
@@ -311,7 +341,7 @@
   en:    "The command syntax that can be used for $1 is:"
 
 - zh-CN: 其中
-  en:    among
+  en:    among them
 
 - zh-CN: 请指定输出文件名！
   en:    Please specify the output file name!
@@ -329,7 +359,7 @@
   en:    "The commands that can be used are:"
 
 - zh-CN: 如要显示更具体的信息，请使用:$1
-  en:    
+  en:    "To display more specific information, please use: $1"
 
 - zh-CN: 目前没有与 $1 相关的帮助信息！
   en:    There is currently no help information related to $1!
@@ -338,7 +368,7 @@
   en:    Open ports can be accessed through a browser to view documents
 
 - zh-CN: 可以通过浏览器访问已打开的端口以查看示例项目:$1
-  en:    
+  en:    "You can access the opened port through a browser to view the example project: $1"
 
 - zh-CN: 请在空目录或efront目录执行创建操作!
   en:    Please perform the creation operation in an empty or front directory!
