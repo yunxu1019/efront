@@ -1073,6 +1073,7 @@ var getblock = function (body, cx) {
     while (o) {
         cx = skipAssignment(body, cx);
         var o = body[cx];
+        if (o && o.prev && o.prev.type === LABEL) continue;
         if (!o || o.type !== STAMP || o.text !== ',') break;
         cx++;
     }
