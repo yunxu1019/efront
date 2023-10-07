@@ -486,7 +486,6 @@ function evalscoped(scoped, base = '') {
                 if (!match) continue;
                 if (presets.test(match[1])) continue;
                 var [, name, args] = match;
-                p.base = base;
                 args = createArgMap(args);
                 p.args = args;
                 p.reg = new RegExp(args.join("|") + /|@\{[^\}@]+\}/.source, 'g');
@@ -497,6 +496,7 @@ function evalscoped(scoped, base = '') {
                 });
                 methods[name] = function () {
                     var valueMap = Object.create(null);
+                    this.base = p.base || base;
                     vlist.push(valueMap);
                     var argDefaults = this.args.defaults;
                     this.args.forEach((k, i) => {
