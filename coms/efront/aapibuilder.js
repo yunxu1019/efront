@@ -126,7 +126,7 @@ module.exports = async function aapibuilder(buffer, filename, fullpath) {
                     })
                     .catch(function (e) {
                         res.writeHead(403, {});
-                        res.end(i18n[i18k](e));
+                        res.end(e);
                     });
             } catch (e) {
                 if (typeof e === "number") {
@@ -134,15 +134,12 @@ module.exports = async function aapibuilder(buffer, filename, fullpath) {
                     res.end();
                 } else if (e) {
                     res.writeHead(403, {});
-                    res.end(i18n[i18k](e));
+                    res.end(e);
                 } else {
                     res.writeHead(500, {});
                     res.end(i18n[i18k]`服务器异常${e}`);
                 }
             }
-        }).catch(function (e) {
-            res.writeHead(400, {});
-            res.end(i18n[i18k](e));
         });
     };
 };
