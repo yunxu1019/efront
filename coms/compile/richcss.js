@@ -17,9 +17,10 @@ var numberReg = /((?:[\+\-]+)?(?:\d+(?:\.\d*)?|\.\d+))(?:\s*(px|%|pt|pc|in|cm|mm
 var replaceHReg = new RegExp(numberReg.source + /\s*([\/\*])\s*/.source + numberReg.source, 'gi');
 var replaceLReg = new RegExp(numberReg.source + /(\s*[\+\-]\s+|[\+\-])/.source + numberReg.source, 'gi');
 var replaceTReg = new RegExp(numberReg.source + /\s*[\/\*\+\-]\s*/.source + numberReg.source, 'i');
+var remove_quote = a => a.replace(/~\s*(['"`])((?:\\[\s\S]|[^'"`\\])*?)\1/g, '$2');
 var replace_punc = function (a) {
     if (typeof a !== "string") return a;
-    a = a.replace(/~\s*(['"`])((?:\\[\s\S]|[^'"`\\])*?)\1/g, '$2');
+    a = remove_quote(a);
     do {
         var replaced = false;
         a = a.replace(replaceHReg, function (_, d1, p1, c, d2, p2) {
@@ -88,7 +89,7 @@ var seprateFunc = function (express) {
                 sp.splice(0, sp.length);
             }
         }
-        else if (o.type === QUOTED) {
+        else if (o.type === QUOTED && !/['"`]/.test(o.text)) {
             if (sp.length) sps.push(killcalc(sp));
             sp.splice(0, sp.length);
             sps.push(createString([o]));
@@ -512,7 +513,7 @@ function evalscoped(scoped, base = '') {
                     });
                     var vars = this.vars;
                     if (vars) Object.keys(vars).forEach(k => {
-                        valueMap[k] = replace(calcvars(vars[k]));
+                        valueMap[k] = seprateFunc(replace(calcvars(vars[k]))).map(evalproc).join('');
                     });
                     var body = evalthis(this);
                     var rest = body.rest.map(a => a.map(replace));
