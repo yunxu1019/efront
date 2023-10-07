@@ -1,7 +1,11 @@
-var { STAMP, PROPERTY, SCOPED, VALUE, EXPRESS, QUOTED, SPACE, COMMENT, createString, splice } = require("./common");
+var { STAMP, PROPERTY, SCOPED, VALUE, EXPRESS, QUOTED, SPACE, COMMENT, createString: _createString, splice } = require("./common");
+var createString = function (a) {
+    a.autospace = false;
+    return _createString(a);
+};
 class Richarg extends Program {
     straps = ["and"];
-    stamps = ',:;'.split("");
+    stamps = ',:;>+~&!/'.split("");
     quotes = this.quotes.slice(0, 2).concat();
     keepspace = true;
     scopes = [["(", ")"], ["{", "}"]];
@@ -9,41 +13,77 @@ class Richarg extends Program {
 
 var rarg = new Richarg;
 rarg.quotes.push(["url(", ")"]);
-var killcalc = a => createString(a).replace(/((?:[\+\-]+)?(?:\d+(?:\.\d*)?|\.\d+))\s*(px|%|pt|cm|mm|r?em)?\s*([\/\*]\s*|[\+\-]\s+)((?:[\+\-]+)?(?:\d+(?:\.\d*)?|\.\d+))(px|%|pt|cm|mm|r?em)?/ig, function (_, d1, p1 = '', c, d2, p2 = '') {
-    d1 = eval(d1);
-    d2 = eval(d2);
-    if (!p2) {
-        if (c === '*') {
-            return d1 * d2 + p1;
-        }
-        if (c === '/') {
-            return d1 / d2 + p1;
-        }
-    }
-    else if (p1 === p2) {
-        if (c === "+") {
-            return (+d1 + +d2) + p1;
-        }
-        if (c === '-') {
-            return (d1 - d2) + p1;
-        }
-    }
-    return _;
-});
+var numberReg = /((?:[\+\-]+)?(?:\d+(?:\.\d*)?|\.\d+))(?:\s*(px|%|pt|pc|in|cm|mm|r?em|deg|rad|vw|vh|%))?/;
+var replaceHReg = new RegExp(numberReg.source + /\s*([\/\*])\s*/.source + numberReg.source, 'gi');
+var replaceLReg = new RegExp(numberReg.source + /(\s*[\+\-]\s+|[\+\-])/.source + numberReg.source, 'gi');
+var replaceTReg = new RegExp(numberReg.source + /\s*[\/\*\+\-]\s*/.source + numberReg.source, 'i');
+var replace_punc = function (a) {
+    if (typeof a !== "string") return a;
+    a = a.replace(/~\s*(['"`])((?:\\[\s\S]|[^'"`\\])*?)\1/g, '$2');
+    do {
+        var replaced = false;
+        a = a.replace(replaceHReg, function (_, d1, p1, c, d2, p2) {
+            if (!p2 || !p1) {
+                p1 = p1 || p2 || '';
+                d1 = eval(d1);
+                d2 = eval(d2);
+                if (c === '*') {
+                    replaced = true;
+                    return d1 * d2 + p1;
+                }
+                if (c === '/') {
+                    replaced = true;
+                    return d1 / d2 + p1;
+                }
+            }
+            return _;
+        });
+    } while (replaced);
+    do {
+        var replaced = false;
+        a = a.replace(replaceLReg, function (_, d1, p1 = '', c, d2, p2 = '') {
+            if (p1 === p2) {
+                d1 = eval(d1);
+                d2 = eval(d2);
+                c = c.trim();
+                if (c === "+") {
+                    replaced = true;
+                    return (+d1 + +d2) + p1;
+                }
+                if (c === '-') {
+                    replaced = true;
+                    return (d1 - d2) + p1;
+                }
+            }
+            return _;
+        });
+    } while (replaced);
+    return a;
+}
+var killcalc = a => replace_punc(createString(a));
 var seprateFunc = function (express) {
     var express = scanner2(express, rarg);
     var sps = [];
     var sp = [];
-    sp.autospace = false;
     for (var cx = 0, dx = express.length; cx < dx; cx++) {
         var o = express[cx];
         if (o.type === SCOPED && o.entry === '(') {
-            if (!sp.length) continue;
             var p = sp[sp.length - 1];
-            if (p.type & (EXPRESS | PROPERTY)) {
+            if (!p) {
+                sp.push(o);
+                sps.push(killcalc(sp));
+                sp.splice(0, sp.length);
+            }
+            else if (p.type & (EXPRESS | PROPERTY)) {
                 sp.pop();
                 if (sp.length) sps.push(killcalc(sp));
                 sp.splice(0, sp.length, p, o);
+                sps.push(createString(sp));
+                sp.splice(0, sp.length);
+            }
+            else {
+                sps.push(killcalc(sp));
+                sp.splice(0, sp.length, o);
                 sps.push(createString(sp));
                 sp.splice(0, sp.length);
             }
@@ -61,21 +101,18 @@ var seprateFunc = function (express) {
 var splitParams = function (params) {
     if (!params) return [];
     params = scanner2(params, rarg);
-    var o = params.first;
-    var params = [];
-    while (o) {
-        var p = [];
-        while (o) {
-            if (o.type === STAMP && o.text === ',') {
-                o = o.next;
-                break;
-            }
-            p.push(o);
-            o = o.next;
+    var code = params;
+    var params = [], p = [];
+    for (var cx = 0, dx = code.length; cx < dx; cx++) {
+        var o = code[cx];
+        if (o.type === STAMP && o.text === ',') {
+            params.push(createString(p));
+            p = [];
+            continue;
         }
-        p.autospace = false;
-        params.push(createString(p));
+        p.push(o);
     }
+    if (p.length) params.push(createString(p));
     return params;
 }
 var createArgMap = function (args, split = ',', equal = ':') {
@@ -107,6 +144,10 @@ var createArgMap = function (args, split = ',', equal = ':') {
 };
 
 var macros = Object.create(null);
+macros.calc = function (a) {
+    if (replaceTReg.test(a)) return `calc(${a})`;
+    return a;
+};
 macros.range = function () {
     if (arguments.length === 1) {
         return ArrayFill(arguments[0], 0).map((a, i) => i + 1);
@@ -161,6 +202,9 @@ var wrapColor = function (f) {
         return f;
     }
 }
+macros[""] = function (a) {
+    return a;
+};
 macros.saturate = wrapColor(color.strurate);
 macros.desaturate = wrapColor(color.desaturate);
 macros.lighten = wrapColor(color.lighten);
@@ -230,7 +274,7 @@ macros.each = function (list, body) {
 
 class Richcss extends Program {
     straps = ["and"];
-    stamps = `;:>+~&`.split("");
+    stamps = `;:,>+~&!/`.split("");
     quotes = rarg.quotes;
     keepspace = true;
     scopes = [["{", "}"], ["(", ")"]]
@@ -321,7 +365,6 @@ Richcss.prototype.createScoped = function (code) {
             else if (o && o.type === SCOPED) {
                 v = run(o);
             }
-            p.autospace = false;
             var pj = createString(p).trim();
             if (!propmap[pj]) propmap[pj] = [];
             var vs = [];
@@ -417,10 +460,9 @@ function evalscoped(scoped, scopeNames, base = '') {
             });
         };
         var evalproc = function (k, retnoparam) {
-            var match = (retnoparam !== false ? /^([^\(\)\s,;:]+)(?:\s*\(([\s\S]*)\))$/ : /^([^\(\)\s,;:]+)(?:\s*\(([\s\S]*)\))?$/).exec(k);
+            var match = (retnoparam !== false ? /^([^\(\)\s,;:]*)(?:\s*\(([\s\S]*)\))$/ : /^([^\(\)\s,;:]+)(?:\s*\(([\s\S]*)\))?$/).exec(k);
             if (!match) return calcvars(k);
             var [, name, params] = match;
-            params = splitParams(params);
             var method = getFromScopeList(name, mlist);
             if (!isFunction(method)) {
                 if (/^@/.test(name)) return calcvars(k);
@@ -436,7 +478,8 @@ function evalscoped(scoped, scopeNames, base = '') {
                 }
                 else return k;
             };
-            params = params.map(evalproc);
+            params = splitParams(params);
+            params = params.map(evalproc).map(replace_punc);
             return method.apply(null, params);
         };
 
@@ -501,7 +544,7 @@ function evalscoped(scoped, scopeNames, base = '') {
             else if (p.length) {
                 k = calcvars(k);
                 p = calcvars(p.join(" "));
-                p = seprateFunc(p).map(evalproc).join('');
+                p = replace_punc(seprateFunc(p).map(evalproc).join(''));
                 result.push(k, ":", p, ';');
             }
             else {
@@ -561,7 +604,7 @@ function richcss(text, scopeName, compress) {
         a = a.replace(/@\{(@[^\}]*)\}\s*/g, function (_, q) {
             ats.push(q);
             return ''
-        }).replace(/~\s*(['"`])((?:\\[\s\S]|[^'"`\\])*?)\1/g, '$2');
+        });
         if (!a) return '';
         var atk = ats.join(';');
         if (queried.key !== atk) {
