@@ -365,7 +365,7 @@
             var code = compile$scanner2(codetext);
             var envs = code.envs;
             var argNames = Object.keys(envs);
-            var args = await Promise.all(argNames.map(a => init(a + "*" + live, null, { ["init*" + live]: init, ["put*" + live]: put, ["zimoli*" + live]: zimoli, ["appendChild*" + live]: appendChild, ["remove*" + live]: remove })));
+            var args = await Promise.all(argNames.map(a => init(a + "*" + live, null, { ["init*" + live]: init, ["put*" + live]: put, ["zimoli*" + live]: zimoli, ["appendChild*" + live]: appendChild, ["remove*" + live]: remove, ["render*" + live]: render })));
             var func = createFunction("", codetext, argNames, code.async, code.yield);
             var res = func.apply(window, args);
             if (isFunction(res)) {
