@@ -13,7 +13,7 @@ function singleSource(_, type) {
 
     }
 }
-function random(source, decimal) {
+function random(source, decimal, ...deeprand) {
     if (!source) {
         if (arguments.length > 1) {
             return random(arguments[Math.random() * arguments.length | 0]);
@@ -45,8 +45,10 @@ function random(source, decimal) {
             return random(source[Math.random() * source.length | 0]);
         } else {
             var dst = [];
-            for (var cx = 0, dx = decimal > 1 ? decimal : Math.random() * 10 + 50; cx < dx; cx++) {
-                dst.push(random(source[source.length * Math.random() | 0]))
+            for (var cx = 0, dx = decimal > 0 ? decimal | 0 : Math.random() * 10 | 1; cx < dx; cx++) {
+                var arg = deeprand;
+                if (!arg.length) arg = [[0, Math.random() * 2 | 0, Math.random() * 5 | 0, Math.random() * 10 | 0, Math.random() * 20 | 0, Math.random() * 50 | 0, Math.random() * 100 | 0][Math.random() * 7 | 0]];
+                dst.push(random(source[source.length * Math.random() | 0], ...arg))
             }
             return dst;
         }
@@ -58,7 +60,7 @@ function random(source, decimal) {
         var dst = {};
         for (var k in source) {
             var v = source[k];
-            dst[k] = v[0] instanceof Object ? random(v, 1) : random(v, 0);
+            dst[k] = v[0] instanceof Object ? random(v, decimal) : random(v, 0);
         }
         return dst;
     }

@@ -12,12 +12,12 @@ function main() {
     var page = div();
     page.innerHTML = template;
     var data = random([{
-        name: '一级目录',
+        name: '${inc} 一级目录',
         children: [{
-            name: "二级目录",
+            name: "${inc} 二级目录",
             children: [
                 {
-                    name: "三级目录"
+                    name: "${inc} 三级目录"
                 }
             ]
         }]
