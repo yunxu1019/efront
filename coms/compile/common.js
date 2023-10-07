@@ -404,7 +404,7 @@ var createScoped = function (parsed, wash) {
             var function_obj = null;
             if (o.type === STAMP && equal_reg.test(o.text)) {
                 var p = snapExpressHead(o.prev);
-                if (!p || p.type & (STRAP | STAMP)) {
+                if (!p || p.type & (STRAP | STAMP) || !p.isExpress) {
                     let n = o.next;
                     if (n && n.type & (EXPRESS | VALUE)) {
                         n.equal = o;
