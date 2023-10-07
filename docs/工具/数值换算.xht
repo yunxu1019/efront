@@ -6,37 +6,37 @@
     var _value = 0;
     var parseFloat = (a, b) => new BigNumber(a, b);
     var value = {
-        get 十进制() {
+        get [i18n`十进制`]() {
             return _value;
         },
-        set 十进制(v) {
+        set [i18n`十进制`](v) {
             _value = parseFloat(v)
         },
-        get 十六进制() {
+        get [i18n`十六进制`]() {
             return _value.toString(16);
         },
-        set 十六进制(v) {
+        set [i18n`十六进制`](v) {
             _value = parseFloat(v, 16);
         },
-        get 二进制() {
+        get [i18n`二进制`]() {
             return _value.toString(2);
         },
-        set 二进制(v) {
+        set [i18n`二进制`](v) {
             _value = parseFloat(v, 2);
         },
-        get 八进制() {
+        get [i18n`八进制`]() {
             return _value.toString(8)
         },
-        set 八进制(v) {
+        set [i18n`八进制`](v) {
             _value = parseFloat(v, 8)
         },
-        get 三十六进制() {
+        get [i18n`三十六进制`]() {
             return _value.toString(36);
         },
-        set 三十六进制(v) {
+        set [i18n`三十六进制`](v) {
             _value = parseFloat(v, 36);
         },
-        get 浮点数机器码() {
+        get [i18n`浮点数机器码`]() {
             var v = +_value;
             var s = /^-/.test(v);
             if (s) v = -v;
@@ -46,7 +46,7 @@
             v = s << 31 | i << 23 | v & 0x7fffff;
             return [v >> 24 & 0xff, v >> 16 & 0xff, v >> 8 & 0xff, v & 0xff].map(hex).join('');
         },
-        set 浮点数机器码(v) {
+        set [i18n`浮点数机器码`](v) {
             v = parseInt(v, 16);
             var s = v >> 31;
             var i = v >> 23 & 0xff;
@@ -56,7 +56,7 @@
             if (s) v = -v;
             _value = v;
         },
-        get 双精度机器码() {
+        get [i18n`双精度机器码`]() {
             var s = /^-/.test(_value);
             var v = window.parseFloat(_value);
             if (s) v = -v;
@@ -72,7 +72,7 @@
                 v >> 8 & 0xff, v & 0xff
             ].map(hex).join('');
         },
-        set 双精度机器码(v) {
+        set [i18n`双精度机器码`](v) {
             var s = parseInt(v[0], 16) >> 3;
             var i = parseInt(v.slice(0, 3), 16) & 0x7ff;
             v = parseInt(v.slice(3), 16);

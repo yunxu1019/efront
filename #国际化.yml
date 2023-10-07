@@ -1,3 +1,24 @@
+- zh-CN: 十进制
+  en:    Decimal system
+
+- zh-CN: 十六进制
+  en:    Hexadecimal
+
+- zh-CN: 二进制
+  en:    Binary
+
+- zh-CN: 八进制
+  en:    Octal
+
+- zh-CN: 三十六进制
+  en:    Thirty six base
+
+- zh-CN: 浮点数机器码
+  en:    Floating point machine code
+
+- zh-CN: 双精度机器码
+  en:    Double precision machine code
+
 - zh-CN: 数值换算
   en:    Numerical conversion
 
@@ -359,7 +380,7 @@
   en:    "The commands that can be used are:"
 
 - zh-CN: 如要显示更具体的信息，请使用:$1
-  en:    "To display more specific information, please use: $1"
+  en:    
 
 - zh-CN: 目前没有与 $1 相关的帮助信息！
   en:    There is currently no help information related to $1!
@@ -368,7 +389,7 @@
   en:    Open ports can be accessed through a browser to view documents
 
 - zh-CN: 可以通过浏览器访问已打开的端口以查看示例项目:$1
-  en:    "You can access the opened port through a browser to view the example project: $1"
+  en:    
 
 - zh-CN: 请在空目录或efront目录执行创建操作!
   en:    Please perform the creation operation in an empty or front directory!
