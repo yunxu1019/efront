@@ -637,35 +637,35 @@ function toComponent(responseTree, noVersionInfo) {
                 responseTree[PUBLIC_APP].destpath = exportName;
 
         }
-        if (memery.DENO || exportName === 'deno') {
-            var prefix = [];
-            if (hasDirname) {
-                prefix.push(`__dirname = Deno.mainModule.replace(/${/[^\\\/]+$/.source}/, '').replace(/${/^file:\/\/\//.source}/, '')`);
-            }
-            if (destMap.global) {
-                prefix.push(`global = globalThis`);
-            }
-            if (has_outside_require || destMap.process || destMap.Buffer) {
-                prefix.unshift(`require = Deno[Deno.internal].requireImpl.Module.createRequire(/${/^file:\/\/\//.source}/.test(Deno.mainModule)?Deno.mainModule.replace(/${/^file:\/\/\//.source}/, ''):Deno.cwd().replace(/${/\\/.source}/g,'/')+"/")`);
-            }
-            if (prefix.length) {
-                prefix = [`if(typeof Deno === 'object'){var ${prefix.join(',')};Deno[Deno.internal].node.initialize();}`];
-            }
-            if (destMap.global) {
-                prefix[prefix.length - 1] += (`else global = require("vm").runInThisContext("global")`);
-            }
-            if (destMap.process) {
-                prefix.push(`var process = require("process")`);
-            }
-            if (destMap.Buffer) {
-                prefix.push(`var Buffer = require("buffer").Buffer`);
-            }
+    }
+    if (memery.DENO || exportName === 'deno') {
+        var prefix = [];
+        if (hasDirname) {
+            prefix.push(`__dirname = Deno.mainModule.replace(/${/[^\\\/]+$/.source}/, '').replace(/${/^file:\/\/\//.source}/, '')`);
+        }
+        if (destMap.global) {
+            prefix.push(`global = globalThis`);
+        }
+        if (has_outside_require || destMap.process || destMap.Buffer) {
+            prefix.unshift(`require = Deno[Deno.internal].requireImpl.Module.createRequire(/${/^file:\/\/\//.source}/.test(Deno.mainModule)?Deno.mainModule.replace(/${/^file:\/\/\//.source}/, ''):Deno.cwd().replace(/${/\\/.source}/g,'/')+"/")`);
+        }
+        if (prefix.length) {
+            prefix = [`if(typeof Deno === 'object'){var ${prefix.join(',')};Deno[Deno.internal].node.initialize();}`];
+        }
+        if (destMap.global) {
+            prefix[prefix.length - 1] += (`else global = require("vm").runInThisContext("global")`);
+        }
+        if (destMap.process) {
+            prefix.push(`var process = require("process")`);
+        }
+        if (destMap.Buffer) {
+            prefix.push(`var Buffer = require("buffer").Buffer`);
+        }
 
-            template = prefix.join(';') + ";\r\n" + template;
-        }
-        if (exportName === 'node' || memery.NODE) {
-            template = `#!/usr/bin/env node\r\n` + template;
-        }
+        template = prefix.join(';') + ";\r\n" + template;
+    }
+    if (exportName === 'node' || memery.NODE) {
+        template = `#!/usr/bin/env node\r\n` + template;
     }
     if (memery.EXPORT_AS) {
         template += `["${memery.EXPORT_AS}"]`;
