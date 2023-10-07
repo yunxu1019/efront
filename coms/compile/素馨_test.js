@@ -1,5 +1,5 @@
 var test = function (data, expect) {
-    assert(richcss(data), expect);
+    assert(素馨(data), expect);
 };
 test(`&{--a:1;a{opacity:--a}}`, `a{opacity:1;}`);
 test(`:root{--a:1}a{opacity:--a}`, `a{opacity:1;}`);
@@ -54,12 +54,12 @@ test(`b{a:darken(#6cd205, 20%)}`, `b{a:#58be00;}`);
 test(`b{a:darken(#7ff,10%)}`, `b{a:#6df5f5;}`);
 
 test(`:not(a):not(b){c:d}`, `:not(a):not(b){c:d;}`);
-assert(richcss(`:not(a):not(b){c:d}`, 'abc'), `abc :not(a):not(b){c:d;}`);
-assert(richcss(`&:not(a):not(b){c:d}`, 'abc'), `abc:not(a):not(b){c:d;}`);
-assert(richcss(`:scope{&:not(a):not(b){c:d}}`, 'abc'), `abc:not(a):not(b){c:d;}`);
-assert(richcss(`:root{&:not(a):not(b){c:d}}`, 'abc'), `abc:not(a):not(b){c:d;}`);
-assert(richcss(`&{&:not(a):not(b){c:d}}`, 'abc'), `abc:not(a):not(b){c:d;}`);
-assert(richcss(`:root>a{&:not(a):not(b){c:d}}`, '.abc-'), `.abc->a:not(a):not(b){c:d;}`);
-assert(richcss(`a>:root{&:not(a):not(b){c:d}}`, '.abc-'), `a>.abc-:not(a):not(b){c:d;}`);
+assert(素馨(`:not(a):not(b){c:d}`, 'abc'), `abc :not(a):not(b){c:d;}`);
+assert(素馨(`&:not(a):not(b){c:d}`, 'abc'), `abc:not(a):not(b){c:d;}`);
+assert(素馨(`:scope{&:not(a):not(b){c:d}}`, 'abc'), `abc:not(a):not(b){c:d;}`);
+assert(素馨(`:root{&:not(a):not(b){c:d}}`, 'abc'), `abc:not(a):not(b){c:d;}`);
+assert(素馨(`&{&:not(a):not(b){c:d}}`, 'abc'), `abc:not(a):not(b){c:d;}`);
+assert(素馨(`:root>a{&:not(a):not(b){c:d}}`, '.abc-'), `.abc->a:not(a):not(b){c:d;}`);
+assert(素馨(`a>:root{&:not(a):not(b){c:d}}`, '.abc-'), `a>.abc-:not(a):not(b){c:d;}`);
 
-assert(richcss(`.a (){ &:after{abc:1}} .b{.a();}`, '.abc-'), `.abc- .b:after{abc:1;}`);
+assert(素馨(`.a (){ &:after{abc:1}} .b{.a();}`, '.abc-'), `.abc- .b:after{abc:1;}`);

@@ -3,7 +3,7 @@ var createString = function (a) {
     a.autospace = false;
     return _createString(a);
 };
-class Richarg extends Program {
+class 素玉 extends Program {
     straps = ["and"];
     stamps = ',:;>+~&!/'.split("");
     quotes = this.quotes.slice(0, 2).concat();
@@ -11,7 +11,7 @@ class Richarg extends Program {
     scopes = [["(", ")"], ["{", "}"]];
 }
 
-var rarg = new Richarg;
+var rarg = new 素玉;
 rarg.quotes.push(["url(", ")"]);
 var numberReg = /((?:[\+\-]+)?(?:\d+(?:\.\d*)?|\.\d+))(?:\s*(px|%|pt|pc|in|cm|mm|r?em|deg|rad|vw|vh|%))?/;
 var replaceHReg = new RegExp(numberReg.source + /\s*([\/\*])\s*/.source + numberReg.source, 'gi');
@@ -226,7 +226,7 @@ macros.each = function (list, body) {
     if (!match) throw new Error("each参数异常!");
     var [_, args, content] = match;
     if (!content) return;
-    content = richcss(content);
+    content = 素馨(content);
     if (args) args = args.split(",").map(a => a.trim());
     else args = [];
     if (args.length < 1) args.push("@value");
@@ -274,7 +274,7 @@ macros.each = function (list, body) {
 };
 
 
-class Richcss extends Program {
+class 素心 extends Program {
     straps = ["and"];
     stamps = `;:,>+~&!/`.split("");
     quotes = rarg.quotes;
@@ -284,7 +284,7 @@ class Richcss extends Program {
 
 var presets = /^@(media|keyframes|layer|import|namespace|page|property|suppports|font-face|document|counter-style|charset|color-profile|container|font-feature-values|font-palette-values)(\s|\(|$)/i;
 
-Richcss.prototype.setType = function (o) {
+素心.prototype.setType = function (o) {
     var p = o.prev;
     if (o.type !== SCOPED) {
         if (!p || p.type === STAMP && p.text === ";" || p.type === SCOPED && p.entry === '{') {
@@ -309,7 +309,7 @@ Richcss.prototype.setType = function (o) {
     }
 };
 
-Richcss.prototype.createScoped = function (code) {
+素心.prototype.createScoped = function (code) {
     var setVarsUsed = function (s) {
         var vars = null, used = null;
         for (var cx = s.length - 1; cx >= 0; cx--) {
@@ -383,7 +383,7 @@ Richcss.prototype.createScoped = function (code) {
     };
     return run(code);
 };
-Richcss.prototype.createString = createString;
+素心.prototype.createString = createString;
 var getFromScopeList = function (name, varsList, value = name) {
     name = name.replace(/^@\{\s*(\S*)\s*\}$/g, '@$1');
     var queue = [];
@@ -561,8 +561,8 @@ function evalscoped(scoped, base = '') {
     return result;
 }
 var rcss = null;
-function richcss(text, scopeName, compress) {
-    if (!rcss) rcss = new Richcss;
+function 素馨(text, scopeName, compress) {
+    if (!rcss) rcss = new 素心;
     rcss.debug = true;
     var code = scanner2(text, rcss);
     var { scoped } = code;
