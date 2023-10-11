@@ -335,6 +335,7 @@ var _while = function (body, cx, unblock, result) {
     pushstep(result, wend);
     we[0].text = String(1 + i - result.length);
     be.push(...scanner2(`${result.length - i}, 0`));
+    relink(be);
     return cx;
 };
 var pushstep = function (result, step) {
