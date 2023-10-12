@@ -133,3 +133,5 @@ test("predef[key[1]][key[2]][key[3]]", '_ = key[1]; _ = predef[_]; _0 = key[2]; 
 test("[key[1]][key[2]][key[3]]", '_ = key[1]; _ = [_]; _0 = key[2]; _ = _[_0]; _0 = key[3]; _[_0]');
 test("[key[1]][key[2]]+[key[3]][key[4]]", '_ = key[1]; _ = [_]; _0 = key[2]; _ = _[_0]; _0 = key[3]; _0 = [_0]; _1 = key[4]; _ + _0[_1]');
 test("if(a)a:{break a}", "if (!a) return [2, 0]; return [1, 0];\r\n return [1, 0]", true);
+unstruct.debug = true;
+test("rgb=(rgb<<8|rgb>>16)&0xffffff", "_ = rgb << 8, _0 = rgb >> 16, _ = _ | _0; _ = (_); rgb = _ & 0xffffff", true);

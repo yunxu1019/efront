@@ -608,7 +608,7 @@ var _invoke = function (t, getname) {
     else if (t.length) {
         var t0 = t[0];
         if (t0.type === EXPRESS && /^[\.\[]/.test(t0.text) || t0.type & (STAMP | STRAP) && powermap[t0.text] < powermap.new) {
-            t.unshift(...scanner2(`${qname}=${qname}`));
+            t.unshift(...rescan(`${qname}=${qname}`));
             relink(t);
         }
         pushstep(result, t);
