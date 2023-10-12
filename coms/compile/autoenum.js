@@ -64,28 +64,30 @@ var maplist = function (u) {
         if (!o.equal && o.kind) m.unshift(o);
         else m.push(o);
         if (o.equal || o.kind) {
-            var typeref = o.typeref;
-            if (typeref && typeof typeref === 'object') {
-                typeref = typeref.typeref;
-                o.typeref = typeref;
-            }
-            if (typeref && typeref !== m.typeref) {
-                m.typeref = typeref;
-                m.wcount++;
-            }
-            else if (m.typeref) {
-                var n = o.next;
-                o[ignore] = true;
-                if (n.type === STAMP && /^(\+\+|\-\-)$/.test(n.text)) continue;
-                if (/^[\+\-]\=$/.test(n.text)) {
-                    var nn = n.next;
-                    if (nn && snapExpressFoot(nn) == nn && nn.isdigit && (nn.text & 0x1ff) === +nn.text) continue;
+            if (enumtype & REFTYPE) {
+                var typeref = o.typeref;
+                if (typeref && typeof typeref === 'object') {
+                    typeref = typeref.typeref;
+                    o.typeref = typeref;
                 }
-                else if (!n || !/=$/.test(n.text)) continue;
-                o[ignore] = false;
-                m.wcount++;
+                if (typeref && typeref !== m.typeref) {
+                    m.typeref = typeref;
+                    m.wcount++;
+                }
+                else if (m.typeref) {
+                    var n = o.next;
+                    o[ignore] = true;
+                    if (n.type === STAMP && /^(\+\+|\-\-)$/.test(n.text)) continue;
+                    if (/^[\+\-]\=$/.test(n.text)) {
+                        var nn = n.next;
+                        if (nn && snapExpressFoot(nn) == nn && nn.isdigit && (nn.text & 0x1ff) === +nn.text) continue;
+                    }
+                    else if (!n || !/=$/.test(n.text)) continue;
+                    o[ignore] = false;
+                    m.wcount++;
+                }
             }
-            else {
+            if (enumtype & (REFSTRC | REFMOVE)) {
                 if (o.property) o[ignore] = true;
                 else m.wcount++;
             }
@@ -183,42 +185,56 @@ function enumref(refitem, scoped) {
                     else break;
                 }
                 if (inCondition(o)) break;
-                if (o.typeref) {
-                    tp = o.typeref;
-                    if (isObject(tp)) tp = tp.typeref;
-                    continue;
+                if (enumtype & REFTYPE) {
+                    if (o.typeref) {
+                        tp = o.typeref;
+                        if (isObject(tp)) tp = tp.typeref;
+                        continue;
+                    }
                 }
-                if (o.enumref) {
-                    em = o.enumref;
-                    continue;
+                if (enumtype & REFSTRC) {
+                    if (o.enumref) {
+                        em = o.enumref;
+                        continue;
+                    }
                 }
-                o = o.equal.next;
-                var n = skipAssignment(o);
-                if (!o || n !== o.next) break loop;
-                if (o.type === VALUE && o.isdigit) eq = o;
+                if (enumtype & REFMOVE) {
+                    o = o.equal.next;
+                    var n = skipAssignment(o);
+                    if (!o || n !== o.next) break loop;
+                    if (o.type === VALUE && o.isdigit) eq = o;
+                }
             }
             else if (o.kind) {
-                if (o.typeref) {
-                    tp = o.typeref;
-                    if (isObject(tp)) tp = tp.typeref;
-                    continue;
+                if (enumtype & REFTYPE) {
+                    if (o.typeref) {
+                        tp = o.typeref;
+                        if (isObject(tp)) tp = tp.typeref;
+                        continue;
+                    }
                 }
             }
             else {
-                if (tp) {
-                    o.typeref = tp;
-                    continue;
+                if (enumtype & REFTYPE) {
+                    if (tp) {
+                        o.typeref = tp;
+                        continue;
+                    }
                 }
-                if (em) {
-                    o.enumref = em;
-                    continue;
+                if (enumtype & REFSTRC) {
+                    if (em) {
+                        o.enumref = em;
+                        continue;
+                    }
                 }
-                if (!eq) break;
-                if (o.short) continue;
-                o.type = eq.type;
-                o.isdigit = true;
-                o.text = eq.text;
-                removeRefs(o);
+                if (enumtype & REFMOVE) {
+                    if (!eq) break;
+                    if (o.short) continue;
+                    o.type = eq.type;
+                    o.isdigit = true;
+                    o.text = eq.text;
+                    removeRefs(o);
+                }
             }
         }
     }
@@ -230,8 +246,10 @@ function atuoenum(scoped) {
         enumref(rs, scoped);
     }
 }
-var exports = module.exports = function main(code) {
+var enumtype = 0;
+var exports = module.exports = function main(code, type = REFMOVE) {
     var rest = [code.scoped];
+    enumtype = type;
     while (rest.length) {
         var s = rest.pop();
         if (s.length) rest.push(...s);
@@ -239,6 +257,9 @@ var exports = module.exports = function main(code) {
     }
     return code;
 }
+var REFMOVE = exports.REFMOVE = 1;
+var REFSTRC = exports.REFSTRC = 2;
+var REFTYPE = exports.REFTYPE = 4;
 exports.createRefId = createRefId;
 exports.createRefMap = createRefMap;
 exports.enumscoped = atuoenum;
