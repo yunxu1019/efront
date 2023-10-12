@@ -61,7 +61,8 @@ var maplist = function (u) {
             map[r].ccount = 0;
         }
         var m = map[r];
-        m.push(o);
+        if (!o.equal && o.kind) m.unshift(o);
+        else m.push(o);
         if (o.equal || o.kind) {
             var typeref = o.typeref;
             if (typeref && typeof typeref === 'object') {
@@ -84,7 +85,10 @@ var maplist = function (u) {
                 o[ignore] = false;
                 m.wcount++;
             }
-            else m.wcount++;
+            else {
+                if (o.property) o[ignore] = true;
+                else m.wcount++;
+            }
         }
         if (o.called) m.ccount++;
     }
@@ -149,77 +153,82 @@ function inCondition(o) {
 
 }
 
-function enumref(scoped) {
-    var { refs } = scoped;
-    for (var k in refs) {
-        var rs = refs[k];
-        for (var rk in rs) {
-            var os = rs[rk];
-            if (os.wcount !== 1 || os.length < 2) continue;
-            var eq = null, em = null, tp = null;
-            loop: for (var o of os) {
-                if (o.equal && !o[ignore]) {
-                    if (o.equal.text !== '=') break;
-                    if (o.queue.kind) break;
-                    var q = o.queue;
-                    if (q !== scoped.body) {
-                        if (q.entry === '(' && q.queue === scoped.body) {
-                            var qp = q.prev;
-                            if (qp.type === EXPRESS) qp = qp.prev;
-                            if (qp && qp.type === STRAP && qp.text === "await") qp = qp.prev;
-                            if (qp && qp.type === STRAP && qp.text === 'for') {
-                                var f = q.first;
-                                var fc = 0;
-                                while (f && f !== o) {
-                                    if (f.type === STAMP && f.text === ";") {
-                                        fc++;
-                                        if (fc > 1) break loop;
-                                    }
-                                    f = f.next;
+function enumref(refitem, scoped) {
+    for (var rk in refitem) {
+        var os = refitem[rk];
+        if (os.wcount !== 1 || os.length < 2) continue;
+        var eq = null, em = null, tp = null;
+        loop: for (var o of os) {
+            if (o.equal && !o[ignore]) {
+                if (o.equal.text !== '=') break;
+                if (o.queue.kind) break;
+                var q = o.queue;
+                if (q !== scoped.body) {
+                    if (q.entry === '(' && q.queue === scoped.body) {
+                        var qp = q.prev;
+                        if (qp.type === EXPRESS) qp = qp.prev;
+                        if (qp && qp.type === STRAP && qp.text === "await") qp = qp.prev;
+                        if (qp && qp.type === STRAP && qp.text === 'for') {
+                            var f = q.first;
+                            var fc = 0;
+                            while (f && f !== o) {
+                                if (f.type === STAMP && f.text === ";") {
+                                    fc++;
+                                    if (fc > 1) break loop;
                                 }
+                                f = f.next;
                             }
                         }
-                        else break;
                     }
-                    if (inCondition(o)) break;
-                    if (o.typeref) {
-                        tp = o.typeref;
-                        if (isObject(tp)) tp = tp.typeref;
-                        continue;
-                    }
-                    if (o.enumref) {
-                        em = o.enumref;
-                        continue;
-                    }
-                    o = o.equal.next;
-                    var n = skipAssignment(o);
-                    if (!o || n !== o.next) break loop;
-                    if (o.type === VALUE && o.isdigit) eq = o;
+                    else break;
                 }
-                else {
-                    if (tp) {
-                        o.typeref = tp;
-                        continue;
-                    }
-                    if (em) {
-                        o.enumref = em;
-                        continue;
-                    }
-                    if (!eq) break;
-                    if (o.short) continue;
-                    o.type = eq.type;
-                    o.isdigit = true;
-                    o.text = eq.text;
-                    removeRefs(o);
+                if (inCondition(o)) break;
+                if (o.typeref) {
+                    tp = o.typeref;
+                    if (isObject(tp)) tp = tp.typeref;
+                    continue;
                 }
+                if (o.enumref) {
+                    em = o.enumref;
+                    continue;
+                }
+                o = o.equal.next;
+                var n = skipAssignment(o);
+                if (!o || n !== o.next) break loop;
+                if (o.type === VALUE && o.isdigit) eq = o;
+            }
+            else if (o.kind) {
+                if (o.typeref) {
+                    tp = o.typeref;
+                    if (isObject(tp)) tp = tp.typeref;
+                    continue;
+                }
+            }
+            else {
+                if (tp) {
+                    o.typeref = tp;
+                    continue;
+                }
+                if (em) {
+                    o.enumref = em;
+                    continue;
+                }
+                if (!eq) break;
+                if (o.short) continue;
+                o.type = eq.type;
+                o.isdigit = true;
+                o.text = eq.text;
+                removeRefs(o);
             }
         }
     }
 }
-
 function atuoenum(scoped) {
-    createRefMap(scoped);
-    enumref(scoped);
+    var { used } = scoped;
+    for (var k in used) {
+        var rs = maplist(used[k]);
+        enumref(rs, scoped);
+    }
 }
 var exports = module.exports = function main(code) {
     var rest = [code.scoped];
