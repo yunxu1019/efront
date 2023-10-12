@@ -173,6 +173,7 @@
         javascript(a, blink) {
             if (blink) var index = a.indexOf(blink);
             if (index >= 0) a = a.slice(0, index) + a.slice(index + 1);
+            js.keepspace = !!blink;
             var c = compile$scanner2(a, js);
             if (index >= 0) {
                 var patched = patchBlink(c, index, blink);
