@@ -431,11 +431,15 @@ function evalscoped(scoped, base = '') {
     var vlist = [vars];
     var mlist = [macros];
     var clist = [smaps];
+    var calcvars = function (v) {
+        return v.replace(/(^|\s|[\]\)\(\[\-\+\*\/,;])(?:var\s*\(([\s\S]*?)\)|(--\S+|@[^\s\{\}\(\)\[\]\:\+\*\/,;\!\>\$\=\&\%\#\@'"`\?\.\/\|~#]+|@\{[^\}@]*\}))/g, function (m, q, a, b) {
+            return q + getFromScopeList(b || a.trim(), vlist, m.slice(q.length));
+        });
+    };
     var initvars = function (vars) {
         for (var k in vars) {
             var v = vars[k];
-            v = getFromScopeList(v, vlist);
-            vars[k] = v;
+            vars[k] = replace_punc(calcvars(v));
         }
     };
     initvars(vars);
@@ -452,11 +456,6 @@ function evalscoped(scoped, base = '') {
             var res = eval2(p.used);
             base = temp;
             return res;
-        };
-        var calcvars = function (v) {
-            return v.replace(/(^|\s|[\]\)\(\[\-\+\*\/,;])(?:var\s*\(([\s\S]*?)\)|(--\S+|@[^\s\{\(\:\+\*\/,;\!\[\>\$\=\&\%\#\@\+'"`\?\.\/\|~]+|@\{[^\}@]*\}))/g, function (m, q, a, b) {
-                return q + getFromScopeList(b || a.trim(), vlist, m.slice(q.length));
-            });
         };
         var evalproc = function (k, retnoparam) {
             var match = (retnoparam !== false ? /^([^\(\)\s,;:]*)(?:\s*\(([\s\S]*)\))$/ : /^([^\(\)\s,;:]+)(?:\s*\(([\s\S]*)\))?$/).exec(k);
@@ -536,6 +535,7 @@ function evalscoped(scoped, base = '') {
                 if (base && !p.rooted) p.base = fixBase(base, k);
                 else p.base = presets.test(k) ? `@{${k}}` : k;
                 if (p.vars) vlist.push(p.vars);
+                initvars(p.vars);
                 var value = evalthis(p);
                 if (p.vars) vlist.pop();
                 if (value.rest.length) rest = rest.concat(value.rest);
