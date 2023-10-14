@@ -502,6 +502,7 @@ var createScoped = function (parsed, wash) {
                         case "var":
                             m = m || vars;
                             var [declared, used0, o0, skiped] = getDeclared(o.next, s);
+                            mergeTo(used, used0);
                             while (skiped.length) {
                                 var o1 = run(skiped[0], 0);
                                 let sindex = skiped.indexOf(o1);
@@ -509,7 +510,6 @@ var createScoped = function (parsed, wash) {
                                 skiped.splice(0, sindex + 1);
                             }
                             o = o0;
-                            mergeTo(used, used0);
                             mapDeclared(m, declared);
                             continue loop;
                         case "static":
