@@ -70,9 +70,11 @@ var maplist = function (u) {
                     typeref = typeref.typeref;
                     o.typeref = typeref;
                 }
-                if (typeref && typeref !== m.typeref) {
-                    m.typeref = typeref;
-                    m.wcount++;
+                if (typeref) {
+                    if (m.typeref !== typeref) {
+                        m.typeref = typeref;
+                        m.wcount++;
+                    }
                 }
                 else if (m.typeref) {
                     var n = o.next;
@@ -82,7 +84,7 @@ var maplist = function (u) {
                         var nn = n.next;
                         if (nn && snapExpressFoot(nn) == nn && nn.isdigit && (nn.text & 0x1ff) === +nn.text) continue;
                     }
-                    else if (!n || !/=$/.test(n.text)) continue;
+                    else if (!n || !/[^=!]?=$/.test(n.text)) continue;
                     o[ignore] = false;
                     m.wcount++;
                 }
