@@ -146,6 +146,10 @@ function inCondition(o) {
         }
         if (p.type === STAMP) {
             if (p.text === ";") break;
+            if (/^[\?\:]$/i.test(p.text)) {
+                incondition = true;
+                break;
+            }
             o = p.prev;
             continue;
         }

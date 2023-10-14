@@ -31,4 +31,5 @@ t("var a=-1; console.log(--a)", "var a = -1; console.log(--a)");
 t("var a=-1; return ++a", "var a = -1; return ++a");
 t("var a=-1; typeof ++a", "var a = -1; typeof ++a");
 t("var a=-1; ++a", "var a = -1; ++a");
+t("b?a=1:b=2;console.log(a)", "b ? a = 1 : b = 2; console.log(a)");
 // t(fs.readFileSync(path.join(__dirname,"../zimoli/spacechar_test.js")).toString())

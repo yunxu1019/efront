@@ -259,8 +259,14 @@ function snapSentenceHead(o) {
             break;
         }
         if (p.type === STAMP) {
-            if (/=>|[,;]/.test(p.text) || equal_reg.test(p.text)) {
+            if (/=>|[,;]/.test(p.text)) {
                 break;
+            }
+            if (/^[\?\:]$/.test(p.text)) {
+                if (o) {
+                    var e = snapExpressFoot(o).next;
+                    if (e.type === STAMP && equal_reg.test(e.text)) break;
+                }
             }
             if (/^(?:[!~]|\+\+|\-\-)$/.test(p.text)) {
                 o = p;
@@ -1276,6 +1282,27 @@ var canbeTemp = function (body, strip = false) {
     return o.type === EXPRESS && (strip || !/[\.\[]/.test(o.text)) || o.type === VALUE || o.type === QUOTED && !o.length;
 };
 
+var pickSentence = function (o) {
+    if (!o) return [];
+    if (o && o.type & (SPACE | COMMENT) && o.prev) o = o.prev;
+    if (o && o.type === STAMP && o.prev) o = o.prev;
+    if (o.type === STRAP && /^(in|instanceof|as|of)$/.test(o.text) && o.prev) o = o.prev;
+    var h = snapSentenceHead(o);
+    var e = skipAssignment(o);
+    var q = o.queue;
+    if (q) {
+        var qh = q.indexOf(h);
+        var qe = e ? q.indexOf(e) : q.length;
+        if (qh >= 0 && qe >= 0) return q.slice(qh, qe);
+    }
+    var res = [];
+    do {
+        res.push(h);
+        h = h.next;
+    } while (h !== e);
+    return res;
+};
+
 module.exports = {
     /*   1 */COMMENT,
     /*   2 */SPACE,
@@ -1297,6 +1324,7 @@ module.exports = {
     createScoped,
     createExpressList,
     snapSentenceHead,
+    pickSentence,
     snapExpressHead,
     snapExpressFoot,
     skipSentenceQueue,
