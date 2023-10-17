@@ -108,13 +108,13 @@ var splitParams = function (params) {
     for (var cx = 0, dx = code.length; cx < dx; cx++) {
         var o = code[cx];
         if (o.type === STAMP && o.text === ',') {
-            params.push(createString(p));
+            params.push(createString(p).trim());
             p = [];
             continue;
         }
         p.push(o);
     }
-    if (p.length) params.push(createString(p));
+    if (p.length) params.push(createString(p).trim());
     return params;
 }
 var createArgMap = function (args, split = ',', equal = ':') {

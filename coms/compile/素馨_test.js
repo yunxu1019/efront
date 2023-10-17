@@ -57,6 +57,8 @@ test(`:not(a):not(b){c:d}`, `:not(a):not(b){c:d;}`);
 test(`a>{b{a:b}}`, `a>b{a:b;}`);
 test(`a    >{b{a:b}}`, `a>b{a:b;}`);
 test(`a{>b{a:b}}`, `a>b{a:b;}`);
+test(`.type(@type,@media) {.@{type} {&:before{content:"@{media}";}}}.type(videoinput, "相机");`, `.videoinput:before{content:"相机";}`);
+test(`.type(@type,@media) {.@{type} {&:before{content:"@{media}";}}}.type(videoinput, 相机);`, `.videoinput:before{content:"相机";}`);
 assert(素馨(`:not(a):not(b){c:d}`, 'abc'), `abc :not(a):not(b){c:d;}`);
 assert(素馨(`&:not(a):not(b){c:d}`, 'abc'), `abc:not(a):not(b){c:d;}`);
 assert(素馨(`:scope{&:not(a):not(b){c:d}}`, 'abc'), `abc:not(a):not(b){c:d;}`);
