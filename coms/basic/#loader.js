@@ -69,7 +69,7 @@ var isThenable = function (a) {
 var keyprefix = "";
 var flushTree = function (tree, key, res) {
     var response = tree[key];
-    if (!response.error) {
+    if (response && !response.error) {
         delete tree[key];
         if (res) tree[key] = res;
     }

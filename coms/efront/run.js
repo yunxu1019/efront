@@ -58,7 +58,6 @@ function fromComponent(env, base) {
             }
             if (!result) {
                 if (!/^comm\//i.test(url)) {
-                    console.fail(url);
                     onerror(url);
                 } else {
                     url1 = url.replace(/^comm\//i, '');
@@ -85,7 +84,6 @@ function fromComponent(env, base) {
                                 result.args = [];
                             }
                         } catch (e) {
-                            console.fail(e);
                             onerror(url1);
                         }
                     }
@@ -192,7 +190,7 @@ function efront() {
 }
 module.exports = function (mainpath, args) {
     var fullpath = mainpath;
-    var appname = "./" + mainpath.replace(/^\.[\/\\]/, '').replace(/\\/g, '/');
+    var appname = path.isAbsolute(mainpath) ? mainpath : "./" + mainpath.replace(/^\.[\/\\]/, '').replace(/\\/g, '/');
     mainpath = mainpath.replace(/\.[cm]?[jt]sx?$/i, '');
     var unload = function () {
         Object.keys(intervalHandles).forEach(clearInterval);
