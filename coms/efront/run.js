@@ -146,11 +146,21 @@ var requestHandles = [];
 function efront() {
     var Window = function () {
     };
-    Window.prototype = global;
     var window = new Window;
     var colors = require("../reptile/colors");
     Object.assign(window, {
         require,
+        Date,
+        Promise,
+        Function,
+        Object,
+        Array,
+        parseInt,
+        console,
+        NaN,
+        isFinite,
+        Number,
+        Boolean,
         eval(str, filename) {
             return require("vm").runInThisContext(str, { filename: `${colors.FgYellow}${loadedmap[filename] || filename}${colors.Reset}` });
         },
@@ -185,7 +195,7 @@ function efront() {
             return clearInterval(handle);
         }
     });
-    window.top = window.window = window;
+    window.global = window.top = window.window = window;
     return window;
 }
 module.exports = function (mainpath, args) {
@@ -223,6 +233,7 @@ module.exports = function (mainpath, args) {
             mainLoaderPromise.then(function (loader) {
                 new Function(loader).call(window);
             }).catch(function (e) {
+                console.log(e, Date)
                 console.error(i18n`启动失败`);
             });
         }
