@@ -45,7 +45,7 @@ var iemiss = {
     DataView: null,
     Uint8Array: null, Uint16Array: null, Uint32Array: null, BigUint64Array: null,
     Int8Array: null, Int16Array: null, Int32Array: null, BigInt64Array: null,
-    Float8Array: null, Float16Array: null, Float32Array: null, Float64Array: null, Uint8ClampedArray: null,
+    Float32Array: null, Float64Array: null, Uint8ClampedArray: null,
     BigInt64Array: null,
     BigUint64Array: null,
     Map: null,

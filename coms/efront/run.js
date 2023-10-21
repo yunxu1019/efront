@@ -8,6 +8,7 @@ var setupenv = require("./setupenv");
 var parseURL = require("../basic/parseURL");
 var userAgent = "Efront/1.0";
 var memery = require("./memery");
+const extendIfNeeded = require("../basic/extendIfNeeded");
 var resolve_config = { paths: [process.cwd().replace(/\\/g, '/'), ...memery.COMS_PATH.split(',')], extensions: ["", ".js", '.cjs', '.mjs'] };
 var mainLoaderPromise = new Promise(function (ok, oh) {
     fs.readFile(path.join(__dirname, "../basic/#loader.js"), function (error, data) {
@@ -148,19 +149,53 @@ function efront() {
     };
     var window = new Window;
     var colors = require("../reptile/colors");
+    var global1 = typeof globalThis !== 'undefined' ? globalThis : typeof global !== "undefined" ? global : {};
     Object.assign(window, {
         require,
         Date,
         Promise,
         Function,
+        RegExp,
         Object,
+        String,
         Array,
-        parseInt,
-        console,
-        NaN,
-        isFinite,
         Number,
         Boolean,
+        Error,
+        TypeError,
+        Uint8Array,
+        Uint16Array,
+        Uint32Array,
+        Uint8ClampedArray,
+        ArrayBuffer,
+        Int8Array,
+        Int16Array,
+        Int32Array,
+        BigInt64Array: global1.BigInt64Array,
+        Buffer: global1.Buffer,
+        Intl: global1.Intl,
+        Float32Array,
+        Float64Array,
+        Map,
+        Set,
+        Proxy,
+        WeakMap,
+        BigInt: global1.BigInt,
+        Reflect,
+        console,
+        Math,
+        Symbol: global1.Symbol,
+        JSON,
+        NaN,
+        Infinity,
+        isNaN,
+        isFinite,
+        parseInt,
+        parseFloat,
+        decodeURI,
+        encodeURI,
+        decodeURIComponent,
+        encodeURIComponent,
         eval(str, filename) {
             return require("vm").runInThisContext(str, { filename: `${colors.FgYellow}${loadedmap[filename] || filename}${colors.Reset}` });
         },
@@ -195,7 +230,8 @@ function efront() {
             return clearInterval(handle);
         }
     });
-    window.global = window.top = window.window = window;
+    window.globalThis = window.global = window.top = window.window = window;
+    extendIfNeeded(window, global1);
     return window;
 }
 module.exports = function (mainpath, args) {
