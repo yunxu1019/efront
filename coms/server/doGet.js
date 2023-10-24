@@ -91,9 +91,8 @@ var response = function (data, url, req, res) {
     }
     else {
         setHeader("Content-Length", data.length);
-        if (data.mime) {
-            setHeader("Content-Type", data.mime);
-        }
+        if ("download" in req) setHeader("Content-Disposition", `attachment;filename="${encodeURIComponent(req.download || data.name)}"`);
+        setHeader("Content-Type", data.mime);
         setHeader("Cache-Control", "no-cache");
         if (data.stat) {
             setHeader("Last-Modified", data.stat.mtime.toUTCString());
@@ -184,7 +183,9 @@ var doGet = module.exports = async function (req, res) {
         res.end();
         return;
     }
-    url = url.replace(/[\:\?#][\s\S]*/g, "");
+    var download = /\*([\s\S]*)$/.exec(url);
+    if (download) req.download = download[1];
+    url = url.replace(/[\:\?#\*][\s\S]*/g, "");
     var id = /\:/.test(req.url) ? req.url.replace(/^[\s\S]*?\:([\s\S]*?)([\?][\s\S]*)?$/, "$1") : null;
     req.id = id;
     var exts = [''];

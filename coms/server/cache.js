@@ -355,6 +355,7 @@ File.prototype.update = async function () {
                     var extend = String(that.pathname).match(/\.([^\.]*)$/);
                     if (extend && Cache.mime) buffer.mime = Cache.mime[extend[1]];
                 }
+                buffer.name = path.basename(that.pathname);
             }
         } catch (e) {
             buffer = e;
