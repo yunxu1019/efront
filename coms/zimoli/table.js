@@ -230,7 +230,7 @@ function enrichField(f) {
             }
     }
     if (width > 600) width = 600;
-    f.width = width + 60;
+    f.width = parseFloat(width) + 60;
     if (!f.key && f.options && isEmpty(f.fixed)) {
         f.fixed = true;
     }

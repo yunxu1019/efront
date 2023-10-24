@@ -411,6 +411,7 @@ function parse(piece) {
         name = is(name);
         key = is(key);
     }
+    if (typeof size === 'string') size = parseFloat(size);
     var field = {
         name, type, key, value, comment, options,
         size, unit, ratio,
