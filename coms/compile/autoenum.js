@@ -91,7 +91,7 @@ var maplist = function (u) {
             }
             if (enumtype & (REFSTRC | REFMOVE)) {
                 if (o.property) o[ignore] = true;
-                else m.wcount++;
+                else if (enumtype & REFMOVE || o.equal || o.enumref) m.wcount++;
             }
         }
         if (o.called) m.ccount++;
