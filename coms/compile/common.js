@@ -277,6 +277,11 @@ function snapSentenceHead(o) {
         }
         break;
     }
+    while (o) {
+        var p = o.prev;
+        if (!p || p.type !== LABEL) break;
+        o = p;
+    }
     return o;
 }
 var getStrapHead = function (o) {
