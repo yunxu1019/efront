@@ -91,8 +91,12 @@ var maplist = function (u) {
             }
             if (enumtype & (REFSTRC | REFMOVE)) {
                 if (o.property) o[ignore] = true;
-                else if (enumtype & REFMOVE || o.equal || o.enumref) m.wcount++;
+                else if (o.equal) m.enumref = o.enumref, m.wcount++;
+                else if (enumtype & REFMOVE) m.wcount++;
             }
+        }
+        else if (enumtype & REFSTRC) {
+            if (o.enumref && o.enumref !== m.enumref) m.wcount++, m.enumref = o.enumref;
         }
         if (o.called) m.ccount++;
     }
@@ -218,6 +222,12 @@ function enumref(refitem, scoped) {
                         if (isObject(tp)) tp = tp.typeref;
                         continue;
                     }
+                }
+            }
+            else if (o.enumref) {
+                if (enumtype & REFSTRC) {
+                    em = o.enumref;
+                    continue;
                 }
             }
             else {
