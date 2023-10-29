@@ -279,6 +279,7 @@ var loadModule = function (url, then, prebuilds = {}) {
             var data = responseTree[url];
             if (typeof data === "function") {
                 var mod = data;
+                mod.noenv = true;
                 flushTree(loadedModules, key, mod);
                 return;
             }
@@ -494,7 +495,6 @@ var createModule = function (exec, originNames, compiledNames, prebuilds = {}) {
         if (created) return result;
         return promise;
     });
-
     var _this = isModuleInit ? exports : window;
     var argsPromises = argsList.filter(isThenable);
     argsList = argsList.concat(exec.strs);
@@ -609,7 +609,12 @@ var init = function (url, then, prebuilds) {
         if (error) return crack(error);
 
         var module = loadedModules[key];
-        if (!module) return;
+        if (!module || module.noenv) {
+            // <!--
+            undefinedModules[key] = true;
+            // -->
+            return then();
+        }
         var args = module.args || [];
 
         if (!args || !args.length) {

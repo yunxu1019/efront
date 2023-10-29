@@ -853,7 +853,7 @@ Javascript.prototype.fix = function (code) {
         });
         delete code.used.import;
         delete code.envs.import;
-        if (imports.length) code.used.import_meta = imports;
+        if (imports.length) code.used["import_meta"] = imports, code.envs["import_meta"] = true;
     }
     if (code.exportDecs) {
         var exportDecs = code.exportDecs;

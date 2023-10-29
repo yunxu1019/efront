@@ -77,7 +77,6 @@ function fromComponent(env, base) {
                                 var resolved = require.resolve(url1);
                             }
                             if (resolved) {
-
                                 result = function () {
                                     return require(resolved);
                                 };
@@ -153,6 +152,7 @@ function efront() {
     Object.assign(window, {
         require,
         Date,
+        process: global1.process,
         Promise,
         Function,
         RegExp,
@@ -196,6 +196,9 @@ function efront() {
         encodeURI,
         decodeURIComponent,
         encodeURIComponent,
+        SharedArrayBuffer: global1.SharedArrayBuffer,
+        escape: global1.escape,
+        unescape: global1.unescape,
         eval(str, filename) {
             return require("vm").runInThisContext(str, { filename: `${colors.FgYellow}${loadedmap[filename] || filename}${colors.Reset}` });
         },

@@ -18,7 +18,8 @@ var getArgs = function (text) {
                 var strstart = str.length;
                 var strend = strstart + strlength;
                 var strs = functionBody.slice(strstart, strend);
-                strs = global.eval(strs);
+                strs = JSON.parse(strs);
+                functionBody = functionBody.slice(strend);
             }
         }
         var argsstart = (args.length - (strs ? strs.length : 0)) >> 1;
