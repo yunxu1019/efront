@@ -153,8 +153,10 @@ var readFile = function (names, then) {
                 return;
             }
         }
-        loadingTree[key].error = e;
-        loadingTree[key].forEach(a => a(e));
+        if (loadingTree[key]) {
+            loadingTree[key].error = e;
+            loadingTree[key].forEach(a => a(e));
+        }
     };
     var tryload = function () {
         request(url, ok, oh, version);
