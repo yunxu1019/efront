@@ -4,11 +4,11 @@ function parseKV(string) {
     var spliter, equals, decode;
     for (var cx = 1, dx = arguments.length; cx < dx; cx++) {
         var a = arguments[cx];
-        if (typeof a === 'string') {
+        if (typeof a === 'string' || a instanceof RegExp) {
             if (!spliter) spliter = a;
             else if (!equals) equals = a;
         }
-        else {
+        else if (typeof decode === 'function') {
             decode = a;
         }
     }
@@ -21,7 +21,7 @@ function parseKV(string) {
         for (var cx = 0, dx = kvs.length; cx < dx; cx++) {
             var kv = kvs[cx];
             if (!kv) continue;
-            var index = kv.indexOf(equals);
+            var index = equals instanceof RegExp ? equals.exec(kv).index : kv.indexOf(equals);
             if (index < 0) index = kv.length;
             var k = kv.slice(0, index);
             var v = kv.slice(index + 1);
