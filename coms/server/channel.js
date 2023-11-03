@@ -26,8 +26,8 @@ class Channel {
         var error = function (e) {
             c[1].end();
             c[0].end();
-            c[1].destroy();
-            c[0].destroy();
+            if (c[1]) c[1].destroy();
+            if (c[0]) c[0].destroy();
         };
         var close = function (e) {
             if (c[1]) c[1].destroy();
