@@ -26,7 +26,8 @@ var couple = function (source, marker, pinyin) {
     };
     var len1 = source.length;
     var len2 = marker.length;
-    var match = "", begin1 = len1, begin2 = len2;
+    var begin1 = len1, begin2 = len2;
+    var end1 = begin1;
     var end2 = begin2;
     for (var cx = -len1, dx = len2; cx < dx; cx++) {
         var c1 = cx >= 0 ? 0 : -cx;
@@ -38,17 +39,17 @@ var couple = function (source, marker, pinyin) {
             var m = marker[c2 + ct];
             if (s === m || pinyin && isLike()) {
                 end = ct + 1;
-                if (end === dt && end - start > match.length) {
-                    match = source.slice(c1 + start, c1 + end);
+                if (end === dt && c2 + end - cc - start > end2 - begin2) {
                     begin1 = c1 + start;
                     begin2 = cc + start;
                     end2 = c2 + end;
+                    end1 = c1 + end;
                 }
             } else {
-                if (end - start > match.length) {
-                    match = source.slice(c1 + start, c1 + end);
+                if (c2 + end - cc - start > end2 - begin2) {
                     begin1 = c1 + start;
                     begin2 = cc + start;
+                    end1 = c1 + end;
                     end2 = c2 + end;
                 }
                 cc = c2;
@@ -56,7 +57,7 @@ var couple = function (source, marker, pinyin) {
             }
         }
     }
-    return [match, begin1, begin2, end2];
+    return [source.slice(begin1, end1), begin1, begin2, end2];
 };
 var MARK_PRE1, MARK_PRE2, _PRE1, _PRE2 = _PRE1 = "<b>";
 var MARK_AFT1, MARK_AFT2, _AFT1, _AFT2 = _AFT1 = "</b>";
@@ -85,6 +86,7 @@ var power = function (source, search) {
     var matchers = couple(source, search, _pinyin);
     var match_text = matchers[0];
     var match_start = matchers[1];
+    var match_length = matchers[3] - matchers[2];
     if (search.length === 1) {
         var p = 0;
         var res = source.replace(new RegExp(search.replace(/[\\\*\?\+\(\)\[]/g, "\\$&"), "ig"), (m, i) => {
@@ -93,12 +95,11 @@ var power = function (source, search) {
         });
         return [p, res];
     }
-    if (matchers[3] - matchers[2] > 1) {
+    if (match_length > 1) {
         var match_text_pre = source.slice(0, match_start);
         var match_text_aft = source.slice(match_start + match_text.length);
         var pp = 0, ap = 0;
-        var p = match_text.length;
-        p = match_text.length;
+        var p = match_length !== match_text.length ? match_length - .1 : match_length;
         if (match_start) p += .1 / match_start - .2;
         if (match_text_pre.length > 1) {
             [pp, match_text_pre] = power(match_text_pre, search);
@@ -106,8 +107,14 @@ var power = function (source, search) {
         if (match_text_aft.length > 1) {
             [ap, match_text_aft] = power(match_text_aft, search);
         }
-        if (matchers[3] - matchers[2] !== search.length) {
+        if (match_length !== search.length) {
             p += (pp + ap) / source.length / search.length * .01 - .2;
+        }
+        else if (pp >= p) {
+            p += pp / source.length / search.length * .01 - .2;
+        }
+        else if (ap >= p) {
+            p += ap / source.length / search.length * .01 - .2;
         }
         return [p, match_text_pre.concat(MARK_PRE1, match_text, MARK_AFT1, match_text_aft)];
     }
