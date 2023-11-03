@@ -61,6 +61,11 @@ function getI18nPrefixedText(code, dist = []) {
         c.fields = refilm([c.translate]);
         dist.push(c);
     }, 字段名);
+    if (envs.refilm_decode) get(used.refilm_decode.filter(o => o.text === 'refilm_decode').map(o => o.next), c => {
+        c.fields = refilm([c.translate]);
+        c.warn = false;
+        dist.push(c);
+    }, 字段名);
     return dist;
 }
 var ctn = function (tt, t) {
@@ -86,10 +91,10 @@ function translate([imap, supports], code) {
         if (a.start > b.start && a.end < b.end) return -1;
         return 0;
     });
-    var getm = function (tt) {
+    var getm = function (tt, warn) {
         tt = tt.trim();
         if (!imap[tt]) {
-            console.warn(`<yellow>${i18n`国际化翻译缺失：`}</yellow>${tt}`);
+            if (warn !== false) console.warn(`<yellow>${i18n`国际化翻译缺失：`}</yellow>${tt}`);
             imap[tt] = supports.map(_ => tt);
         }
         return imap[tt].map(m => strings.encode(m || tt, '`'));
@@ -110,8 +115,14 @@ function translate([imap, supports], code) {
         else if (t.transtype === 字段名) {
             var i = t.queue.indexOf(t.prev);
             var e = t.queue.indexOf(t, i);
-            var ui = used.refilm.indexOf(t.prev);
-            used.refilm.splice(ui, 1);
+            if (t.warn === false) {
+                var ui = used.refilm_decode.indexOf(t.prev);
+                if (ui >= 0) used.refilm_decode.splice(ui, 1);
+            }
+            else {
+                var ui = used.refilm.indexOf(t.prev);
+                if (ui >= 0) used.refilm.splice(ui, 1);
+            }
             if (!used.i18n) {
                 used.i18n = [];
                 code.envs.i18n = true;
@@ -127,7 +138,7 @@ function translate([imap, supports], code) {
                         if (a in t) v = t[a];
                         else v = scanner2(JSON.stringify(v));
                     }
-                    else if (k === 'name') v = ctn(`i18n(${getm(v)})`, t);
+                    else if (k === 'name') v = ctn(`i18n(${getm(v, t.warn)})`, t);
                     else v = scanner2(JSON.stringify(v));
                     o.push({ type: PROPERTY, isprop: true, text: JSON.stringify(k) }, { type: STAMP, text: ':' }, ...v, { type: STAMP, text: ',' });
                 })
