@@ -30,10 +30,15 @@ var skipAssignment = function (o, cx) {
         while (o && o.type & (SPACE | COMMENT)) o = body[++ox];
         cx = ox + 1;
     }
+    else if (o.type & (SPACE | COMMENT)) o = o.next;
     var needpunc = false;
     var qcount = 0;
     var ifdeep = 0;
+    var labeled = o && o.type === LABEL;
+    while (o && o.type === LABEL) next();
     loop: while (o) switch (o.type) {
+        case LABEL:
+            if (!ifdeep) break loop;
         case STAMP:
             switch (o.text) {
                 case ";":
@@ -43,7 +48,7 @@ var skipAssignment = function (o, cx) {
                     next();
                     break;
                 case ",":
-                    if (!ifdeep) break loop;
+                    if (!ifdeep && !labeled) break loop;
                     needpunc = false;
                     next();
                     break;
@@ -259,7 +264,7 @@ function snapSentenceHead(o) {
             break;
         }
         if (p.type === STAMP) {
-            if (/=>|[,;]/.test(p.text)) {
+            if (/=>|;/.test(p.text)) {
                 break;
             }
             if (/^[\?\:]$/.test(p.text)) {
@@ -1293,7 +1298,7 @@ var pickSentence = function (o) {
     if (o && o.type === STAMP && o.prev) o = o.prev;
     if (o.type === STRAP && /^(in|instanceof|as|of)$/.test(o.text) && o.prev) o = o.prev;
     var h = snapSentenceHead(o);
-    var e = skipAssignment(o);
+    var e = skipAssignment(h);
     var q = o.queue;
     if (q) {
         var qh = q.indexOf(h);
