@@ -472,8 +472,13 @@ var src2 = function (search) {
         } else if (isEmpty(origin)) {
             temp = "";
         }
-        var changes = getChanges(temp, savedValue);
-        if (!changes || isEmpty(origin) && isEmpty(this.src) && isEmpty(savedValue)) return;
+        if (savedValue !== undefined && savedValue !== null) {
+            var changes = getChanges(temp, savedValue);
+            if (!changes || isEmpty(origin) && isEmpty(this.src) && isEmpty(savedValue)) return;
+        }
+        else {
+            if (origin === undefined || origin === null) return;
+        }
         savedValue = temp;
         this.src = origin;
         cast(this, origin);
