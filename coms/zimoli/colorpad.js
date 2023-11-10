@@ -209,19 +209,20 @@ function main(e) {
         var c0 = color.parse(c).slice(0, 3).map(a => xy2c(a, x, y));
         c0[3] = a;
         var p = color.stringify(c0);
+        var lc = color.stringify(c0.slice(0, 3));
         var value = p;
         css(padpointer, {
             left: +(x * 100).toFixed(6) + "%",
             top: +(y * 100).toFixed(6) + "%",
             background: p,
-            outlineColor: color.pair(p),
+            outlineColor: color.pair(lc),
         });
         css(huepointer, {
             outlineColor: color.pair(c),
             background: c
         });
         css(opapointer, {
-            outlineColor: color.pair(p),
+            outlineColor: a > .6 ? color.pair(lc) : "#000",
             background: p
         });
         buildopa(opa, p);
@@ -230,7 +231,7 @@ function main(e) {
         rgb.setValue(value);
         hsl.setValue(value);
         bg.style.borderColor = value;
-        val.style.color = color.pair(value);
+        val.style.color = a > .6 ? color.pair(lc) : "#000";
         elem.value = value;
         dispatch(elem, 'change');
         // console.log(value, hex.value, valuergb, valuehsl);
