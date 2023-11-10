@@ -182,6 +182,7 @@ function main(e) {
     elem.setValue = function (v) {
         var [_x, _y, z, a] = color2xyz(v);
         hue.value = z;
+        sethue(z);
         opa.value = 1 - a;
         css(huepointer, { top: +(z * 100).toFixed(6) + '%' })
         css(opapointer, { top: +(100 - a * 100).toFixed(6) + '%' })
