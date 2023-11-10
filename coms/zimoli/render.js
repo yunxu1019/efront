@@ -477,7 +477,7 @@ var src2 = function (search) {
             if (!changes || isEmpty(origin) && isEmpty(this.src) && isEmpty(savedValue)) return;
         }
         else {
-            if (origin === undefined || origin === null) return;
+            if (isSame(savedValue, temp)) return;
         }
         savedValue = temp;
         this.src = origin;
