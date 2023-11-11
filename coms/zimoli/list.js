@@ -230,7 +230,7 @@ function ylist(container, generator, $Y) {
         return next.offsetTop - element.offsetTop;
     };
     var insertBeforeList = function (elem, flag) {
-        if(flag){
+        if (flag) {
             var w = elem.with;
             if (w) {
                 if (w[w.length - 1].nextSibling === flag) return;
@@ -633,7 +633,7 @@ function list() {
         var index = container.index();
         if (src !== old) container.clean(), index = 0;
         else container.clean(src, savedSrc);
-        savedSrc = src.slice();
+        savedSrc = src instanceof Array ? src.slice() : [];
         if (index > 0 && index >= src.length) index = src.length - 1;
         container.go(index || 0);
     });
