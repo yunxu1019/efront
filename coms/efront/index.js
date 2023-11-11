@@ -616,6 +616,15 @@ var commands = {
             startDevelopEnv(memery.APP || "", http_port, https_port);
         }).catch(console.error);
     },
+    cook() {
+        setAppnameAndPorts(arguments);
+        memery.WAITER_NUMBER = 1;
+        detectEnvironment().then(function () {
+            memery.PUBLIC_PATH = memery.PAGE_PATH;
+            require("./setupenv");
+            require("../server/main");
+        })
+    },
     start() {
         memery.WAITER_NUMBER = 1;
         setAppnameAndPorts(arguments);
@@ -942,6 +951,7 @@ var run = function (type, value1, value2, value3) {
             case "run":
                 run.apply(null, argv.slice(1));
                 break;
+            case "cooks":
             case "https":
             case "lives":
             case "devs":
@@ -962,7 +972,7 @@ var run = function (type, value1, value2, value3) {
                 if (type instanceof Array) {
                     help(type[0]);
                 } else {
-                    if (type === 'live') {
+                    if (/^(live|cook)$/.test(type)) {
                         if (!argv[1] && !argv[2]) argv[1] = memery.HTTP_PORT, argv[2] = 0;
                     }
                     commands[type].apply(commands, argv.slice(1));
