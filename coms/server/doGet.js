@@ -92,7 +92,7 @@ var response = function (data, url, req, res) {
     else {
         setHeader("Content-Length", data.length);
         if ("download" in req) setHeader("Content-Disposition", `attachment;filename="${encodeURIComponent(req.download || data.name)}"`);
-        setHeader("Content-Type", data.mime);
+        if (data.mime) setHeader("Content-Type", data.mime);
         setHeader("Cache-Control", "no-cache");
         if (data.stat) {
             setHeader("Last-Modified", data.stat.mtime.toUTCString());

@@ -152,7 +152,7 @@ var exports = module.exports = async function (url, callback) {
 exports.reset = function () {
     for (var m of allManagers) {
         for (var k in m) {
-            if (isFunction(m[k].reset)) m[k].reset();
+            if (m[k] && isFunction(m[k].reset)) m[k].reset();
         }
     }
 }
