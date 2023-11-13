@@ -633,7 +633,7 @@ function list() {
         var index = container.index();
         if (src !== old) container.clean(), index = 0;
         else container.clean(src, savedSrc);
-        savedSrc = src instanceof Array ? src.slice() : [];
+        savedSrc = src instanceof Array ? src.slice() : extend([], src);
         if (index > 0 && index >= src.length) index = src.length - 1;
         container.go(index || 0);
     });
