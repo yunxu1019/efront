@@ -1,10 +1,11 @@
 <back onclick="history.back()">
-    <i></i><span>返回</span>
+    <i></i><span>${i18n`返回`}</span>
 </back>
 <style>
     i:before {
         content: "‹";
-        font-size: 28px;
+        font-size: 26px;
+        font-family: Arial, Helvetica, sans-serif;
     }
     
     i {
@@ -13,6 +14,7 @@
     }
     
     span {
+        text-transform: capitalize;
         font-size: 14px;
         margin-left: 10px;
         margin-top: -10px;
