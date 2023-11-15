@@ -386,6 +386,17 @@ Javascript.prototype.setType = function (o) {
     if (o.type === STAMP) {
         if (!last || last.type & (STAMP | STRAP) || last.type === SCOPED && /^[\{\[]$/.test(last.entry) && !last.isExpress) {
             o.unary = /^[^=;,\*]$|.[^\=\>\<\|\&\^]$/.test(o.text);
+            if (o.unary && last && last.type === STAMP && /^(\+\+|\-\-)$/.test(last.text)) o.unary = !/^[\+\-]$/.test(o.text);
+        }
+        if (last && /^(\+\+|\-\-)$/.test(o.text)) {
+            var i = 1;
+            var p = queue[queue.length - i];
+            if (p === o) p = queue[queue.length - ++i];
+            while (p && p.type & (SPACE | COMMENT)) {
+                if (p.type === SPACE && /[\r\n\u2028\u2029]/.test(p.text)) break;
+                p = queue[queue.length - ++i];
+            }
+            o.unary = !p || p.type & (SPACE | STAMP | STRAP) || p.type === EXPRESS && p.prev && p.prev.type === STAMP && /^(\+\+|\-\-)$/.test(p.prev.text) && p.prev.unary;
         }
     }
 };

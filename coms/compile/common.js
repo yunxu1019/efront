@@ -122,7 +122,7 @@ var skipAssignment = function (o, cx) {
             break;
         case STRAP:
             if (needpunc) {
-                if (!/^(in|instanceof|of|else|as)$/.test(o.text)) break loop;
+                if (!/^(in|instanceof|of|else|as|from)$/.test(o.text)) break loop;
                 if (o.text === 'else') {
                     if (!ifdeep) break loop;
                     ifdeep--;
@@ -227,6 +227,10 @@ function snapSentenceHead(o) {
                 o = p;
                 continue;
             }
+            if (o.type === STRAP && /^(in|instanceof|of|as|from)$/.test(o.text)) {
+                o = p;
+                continue;
+            }
             break;
         }
         if (p.type & (VALUE | QUOTED)) {
@@ -257,9 +261,23 @@ function snapSentenceHead(o) {
                 o = p;
                 continue;
             }
-            if (/^(in|instanceof)$/.test(p.text)) {
+            if (/^(in|instanceof|of|as|from)$/.test(p.text)) {
                 o = p.prev;
                 continue;
+            }
+            if (/^(return|yield|break|continue)$/.test(p.text)) {
+                if (p.isend) break;
+                o = p;
+                if (p.text === 'yield') continue;
+                break;
+            }
+            if (/^import$/.test(p.text)) {
+                if (o.type === SCOPED && o.entry === '(') {
+                    o = p;
+                    continue;
+                }
+                o = p;
+                break;
             }
             break;
         }
@@ -274,7 +292,19 @@ function snapSentenceHead(o) {
                 }
             }
             if (/^(?:[!~]|\+\+|\-\-)$/.test(p.text)) {
+                if (!p.unary) {
+                    if (o.type === STAMP && !o.unary || o.type === STRAP && /^(in|instanceof|of|as|from)$/.test(o.text)) {
+                        o = p;
+                        continue;
+                    }
+                    break;
+                }
                 o = p;
+                continue;
+            }
+            var pp = p.prev;
+            if (pp.type === STAMP && /^(\+\+|\-\-)$/.test(pp.text) && pp.prev) {
+                o = pp.prev;
                 continue;
             }
             o = p.prev;
@@ -966,7 +996,7 @@ var hasBreakBetween = function (prev, next) {
 };
 var getSemicolonBetween = function (prev, next) {
     if (next.type === PROPERTY) return ";";
-    if (next.type === STAMP && next.text === "*") return ";";
+    if (next.type === STAMP && next.text === "*" && next.next && next.next.type === PROPERTY) return ";";
     if (
         (EXPRESS | VALUE | QUOTED) & prev.type
         || prev.type === STAMP && /^(\+\+|\-\-)$/.test(prev.text)
@@ -1129,11 +1159,13 @@ var createString = function (parsed) {
                             if (autospace) if (!prev.unary || /[\+\-]$/.test(prev.text) && prev.text === o.text) result.push(" ");
                         }
                         else if (/^(\+\+|\-\-)$/.test(o.prev.text) && o.prev.prev) {
-                            var prev_prev = o.prev.prev;
-                            if (
-                                prev_prev.type === STRAP && !prev_prev.isExpress
-                                || prev_prev.type & (EXPRESS | VALUE)
-                            ) result.push(";");
+                            if (o.unary) {
+                                var prev_prev = o.prev.prev;
+                                if (
+                                    prev_prev.type === STRAP && !prev_prev.isExpress
+                                    || prev_prev.type & (EXPRESS | VALUE)
+                                ) result.push(";");
+                            }
                         }
 
                         else if (o.text === '*') {
