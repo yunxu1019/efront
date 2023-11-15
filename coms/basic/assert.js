@@ -4,12 +4,14 @@ var dump = function (a, msg) {
     else if (msg) console.log(msg + ":", a);
     else console.log(a);
 };
-var colorString = function (s, color) {
+var colorString = function (s, color1, e, color2) {
     s = String(s);
-    var [c0, c1] = color;
-    if (s.indexOf(c1) === 0) s = s.slice(c1.length);
+    e = String(e);
+    var [c0, c1] = color1;
+    var [r0, r1] = color2;
+    if (s.indexOf(c1) === 0 && e.indexOf(r1) === 0) s = s.slice(c1.length);
     else s = c0 + s;
-    if (s.lastIndexOf(c0) === s.length - c0.length) {
+    if (s.lastIndexOf(c0) === s.length - c0.length && e.lastIndexOf(r0) === e.length - r0.length) {
         s = s.slice(0, s.length - c0.length);
     }
     else s += c1;
@@ -29,8 +31,9 @@ var assert = function (result, expect, log = dump) {
             mark.setTag1(color1[1], color1[0]);
             mark.setTag2(color2[1], color2[0]);
             var [r, e] = mark.pair(result, expect);
-            r = colorString(r, color1);
-            e = colorString(e, color2);
+            var s = r;
+            r = colorString(r, color1, e, color2);
+            e = colorString(e, color2, s, color1);
             errors = `${color3[0]}结果  ${color3[1]}${r}\r\n      ${color3[0]}应为  ${color3[1]}${e}\r\n`;
         };
         return function (error) {
