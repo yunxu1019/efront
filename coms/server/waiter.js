@@ -738,6 +738,8 @@ var showServerError = function (error) {
             case "EACCES":
                 error = i18n`没有权限`;
                 break;
+            case "ECONNRESET":
+                return;
             default:
                 error = error.code;
         }
@@ -747,10 +749,16 @@ var showServerError = function (error) {
 };
 var portedServersList = [];
 /**
- * @type {[:http.Server]}
+ * @this http.Server
  */
 function initServer(port) {
     var server = this.once("error", showServerError)
+        .on('clientError', function (err, socket) {
+            if (err.code === 'ECONNRESET' || !socket.writable) {
+                return;
+            }
+            socket.end('HTTP/1.1 400 Bad Request\r\n\r\n');
+        })
         .once("listening", showServerInfo)
         .listen(+port);
     portedServersList.push(server);
