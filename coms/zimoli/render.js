@@ -480,7 +480,8 @@ var src2 = function (search) {
             if (isSame(savedValue, temp)) return;
         }
         savedValue = temp;
-        this.src = origin;
+        if (isEmpty(origin) && isEmpty(this.src));
+        else this.src = origin;
         cast(this, origin);
     });
 }
