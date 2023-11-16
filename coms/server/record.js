@@ -54,7 +54,7 @@ function write(fullpath, data) {
 function record($url, request, response, req, res) {
     var fullpath = getFilepath($url);
     var _error = function (error) {
-        res.writeHead(response.statusCode, response.headers);
+        res.writeHead(response.statusCode || 500, response.headers);
         res.end(String(error));
     };
     var _write = function (error, data, compress) {
@@ -86,7 +86,7 @@ function record($url, request, response, req, res) {
         data = Buffer.from(data);
         if (compress === false) {
             headers["content-length"] = data.length;
-            res.writeHead(response.statusCode, headers);
+            res.writeHead(response.statusCode || 200, headers);
             res.end(data);
             return;
         }
@@ -94,7 +94,7 @@ function record($url, request, response, req, res) {
             if (error) return res.writeHead(500), res.end(String(error));
             headers["content-encoding"] = "deflate";
             headers["content-length"] = data.length;
-            res.writeHead(response.statusCode, headers);
+            res.writeHead(response.statusCode || 200, headers);
             res.end(data);
         });
     };

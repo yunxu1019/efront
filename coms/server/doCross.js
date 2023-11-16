@@ -1,6 +1,7 @@
 "use strict";
 var parseURL = require("../basic/parseURL");
 var cert = server$cert;
+var { IncomingMessage } = require("http");
 var { Http2ServerResponse, Http2ServerRequest } = require("http2");
 var headersKeys = "Content-Type,Content-Length,User-Agent,Accept-Language,Accept-Encoding,Range,If-Range,Last-Modified".toLowerCase().split(",");
 var privateKeys = {};
@@ -132,6 +133,9 @@ async function cross(req, res, referer) {
         options = null;
         agent = req.socket.agent1;
     }
+    /**
+     * @param {IncomingMessage} response
+     */
     var onresponse = function (response) {
         var headers = response.headers;
         var exposeHeaders = ["access-control-expose-headers"];
@@ -180,7 +184,7 @@ async function cross(req, res, referer) {
             if (/get/i.test(req.method) && (record.enabled || /^[\.&~]/.test(jsonlike)) && response.statusCode === 200) {
                 record($url, request, response, req, res);
             } else {
-                res.writeHead(response.statusCode === 301 && getHeader(req.headers, "authorization") ? 302 : response.statusCode, headers);
+                res.writeHead(response.statusCode === 301 && getHeader(req.headers, "authorization") ? 302 : response.statusCode || 200, headers);
                 response.pipe(res);
             }
         } else {
