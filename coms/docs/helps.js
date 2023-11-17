@@ -11,7 +11,7 @@ var helps = [
     ["m", i18n`创建应用，项目目录允许创建第二个应用`, "init", "from SRCNAME", "init APPNAME", "init APPNAME from SRCNAME", "from SRCNAME init APPNAME"],
     ["m", i18n`创建简单应用，独占项目目录的单应用`, "create", "simple", "create|simple from SRCNAME", "create|simple APPNAME", "create|simple APPNAME from APPNAME"],
     ["m", i18n`创建空应用`, "blank", "simple", "from blank", "simple from blank"],
-    ["q", i18n`自动识别环境并启动测试环境服务器`, "cook", "cooks", "cook HTTP_PORT", "cook HTTP_PORT HTTPS_PORT", "cooks HTTPS_PORT", "cooks HTTPS_PORT HTTP_PORT"],
+    ["a", i18n`自动识别环境并启动测试环境服务器`, "cook", "cooks", "cook HTTP_PORT", "cook HTTP_PORT HTTPS_PORT", "cooks HTTPS_PORT", "cooks HTTPS_PORT HTTP_PORT"],
     ["q", i18n`自动识别环境并启动开发环境服务器`, "live", "lives", "live HTTP_PORT", "live HTTP_PORT HTTPS_PORT", "lives HTTPS_PORT", "lives HTTPS_PORT HTTP_PORT"],
     ["a", i18n`在项目文件夹启动生产环境服务器`, "start", "starts", "start HTTP_PORT", "start HTTP_PORT HTTPS_PORT", "starts HTTPS_PORT", "starts HTTPS_PORT HTTP_PORT"],
     ["a", i18n`在项目文件夹启动开发环境服务器`, "dev", "devs", "test", "dev|test HTTP_PORT", "dev|test HTTP_PORT HTTPS_PORT", "devs|tests HTTPS_PORT", "devs|tests HTTPS_PORT HTTP_PORT"],
