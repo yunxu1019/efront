@@ -89,9 +89,15 @@ var maplist = function (u) {
                     m.wcount++;
                 }
             }
-            if (enumtype & (REFSTRC | REFMOVE)) {
+            else if (enumtype & (REFSTRC | REFMOVE)) {
                 if (o.property) o[ignore] = true;
-                else if (o.equal) m.enumref = o.enumref, m.wcount++;
+                else if (o.equal) {
+                    if (o.enumref && o.enumref !== m.enumref) {
+                        m.enumref = o.enumref;
+                        m.wcount++;
+                    }
+                    else if (enumtype & REFMOVE) m.wcount++;
+                }
                 else if (enumtype & REFMOVE) m.wcount++;
             }
         }
