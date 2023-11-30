@@ -469,18 +469,18 @@ var src2 = function (search) {
             temp = extend([], origin);
         } else if (isObject(origin)) {
             temp = extend({}, origin);
-        } else if (isEmpty(origin)) {
+        } else if (!isHandled(origin)) {
             temp = "";
         }
-        if (savedValue !== undefined && savedValue !== null) {
+        if (isHandled(savedValue)) {
             var changes = getChanges(temp, savedValue);
-            if (!changes || isEmpty(origin) && isEmpty(this.src) && isEmpty(savedValue)) return;
+            if (!changes) return;
         }
         else {
             if (isSame(savedValue, temp)) return;
         }
         savedValue = temp;
-        if (isEmpty(origin) && isEmpty(this.src));
+        if (!isHandled(origin) && !isHandled(this.src));
         else this.src = origin;
         cast(this, origin);
     });
@@ -749,7 +749,7 @@ function renderElement(element, scope = element.$scope, parentScopes = element.$
     if (!isNumber(element.$renderid)) {
         element.$renderid = 0;
         element.$scope = scope;
-        if (!isEmpty(parentScopes) && !isArray(parentScopes)) {
+        if (isHandled(parentScopes) && !isArray(parentScopes)) {
             throw new Error('父级作用域链应以数组的类型传入');
         }
         if (parentScopes) {

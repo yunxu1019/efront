@@ -242,7 +242,7 @@ function parse(piece) {
         piece[0] = piece0 + (piece[0] || '').trim();
     }
 
-    piece = piece.map(p => isString(p) ? p.trim() : p).filter(p => !isEmpty(p));
+    piece = piece.map(p => isString(p) ? p.trim() : p).filter(p => isHandled(p));
     if (/^[\}\]]/.test(piece[0])) {
         var f = piecepath.pop()
         last_type = f.last_type;

@@ -52,7 +52,7 @@ class Table extends Array {
         this.update();
     }
     addItem(o) {
-        if (isEmpty(o)) return;
+        if (!isHandled(o)) return;
         var searchtext = this.searchText;
         var fields = this.searchFields ? this.searchFields : this.fields;
         var power = 0;
