@@ -132,7 +132,7 @@ function unfoldOptions(size, options) {
     for (var cx = 0, dx = options.length; cx < dx; cx++) {
         var o = options[cx];
         if (typeof o === 'string') {
-            o = { name: o };
+            o = { name: o, key: o };
         }
         var range = rangereg.exec(o.name);
         if (range) {
