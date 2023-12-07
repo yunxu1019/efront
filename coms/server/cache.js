@@ -344,7 +344,7 @@ File.prototype.update = async function () {
         url = url.replace(/\.(\w+)$/, '');
         try {
             var linked = that.linked = [];
-            buffer = await that.rebuild(buffer, url, that.pathname, that.linked);
+            buffer = await that.rebuild(buffer, url, that.pathname, linked);
             if (id !== that.dataid) return that.promise;
             if (linked.length) await that.checkLinked();
             if (id !== that.dataid) return that.promise;

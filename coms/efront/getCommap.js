@@ -25,15 +25,16 @@ async function getCommap(appname, deep = 6) {
             for (var f of files) {
                 var fn = f.name.replace(/\.[\s\S]*$/, '').replace(/\-([\s\S])/g, (_, a) => a.toUpperCase());
                 if (f.isFile()) {
-                    if (!/\.(html?|[cm]?[tj]sx?|xht)$/i.test(f.name) || /^[\#\?]/.test(f.name)) continue;
+                    if (!/\.(html?|[cm]?[tj]sx?|xht|less)$/i.test(f.name) || /^[\#\?]/.test(f.name)) continue;
                     n.push(fn);
-                    var p1 = path.join(p, f.name);
                     var m = n.join('$');
+                    n.pop();
+                    if (map[m] && /\.([cm]?[tj]sx?|xht)$/i.test(map[m])) continue;
+                    var p1 = path.join(p, f.name);
                     map[m] = p1;
                     if (p1 === loadermain) {
                         loadernames.push(m);
                     }
-                    n.pop();
                 }
                 else if (f.isDirectory()) {
                     if (n.length + 1 < deep) rest.push([path.join(p, f.name), n.concat(fn)]);

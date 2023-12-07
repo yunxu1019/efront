@@ -61,7 +61,7 @@ var bindLoadings = function (reg, data, rootfile, replacer = a => a, deep) {
         }
         return new Promise(function (ok, oh) {
             var pathmap = Object.create(null);
-            var accessready = function () {
+            var accessready = async function () {
                 var urls = loadurls.filter(a => pathmap[a])
                 var loaded = urls.map(function (key) {
                     var realpath = pathmap[key];
@@ -71,30 +71,49 @@ var bindLoadings = function (reg, data, rootfile, replacer = a => a, deep) {
                         return getFileData(realpath);
                     }
                 });
-                Promise.all(loaded).then(function (datas) {
-                    var dataMap = Object.create(null);
-                    datas.forEach((data, cx) => {
-                        dataMap[urls[cx]] = data;
-                    });
-                    data = data.replace(reg, function (match, quote, relative) {
-                        if (skipreg.test(match)) return match;
-                        if (ignoreUse_reg && ignoreUse_reg.test(relative)) return '';
-                        var data = dataMap[relative];
-                        if (data && relative in pathmap) {
-                            var result = replacer(data, pathmap[relative], match);
-                            if (result !== false && result !== null && result !== undefined) return result;
+                var datas = await Promise.all(loaded);
+                var flags = reg.flags;
+                if (flags.indexOf('g') < 0) flags += 'g';
+                var reg1 = new RegExp(reg.source, flags);
+                var dataMap = Object.create(null);
+                datas.forEach((data, cx) => {
+                    dataMap[urls[cx]] = data;
+                });
+                var match1;
+                var res = [];
+                var lastMatch = 0;
+                while (match1 = reg1.exec(data)) {
+                    res.push(data.slice(lastMatch, lastMatch = match1.index));
+                    var [match, quote, relative] = match1;
+                    lastMatch += match.length;
+                    if (skipreg.test(match)) {
+                        res.push(match);
+                        continue;
+                    }
+                    if (ignoreUse_reg && ignoreUse_reg.test(relative)) {
+                        res.push("");
+                        continue;
+                    }
+                    var holder = dataMap[relative];
+                    if (holder && relative in pathmap) {
+                        var result = await replacer(holder, pathmap[relative], match);
+                        if (result !== false && result !== null && result !== undefined) {
+                            res.push(result);
+                            continue;
                         }
-                        if (deep !== false) console.warn(`没有处理${match} ${fullpath}${/\.[^\/\/\.]+$/.test(match) ? "" : "，可在引用路径中添加扩展名后重试！"}`);
-                        return match;
-                    });
-                    if (regindex + 1 >= regs.length || increase === 0) ok(data);
-                    else regindex++, run(data, fullpath, increase).then(ok, oh);
-                }, oh);
+                    }
+                    if (deep !== false) console.warn(`没有处理${match} ${fullpath}${/\.[^\/\/\.]+$/.test(match) ? "" : "，可在引用路径中添加扩展名后重试！"}`);
+                    res.push(match);
+                }
+                if (lastMatch < data.length) res.push(data.slice(lastMatch, data.length));
+                data = res.join('');
+                if (regindex + 1 >= regs.length || increase === 0) ok(data);
+                else regindex++, run(data, fullpath, increase).then(ok, oh);
             };
             var loadingcount = loadurls.length;
-            loadurls.forEach(relative => {
+            if (!loadingcount) accessready();
+            else loadurls.forEach(relative => {
                 var realPath = path.join(path.dirname(fullpath), relative);
-
                 fs.access(realPath, function (error) {
                     loadingcount--;
                     if (!error) {
@@ -103,7 +122,6 @@ var bindLoadings = function (reg, data, rootfile, replacer = a => a, deep) {
                     if (!loadingcount) accessready();
                 });
             });
-            if (!loadingcount) accessready();
         })
     };
     return run(data, rootfile, 1);
@@ -591,20 +609,30 @@ var renderImageUrl = function (data, filepath) {
     };
     return bindLoadings(urlReg, data, filepath, replacer, false);
 };
-var renderLessData = function (data, lesspath, watchurls, className) {
+var renderLessData = function (data, lesspath, commName, watchurls, className) {
     if (data.length > 0x1000) console.info("编译", lesspath);
     data = data || '';
+    var that = this;
     var importLessReg = /^\s*@(?:import)\s*(['"`]?)(.*?)\1(\s*;)?\s*$/im;
     var replacer = function (data, realpath) {
         if (watchurls.indexOf(realpath) < 0) {
             watchurls.push(realpath);
         }
-        return data;
+        return renderImageUrl.call(that, data, realpath);
     };
     var lessresult = bindLoadings(importLessReg, data, lesspath, replacer, 0);
     if (watchurls.indexOf(lesspath) < 0) watchurls.push(lesspath);
+    if (/\.less$/i.test(this[commName]) && this[commName] !== lesspath) {
+        var configpath = this[commName];
+        if (watchurls.indexOf(configpath) < 0) watchurls.push(configpath);
+        var lessresult = Promise.all([lessresult, getFileData(configpath)])
+            .then(async function ([origin, config]) {
+                config = await bindLoadings(importLessReg, config, configpath, commName, replacer, 0);
+                return origin + "\r\n" + config;
+            })
+    }
+
     var promise = Promise.resolve(lessresult)
-        .then((data) => renderImageUrl.call(this, data, lesspath))
         .then(function (lessdata) {
             var timeStart = new Date;
             var lessData = compile$素馨(lessdata, "." + className);
@@ -675,7 +703,7 @@ async function getXhtPromise(data, filename, fullpath, watchurls) {
     extend(used, scoped.used, jscope.envs);
     var xhtmain = getValidName(`xht`, used);
     htmltext = await renderImageUrl.call(this, htmltext, fullpath);
-    styles = await renderLessData.call(this, styles.join("\r\n"), fullpath, watchurls, lessName);
+    styles = await renderLessData.call(this, styles.join("\r\n"), fullpath, commName, watchurls, lessName);
     var jsvars = jscope.vars;
     var entryName = getEntryName(jsvars, commName);
     if (entryName && !(entryName in scoped.used)) {
@@ -794,7 +822,7 @@ function getMouePromise(data, filename, fullpath, watchurls) {
             });
         }
         if (lessData) {
-            var lesspromise = renderLessData.call(this, lessData, fullpath, watchurls, lessName).then(data => {
+            var lesspromise = renderLessData.call(this, lessData, fullpath, commName, watchurls, lessName).then(data => {
                 lessData = data;
                 time += lesspromise.time;
             });
@@ -813,7 +841,7 @@ function getHtmlPromise(data, filename, fullpath, watchurls) {
     var time = 0;
     var promise = getFileData(lesspath).then((lessdata) => {
         if (lessdata instanceof Buffer) {
-            var lessPromise = renderLessData.call(this, lessdata, lesspath, watchurls, lessName);
+            var lessPromise = renderLessData.call(this, lessdata, lesspath, commName, watchurls, lessName);
             return lessPromise.then(data => {
                 lessData = data;
                 time += lessPromise.time;
@@ -851,7 +879,7 @@ function getScriptPromise(data, filename, fullpath, watchurls) {
         }
         jsData = String(data);
         if (lessdata instanceof Buffer) {
-            var lessPromise = renderLessData.call(this, lessdata, lesspath, watchurls, lessName);
+            var lessPromise = renderLessData.call(this, lessdata, lesspath, commName, watchurls, lessName);
             lessPromise.then(data => {
                 lessData = data;
                 time += lessPromise.time || 0;
