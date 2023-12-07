@@ -51,7 +51,7 @@ function getBuildInfo(url) {
                 }
                 searchname = name.replace(/(\w)\$/g, "$1/");
                 extt = extt || [".js", '.xht', ".ts", ".json", ".html", '.vue', ''];
-                if (url in commap) {
+                if (url in commap && (extt instanceof Array ? extt.indexOf(path.extname(commap[url])) >= 0 : extt === path.extname(commap[url]))) {
                     realpath = commap[url];
                 }
                 else if (comms_root instanceof Array) {

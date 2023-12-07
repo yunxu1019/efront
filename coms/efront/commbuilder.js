@@ -620,7 +620,8 @@ var renderLessData = function (data, lesspath, commName, watchurls, className) {
         }
         return renderImageUrl.call(that, data, realpath);
     };
-    var lessresult = bindLoadings(importLessReg, data, lesspath, replacer, 0);
+    data = renderImageUrl.call(that, data, lesspath);
+    var lessresult = Promise.resolve(data).then(data => bindLoadings(importLessReg, data, lesspath, replacer, 0));
     if (watchurls.indexOf(lesspath) < 0) watchurls.push(lesspath);
     if (/\.less$/i.test(this[commName]) && this[commName] !== lesspath) {
         var configpath = this[commName];
