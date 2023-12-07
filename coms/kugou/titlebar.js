@@ -1,1 +1,0 @@
-zimoli$titlebar;
