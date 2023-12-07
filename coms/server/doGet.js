@@ -172,17 +172,7 @@ var adapter = function (data, url, req, res) {
  * doGet
  */
 var doGet = module.exports = async function (req, res) {
-    var url = await proxy(req);
-    if (/^~~?|^&/.test(url)) {
-        return doCross(req, res);
-    }
-    if (/^https?:|^\/\/|^[^\/]/i.test(url)) {
-        res.writeHead(302, {
-            Location: url
-        });
-        res.end();
-        return;
-    }
+    var url = req.url;
     var download = /\*([\s\S]*)$/.exec(url);
     if (download) req.download = download[1];
     url = url.replace(/[\:\?#\*][\s\S]*/g, "");

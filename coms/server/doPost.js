@@ -22,7 +22,7 @@ var doPost = module.exports = async function (req, res) {
             finalpacker.reset();
         }
     }
-    var env = getRequestEnv(req);
+    var env = await getRequestEnv(req);
     finalpacker.call(env, url, async function (result, type) {
         if (!(result instanceof Buffer || result instanceof Function)) {
             result = String(result);

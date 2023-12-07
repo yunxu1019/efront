@@ -182,7 +182,7 @@ var doOptions = async function (req, res, type) {
             break;
         case "live":
             if (memery.istest) {
-                let env = getRequestEnv(req);
+                let env = await getRequestEnv(req);
                 if (!env) break;
                 res.env = env;
                 res.referer = getHeader(req.headers, "referer");
@@ -436,6 +436,7 @@ var setHeader = function (crypted, k, v) {
     }
     this.setHeader(k, v);
 };
+var proxy = require("./url-proxy");
 /**
  * @param {Http2ServerRequest}req
  * @param {Http2ServerResponse}res
@@ -598,21 +599,32 @@ var requestListener = async function (req, res) {
     } catch (e) {
         req.url = unescape(req.url);
     }
-    if (getHeader(req.headers, "range")) {
-        return doFile(req, res);
-    }
     if (memery.CHANNEL_ENABLED && /^\/\([\s\S]*\)/.test(req.url)) {
         return doChannel(req, res);
     };
     if (memery.islive && /\/\:(\w{3,4})\//.test(req.url)) {
         return doPost.call(this, req, res);
     }
-
+    var url = await proxy(req);
+    if (req.jump || /^https?:|^\/\//i.test(url)) {
+        res.writeHead(302, {
+            Location: url
+        });
+        res.end();
+        return;
+    }
+    if (/^post/i.test(req.method) && !crypted) {
+        return doPost.call(this, req, res);
+    }
+    req.url = url;
+    if (/^~~?|^&/.test(url)) {
+        return doCross(req, res);
+    }
+    if (getHeader(req.headers, "range")) {
+        return doFile(req, res);
+    }
     if (/^get/i.test(req.method) || crypted) {
         return doGet(req, res);
-    }
-    else if (/^post/i.test(req.method)) {
-        return doPost.call(this, req, res);
     }
     else {
         return doFile(req, res);

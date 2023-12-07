@@ -1,6 +1,6 @@
 首页: /home/welcome
 WEB:
-  短链接: /proxy/list
+  路径映射: /proxy/list
   文件管理: /wow/root
   长连接管理: /link/index
   字典: /dict/list
