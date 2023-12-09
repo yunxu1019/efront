@@ -65,6 +65,7 @@ async function getProxyURL(req, url = req.url) {
         if (proxy) url = wrapProxy(proxy, pathname);
     }
     var proxyname = /^\/[^\/]+/.exec(pathname);
+    if (proxyname) proxyname = proxyname[0];
     if (proxyname && !(proxyname in urlProxyMap)) proxyname += '/';
     if (proxyname in urlProxyMap) {
         url = pathname.slice(proxyname.length);
