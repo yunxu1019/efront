@@ -47,7 +47,8 @@ var wrapProxy = function (proxy, url, query) {
     var querys = [];
     if (query) querys.push(query);
     var { host, protocol = '', pathname = '/', query } = parseURL(proxy);
-    url = pathname.replace(/\/$/, '') + "/" + url.replace(/^\//, '');
+    if (url) url = pathname.replace(/\/$/, '') + "/" + url.replace(/^\//, '');
+    else url = pathname;
     if (host) url = protocol + '//' + host + url;
     if (query) querys.push(query);
     if (querys.length) url += "?" + querys.join("&");
