@@ -1,7 +1,7 @@
 "use strict";
 var path = require("path");
-var reg = /^(0|false|null|uset|none|undefined|nil|unset)$/i;
-var test = a => !!a && !reg.test(a);
+var false_reg = /^(0|false|null|uset|none|undefined|nil|unset)$/i;
+var test = a => !!a && !false_reg.test(a);
 var env = process.env;
 if (!env.cd && !env.CD) {
     env.cd = process.cwd();
@@ -33,7 +33,7 @@ var set = function (k, v) {
             v = +v;
             break;
         case "boolean":
-            v = !reg.test(v);
+            v = !false_reg.test(v);
             break;
     }
     this[n] = v;
@@ -65,11 +65,23 @@ var get = function (name, _default, fix, limits) {
         var k = alias[cx];
         if (k in env) {
             var v = env[k];
+            if (_default === undefined) {
+                switch (v) {
+                    case "true":
+                    case "false":
+                        _default = false;
+                        break;
+                    default:
+                        if (/^\d+$/.test(v)) _default = 0;
+                }
+            }
             switch (typeof _default) {
                 case "number":
                     value = +v;
+                    break;
                 case "boolean":
-                    value = reg.test(v);
+                    value = !false_reg.test(v);
+                    break;
                 default:
                     value = v;
             }
@@ -182,7 +194,7 @@ var memery = module.exports = {
             return noproxy;
         }
         if (env.NOPROXY) {
-            noproxy = !reg.test(env.NOPROXY);
+            noproxy = !false_reg.test(env.NOPROXY);
         } else if (env.PROXY) {
             noproxy = !test(env.PROXY);
         } else {
@@ -197,7 +209,7 @@ var memery = module.exports = {
     FILE_BUFFER_SIZE: get("FILE_BUFFER_SIZE, BUFFER_SIZE, BUFFER", 64 * 1024 * 1024),
     APP: get("APP, APPNAME"),
     TITLE: get("TITLE", ''),
-    WAITER_NUMBER: get("WAITER_NUMBER, CLUSTERS_NUMBER, CLUSTERS, CPUS, SPREADS"),
+    WAITER_NUMBER: get("WAITER_NUMBER, CLUSTERS_NUMBER, CLUSTERS, CPUS, SPREADS", NaN),
     PASSWORD: get('PASSWORD'),
     DNS: get("DNS", ''),
     IPV4FIRST: get("IPV4FIRST, IPV4", true),
@@ -290,13 +302,14 @@ var memery = module.exports = {
         return this.islive ? this.PAGE_PATH : this.PUBLIC_PATH;
     },
 };
+var isHandled = require('../basic/isHandled');
 Object.keys(memery).forEach(function (key) {
     if (!(key in _ifempty)) return;
     _memery[key] = memery[key];
     Object.defineProperty(memery, key, {
         get() {
             var value = _memery[key];
-            if (isEmpty(value)) return _ifempty[key];
+            if (!isHandled(value)) return _ifempty[key];
             return value;
         },
         set(value) {
