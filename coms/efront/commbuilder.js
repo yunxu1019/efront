@@ -681,6 +681,7 @@ var getValidName = function (prefix, used) {
     return prefix;
 }
 var getEntryName = function (vars, commName) {
+    if (!commName) return null;
     for (var entry of memery.ENTRY_NAME.split(",")) {
         entry = entry.replace(/<(文件名|自动|auto|filename)>/ig, commName);
         if (entry in vars) return entry;

@@ -16,6 +16,7 @@ const [
 var number_reg = /^(?:(?:0x[0-9a-f]+|0b\d+|0o\d+)(?:_[0-9a-f]+)*|(?:(?:(?:\d+_)*\d+|\d*)\.\d+(?:_\d+)*|(?:\d+_)*\d+\.?))(?:e[\+\-]?\d+(?:_\d+)*|[mniul]|ll)?$/i;
 var equal_reg = /^(?:[\+\-\*\/~\^&\|%]|\*\*|>>>?|<<)?\=$|^(?:\+\+|\-\-)$/;
 var skipAssignment = function (o, cx) {
+    if (!o) return;
     var next = arguments.length === 1 ? function () {
         o = o.next;
     } : function () {
