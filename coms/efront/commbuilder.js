@@ -7,7 +7,6 @@ var inPage = require("./inPage");
 var fs = require("fs");
 var path = require("path");
 var memery = require("./memery");
-var istest = memery.istest;
 var islive = memery.islive;
 var autoiota = require("../compile/autoiota");
 var autoeval = require("../compile/autoeval");
@@ -455,7 +454,7 @@ var loadJsBody = function (data, filename, lessdata, commName, className, htmlDa
             r.text = String(r.value);
         }
     })
-    code_body.helpcode = istest;
+    code_body.helpcode = memery.HELPCODE;
     data = code_body.toString();
     var params = globals.map(g => globalsmap[g]);
     return {

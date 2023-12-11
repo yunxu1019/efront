@@ -1049,6 +1049,14 @@ var createString = function (parsed) {
     var keepspace = parsed.keepspace !== false;
     var patchspace = autospace && keepspace;
     var helpcode = parsed.helpcode;
+    var express_reg = parsed.program?.express_reg;
+    if (typeof helpcode === 'string') {
+        if (express_reg && !express_reg.test(helpcode.replace(/[\/\||,]/g, ''))) throw new Error("辅助级别异常：" + debug);
+        if (/[\/\|,]/i.test(helpcode)) var debug = `(?:${helpcode.replace(/[\/\|,]/g, '|')})`;
+        else debug = helpcode;
+    }
+    else debug = '';
+    var helpreg = debug ? new RegExp(/^\/[\/\*]\s*/.source + debug + /\:?\s*\<\!--/.source, "i") : /^\/[\/\*]\s*\<\!--/;
     var lasttype = SPACE;
     var uncomment = parsed.comment === false;
     var result = [], cacheresult, finalresult = result;
@@ -1071,10 +1079,10 @@ var createString = function (parsed) {
                 if (uncomment) break;
                 var tmp = o.text, opentmp = false;
                 if (helpcode) {
-                    if (/^\/[\/\*]\s*\<\!--/.test(tmp)) {
+                    if (helpreg.test(tmp)) {
                         opentmp = true;
                         if (/^\/\*/.test(tmp)) opentmp = 2;
-                        tmp = tmp.replace(/^\/[\/\*]\s*\<\!--\s*/, '');
+                        tmp = tmp.replace(helpreg, '');
                         cacheresult = [];
                         result = cacheresult;
                         result.push("/* [[ 开发辅助代码: */");

@@ -161,6 +161,9 @@ var _ifempty = {
     get WAITER_NUMBER() {
         return memery.islive ? 1 : require("os").cpus().length;
     },
+    get HELPCODE() {
+        return memery.istest;
+    },
     get islive() {
         return memery.TESTMODE;
     }
@@ -203,6 +206,7 @@ var memery = module.exports = {
         return noproxy;
     },
     LIVEMODE: get("LIVEMODE,LIVE", true),
+    HELPCODE: get("HELPCODE"),
     RESTCOMS: get("RESTCOMS,REST_COMS"),
     DIRECT: geturlpath("DIRECT,DIRECT_PAGE,DIRECT_PATH,SINGLE,SINGLE_PAGE,SINGLE_PATH"),
     EFRONT: false,
