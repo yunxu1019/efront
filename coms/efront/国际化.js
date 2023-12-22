@@ -22,20 +22,31 @@ var loadData = async function (fullpath, i18nMap) {
         });
     }
 };
+var loaded = null;
+var __efrontpath = path.join(__dirname, '../..');
 var loadParents = async function (fullpath, i18nMap, name) {
-    var cwd = process.cwd();
-    if (/^\./i.test(path.relative(fullpath, cwd))) {
-        var restpath = path.relative(cwd, fullpath).split(/[\\\/]+/);
-        for (var r of restpath) {
-            await loadData(path.join(cwd, name), i18nMap);
-            cwd = path.join(cwd, r);
+    var cwds = [process.cwd(), __efrontpath];
+    for (var cwd of cwds) {
+        if (/^\.\./.test(path.relative(fullpath, cwd))) {
+            var restpath = path.relative(cwd, fullpath).split(/[\\\/]+/);
+            for (var r of restpath) {
+                if (cwd in loaded) continue;
+                loaded[cwd] = true;
+                await loadData(path.join(cwd, name), i18nMap);
+                cwd = path.join(cwd, r);
+            }
         }
+    }
+    if (!loaded[fullpath]) {
+        loaded[fullpath] = true;
+        await loadData(path.join(fullpath, name), i18nMap);
     }
 };
 module.exports = async function (pathlist, name) {
     var i18nMap = Object.create(null);
+    loaded = Object.create(null);
     for (var p of pathlist) await loadParents(p, i18nMap, name);
-    for (var p of pathlist) await loadData(path.join(p, name), i18nMap);
+    loaded = null;
     var supports = Object.keys(i18nMap);
     if (supports.length) return [i18nMap[supports[0]], supports, i18nMap];
     return null;

@@ -1,8 +1,9 @@
 "use strict";
 var languageMap = {};
 var languageIndex = 0;
-function i18n() {
-    return arguments[isFinite(this) ? this : languageIndex];
+function i18n(arg) {
+    if (typeof arg === 'string') arg = arguments;
+    return arg[isFinite(this) ? this : languageIndex];
 };
 i18n.lang = function (type) {
     var id = getLanguageIndexFromName(type) || 0;
