@@ -1266,8 +1266,9 @@ function toqueue(body, getname, ret = false, result = []) {
             if (o.text === 'else') {
                 while (body[cx] !== o.next) cx++;
                 o = o.next;
+                var ispbr = iftop[iftop.length - 3];
+                if (!ispbr) ifpatch(result, true);
                 isbr = isbreak(o);
-                if (!isbr) ifpatch(result, true);
                 iftop.push(result.length);
                 elseif = true;
             }
