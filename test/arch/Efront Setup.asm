@@ -61,12 +61,18 @@ uninstallSize dd 0
 uninstallRest dd 0
 shcoreName dw "shcore.dll",0
 dpiProcName byte "SetProcessDpiAwareness",0
+SetProcessDpiAwareness dd 0
+unabled dd 0
 factorName byte "GetScaleFactorForMonitor",0
 dpiforName byte "GetDpiForMonitor",0
 ; shellName dw "shell32.dll",0
 ; browseName byte "SHBrowseForFolderW",0
 fontFamily dw "仿宋",0
 fontFamili dw "宋体",0
+fonthelp1 dw "仿宋_GB2312",0
+fonthelp2 dw "楷体_GB2312",0
+fonthelp3 dw "黑体",0
+fonthelp4 dw "宋体",0
 factor dd 4
 szClassName dw 'efront.cc/baiplay',0
 ; 保持标题不变，以便被efront查找替换
@@ -146,6 +152,8 @@ nameoffset dd ?
 namecache dd MAX_PATH dup(?)
 datacache dd 36000 dup(?)
 datawrite dd 36000 dup(?)
+unableMessage dw "当前安装程序无法在您的操作系统运行！",0
+unableTitle dw "错误",0
 ;
 ;
 ;
@@ -353,7 +361,7 @@ readindex proc h
     mov buffstart,eax
     invoke GlobalAlloc,GMEM_FIXED or GMEM_ZEROINIT,count
     .if !eax
-        invoke MessageBox,NULL,addr szErrOpenFile,addr szCaptionMain,MB_OK
+        invoke MessageBox,NULL,addr szErrOpenFile,addr szCaptionMain,MB_OK or MB_ICONEXCLAMATION
         ret
     .endif
     mov buff,eax
@@ -361,7 +369,7 @@ readindex proc h
     shl eax,3
     invoke GlobalAlloc,GMEM_FIXED or GMEM_ZEROINIT,eax
     .if !eax
-        invoke MessageBox,NULL,addr szErrOpenFile,addr szCaptionMain,MB_OK
+        invoke MessageBox,NULL,addr szErrOpenFile,addr szCaptionMain,MB_OK or MB_ICONEXCLAMATION
         ret
     .endif
     mov list,eax
@@ -784,7 +792,7 @@ choosingfn proc hWnd,uMsg,lParam,lpData
     mov eax,0
     ret
 choosingfn endp
-choosedist proc,hWnd
+choosedist proc hWnd
     local info:BROWSEINFO,image,locat
     ; invoke foldersize
     ; invoke SHGetFolderLocation,hWinMain,offset folder,eax ,addr locat,MAX_PATH
@@ -889,11 +897,31 @@ brizer proc x1,y1,x2,y2,x3,y3,x4,y4,b
     .endw
     ret
 brizer endp
+
 _DrawText proc @gp,color,textoffset,fSize,rect,fFamily,rectref
     local font,format,brush,family,sz,x,y,r,textlength,path,pen
+    local created
     fild fSize
     fstp sz
     invoke GdipCreateFontFamilyFromName,fFamily,NULL,addr family
+    mov created,1
+    .if family==0
+        invoke GdipCreateFontFamilyFromName,offset fonthelp1,NULL,addr family
+    .endif
+    .if family==0
+        invoke GdipCreateFontFamilyFromName,offset fonthelp2,NULL,addr family
+    .endif
+    .if family==0
+        invoke GdipCreateFontFamilyFromName,offset fonthelp3,NULL,addr family
+    .endif
+    .if family==0
+        invoke GdipCreateFontFamilyFromName,offset fonthelp4,NULL,addr family
+    .endif
+    .if family==0
+        invoke GdipGetGenericFontFamilySerif,addr family;
+        mov created,0
+        mov unabled,1
+    .endif
     invoke GdipCreateFont, family,sz,0,0,addr font
     invoke GdipCreateStringFormat, 00007400h,0,addr format
     invoke GdipSetStringFormatTrimming,format,5
@@ -908,12 +936,14 @@ _DrawText proc @gp,color,textoffset,fSize,rect,fFamily,rectref
     invoke GdipCreatePath,0,addr path
     invoke GdipResetPath,path
     invoke GdipAddPathString,path,textoffset,textlength,family,0,sz,rect,0
-    invoke GdipWindingModeOutline,path,0,0
+    invoke GdipWindingModeOutline,path,0,r1
     ; invoke GdipDrawPath,@gp,pen,path
     invoke GdipFillPath,@gp,brush,path
     ; 还是要感谢一下勇芳软件的作者http://www.yfvb.com/
     ; invoke GdipDrawString,@gp,textoffset,textlength,font,rect,format,brush
-    invoke GdipDeleteFontFamily,family
+    .if family
+        invoke GdipDeleteFontFamily,family
+    .endif
     ; invoke GdipDeletePen,pen
     invoke GdipDeletePath,path
     invoke GdipDeleteFont,font
@@ -1039,6 +1069,7 @@ drawlogo proc @gp
         add eax,offset logoline
         invoke GdipAddPathLine2,ground.clip,eax,ecx
         invoke GdipDrawPath,@gp,pen,ground.clip
+        invoke GdipDeletePen,pen
         ret
     .endif
     .if percented>sizeof logoline
@@ -1199,6 +1230,13 @@ _CreateShapes proc @gp
     mov ground.back,eax
     invoke _DrawButton,@gp,ground,0ff323634h,0fff2f6f4h,0,0
 
+    ; 狗日的赤匪，在中国作威作福，坏事做尽，又拿毛泽东当挡箭牌。
+    ; 那占了鹊巢的恶鸠，说那巢来之不易，鹊的后代不应破坏。
+    ; 还有大量既得利益的无脑国人伪装成正能量为虎作伥。
+    ; 他们怕失去现有的利益，对揭露赤匪罪行的人肆意举报迫害。
+    ; 我不禁感叹，
+    ; 那曾经革命者的后代，再也没有宁为玉碎不为瓦全的精神，
+    ; 却成了谈革命而色变的孬种，与哈巴狗无异。
     invoke drawlogo,@gp
     invoke drawclose,@gp
     invoke drawsetup,@gp
@@ -1274,6 +1312,7 @@ _Frame proc hWnd
     local isIn
     invoke GetDC,hWnd;
     mov dc,eax
+    mov matrix,0
     invoke CreateCompatibleDC,dc
     mov @hDc,eax
     .if bitmap==0
@@ -1290,10 +1329,11 @@ _Frame proc hWnd
     invoke GdipCreateFromHDC,@hDc,addr @gp
     invoke GdipSetTextRenderingHint,@gp,3
     invoke GdipSetSmoothingMode,@gp,4
-    invoke GdipCreateMatrix,addr matrix
-    invoke GdipScaleMatrix,matrix,ratio,ratio,1
-    invoke GdipSetWorldTransform,@gp,matrix
-    invoke GdipDeleteMatrix,matrix
+    .if SetProcessDpiAwareness
+        invoke GdipCreateMatrix,addr matrix
+        invoke GdipScaleMatrix,matrix,ratio,ratio,1
+        invoke GdipSetWorldTransform,@gp,matrix
+    .endif
     .if close.clip==0
         invoke _CreateShapes,@gp
         jmp @F
@@ -1383,9 +1423,12 @@ _Frame proc hWnd
         invoke folderinit
         invoke drawfolder,@gp
     .endif
+    invoke BitBlt,dc,0,0,w_rect.w,w_rect.h,@hDc,0,0,SRCCOPY
     invoke GdipReleaseDC,@gp,@hDc
     invoke GdipDeleteGraphics,@gp
-    invoke BitBlt,dc,0,0,w_rect.w,w_rect.h,@hDc,0,0,SRCCOPY
+    .if matrix
+        invoke GdipDeleteMatrix,matrix
+    .endif
     invoke ReleaseDC,hWnd,dc
     invoke DeleteDC,@hDc
     ret
@@ -1393,10 +1436,10 @@ _Frame endp
 ;
 ;
 ;
-_LeftMove proc hWnd
+_mouseDrag proc hWnd
     local p:POINT,tmp
-    invoke GetCursorPos,addr p
     .if m_moved!=1
+        invoke GetCursorPos,addr p
         finit
         fild p.x
         fisub m_pos.x
@@ -1409,27 +1452,28 @@ _LeftMove proc hWnd
         fadd
         fistp tmp
         mov eax,factor
-        .if tmp>=eax
-            mov m_moved,1
-        .else
+        .if tmp<eax
             ret
         .endif
+        mov m_moved,1
+        mov eax,p.x
+        sub eax,m_pos.x
+        add eax,w_rect.x
+        mov w_rect.x,eax
+        mov eax,p.y
+        sub eax,m_pos.y
+        add eax,w_rect.y
+        mov w_rect.y,eax
+        invoke MoveWindow,hWnd,w_rect.x,w_rect.y,w_rect.w,w_rect.h,TRUE
+        mov eax,p.x
+        mov m_pos.x,eax
+        mov eax,p.y
+        mov m_pos.y,eax
+        call ReleaseCapture
+        invoke SendMessage,hWnd,WM_SYSCOMMAND,SC_MOVE or HTCAPTION,NULL
     .endif
-    mov eax,p.x
-    sub eax,m_pos.x
-    add eax,w_rect.x
-    mov w_rect.x,eax
-    mov eax,p.y
-    sub eax,m_pos.y
-    add eax,w_rect.y
-    mov w_rect.y,eax
-    invoke MoveWindow,hWnd,w_rect.x,w_rect.y,w_rect.w,w_rect.h,FALSE
-    mov eax,p.x
-    mov m_pos.x,eax
-    mov eax,p.y
-    mov m_pos.y,eax
     ret
-_LeftMove endp
+_mouseDrag endp
 _LeftDown proc hWnd
     local r:RECT
     invoke GetCursorPos,addr m_pos
@@ -1440,13 +1484,12 @@ _LeftDown proc hWnd
     mov w_rect.y,eax
     mov m_actived,TRUE
     mov m_moved,FALSE
-    
     ret
 _LeftDown endp
 
 _MouseMove proc hWnd
     .if m_actived
-        invoke _LeftMove,hWnd
+        invoke _mouseDrag,hWnd
         ret
     .endif
     invoke _UpdateCursor,hWnd
@@ -1517,14 +1560,17 @@ _SetFactor proc
     invoke GetSystemMetrics,SM_CYSCREEN
     mov h,eax
     invoke LoadLibrary,offset shcoreName
-    mov shcore,eax
-    invoke GetProcAddress,eax,offset dpiProcName
     .if eax != 0
-        push DWORD ptr 1 ;切换分辨率自动缩放
-        ; push DWORD ptr 2 ;切换分辨率手动缩放
-        call eax
+        mov shcore,eax
+        invoke GetProcAddress,eax,offset dpiProcName
+        mov SetProcessDpiAwareness,eax
+        .if eax != 0
+            push 1 ;切换分辨率自动缩放
+            ; push 2 ;切换分辨率手动缩放
+            call eax
+        .endif
+        invoke FreeLibrary, shcore
     .endif
-    invoke FreeLibrary, shcore
     invoke GetSystemMetrics,SM_CXSCREEN
     mov w1,eax
     invoke GetSystemMetrics,SM_CYSCREEN
@@ -1556,10 +1602,15 @@ _ProcWinMain proc uses ebx edi esi,hWnd,uMsg,wParam,lParam
     local @stPs:PAINTSTRUCT
     mov eax,uMsg
     .if eax==WM_CREATE
-        invoke SetTimer,hWnd,1,17,NULL
+        invoke SetTimer,hWnd,1,16,NULL
         invoke GetWindowLong,hWnd,GWL_EXSTYLE
         invoke SetWindowLong,hWnd,GWL_EXSTYLE,eax
         invoke SetLayeredWindowAttributes,hWnd,0,255,2
+        mov eax, 0
+    .elseif eax== WM_PAINT
+        invoke BeginPaint,hWnd,addr @stPs
+        invoke EndPaint,hWnd,addr @stPs
+        mov eax,0
     .elseif eax==WM_LBUTTONDOWN
         invoke _LeftDown,hWnd
         invoke SetCapture,hWnd
@@ -1569,31 +1620,14 @@ _ProcWinMain proc uses ebx edi esi,hWnd,uMsg,wParam,lParam
         invoke _MouseMove,hWnd
     .elseif eax==WM_MOUSEMOVE
         invoke _MouseMove,hWnd
-    ; .elseif eax==WM_DPICHANGED_BEFOREPARENT
-    ;     invoke _SetFactor
-    ;     invoke SetWindowPos,hWnd,NULL,w_rect.x,w_rect.y,w_rect.w,w_rect.h,SWP_NOMOVE
-    ; .elseif eax==WM_DPICHANGED
-    ;     invoke _SetFactor
-    ;     invoke SetWindowPos,hWnd,NULL,w_rect.x,w_rect.y,w_rect.w,w_rect.h,SWP_NOMOVE
-    ; .elseif eax==WM_GETDPISCALEDSIZE
-    ;     invoke _SetFactor
-    ;     invoke SetWindowPos,hWnd,NULL,w_rect.x,w_rect.y,w_rect.w,w_rect.h,SWP_NOMOVE
     .elseif eax==WM_TIMER
         .if dataindex
             invoke processed,0
         .endif
         invoke _Frame,hWnd
-    .elseif eax==WM_SHOWWINDOW
+        mov eax,0
     .elseif eax==WM_SETCURSOR
         invoke _SetCursor
-    .elseif eax== WM_PAINT
-        ; mov eax,hWnd
-        ; .if eax==hWinMain
-        ;     mov eax,0
-        ;     ret
-        ; .endif
-        invoke BeginPaint,hWnd,addr @stPs
-        invoke EndPaint,hWnd,addr @stPs
     .elseif eax==WM_CLOSE
         call issetting
         .if eax
@@ -1602,6 +1636,7 @@ _ProcWinMain proc uses ebx edi esi,hWnd,uMsg,wParam,lParam
         invoke KillTimer,hWnd,1
         invoke DestroyWindow,hWnd
         invoke PostQuitMessage,NULL
+        mov eax,0
     .else
         invoke DefWindowProc,hWnd,uMsg,wParam,lParam
         ret
@@ -1643,10 +1678,13 @@ _WinMain proc
         NULL,NULL,hInstance,NULL
     mov hWnd,eax
     mov hWinMain,eax
-
-    invoke ShowWindow,eax,SW_SHOWNORMAL
     invoke _Frame,hWnd
     invoke UpdateWindow,hWnd
+    invoke ShowWindow,hWinMain,SW_SHOWNORMAL
+    .if unabled
+        invoke MessageBox, NULL, unableMessage, unableTitle, NULL
+        invoke SendMessage,hWinMain,WM_CLOSE,NULL,NULL
+    .endif 
     .while TRUE
         invoke GetMessage,addr @stMsg,NULL,0,0
         .break .if eax ==0
