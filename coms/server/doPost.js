@@ -25,7 +25,11 @@ var doPost = module.exports = async function (req, res) {
     var env = await getRequestEnv(req);
     finalpacker.call(env, url, async function (result, type) {
         if (!(result instanceof Buffer || result instanceof Function)) {
-            result = String(result);
+            try {
+                result = String(result);
+            } catch {
+                type = 500;
+            }
         } else {
             if (result.mime) res.setHeader("Content-Type", result.mime);
         }
@@ -45,6 +49,11 @@ var doPost = module.exports = async function (req, res) {
                 res.writeHead(404, utf8err);
                 res.end(i18n`未没找到匹配的资源：${url}`);
                 break;
+            case 500:
+                res.writeHead(500, utf8err);
+                res.end(i18n`服务异常`);
+                break;
+
             default:
                 res.end(result);
         }
