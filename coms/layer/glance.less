@@ -6,7 +6,6 @@
     position: relative;
     border-radius: 3px;
     overflow: hidden;
-    border-left: @left-width solid transparent;
     box-sizing: border-box;
     overflow: visible;
     transition: border-left-width 0.2s ease-out, margin-left .2s ease-out, left .2s ease-out;
@@ -40,21 +39,24 @@
     padding: 50px 10px 20px 10px;
 }
 
-&.close {
-    border-left-width: 0 !important;
-}
+// 宽屏: 用border-left
+@media all and (min-width:961px) {
+    & {
+        border-left: @left-width solid transparent;
+    }
 
-@media all and(min-width:961px) {
-    &.open {
-        border-left-width: 0 !important;
-        margin-left: 0 !important;
+    &.close {
+        border-left-width: 0;
     }
 }
 
-@media all and (max-width:960px) {
+// 窄屏: 用margin-left
+@media(max-width:960px) {
+    
     & {
-        border-radius: 0;
-        border-left-width: 0 !important;
         margin-left: 0;
+    }
+    &.open {
+        margin-left: @left-width;
     }
 }

@@ -99,23 +99,20 @@ function main(mainPath, historyName = "") {
     };
     var bindClass = function () {
         if (closed) {
-            var collapse = layer.clientLeft === 0;
-            addClass(layer, 'close');
-            removeClass(layer, 'open');
-            css(layer, `margin-left:0`);
-            if (collapse) {
-                removeClass(layer, 'close open');
+            if (hasClass(layer, "open")) {
+                removeClass(layer, 'open');
             }
-        } else {
-            addClass(layer, 'open');
-            removeClass(layer, 'close');
-            css(layer, `margin-left:${fromOffset(leftLayer.offsetWidth)}`);
-            setTimeout(function () {
-                var collapse = layer.clientLeft === 0;
-                if (!collapse) {
-                    css(layer, 'margin-left:0');
-                }
-            }, 20);
+            else {
+                addClass(layer, 'close');
+            }
+        }
+        else {
+            if (hasClass(layer, 'close')) {
+                removeClass(layer, 'close');
+            }
+            else {
+                addClass(layer, 'open');
+            }
         }
     };
     var update = function (event) {
