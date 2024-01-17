@@ -583,10 +583,11 @@ function 素馨(text, scopeName, compress) {
     }
     return result.rest.map(a => a.join("")).concat(result).map(a => {
         var ats = [];
-        a = a.replace(/@\{(@[^\}]*)\}\s*/g, function (_, q) {
+        a = a.replace(/\s*@\{(@[^\}]*)\}/g, function (_, q) {
+            q = q.replace(/((?:\s|\))(?:and|or))\(/g, '$1 (');
             ats.push(q);
             return ''
-        });
+        }).trim();
         if (!a) return '';
         var atk = ats.join(';');
         if (queried.key !== atk) {
