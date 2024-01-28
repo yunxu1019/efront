@@ -134,13 +134,13 @@ var _withget = function (text) {
     if (index < 0) index = text.length;
     var name = text.slice(0, index);
     var prop = text.slice(index);
-    return rescan`withget_(${`"${name}"`},[${_evals()}],${name})${prop}`;
+    return rescan`${patchMark}withget_(${`"${name}"`},[${_evals()}],${name})${prop}`;
 };
 var _withset = function (text, tmpname, valname) {
     var index = text.indexOf(".");
     if (index < 0) index = text.length;
     var name = text.slice(0, index);
-    return rescan`if(${tmpname}=with_(${`"${name}"`},[${_evals()}]))${tmpname}.${text}=${valname};else ${text}=${valname};`;
+    return rescan`if(${tmpname}=${patchMark}with_(${`"${name}"`},[${_evals()}]))${tmpname}.${text}=${valname};else ${text}=${valname};`;
 };
 var _switch = function (body, cx, unblock, result, getname) {
     var o = body[cx];
@@ -1357,8 +1357,11 @@ var strip = false;
 var canbeTemp = function (body) {
     return _canbeTemp(body, strip);
 };
+var patchMark = '';
 module.exports = function (body, newname, ret) {
     strip = body.strip;
+    var patchMark_ = patchMark;
+    patchMark = body.patchMark;
     if (ret) ret = isString(ret) ? ret : newname();
     var ret0 = ret_;
     var ret1 = null;
@@ -1378,5 +1381,6 @@ module.exports = function (body, newname, ret) {
     var res = toqueue(body, getname, false);
     while (labels.length) poplabel(res);
     ret_ = ret0;
+    patchMark = patchMark_;
     return res;
 };

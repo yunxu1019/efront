@@ -209,7 +209,7 @@ var killdec = function (queue, i, getobjname, _var = 'var', killobj, islet) {
                 map[a] = a;
             });
             d.attributes.forEach(dec);
-            write(name, `rest_(${tmpname},[${Object.keys(map)}])`, false), rootenvs.rest_ = true;
+            write(name, `${patchMark}rest_(${tmpname},[${Object.keys(map)}])`, false), rootenvs[patchMark + "rest_"] = true;
         }
         else {
             doged = at + 1;
@@ -217,7 +217,7 @@ var killdec = function (queue, i, getobjname, _var = 'var', killobj, islet) {
             if (iter) {
                 while (iter.index < a) iter.next();
                 iter.done = true;
-                write(name, `restIter_(${tmpname})`);
+                write(name, `${patchMark}restIter_(${tmpname})`), rootenvs[patchMark + "restIter_"] = true;
             }
             else write(name, `slice_["call"](${tmpname},${at}${a > at ? `,${at - a}` : ''})`, rest.length > 0), rootenvs.slice_ = true;
             total = rest.length;
@@ -444,13 +444,13 @@ var killmap = function (body, i, _getobjname, _getnewname, killobj) {
                     splice2(o, s, s = s.next);
                 }
                 if (q) {
-                    t = scanner2(`extend(${_getobjname()},)`);
+                    t = scanner2(`${patchMark}extend(${_getobjname()},)`);
                     rootenvs.extend = true;
                     insert1(q, null, ...t);
                 }
                 else {
                     if (!t) {
-                        t = scanner2(`extend()`);
+                        t = scanner2(`${patchMark}extend()`);
                         rootenvs.extend = true;
                         var [o0] = splice(body, i, 1, ...t);
                         t[1].push(o0);
@@ -691,7 +691,7 @@ var killcls = function (body, i, letname_, getname_) {
         }
         insert1(invokes, null, ...constructor);
         o = o.next;
-        if (base) defines.unshift(...scanner2(`extends_(${clz.name},${base})${defines.length ? "\r\n" : ""}`)), rootenvs.extends_ = true;
+        if (base) defines.unshift(...scanner2(`${patchMark}extends_(${clz.name},${base})${defines.length ? "\r\n" : ""}`)), rootenvs[patchMark + "extends_"] = true;
         base = clz.name;
         if (clz.name) insert1(head, null, ...scanner2(`${head.length ? ',' : ''}${clz.name}`));
         index++;
@@ -1015,6 +1015,7 @@ var killobj = function (body, getobjname, getletname, getname_, letname_, deep =
 };
 
 var unawait = function (body, getname, argname) {
+    body.patchMark = patchMark;
     return unstruct(body, function () {
         return getname("_");
     }, argname);
@@ -1518,6 +1519,8 @@ var newpunc = function (body, i, newname) {
             var li = body.lastIndexOf(l, i);
             var ri = body.indexOf(r, i);
             var name = t === '??' ? 'nullish_' : "power_";
+            name = patchMark + name;
+            rootenvs[name] = true;
             o.text = ',';
             sentence = scanner2(`${name}()`)
             splice(sentence[1], 0, 0, ...splice(body, li, 1 + ri - li));
@@ -1717,7 +1720,7 @@ var down = function (scoped) {
         if (funcMark) {
             var argname = _letname("_");
             unstruct.debug = downLevel.debug;
-            var body = scanner2(`return ${funcMark}()`);
+            var body = scanner2(`return ${patchMark + funcMark}()`);
             var code = unawait(scoped.body, _getname, argname);
             code.forEach(function (c) {
                 revar(c);
@@ -1759,9 +1762,12 @@ function downLevel(data) {
     code = downcode(code);
     return code.toString();
 }
+var patchMark = '';
 var downcode = downLevel.code = function (code) {
     rootenvs = code.envs;
     rootHyper = rootenvs.Symbol || code.yield || code.async;
+    var patchMark_ = patchMark;
+    if (code.patchMark) patchMark = code.patchMark;
     down(code.scoped);
     code.keepcolor = false;
     if (rootenvs.slice_) {
@@ -1769,6 +1775,7 @@ var downcode = downLevel.code = function (code) {
         if (!code.vars.slice_) splice(code, 0, 0, ...scanner2('var slice_ = Array["prototype"]["slice"];\r\n'));
     }
     rootenvs = null;
+    patchMark = patchMark_;
     return code;
 };
 module.exports = downLevel;
