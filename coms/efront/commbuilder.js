@@ -742,9 +742,20 @@ async function getXhtPromise(data, filename, fullpath, watchurls) {
         jsData = jscode.toString();
     }
     if (attributes) attributes = attributes.map(a => `elem.setAttribute("${a.name}",${a.value ? strings.recode(a.value) : '""'})`).join("\r\n");
+    var creator = 'document.createElement(';
+    switch (tagName.toLowerCase()) {
+        case "svg":
+            creator = 'document.createElementNS("http://www.w3.org/2000/svg",';
+            break;
+        case "math":
+            creator = 'document.createElementNS("http://www.w3.org/1998/Math/MathML",';
+            break;
+        default:
+            creator = 'document.createElement(';
+    }
     var createElement = tagName
-        ? `var elem = document.createElement("${tagName}");`
-        : `var elem =isElement(args[0])?args[0]:document.createElement("${commName}");`;
+        ? `var elem = ${creator}"${tagName}");`
+        : `var elem =isElement(args[0])?args[0]:${creator}"${commName}");`;
     var xht = scope ? `
 var ${xhtmain}=function(){
     ${scope}

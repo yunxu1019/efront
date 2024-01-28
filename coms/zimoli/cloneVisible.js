@@ -55,6 +55,7 @@ var cloneChildren = function (td, copy, clone) {
             copy.src = td.src;
             break;
         case "svg":
+        case "math":
             copy.innerHTML = td.innerHTML;
             [].forEach.call(td.attributes || [], a => {
                 if (/^[\w\-]+$/i.test(a.name)) copy.setAttribute(a.name, a.value);
@@ -165,7 +166,7 @@ var cloneVisible = function (td) {
                 cloneChildren(td, copy, clone);
             }
             var { left, top, width, height } = getScreenPosition(td);
-            if (!hasSvg && /^svg$/i.test(td.tagName)) {
+            if (!hasSvg && /^(svg|math)$/i.test(td.tagName)) {
                 hasSvg = true;
             }
 
