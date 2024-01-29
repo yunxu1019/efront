@@ -743,7 +743,7 @@ async function getXhtPromise(data, filename, fullpath, watchurls) {
     }
     if (attributes) attributes = attributes.map(a => `elem.setAttribute("${a.name}",${a.value ? strings.recode(a.value) : '""'})`).join("\r\n");
     var creator = 'document.createElement(';
-    switch (tagName.toLowerCase()) {
+    switch ((tagName || commName).toLowerCase()) {
         case "svg":
             creator = 'document.createElementNS("http://www.w3.org/2000/svg",';
             break;
