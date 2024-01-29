@@ -323,8 +323,8 @@ var rebuildData = function (responseTree) {
             }));
         };
         var response = responseTree[k];
-        if (!isEfrontCode(response)) return;
         if (markIndex(k, response)) return;
+        if (!isEfrontCode(response)) return;
         var data = String(response.data);
         var { argNames, args, required, dependenceNamesOffset, strs, strend } = getArgs(data);
         if (strs && strs.length > 0) {
