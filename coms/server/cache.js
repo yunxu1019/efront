@@ -2,7 +2,6 @@
 var fs = require("fs");
 var watch = require("./watch");
 var path = require("path");
-var isObject = require("../basic/isObject");
 var lazy = require("../basic/lazy");
 var loading_queue = [], loading_count = 0;
 var runPromiseInQueue = function () {
@@ -123,13 +122,14 @@ Directory.prototype.update = async function (updateonly) {
     var rest = [];
     var hasLoaded = 0;
     for (var f of files) {
-        if (/#/.test(f.name)) continue;
+        if (/^#/.test(f.name)) continue;
         map[f.name] = true;
         if (!loaded[f.name]) {
             var p = path.join(pathname, f.name);
             var o = loaded[f.name] = f.isFile() ? new File(p, rebuild, limit) : new Directory(p, rebuild, limit);
             var key = f.name.replace(/\.\w+$/, '');
             changed[key] = true;
+            o.name = f.name;
             o.root = that.root || pathname;
             if (f instanceof File) {
                 updated.push(f.pathname);
@@ -186,17 +186,16 @@ Directory.prototype.update = async function (updateonly) {
     updated.loaded = hasLoaded;
     return updated;
 };
-Directory.prototype.get = function (url) {
+Directory.prototype.get = function (keeys, names) {
     var that = this;
     var reloadAfter = async function (promise) {
         await promise;
         await that.promise;
-        if (!that.isloaded) throw `加载${url}失败！`;
-        return that.get(url);
+        if (!that.isloaded) throw `加载${keeys.join('/')}失败！`;
+        return that.get(keeys, names);
     };
-    var keeys = url.split(/[\\\/]+/);
     var temps = [that];
-    var keypath = [''];
+    var keypath = [];
     var temp = temps[0];
     search: for (var cx = 0, dx = keeys.length; cx < dx; cx++) {
         if (!(temp instanceof Directory)) {
@@ -207,7 +206,6 @@ Directory.prototype.get = function (url) {
         if (!temp.isloaded) return reloadAfter(temp.promise);
         var loaded = temp.loaded;
         var key = keeys[cx];
-        if (key === '' || key === '.') continue;
         if (!(key in loaded)) {
             let k = key.replace(matcherReg, replaceCase);
             if (k in loaded) {
@@ -221,7 +219,7 @@ Directory.prototype.get = function (url) {
             }
             for (var cy = temps.length - 1; cy > 0; cy--) {
                 if (key in temps[cy].loaded) {
-                    let searched = temps[cy].get(keeys.slice(cx).join("/"));
+                    let searched = temps[cy].get(keeys.slice(cx), names);
                     if (searched instanceof Promise) {
                         return reloadAfter(searched);
                     }
@@ -245,6 +243,18 @@ Directory.prototype.get = function (url) {
         temp = loaded[key];
         if (!temp) break;
     }
+    if (cx < dx || !(temp instanceof Directory)) return;
+    if (!temp.promise) temp.promise = temp.update();
+    if (!temp.isloaded) return reloadAfter(temp.promise);
+    a: {
+        var loaded = temp.loaded;
+        for (var m of names) if (m in loaded) {
+            if (m === '') break a;
+            temp = loaded[m];
+            break a;
+        }
+        temp = undefined;
+    }
     if (temp instanceof File) {
         temp = temp.getBuffer();
     }
@@ -258,18 +268,16 @@ Directory.prototype.get = function (url) {
     if (temp instanceof Error) {
         return temp;
     }
-    if (!isObject(temp)) {
+    if (!(temp instanceof Directory)) {
         return temp;
     }
     var curl = keypath.join('/');
     if (temps.length) {
-        if (curl.replace(/^\/|\/$/g, '') === keeys.join('/').replace(/^\/|\/$/g, '')) {
+        if (curl === keeys.join('/')) {
             return temp;
         }
         else {
-            if (curl.replace(/^[\s\S]*?([^\/]+)\/?$/, "$1") === url.replace(/^[\s\S]*?([^\/]+)\/?$/, "$1")) {
-                return curl;
-            }
+            return [curl, temp.name].join('/');
         }
     }
 };
@@ -386,47 +394,51 @@ var createDirect = function (froot, rebuild, limit) {
     }
     return direct;
 };
-var seekAsync = async function (directs, url, extts) {
-    var findPackage = extts.indexOf(".js") >= 0;
-    var package_file = "package.json";
-    var result, matchParent;
+var 参数 = function (url, extts) {
+    var keeys = url.split(/[\\\/]+/);
+    var match = keeys.pop();
+    var kpath = [];
+    for (var k of keeys) {
+        if (k === "" || k === '.') continue;
+        if (k === '..') kpath.pop();
+        kpath.push(k);
+    }
+    match = extts.map(e => match + e);
+    return [kpath, match];
+};
+var { PACKAGE_NAME, PACKAGE_INDEXES } = require("../efront/memery");
+
+var seekAsync = async function (directs, keeys, match, findPackage) {
+    var result, parent;
     for (var d of directs) {
-        var rest = extts.map(e => url + e);
-        while (rest.length) {
-            var u = rest.shift();
-            var r = await d.get(u);
-            if (isValidData(r)) return r;
-            else if (typeof r === 'string') {
-                if (result === undefined) result = r;
+        var r = await d.get(keeys, match);
+        if (isValidData(r)) return r;
+        else if (typeof r === 'string') {
+            if (result === undefined) result = r;
+        }
+        else if (r instanceof PackageData) return Buffer.from(JSON.stringify(r));
+        else if (r instanceof Directory) {
+            if (!r.promise) r.promise = r.update();
+            if (!r.isloaded) await r.promise;
+            if (!findPackage) return r.loaded;
+            if (PACKAGE_NAME in r.loaded) {
+                var f = r.loaded[PACKAGE_NAME];
+                if (!f || !(f instanceof File)) continue;
+                if (!f.promise) f.promise = f.update();
+                if (!f.data) await f.promise;
+                if (f.data instanceof Buffer) f.data = new PackageData(f.data);
+                var package_main = getPackageMain(keeys.concat(r.name).join('/'), f.data, r.loaded);
+                if (package_main) return package_main;
             }
-            else if (r instanceof PackageData) return Buffer.from(JSON.stringify(r));
-            else if (r instanceof Directory) {
-                if (!r.promise) r.promise = r.update();
-                if (!r.isloaded) await r.promise;
-                if (!findPackage) return r.loaded;
-                if (package_file in r.loaded) {
-                    var f = r.loaded[package_file];
-                    if (!f || !(f instanceof File)) continue;
-                    if (!f.promise) f.promise = f.update();
-                    if (!f.data) await f.promise;
-                    if (f.data instanceof Buffer) f.data = new PackageData(f.data);
-                    var package_main = getPackageMain(u, f.data, r.loaded);
-                    if (package_main) return package_main;
-                }
-                else {
-                    var seek_index = "index";
-                    var index = extts.findIndex(a => seek_index + a in r.loaded);
-                    if (~index) return path.join(url, seek_index + extts[index]).replace(/\\/g, '/');
-                }
-                matchParent = true;
+            else {
+                var index = PACKAGE_INDEXES.findIndex(a => a in r.loaded);
+                if (~index) return keeys.concat(r.name, PACKAGE_INDEXES[index]).join('/');
             }
+            parent = r;
         }
     }
-    if (result === undefined && matchParent) {
-        result = url.replace(/\\/g, '/');
-        if (!/\/$/.test(result)) {
-            result += '/';
-        }
+    if (result === undefined && parent) {
+        result = keeys.join("/") + "/" + parent.name + "/";
     }
     return result;
 }
@@ -492,44 +504,39 @@ class Cache {
     seek(url, extts = "") {
         extts = formatExtts(extts);
         var findPackage = extts.indexOf(".js") >= 0;
-        var package_file = "package.json";
-        var result, matchParent;
+        var [keeys, match] = 参数(url, extts);
+        var result, parent;
+
         for (var d of this.directs) {
-            var rest = extts.map(e => url + e);
-            while (rest.length) {
-                var u = rest.shift();
-                var r = d.get(u);
-                if (r instanceof Promise) return seekAsync(this.directs, url, extts);
-                if (isValidData(r)) return r;
-                else if (typeof r === 'string') {
-                    if (result === undefined) result = r;
+
+            var r = d.get(keeys, match);
+            if (r instanceof Promise) return seekAsync(this.directs, keeys, match, findPackage);
+            if (isValidData(r)) return r;
+            else if (typeof r === 'string') {
+                if (result === undefined) result = r;
+            }
+            else if (r instanceof PackageData) return Buffer.from(JSON.stringify(r));
+            else if (r instanceof Directory) {
+                if (!r.isloaded) return seekAsync(this.directs, keeys, match, findPackage);
+                if (!findPackage) return r.loaded;
+                if (PACKAGE_NAME in r.loaded) {
+                    var f = r.loaded[PACKAGE_NAME];
+                    if (!f || !(f instanceof File)) continue;
+                    if (!f.promise || !f.data) return seekAsync(this.directs, keeys, match, findPackage);
+                    if (f.data instanceof Buffer) f.data = new PackageData(f.data);
+                    var package_main = getPackageMain(keeys.concat(r.name).join('/'), f.data, r.loaded);
+                    if (package_main) return package_main;
                 }
-                else if (r instanceof PackageData) return Buffer.from(JSON.stringify(r));
-                else if (r instanceof Directory) {
-                    if (!r.isloaded) return seekAsync(this.directs, url, extts);
-                    if (!findPackage) return r.loaded;
-                    if (package_file in r.loaded) {
-                        var f = r.loaded[package_file];
-                        if (!f || !(f instanceof File)) continue;
-                        if (!f.promise || !f.data) return seekAsync(this.directs, url, extts);
-                        if (f.data instanceof Buffer) f.data = new PackageData(f.data);
-                        var package_main = getPackageMain(u, f.data, r.loaded);
-                        if (package_main) return package_main;
-                    }
-                    else {
-                        var seek_index = "index";
-                        var index = extts.findIndex(a => seek_index + a in r.loaded);
-                        if (~index) return path.join(url, seek_index + extts[index]).replace(/\\/g, '/');
-                    }
-                    matchParent = true;
+                else {
+                    var index = PACKAGE_INDEXES.findIndex(a => a in r.loaded);
+                    if (~index) return keeys.concat(r.name, PACKAGE_INDEXES[index]).join('/');
                 }
+                parent = r;
             }
         }
-        if (result === undefined && matchParent) {
-            result = url.replace(/\\/g, '/');
-            if (!/\/$/.test(result)) {
-                result += '/';
-            }
+        if (result === undefined && parent) {
+            keeys.push(parent.name, '');
+            result = keeys.join("/");
         }
         return result;
     }

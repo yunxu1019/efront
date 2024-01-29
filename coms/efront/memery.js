@@ -82,6 +82,11 @@ var get = function (name, _default, fix, limits) {
                 case "boolean":
                     value = !false_reg.test(v);
                     break;
+                case "object":
+                    if (Array.isArray(_default)) {
+                        value = str2array(value);
+                        break;
+                    }
                 default:
                     value = v;
             }
@@ -284,8 +289,10 @@ var memery = module.exports = {
     BREAK: get("BREAK,DETOUR"),
     UPLEVEL: get("UPLEVEL", false),
     REPORT: get("REPORT"),
+    PACKAGE_NAME: get("PACKAGE_NAME", 'package.json'),
+    PACKAGE_INDEXES: get("PACKAGE_INDEX", str2array('index.js|index.mjs')),
     EXTRACT: get("EXTRACT, EXTRACT_MAIN_SCRIPT, EXTRACT_MAIN, EXTRACT_SCRIPT"),
-    INDEX_NAME: get("INDEX_NAME", "default|index"),
+    INDEX_NAME: get("INDEX_NAME", "default|index|主页|主页面|默认|默认页|默认页面"),
     DENO_EXTENSIONS: get("DENO_EXTENSIONS", '.js'),
     INDEX_EXTENSIONS: get("INDEX_EXTENSIONS", '.html,.htm,.jsp,.asp,.php'),
     NODEID: get("NODEID,DHTID,DHT", Buffer.from([101, 102, 114, 111, 110, 116, 46, 99, 99].concat(Array(11).fill(0).map(() => Math.random() * 256 | 0))).toString("hex")),

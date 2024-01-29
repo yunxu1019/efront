@@ -80,8 +80,8 @@ var setAppnameAndPorts = function (args) {
     });
 }
 
-var detectEnvironment = function (comm) {
-    let fs = require("fs");
+var detectEnvironment = async function (comm) {
+    let fs = require("fs").promises;
     let currentpath = process.cwd(), config = {
         page_path: memery.PAGE_PATH,
         comm: memery.COMM || comm || '',
@@ -89,89 +89,82 @@ var detectEnvironment = function (comm) {
         app: memery.APP || '',
         page: memery.PAGE,
     };
+    var names = await fs.readdir(currentpath, { withFileTypes: true });
+    names = names.filter(n => n.isDirectory());
     var env_path = [];
-    return new Promise(function (ok) {
-        fs.readdir(currentpath, function (error, names) {
-            if (error) return console.error(error);
-            var coms_path = [];
-            var public_path = [];
-            var libs_path = [];
-            names.filter(function (name) {
-                if (/^[\.]/i.test(name)) return;
-                try {
-                    return fs.statSync(name).isDirectory();
-                } catch (e) {
-                    console.error(e);
-                }
-            }).forEach(function (name) {
-                if (/page|^app|界面|页面|应用|系统/i.test(name)) {
-                    // 高屋|瓴|楼|台|宫|阁|殿|庙|堂|会|场|司|衙|门|党|帮|派|族|山|庄|寺|教|家|城|店|军|队|团|师|营|苟
-                    if (memery.PAGE_PATH === undefined) config.page_path = name;
-                } else if (/^src|(^|[\_\-\s])source|^code|源|代码/i.test(name)) {
-                    if (memery.PAGE_PATH === undefined) config.page_path = name;
-                    coms_path.push(name);
-                } else if (/node_modules|lib|com|fun|depe|组件|模块|依赖|库|函数/i.test(name)) {
-                    // 卡木|设施|员|工|匠|子|弟|臣|下|客|器|械|备|库|房|土|基|石|砖
-                    if (/node_modules|lib|模块|库/.test(name)) {
-                        libs_path.push(name);
-                    } else {
-                        coms_path.push(name);
-                    }
-                } else if (/env|conf|环境|配置|设置/i.test(name)) {
-                    env_path.push(name);
-                } else if (/d[ie]st|www|^pub|release|发布|目标|版本|输出|产品|^(?:out|output)$/i.test(name)) {
-                    // 梦|思想|籍|书|法|规|外|景
-                    public_path.push(name);
-                }
-            });
-            var exists_envpath = (a, extt) => fs.existsSync(path.join(currentpath, a, 'setup' + extt));
-            env_path = env_path.filter(a => exists_envpath(a, '.bat') || exists_envpath(a, '.cmd') || exists_envpath(a, '.sh'));
-            if (public_path.length === 1 && !process.env.PUBLIC_PATH) {
-                config.public_path = public_path[0];
+    var coms_path = [];
+    var public_path = [];
+    var libs_path = [];
+    var rest_path = [currentpath];
+    for (var { name } of names) {
+        if (/page|^app|界面|页面|应用/i.test(name)) {
+            if (memery.PAGE_PATH === undefined) config.page_path = name;
+        }
+        else if (/^src|(^|[\_\-\s])source|^code|源|代码/i.test(name)) {
+            if (memery.PAGE_PATH === undefined) config.page_path = name;
+            coms_path.push(name);
+        }
+        else if (/(node_)?modules|lib|com|fun|depe|组件|模块|依赖|库|函数/i.test(name)) {
+            if (/(node_)?modules|lib|模块|库/.test(name)) {
+                libs_path.push(name);
             }
-            if (1 === env_path.length) {
-                memery.ENVS_PATH = env_path[0] + "," + path.join(require("os").homedir(), '/.efront/_envs');
-                var env = loadenv(path.join(env_path[0], "setup"));
-                setenv(env, false);
-                if (memery.PAGE_PATH !== undefined) config.page_path = memery.PAGE_PATH;
+            else {
+                coms_path.push(name);
             }
-            if (config.page_path === undefined) config.page_path = currentpath;
+        }
+        else if (/env|conf|环境|配置|设置/i.test(name)) {
+            env_path.push(name);
+        }
+        else if (/d[ie]st|www|^pub|release|发布|目标|版本|输出|产品|^(?:out|output)$/i.test(name)) {
+            public_path.push(name);
+        }
+        else {
+            rest_path.push(name);
+        }
+    }
+    if (config.page_path === undefined) try {
+        var page_path = await detectWithExtension(memery.INDEX_NAME, memery.INDEX_EXTENSIONS, rest_path);
+        page_path = path.dirname(page_path);
+        config.page_path = path.dirname(page_path);
+        config.page = path.basename(page_path);
+    } catch { }
+    var exists_envpath = (a, extt) => fs.existsSync(path.join(currentpath, a, 'setup' + extt));
+    env_path = env_path.filter(a => exists_envpath(a, '.bat') || exists_envpath(a, '.cmd') || exists_envpath(a, '.sh'));
+    if (public_path.length === 1 && !process.env.PUBLIC_PATH) {
+        config.public_path = public_path[0];
+    }
+    if (1 === env_path.length) {
+        memery.ENVS_PATH = env_path[0] + "," + path.join(require("os").homedir(), '/.efront/_envs');
+        var env = loadenv(path.join(env_path[0], "setup"));
+        setenv(env, false);
+        if (memery.PAGE_PATH !== undefined) config.page_path = memery.PAGE_PATH;
+    }
+    if (config.page_path === undefined) config.page_path = currentpath;
 
-            coms_path.push(path.join(__dirname, '../../coms'));
-            if (memery.COMS_PATH !== undefined) {
-                if (0 > coms_path.indexOf(memery.COMS_PATH)) coms_path.unshift(memery.COMS_PATH);
-            }
-            if (!memery.COMM) {
-                var hasindex = function () {
-                    for (var index of memery.webindex) {
-                        var appindex = path.join(config.page_path, config.page || String(config.app || '').replace(/\.\w+$/, ''), index);
-                        var pageindex = path.join(config.page_path, index);
-                        if (fs.existsSync(pageindex) || fs.existsSync(appindex)) return true;
-                    }
-                    return false;
-                }
-                if (hasindex()) {
-                    config.comm += ",zimoli";
-                }
-                else {
-                    config.comm += ",reptile";
-                }
-            }
-            config.coms_path = coms_path.join(',');
-            if (typeof memery.LIBS_PATH === 'string') {
-                libs_path.unshift(memery.LIBS_PATH);
-            }
-            if (libs_path.length) {
-                setenv({
-                    libs: memery.LIBS || '',
-                    libs_path: libs_path.join(',')
-                });
-            }
-            setenv(config);
-            if (env_path.length === 1) require('./setupenv');
-            ok();
+    coms_path.push(path.join(__dirname, '../../coms'));
+    if (memery.COMS_PATH !== undefined) {
+        if (0 > coms_path.indexOf(memery.COMS_PATH)) coms_path.unshift(memery.COMS_PATH);
+    }
+    if (!memery.COMM) {
+        if (config.page_path !== undefined) {
+            config.comm += ",zimoli";
+        }
+        else {
+            config.comm += ",reptile";
+        }
+    }
+    config.coms_path = coms_path.join(',');
+    if (typeof memery.LIBS_PATH === 'string') {
+        libs_path.unshift(memery.LIBS_PATH);
+    }
+    if (libs_path.length) {
+        setenv({
+            libs: memery.LIBS || '',
+            libs_path: libs_path.join(',')
         });
-    });
+    }
+    setenv(config);
+    if (env_path.length === 1) require('./setupenv');
 };
 console.setLogger('help', function (...args) {
     console.line(`<cyan>${i18n`帮助`}</cyan>`, ...args, `\r\n`);
