@@ -20,20 +20,30 @@ var touch = {
          * @type {Element}
          */
         var t = this;
-        var a = this.$scope.toActive(e);
-        touchitems = this.querySelectorAll("fileitem");
-        if (a && this.$scope.selected.indexOf(a.$scope.d) >= 0) {
-            dragger = e;
-            if (!drag.target) drag(this.$scope.selected.length === 1 ? a : this.querySelectorAll(".focused"), e);
-            return;
-        }
-        var pos = getScreenPosition(t.parentNode);
-        var pos2 = getScreenPosition(t.previousElementSibling);
+        var start = () => {
+            if (onclick.preventClick) return;
+            var a = t.$scope.toActive(e);
+            touchitems = t.querySelectorAll("fileitem");
+            if (a && t.$scope.selected.indexOf(a.$scope.d) >= 0) {
+                dragger = e;
+                if (!drag.target) drag(t.$scope.selected.length === 1 ? a : t.querySelectorAll(".focused"), e);
+                return;
+            }
+            var pos = getScreenPosition(t.parentNode);
+            var pos2 = getScreenPosition(t.previousElementSibling);
 
-        rect.limit = [pos.left + t.parentNode.clientLeft, Math.max(pos.top, pos2.bottom + 1)];
-        rect.event = e;
-        rect.setAttribute('style', '');
-        css(rect, { left: e.clientX - pos.left - t.clientLeft, top: e.clientY - t.clientTop, width: 0, height: 0 })
+            rect.limit = [pos.left + t.parentNode.clientLeft, Math.max(pos.top, pos2.bottom + 1)];
+            rect.event = e;
+            rect.setAttribute('style', '');
+            css(rect, { left: e.clientX - pos.left - t.clientLeft, top: e.clientY - t.clientTop, width: 0, height: 0 })
+        };
+        if (/^touch/.test(e.type)) {
+            touch.ing = setTimeout(start, 600);
+        }
+        else {
+            start();
+        }
+
     },
     move(e) {
         if (!onclick.preventClick) return;
@@ -72,6 +82,7 @@ var touch = {
                 }
             }
             if (!tiped && drag.tip) css(drag.tip, 'display:none');
+            e.moveLocked = 2;
             return;
         }
         if (e.type !== 'mousemove') return;
@@ -83,6 +94,7 @@ var touch = {
     },
     async end(e) {
         touchitems = null;
+        clearTimeout(touch.ing);
         if (dragger) {
             delete drag.tip;
             dragger = null;

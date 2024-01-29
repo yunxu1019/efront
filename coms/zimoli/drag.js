@@ -59,7 +59,7 @@ function drag(target, initialEvent, preventOverflow, isMovingSource) {
     }
     var extraClones;
     var mousemove = function (event) {
-        if (event.moveLocked) return;
+        if (+event.moveLocked === 1) return;
         if (/resize/i.test(getComputedStyle(document.body).cursor)) return;
         if (!saved_delta.ing) {
             var [target_left, target_top] = getOffset(target);
