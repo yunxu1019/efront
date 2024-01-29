@@ -7,6 +7,11 @@ var onreload = function () {
 async function getRequestEnv(req) {
     var referer = getHeader(req.headers, 'referer');
     if (!referer) return null;
+    try {
+        referer = decodeURI(referer);
+    } catch {
+        referer = unescape(referer);
+    }
     referer = await proxy(req, referer);
     var appname = parseURL(referer).pathname;
     appname = appname.replace(/^\/|\/[^\/]*$/g, '');
