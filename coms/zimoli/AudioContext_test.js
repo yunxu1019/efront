@@ -11,45 +11,72 @@ function piano() {
     return res;
 }
 function main() {
-    var page = vbox('x');
+    var page = document.createElement('div');
     page.innerHTML = AudioContext_test;
+    var mouse_target = null;
+    var setBuffer = function (btn) {
+        var { gainNode, audioCtx, oscillator } = btn;
+        var gain = gainNode.gain;
+        var hz = btn.rate;
+        var currentTime = audioCtx.currentTime;
+        gain.setValueAtTime(65536 / Math.log2(hz), currentTime + 0.01);
+        // gain.linearRampToValueAtTime(0, currentTime + 2);
+        gain.exponentialRampToValueAtTime(0.001, currentTime + 1);
+    };
+    var init = function (btn) {
+        if (btn.audioCtx) {
+            return btn;
+        }
+        var audioCtx = btn.audioCtx = new AudioContext();
+        var gainNode = btn.gainNode = audioCtx.createGain();
+        var oscillator = btn.oscillator = audioCtx.createOscillator();
+        var hz = btn.rate;
+        oscillator.connect(gainNode);
+        gainNode.connect(audioCtx.destination);
+        oscillator.type = 'sine';
+        oscillator.frequency.value = -hz;
+        oscillator.start(0);
+        return { audioCtx, gainNode, oscillator };
+    };
+    var drop = function (btn) {
+        btn.oscillator.stop();
+        btn.audioCtx = null;
+        btn.gainNode = null;
+        btn.oscillator = null;
+    }
     var click = {
-        start() {
-            if (this.audioCtx) return;
-            var hz = this.rate;
-            var audioCtx = this.audioCtx = new AudioContext();
-            var gainNode = this.gainNode = audioCtx.createGain();
-            var oscillator = this.oscillator = audioCtx.createOscillator();
-            oscillator.connect(gainNode);
-            gainNode.connect(audioCtx.destination);
-            oscillator.type = 'sine';
-            oscillator.frequency.value = -hz;
-            gainNode.gain.setValueAtTime(0, audioCtx.currentTime);
-            gainNode.gain.linearRampToValueAtTime(65536 / Math.log2(hz), audioCtx.currentTime + 0.01);
-            oscillator.start(audioCtx.currentTime);
-            addClass(this, 'pressed');
+        start(event) {
+            var btn = event.target;
+            var btn = getTargetIn(b => hasClass(b, 'button'), event.target);
+            if (btn.pressed) return;
+            btn.pressed = true;
+            var { oscillator, audioCtx, gainNode } = init(btn);
+            setBuffer(btn);
+            audioCtx.resume();
+            addClass(btn, 'pending');
+            if (!event.touches) mouse_target = btn;
         },
-        end() {
-            var { gainNode, oscillator, audioCtx } = this;
+        async end(event) {
+            if (!event.touches) var btn = mouse_target;
+            else var btn = getTargetIn(b => hasClass(b, 'button'), event.target);
+            if (!btn) return;
+            btn.pressed = false;
+            var { gainNode, oscillator, audioCtx } = btn;
             if (!gainNode || !oscillator) return;
-            gainNode.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 1);
-            oscillator.stop(audioCtx.currentTime + 1);
-            this.audioCtx = null;
-            this.oscillator = null;
-            this.gainNode = null;
-            removeClass(this, 'pressed');
+            await audioCtx.suspend();
+            drop(btn);
+            removeClass(btn, 'pending');
         }
     }
+    on("touchstart")(page, click.start);
+    on("touchend")(page, click.end);
+    on('mousedown')(page, click.start);
+    bind('mouseup')(page, click.end);
     renderWithDefaults(page, {
         rates: piano(),
         audioCtx: null,
         gainNode: null,
         oscillator: null,
-        button(a) {
-            var b = button(a);
-            moveupon(b, click);
-            return b;
-        },
 
         format(o) {
             var i = o.toFixed(1).indexOf('.');
