@@ -35,7 +35,7 @@ function getFilepath($url) {
     }
     let { pathname, hostname } = parseURL($url);
     if (/[\/\\]$/.test(pathname)) {
-        pathname = path.join(pathname, 'index.html');
+        pathname = path.join(pathname, memery.webindex[0]);
     }
     var basepath = getBasepath(hostname);
     return path.join(basepath, pathname);

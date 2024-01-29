@@ -68,7 +68,7 @@ function getBuildInfo(url) {
             case "/":
                 if (/\.html?$/i.test(extt)) {
                     destpath = path.join(name + extt);
-                    if (name !== 'index') {
+                    if (memery.webindex.indexOf(destpath) < 0) {
                         name = "/" + name;
                         builder = pagebuilder;
                     }
