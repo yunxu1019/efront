@@ -128,7 +128,8 @@ var detectEnvironment = async function (comm) {
         config.page_path = path.dirname(page_path);
         config.page = path.basename(page_path);
     } catch { }
-    var exists_envpath = (a, extt) => fs.existsSync(path.join(currentpath, a, 'setup' + extt));
+    var existsSync = require('fs').existsSync;
+    var exists_envpath = (a, extt) => existsSync(path.join(currentpath, a, 'setup' + extt));
     env_path = env_path.filter(a => exists_envpath(a, '.bat') || exists_envpath(a, '.cmd') || exists_envpath(a, '.sh'));
     if (public_path.length === 1 && !process.env.PUBLIC_PATH) {
         config.public_path = public_path[0];
