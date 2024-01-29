@@ -238,10 +238,7 @@ var importCss = function (url, responseTree) {
     return cssDataMap[k];
 }
 function toApplication(responseTree, mainScript) {
-    var htmls = Object.keys(responseTree).filter(key => {
-        if (!/\.(jsp|php|html|asp)$/i.test(key) || !responseTree[key].data) return false;
-        return /<!doctype\s/i.test(String(responseTree[key].data).replace(/^(<!--[\s\S]*?-->)*/, ''));
-    }).map(key => responseTree[key]);
+    var htmls = Object.keys(responseTree).map(key => responseTree[key]).filter(r => r.isindex);
     if (htmls.length) indexHtml = true;
     else var indexHtml = getTreeIndex(responseTree);
     if (!indexHtml) {
@@ -327,6 +324,7 @@ var rebuildData = function (responseTree) {
         };
         var response = responseTree[k];
         if (!isEfrontCode(response)) return;
+        if (markIndex(k, response)) return;
         var data = String(response.data);
         var { argNames, args, required, dependenceNamesOffset, strs, strend } = getArgs(data);
         if (strs && strs.length > 0) {
@@ -352,10 +350,21 @@ var rebuildData = function (responseTree) {
         response.data = arglen + argstr + data.slice(dependenceNamesOffset);
     });
 };
+var markIndex = function (key, r) {
+    if (!/\.(jsp|php|html?|asp)$/i.test(key) || !r.data) return false;
+    var data = String(r.data).replace(/^(\s*<!--[\s\S]*?--!?>)*/g, '');
+    if (/^\s*\<\!doctype\s/i.test(data)) {
+        r.data = data;
+        r.isindex = true;
+        return true;
+    }
+    return false;
+};
 var isEfrontCode = function (response) {
     if (!response) return;
     if (/^[@\\]|^\/.*?\.[^\\\/]+$/.test(response.name) || !response.data) return;
     if (response.type === "@") return;
+    if (response.isindex) return;
     return true;
 }
 module.exports = async function (responseTree) {

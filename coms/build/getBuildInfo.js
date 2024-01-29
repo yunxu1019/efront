@@ -13,7 +13,7 @@ var commap = await getCommmap(memery.APP, Infinity);
 var xhtbuilder = commbuilder = commbuilder.bind(commap);
 manybuilder = manybuilder.bind(commap);
 var pagebuilder = function (buffer, filename) {
-    if (/^index\.html?$/i.test(filename) || /^\s*<!Doctype\b/i.test(buffer.slice(0, 2000).toString().replace(/<!--[\s\S]*?--!?>/g, ""))) {
+    if (memery.webindex.indexOf(filename) >= 0 || /^\s*<!Doctype\b/i.test(buffer.slice(0, 2000).toString().replace(/^(\s*<!--[\s\S]*?--!?>)*/g, ""))) {
         return htmlbuilder.apply(null, arguments);
     }
     return commbuilder.apply(commap, arguments);
