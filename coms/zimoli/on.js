@@ -498,6 +498,16 @@ var invoke = function (event, type, pointerType) {
             touchendFired = true;
             invoke(event, 'click');
         }, true);
+        var lasttime_dblclick = true;
+        window.addEventListener("dblclick", function (event) {
+            var saved_time = lasttime_dblclick;
+            lasttime_dblclick = event.timeStamp;
+            if (lasttime_dblclick - saved_time < 300) {
+                event.preventDefault();
+                event.stopPropagation();
+                return;
+            }
+        }, true);
         window.addEventListener("click", function (event) {
             if (!isClickWithPointer) return;
             var need = needFireClick;
@@ -510,6 +520,9 @@ var invoke = function (event, type, pointerType) {
                 event.preventDefault();
                 event.stopPropagation();
                 return;
+            }
+            if (lasttime_click - saved_time < 300) {
+                invoke(event, 'dblclick');
             }
         }, true);
     }
