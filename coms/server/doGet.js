@@ -145,7 +145,7 @@ var adapter = function (data, url, req, res) {
         new_url = new_url.replace(indexreg, '');
         if (new_url !== req.url) {
             res.writeHead(302, {
-                'Location': new_url
+                'Location': encodeURI(new_url)
             });
             return res.end();
         }
