@@ -178,7 +178,7 @@ var loadUseBody = async function (source, fullpath, watchurls) {
     })
 };
 var getRequiredPaths = function (data) {
-    var pathReg = /\b(?:go|popup|zimoli)\(\s*(['"`])([^\{\}]+?)\1[\s\S]*?\)/g;
+    var pathReg = /\b(?:go|popup|zimoli)\(\s*(['"`])([^\{\}]+?)\1\s*?[\),]/g;
     var requiredPaths = {};
     var result = pathReg.exec(data);
     while (result) {
