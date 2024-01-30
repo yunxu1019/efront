@@ -401,10 +401,11 @@ var getFromScopeList = function (name, varsList, value = name) {
 };
 var removeSelectorSpace = a => a.trim().replace(/\s*([\+~\>])\s*/g, "$1");
 var fixBase = function (b, a) {
-    return a.split(/,\s*/).map(a => {
+    var s = splitParams(a);
+    return splitParams(a).map(a => {
         if (presets.test(a)) a = `@{${a}}`;
         var replaced = false;
-        return b.split(/\s*,\s*/).map(b => {
+        return splitParams(b).map(b => {
             b = b.replace(/^(&|\:scope|\:root)\s*/g, "");
             if (!b) return a;
             var a1 = a.replace(/&|\:scope|\:root/g, function (match) {

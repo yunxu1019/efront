@@ -72,3 +72,4 @@ assert(素馨(`@a:1px;@margin-x:@a+10px; a{m:-@margin-x}`), `a{m:-11px;}`);
 assert(素馨(`a{@a:1px;@margin-x:@a+10px;m:-@margin-x}`), `a{m:-11px;}`);
 assert(素馨(`@media screen{&.a{b:1}}`,'a'), `@media screen{a.a{b:1;}}`);
 assert(素馨(`@media screen and(max-width:100px){&.a{b:1}}`,'a'), `@media screen and (max-width:100px){a.a{b:1;}}`);
+assert(素馨(`b{:not([resizing], [dragging]) {transition: padding .2s, margin .2s;}}`), `b :not([resizing], [dragging]){transition:padding .2s, margin .2s;}`);
