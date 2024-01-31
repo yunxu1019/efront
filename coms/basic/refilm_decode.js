@@ -132,7 +132,9 @@ function unfoldOptions(size, options) {
     for (var cx = 0, dx = options.length; cx < dx; cx++) {
         var o = options[cx];
         if (typeof o === 'string') {
-            o = { name: o, key: o };
+            var [name, key = name] = spreadkey(o);
+            if (parseInt(key) === +key) key = +key;
+            o = { name, key };
         }
         var range = rangereg.exec(o.name);
         if (range) {
@@ -236,6 +238,28 @@ var getComment = function (piece) {
     }
     return '';
 };
+function spreadkey(name) {
+    if (/^\([\s\S]*\)$/.test(name) && /,/.test(name)) {
+        var [, name, rest_piece] = /^([\s\S]*?),([^\]]*)$/.exec(name.slice(1, name.length - 1));
+        if (rest_piece && !/=/.test(rest_piece)) {
+            var needs = { [name]: parseValue(rest_piece) };
+        } else {
+            var needs = scanNeeds(rest_piece);
+        }
+    }
+    if (/^\[[\s\S]*\]$/.test(name)) {
+        repeat = true;
+        name = name.replace(/^\[|\]$/g, '');
+        if (/\,/.test(name)) {
+            var commaindex = name.indexOf(",");
+            var endwith = parseKV(name.slice(commaindex + 1));
+            endwith = parseValue(endwith);
+            name = name.slice(0, commaindex);
+        }
+    }
+    var [name, key] = scanSlant(name, '/', 0, name.length + 1);
+    return [name, key, needs];
+}
 function parse(piece) {
     if (/^[\-#]+$/.test(piece[0])) {
         var piece0 = piece.pop();
@@ -268,7 +292,8 @@ function parse(piece) {
             required, inlist, hidden, readonly,
             delete_onempty, delete_onsubmit,
         } = name;
-    } else {
+    }
+    else if (typeof type === 'string') {
         var test = (reg, a) => {
             if (reg.test(a)) {
                 return true;
@@ -305,25 +330,7 @@ function parse(piece) {
                     last_type = type;
                 }
             }
-            if (/^\([\s\S]*\)$/.test(name) && /,/.test(name)) {
-                var [, name, rest_piece] = /^([\s\S]*?),([^\]]*)$/.exec(name.slice(1, name.length - 1));
-                if (rest_piece && !/=/.test(rest_piece)) {
-                    var needs = { [name]: parseValue(rest_piece) };
-                } else {
-                    var needs = scanNeeds(rest_piece);
-                }
-            }
-            if (/^\[[\s\S]*\]$/.test(name)) {
-                repeat = true;
-                name = name.replace(/^\[|\]$/g, '');
-                if (/\,/.test(name)) {
-                    var commaindex = name.indexOf(",");
-                    var endwith = parseKV(name.slice(commaindex + 1));
-                    endwith = parseValue(endwith);
-                    name = name.slice(0, commaindex);
-                }
-            }
-            [name, key] = scanSlant(name, '/', 0, name.length + 1);
+            [name, key, needs] = spreadkey(name);
             if (key === undefined && !/^(title|label|headline)$/i.test(type)) key = name;
         }
         if (/^[a-z\d]+\/?\d+$/i.test(type)) {
@@ -410,6 +417,9 @@ function parse(piece) {
         }
         name = is(name);
         key = is(key);
+    }
+    else if (typeof name === 'string') {
+        [name, key = name, needs] = spreadkey(name);
     }
     if (typeof size === 'string') size = parseFloat(size);
     var field = {

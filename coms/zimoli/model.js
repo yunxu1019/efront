@@ -182,7 +182,8 @@ var readonly_types = {
         if (field.options) {
             if (!field.optionsMap) field.optionsMap = createOptionsMap(field.options);
             var o = field.optionsMap[v];
-            if (o) return o.name;
+            if (isObject(o)) return o.name;
+            if (isHandled(o)) return o;
         }
         if (isEmpty(v)) v = '';
         return v;
@@ -190,13 +191,15 @@ var readonly_types = {
 };
 readonly_types.anchor = readonly_types.url;
 var createOptionsMap = function (options) {
+    if (!isObject(options[0])) return options;
     var map = Object.create(null);
     for (var o of options) {
-        map[o.key] = o;
+        if (isHandled(o.key)) map[o.key] = o;
+        else if (isHandled(o.value)) map[o.value] = o;
     }
     return map;
 }
-readonly_types.select = readonly_types.swap;
+readonly_types.radio = readonly_types.select = readonly_types.swap;
 var findReaderForElement = function (type, e) {
     var editor = render.getFromScopes(type, e.$scope, e.$parentScopes);
     if (isFunction(editor) && (editor.isreader || !editor.isediter) && editor.isreader !== false) return editor;
