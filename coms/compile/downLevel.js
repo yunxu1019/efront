@@ -1535,6 +1535,7 @@ var down = function (scoped) {
     var inAsync = scoped.async;
     var inAster = scoped.yield;
     var funcMark = [, "aster_", "async_", "asyncAster_"][inAsync << 1 | inAster];
+    if (funcMark) funcMark = patchMark + funcMark;
     if (funcMark) rootenvs[funcMark] = true;
     var vars = Object.assign(Object.create(null), scoped.vars);
     var envs = Object.assign(Object.create(null), scoped.envs);
@@ -1720,7 +1721,7 @@ var down = function (scoped) {
         if (funcMark) {
             var argname = _letname("_");
             unstruct.debug = downLevel.debug;
-            var body = scanner2(`return ${patchMark + funcMark}()`);
+            var body = scanner2(`return ${funcMark}()`);
             var code = unawait(scoped.body, _getname, argname);
             code.forEach(function (c) {
                 revar(c);
