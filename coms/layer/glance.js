@@ -40,7 +40,7 @@ var dragview = function (dragview) {
             page.style.transition = '';
             if (moving && moving !== -1) {
                 var left = freeOffset(page.style.left || 0);
-                if (moving.deltaX < 0 && left > offsetWidth * 0.3 || moving.deltaX > 0 && left > offsetWidth * 0.7 || !moving.deltaX && left > offsetWidth >> 1) {
+                if (moving.deltaX < 0 && left > calcPixel(14) || moving.deltaX > 0 && left > calcPixel(14) || !moving.deltaX && left > offsetWidth >> 1) {
                     page.style.left = 0;
                     dragview.toRight();
                 } else {
