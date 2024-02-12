@@ -64,8 +64,8 @@ var filterKey = function (event) {
     else if (keyCode > 95 && keyCode < 106) {
         char = keyCode - 96;
     }
-    else if (keyCode > 46 && keyCode < 57) {
-        char = keyCode - 47;
+    else if (keyCode > 47 && keyCode < 58) {
+        char = keyCode - 48;
     }
     else {
         return;
