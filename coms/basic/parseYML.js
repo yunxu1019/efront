@@ -78,7 +78,7 @@ var scan = function (text) {
                 continue;
             }
             data += row.slice(0, index + +!!jsonlikes.length);
-            row = row.slice(index + 1)
+            row = row.slice(index + 1);
             if (!row) push();
             else unshift(spacesize, row);
             rowtype = 0;
@@ -110,6 +110,7 @@ var scan = function (text) {
             continue;
         }
         if (/^["']/.test(row)) {
+            if (data) push();
             rowtype = row[0];
             if (jsonlikes.length) {
                 data += row[0];
@@ -192,7 +193,8 @@ var scan = function (text) {
             continue;
         }
         else {
-            var match = /^([\s\S]+)?\:(|\s+[\s\S]*)$/.exec(row);
+            var match = /^([\s\S]*?)\:(|\s+[\s\S]*)$/.exec(row);
+            if (data && !match) match = /^()\:([\s\S]*)$/.exec(row);
             if (match) {
                 if (data && !!match[1] || prop && span >= spacesize) push();
                 if (prop) {
