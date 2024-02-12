@@ -42,11 +42,14 @@
         content: "样";
     }
 
-    :root>menu {
+    :root>menu[inline] {
+        height: 100%;
+    }
+
+    :root>menu[inline] {
         margin: 0;
         width: var(--leftwidth);
         margin-left: -var(--leftwidth);
-        height: 100%;
         display: inline-block;
         min-width: 200px;
         max-width: 600px;
@@ -84,11 +87,80 @@
         color: #79a;
         margin-left: 12px;
     }
+
+    open {
+        display: none;
+    }
+
+    @media screen and (max-width:599px) {
+        form {
+            width: 100% !important;
+            height: 100% !important;
+            z-index: 0 !important;
+        }
+
+        :root>open:after {
+            content: "≡";
+        }
+
+        :root>open {
+
+            display: block;
+            position: absolute;
+            height: 42px;
+            width: 42px;
+            line-height: 42px;
+            text-align: center;
+            color: #fff;
+            background: #1e282c;
+            font-family: 'Times New Roman', Times, serif;
+            font-size: 26px;
+            z-index: 2147483647 !important;
+            right: 20px;
+            bottom: 20px;
+            border-radius: 50%;
+        }
+
+        :root>menu {
+
+            position: absolute;
+            z-index: -1;
+
+            &[open] {
+                left: 0 !important;
+                right: 0 !important;
+                top: 0 !important;
+                bottom: 0 !important;
+                width: 100% !important;
+                height: 100% !important;
+                margin: 0 !important;
+                z-index: 3;
+
+                ~open {
+                    background-color: #fff;
+                    color: #1e282c;
+
+                    &:after {
+                        content: "⨉";
+                        vertical-align: top;
+                        font-size: 18px;
+                    }
+                }
+            }
+
+        }
+
+        :root {
+            padding: 0px !important;
+        }
+    }
 </style>
-<menu #mulu inline -src="m in menus" @active="openMenu(m)">
+
+<menu #mulu open@="menued" inline -src="m in menus" @active="openMenu(m)">
     <div2></div2>
 </menu>
 <div1 #content></div1>
+<open #switch @click="switchMenu()" insert></open>
 <script>
     var menus = [
         {
@@ -130,12 +202,12 @@
                 }
             }
         ]);
-    })
+    });
     var initVersionInfo = async function () {
         var xhr = await cross("get", "version");
         var version = xhr.response.split(",");
         menus[0].name += ` <v>${version[0]}</v>`;
-    }
+    };
     var initCommandsDocs = async function () {
         var helps = await init("docs$helps");
         var m = {
@@ -204,7 +276,7 @@
         scope.menus = route.update(menus);
         zimoli();
         render.refresh();
-    }
+    };
     var scope = {
         menus,
         div2(elem, scope) {
@@ -214,11 +286,17 @@
         },
         grid,
         menu,
+        menued: false,
+        switchMenu() {
+            scope.menued = !scope.menued;
+        },
         openMenu(m) {
             this.menus.open(m);
+            if (!m.children) this.menued = false;
         }
     };
     var page = document.createElement('grid');
+    page.adapted = screen.width < 720 && -1;
     page.innerHTML = template;
     if (window.require) {
         var title = document.createElement('titlebar');
@@ -239,11 +317,23 @@
     on("mounted")(page, initMenus);
     s.bindTarget(scope.content);
     page.with = s;
+    resizingList.set(page, function () {
+        if (page.adapted === true) return;
+        if (calcPixel(page.offsetWidth) < 720) return;
+        page.adapted = false;
+        page.adapt();
+    });
     bind("render")(page, function () {
         requestAnimationFrame(function () {
             s.reshape();
         })
     });
+    drag.on(scope.switch);
+    css(scope.switch, data.getInstance('switch-position'));
+    on('dragend')(scope.switch, function () {
+        var s = this.style;
+        data.setInstance('switch-position', { left: s.left, top: s.top, marginLeft: s.marginLeft, marginTop: s.marginTop }, true);
+    })
     function main() {
         return page;
     }

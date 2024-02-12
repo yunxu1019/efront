@@ -547,9 +547,9 @@ var grid_prototype = {
             } else {
                 var _div = point.target;
                 if (!_div) {
-                    point.target = _div = document.createElement('cell');
+                    // point.target = _div = document.createElement('cell');
                 }
-                if (_div.parentNode !== grid) appendChild(grid, _div);
+                if (_div && _div.parentNode !== grid) appendChild(grid, _div);
                 var current_value;
                 if (current_d === "x") {
                     if (next_point) {
@@ -563,15 +563,17 @@ var grid_prototype = {
                     point.top = current_t;
                     point.bottom = current_b;
                     if (point.origin !== point.value || current_t && current_t.origin !== current_t.value) {
-                        if (getComputedStyle(_div).position === 'absolute') {
-                            css(_div, {
-                                left: point.value / grid.width * 100 + "%",
-                                top: current_t ? current_t.value / grid.height * 100 + "%" : 0,
-                                width: current_value / grid.width * 100 + "%",
-                                height: (current_h / grid.height || 0) * 100 + "%"
-                            });
-                        } else {
-                            setRelativeDiv(_div, current_value, current_h, point.value, current_t ? current_t.value : 0);
+                        if (_div) {
+                            if (getComputedStyle(_div).position === 'absolute') {
+                                css(_div, {
+                                    left: point.value / grid.width * 100 + "%",
+                                    top: current_t ? current_t.value / grid.height * 100 + "%" : 0,
+                                    width: current_value / grid.width * 100 + "%",
+                                    height: (current_h / grid.height || 0) * 100 + "%"
+                                });
+                            } else {
+                                setRelativeDiv(_div, current_value, current_h, point.value, current_t ? current_t.value : 0);
+                            }
                         }
                         point.width = current_value / grid.width;
                         point.height = current_h / grid.height;
@@ -588,15 +590,17 @@ var grid_prototype = {
                     point.left = current_l;
                     point.right = current_r;
                     if (point.origin !== point.value || current_l && current_l.origin !== current_l.value) {
-                        if (getComputedStyle(_div).position === 'absolute') {
-                            css(_div, {
-                                left: current_l ? current_l.value / grid.width * 100 + "%" : 0,
-                                top: point.value / grid.height * 100 + "%",
-                                width: (current_w / grid.width || 0) * 100 + "%",
-                                height: current_value / grid.height * 100 + "%"
-                            });
-                        } else {
-                            setRelativeDiv(_div, current_w, current_value, current_l ? current_l.value : 0, point.value);
+                        if (_div) {
+                            if (getComputedStyle(_div).position === 'absolute') {
+                                css(_div, {
+                                    left: current_l ? current_l.value / grid.width * 100 + "%" : 0,
+                                    top: point.value / grid.height * 100 + "%",
+                                    width: (current_w / grid.width || 0) * 100 + "%",
+                                    height: current_value / grid.height * 100 + "%"
+                                });
+                            } else {
+                                setRelativeDiv(_div, current_w, current_value, current_l ? current_l.value : 0, point.value);
+                            }
                         }
                         point.width = current_w / grid.width;
                         point.height = current_value / grid.height;
@@ -733,7 +737,14 @@ var createBoundsFromComputed = function (grid) {
 };
 var createPointsWithChildren = function () {
     var grid = this;
-    if (!grid.children.length) return;
+    var children = [];
+    for (var c of grid.children) {
+        var s = getComputedStyle(c);
+        if (s.display === 'none' || /^(fixed|absolute)$/i.test(s.position)) continue;
+        children.push(c);
+    }
+    if (children.length < 2 || grid.adapted) return;
+    grid.adapted = true;
     var getRange = function (e) {
         var range = [0, 0, Infinity, Infinity];
         var computed = getComputedStyle(e);
@@ -747,7 +758,7 @@ var createPointsWithChildren = function () {
         range[3] = Math.floor(range[3]);
         return range;
     };
-    var elements = Array.apply(null, grid.children).map(a => [a,
+    var elements = children.map(a => [a,
         +Math.max(0, a.offsetLeft * grid.width / grid.clientWidth).toFixed(0),
         +(Math.min(a.offsetLeft + a.offsetWidth, grid.clientWidth) * grid.width / grid.clientWidth).toFixed(0),
         +Math.max(0, a.offsetTop * grid.height / grid.clientHeight).toFixed(0),
@@ -764,6 +775,7 @@ var createPointsWithChildren = function () {
 function main(elem) {
     if (isElement(elem)) {
         elem = grid.call(elem);
+        elem.adapt = createPointsWithChildren;
         care(elem, elem.setData);
         care(elem, elem.reshape);
     } else {

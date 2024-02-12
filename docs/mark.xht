@@ -1,23 +1,30 @@
 <style>
-    :scope {
-        line-height: 1.8;
-        display: block;
-        font-family: Times, "宋体", sans-serif;
-
-        @media screen and (max-width:830px) {
+    @media screen and (max-width: 830px) {
+        :scope {
             padding: 20px 40px;
         }
+    }
 
-        @media screen and (min-width:1160px) {
+    @media screen and (min-width: 1160px) {
+        :scope {
             margin: 20px auto;
         }
+    }
 
-        @media screen and (min-width:830px) {
+    @media screen and (min-width: 830px) {
+        :scope {
+
             max-width: 890px;
             border: 1px solid #000;
             padding: 60px 80px;
             box-shadow: 0 0 20px -6px #0006;
         }
+    }
+
+    :scope {
+        line-height: 1.8;
+        display: block;
+        font-family: Times, "宋体", sans-serif;
     }
 
     code {
