@@ -1,6 +1,9 @@
 var mark = require("./mark");
+var gray = console.format('<gray>;</gray>').split(';');
+var green = console.format('<green>;</green>').split(';');
+var crack = console.format('<red2>;</red2>').split(';');
 var dump = function (a, msg) {
-    if (a instanceof Object) console.error('对象的属性不符合'), console.log(msg ? msg + " " : "  ", a);
+    if (a instanceof Object) console.error('属性错误'), console.log(msg ? msg + " " : "  {\r\n", Object.keys(a).map(k => `  ${k}${gray.join(':')}\r\n      ${a[k]}`).join('\r\n') + "\r\n }");
     else if (msg) console.log(msg + ":", a);
     else console.log(a);
 };
@@ -38,9 +41,12 @@ var assert = function (result, expect, log = dump) {
         };
         return function (error) {
             if (error instanceof Object) {
-                errors[k] = Object.keys(error).map(k => `${k} >> ${error[k]}`).join("\r\n");
+                Object.keys(error).forEach(y => {
+                    var e = y;
+                    errors[`${gray.join('[')}${green.join(k)}${gray.join("]->")}` + e] = error[y];
+                })
             } else {
-                errors[k] = error;
+                errors[gray.join("[") + crack.join(k) + gray.join("]")] = error;
             }
         };
     };
