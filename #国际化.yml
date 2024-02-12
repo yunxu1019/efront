@@ -1,3 +1,9 @@
+- zh-CN: 服务异常
+  en:    Service exception
+
+- zh-CN: 自动识别环境并启动测试环境服务器
+  en:    Automatically recognize the environment and start the testing environment server
+
 - zh-CN: 返回
   en:    back
 
@@ -56,7 +62,7 @@
   en:    "The server is busy, please try again later!"
 
 - zh-CN: 重试
-  en:    retry 
+  en:    retry
 
 - zh-CN: $1秒后再试
   en:    Try again in $1 second
