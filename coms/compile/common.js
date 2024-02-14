@@ -1319,7 +1319,28 @@ var canbeTemp = function (body, strip = false) {
     if (!o) return false;
     return o.type === EXPRESS && (strip || !/[\.\[]/.test(o.text)) || o.type === VALUE || o.type === QUOTED && !o.length;
 };
-
+var pickArgument = function (o) {
+    var res = [];
+    var t = o && o.prev, p = o;
+    while (t && (t.type !== STAMP || !/^[,;]$/.test(t.text))) {
+        if (p.isprop) {
+            p = t.prev;
+            if (!p || !p.isprop) break;
+        }
+        res.push(t);
+        p = t;
+        t = t.prev;
+    }
+    while (o && (o.type !== STAMP || !/^[,;]$/.test(o.text))) {
+        res.push(o);
+        var n = o;
+        o = o.next;
+        if (o && o.isprop) {
+            if (!n.isprop) break;
+        }
+    }
+    return res;
+};
 var pickSentence = function (o) {
     if (!o) return [];
     if (o && o.type & (SPACE | COMMENT) && o.prev) o = o.prev;
@@ -1367,6 +1388,7 @@ module.exports = {
     createScoped,
     createExpressList,
     snapSentenceHead,
+    pickArgument,
     pickSentence,
     snapExpressHead,
     snapExpressFoot,
