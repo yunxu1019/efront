@@ -1326,7 +1326,12 @@ var pickSentence = function (o) {
     if (o && o.type === STAMP && o.prev) o = o.prev;
     if (o.type === STRAP && /^(in|instanceof|as|of)$/.test(o.text) && o.prev) o = o.prev;
     var h = snapSentenceHead(o);
-    var e = skipAssignment(h);
+    var e = h;
+    do {
+        e = skipAssignment(e);
+        if (!e || e.type !== STAMP || e.text !== ',') break;
+        e = e.next;
+    } while (e);
     var q = o.queue;
     if (q) {
         var qh = q.indexOf(h);
