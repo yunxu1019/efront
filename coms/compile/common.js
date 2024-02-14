@@ -420,19 +420,6 @@ var snapExpressFoot = function (o) {
     }
     return o;
 };
-var mustBeYield = function (o) {
-    if (!o.next) return;
-    var mustyield = false;
-    if (o.next.type === STRAP && !/^(?:instanceof|in|of|from|as)$/.test(o.next.text)
-        || o.next.type === STAMP && /[!~]/.test(o.next.text)
-        || o.next.type === EXPRESS && !/^[\.\[]/.test(o.next.text)
-        || o.next.type & (VALUE | QUOTED | SCOPED)
-    ) {
-        mustyield = true;
-    }
-    return mustyield;
-
-}
 var createScoped = function (parsed, wash) {
     var used = Object.create(null); var vars = Object.create(null), lets = vars;
     var scoped = [], funcbody = scoped, argscope = scoped, thisscope = scoped;
