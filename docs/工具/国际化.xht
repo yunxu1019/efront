@@ -44,6 +44,7 @@
 <div -else>
     <button @click="chooseFolder">${i18n`选择代码文件夹`}</button>
     <button @click="editCode()">${i18n`修改国际化参数`}</button>
+    <button @click="显示翻译窗口()">${i18n`翻译工具`}</button>
     <button style="float:right" -if="tableData.length" @click="exportCSV">${i18n`导出到文件`}</button>
     <hr />
     <form>
@@ -389,14 +390,21 @@
         a: button,
         async baidu() {
             var fanyi = this.fanyi;
-            var liang = this.item.liang;
+            var item = this.item;
+            if (item) {
+                var liang = item.liang;
+                var text = item.text;
+            }
+            if (!text) for (var k in fanyi) {
+                if (fanyi[k]) text = fanyi[k];
+            }
             for (var s of this.supports) {
                 if (fanyi[s.id] && fanyi[s.id].trim()) continue;
-                fanyi[s.id] = await requestBaiduFanyi(this.item.text, s.id);
+                fanyi[s.id] = await requestBaiduFanyi(text, s.id);
                 liang++;
                 render.digest();
             }
-            this.item.liang = liang;
+            if (item) item.liang = liang;
         },
         save() {
 
@@ -406,12 +414,11 @@
         }
     };
     var activedRow;
-    var showDetail = function (event) {
-        var tr = getTargetIn(tableElement.children[1], event.active, false);
+    var initDetailWindow = function () {
         if (!detailWindow) {
             detailWindow = view();
             on('submit')(detailWindow, e => e.preventDefault());
-            detailWindow.innerHTML = `<div head>${i18n`翻译: `}"<span -bind="item?.text"></span>"<drop @click="close()"></drop></div><lattice itemwidth=260 -src="s in supports" body><field style="display:inline-block;padding:0 0 6px 12px;" ><label style="padding-left:0"><span -bind="s.name"></span>(<span -bind="s.lang"></span>)</label><textarea -model="fanyi[s.id]" class='body' style="resize:none"></textarea></field></lattice><div foot><a style="float:left" @click="baidu">${i18n`一键百度`}</a></div>`;
+            detailWindow.innerHTML = `<div head><span -if=!item? >${i18n`翻译工具`} </span><template -else>${i18n`翻译: `}"<span -bind="item?.text"></span>"</template><drop @click="close()"></drop></div><lattice itemwidth=260 -src="s in supports" body><field style="display:inline-block;padding:0 0 6px 12px;" ><label style="padding-left:0"><span -bind="s.name"></span>(<span -bind="s.lang"></span>)</label><textarea -model="fanyi[s.id]" class='body' style="resize:none"></textarea></field></lattice><div foot><a style="float:left" @click="baidu">${i18n`一键百度`}</a></div>`;
             drag.on(detailWindow, detailWindow.firstElementChild);
             resize.on(detailWindow);
             css(detailWindow, `position:absolute;left:0;top:0;bottom:0;width:260px;`);
@@ -423,12 +430,21 @@
                 for (var s of supports) {
                     if (fanyi[s.id] && fanyi[s.id].trim()) count++;
                 }
-                detailScope.item.liang = count;
-                removeClass(activedRow, "actived");
-                activedRow = null;
+                if (detailScope.item) {
+                    detailScope.item.liang = count;
+                }
+                if (activedRow) {
+                    removeClass(activedRow, "actived");
+                    activedRow = null;
+                    delete detailScope.item;
+                }
             })
 
         }
+    }
+    var showDetail = function (event) {
+        initDetailWindow();
+        var tr = getTargetIn(tableElement.children[1], event.active, false);
         var item = detailScope.item = event.item;
         if (activedRow !== tr) {
             if (activedRow) removeClass(activedRow, 'actived');
@@ -445,7 +461,12 @@
         // }
         if (!item.fanyi) item.fanyi = {}, item.fanyi[supports[0].id] = item.text;
         detailScope.fanyi = item.fanyi;
-
+        if (!isMounted(detailWindow)) popup(detailWindow);
+    };
+    var 显示翻译窗口 = function () {
+        initDetailWindow();
+        delete detailScope.item;
+        detailScope.fanyi = Object.create(null);
         if (!isMounted(detailWindow)) popup(detailWindow);
     }
     var readText = async function (e) {
