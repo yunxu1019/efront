@@ -61,6 +61,7 @@
             var v = window.parseFloat(_value);
             if (s) v = -v;
             var i = Math.log2(v) | 0;
+            if (i < 0) i--;
             if (!v) i = 0;
             else v = (v * Math.pow(2, -i) - 1) * Math.pow(2, 52), i += 1023;
             return [
@@ -77,6 +78,7 @@
             var i = parseInt(v.slice(0, 3), 16) & 0x7ff;
             v = parseInt(v.slice(3), 16);
             if (i === 0 && v === 0) v = 0;
+            else if (i < 1023) v = (v + Math.pow(2, 52)) * Math.pow(2, i - 1022 - 53);
             else v = (v + Math.pow(2, 53)) * Math.pow(2, i - 1023 - 53);
             if (s) v = -v;
             _value = v;
