@@ -1,3 +1,4 @@
+var window = this;
 function isArrayLike(a) {
     if (a === null || a === window || typeof a !== 'object' || isNode(a)) return false;
     if (isFinite(a.length)) {

@@ -309,5 +309,3 @@ function main(text) {
     format();
     return result;
 }
-window.wordslike = wordslike;
-window.words = words;
