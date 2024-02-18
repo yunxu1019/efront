@@ -2,7 +2,7 @@
 var languageMap = {};
 var languageIndex = 0;
 function i18n(arg) {
-    if (typeof arg === 'string') arg = arguments;
+    if (typeof arg === 'string' || !isArrayLike(arg)) arg = arguments;
     return arg[isFinite(this) ? this : languageIndex];
 };
 i18n.lang = function (type) {
