@@ -52,6 +52,11 @@ var cross = cross_.bind(function (callback, onerror) {
                 auth,
                 headers: this.headers,
             };
+            var onerror1 = function (e) {
+                xhr.readyState = 4;
+                error = e;
+                onerror(e);
+            };
             var req = this.http.request(options, function (res) {
                 var data = [];
                 xhr.status = res.statusCode;
@@ -65,16 +70,11 @@ var cross = cross_.bind(function (callback, onerror) {
                     xhr.readyState = 4;
                     callback();
                 });
-                var onerror1 = function (e) {
-                    xhr.readyState = 4;
-                    error = e;
-                    onerror(e);
-                };
-                res.on("error", onerror1);
-                res.on('timeout', onerror1);
                 this.readyState = 2;
             });
             this.readyState = 1;
+            req.on("error", onerror1);
+            req.on("timeout", onerror1);
             req.setTimeout(3000);
             if (data) req.end(data);
             else req.end();
