@@ -425,7 +425,6 @@ var createControls = function () {
     });
     return player;
 };
-var ns = document.addEventListener && new thirdParty$NoSleep;
 
 var player = function (player) {
     render(player, $scope);
