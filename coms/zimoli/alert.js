@@ -67,7 +67,7 @@ function alert() {
     var waitclose = function (autoclose, deltaTime) {
         if (autoclose) {
             if (autoclose === true) {
-                autoclose = text.length * 160 + deltaTime;
+                autoclose = text && text.length * 160 + deltaTime;
             } else if (autoclose < 100) {
                 autoclose = autoclose * 1000;
             }

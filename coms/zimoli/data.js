@@ -104,8 +104,12 @@ function getErrorMessage(error = this) {
         if (error[a]) {
             return String(error[a]);
         }
+        a = a.charAt(0).toUpperCase() + a.slice(1);
+        if (error[a]) return String(error[a]);
+        a = a.toUpperCase();
+        if (error[a]) return String(error[a]);
     }
-    return JSON.stringify(error);
+    return Object.keys(error).map(k => `${k}: ${error[k]}`).join(',\r\n');
 }
 
 function getTranspile(url) {
