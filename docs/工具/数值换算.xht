@@ -4,6 +4,7 @@
 </div>
 <script>
     var _value = 0;
+    BigNumber.DECIMAL_DIGIT = 500;
     var parseFloat = (a, b) => new BigNumber(a, b);
     var value = {
         get [i18n`十进制`]() {
@@ -60,8 +61,7 @@
             var s = /^-/.test(_value);
             var v = window.parseFloat(_value);
             if (s) v = -v;
-            var i = Math.log2(v) | 0;
-            if (i < 0) i--;
+            var i = Math.floor(Math.log2(v));
             if (!v) i = 0;
             else v = (v * Math.pow(2, -i) - 1) * Math.pow(2, 52), i += 1023;
             return [
@@ -78,10 +78,42 @@
             var i = parseInt(v.slice(0, 3), 16) & 0x7ff;
             v = parseInt(v.slice(3), 16);
             if (i === 0 && v === 0) v = 0;
-            else if (i < 1023) v = (v + Math.pow(2, 52)) * Math.pow(2, i - 1022 - 53);
+            else if (i < 1023) v = (v + Math.pow(2, 52)) * Math.pow(2, i - 1023 - 52);
             else v = (v + Math.pow(2, 53)) * Math.pow(2, i - 1023 - 53);
             if (s) v = -v;
             _value = v;
+        },
+        get [i18n`双精度机器码`]() {
+            var v = _value.toString(2, 53);
+            var s = /^-/.test(v) ? "1" : '0';
+            if (+s) v = v.slice(1);
+            var i = v.indexOf('.');
+            if (i < 0) i = v.length;
+            else v = v.slice(0, i) + v.slice(i + 1);
+            if (/^0/.test(v)) {
+                var e = v.indexOf("1");
+                v = v.slice(e);
+                i -= e;
+            }
+            i--;
+            if (v === '0' || i < -1078) {
+                i = Array(12).join("0");
+                v = Array(53).join('0');
+            }
+            else if (i > 1023) {
+                v = "0";
+                i = Array(12).join('1');
+            }
+            else {
+                i += 1023;
+                if (i < 0) v = Array(2 - i).join('0') + v, i = 0;
+                v = v.slice(1, 53);
+                i = i.toString(2);
+            }
+            if (i.length < 11) i = Array(12 - i.length).join('0') + i;
+            if (v.length < 52) v += Array(53 - v.length).join("0");
+            v = (s + i + v).replace(/[01]{4}/g, a => parseInt(a, 2).toString(16));
+            return v;
         },
 
     };

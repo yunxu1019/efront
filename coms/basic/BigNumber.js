@@ -73,9 +73,27 @@ class BigNumber {
         if (!this || this.constructor !== BigNumber) {
             return new BigNumber(value, system_scale);
         }
+        value = String(value || 0);
         system_scale = system_scale | 0;
-        if (!system_scale) system_scale = 10;
+        if (!system_scale) {
+            system_scale = 10;
+        }
         if (system_scale <= 1 || system_scale > 36) throw new Error("进制错误！");
+        var BACK_DIGIT = BigNumber.DECIMAL_DIGIT;
+        var digit = value.indexOf('.');
+        if (digit < 0) digit = 0;
+        else digit = value.length - digit;
+        if (system_scale === 10 && value.indexOf('e') > 0) {
+            var [value, ratio] = value.split('e');
+            if (/^\-/.test(ratio)) digit += ratio - ratio.length, ratio = "0." + Array(+ratio.slice(1)).join('0') + "1";
+            else {
+                if (/^\+/.test(ratio)) ratio = ratio.slice(1);
+                ratio = "1" + Array(+ratio + 1).join('0');
+            }
+        }
+        if (digit > 1) digit += 6;
+        digit = Math.ceil(digit * Math.log10(system_scale));
+        if (digit > BACK_DIGIT) BigNumber.DECIMAL_DIGIT = digit;
         var num = '0';
         var dotOccurs;
         var scale = system_scale;
@@ -104,13 +122,21 @@ class BigNumber {
             }
         }
         if (sign) num = '-' + num;
+        if (ratio) num = BigNumber.prd(num, ratio);
         this.value = num;
+        if (digit > BACK_DIGIT) {
+            this.digit = digit;
+        }
+        BigNumber.DECIMAL_DIGIT = BACK_DIGIT;
     }
-    static DECIMAL_DIGIT = 120;
-    toString(system_scale) {
+    static DECIMAL_DIGIT = 324;
+    toString(system_scale, 有效数字位数) {
         system_scale |= 0;
         if (!system_scale || system_scale === 10) return this.value || "0";
         if (system_scale <= 1 || system_scale > 36) throw new Error("进制错误！");
+        var BACK_DIGIT = BigNumber.DECIMAL_DIGIT;
+        if (!有效数字位数) 有效数字位数 = Math.ceil((this.digit || BigNumber.DECIMAL_DIGIT) / Math.log10(system_scale));
+        BigNumber.DECIMAL_DIGIT = 有效数字位数 + 10;
         var [s, n, m] = prepare(this.value);
         var dist = [];
         while (n && n !== "0") {
@@ -119,18 +145,44 @@ class BigNumber {
             n = n0;
             dist.unshift(vsrc[+a]);
         }
-        if (m && m !== "0") {
-            var c = 0;
+        var c = dist.length;
+        var mid = vsrc[(system_scale - 1) / 2 | 0];
+        var end = vsrc[system_scale - 1];
+        if (m && m !== "0" && c <= 有效数字位数) {
             if (!dist.length) dist.push('0');
             dist.push('.');
             while (m !== "0") {
                 [a, m = '0'] = BigNumber.prd("0." + m, system_scale).split('.');
                 dist.push(vsrc[+a]);
-                if (++c > BigNumber.DECIMAL_DIGIT || !m) break;
+                if (c > 0 || +a > 0) {
+                    if (c++ >= 有效数字位数 || !m) break;
+                }
             }
+            if (c > 有效数字位数) {
+                if (dist[dist.length - 1] > mid) {
+                    dist.pop();
+                    while (dist[dist.length - 1] === end) dist.pop();
+                    if (dist[dist.length - 1] === ".") dist.pop();
+                    c = dist.length - 1;
+                    while (dist[c] === end) dist[c--] = '0';
+                    if (c < 0) dist.unshift('1');
+                    else dist[c] = vsrc[vmap[dist[c]] + 1];
+                }
+                else dist.pop();
+            }
+        } else if (c > 有效数字位数) {
+            if (dist[有效数字位数] > mid) {
+                var c = 有效数字位数 - 1;
+                while (dist[c] === end) dist[c--] = "0";
+                if (c < 0) dist.unshift("1");
+                else dist[c] = vsrc[vmap[dist[c]] + 1];
+            }
+            while (有效数字位数 < dist.length) dist[有效数字位数++] = "0";
         }
+
         if (!dist.length) dist.push("0");
         if (s) dist.unshift('-');
+        BigNumber.DECIMAL_DIGIT = BACK_DIGIT;
         return dist.join('');
     };
     add(bignumber) {

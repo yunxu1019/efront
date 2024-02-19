@@ -75,7 +75,9 @@ assert(new BigNumber("17", 8).toString(), "15");
 assert(new BigNumber("17", 8).toString(8), "17");
 assert(new BigNumber("1fffffffffffff", 16).toString(), '9007199254740991');
 assert(new BigNumber("1fffffffffffff", 16).toString(16), '1fffffffffffff');
-BigNumber.DECIMAL_DIGIT = 1500;
+BigNumber.DECIMAL_DIGIT = 500;
 [2, 4, 8, 16, 32].forEach(cx => {
-    assert(new BigNumber(BigNumber.div(new BigNumber("5"), new BigNumber((10n ** 324n).toString()), 500)).toString(cx).slice(0, 5e-324 .toString(cx).length), 5e-324 .toString(cx));
+    var number = BigNumber.div(new BigNumber("5"), new BigNumber((10n ** 324n).toString()), 500);
+    assert(new BigNumber(number).toString(cx).slice(0, 5e-324 .toString(cx).length), 5e-324 .toString(cx));
+    assert(new BigNumber("-" + number).toString(cx).slice(0, (-5e-324).toString(cx).length), (-5e-324).toString(cx));
 });
