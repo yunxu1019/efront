@@ -100,8 +100,6 @@ class BigNumber {
                 scale = BigNumber.prd(scale, system_scale);
             }
             else {
-                if (num * scale !== +BigNumber.prd(num, scale)) console.log(v, BigNumber.prd(num, scale), num * scale);
-                if (num * scale + vmap[v] !== +BigNumber.add(num * scale, vmap[v])) console.log(num * scale + vmap[v], BigNumber.add(num * scale, vmap[v]), vmap[v]);
                 num = BigNumber.add(BigNumber.prd(num, scale), vmap[v]);
             }
         }
@@ -123,6 +121,7 @@ class BigNumber {
         }
         if (m && m !== "0") {
             var c = 0;
+            if (!dist.length) dist.push('0');
             dist.push('.');
             while (m !== "0") {
                 [a, m = '0'] = BigNumber.prd("0." + m, system_scale).split('.');
