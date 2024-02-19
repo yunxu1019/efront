@@ -100,6 +100,8 @@ class BigNumber {
                 scale = BigNumber.prd(scale, system_scale);
             }
             else {
+                if (num * scale !== +BigNumber.prd(num, scale)) console.log(v, BigNumber.prd(num, scale), num * scale);
+                if (num * scale + vmap[v] !== +BigNumber.add(num * scale, vmap[v])) console.log(num * scale + vmap[v], BigNumber.add(num * scale, vmap[v]), vmap[v]);
                 num = BigNumber.add(BigNumber.prd(num, scale), vmap[v]);
             }
         }
@@ -189,7 +191,7 @@ class BigNumber {
             var neg = neg1 && neg2;
         }
         var res = [];
-        var end = (numstr1.length / 15 | 0) * 15;
+        var end = ((numstr1.length - 1) / 15 | 0) * 15;
         var rest = 0;
         while (end >= 0) {
             var s1 = numstr1.slice(end, end + 15);
