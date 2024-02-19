@@ -1,6 +1,11 @@
 var { skipAssignment, createString, QUOTED, STAMP, SCOPED, VALUE, SPACE, COMMENT, relink } = require("./common");
 
 var calculate = function (body) {
+    var eval2 = function (v) {
+        v = eval(v);
+        if (typeof v === 'bigint') return String(v) + "n";
+        return String(v);
+    };
     for (var cx = 0; cx < body.length; cx) {
         var o = body[cx];
         while (o && (o.type & (SPACE | COMMENT) || o.type === STAMP && /^[,;:]$/.test(o.text))) o = body[++cx];
@@ -24,7 +29,7 @@ var calculate = function (body) {
                             }
                             else if (o.first.next === o.last && o.first.type === STAMP && /^[+-~]+$/.test(o.first.text)) {
                                 o.type = VALUE;
-                                o.text = eval(o.first.text + o.last.text);
+                                o.text = eval2(o.first.text + o.last.text);
                                 o.isdigit = true;
                             }
                         }
@@ -36,7 +41,9 @@ var calculate = function (body) {
         }
         if (ignore || ex - ox < 3) continue;
         var o = body[ox];
-        o.text = eval(createString(body.slice(ox, ex)));
+        o.text = eval2(createString(body.slice(ox, ex)));
+        o.type = VALUE;
+        o.isdigit = true;
         cx = ox + 1;
         body.splice(cx, ex - cx);
     }
