@@ -1,11 +1,14 @@
-var { skipAssignment, createString, QUOTED, STAMP, SCOPED, VALUE, SPACE, COMMENT, relink } = require("./common");
+var { skipAssignment, createString, QUOTED, STAMP, SCOPED, VALUE, SPACE, COMMENT, EXPRESS, relink } = require("./common");
 
+var eval2 = function (v) {
+    v = eval(v);
+    if (typeof v === 'bigint') return String(v) + "n";
+    return String(v);
+};
+var canbeunbrace = function () {
+
+}
 var calculate = function (body) {
-    var eval2 = function (v) {
-        v = eval(v);
-        if (typeof v === 'bigint') return String(v) + "n";
-        return String(v);
-    };
     for (var cx = 0; cx < body.length; cx) {
         var o = body[cx];
         while (o && (o.type & (SPACE | COMMENT) || o.type === STAMP && /^[,;:]$/.test(o.text))) o = body[++cx];
@@ -21,16 +24,27 @@ var calculate = function (body) {
                 if (o.type === SCOPED && o.entry === '(') {
                     var p = o.prev;
                     if (!p || p.type === STAMP || p.type === VALUE && p.isdigit) {
-                        if (o.last.type === VALUE && o.last.isdigit) {
-                            if ((o.first === o.last)) {
-                                o.type = VALUE;
-                                o.text = o.last.text;
-                                o.isdigit = true;
+                        var last = o.last, first = o.first;
+                        if (last.type === VALUE && last.isdigit) {
+                            var text = null;
+                            if ((first === last)) {
+                                text = last.text;
                             }
-                            else if (o.first.next === o.last && o.first.type === STAMP && /^[+-~]+$/.test(o.first.text)) {
-                                o.type = VALUE;
-                                o.text = eval2(o.first.text + o.last.text);
-                                o.isdigit = true;
+                            else if (first.next === last && first.type === STAMP && /^[+-~]+$/.test(first.text)) {
+                                text = eval2(first.text + last.text);
+                                last.text = text;
+                                o.splice(0, o.length);
+                                o.push(last);
+                                o.first = o.last = last;
+                            }
+                            var next = o.next;
+                            if (text) {
+                                if (/^\-/.test(text) && next && next.type === EXPRESS && /^[\.\[]/.test(next.text));
+                                else {
+                                    o.type = VALUE;
+                                    o.text = text;
+                                    o.isdigit = true;
+                                }
                             }
                         }
                     }

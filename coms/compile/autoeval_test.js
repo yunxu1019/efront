@@ -27,4 +27,6 @@ t("(1>>3,5,3+4)", "(0, 5, 7)");
 t("a=1,b=2;(a|b)&c", "a = 1, b = 2; 3 & c");
 t("(1+2).toString()", "3 .toString()");
 t("(1n+2n).toString()", "3n .toString()");
+t("(-1).toString()", "(-1).toString()");
+t("(-(2n*324n)).toString()", "(-648n).toString()");
 // tf(path.join(__dirname, "../zimoli/spacechar_test.js"))
