@@ -1,12 +1,25 @@
-<style></style>
+<style>
+    h4 {
+        text-align: center;
+        font-size: 16px;
+        color: #822;
+        /* background: #fc2; */
+        margin: 0;
+        padding: 20px 0;
+        font-family: 'Times New Roman', Times, serif;
+    }
+</style>
 <div>
+    <h4>${i18n`数值过大易造成页面卡死！`}</h4>
     <field -repeat="f in formats" -src="[f,value]"></field>
 </div>
 <script>
-    var _value = 0;
+    var _value = null;
     BigNumber.DECIMAL_DIGIT = 500;
     var parseFloat = (a, b) => new BigNumber(a, b);
-    var value = {
+    var value0 = Object.create(null);
+
+    var value1 = {
         get [i18n`十进制`]() {
             return _value;
         },
@@ -14,25 +27,25 @@
             _value = parseFloat(v)
         },
         get [i18n`十六进制`]() {
-            return _value.toString(16);
+            return _value.toString(16, -73);
         },
         set [i18n`十六进制`](v) {
             _value = parseFloat(v, 16);
         },
         get [i18n`二进制`]() {
-            return _value.toString(2);
+            return _value.toString(2, -73);
         },
         set [i18n`二进制`](v) {
             _value = parseFloat(v, 2);
         },
         get [i18n`八进制`]() {
-            return _value.toString(8)
+            return _value.toString(8, -53)
         },
         set [i18n`八进制`](v) {
             _value = parseFloat(v, 8)
         },
         get [i18n`三十六进制`]() {
-            return _value.toString(36);
+            return _value.toString(36, -73);
         },
         set [i18n`三十六进制`](v) {
             _value = parseFloat(v, 36);
@@ -118,7 +131,19 @@
 
     };
     var hex = a => a < 0x10 ? "0" + a.toString(16) : a.toString(16);
-    var formats = Object.getOwnPropertyNames(value).map(k => {
+    var value = Object.create(null);
+    var 进制 = Object.getOwnPropertyNames(value1);
+    var formats = 进制.map(k => {
+        Object.defineProperty(value, k, {
+            get() {
+                return value0[k];
+            },
+            set(v) {
+                if (v === value0[k]) return;
+                value1[k] = v;
+                进制.forEach(k => value0[k] = value1[k]);
+            },
+        })
         return { name: k, key: k };
     });
 

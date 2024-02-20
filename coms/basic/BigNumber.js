@@ -68,6 +68,39 @@ var adds = function (s, c) {
 }
 adds("0123456789", 0);
 adds("abcdefghijklmnopqrstuvwxyz", 10);
+var 缩放到1附近 = function (bign, scale, 有效数字位数) {
+    var scale = scale.toString();
+    var 用乘法 = /^0\./.test(bign);
+    var targetSize;
+    if (用乘法) {
+        targetSize = /^0\.0*/.exec(bign)[0].length;
+    }
+    else {
+        targetSize = bign.toString().replace(/\.[\s\S]+$/, '').length;
+    }
+    var system = [scale];
+    var halfSize = targetSize >> 1;
+    while (scale.length <= halfSize) {
+        scale = BigNumber.prd(scale, scale);
+        system.push(scale);
+    }
+    scale = system.pop();
+    var zerocount = 1 << system.length;
+    while (system.length > 1) {
+        var s = system.pop();
+        if (s.length + scale.length > targetSize) continue;
+        s = BigNumber.prd(scale, s);
+        if (s.length < targetSize) {
+            scale = s;
+            zerocount += 1 << system.length;
+        }
+    }
+    if (用乘法) bign = BigNumber.prd(bign, scale);
+    else {
+        bign = BigNumber.div(bign, scale, BigNumber.DECIMAL_DIGIT);
+    }
+    return [bign, 用乘法 ? -zerocount : zerocount];
+};
 class BigNumber {
     constructor(value, system_scale) {
         if (!this || this.constructor !== BigNumber) {
@@ -132,12 +165,15 @@ class BigNumber {
     static DECIMAL_DIGIT = 324;
     toString(system_scale, 有效数字位数) {
         system_scale |= 0;
+        var 收起零 = 有效数字位数 < 0;
+        if (收起零) 有效数字位数 = -有效数字位数;
         if (!system_scale || system_scale === 10) return this.value || "0";
         if (system_scale <= 1 || system_scale > 36) throw new Error("进制错误！");
         var BACK_DIGIT = BigNumber.DECIMAL_DIGIT;
         if (!有效数字位数) 有效数字位数 = Math.ceil((this.digit || BigNumber.DECIMAL_DIGIT) / Math.log10(system_scale));
-        BigNumber.DECIMAL_DIGIT = 有效数字位数 + 10;
-        var [s, n, m] = prepare(this.value);
+        BigNumber.DECIMAL_DIGIT = 有效数字位数 + 10 + system_scale;
+        var [value, zerocount] = 缩放到1附近(this.value, system_scale, 有效数字位数);
+        var [s, n, m] = prepare(value);
         var dist = [];
         while (n && n !== "0") {
             var n0 = BigNumber.div(n, system_scale, 0);
@@ -149,7 +185,6 @@ class BigNumber {
         var mid = vsrc[(system_scale - 1) / 2 | 0];
         var end = vsrc[system_scale - 1];
         if (m && m !== "0" && c <= 有效数字位数) {
-            if (!dist.length) dist.push('0');
             dist.push('.');
             while (m !== "0") {
                 [a, m = '0'] = BigNumber.prd("0." + m, system_scale).split('.');
@@ -179,8 +214,23 @@ class BigNumber {
             }
             while (有效数字位数 < dist.length) dist[有效数字位数++] = "0";
         }
-
-        if (!dist.length) dist.push("0");
+        var i = dist.indexOf('.');
+        if (i >= 0) dist.splice(i, 1);
+        else i = dist.length;
+        i += zerocount;
+        if (i <= 0) {
+            if (收起零 && i <= -30) dist.unshift(`0.(${- i}个0)`);
+            else dist.unshift("0." + Array(1 - i).join('0'));
+        }
+        else if (i === dist.length);
+        else if (i < dist.length) dist.splice(i, 0, '.');
+        else if (i > dist.length) {
+            if (收起零 && i >= dist.length + 30) dist.push(`(还有${i - dist.length}位)`);
+            else dist.push(Array(i - dist.length + 1).join('0'));
+        }
+        while (dist[0] === "0") dist.shift();
+        if (dist[0] === '.') dist.unshift('0');
+        else if (!dist.length) dist.push("0");
         if (s) dist.unshift('-');
         BigNumber.DECIMAL_DIGIT = BACK_DIGIT;
         return dist.join('');
@@ -315,7 +365,7 @@ class BigNumber {
         var [neg1, s11, s12] = prepare(numstr1);
         var [neg2, s21, s22] = prepare(numstr2);
         var d = s12.length + decimal - s22.length;
-        decimal = (decimal | 0) + 1;
+        decimal = (decimal & 0x7fffffff) + 1;
         numstr1 = s11 + s12;
         numstr2 = s21 + s22;
         numstr1 = numstr1.replace(/^0+/, '');
