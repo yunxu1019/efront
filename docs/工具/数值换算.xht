@@ -50,6 +50,12 @@
         set [i18n`三十六进制`](v) {
             _value = parseFloat(v, 36);
         },
+        get [i18n`六十进制`]() {
+            return _value.toString(60, -73);
+        },
+        set [i18n`六十进制`](v) {
+            _value = parseFloat(v, 60);
+        },
         get [i18n`浮点数机器码`]() {
             var v = +_value;
             var s = /^-/.test(v);
