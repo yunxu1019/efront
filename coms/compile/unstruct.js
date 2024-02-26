@@ -493,7 +493,11 @@ var remove_end_comma = function (o) {
 };
 var ispropcall = function (o) {
     var n = o.next;
-    if (!n || n.type !== SCOPED || n.entry !== '(') return false;
+    if (!n) return false;
+    if (n.type === STAMP) {
+        if (!/^(\+\+|\-\-|[^!=><]+\=|>>>?=|<<=)$/.test(n.text)) return false;
+    }
+    else if (n.type !== SCOPED || n.entry !== '(') return false;
     if (o.type === EXPRESS && snapExpressHead(o) !== o) return true;
     if (o.type === SCOPED && o.entry === '[' && snapExpressHead(o) !== o) return true;
     return false;
@@ -965,7 +969,7 @@ var _express = function (body, getname, ret) {
             if (/^([!~]|\+\-|\-\+)*$/.test(o.text)) p = powermap["!"];
             if (!p && /^[\+\-]$/.test(o.text)) p = needpunc ? powermap["+"] : powermap["!"];
             if (!p) p = powermap[o.text];
-            needpunc = false;
+            needpunc = /^(\+\+|\-\-)$/.test(o.text) ? needpunc : false;
             var b = body.slice(bx, cx + 1);
             bx = cx + 1;
             b.index = nameindex;

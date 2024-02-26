@@ -135,6 +135,13 @@ test("[key[1]][key[2]]+[key[3]][key[4]]", '_ = key[1]; _ = [_]; _0 = key[2]; _ =
 test("if(a)a:{break a}", "if (!a) return [2, 0]; return [1, 0];\r\n return [1, 0]", true);
 test("rgb=(rgb<<8|rgb>>16)&0xffffff", "_ = rgb << 8, _0 = rgb >> 16, _ = _ | _0; _ = (_); rgb = _ & 0xffffff", true);
 test(`if (c) a; else return true; return false`, "if (!c) return [1, 0]; a; return [2, 0];\r\n return [true, 2];\r\n return [false, 2]")
-unstruct.debug = true;
 test(`switch(a){case a:a=a?1:0;break;case b:a=b;break;}`, "if (a === a) return [1, 0]; if (a === b) return [4, 0]; return [5, 0];\r\n if (!a) return [1, 0]; a = 1; return [2, 0];\r\n a = 0; return [1, 0];\r\n return [2, 0];\r\n a = b; return [1, 0]");
 test(`a=typeof a!==1`, "_ = typeof a, a = _ !== 1");
+unstruct.debug = true; r++;
+test(`a[0]++`, "a[0]++");
+test(`1+a[0]++`, "_ = a[0]++, 1 + _");
+test(`a[0]++ + 1`, "_ = a[0]++, _ + 1");
+test(`a[0]-- + 1`, "_ = a[0]--, _ + 1");
+test(`a[0]-- +1`, "_ = a[0]--, _ + 1");
+test(`a[0]--+1`, "_ = a[0]--, _ + 1");
+test(`a[0]+++1`, "_ = a[0]++, _ + 1");

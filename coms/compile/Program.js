@@ -448,7 +448,7 @@ class Program {
                 if (isdigit && lasttype === STAMP) {
                     var last = queue.last;
                     var prev = last.prev;
-                    if ((!prev || prev.type & (STAMP | STRAP)) && /^[+\-]+$/.test(last.text)) {
+                    if ((!prev || prev.type & (STAMP | STRAP) && !/^(\+\+|\-\-)$/.test(prev.text)) && /^[+\-]+$/.test(last.text)) {
                         last.type = VALUE;
                         last.text += m;
                         lasttype = VALUE;
