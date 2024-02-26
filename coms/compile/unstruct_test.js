@@ -137,3 +137,4 @@ test("rgb=(rgb<<8|rgb>>16)&0xffffff", "_ = rgb << 8, _0 = rgb >> 16, _ = _ | _0;
 test(`if (c) a; else return true; return false`, "if (!c) return [1, 0]; a; return [2, 0];\r\n return [true, 2];\r\n return [false, 2]")
 unstruct.debug = true;
 test(`switch(a){case a:a=a?1:0;break;case b:a=b;break;}`, "if (a === a) return [1, 0]; if (a === b) return [4, 0]; return [5, 0];\r\n if (!a) return [1, 0]; a = 1; return [2, 0];\r\n a = 0; return [1, 0];\r\n return [2, 0];\r\n a = b; return [1, 0]");
+test(`a=typeof a!==1`, "_ = typeof a, a = _ !== 1");

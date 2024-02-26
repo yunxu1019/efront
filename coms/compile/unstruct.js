@@ -962,8 +962,8 @@ var _express = function (body, getname, ret) {
         }
         if (o.type & (STRAP | STAMP)) {
             var p = 0;
-            if (/[!~]|\+\-|\-\+/.test(o.text)) p = powermap["!"];
-            if (!p && /[\+\-]/.test(o.text)) p = needpunc ? powermap["+"] : powermap["!"];
+            if (/^([!~]|\+\-|\-\+)*$/.test(o.text)) p = powermap["!"];
+            if (!p && /^[\+\-]$/.test(o.text)) p = needpunc ? powermap["+"] : powermap["!"];
             if (!p) p = powermap[o.text];
             needpunc = false;
             var b = body.slice(bx, cx + 1);
