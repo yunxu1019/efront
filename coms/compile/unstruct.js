@@ -1,4 +1,4 @@
-var { SPACE, COMMENT, EXPRESS, STRAP, QUOTED, STAMP, SCOPED, VALUE, LABEL, canbeTemp: _canbeTemp, isEval, createString, skipAssignment, skipSentenceQueue, isHalfSentence, splice, relink, createExpressList, snapExpressHead, snapExpressFoot } = require("./common");
+var { SPACE, COMMENT, EXPRESS, STRAP, QUOTED, STAMP, SCOPED, VALUE, LABEL, canbeTemp: _canbeTemp, isEval, createString, skipAssignment, pickSentence, skipSentenceQueue, isHalfSentence, splice, relink, createExpressList, snapExpressHead, snapExpressFoot } = require("./common");
 var scanner2 = require("./scanner2");
 var returnText = function () { return this.text };
 var NodeNotClone = o => Object.assign(Object.create(null), o, { toString: returnText });
@@ -54,7 +54,7 @@ var mount_break = function (body, cx, b1s, iscontinue) {
 }
 var _break = function (body, cx, result, iscontinue) {
     var re = result[result.length - 1];
-    if (!result.length || re.ret_ && !re.await_ && re.ret_ !== -2) return;
+    if (!result.length || result.length === 1 && re.ret_ && !re.await_ && re.ret_ !== -2) return;
     var _b = scanner2('return []');
     _b.ret_ = -1;
     mount_break(body, cx, [_b[1]], iscontinue);
@@ -144,6 +144,7 @@ var _withset = function (text, tmpname, valname) {
 };
 var _switch = function (body, cx, unblock, result, getname) {
     var o = body[cx];
+    var O = o;
     o = o.next;
     if (!o) return;
     var qt = ternary(o, getname, true);
