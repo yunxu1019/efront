@@ -55,6 +55,7 @@ var skipAssignment = function (o, cx) {
                     break;
                 case "++":
                 case "--":
+                    if (needpunc && o.unary) break loop;
                     next();
                     break;
                 case "!":
