@@ -21,7 +21,6 @@ var touch = {
          */
         var t = this;
         var start = () => {
-            if (onclick.preventClick) return;
             var a = t.$scope.toActive(e);
             touchitems = t.querySelectorAll("fileitem");
             if (a && t.$scope.selected.indexOf(a.$scope.d) >= 0) {
@@ -38,7 +37,10 @@ var touch = {
             css(rect, { left: e.clientX - pos.left - t.clientLeft, top: e.clientY - t.clientTop, width: 0, height: 0 })
         };
         if (/^touch/.test(e.type)) {
-            touch.ing = setTimeout(start, 600);
+            touch.ing = setTimeout(function () {
+                if (onclick.preventClick) return;
+                start();
+            }, 600);
         }
         else {
             start();
