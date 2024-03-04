@@ -938,7 +938,6 @@ var _express = function (body, getname, ret) {
     }
     var result = [];
     var q = [];
-    var needpunc = false;
     var bx = 0;
     var cache = [];
     var n = null;
@@ -966,10 +965,8 @@ var _express = function (body, getname, ret) {
         }
         if (o.type & (STRAP | STAMP)) {
             var p = 0;
-            if (/^([!~]|\+\-|\-\+)*$/.test(o.text)) p = powermap["!"];
-            if (!p && /^[\+\-]$/.test(o.text)) p = needpunc ? powermap["+"] : powermap["!"];
-            if (!p) p = powermap[o.text];
-            if (o.unary) needpunc = false;
+            if (o.unary) p = powermap["!"];
+            else p = powermap[o.text];
             var b = body.slice(bx, cx + 1);
             bx = cx + 1;
             b.index = nameindex;
@@ -1021,7 +1018,6 @@ var _express = function (body, getname, ret) {
             }
         }
         else {
-            needpunc = true;
             if (o.type === EXPRESS) {
                 exps.push(o);
             }

@@ -386,7 +386,7 @@ Javascript.prototype.setType = function (o) {
     if (o.type === STAMP) {
         if (!last || last.type & (STAMP | STRAP) || last.type === SCOPED && /^[\{\[]$/.test(last.entry) && !last.isExpress) {
             o.unary = /^[^=;,\*]$|.[^\=\>\<\|\&\^]$/.test(o.text);
-            if (o.unary && last && last.type === STAMP && /^(\+\+|\-\-)$/.test(last.text)) o.unary = !/^[\+\-]$/.test(o.text);
+            if (o.unary && /^(\+|\-)$/.test(o.text) && last && last.type === STAMP && /^(\+\+|\-\-)$/.test(last.text)) o.unary = !!last.unary;
         }
         if (last && /^(\+\+|\-\-)$/.test(o.text)) {
             var i = 1;
