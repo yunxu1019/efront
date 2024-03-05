@@ -658,7 +658,7 @@ var removeImport = function (c, i, code) {
     var next = c.next;
     var { used, envs, vars } = code;
     if (next && next.type !== QUOTED) {
-        var [dec, map, o] = getDeclared(c.next);
+        var [dec, map, o] = getDeclared(c.next, 'remove');
         if (!o) throw new Error(i18n`代码结构异常！`);
         if (o.type !== STRAP || o.text !== 'from') throw new Error(i18n`缺少from语句`);
         var oi = code.indexOf(o, i);
@@ -730,7 +730,7 @@ var removeImport = function (c, i, code) {
             if (used[dn]) used[dn].forEach(u => {
                 if (used[name].indexOf(u) >= 0) return;
                 patchname(name, u, da);
-                used[name].push(u);
+                if (u.kind !== 'remove') used[name].push(u);
             });
             delete used[dn];
             delete vars[dn];
