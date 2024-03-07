@@ -705,7 +705,6 @@ var commands = {
         startServer();
     },
     run(appname) {
-
         var args = [].concat.apply(["efront"], arguments);
         args.push("--efront");
         if (restArgv.length) args.push.apply(args, restArgv);
@@ -717,13 +716,11 @@ var commands = {
         var detectPromise = detectWithExtension(appname, ["", ".js", ".ts", "/index.js", "/index.ts"], ['']);
         detectPromise.catch(function () {
             detectEnvironment("reptile").then(function () {
-                memery.islive = true;
                 require("./setupenv");
                 require("./run")(appname, args);
             });
         });
         detectPromise.then(function (f) {
-            memery.islive = true;
             setenv({
                 comm: './,basic,basic_',
                 coms_path: './,' + path.join(__dirname, '..'),
@@ -1031,12 +1028,28 @@ process.on("exit", function () {
 });
 var argv = [];
 var restArgv = [];
-require("../server/userdata").getItem("memery").then(function (mm) {
+var userdata = require("../server/userdata");
+userdata.getItem("memery").then(async function (mm) {
     setenv(require("../basic/parseKV")(mm));
+    var 授权列表 = await userdata.授权列表;
+    memery.炸毛 = function (a) {
+        return function () {
+            return a;
+        };
+    }(授权列表);
     restArgv = [];
-    argv = (process._argv || process.argv).slice(1).map(a => a.replace(/^[^\s]+\r\n|[\s\r\n]+$/g, '')).filter(a => {
-        if (a in helps) return true;
-        if (!/^--/.test(a)) return true;
+    var cmd = false;
+    var script = null;
+    var efront = null;
+    argv = (process._argv || process.argv).slice(1).map(a => a.replace(/^[^\s]+\r\n|[\s\r\n]+$/g, '')).filter((a, i) => {
+        if (cmd === true) return true;
+        if (a in helps) return cmd = a;
+        if (!/^--/.test(a)) {
+            if (!efront) return efront = a;
+            if (!script) return script = a;
+            if (!cmd) return cmd = true;
+            return true;
+        }
         if (/^--(?:inspect|debug)(-brk)?(\=\d*)?$/.test(a)) {
             restArgv.push(a);
             return;

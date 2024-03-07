@@ -182,7 +182,7 @@ var _ifempty = {
         return memery.istest;
     },
     get islive() {
-        return memery.TESTMODE;
+        return memery.LIVEMODE;
     }
 };
 var memery = module.exports = {
