@@ -706,7 +706,6 @@ var commands = {
     },
     run(appname) {
         var args = [].concat.apply(["efront"], arguments);
-        args.push("--efront");
         if (restArgv.length) args.push.apply(args, restArgv);
         if (!appname) {
             console.line(i18n`请输入要启动的程序!`);
@@ -714,6 +713,7 @@ var commands = {
         }
         var fullpath = process.cwd();
         var detectPromise = detectWithExtension(appname, ["", ".js", ".ts", "/index.js", "/index.ts"], ['']);
+        memery.islive = memery.LIVEMODE !== false;
         detectPromise.catch(function () {
             detectEnvironment("reptile").then(function () {
                 require("./setupenv");

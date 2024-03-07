@@ -182,7 +182,7 @@ var _ifempty = {
         return memery.istest;
     },
     get islive() {
-        return memery.LIVEMODE;
+        return !!memery.LIVEMODE;
     }
 };
 var memery = module.exports = {
@@ -222,7 +222,7 @@ var memery = module.exports = {
         }
         return noproxy;
     },
-    LIVEMODE: get("LIVEMODE,LIVE", true),
+    LIVEMODE: get("LIVEMODE,LIVE"),
     HELPCODE: get("HELPCODE"),
     RESTCOMS: get("RESTCOMS,REST_COMS"),
     DIRECT: geturlpath("DIRECT,DIRECT_PAGE,DIRECT_PATH,SINGLE,SINGLE_PAGE,SINGLE_PATH"),
