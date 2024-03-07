@@ -384,7 +384,7 @@ Javascript.prototype.setType = function (o) {
         }
     }
     if (o.type === STAMP) {
-        if (!last || last.type & (STAMP | STRAP) || last.type === SCOPED && /^[\{\[]$/.test(last.entry) && !last.isExpress) {
+        if (!last || last.type & (STAMP | STRAP) && !/^(\+\+|\-\-)$/.test(last.text) || last.type === SCOPED && /^[\{\[]$/.test(last.entry) && !last.isExpress) {
             o.unary = /^[^=;,\*]$|.[^\=\>\<\|\&\^]$/.test(o.text);
             if (o.unary && /^(\+|\-)$/.test(o.text) && last && last.type === STAMP && /^(\+\+|\-\-)$/.test(last.text)) o.unary = !!last.unary;
         }
