@@ -435,6 +435,7 @@ var _do = function (body, cx, unblock, result) {
     if (label.continue) ifpatch(result), label.contat = result.length;
     var b = rescan`if (${getCondition(o, unblock)}) return [${i - result.length}, 0]`;
     pushstep(result, b);
+    b[b.length - 1][0].text = String(i - result.length + 1);
     while (body[cx] !== o) cx++;
     return cx + 1;
 };

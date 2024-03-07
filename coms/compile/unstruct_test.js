@@ -150,3 +150,4 @@ test(`c=b+ ++a`, "_ = ++a, c = b + _");
 unstruct.debug = true; r++;
 test(`c=b+ +a`, "_ = +a, c = b + _");
 test(`c=b+ !a`, "_ = !a, c = b + _");
+test(`do {var loadcount = 0;} while (loadcount !== 0);`, `loadcount = 0; _ = loadcount !== 0; if (_) return [0, 0]`);
