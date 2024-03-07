@@ -68,7 +68,7 @@ var createManagersWithEnv = async function (env) {
     var managers = {
         comm(name, ext) {
             var exts = fixExtentions([".js", '.mjs', '.xht', ".ts", ".json", ".html", '.vue', ''], ext);
-            name = require("./$split")(name).join("/");
+            name = require("../basic/$split")(name).join("/");
             var res = comscache.seek(name, exts);
             return responseFromCache(res);
         },

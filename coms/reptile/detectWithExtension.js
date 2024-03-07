@@ -1,5 +1,6 @@
 var path = require("path");
 var fs = require("fs").promises;
+var $split = require("../basic/$split");
 var str2array = require("../basic/str2array");
 async function detectWithExtension(filenames, extensions = [""], folders = [""]) {
     if (typeof filenames === 'string') filenames = str2array(filenames);
@@ -10,7 +11,7 @@ async function detectWithExtension(filenames, extensions = [""], folders = [""])
     }
     if (folders === null) folders = [""];
     extensions = [].concat(extensions);
-    filenames = filenames.map(f => efront$$split(f).join('/')).map(filename => {
+    filenames = filenames.map(f => $split(f).join('/')).map(filename => {
         var tempname = filename.replace(/[#\?][\s\S]*$/, '');
         var params = filename.slice(tempname.length);
         return [tempname, params];

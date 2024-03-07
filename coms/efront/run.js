@@ -66,7 +66,7 @@ function fromComponent(env, base) {
                         result = function () { return this }.bind(global[url1]);
                     } else {
                         try {
-                            url1 = require("./$split")(url1).join("/");
+                            url1 = require("../basic/$split")(url1).join("/");
                             if (/^\.*\//.test(url1)) {
                                 var parth = path.relative(url1, '.');
                                 if (/^\./.test(parth)) {

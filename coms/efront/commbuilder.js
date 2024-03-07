@@ -13,7 +13,7 @@ var autoeval = require("../compile/autoeval");
 var autoenum = require("../compile/autoenum");
 var polyfill = require("../compile/polyfill");
 var translate = require("../compile/translate");
-var $split = require("./$split");
+var $split = require("../basic/$split");
 var backEach = require("../basic/backEach");
 var downLevel = require("../compile/downLevel");
 var isbooted = typeof seek === 'function';
