@@ -1722,6 +1722,7 @@ var down = function (scoped) {
             var argname = _letname("_");
             unstruct.debug = downLevel.debug;
             var body = scanner2(`return ${funcMark}()`);
+            var body3 = body[body.length - 1];
             var code = unawait(scoped.body, _getname, argname);
             code.forEach(function (c) {
                 revar(c);
@@ -1729,8 +1730,8 @@ var down = function (scoped) {
                 if (!c.length) f[2].push(...scanner2('return [1,0]'));
                 else f[2].push(...c);
                 f[2].push({ type: SPACE, text: "\r\n" });
-                if (body[2].length) body[2].push({ type: STAMP, text: "," });
-                body[2].push({ type: SPACE, text: '\r\n' }, ...f);
+                if (body3.length) body3.push({ type: STAMP, text: "," });
+                body3.push({ type: SPACE, text: '\r\n' }, ...f);
             });
             splice(scoped.body, 0, scoped.body.length);
             if (markcodes.length || argcodes.length) {

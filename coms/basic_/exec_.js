@@ -1,24 +1,26 @@
 var tick = Promise.resolve();
 var exec_ = function (args, ok, oh, int) {
-    var p = null, index = 0, r, e, finished = false, t = this;
+    var p = null, index = 0, r, e, finished = false;
     var next = function (arg) {
         p = arg;
         run();
     };
-    var catches = [], catch_, throwed;
+    var catches = [], catch_, throwed = false;
     var thro = function (err) {
+        e = err;
         if (catch_) {
+            throwed = true;
             fina();
         }
         else if (catches.length) {
-            catch_ = catches[catches.length - 1];
-            [index, p, throwed] = catch_;
+            catch_ = catches.pop();
+            [index, p] = catch_;
+            throwed = false;
             index += p & 0xffff;
             if (p >>> 16) {
                 next(err);
             }
             else {
-                e = err;
                 catches.pop();
                 fina();
             }
@@ -42,27 +44,26 @@ var exec_ = function (args, ok, oh, int) {
         next();
     };
     var fine = function () {
-        index++;
-        next();
+        catches.pop();
+        if (throwed) thro(e);
+        else if (finished) retn(r);
+        else {
+            index++;
+            next();
+        }
     }
     var run = function () {
         var args_length = args.length, i;
-        if (!catch_ || index >= args_length) {
-            if (throwed) {
-                return oh(e);
-            }
-            if (finished) return ok(r);
-        }
         while (index < args_length) {
             try {
-                var a = args[index].call(t, p) || [1, 0];
+                var a = args[index](p) || [1, 0];
                 catch_ = null;
                 p = a[0];
                 i = a[1];
             } catch (e) {
                 p = null;
                 thro(e);
-                break;
+                return;
             }
             switch (i) {
                 case 0: index += p; break; // reflow
