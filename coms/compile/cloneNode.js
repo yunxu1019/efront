@@ -13,7 +13,7 @@ var cloneNode = function (o) {
         c = Object.assign({}, c);
     }
     else switch (typeof c) {
-        case "number": case "bigint": c = { type: VALUE, isdigit: !Number.isNaN(c), text: String(c) }; break;
+        case "number": case "bigint": c = { type: VALUE, isdigit: c === c, text: String(c) }; break;
         case "boolean": case "undefined": c = { type: VALUE, text: String(c) }; break;
         case "regexp": c = { type: QUOTED, text: String(c) }; break;
         case "string": c = scanner2(c); break;

@@ -153,7 +153,7 @@ class BigNumber {
                 v = +v;
             }
             else v = vmap[v];
-            if (Number.isNaN(v) || v >= system_scale || v !== +v) throw new Error("数据错误！");
+            if (v !== v || v >= system_scale || v !== +v) throw new Error("数据错误！");
 
             if (dotOccurs) {
                 num = BigNumber.add(num, BigNumber.div(v, scale, BigNumber.DECIMAL_DIGIT))
