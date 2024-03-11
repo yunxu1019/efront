@@ -333,7 +333,7 @@ Javascript.prototype.detectLabel = function (o) {
 Javascript.prototype.setType = function (o) {
     if (this.detectLabel(o)) return false;
     var last = o.prev;
-    if (o.type === EXPRESS && /^\.[^\.]/.test(o.text) && last && last.type === STAMP && last.text === "?") {
+    if (o.type === EXPRESS && /^\.[^\.]|^\.$/.test(o.text) && last && last.type === STAMP && last.text === "?") {
         last = o.prev = snapExpressHead(last.prev);
         last.type = EXPRESS;
         return false;
