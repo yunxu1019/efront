@@ -23,7 +23,7 @@
 
 ## 1. 下载安装
 
-`efront` 运行在 [nodejs](https://nodejs.org/zh-cn/) 环境下，请在安装 [nodejs](https://nodejs.org/zh-cn/) 环境后使用。
+`efront` 运行在 [nodejs](https://nodejs.org/) 环境下，请在安装 [nodejs](https://nodejs.org/) 环境后使用。
 从npm全局安装efront
 
 ```bat
