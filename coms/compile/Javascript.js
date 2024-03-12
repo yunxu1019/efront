@@ -535,7 +535,6 @@ function detour(o, ie) {
                         text = createString(rest);
                     }
                     text = renderExpress(text, false);
-                    console.log(text)
                     if (hasdot) text = "..." + text;
                     o = replace(o, ...scan(text));
                     continue;
