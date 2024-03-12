@@ -1,19 +1,72 @@
-function createSeek(express) {
-    var dist;
-    express.forEach(function (search) {
-        if (dist) {
-            if (/[\=]/.test(dist)) dist = `(${dist})`;
-            var pd = /[\.\[]/.test(dist) ? `${dist}!==void 0` : `typeof ${dist}!=='undefined'`;
-            dist = `${pd}&&${dist}!==null?${dist}${search}:''`
-        } else {
-            dist = search;
+function splitSeek(express) {
+    var dist = [];
+    var x = 0;
+    express.forEach((e, i) => {
+        if (i > x && /\?/.test(e)) {
+            var exp = express.slice(x, x = i);
+            dist.push(exp);
         }
     });
+    if (x < express.length) dist.push(express.slice(x, express.length));
+    dist.forEach(d => d[0] = d[0].replace(/^\?/, ''))
     return dist;
 }
-function main(express) {
+function getTmpvar(explist) {
+    var varset = {};
+    explist.forEach(e => {
+        e = e[0].replace(/^([^\.\[]]+)[\s\S]*$/, "$1");
+        varset[e] = true;
+    });
+    var tmpvar = 'b', n = 0;
+    while (tmpvar in varset) {
+        tmpvar = 'b' + n++;
+    }
+    return tmpvar;
+}
+var autoDefine = false;
+function createSeek(express, split = true) {
+    var tmpvar = 'a', undef = '_', _null = '$';
+    if (express.length <= 1) return express[0];
+    var notmp = !/[\.\[\(\{]/.test(express[0]);
+    if (express.length === 2) {
+        if (split && /^\?/.test(express[1])) {
+            if (notmp) return `typeof ${tmpvar}!=='undefined'&&${tmpvar}!==null?${tmpvar}:${express[1].slice(1)}`;
+            return `function(${tmpvar},${undef}){return ${tmpvar}===${undef}||${tmpvar}===null?${express[1].slice(1)}:${tmpvar}}(${express[0]})`;
+        }
+        if (notmp) {
+            tmpvar = express[0];
+            if (autoDefine) {
+                return `typeof ${tmpvar}==='undefined'||${tmpvar}===null?void 0:${tmpvar}${express[1]}`;
+            }
+            return `${tmpvar}===void 0||${tmpvar}===null?void 0:${tmpvar}${express[1]}`;
+        };
+        return `function(${tmpvar},${undef}){return ${tmpvar}===${undef}||${tmpvar}===null?${undef}:${tmpvar}${express[1]}}(${express[0]})`;
+    }
+    if (!split) {
+        var dist = express.slice(1).map((search, i, a) => {
+            return `if(${tmpvar}===${undef}||${tmpvar}===${_null})return;${tmpvar}=${tmpvar}${search};`;
+        }).join('');
+        dist = `function(${tmpvar},${_null},${undef}){${dist}return ${tmpvar}}(${express[0]},null)`;
+        if (notmp && autoDefine) {
+            dist = `typeof ${express[0]}==='undefined'&&${express[0]}===null?void 0:${dist}`;
+        }
+        return dist;
+    }
+    var explist = splitSeek(express);
+    if (explist.length === 1) {
+        return createSeek(explist[0], false);
+    }
+    tmpvar = getTmpvar(explist);
+    var dist = explist.slice(0, explist.length - 1).map(express => {
+        var dist = createSeek(express, false);
+        return `${tmpvar}=${dist};if(${tmpvar}!==void 0&&${tmpvar}!==null)return ${tmpvar};`;
+    }).join("") + `return ${createSeek(explist[explist.length - 1], false)}`;
+    return `function(${tmpvar}){${dist}}()`;
+}
+function main(express, autodef = true) {
+    autoDefine = autodef;
     if (!/\?\s*\.(?=[^\d])|\?\s*[\?\]\}\)\:\,=|%&;\>\<]|\?\s*$/.test(express)) return express;
-    var reg = /\\[\s\S]|\?\s*(\.(?!\d)|$|(?=[\?\]\}\)\:\,=|%&;\>\<\*\/]))|[\:\,\+\=\-\!%\^\|\/\&\*\!\;\?\>\<~\{\}\[\]\(\)'"`\s]/g;
+    var reg = /\\[\s\S]|\?\s*([\.](?!\d)|\?|$|(?=[\?\]\}\)\:\,=|%&;\>\<\*\/]))|[\:\,\+\=\-\!%\^\|\/\&\*\!\;\?\>\<~\{\}\[\]\(\)'"`\s]/g;
     var cache = [], queue = [];
     var exp = [];
     var instr = false;
@@ -22,7 +75,7 @@ function main(express) {
         if (!exp.length) exp.push(s);
         else {
             var e = exp[exp.length - 1];
-            if (!/[\.]\s*$/.test(e) && !/^\s*[\.'"`\[\(]/.test(s)) {
+            if (!/[\.\?]\s*$/.test(e) && !/^\s*[\.'"`\[\(]/.test(s)) {
                 queue.push(createSeek(exp));
                 exp.splice(0, exp.length, '');
                 e = '';

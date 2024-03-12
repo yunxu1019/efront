@@ -20,8 +20,10 @@ const {
     getDeclared,
     createScoped,
     snapExpressHead,
+    snapExpressFoot,
     splice,
     relink,
+    remove,
     setqueue,
     replace,
     skipAssignment,
@@ -521,7 +523,19 @@ function detour(o, ie) {
                     if (m) { context.avoidMap[m[0]] = true; }
                 }
                 if (/\?\./.test(text)) {
-                    text = renderExpress(text);
+                    if (/\?\.$/.test(text)) {
+                        o = snapExpressHead(o);
+                        var f = snapExpressFoot(o);
+                        var rest = [o];
+                        remove(o, f.prev);
+                        while (o !== f) {
+                            o = o.next;
+                            rest.push(o);
+                        }
+                        text = createString(rest);
+                    }
+                    text = renderExpress(text, false);
+                    console.log(text)
                     if (hasdot) text = "..." + text;
                     o = replace(o, ...scan(text));
                     continue;

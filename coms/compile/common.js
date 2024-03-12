@@ -1323,10 +1323,16 @@ var splice = function (queue, index, size, ...args) {
     setqueue(args, queue);
     return res;
 };
-var remove = function (o) {
+var remove = function (o, end) {
     var q = o.queue;
     var i = q.indexOf(o);
-    if (i >= 0) splice(q, i, 1);
+    var length = 1;
+    if (arguments.length === 2) {
+        end = q.indexOf(end, i) + 1;
+        if (end < 0) end = i;
+        length = end - i;
+    }
+    if (i >= 0) splice(q, i, length);
 };
 var replace = function (o, ...args) {
     var queue = o.queue;
