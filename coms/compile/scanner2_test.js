@@ -119,6 +119,7 @@ testJsxOnlyHtml(`<a>{aa}</c>`);
 testJsxOnlyHtml(`<a {aa}>a</c>`);
 testJsxOnlyHtml(`Let's Crypt`);
 testJsxOnlyHtml(`<h><a #c>b</a><c b=x>d</c><d/><e>2px</e></h>`)
+testJsxOnlyHtml(`<a {a}=b></a>`);
 // testJsxOnlyHtml(`<script></script>`);
 testJsxOnlyHtml("<script>a=`<v>${version[0]}</v>`</script>");
 testJsxOnlyHtml(`<script>var menu=[{name:'aa'}]</script>`);

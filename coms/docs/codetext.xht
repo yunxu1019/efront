@@ -107,20 +107,21 @@
                     o.text = `<label>${o.text}</label>`;
                     break;
                 case QUOTED:
-                case PIECE:
-                    if (!o.length) {
-                        if (o.queue && o.queue.tag) {
-                            o.text = encode(o.text);
-                        }
-                        else if (/^\//.test(o.text)) {
-                            o.text = `<regexp>${encode(o.text)}</regexp>`;
-                        }
-                        else o.text = `<text>${encode(o.text)}</text>`;
+                    if (o.length || !o.text) {
+                        o.forEach(setcolor);
+                        o.entry = "<text>" + o.entry;
+                        o.leave = o.leave + "</text>";
                         break;
                     }
-                    o.forEach(setcolor);
-                    o.entry = "<text>" + o.entry;
-                    o.leave = o.leave + "</text>";
+                case PIECE:
+                    if (o.queue && o.queue.tag) {
+                        o.text = encode(o.text);
+                    }
+                    else if (/^\//.test(o.text)) {
+                        o.text = `<regexp>${encode(o.text)}</regexp>`;
+                    }
+                    else o.text = `<text>${encode(o.text)}</text>`;
+                    break;
                     break;
                 case ELEMENT:
                     if (o.attributes) o.attributes.forEach(setcolor);

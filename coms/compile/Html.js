@@ -135,6 +135,11 @@ Html.prototype.createScoped = function (code) {
                 }
                 break;
             case QUOTED:
+                if (c.length) {
+                    c.forEach(run);
+                    break;
+                }
+                if (!c.text) break;
                 var t = strings.decode(c.text);
                 var p = t.prev;
                 var pp = p && p.prev;

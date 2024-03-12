@@ -1124,7 +1124,7 @@ var createString = function (parsed) {
                         }
                         else {
                             if (a.type === PIECE && !a.text) continue;
-                            if (!needvalue) result.push(" ");
+                            if (!needvalue && (a.type !== PIECE || !/^\=/.test(a.text))) result.push(" ");
                             run(a);
                             needvalue = a.type === PIECE && /[\=]$/.test(a.text);
                         }
@@ -1148,7 +1148,7 @@ var createString = function (parsed) {
                 }
                 break;
             case QUOTED:
-                if (!o.length) {
+                if (!o.length && o.text) {
                     if (helpcolor) o.text = color.transform(o.text);
                     result.push(o.text);
                     break;

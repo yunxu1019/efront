@@ -91,7 +91,7 @@ class Program {
         ["`", "`", /\\[\s\S]/, ["${", "}"]],
     ]
     tags = [
-        [["<", "</"], /\/?>/, null, ["=", "'", '"', "{", "}"], [/<!--/, /--!?>/]]
+        [["<", "</"], /\/?>/, null, ["'", '"', "{", "}"], [/<!--/, /--!?>/]]
     ];
     scriptTags = [];
     ignoreTags = ["STYLE", "SCRIPT"];
@@ -355,6 +355,7 @@ class Program {
                     if (quote.end.test(m)) {
                         end = match.index;
                         if (queue.tag) {
+                            push_piece();
                             if (!queue.inTag) continue;
 
                             if (closeTag() === false) {
@@ -400,6 +401,15 @@ class Program {
                             continue;
                         }
                         push_quote();
+                        continue loop;
+                    }
+                    if (m in this.quote_map) {
+                        if (queue.tag && !queue.inTag) continue;
+                        push_piece();
+                        var scope = [];
+                        scope.entry = m;
+                        scope.type = QUOTED;
+                        push_parents(scope);
                         continue loop;
                     }
                 }
@@ -599,6 +609,7 @@ class Program {
 
                 queue.end = end;
                 queue.leave = m;
+
                 pop_parents();
                 continue;
             }
@@ -650,8 +661,15 @@ class Program {
                 quote_map[a] = q
                 if (a.length === 1) tokens[a] = true;
             }
+        });
+        quoteslike.forEach(q => {
+            var ts = [];
             var r = q.slice(q[2] ? 2 : 3).concat(q[1]).map(q => {
                 if (q instanceof Array) {
+                    if (q.length > 2) {
+                        ts.push(...q.slice(0, q.length - 2));
+                    }
+                    else if (q.length !== 2) throw new Error("配置错误！");
                     q = q[q.length - 2];
                 }
                 if (q instanceof RegExp) {
@@ -660,7 +678,7 @@ class Program {
                 return this.compile(q);
             });
             if (q.tag) r = r.concat(q.tag.slice().sort(sortRegExpSource));
-            r = r.join("|");
+            r = r.concat(ts.map(this.compile)).join("|");
             q.reg = new RegExp(r, 'g');
             q.end = this.createRegExp([q[1]]);
             if (q.length >= 4) {
