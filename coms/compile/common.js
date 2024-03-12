@@ -487,7 +487,7 @@ var createScoped = function (parsed, wash) {
                     else {
                         var u = o.text;
                         if (/^\.\.\./.test(u)) u = u.slice(3);
-                        var u = u.replace(/^([^\.\[]*)[\s\S]*$/, '$1');
+                        var u = u.replace(/^([^\.\[\?]*)[\s\S]*$/, '$1');
                         if (!u) break;
                         var prev = o.prev;
                         if (prev && prev.type === STAMP && /^(?:\+\+|\-\-)$/.test(prev.text)) {
@@ -1126,7 +1126,7 @@ var createString = function (parsed) {
                             if (a.type === PIECE && !a.text) continue;
                             if (!needvalue) result.push(" ");
                             run(a);
-                            needvalue = a.type === PIECE && /\=$/.test(a.text);
+                            needvalue = a.type === PIECE && /[\=]$/.test(a.text);
                         }
                     }
                     intag = 0;
