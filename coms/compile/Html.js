@@ -104,7 +104,6 @@ Html.prototype.createScoped = function (code) {
                     c.forEach(run);
                 }
                 else {
-                    console.log(c.tagName)
                     if (c.tagName === 'SCRIPT') {
                         scriptNodes.push(c);
                         tempNodes.push(c);
