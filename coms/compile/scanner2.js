@@ -3,17 +3,18 @@ var createNamelist = require("./namelist");
 var Html = require("./Html");
 var Javascript = require("./Javascript");
 const {
-    /*-1 */COMMENT,
-    /* 0 */SPACE,
-    /* 1 */STRAP,
-    /* 2 */STAMP,
-    /* 3 */VALUE,
-    /* 4 */QUOTED,
-    /* 5 */PIECE,
-    /* 6 */EXPRESS,
-    /* 7 */SCOPED,
-    /* 8 */LABEL,
-    /* 9 */PROPERTY,
+    /*    1 */COMMENT,
+    /*    2 */SPACE,
+    /*    4 */STRAP,
+    /*    8 */STAMP,
+    /*   16 */VALUE,
+    /*   32 */QUOTED,
+    /*   64 */PIECE,
+    /*  128 */EXPRESS,
+    /*  256 */SCOPED,
+    /*  512 */LABEL,
+    /* 1024 */PROPERTY,
+    /* 2048 */ELEMENT,
     skipSentenceQueue,
     rename,
     relink,
@@ -65,6 +66,7 @@ class Code extends Array {
     SCOPED = SCOPED
     LABEL = LABEL
     PROPERTY = PROPERTY
+    ELEMENT = ELEMENT
     pressed = false
     _scoped = null;
     helpcode = false;

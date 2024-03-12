@@ -15,6 +15,7 @@ const {
     /* 256 */SCOPED,
     /* 512 */LABEL,
     /*1024 */PROPERTY,
+    /*2048 */ELEMENT,
     createString,
     getDeclared,
     createScoped,

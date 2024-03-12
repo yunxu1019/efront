@@ -10,6 +10,7 @@ const {
     /* 256 */SCOPED,
     /* 512 */LABEL,
     /*1024 */PROPERTY,
+    /*2048 */ELEMENT,
     createString,
     number_reg,
 } = require("./common");
@@ -92,6 +93,8 @@ class Program {
     tags = [
         [["<", "</"], /\/?>/, null, ["=", "'", '"', "{", "}"], [/<!--/, /--!?>/]]
     ];
+    scriptTags = [];
+    ignoreTags = ["STYLE", "SCRIPT"];
     comments = [
         ["//", /(?=[\r\n\u2028\u2029])/],
         ["/*", "*/"],
@@ -213,45 +216,79 @@ class Program {
             queue_push(scope);
         };
         var space_exp = this.space_exp;
+        var scriptTags = this.scriptTags;
+        var ignoreTags = this.ignoreTags;
         var openTag = function () {
-            queue.inTag = true;
             var m1 = text.slice(start, match.index);
             var s = space_exp.exec(m1);
+
             if (s) var tag = m1.slice(0, s.index);
             else {
                 tag = m1;
             }
             if (queue.tag) {
-                if (queue.last.text === quote.tag[1]) {
-                    while (p && p.tag && p.tag !== p.tag) ps.push(p), p = parents[--pi];
-                    if (p && ps.length) {
-                        var pie = queue.pop();
-                        queue.last = pie.prev;
-                        queue = p;
-                        while (ps.length) queue_push(ps.shift());
-                        queue_push(pie);
-                    }
-                    m = tag;
-                    save(PIECE);
-                    queue.closed = true;
-                    var p = queue;
-                    var pi = parents.length;
-                    var ps = [];
+                if (!quote.end.test(m)) return;
+                var qtag = quote.tag[1];
+                if (queue.tag_entry !== qtag) return;
+                var p = queue;
+                var pi = parents.length;
+                var ps = [];
+                for (var cx = 0, dx = parents.length; cx < dx; cx++) {
+                    if (parents[cx].tag) break;
                 }
+                while (pi >= cx && p.tag !== tag) {
+                    ps.push(p);
+                    p = parents[--pi];
+                }
+                if (!p.tag) {
+                    if (queue.waitTag) return;
+                    pi++;
+                    var scope = [];
+                    scope.entry = queue.tag_entry;
+                    scope.tag_leave = queue.tag_leave;
+                    scope.tag = tag;
+                    scope.inTag = true;
+                    scope.type = ELEMENT;
+                }
+                else {
+                    p.tag_entry = queue.tag_entry;
+                    p.closed = true;
+                    p.inTag = true;
+                }
+                if (pi < parents.length) parents.splice(pi, parents.length - pi);
+                queue = p;
+                while (ps.length) {
+                    var q = ps.pop();
+                    if (q.tag) q.type = ELEMENT;
+                    queue_push(q);
+                }
+                if (scope) queue = scope;
+                return true;
+            }
 
+            queue.inTag = true;
+            queue.tag = tag;
+            var tagName = tag.toUpperCase();
+            if (scriptTags.indexOf(tagName) >= 0) {
+                queue.waitTag = tagName;
+                queue.type = SCOPED;
             }
-            else {
-                queue.tag = tag;
-                m = m1;
-                save(PIECE);
+            else if (ignoreTags.indexOf(tagName) >= 0) {
+                queue.waitTag = tagName;
             }
-            if (queue.closed) {
-                index = match.index;
+            if (s) {
+                m = m1.slice(s[0].length + s.index);
+                if (m) save(PIECE);
             }
+            queue.first = null;
+            queue.last = null;
+            return true;
         };
         var closeTag = function () {
             queue.inTag = false;
             if (queue.closed) return;
+            if (queue.length) queue.attributes = queue.splice(0, queue.length);
+            if (/^\//.test(m)) return queue.short = true, queue.closed = true;
             return false;
         };
         var push_quote = function () {
@@ -278,7 +315,20 @@ class Program {
             queue_push(scope);
             lasttype = scope.type;
         }
-
+        var push_piece = function (index = match.index) {
+            if (index > start) {
+                var piece = queue[queue.length - 1];
+                if (piece && piece.type === PIECE) {
+                    piece.text = text.slice(piece.start, index);
+                    piece.end = match.index;
+                }
+                else {
+                    m = text.slice(start, index);
+                    save(PIECE);
+                }
+            }
+            m = match[0];
+        }
         loop: while (index < text.length) {
             if (queue.type === QUOTED) {
                 var quote = this.quote_map[queue.entry];
@@ -294,16 +344,25 @@ class Program {
                     var m = match[0];
                     index = match.index + m.length;
                     if (quote.tag && queue.inTag === 0) {
-                        openTag();
-                        index = start = match.index;
+                        if (openTag()) {
+                            if (queue.type === ELEMENT) break;
+                            start = index = match.index;
+                        }
+                        else queue.inTag = false;
+
                         continue;
                     }
                     if (quote.end.test(m)) {
                         end = match.index;
-                        if (queue.tag && closeTag() === false) {
-                            save(PIECE);
-                            start = index;
-                            continue loop;
+                        if (queue.tag) {
+                            if (!queue.inTag) continue;
+
+                            if (closeTag() === false) {
+                                start = index;
+                                queue.tag_leave = m;
+                                continue loop;
+                            }
+                            queue.type = ELEMENT;
                         }
                         queue.leave = m;
                         if (start < end) {
@@ -314,8 +373,12 @@ class Program {
                     }
                     a: if (quote.tag) {
                         var mi = quote.tag.indexOf(m);
-                        if (mi < 0) break a;
+                        if (mi < 0) {
+                            break a;
+                        }
                         if (mi === 0) {
+                            if (queue.waitTag) continue;
+                            push_piece();
                             var scope = [];
                             scope.entry = m;
                             scope.type = QUOTED;
@@ -326,12 +389,16 @@ class Program {
                             start = index;
                             continue;
                         }
-                        save(PIECE);
+                        push_piece();
+                        queue.tag_entry = m;
                         queue.inTag = 0;
                         start = index;
                         continue;
                     }
                     if (m in quote.entry) {
+                        if (queue.tag && !queue.inTag && queue.waitTag) {
+                            continue;
+                        }
                         push_quote();
                         continue loop;
                     }
@@ -340,6 +407,7 @@ class Program {
                 pop_parents();
                 continue;
             }
+
             var reg = this.entry_reg;
             var start = reg.lastIndex = index;
             var match = reg.exec(text);
@@ -349,6 +417,18 @@ class Program {
             var m = match[0];
             test: if (this.quote_map.hasOwnProperty(m)) {
                 var last = queue.last;
+                var quote = this.quote_map[m];
+                if (queue.tag && quote.tag) {
+                    var tagend = end + queue.tag.length
+                    var leavem = quote.entry[m];
+                    if (text.slice(end, tagend) === queue.tag && text.slice(tagend, tagend + leavem.length) === leavem) {
+                        push_piece();
+                        queue.type = QUOTED;
+                        queue.inTag = 0;
+                        queue.tag_entry = m;
+                        break test;
+                    }
+                }
                 if (this.stamp_reg.test(m) && last) {
                     if ((VALUE | EXPRESS) & last.type) break test;
                     if (last.type === QUOTED && !last.tag) break test;
@@ -356,7 +436,6 @@ class Program {
                     if (lasttype === STAMP && m === last.text) break test;
                 }
                 var scope = [];
-                var quote = this.quote_map[m];
                 scope.type = this.comment_entry.test(m) ? COMMENT : QUOTED;
                 scope.isExpress = queue.inExpress;
                 scope.start = start;
@@ -402,7 +481,7 @@ class Program {
                 continue;
             }
             var parent = parents[parents.length - 1];
-            if (parent && this.quote_map[parent.entry] && queue.leave_map[m] === queue.entry) {
+            if (parent && this.quote_map[parent.entry] && queue.leave_map?.[m] === queue.entry) {
                 delete queue.leave_map;
                 queue.end = end;
                 queue.leave = m;
@@ -523,13 +602,28 @@ class Program {
                 pop_parents();
                 continue;
             }
-            if (this.scope_leave[m]) console.warn(i18n`标记不匹配`, queue.entry, m, "queue:", `${queue.row}:${queue.col}`, "position:", `${row}:${index - colstart}\r\n`, text.slice(queue.start, index));
+            if (this.scope_leave[m]) console.warn(i18n`标记不匹配`, queue.entry, m, "queue-start:", queue.start, "position:", `${row}:${index - colstart}\r\n`, index - queue.start < 200 ? text.slice(queue.start, index) : text.slice(queue.start, queue.start + 100) + "..." + text.slice(index - 97, index));
             if (this.stamp_reg.test(m)) {
                 save(STAMP);
             }
 
         }
-        if (queue !== origin) throw console.log(createString(origin), `\r\n------ deep: ${parents.length} - enrty: ${queue.entry} - length: ${queue.length} - last: ${createString([queue.last])} -----\r\n`, createString([queue])), "代码异常结束";
+        while (queue.tag && parents.length) {
+            for (var cx = 0, dx = parents.length; cx < dx; cx++) {
+                if (parents[cx].tag) break;
+            }
+            var ps = parents.splice(cx, parents.length - cx);
+            ps.push(queue);
+            queue = parents[cx - 1];
+            while (ps.length) {
+                var p = ps.shift();
+                if (p.tag) p.type = ELEMENT;
+                queue_push(p);
+            }
+        };
+        if (queue !== origin) {
+            throw console.log(createString(origin), `\r\n------ deep: ${parents.length}\r\n  --- enrty: ${queue.entry}\r\n  -- length: ${queue.length}\r\n  ---- last: ${createString([queue.last])}\r\n------- end\r\n --parents: ${parents.map(p => p.tag || p.entry || p.text).join('->')}`, createString([queue]).slice(-200)), "代码异常结束";
+        }
         return queue;
     }
     commit() {

@@ -1,7 +1,7 @@
 var fs = require("fs");
 var path = require("path");
 var esprima// = require("../esprima/index");
-// var typescript = require("../typescript/index");
+var typescript// = require("../typescript/index");
 var console = require("../reptile/colored_console");
 var scanner = require("./scanner2");
 var data //= fs.readFileSync(path.join(__dirname, "../typescript/index.js")).toString();
@@ -98,11 +98,38 @@ function testJsx2() {
 function testJsx3() {
     var m = scanner(`return <a></b></c>`);
 }
-function testJsxOnlyHtml() {
-    var m = scanner(`<!-- angular 1.x -->
-    <component1 ng-bind="expression"><child1></child1></component1>`);
-    console.log(m.toString());
+function testJsxOnlyHtml(html) {
+    var m = scanner(html);
+    assert(m.toString(), html);
 }
+testJsxOnlyHtml(`<!-- angular 1.x --><component1 ng-bind="expression"><child1></child1></component1>`)
+testJsxOnlyHtml(`<a #c>bdf</a>`);
+testJsxOnlyHtml(`<a #c>b<c></c></a>`);
+testJsxOnlyHtml(`<c b=x>d</c>`);
+testJsxOnlyHtml(`<o/>`);
+testJsxOnlyHtml(`<o>`);
+testJsxOnlyHtml(`</o>`);
+testJsxOnlyHtml(`<a></o>`);
+testJsxOnlyHtml(`<a></a></o>`);
+testJsxOnlyHtml(`<o><a><b></o>`);
+testJsxOnlyHtml(`<o><a><b><c></o>`);
+testJsxOnlyHtml(`<a><b><c>`);
+testJsxOnlyHtml(`<a></b><c>`);
+testJsxOnlyHtml(`<a>{aa}</c>`);
+testJsxOnlyHtml(`<a {aa}>a</c>`);
+testJsxOnlyHtml(`Let's Crypt`);
+testJsxOnlyHtml(`<h><a #c>b</a><c b=x>d</c><d/><e>2px</e></h>`)
+// testJsxOnlyHtml(`<script></script>`);
+testJsxOnlyHtml("<script>a=`<v>${version[0]}</v>`</script>");
+testJsxOnlyHtml(`<script>var menu=[{name:'aa'}]</script>`);
+testJsxOnlyHtml(`<script><v></v>;var menu=[{name:i18n\`aa\`}]</script>`);
+testJsxOnlyHtml(`<component1 ng-if="expression"> </component1>`);
+testJsxOnlyHtml(`render(){
+    return <Component1 onClick={expression}> </Component1>
+}`);
+testJsxOnlyHtml(`render(){
+    return expression.map((item,index)=><Copoment1></Component1>)
+}`);
 function testSpaceLess() {
     var m = scanner(`if(n<0)return'_f("'+t+'")('+e+")"`);
     console.log(m.toString());
