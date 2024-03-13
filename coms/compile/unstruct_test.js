@@ -125,7 +125,6 @@ test("menus[a+b]()", "_ = a + b; menus[_]()", true);
 test(`switch(a){default: a;case 1:b;}`, 'if (a === 1) return [2, 0]; return [1, 0];\r\n a; return [1, 0];\r\n b; return [1, 0]', true);
 test("loop:{a=b;if(a) continue loop}", "a = b; if (a) return [0, 0]", true);
 test("if(a)try{}finally{}else a;", 'if (!a) return [4, 0]; return [1, 8];\r\n return [0, 9];\r\n return [1, 9];\r\n return [2, 0];\r\n a; return [1, 0]')
-test("if(a)try{}finally{}else;", 'if (!a) return [4, 0]; return [1, 8];\r\n return [0, 9];\r\n return [1, 9];\r\n return [1, 0]');
 test("b:while(t){switch(a){case c:break b;}}", 'if (!t) return [1, 0]; if (a === c) return [1, 0]; return [0, 0]');
 test("predef[key[1]](r.slice(key[0].length).trim())", '_ = key[1]; _0 = key[0].length; _0 = r.slice(_0); _0 = _0.trim(); predef[_](_0)');
 test("predef[key[1]](r.slice())(r.slice())", '_ = key[1]; _0 = r.slice(); _ = predef[_](_0); _0 = r.slice(); _(_0)');
@@ -149,7 +148,8 @@ test(`a[0]-- > 1`, "_ = a[0]--, _ > 1");
 test(`c=b\r\n++a`, "c = b; ++a");
 test(`c=b+\r\n++a`, "_ =\r\n++a, c = b + _");
 test(`c=b+ ++a`, "_ = ++a, c = b + _");
-unstruct.debug = true; r++;
 test(`c=b+ +a`, "_ = +a, c = b + _");
 test(`c=b+ !a`, "_ = !a, c = b + _");
 test(`do {var loadcount = 0;} while (loadcount !== 0);`, `loadcount = 0; _ = loadcount !== 0; if (_) return [0, 0]`);
+unstruct.debug = true; r++;
+test("if(a)try{a}catch{};a;", 'if (!a) return [4, 0]; return [1, 7];\r\n a; return [0, 9];\r\n return [1, 9];\r\n return [1, 0];\r\n a');

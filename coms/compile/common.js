@@ -125,7 +125,15 @@ var skipAssignment = function (o, cx) {
             break;
         case STRAP:
             if (needpunc) {
-                if (!/^(in|instanceof|of|else|as|from)$/.test(o.text)) break loop;
+                if (!/^(in|instanceof|of|else|as|from|catch|finally)$/.test(o.text)) {
+                    break loop;
+                }
+                if (o.text === 'catch') {
+                    next();
+                    if (o && o.entry === '(') next();
+                    needpunc = false;
+                    break;
+                }
                 if (o.text === 'else') {
                     if (!ifdeep) break loop;
                     ifdeep--;
@@ -134,21 +142,16 @@ var skipAssignment = function (o, cx) {
                 next();
                 needpunc = false;
             }
-            else if (/^(try|catch|finally)$/.test(o.text)) {
-                next();
-                if (o.entry === "(") next();
-                next();
-            }
             else if (o.text === 'else') {
                 if (ifdeep <= 0) break loop;
                 ifdeep--;
                 needpunc = false;
                 next();
             }
-            else if (/^(if|while|with|switch)$/.test(o.text)) {
+            else if (/^(if|while|with|switch|try)$/.test(o.text)) {
                 if (o.text === 'if') ifdeep++;
                 next();
-                next();
+                if (o.entry === "(") next();
             }
             else if (o.text === 'do') {
                 next();
