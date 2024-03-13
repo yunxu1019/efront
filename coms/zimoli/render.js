@@ -793,7 +793,11 @@ function renderElement(element, scope = element.$scope, parentScopes = element.$
             constructor = getFromScopes(tagName, scope, parentScopes);
         }
         if (!constructor) {
-            tagName = tagName.replace(/(?:^|\-+)([a-z])/ig, (_, w) => w.toUpperCase());
+            tagName = tagName.replace(/\-+([a-z])/ig, (_, w) => w.toUpperCase());
+            constructor = getFromScopes(tagName, scope, parentScopes);
+        }
+        if (!constructor) {
+            tagName = tagName.replace(/^([a-z])/ig, (_, w) => w.toUpperCase());
             constructor = getFromScopes(tagName, scope, parentScopes);
         }
         if (isFunction(constructor)) {
