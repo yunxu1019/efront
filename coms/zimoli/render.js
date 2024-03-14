@@ -71,13 +71,16 @@ var removeRenderElement = function () {
 function refresh(root) {
     var rest = [];
     var body = document.documentElement;
-    for (var k in renderElements) {
-        var element = renderElements[k];
-        if (root && root.renders) {
+    if (root && root.renders) {
+        for (var k in renderElements) {
+            var element = renderElements[k];
             if (
                 getTargetIn(root, element)
             ) rebuild(element);
-        } else {
+        }
+    } else {
+        for (var k in renderElements) {
+            var element = renderElements[k];
             rebuild(element);
             if (!getTargetIn(body, element)) {
                 rest.push(element);
@@ -697,27 +700,22 @@ var emiters = {
 };
 emiters.v = emiters.ng = emiters.on;
 
-var keysAdapter = [
+var keyAdapters = [
     key => key,
     key => key.toLowerCase(),
-    key => key.replace(/\-+([a-z])/ig, (_, w) => w.toUpperCase()),
-    key => key.replace(/^([a-z])/ig, (_, w) => w.toUpperCase())
+    key => key.replace(/\-+([a-z])/g, (_, w) => w.toUpperCase()),
+    key => key.replace(/^([a-z])/g, (_, w) => w.toUpperCase())
 ];
 function getFromScopes(key, scope, parentScopes) {
-    for (var ka of keysAdapter) {
+    if (!isHandled(key)) return;
+    for (var ka of keyAdapters) {
         key = ka(key);
-        if (scope) if (key in scope) {
-            return scope[key];
-        }
+        if (scope && key in scope) return scope[key];
         if (parentScopes) for (var cx = parentScopes.length - 1; cx >= 0; cx--) {
             var o = parentScopes[cx];
-            if (o && key in o) {
-                return o[key];
-            }
+            if (o && key in o) return o[key];
         }
-        if (key in presets) {
-            return presets[key];
-        }
+        if (key in presets) return presets[key];
     }
 }
 
