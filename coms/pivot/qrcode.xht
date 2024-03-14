@@ -1,10 +1,16 @@
+<style>
+    &[empty] {
+        opacity: .3;
+    }
+</style>
 <canvas width="240" height="240" style="width:240px;height:240px;image-rendering: pixelated;" />
 <script>
     async function loadQRCode() {
-        this.innerHTML = template;
         var o = this.target.data;
+        var url = o?.url;
+        if (!url) return;
+        this.innerHTML = template;
         var canvas = this.firstElementChild;
-        var url = o.url;
         var host = data.getInstance("base");
         var href = host.base + url.replace(/^[\/\\]/, '');
         var qrcode = await init("thirdParty$qrcode");
@@ -20,7 +26,12 @@
         var v = document.createElement("qrcode");
         select(element, v);
         oncemount(v, loadQRCode);
+        oncemount(element, function () {
+            if (this.data?.url) return;
+            this.setAttribute('empty', '');
+        });
         v.tabIndex = 0;
         v.onclick = e => e.preventDefault();
+        return element;
     }
 </script>
