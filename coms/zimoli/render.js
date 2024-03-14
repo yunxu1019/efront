@@ -697,18 +697,27 @@ var emiters = {
 };
 emiters.v = emiters.ng = emiters.on;
 
+var keysAdapter = [
+    key => key,
+    key => key.toLowerCase(),
+    key => key.replace(/\-+([a-z])/ig, (_, w) => w.toUpperCase()),
+    key => key.replace(/^([a-z])/ig, (_, w) => w.toUpperCase())
+];
 function getFromScopes(key, scope, parentScopes) {
-    if (scope) if (key in scope) {
-        return scope[key];
-    }
-    if (parentScopes) for (var cx = parentScopes.length - 1; cx >= 0; cx--) {
-        var o = parentScopes[cx];
-        if (o && key in o) {
-            return o[key];
+    for (var ka of keysAdapter) {
+        key = ka(key);
+        if (scope) if (key in scope) {
+            return scope[key];
         }
-    }
-    if (key in presets) {
-        return presets[key];
+        if (parentScopes) for (var cx = parentScopes.length - 1; cx >= 0; cx--) {
+            var o = parentScopes[cx];
+            if (o && key in o) {
+                return o[key];
+            }
+        }
+        if (key in presets) {
+            return presets[key];
+        }
     }
 }
 
@@ -788,18 +797,6 @@ function renderElement(element, scope = element.$scope, parentScopes = element.$
         var { tagName, parentNode, nextSibling } = element;
         // 替换元素
         var constructor = getFromScopes(tagName, scope, parentScopes);
-        if (!constructor) {
-            tagName = tagName.toLowerCase();
-            constructor = getFromScopes(tagName, scope, parentScopes);
-        }
-        if (!constructor) {
-            tagName = tagName.replace(/\-+([a-z])/ig, (_, w) => w.toUpperCase());
-            constructor = getFromScopes(tagName, scope, parentScopes);
-        }
-        if (!constructor) {
-            tagName = tagName.replace(/^([a-z])/ig, (_, w) => w.toUpperCase());
-            constructor = getFromScopes(tagName, scope, parentScopes);
-        }
         if (isFunction(constructor)) {
             var replacer = constructor.call(scope, element, scope, parentScopes);
             if (isNode(replacer) && element !== replacer) {

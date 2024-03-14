@@ -21,19 +21,14 @@ var gosrc = function () {
     if (this.hasAttribute && this.hasAttribute('src')) {
         src = this.getAttribute('src');
     }
-    if (src !== this._src) {
+    if (src !== this.$src) {
         change.call(this, src);
-        this._src = src;
+        this.$src = src;
     }
 };
 function container(element) {
-    var src;
-    if (element && element.hasAttribute('src')) {
-        src = element.getAttribute('src');
-    }
     var comment = document.createComment('container');
-    comment.src = src;
     comment.$struct = element.$struct;
-    comment.renders = [gosrc];
+    care(comment, gosrc);
     return comment;
 }
