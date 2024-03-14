@@ -1,1 +1,1 @@
-toBase64
+a => toBase64(encodeUTF8(String(a)));

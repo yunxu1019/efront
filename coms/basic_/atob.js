@@ -1,1 +1,1 @@
-fromBase64
+b => decodeUTF8(fromBase64(b));
