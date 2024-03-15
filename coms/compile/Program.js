@@ -111,7 +111,7 @@ class Program {
     Code = Array;
     transive_reg = /^(new|void|case|break|continue|return|throw|extends|import)$/
     straps = "if,for".split(',');
-    forceend_reg = /^(return|break|continue)$/;
+    forceend_reg = /^(return|break|continue|async)$/;
     classstrap_reg = /^(class)$/;
     extends_reg = /^(extends)$/;
     spaces = spaceDefined;

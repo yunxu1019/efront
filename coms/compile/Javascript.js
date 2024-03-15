@@ -62,7 +62,9 @@ Javascript.prototype.isProperty = function (o) {
             if (prev.isprop) return true;
             return /^(\+\+|\-\-|;)$/.test(prev.text);
         }
-        if (prev.type === EXPRESS && !/\.$/.test(prev.text)) return true;
+        if (prev.type === EXPRESS && !/\.$/.test(prev.text)) {
+            return prev.text !== 'async' || o.text !== 'function';
+        }
         if (prev.type & (SCOPED | VALUE | QUOTED | PROPERTY)) return true;
     }
     if (!prev) return false;
@@ -341,6 +343,11 @@ Javascript.prototype.setType = function (o) {
         last.type = EXPRESS;
         return false;
     }
+    if (last) {
+        if (o.type === STRAP && o.text === "function") {
+            if (last.text === 'async') last.type = last.isend ? EXPRESS : STRAP;
+        }
+    }
     this.fixType(o);
     var queue = o.queue;
     if (queue.isObject || queue.isClass) {
@@ -371,14 +378,10 @@ Javascript.prototype.setType = function (o) {
         }
     }
     if (o.type === PROPERTY || o.isprop);
-    else if (o.type === STRAP && /^(get|set|static)/.test(o.text)) {
+    else if (o.type === STRAP && /^(get|set|static|async)$/.test(o.text)) {
         o.type = EXPRESS;
     }
     if (last) {
-        if (!o.isprop && last.type === STRAP) {
-            if (last.text === 'async' && o.text !== "function")
-                last.type = EXPRESS;
-        }
         if (o.type === STAMP && o.text === "=>") {
             var pp = last.prev;
             if (pp && pp.type === EXPRESS && pp.text === 'async') {
