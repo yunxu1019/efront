@@ -713,6 +713,7 @@ async function getXhtPromise(data, filename, fullpath, watchurls) {
     }
     htmltext = compile$wraphtml(htmltext);
     var jsused = jscope.used;
+    var async = jscope.async ? 'async ' : '';
     var scope = Object.keys(Object.assign({}, scoped.vars, scoped.envs)).filter(e => e in this || e in jsused);
     if (scope.length) {
         var htcode = scanner2(htmltext);
@@ -754,11 +755,15 @@ async function getXhtPromise(data, filename, fullpath, watchurls) {
         default:
             creator = 'document.createElement(';
     }
+    var xhtrender = `elem.innerHTML=template;render(elem,scope);`;
+    xhtrender = async
+        ? `${xhtmain}.call(elem,...args).then(function([template,scope]){${xhtrender}})`
+        : `var [template,scope]=${xhtmain}.call(elem,...args);${xhtrender}`;
     var createElement = tagName
         ? `var elem = ${creator}"${tagName}");`
         : `var elem =isElement(args[0])?args[0]:${creator}"${commName}");`;
     var xht = scope ? `
-var ${xhtmain}=function(){
+var ${xhtmain}=${async}function(){
     ${scope}
     ${jsData}
     return [${htmltext},${xhtmain}];
@@ -766,19 +771,17 @@ var ${xhtmain}=function(){
 function ${commName}(...args){
     ${createElement}
     ${attributes}
-    var [template,scope]=${xhtmain}.call(elem,...args);
-    elem.innerHTML = template;
-    render(elem,scope)
+    ${xhtrender}
     return elem;
 }`: `
-var ${xhtmain}=function(){
+var ${xhtmain}=${async}function(){
     ${jsData}
     return ${htmltext};
 }
 function ${commName}(...args){
     ${createElement}
     ${attributes}
-    elem.innerHTML=${xhtmain}.call(elem,...args);
+    ${xhtrender}
     return elem;
 }`;
     return loadJsBody.call(this, xht, filename, styles, commName, className)
