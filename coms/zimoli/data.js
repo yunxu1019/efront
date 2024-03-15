@@ -594,7 +594,7 @@ var privates = {
         var promise = cachedLoadingPromise[id];
         var temp = JSON.stringify(params);
         var currentTime = +new Date;
-        var loading = null;
+        var loading = promise && promise.loading;
         if (!promise || currentTime - promise.time > 60 || temp !== promise.params || promise.search !== search) {
             var promise = new Promise(function (ok, oh) {
                 if (headers) {
@@ -623,6 +623,10 @@ var privates = {
             var checked = error_check(data);
             var apiMap = api && api.root;
             var trans = api ? api.transpile : getTranspile(url);
+            if (/^\^/.test(selector) && loading.getResponseHeader) {
+                data = loading.getResponseHeader(selector.replace(/^\^/, ''));
+                selector = '';
+            }
             data = transpile(seekResponse(data, selector), trans, apiMap);
             if (isDefined(checked)) {
                 return checked;
