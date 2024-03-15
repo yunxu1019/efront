@@ -8,20 +8,14 @@ var decodeMap = function () {
     return map;
 }();
 function fromBase64(input) {
-    var str = String(input).replace(/[=]+$/, ''); // #31: ExtendScript bad parse of /=
-    for (
-        // initialize result and counters
-        var bc = 0, bs, buffer, idx = 0, output = [];
-        // get next character
-        buffer = str.charAt(idx++);
-        // character found in table? initialize bit storage and add its ascii value;
-        ~buffer && (bs = bc % 4 ? (bs << 6) + buffer : buffer,
-            // and if not first of each 4 characters,
-            // convert the first 8 bits to one ascii character
-            bc++ % 4) ? output.push(255 & bs >> (-2 * bc & 6)) : 0
-    ) {
-        // try to find character in table (0-63, not found => -1)
-        buffer = decodeMap[buffer];
+    input = String(input).replace(/\=+$/, '');
+    var output = [];
+    for (var cx = 0, dx = input.length; cx < dx;) {
+        var block = decodeMap[input.charAt(cx++)] << 18 | decodeMap[input.charAt(cx++)] << 12 | decodeMap[input.charAt(cx++)] << 6 | decodeMap[input.charAt(cx++)];
+        output.push(block >> 16, block >> 8 & 0xff, block & 0xff);
     }
+    cx -= dx;
+    if (cx > 1) output.pop();
+    if (cx > 0) output.pop();
     return output;
 }
