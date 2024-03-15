@@ -444,6 +444,7 @@ class Program {
                     if (last.type === QUOTED && !last.tag) break test;
                     if (last.type === SCOPED && queue.inExpress) break test;
                     if (lasttype === STAMP && m === last.text) break test;
+                    if (last.type === STAMP && /^(\+\+|\-\-)$/.test(last.text)) break test;
                 }
                 var scope = [];
                 scope.type = this.comment_entry.test(m) ? COMMENT : QUOTED;
