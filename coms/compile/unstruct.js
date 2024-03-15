@@ -608,7 +608,7 @@ var _invoke = function (t, getname) {
         }
     }
     if (queue.length) {
-        queue.push(t);
+        if (t.length) queue.push(t);
         flushqueue(result, queue);
     }
     else if (t.length) {
@@ -617,6 +617,7 @@ var _invoke = function (t, getname) {
             t.unshift(...rescan(`${qname}=${qname}`));
             relink(t);
         }
+        t = uncurve(t);
         pushstep(result, t);
     }
     if (ret_) patchresult(result, 0);
@@ -704,7 +705,10 @@ var popexp = function (explist) {
     }
     return [asn, n];
 }
-
+var uncurve = function (c) {
+    if (c.length === 1 && c[0].type === SCOPED && c[0].entry === '(' && canbeOnce(c[0])) c = c[0];
+    return c;
+};
 var ternary = function (body, getname, ret) {
     var eqused = 0;
     var getnextname = function (i) {
@@ -787,7 +791,6 @@ var ternary = function (body, getname, ret) {
             explist = [r];
         }
         else {
-            if (equals.length && bd.length === 1 && bd[0].type === SCOPED && bd[0].entry === '(' && skipAssignment(bd[0], 0) === bd[0].length) bd = bd[0];
             explist = _express(bd, getnextname, equalsend > skip || ret);
         }
     }
@@ -840,6 +843,7 @@ var ternary = function (body, getname, ret) {
             eq.text = "=";
         }
         else an = n;
+        asn = uncurve(asn);
         ass.push(equals[i], ...asn);
         relink(ass);
         if (evals.length) ass[0].set = getnextname(0);
