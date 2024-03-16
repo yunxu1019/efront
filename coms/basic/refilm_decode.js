@@ -257,8 +257,8 @@ function spreadkey(name) {
             name = name.slice(0, commaindex);
         }
     }
-    var [name, key] = scanSlant(name, '/', 0, name.length + 1);
-    return [name, key, needs];
+    var [name, key, holder] = scanSlant(name, '/', 0, name.length + 1);
+    return [name, key, needs, holder];
 }
 function parse(piece) {
     if (/^[\-#]+$/.test(piece[0])) {
@@ -288,6 +288,8 @@ function parse(piece) {
         var {
             name, type, key, value, comment, options,
             size, unit, ratio,
+            holder,
+            do: action,
             needs, checks, repeat, endwith,
             required, inlist, hidden, readonly,
             delete_onempty, delete_onsubmit,
@@ -330,7 +332,7 @@ function parse(piece) {
                     last_type = type;
                 }
             }
-            [name, key, needs] = spreadkey(name);
+            [name, key, needs, holder] = spreadkey(name);
             if (key === undefined && !/^(title|label|headline)$/i.test(type)) key = name;
         }
         if (/^[a-z\d]+\/?\d+$/i.test(type)) {
@@ -419,14 +421,15 @@ function parse(piece) {
         key = is(key);
     }
     else if (typeof name === 'string') {
-        [name, key = name, needs] = spreadkey(name);
+        [name, key = name, needs, holder] = spreadkey(name);
     }
     if (typeof size === 'string') size = parseFloat(size);
     var field = {
         name, type, key, value, comment, options,
-        size, unit, ratio,
+        size, unit, ratio, holder,
         needs, checks, repeat, endwith,
         required, inlist, hidden, readonly,
+        do: action,
         delete_onempty, delete_onsubmit,
     };
     var parent = piecepath[piecepath.length - 1];

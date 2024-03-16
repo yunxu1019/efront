@@ -30,6 +30,7 @@ var copyOptionData = function () {
 var renderModel = function (field, data) {
     var ipt = this;
     ipt.setAttribute("ng-model", "data[field.key]");
+    ipt.setAttribute("placeholder_", "field.holder");
     render(ipt, {
         field,
         data
