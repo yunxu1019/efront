@@ -25,28 +25,28 @@ function getTmpvar(explist) {
 }
 var autoDefine = false;
 function createSeek(express, split = true) {
-    var tmpvar = 'a', undef = '_', _null = '$';
+    var tmpvar = 'a', undef = '_';
     if (express.length <= 1) return express[0];
     var notmp = !/[\.\[\(\{]/.test(express[0]);
     if (express.length === 2) {
         if (split && /^\?/.test(express[1])) {
             if (notmp) return `typeof ${tmpvar}!=='undefined'&&${tmpvar}!==null?${tmpvar}:${express[1].slice(1)}`;
-            return `function(${tmpvar},${undef}){return ${tmpvar}===${undef}||${tmpvar}===null?${express[1].slice(1)}:${tmpvar}}(${express[0]})`;
+            return `function(${tmpvar},${undef}){return ${tmpvar}==${undef}?${express[1].slice(1)}:${tmpvar}}(${express[0]})`;
         }
         if (notmp) {
             tmpvar = express[0];
             if (autoDefine) {
                 return `typeof ${tmpvar}==='undefined'||${tmpvar}===null?void 0:${tmpvar}${express[1]}`;
             }
-            return `${tmpvar}===void 0||${tmpvar}===null?void 0:${tmpvar}${express[1]}`;
+            return `${tmpvar}==null?void 0:${tmpvar}${express[1]}`;
         };
-        return `function(${tmpvar},${undef}){return ${tmpvar}===${undef}||${tmpvar}===null?${undef}:${tmpvar}${express[1]}}(${express[0]})`;
+        return `function(${tmpvar},${undef}){return ${tmpvar}==${undef}?${undef}:${tmpvar}${express[1]}}(${express[0]})`;
     }
     if (!split) {
         var dist = express.slice(1).map((search, i, a) => {
-            return `if(${tmpvar}===${undef}||${tmpvar}===${_null})return;${tmpvar}=${tmpvar}${search};`;
+            return `if(${tmpvar}==${undef})return;${tmpvar}=${tmpvar}${search};`;
         }).join('');
-        dist = `function(${tmpvar},${_null},${undef}){${dist}return ${tmpvar}}(${express[0]},null)`;
+        dist = `function(${tmpvar},${undef}){${dist}return ${tmpvar}}(${express[0]})`;
         if (notmp && autoDefine) {
             dist = `typeof ${express[0]}==='undefined'&&${express[0]}===null?void 0:${dist}`;
         }
@@ -59,7 +59,7 @@ function createSeek(express, split = true) {
     tmpvar = getTmpvar(explist);
     var dist = explist.slice(0, explist.length - 1).map(express => {
         var dist = createSeek(express, false);
-        return `${tmpvar}=${dist};if(${tmpvar}!==void 0&&${tmpvar}!==null)return ${tmpvar};`;
+        return `${tmpvar}=${dist};if(${tmpvar}!=null)return ${tmpvar};`;
     }).join("") + `return ${createSeek(explist[explist.length - 1], false)}`;
     return `function(${tmpvar}){${dist}}()`;
 }
