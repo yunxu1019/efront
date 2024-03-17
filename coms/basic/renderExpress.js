@@ -2,7 +2,7 @@ function splitSeek(express) {
     var dist = [];
     var x = 0;
     express.forEach((e, i) => {
-        if (i > x && /\?/.test(e)) {
+        if (i > x && /^\?/.test(e)) {
             var exp = express.slice(x, x = i);
             dist.push(exp);
         }

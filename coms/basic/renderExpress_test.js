@@ -9,3 +9,5 @@ assert(renderExpress("a?.b??b?.c", false), "(function(b0){b0=a===void 0||a===nul
 assert(renderExpress("[]?.a"), "(function(a,_){return a===_||a===null?_:a.a}([]))")
 assert(renderExpress("[]?.()"), "(function(a,_){return a===_||a===null?_:a()}([]))")
 assert(renderExpress("[]?.[]"), "(function(a,_){return a===_||a===null?_:a[]}([]))")
+assert(renderExpress("a['a?.a']"), "a['a?.a']")
+assert(renderExpress("a?.['a?.a']?.b"), "(typeof a==='undefined'&&a===null?void 0:function(a,$,_){if(a===_||a===$)return;a=a['a?.a'];if(a===_||a===$)return;a=a.b;return a}(a,null))")
