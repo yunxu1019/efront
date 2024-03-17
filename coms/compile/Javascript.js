@@ -41,7 +41,7 @@ class Javascript extends Program {
     value_reg = /^(false|true|null|Infinity|NaN|undefined|eval)$/
     transive_reg = /^(new|var|let|const|yield|void|in|of|typeof|delete|case|return|await|default|instanceof|throw|extends|import|from)$/
     strapexp_reg = /^(new|void|typeof|delete|class|function|await)/;
-    forceend_reg = /^(return|yield|break|continue|debugger)$/;
+    forceend_reg = /^(return|yield|break|continue|debugger|async)$/;
     classstrap_reg = /^(class|function|async)$/;
     colonstrap_reg = /^(case|default)$/;
 
@@ -264,21 +264,21 @@ Javascript.prototype.detectLabel = function (o) {
     var type = o.type;
     var colonstrap_reg = this.colonstrap_reg;
     var end = o.end;
-
+    var inExpress = queue.inExpress;
     if (type === SPACE);
     else if (type !== STAMP);
     else if (m === ";") {
         if (last && last.isend === false) last.isend = true;
-        queue.inExpress = false;
+        inExpress = false;
     }
     else if (last) check: switch (m) {
         case "?":
-            queue.inExpress = true;
+            inExpress = true;
             if (!queue.question) queue.question = 1;
             else queue.question++;
             break;
         case "=":
-            queue.inExpress = true;
+            inExpress = true;
             if (last.type === SCOPED && last.entry === "{") {
                 if (!last.isObject) {
                     setObject(last);
@@ -290,34 +290,34 @@ Javascript.prototype.detectLabel = function (o) {
                     last.short = true;
                 }
             }
-            queue.inExpress = true;
+            inExpress = true;
             break;
         case ":":
             if (queue.question) {
                 queue.question--;
-                queue.inExpress = true;
+                inExpress = true;
                 break;
             }
             if (queue.isObject) {
                 if (last.type === PROPERTY || last.isprop) {
-                    queue.inExpress = true;
+                    inExpress = true;
                     break;
                 }
                 if (last.type === SCOPED && (!last.prev || !last.prev.type === STAMP && last.prev.text === ",")) {
-                    queue.inExpress = true;
+                    inExpress = true;
                 }
                 break;
             }
             var temp = last;
             while (temp) {
                 if (temp.type === STRAP && colonstrap_reg.test(temp.text)) {
-                    queue.inExpress = false;
+                    inExpress = false;
                     break check;
                 }
                 if (!temp.isExpress) break;
                 temp = temp.prev;
             }
-            queue.inExpress = false;
+            inExpress = false;
             if (last.type & (EXPRESS | STRAP | VALUE | QUOTED)) {
                 // label
                 last.type = LABEL;
@@ -327,12 +327,15 @@ Javascript.prototype.detectLabel = function (o) {
             }
             break;
         default:
-            queue.inExpress = true;
+            inExpress = true;
     }
     else {
-        queue.inExpress = true;
+        inExpress = true;
     }
-    o.isExpress = queue.inExpress;
+    if (inExpress !== queue.inExpress) {
+        o.isExpress = queue.inExpress = inExpress;
+        if (o.text === 'async') console.log(o.isExpress, queue.isExpress, 'label');
+    }
 }
 
 Javascript.prototype.setType = function (o) {
@@ -345,7 +348,7 @@ Javascript.prototype.setType = function (o) {
     }
     if (last) {
         if (o.type === STRAP && o.text === "function") {
-            if (last.text === 'async') last.type = last.isend ? EXPRESS : STRAP;
+            if (last.text === 'async' && !last.isend) last.type = STRAP;
         }
     }
     this.fixType(o);
@@ -385,7 +388,7 @@ Javascript.prototype.setType = function (o) {
         if (o.type === STAMP && o.text === "=>") {
             var pp = last.prev;
             if (pp && pp.type === EXPRESS && pp.text === 'async') {
-                pp.type = STRAP;
+                if (!pp.isend) pp.type = STRAP;
             }
         }
     }

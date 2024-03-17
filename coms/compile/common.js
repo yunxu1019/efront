@@ -257,13 +257,14 @@ function snapSentenceHead(o) {
                 if (pp && pp.type === EXPRESS) pp = pp.prev;
                 if (pp && pp.type === STRAP && pp.text === 'function') {
                     o = pp;
+                    pp = pp.prev;
                     continue;
                 }
             }
             break;
         }
         if (p.type === STRAP) {
-            if (/^(?:new|void|typeof|delete|await|var|let|const|class|function)$/.test(p.text)) {
+            if (/^(?:new|void|typeof|delete|await|var|let|const|class|function|async)$/.test(p.text)) {
                 o = p;
                 continue;
             }
@@ -548,15 +549,16 @@ var createScoped = function (parsed, wash) {
                         case "static":
                         case "function":
                             isFunction = true;
-
-                            if (o.prev && o.prev.text === 'async') {
+                            var op = o.prev;
+                            if (op?.type === STRAP && op.text === 'async') {
                                 isAsync = true;
+                                o.isExpress = op.isExpress;
                             }
                             function_obj = o;
                             if (o.next.type === STAMP) {
                                 isAster = true;
                                 o = o.next;
-                                o.isExpress = o.prev.isExpress;
+                                o.isExpress = op.isExpress;
                             }
                         case "catch":
                             if (s === 'catch') isCatch = true;
@@ -1101,11 +1103,13 @@ var createString = function (parsed) {
                 if (keepspace && !opentmp) {
                     if (patchspace && lasttype !== SPACE && lasttype !== EXPRESS) result.push(" ");
                     result.push(tmp);
+                    if (/^\/\//.test(tmp)) lasttype = COMMENT;
                 }
                 break;
             case SPACE:
-                if (!autospace || keepspace) {
-                    result.push(o.text);
+                a: if (!autospace || keepspace || lasttype === COMMENT) {
+                    if (lasttype === COMMENT || !parsed.pressed || o.next?.type !== STRAP || o.next?.text !== 'return') result.push(o.text);
+                    else break a;
                     lasttype = SPACE;
                     break;
                 }
