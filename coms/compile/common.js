@@ -1107,9 +1107,8 @@ var createString = function (parsed) {
                 }
                 break;
             case SPACE:
-                a: if (!autospace || keepspace || lasttype === COMMENT) {
-                    if (lasttype === COMMENT || !parsed.pressed || o.next?.type !== STRAP || o.next?.text !== 'return') result.push(o.text);
-                    else break a;
+                if (!autospace || keepspace || lasttype === COMMENT) {
+                    result.push(o.text);
                     lasttype = SPACE;
                     break;
                 }
