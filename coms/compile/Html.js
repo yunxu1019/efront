@@ -17,6 +17,8 @@ const {
     /*1024 */PROPERTY,
     /*2048 */ELEMENT,
     createScoped,
+    createString,
+    relink,
 } = require("./common");
 var ignore = { test() { return false } };
 var property = new Program;
@@ -123,7 +125,7 @@ Html.prototype.createScoped = function (code) {
                         var nn = c.next.next;
                         if (!nn || nn.length > 0) return;
                         if (nn.type === EXPRESS || nn.type === QUOTED) {
-                            vars[strings.decode(nn.text)] = true;
+                            vars[strings.decode(createString([nn]))] = true;
                         }
                     }
                 }
@@ -184,17 +186,22 @@ Html.prototype.createScoped = function (code) {
         var root = rootNodes[0];
         scoped.tagName = root.tagName;
         var attrs = rootNodes[0].attributes;
+        var attributes = [];
+        relink(attrs);
         if (attrs) for (var a of attrs) {
             if (a.type === PROPERTY) {
-                a.name = a.text;
+                var at = { name: a.text };
+                attributes.push(at);
                 var n = a.next;
                 if (!n) continue;
                 if (n.type !== STAMP || n.text !== '=') continue;
                 var nn = n.next;
+                if (nn.type === PROPERTY) continue;
                 if (!nn) continue;
-                a.value = nn.text;
+                at.value = this.createString([nn]);
             }
         }
+        scoped.attributes = attributes;
         scoped.innerHTML = this.createString(rootNodes[0]);
     }
     else {
