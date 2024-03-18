@@ -1105,7 +1105,7 @@ var createString = function (parsed) {
                     result.push(tmp);
                     if (/^\/\//.test(tmp)) lasttype = COMMENT;
                 }
-                break;
+                return;
             case SPACE:
                 if (!autospace || keepspace || lasttype === COMMENT) {
                     result.push(o.text);
