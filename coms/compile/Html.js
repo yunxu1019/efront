@@ -187,7 +187,7 @@ Html.prototype.createScoped = function (code) {
         scoped.tagName = root.tagName;
         var attrs = rootNodes[0].attributes;
         var attributes = [];
-        relink(attrs);
+        if (attrs) relink(attrs);
         if (attrs) for (var a of attrs) {
             if (a.type === PROPERTY) {
                 var at = { name: a.text };
