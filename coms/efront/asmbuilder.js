@@ -21,7 +21,7 @@ function clean() {
 function enterqueue(name, type, row) {
     if (procsMap[name] || datas[name]) {
         console.log(row)
-        throw new Error(i18n`重复定义：${name}`);
+        throw new Error(i18n`重复定义: ${name}`);
     }
     procsMap[name] = queue.length
 
@@ -66,7 +66,7 @@ function adddata(name, row) {
     }
     lastdata = name;
     if (name in datas || name in procsMap) {
-        throw new Error(i18n`重复定义:${name}`);
+        throw new Error(i18n`重复定义: ${name}`);
     }
     datas[name] = row;
 }

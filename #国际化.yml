@@ -65,7 +65,7 @@
   en:    Time consumption
 
 - zh-CN: 毫秒
-  en:    millisecond
+  en:    ms
 
 - zh-CN: 发现可能被覆盖的路径
   en:    Discovering paths that may be covered
@@ -286,7 +286,7 @@
 - zh-CN: 无法加载数据！
   en:    Unable to load data!
 
-- zh-CN: 重复定义：$1
+- zh-CN: "重复定义: $1"
   en:    "Duplicate definition: $1"
 
 - zh-CN: "路径不存在:"
@@ -530,7 +530,7 @@
   en:    "It's not your turn to operate now!"
 
 - zh-CN: 完成，用时$1秒$2。
-  en:    "Complete! Time Used: $1s $2"
+  en:    "Complete! Time Used: $1s$2"
 
 - zh-CN: ，占用内存 $1
   en:    ", Memory Used: $1"
@@ -788,10 +788,10 @@
   en:    $1 already exists.
 
 - zh-CN: "文件$1用到可能不存在的外部模块: $2"
-  en:    "Outside Modules not found in File $1: $2"
+  en:    "Outside Modules not found in file$1: $2"
 
 - zh-CN: "文件$1用到可能不存在的外部变量: $2"
-  en:    "Outsize Variables not found in File $1: $2"
+  en:    "Outsize Variables not found in file$1: $2"
 
 - zh-CN: 六十进制
   en:    Sexagesimal
@@ -1217,7 +1217,7 @@
   en:    INFO
 
 - zh-CN: 注意
-  en:    WARN
+  en:    NOTICE
 
 - zh-CN: 错误
   en:    ERROR
@@ -1382,7 +1382,10 @@
   en:    "The commands that can be used are:"
 
 - zh-CN: 如要显示更具体的信息，请使用:$1
-  en:    
+  en:    "To show more messages, used"
+
+- zh-CN: 是
+  en:    is
 
 - zh-CN: 目前没有与 $1 相关的帮助信息！
   en:    There is currently no help information related to $1!

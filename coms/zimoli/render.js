@@ -327,7 +327,7 @@ var createIf = function (search, id = 0) {
 var parseIfWithRepeat = function (ifExpression, repeatExpression) {
     var repeater = parseRepeat(repeatExpression);
     if (!repeater) {
-        throw new Error(i18n`不能识别循环表达式：${repeat}`);
+        throw new Error(i18n`不能识别循环表达式: ${repeat}`);
     }
     var pair = [];
     var rest = [], savedIndex = 0;

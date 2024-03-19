@@ -356,6 +356,7 @@
         key: "filter",
         options: [
             {
+                disabled: true,
                 name: i18n`只看中文`, key: "cnonly", get checked() {
                     return true;
                 },
@@ -366,7 +367,7 @@
                     return !!a.fanyi || /[\u3400-\ufad9\u{20000}-\u{2a6d6}\u{2fa1d}]/u.test(a.text);
                 }
             }
-        ]
+        ].filter(a => !a.disabled)
     };
     var tableData = [];
     var runFilter = function () {

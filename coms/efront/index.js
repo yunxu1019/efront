@@ -196,7 +196,7 @@ var showTopicInfo = function (commands, prefix = '') {
         }
         return w;
     }));
-    var tips1 = Object.keys(tips).map(a => ` ${a} 是${tips[a][0]}`);
+    var tips1 = Object.keys(tips).map(a => ` ${a} ${i18n`是`}${tips[a][0]}`);
     if (tips1.length > 1) return showHelpLine(prefix + tips1.join(","));
     tips1 = tips1[0];
     var tips = tips[Object.keys(tips)[0]];
@@ -493,7 +493,7 @@ var commands = {
             showHelpLine(i18n`可以使用的命令有：`);
             helps.forEach(({ info, commands, hide }) => !hide && showHelpLine(`efront ${commands[0]}${" ".repeat(length - commands[0].length)} ${info}`));
             showHelpLine(i18n`如要显示更具体的信息，请使用:${" efront help COMMAND|VARIABLES"}`)
-            showTopicInfo("COMMAND|VARIABLES", `其中`);
+            showTopicInfo("COMMAND|VARIABLES", i18n`其中`);
             return;
         }
         if (value1.toLowerCase() in helps) {

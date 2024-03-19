@@ -75,7 +75,7 @@ module.exports = function (root) {
             return 0;
         });
         var isFolder = fs.statSync(root).isDirectory();
-        var name = isFolder ? i18n`路径` : `文件`;
+        var name = isFolder ? i18n`路径` : i18n`文件`;
         var cyan = console.format(`<cyan>;</cyan>`).split(';');
         var white = console.format(`<white>;</white>`).split(';');
         if (!args.length) {
