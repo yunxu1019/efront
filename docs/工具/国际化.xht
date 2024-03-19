@@ -356,6 +356,13 @@
         key: "filter",
         options: [
             {
+                name: i18n`过滤空串`,
+                checked: true,
+                test(a) {
+                    return !!a.fanyi || /\S/.test(a.text);
+                }
+            },
+            {
                 disabled: true,
                 name: i18n`只看中文`, key: "cnonly", get checked() {
                     return true;
