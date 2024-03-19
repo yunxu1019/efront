@@ -154,3 +154,4 @@ test(`do {var loadcount = 0;} while (loadcount !== 0);`, `loadcount = 0; _ = loa
 unstruct.debug = true; r++;
 test("if(a)try{a}catch{};a;", 'if (!a) return [4, 0]; return [1, 7];\r\n a; return [0, 9];\r\n return [1, 9];\r\n return [1, 0];\r\n a');
 test("url = (o===void 0||o===null?void 0:o.url)", '_ = void 0, _ = o === _; if (_) return [1, 0]; _ = o === null;\r\n if (!_) return [1, 0]; _ = void 0; return [2, 0];\r\n _ = o.url; return [1, 0];\r\n url = _', true);
+test("p ? (ishttps ? `https` : `http`).toUpperCase() + i18n`端口` + (ishttps ? ': ' : ':  ') + p : ''","if (!p) return [1, 0]; if (!ishttps) return [1, 0]; _0 = `https`; return [2, 0];\r\n _0 = `http`; return [1, 0];\r\n _0 = (_0); _1 = _0.toUpperCase(); _ = _1 + i18n`端口`; if (!ishttps) return [1, 0]; _2 = ': '; return [2, 0];\r\n _2 = ':  '; return [1, 0];\r\n _ = _ + (_2), _ = _ + p; return [2, 0];\r\n ''; return [1, 0]")

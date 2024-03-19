@@ -480,8 +480,9 @@ var _return = function (r) {
     r.push(...x);
     relink(r);
 };
+
 var remove_end_comma = function (o) {
-    if (!o.length || o.type !== SCOPED || o.entry === '[') return;
+    if (!o.length || (o.type !== void 0) && o.type !== SCOPED || o.entry === '[') return;
     for (var cx = o.length - 1; cx >= 0; cx--) {
         var m = o[cx];
         if (!(m.type & (SPACE | COMMENT))) {
@@ -570,6 +571,11 @@ var _invoke = function (t, getname) {
                 }
                 if (!iseval || m[m.length - 1] === o.last) {
                     var q = toqueue(m, getdeepname, 1);
+                    if (q.length > 1 && queue.length) {
+                        var q0 = q[0];
+                        var q0f = q0.first;
+                        if (q0f?.type === STRAP && !q0f.transive) remove_end_comma(queue[queue.length - 1]);
+                    }
                     var qe = q[q.length - 1];
                     splice(o, by, ey - by, ...qe ? cloneNode(qe.name) : []);
                     cy = by + 1;
@@ -588,8 +594,7 @@ var _invoke = function (t, getname) {
             nameindex = _nameindex;
             // if (!cache.length) continue;
             if (queue.length) flushqueue(result, queue), queue = [];
-            for (var c of cache) pushstep(result, c);
-            cache = [];
+            if (cache.length) flushqueue(result, cache), cache = [];
             var n = o.next;
             if (n && !needbreak(n)) {
                 lastlink = n.type === SCOPED;
