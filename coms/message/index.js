@@ -7,7 +7,7 @@ var net = require("net");
 // 子进程可通过message的属性访问主进程中的方法
 var onmessage = async function ([key, params, stamp], handle) {
     var run = onmessage[key];
-    if (!run) throw `未定义方法 ${key}`;
+    if (!run) throw i18n`未定义方法 ${key}`;
     if (!stamp) try {
         return await run.call(this, params, handle);
     } catch (e) {

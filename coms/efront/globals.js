@@ -53,6 +53,7 @@ var iemiss = {
     Proxy: null,
     Reflect: null,
     WeakMap: null,
+    FileReader: null,
     queueMicrotask: null,
     atob: null, btoa: null,
 };
@@ -120,6 +121,6 @@ MOVELOCK_DELTA,SAFE_CIRCLE_DEPTH,
 init,versionTree,responseTree,loadingTree,
 loadedModules,load,devicePixelRatio,
 renderPixelRatio,efrontsign,put
-efrontPath,
+efrontPath,createFunction,
 px2offset,offset2px,pt2offset,offset2pt`;
 setGlobal(efrontBuiltins, colors.FgCyan2);

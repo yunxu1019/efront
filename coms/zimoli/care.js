@@ -13,7 +13,7 @@ function care(target, type, listener) {
     var listeners = target[type];
     if (listeners.length && !allowMultiHandle) return;
     if (listener instanceof Function && !~listeners.indexOf(listener)) {
-        if (listeners.length > 600) throw new Error("请不要在同一个对象上使用过多的同类型的care!");
+        if (listeners.length > 600) throw new Error(i18n`请不要在同一个对象上使用过多的同类型的care!`);
         listeners.push(listener);
     }
 }
@@ -42,9 +42,9 @@ function parse(target, type, listener) {
             }
             break;
         default:
-            throw new Error("参数数量不正确");
+            throw new Error(i18n`参数数量不正确`);
     }
-    if (!isObject(target)) throw new Error("care只能使用在对象上！");
+    if (!isObject(target)) throw new Error(i18n`care只能使用在对象上！`);
     type = `care(${type})`;
     return [target, type, listener, allowMultiHandle];
 }

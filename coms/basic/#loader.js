@@ -670,16 +670,16 @@ var initPixelDecoder = function () {
     if (pixelDecoder instanceof Function) {
         modules.fromPixel = pixelDecoder;
         modules.freePixel = window.freePixel || function () {
-            throw new Error("您在window上实现了pixelDecoder，请手动实现相应的freePixel!");
+            throw new Error(`您在window上实现了pixelDecoder，请手动实现相应的freePixel!`);
         };
         modules.calcPixel = window.calcPixel || function () {
-            throw new Error("您在window上实现了pixelDecoder，请手动实现相应的calcPixel!");
+            throw new Error(`您在window上实现了pixelDecoder，请手动实现相应的calcPixel!`);
         };
         modules.fromOffset = window.fromOffset || function () {
-            throw new Error("您在window上实现了pixelDecoder，请手动实现相应的fromOffset!");
+            throw new Error(`您在window上实现了pixelDecoder，请手动实现相应的fromOffset!`);
         };
         modules.freeOffset = window.freeOffset || function () {
-            throw new Error("您在window上实现了pixelDecoder，请手动实现相应的freeOffset!");
+            throw new Error(`您在window上实现了pixelDecoder，请手动实现相应的freeOffset!`);
         };
         return;
     }

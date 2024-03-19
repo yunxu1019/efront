@@ -5,7 +5,7 @@ a: if (!setPrototypeOf) {
     var getOwnPropertyNames = Object.getOwnPropertyNames;
     var defineProperty = Object.defineProperty;
     try {
-        if (!getOwnPropertyNames) throw '不支持';
+        if (!getOwnPropertyNames) throw i18n`不支持`;
         defineProperty({}, 'o', { value: 0 });
         setPrototypeOf = function (obj, proto) {
             var names = getOwnPropertyNames(proto)
@@ -22,7 +22,7 @@ a: if (!setPrototypeOf) {
         getOwnPropertyNames = null;
     }
     // <!--
-    console.error('当前运行环境使用class extends Array会有难以解决的不兼容性问题，请更换代码的实现方式！');
+    console.error(i18n`当前运行环境使用class extends Array会有难以解决的不兼容性问题，请更换代码的实现方式！`);
     // -->
     setPrototypeOf = function (obj, proto) {
         for (var p in proto) if (hasOwnProperty.call(proto, p) && !(p in obj)) obj[p] = proto[p];

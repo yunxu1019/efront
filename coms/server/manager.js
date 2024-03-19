@@ -6,7 +6,7 @@ message.uptime = function () {
     return process.uptime();
 };
 message.rehost = function () {
-    console.info("服务器重启");
+    console.info(i18n`服务器重启`);
     var argv = process.__proto__ && process.__proto__.argv || process.argv;
     if (message.quit) message.quit();
     else process.exit();

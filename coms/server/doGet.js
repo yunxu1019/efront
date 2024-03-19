@@ -36,7 +36,7 @@ var filecache = new Cache(SERVER_ROOT_PATH, function (data, filename, fullpath) 
     var data = filebuilder.call(this, data, filename, fullpath);
     if (data instanceof Function) {
         if (checkAccess(fullpath)) {
-            throw '请不要在共享路径中创建服务器脚本！';
+            throw i18n`请不要在共享路径中创建服务器脚本！`;
         }
         return data;
     }

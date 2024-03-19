@@ -1,5 +1,5 @@
 var path = window.require && window.require("path");
-if (!path) throw new Error("请运行在有文件操作的环境下");
+if (!path) throw new Error(i18n`请运行在有文件操作的环境下`);
 var getRect = function (points) {
     var minpoint = [].concat(points[0] || []), maxpoint = [].concat(points[points.length - 1] || []);
     var { min, max } = Math;
@@ -64,7 +64,7 @@ var downloadmap = function (rootpath, map_locations, zoom_location, config, info
             cx++;
             return Promise.resolve(ry).then(px);
         };
-        return Promise.all(new Array(10).fill(0).map(e => px())).then(a => (cz++ , ind = inc)).then(pz);
+        return Promise.all(new Array(10).fill(0).map(e => px())).then(a => (cz++, ind = inc)).then(pz);
     };
     pz();
 };

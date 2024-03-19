@@ -1,10 +1,10 @@
 <div head>
-    <span v-text="origin?'修改':'添加'"></span>文件夹
+    <span v-text="origin?${i18n`修改`}:${i18n`添加`}"></span>${i18n`文件夹`}
 </div>
 <div body>
     <field v-if="!f.readonly||!!data[f.key]" -repeat="f in fields" ng-src="[f,data]"></field>
 </div>
 <div foot>
-    <btn @click="remove()" class="white">取消</btn>
-    <button type="submit" disabled_="!data.name||fields[1].valid(data.name)!==undefined">保存</button>
+    <btn @click="remove()" class="white">${i18n`取消`}</btn>
+    <button type="submit" disabled_="!data.name||fields[1].valid(data.name)!==undefined">${i18n`保存`}</button>
 </div>

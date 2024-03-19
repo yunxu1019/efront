@@ -335,7 +335,7 @@ var createPoints = function (values, direction = "x", result = new Point(0)) {
     for (var cx = 0, dx = values.length; cx < dx; cx++) {
         var value = values[cx];
         if (value instanceof Array && value.constructor !== Point) {
-            if (!result.length) throw new Error("数据转换为grid失败！");
+            if (!result.length) throw new Error(i18n`数据转换为grid失败！`);
             createPoints(value, direction === "x" ? "y" : "x", result[result.length - 1]);
         } else {
             var breakpoint = new Point(value);
@@ -401,7 +401,7 @@ var grid_prototype = {
                 targetX = clientX = left + right >> 1;
                 break;
             default:
-                throw new Error("参数不支持", side);
+                throw new Error(i18n`参数不支持`, side);
         }
         this.direction = direction;
         var e = resizer.call(this, { clientX, clientY, target: cell });
@@ -690,7 +690,7 @@ var createPointsFromElements = function (elements, xList, yList) {
             var y1 = yList[cx - 1];
             var y2 = yList[cx];
             var temp = elements.filter(e => e[3] >= y1 && e[4] <= y2);
-            if (temp.length === elements.length) throw new Error("遇到不规则布局，无法自动处理！");
+            if (temp.length === elements.length) throw new Error(i18n`遇到不规则布局，无法自动处理！`);
             if (temp.length > 1) {
                 var children = createPointsFromElements(temp, [xList[0], xList[xList.length - 1]], [y1, y2]);
                 if (children.length) {
@@ -711,7 +711,7 @@ var createPointsFromElements = function (elements, xList, yList) {
             var x1 = xList[cx - 1];
             var x2 = xList[cx];
             var temp = elements.filter(e => e[1] >= x1 && e[2] <= x2);
-            if (temp.length === elements.length) throw new Error("遇到不规则布局，无法自动处理！");
+            if (temp.length === elements.length) throw new Error(i18n`遇到不规则布局，无法自动处理！`);
             if (temp.length > 1) {
                 var children = createPointsFromElements(temp, [x1, x2], [yList[0], yList[yList.length - 1]]);
                 if (children.length) xList.splice(cx, 0, children);

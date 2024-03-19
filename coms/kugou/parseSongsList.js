@@ -1,7 +1,7 @@
 a => {
     if (isElement(a)) {
         var m = /songsdata\s*=\s*(\[[\s\S]*\])/.exec(a.innerText);
-        if (!m) throw new Error("无法加载数据！");
+        if (!m) throw new Error(i18n`无法加载数据！`);
         if (m) a = m[1];
         a = JSON.parse(a);
     }

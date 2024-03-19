@@ -191,7 +191,7 @@ Directory.prototype.get = function (keeys, names) {
     var reloadAfter = async function (promise) {
         await promise;
         await that.promise;
-        if (!that.isloaded) throw `加载${keeys.join('/')}失败！`;
+        if (!that.isloaded) throw i18n`加载${keeys.join('/')}失败！`;
         return that.get(keeys, names);
     };
     var temps = [that];
@@ -368,7 +368,7 @@ File.prototype.update = async function () {
         } catch (e) {
             buffer = e;
             console.log(e);
-            console.error("编译错误:", that.pathname);
+            console.error(i18n`编译错误:`, that.pathname);
         }
     }
 

@@ -19,7 +19,7 @@ function test(size) {
                 ecx: encoded[cx],
                 dcx: decoded[cx],
             })
-            throw new Error("解码异常！");
+            throw new Error(i18n`解码异常！`);
         }
     }
     console.log({

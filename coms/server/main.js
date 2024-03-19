@@ -5,7 +5,7 @@
  */
 require("./manager");
 if (global.Deno) {
-    console.error("服务器功能目前仅在nodejs环境中可用！");
+    console.error(i18n`服务器功能目前仅在nodejs环境中可用！`);
     // require("./waiter");
     return;
 }

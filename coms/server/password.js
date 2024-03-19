@@ -53,14 +53,14 @@ async function requestPassword() {
         var p = await getPassword("输入原密码：");
         clearRow();
         if (!await userdata.checkPassword(p)) {
-            throw "密码不正确！";
+            throw i18n`密码不正确！`;
         }
     }
-    var a = await getPassword("输入新密码：");
+    var a = await getPassword(i18n`输入新密码：`);
     clearRow();
-    var b = await getPassword("确认密码：");
+    var b = await getPassword(i18n`确认密码：`);
     clearRow();
-    if (a !== b) throw '两次输入密码不一致';
+    if (a !== b) throw i18n`两次输入密码不一致`;
     return a;
 }
 module.exports = {

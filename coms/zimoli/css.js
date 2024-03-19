@@ -96,7 +96,7 @@ var cssTargetNode = function (targetNode, oStyle, oValue) {
                         var value = transformValue(oStyle[k], key);
                         setValue(styleobject, key, value);
                     } catch (e) {
-                        console.warn(key, oStyle[k], "无效");
+                        console.warn(key, oStyle[k], i18n`无效`);
                     }
                 }
             }

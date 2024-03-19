@@ -11,7 +11,7 @@ class BitTree extends Array {
             if (a === undefined) a = 1;
             for (var cx = 0, dx = arr.length; cx < dx; cx++)arr[cx] = a;
         }
-        if (!arr || !arr.length) throw new Error("参数错误！");
+        if (!arr || !arr.length) throw new Error(i18n`参数错误！`);
         this.counts = arr;
         this.rebuild();
     }

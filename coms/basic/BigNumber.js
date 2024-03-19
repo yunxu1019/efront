@@ -111,8 +111,8 @@ class BigNumber {
         if (!system_scale) {
             system_scale = 10;
         }
-        if (system_scale === 1) throw new Error("不支持半年级数数进制！");
-        if (system_scale < 1) throw new Error("不支持小于1的进位方针！");
+        if (system_scale === 1) throw new Error(i18n`不支持半年级数数进制！`);
+        if (system_scale < 1) throw new Error(i18n`不支持小于1的进位方针！`);
         var BACK_DIGIT = BigNumber.DECIMAL_DIGIT;
         var digit = value.indexOf('.');
         if (digit < 0) digit = 0;
@@ -153,7 +153,7 @@ class BigNumber {
                 v = +v;
             }
             else v = vmap[v];
-            if (v !== v || v >= system_scale || v !== +v) throw new Error("数据错误！");
+            if (v !== v || v >= system_scale || v !== +v) throw new Error(i18n`数据错误！`);
 
             if (dotOccurs) {
                 num = BigNumber.add(num, BigNumber.div(v, scale, BigNumber.DECIMAL_DIGIT))
@@ -178,7 +178,7 @@ class BigNumber {
         if (收起零) 有效数字位数 = -有效数字位数;
         var zero = system_scale <= 36 ? '0' : '[0]';
         if (!system_scale || system_scale === 10) return this.value || zero;
-        if (system_scale <= 1) throw new Error("进制错误！");
+        if (system_scale <= 1) throw new Error(i18n`进制错误！`);
         var BACK_DIGIT = BigNumber.DECIMAL_DIGIT;
         if (!有效数字位数) 有效数字位数 = Math.ceil((this.digit || BigNumber.DECIMAL_DIGIT) / Math.log10(system_scale));
         BigNumber.DECIMAL_DIGIT = 有效数字位数 + 10 + system_scale;
@@ -262,7 +262,7 @@ class BigNumber {
     static fix(numstr, fractionDigits) {
         fractionDigits = +fractionDigits || 0;
         if (fractionDigits < 0 || fractionDigits > BigNumber.DECIMAL_DIGIT) {
-            throw new Error(`小数位数只能是0和${BigNumber.DECIMAL_DIGIT}之间的数字`);
+            throw new Error(i18n`小数位数只能是0和${BigNumber.DECIMAL_DIGIT}之间的数字`);
         }
         return fixde(numstr, fractionDigits, 4);
     }
@@ -373,7 +373,7 @@ class BigNumber {
     }
     // 按整数除法，超出输入的数字的位数之和
     static div(numstr1, numstr2, decimal) {
-        if (isEmpty(decimal)) throw new Error("请输入保留小数的位数！");
+        if (isEmpty(decimal)) throw new Error(i18n`请输入保留小数的位数！`);
         var [neg1, s11, s12] = prepare(numstr1);
         var [neg2, s21, s22] = prepare(numstr2);
         var d = s12.length + decimal - s22.length;

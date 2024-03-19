@@ -12,7 +12,7 @@ EnumItem.prototype = {
     }
 }
 function Enum() {
-    if (!this) throw new Error("请用new关键字创建！");
+    if (!this) throw new Error(i18n`请用new关键字创建！`);
     return new Proxy({ 0: 0 }, {
         get(o, k) {
             if (isFinite(k)) {

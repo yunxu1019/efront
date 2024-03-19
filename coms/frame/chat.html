@@ -41,8 +41,8 @@
     <a class="file" @click="chooseFile()" -if="user">
         <template -src="fileIcon"></template>
         <span>
-            文件
+            ${i18n`文件`}
         </span>
     </a>
-    <a @click="send('html',text);">发送</a>
+    <a @click="send('html',text);">${i18n`发送`}</a>
 </div>

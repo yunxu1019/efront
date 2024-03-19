@@ -84,7 +84,7 @@ function pack(readfrom, writeto) {
                 }
                 nameoffset += namelength;
                 var data = await readbuff(handle, dataoffset, datasize);
-                console.info(`正在写入 ${name}`);
+                console.info(i18n`正在写入 ${name}`);
                 dataoffset += data.length;
                 await writeFile(name, data, isFolder);
             }

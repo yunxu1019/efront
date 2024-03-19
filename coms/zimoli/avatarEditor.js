@@ -11,7 +11,7 @@ function main(scope) {
             var scope = this;
             filepicker.onchange = function () {
                 if (scope.upload) scope.upload(this.files[0]);
-                else console.warn("没有发现上传函数");
+                else console.warn(i18n`没有发现上传函数`);
             };
             filepicker.click();
         }

@@ -40,7 +40,7 @@ function numberUTF8(t, dist = []) {
         }
     }
     else {
-        throw new Error("数据异常");
+        throw new Error(i18n`数据异常`);
     }
     return dist;
 }

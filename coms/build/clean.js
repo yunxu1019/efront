@@ -44,7 +44,7 @@ var deeprm = async function (dir) {
         var dir = rest[rest.length - 1];
         if (/^[^\\\/]*(page|app|界面|页面|应用|系统|lib|com|fun|dep|组件|模块|依赖|库|函数|lib|com|fun|dep|组件|模块|依赖|库|函数|env|conf|环境|配置|设置|src|source|code|源|代码)/i.test(path.relative("./", dir))) {
             console.fail(dir);
-            throw new Error("请不要在源码文件夹执行清理操作！");
+            throw new Error(i18n`请不要在源码文件夹执行清理操作！`);
         }
         var files = await readdir(dir);
         if (!files.length) {

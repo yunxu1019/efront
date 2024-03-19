@@ -33,7 +33,7 @@ if (!Promise) {
                     t.throwed = true;
                     if (!throwed && !PromiseRejectReactions.length) {
                         // <!--
-                        console.warn("在异步过程中发现未处理的异常：", t.ohed[0], t.ohed[1], t.ohed[2]);
+                        console.warn(i18n`在异步过程中发现未处理的异常：`, t.ohed[0], t.ohed[1], t.ohed[2]);
                         // -->
                         requestAnimationFrame(function () {
                             throw t.ohed[0];

@@ -93,7 +93,7 @@ function getDependence(response) {
         dependence.require = required1.concat(required || []);
     } else {
         var dependence = [];
-        console.info("正在分析", response.realpath);
+        console.info(i18n`正在分析`, response.realpath);
         var required = getRequired(data, required);
         required = get_relatives(response.url.slice(1), required, dependence);
         dependence.require = required || [];

@@ -190,7 +190,7 @@ function ylist(container, generator, $Y) {
             }
             offsetBottom = bottom_item.offsetTop + bottom_item.offsetHeight;
             ratioTop = top_item.offsetTop + top_item.offsetHeight * ratio;
-            if (count++ > 600) throw new Error("多于600个元素需要绘制！");
+            if (count++ > 600) throw new Error(i18n`多于600个元素需要绘制！`);
         }
         for (var k in childrenMap) {
             remove(childrenMap[k]);

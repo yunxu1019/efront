@@ -4,9 +4,9 @@ var Program = scanner2.Program;
 var { STAMP, SCOPED, STRAP, EXPRESS, COMMENT, SPACE, PROPERTY, VALUE, LABEL, QUOTED, snapExpressFoot, isEval, canbeTemp, rename, isHalfSentence, skipFunction, getDeclared, skipAssignment, skipSentenceQueue, createScoped, createString, splice, relink, snapExpressHead, needBreakBetween } = require("./common");
 var splice2 = function (q, from, to, ...a) {
     var cx = q.indexOf(from);
-    if (cx < 0) throw console.log(splice2.caller, console.format('\r\n<red2>自</red2>'), from && createString([from]), console.format('\r\n<yellow>至</yellow>'), to && createString([to]), console.format(`\r\n<cyan>码列</cyan>`), createString(q)), '结构异常';
+    if (cx < 0) throw console.log(splice2.caller, console.format(`\r\n<red2>${i18n`自`}</red2>`), from && createString([from]), console.format(`\r\n<yellow>${i18n`至`}</yellow>`), to && createString([to]), console.format(`\r\n<cyan>${i18n`码列`}</cyan>`), createString(q)), i18n`结构异常`;
     var dx = to ? q.indexOf(to, cx) : q.length;
-    if (dx < 0) throw console.log(splice2.caller, console.format('\r\n<yellow>自</yellow>'), from && createString([from]), console.format('\r\n<red2>至</red2>'), to && createString([to]), console.format(`\r\n<cyan>码列</cyan>`), createString(q)), '结构异常';
+    if (dx < 0) throw console.log(splice2.caller, console.format(`\r\n<yellow>${i18n`自`}</yellow>`), from && createString([from]), console.format(`\r\n<red2>${i18n`至`}</red2>`), to && createString([to]), console.format(`\r\n<cyan>${i18n`码列`}</cyan>`), createString(q)), i18n`结构异常`;
     return splice(q, cx, dx - cx, ...a);
 };
 var insert1 = function (q, r, ...a) {
@@ -52,7 +52,7 @@ var killdec = function (queue, i, getobjname, _var = 'var', killobj, islet) {
         var [k, v] = d;
         var dp = 0;
         if (typeof k === 'number' && k < 0) {
-            if (iter) throw "暂不支持在当前语境读取尾部非剩余元素";
+            if (iter) throw i18n`暂不支持在当前语境读取尾部非剩余元素`;
             dp = 1;
             k = `${tmpname}["length"]>${doged - k - 1}?${tmpname}[${tmpname}["length"] - ${-k}]:undefined`;
         } else {
@@ -1270,7 +1270,7 @@ var killarg = function (head, body, _getname, setarg = true) {
                 index++;
             }
         }
-        else throw "参数声明异常！"
+        else throw i18n`参数声明异常！`
         if (o && o.type === STAMP) {
             if (o.text === ',') {
                 o = o.next; continue;
@@ -1589,7 +1589,7 @@ var down = function (scoped) {
         var body = scoped.body;
         if (!body) {
             var btemp = scoped.head.next;
-            if (!btemp) throw "语句不完整";
+            if (!btemp) throw i18n`语句不完整`;
             var btmp2 = skipSentenceQueue(btemp);
             body = scoped.body = scanner2('{}')[0];
             splice(body, 0, 0, ...splice2(btemp.queue, btemp, btmp2, body));

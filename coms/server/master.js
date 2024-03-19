@@ -14,7 +14,7 @@ var waiters = [];
 var end = function () {
     quitting = quitting.concat(waiters);
     if (!quitting.length) {
-        console.info("正在退出..");
+        console.info(i18n`正在退出..`);
         afterend();
     }
     waiters.splice(0, waiters.length);
@@ -135,7 +135,7 @@ message.cluster = function ([id, methord, params]) {
             });
         })
     }
-    throw "进程已退出";
+    throw i18n`进程已退出`;
 };
 message.clusterList = function (id) {
     return waiters.map(w => w.id);

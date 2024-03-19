@@ -21,7 +21,7 @@ var readdir = function (filepath) {
     });
 };
 async function doCopy(from, to) {
-    if (fs.existsSync(to)) throw "目标文件已存在";
+    if (fs.existsSync(to)) throw i18n`目标文件已存在`;
     var stats = await stat(from);
     var task = new Task;
     /**
@@ -57,10 +57,10 @@ async function doCopy(from, to) {
         }
     };
     if (stats.isDirectory()) {
-        task.open("复制文件夹", load);
+        task.open(i18n`复制文件夹`, load);
     }
     else {
-        task.open("复制文件", load);
+        task.open(i18n`复制文件`, load);
     }
     task.send([from, to]);
     return task;

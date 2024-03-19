@@ -10,7 +10,7 @@ else {
     var crack = [, ,];
 }
 var dump = function (a, msg) {
-    if (a instanceof Object) console.error('属性错误'), console.log(msg ? msg + " " : "  {\r\n", Object.keys(a).map(k => `  ${k}${gray.join(':')}\r\n      ${a[k]}`).join('\r\n') + "\r\n }");
+    if (a instanceof Object) console.error(i18n`属性错误`), console.log(msg ? msg + " " : "  {\r\n", Object.keys(a).map(k => `  ${k}${gray.join(':')}\r\n      ${a[k]}`).join('\r\n') + "\r\n }");
     else if (msg) console.log(msg + ":", a);
     else console.log(a);
 };

@@ -209,7 +209,7 @@ var createRepeat = function (search, id = 0) {
     // throw new Error("repeat is not supported! use list component instead");
     var expression = search;
     var repeater = parseRepeat(expression);
-    if (!repeater) throw new Error(`不能识别循环表达式: ${expression} `);
+    if (!repeater) throw new Error(i18n`不能识别循环表达式: ${expression} `);
     var { srcName, trackBy } = repeater;
     // 懒渲染
     var getter = createGetter(this, srcName);
@@ -227,7 +227,7 @@ var createRepeat = function (search, id = 0) {
         var isArrayResult = result instanceof Array;
         var keys = isArrayResult ? result.map((_, i) => i) : Object.keys(result);
         if (keys.length > 600) {
-            throw new Error("数据量过大，取消绘制！");
+            throw new Error(i18n`数据量过大，取消绘制！`);
         }
         var $parentScopes = element.$parentScopes || [];
         var $struct = element.$struct;
@@ -327,7 +327,7 @@ var createIf = function (search, id = 0) {
 var parseIfWithRepeat = function (ifExpression, repeatExpression) {
     var repeater = parseRepeat(repeatExpression);
     if (!repeater) {
-        throw new Error(`不能识别循环表达式：${repeat}`);
+        throw new Error(i18n`不能识别循环表达式：${repeat}`);
     }
     var pair = [];
     var rest = [], savedIndex = 0;
@@ -359,7 +359,7 @@ var parseIfWithRepeat = function (ifExpression, repeatExpression) {
     };
     var inc = 0;
     while (reg.lastIndex < ifExpression.length) {
-        if (inc++ > 100) throw new Error("请不要在if表达式中使用太多的条件!");
+        if (inc++ > 100) throw new Error(i18n`请不要在if表达式中使用太多的条件!`);
         if (reg.lastIndex < savedIndex) break;
         run();
     }
@@ -423,7 +423,7 @@ var structures = {
             if (if_top[cx].parent === this.parentNode) break;
         }
         if (cx < 0) {
-            throw new Error("else/elseif前缺少同级if！");
+            throw new Error(i18n`else/elseif前缺少同级if！`);
         }
         initIf(if_top.splice(cx + 1, if_top.length - cx - 1));
         var top = if_top[cx];
@@ -757,11 +757,11 @@ function renderElement(element, scope = element.$scope, parentScopes = element.$
         element.$renderid = 0;
         element.$scope = scope;
         if (isHandled(parentScopes) && !isArray(parentScopes)) {
-            throw new Error('父级作用域链应以数组的类型传入');
+            throw new Error(i18n`父级作用域链应以数组的类型传入`);
         }
         if (parentScopes) {
             if (element.$renderid && !element.$parentScopes || element.$parentScopes && element.$parentScopes.length !== parentScopes.length) {
-                throw new Error("父作用域链的长度必须相等着");
+                throw new Error(i18n`父作用域链的长度必须相等着`);
             }
         }
         element.$parentScopes = parentScopes || [];
@@ -775,7 +775,7 @@ function renderElement(element, scope = element.$scope, parentScopes = element.$
         return element;
     }
     for (var id of element.$struct.ids) {
-        if (scope[id] && scope[id] !== element) throw new Error("同一个id不能使用两次:" + id);
+        if (scope[id] && scope[id] !== element) throw new Error(i18n`同一个id不能使用两次:` + id);
         scope[id] = element;
     }
     var isFirstRender = !element.$renderid;
@@ -937,11 +937,11 @@ function createStructure(element) {
             if (element.$renderid <= -2) {
                 if (/^if$|^else/i.test(key)) {
                     if (types.if) {
-                        throw new Error(`暂不支持在同一元素上使用多次if结构!`);
+                        throw new Error(i18n`暂不支持在同一元素上使用多次if结构!`);
                     }
                 } else {
                     if (types.repeat) {
-                        throw new Error(`暂不支持在同一元素上使用多次repeat类型的属性!`);
+                        throw new Error(i18n`暂不支持在同一元素上使用多次repeat类型的属性!`);
                     }
                 }
             }

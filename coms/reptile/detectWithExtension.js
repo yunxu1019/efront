@@ -31,7 +31,7 @@ async function detectWithExtension(filenames, extensions = [""], folders = [""])
             if (!findedFolder) findedFolder = f + params;
         } catch { }
     }
-    if (!findedFolder) throw new Error(`路径<gray>${filenames}</gray>不存在`);
+    if (!findedFolder) throw new Error(i18n`路径<gray>${filenames}</gray>不存在`);
     return findedFolder;
 }
 module.exports = detectWithExtension;

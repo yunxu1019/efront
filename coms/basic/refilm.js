@@ -36,12 +36,12 @@ var writeField = refilm.writeField = function (data, field, value, offset = fiel
             v.push(value & 0xff);
             value = value >>> 8;
         }
-        if (value) throw new Error("数据过大");
+        if (value) throw new Error(i18n`数据过大`);
         value = v;
     }
     else value = [value | 0];
     if (value.length > byteLimit) {
-        throw new Error("数据超出大小限制！");
+        throw new Error(i18n`数据超出大小限制！`);
     }
     var offset = field.offset;
     while (value.length) data[offset++] = value.shift();

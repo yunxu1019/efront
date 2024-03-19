@@ -670,7 +670,7 @@ class Program {
                     if (q.length > 2) {
                         ts.push(...q.slice(0, q.length - 2));
                     }
-                    else if (q.length !== 2) throw new Error("配置错误！");
+                    else if (q.length !== 2) throw new Error(i18n`配置错误！`);
                     q = q[q.length - 2];
                 }
                 if (q instanceof RegExp) {

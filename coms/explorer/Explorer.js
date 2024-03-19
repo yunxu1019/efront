@@ -34,12 +34,12 @@ e.open = async function (p) {
     });
     this.selected = files.filter(f => f.selected);
 }
-e.delete = function () { alert("无法删除！") }
-e.mov = function () { alert("无法移动！") }
-e.copy = function () { alert("无法复制！") }
-e.read = function () { alert("无法读取文件内容！") }
-e.rename = function () { alert("无法重命名！") }
-e.upload = function () { alert("添加失败！") }
+e.delete = function () { alert(i18n`无法删除！`) }
+e.mov = function () { alert(i18n`无法移动！`) }
+e.copy = function () { alert(i18n`无法复制！`) }
+e.read = function () { alert(i18n`无法读取文件内容！`) }
+e.rename = function () { alert(i18n`无法重命名！`) }
+e.upload = function () { alert(i18n`添加失败！`) }
 e.getToken = function () { }
 e.uploadAll = async function (files) {
     var $scope = this;

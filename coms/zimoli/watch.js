@@ -21,6 +21,6 @@ function watch(elem, prop, handler) {
             if (!isFunction(prop[k])) e++;
             else elem.$watches[k] = prop[k];
         }
-        if (e > 0) throw new Error("参数不支持！");
+        if (e > 0) throw new Error(i18n`参数不支持！`);
     }
 }

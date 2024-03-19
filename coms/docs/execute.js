@@ -32,7 +32,7 @@ var execute = function (commName, then, logpad) {
         warn: log.bind("#fc0", '警告'),
     };
     window.onerror = a => console.error(a);
-    window.console.info(`load ${commName}!`);
+    window.console.info(i18n`加载 ${commName}!`);
 
     init(commName, function (comm) {
         window[commName] = function () {

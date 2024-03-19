@@ -4,7 +4,7 @@ function repeat(string, time) {
     time = +time | 0;
     if (time <= 0) return "";
     if (+time * string.length > 0x1ffffff) {
-        throw new Error("占用内存过大！");
+        throw new Error(i18n`占用内存过大！`);
     }
     var result = [];
     while (--time >= 0) {

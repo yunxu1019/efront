@@ -8,7 +8,7 @@ var checkMemery = function (msg) {
     if (count > inc) {
         inc = (count / ALLOW_CACHE_LENGTH + 1 | 0) * ALLOW_CACHE_LENGTH;
         if (inc >= ALLOW_REST_DEPTH * ALLOW_CACHE_LENGTH) {
-            console.warn("对象过大，deepEqual未能完成比对");
+            console.warn(i18n`对象过大，${"deepEqual"}未能完成比对`);
             return false;
         }
         console.warn(msg);

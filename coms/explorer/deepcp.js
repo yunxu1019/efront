@@ -38,8 +38,8 @@ async function cp([from, dist]) {
 };
 function deepcp(scope, from, dist) {
     var task = new Task();
-    if (from.isfolder) task.title = "复制文件夹";
-    else task.title = "复制文件";
+    if (from.isfolder) task.title = i18n`复制文件夹`;
+    else task.title = i18n`复制文件`;
     task.open('copy', cp);
     task.scope = scope;
     dist = dist.replace(/^\/+|\/+$/g, '');

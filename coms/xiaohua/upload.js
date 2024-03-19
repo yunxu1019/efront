@@ -72,8 +72,8 @@ function main(files, listpage) {
     renderWithDefaults(page, {
         base,
         fields: [
-            { name: "文件名", key: "filename" },
-            { name: "描述", key: "describe" },
+            { name: i18n`文件名`, key: "filename" },
+            { name: i18n`描述`, key: "describe" },
         ],
         view(i) {
             popup("show", { src: files, index: i });
@@ -139,10 +139,10 @@ function main(files, listpage) {
             }
             if (!files.length) {
                 remove(page);
-                alert("上传完成！", "success");
+                alert(i18n`上传完成！`, "success");
             }
             else {
-                alert(`有${files.length}个文件上传失败！`, 'warn');
+                alert(i18n`有${files.length}个文件上传失败！`, 'warn');
             }
         }
     });

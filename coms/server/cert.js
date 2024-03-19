@@ -4,7 +4,8 @@ var path = require("path");
 var readFileAsync = function (fullpath) {
     return new Promise(function (ok, oh) {
         fs.readFile(fullpath, function (err, chunk) {
-            if (err) oh(`读取文件<gray>${fullpath}</gray>出错:` + err);
+            var gray = console.format("<gray>;</gray>").split(";");
+            if (err) oh(i18n`读取文件${gray.join(fullpath)}出错:` + err);
             else ok(chunk);
         });
     });

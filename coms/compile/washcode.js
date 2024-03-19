@@ -70,7 +70,7 @@ var washcode = function (code, pick) {
     var called_map = Object.create(null);
     for (var cx = 0, dx = explist.length; cx < dx; cx++) {
         var exp = explist[cx];
-        console.info(`正在处理:${1 + cx}/${dx}`);
+        console.info(i18n`正在处理:${1 + cx}/${dx}`);
         var scoped = createScoped(exp);
         var refs = createRefMap(scoped);
         var used = scoped.used;
@@ -190,7 +190,7 @@ var washcode = function (code, pick) {
                     ws = writed_map[ks.join('.')];
                 }
                 if (!ws) {
-                    if (!(ks[0] in envs) && !/^(arguments|this|true|false|null)$/.test(ks[0])) console.warn(`检测到错误，无法建立代码关联：${k}`);
+                    if (!(ks[0] in envs) && !/^(arguments|this|true|false|null)$/.test(ks[0])) console.warn(i18n`检测到错误，无法建立代码关联：${k}`);
                     prevent_map[k] = true;
                     continue;
                 }

@@ -36,7 +36,7 @@ function testcode(dir) {
     });
 }
 function analyse_test(text) {
-    if (!require) return console.log("请在electron中打开");
+    if (!require) return console.log(i18n`请在electron中打开`);
     fs = require("fs");
     path = require("path");
     if (text) return analyse(text);

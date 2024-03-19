@@ -1,8 +1,803 @@
+- zh-CN: 没有发现上传函数
+  en:    No upload function found
+
+- zh-CN: 加载cookie出错！
+  en:    Error loading cookie!
+
+- zh-CN: 无效
+  en:    is invalid
+
+- zh-CN: 使用 document 的
+  en:    Using document
+
+- zh-CN: 当前运行环境不支持事件capture
+  en:    The current operating environment does not support event capture
+
+- zh-CN: 存储空间被破坏
+  en:    Storage space is damaged
+
+- zh-CN: 写入存储空间失败！
+  en:    Writing to storage space failed!
+
+- zh-CN: 加载共享路径出错
+  en:    Error loading shared path
+
+- zh-CN: "内容格式不支持:"
+  en:    "Content format not supported:"
+
+- zh-CN: 无法存储
+  en:    Unable to store
+
+- zh-CN: 检查到两个菜单项使用了相同的快捷键
+  en:    Checked that two menu items used the same shortcut key
+
+- zh-CN: 如您需要使用参数--SCITER或--QUICKJS或--QJS，请购买炸毛授权
+  en:    "If you need to use the parameters --SCITER or --QUICKJS or --QJS, please purchase the authorization for explosion"
+
+- zh-CN: 检测到错误，无法建立代码关联：$1
+  en:    "Error detected, unable to establish code association: $1"
+
+- zh-CN: 路径不支持
+  en:    Path not supported
+
+- zh-CN: 已跳过
+  en:    Skipped
+
+- zh-CN: 在异步过程中发现未处理的异常：
+  en:    "Unhandled exception found during asynchronous process:"
+
+- zh-CN: 颜色数据不正确:$1
+  en:    "Color data incorrect: $1"
+
+- zh-CN: "请使用https访问如下路径:"
+  en:    "Please use HTTPS to access the following path:"
+
+- zh-CN: 对象过大，$1未能完成比对
+  en:    "Object too large, $1 failed to complete comparison"
+
+- zh-CN: 数据存在错误！
+  en:    There is an error in the data!
+
+- zh-CN: 要发布或打包的项目不存在:$1
+  en:    "The project to be published or packaged does not exist: $1"
+
+- zh-CN: 用时
+  en:    Time consumption
+
+- zh-CN: 毫秒
+  en:    millisecond
+
+- zh-CN: 发现可能被覆盖的路径
+  en:    Discovering paths that may be covered
+
+- zh-CN: 在您所编译的项目中没有发现主程序
+  en:    No main program was found in the project you compiled
+
+- zh-CN: 不要在这个层级未知的地方下手！
+  en:    "Don't take action in unknown places at this level!"
+
+- zh-CN: "执行: <gray>$1</gray>，用时: <gray>$2</gray>秒"
+  en:    "Execution:<gray>$1</ray>, time taken:<gray>$2</ray>seconds"
+
+- zh-CN: 指定的路径$1不存在!
+  en:    The specified path $1 does not exist!
+
+- zh-CN: 不存在uri
+  en:    No uri present
+
+- zh-CN: 正在
+  en:    Currently in progress
+
+- zh-CN: 请求网络失败，请确认网络连接正常！
+  en:    "Network request failed, please confirm that the network connection is normal!"
+
+- zh-CN: 无法访问服务器！
+  en:    Unable to access server!
+
+- zh-CN: 失败！
+  en:    Failed!
+
+- zh-CN: 处理返回结果失败！
+  en:    Processing return result failed!
+
+- zh-CN: 处理结果失败！
+  en:    Processing result failed!
+
+- zh-CN: 成功！
+  en:    Success!
+
+- zh-CN: 接口返回信息异常！
+  en:    The interface returned abnormal information!
+
+- zh-CN: 接口未返回信息！
+  en:    Interface did not return information!
+
+- zh-CN: 屏蔽了重复设置
+  en:    Blocked duplicate settings
+
+- zh-CN: 请求取消！
+  en:    Request cancellation!
+
+- zh-CN: 请求超时！
+  en:    Request timed out!
+
+- zh-CN: 不支持的数据格式
+  en:    Unsupported data format
+
+- zh-CN: 队列有$1个请求
+  en:    There are $1 requests in the queue
+
+- zh-CN: 请不要在同一个对象上使用过多的同类型的care!
+  en:    Please do not use too many of the same type of care on the same object!
+
+- zh-CN: 参数数量不正确
+  en:    Incorrect number of parameters
+
+- zh-CN: care只能使用在对象上！
+  en:    Care can only be used on objects!
+
+- zh-CN: 请用new关键字进行创建!
+  en:    Please use the new keyword to create!
+
+- zh-CN: 消息体不合法！
+  en:    The message body is illegal!
+
+- zh-CN: 您的传达了有歧义的信息：$1
+  en:    "Your message conveyed ambiguous information: $1"
+
+- zh-CN: 父元素不能是当前元素的子元素
+  en:    The parent element cannot be a child element of the current element
+
+- zh-CN: createElement将会在未来的版本中移除！
+  en:    createElement will be removed in future versions!
+
+- zh-CN: cross_host格式不正确
+  en:    cross_host format is incorrect
+
+- zh-CN: 请用new关键字创建！
+  en:    Please create with the new keyword!
+
+- zh-CN: 数据转换为grid失败！
+  en:    Data conversion to grid failed!
+
+- zh-CN: 参数不支持
+  en:    Parameter not supported
+
+- zh-CN: 遇到不规则布局，无法自动处理！
+  en:    "Encountered irregular layout, unable to process automatically!"
+
+- zh-CN: 图标组件的服务端已从efront移除，请勿使用！
+  en:    "The server of the icon component has been removed from efront, please do not use it!"
+
+- zh-CN: 多于600个元素需要绘制！
+  en:    More than 600 elements need to be drawn!
+
+- zh-CN: 当前环境不支持mediaDevices！
+  en:    The current environment does not support mediaDevices!
+
+- zh-CN: 不支持的菜单类型：$1
+  en:    "Unsupported menu type: $1"
+
+- zh-CN: 绑定事件参数无效$1
+  en:    Invalid binding event parameter $1
+
+- zh-CN: 参数异常:$1
+  en:    "Parameter exception: $1"
+
+- zh-CN: 当前环境无法使用
+  en:    The current environment cannot be used
+
+- zh-CN: "不能识别循环表达式: $1"
+  en:    "Unrecognized loop expression: $1"
+
+- zh-CN: 数据量过大，取消绘制！
+  en:    "Data volume is too large, cancel drawing!"
+
+- zh-CN: 请不要在if表达式中使用太多的条件!
+  en:    "Please do not use too many conditions in 'if' expressions!"
+
+- zh-CN: else/elseif前缺少同级if！
+  en:    "Missing same level 'if' before 'else'/'elseif'!"
+
+- zh-CN: 父级作用域链应以数组的类型传入
+  en:    The parent scope chain should be passed in as an array type
+
+- zh-CN: 父作用域链的长度必须相等着
+  en:    The length of the parent scope chain must be equal
+
+- zh-CN: "同一个id不能使用两次:"
+  en:    "The same ID cannot be used twice:"
+
+- zh-CN: 暂不支持在同一元素上使用多次if结构!
+  en:    We currently do not support using the if structure multiple times on the same element!
+
+- zh-CN: 暂不支持在同一元素上使用多次repeat类型的属性!
+  en:    We currently do not support using attributes of type repeat multiple times on the same element!
+
+- zh-CN: table组件源数据错误！
+  en:    Table component source data error!
+
+- zh-CN: 参数不支持！
+  en:    Parameter not supported!
+
+- zh-CN: 调用create前请确保prepare执行完毕:$1
+  en:    "Please ensure that prepare is completed before calling create: $1"
+
+- zh-CN: 加载$1失败！
+  en:    Loading $1 failed!
+
+- zh-CN: "编译错误:"
+  en:    "Compilation error:"
+
+- zh-CN: 请不要重复添加
+  en:    Please do not add again
+
+- zh-CN: 验证身份失败！
+  en:    Identity verification failed!
+
+- zh-CN: 请不要在共享路径中创建服务器脚本！
+  en:    Please do not create server scripts in shared paths!
+
+- zh-CN: 服务器功能目前仅在nodejs环境中可用！
+  en:    The server functionality is currently only available in the nodejs environment!
+
+- zh-CN: 服务器重启
+  en:    Server restart
+
+- zh-CN: 正在退出..
+  en:    Exiting
+
+- zh-CN: 进程已退出
+  en:    Process has exited
+
+- zh-CN: 密码不正确！
+  en:    The password is incorrect!
+
+- zh-CN: 输入新密码：
+  en:    "Enter new password:"
+
+- zh-CN: 确认密码：
+  en:    "Confirm password:"
+
+- zh-CN: 两次输入密码不一致
+  en:    The passwords entered twice are inconsistent
+
+- zh-CN: 抓取
+  en:    Grab
+
+- zh-CN: "代理: $1 => $2"
+  en:    "Agent: $1=>$2"
+
+- zh-CN: 房间不存在！
+  en:    The room does not exist!
+
+- zh-CN: 状态错误
+  en:    Status error
+
+- zh-CN: 路径<gray>$1</gray>不存在
+  en:    Path<gray>$1</gray>does not exist
+
+- zh-CN: 只在主线程中使用
+  en:    Only used in the main thread
+
+- zh-CN: 未定义方法 $1
+  en:    Undefined method $1
+
+- zh-CN: 无法加载数据！
+  en:    Unable to load data!
+
+- zh-CN: 重复定义：$1
+  en:    "Duplicate definition: $1"
+
+- zh-CN: "路径不存在:"
+  en:    "Path does not exist:"
+
+- zh-CN: 指定的任务 $1 不存在！
+  en:    The specified task $1 does not exist!
+
+- zh-CN: 任务 $1 未启用！
+  en:    Task $1 is not enabled!
+
+- zh-CN: 密钥 $1 不存在！
+  en:    Key $1 does not exist!
+
+- zh-CN: 加载 $1!
+  en:    Load $1!
+
+- zh-CN: 代码结构异常
+  en:    Code structure exception
+
+- zh-CN: 余集变量不能有默认值
+  en:    Residual variables cannot have default values
+
+- zh-CN: 辅助级别异常：
+  en:    "Auxiliary level exception:"
+
+- zh-CN: 自
+  en:    since
+
+- zh-CN: 至
+  en:    to
+
+- zh-CN: 码列
+  en:    Code queue
+
+- zh-CN: 暂不支持在当前语境读取尾部非剩余元素
+  en:    Currently not supported for reading non residual elements at the end in the current context
+
+- zh-CN: 参数声明异常！
+  en:    Parameter declaration exception!
+
+- zh-CN: 语句不完整
+  en:    Incomplete statement
+
+- zh-CN: 属性<green>$1</green>被后文覆盖，已移除<yellow>$2</yellow>
+  en:    "Attribute<green>$1</green>is overwritten by the following text, removed<yellow>$2</yellow>"
+
+- zh-CN: 缺少导出项！
+  en:    Missing export item!
+
+- zh-CN: 配置错误！
+  en:    Configuration error!
+
+- zh-CN: break语句异常
+  en:    Break statement exception
+
+- zh-CN: 正在处理:$1/$2
+  en:    "Processing: $1/$2"
+
+- zh-CN: 请不要在源码文件夹执行清理操作！
+  en:    Please do not perform cleaning operations in the source code folder!
+
+- zh-CN: 加载$1出错！
+  en:    Error loading $1!
+
+- zh-CN: 读取已编译数据失败！url:$1
+  en:    "Failed to read compiled data! URL: $1"
+
+- zh-CN: 类型不被支持!
+  en:    The type is not supported!
+
+- zh-CN: 正在分析
+  en:    Analyzing
+
+- zh-CN: "正在处理($1/$2): $3"
+  en:    "Processing ($1/$2): $3"
+
+- zh-CN: 监听端口:$1
+  en:    "Listening port: $1"
+
+- zh-CN: 当前版本
+  en:    Current version
+
+- zh-CN: 目标版本
+  en:    Target version
+
+- zh-CN: 正在重新加载
+  en:    Reloading
+
+- zh-CN: 暂不支持变量重命名
+  en:    Variable renaming is currently not supported
+
+- zh-CN: 正在写入 $1
+  en:    Writing $1
+
+- zh-CN: 不支持
+  en:    Not supported
+
+- zh-CN: 当前运行环境使用class extends Array会有难以解决的不兼容性问题，请更换代码的实现方式！
+  en:    
+
+- zh-CN: 代码异常！
+  en:    Code exception!
+
+- zh-CN: 属性错误
+  en:    Attribute error
+
+- zh-CN: 不支持半年级数数进制！
+  en:    Half grade decimal system not supported!
+
+- zh-CN: 不支持小于1的进位方针！
+  en:    Do not support carry policy less than 1!
+
+- zh-CN: 数据错误！
+  en:    Data error!
+
+- zh-CN: 进制错误！
+  en:    Decimal error!
+
+- zh-CN: 小数位数只能是0和$1之间的数字
+  en:    The decimal places can only be numbers between 0 and $1
+
+- zh-CN: 请输入保留小数的位数！
+  en:    Please enter the number of decimal places!
+
+- zh-CN: 参数错误！
+  en:    Parameter error!
+
+- zh-CN: 意外标记 $1
+  en:    Unexpected tag $1
+
+- zh-CN: 路径格式错误！
+  en:    Path format error!
+
+- zh-CN: 请传入更高强度的密码！
+  en:    Please enter a stronger password!
+
+- zh-CN: 数据异常！
+  en:    Data abnormality!
+
+- zh-CN: 编码异常！
+  en:    Encoding exception!
+
+- zh-CN: 编码错误
+  en:    Encoding error
+
+- zh-CN: 数据异常
+  en:    Data anomaly
+
+- zh-CN: 向量维度不支持！
+  en:    Vector dimension not supported!
+
+- zh-CN: 数据过大
+  en:    Data too large
+
+- zh-CN: 数据超出大小限制！
+  en:    Data exceeds size limit!
+
+- zh-CN: 占用内存过大！
+  en:    Excessive memory usage!
+
+- zh-CN: 请输入
+  en:    Please enter
+
+- zh-CN: 请选择
+  en:    Please select
+
+- zh-CN: 您输入的$1有误
+  en:    The $1 you entered is incorrect
+
+- zh-CN: 请设置密码
+  en:    Please set password
+
+- zh-CN: 服务器已满！
+  en:    The server is full!
+
+- zh-CN: 当前并发量大，请重试！
+  en:    "The current concurrency is high, please try again!"
+
+- zh-CN: 目标位置不存在！
+  en:    The target location does not exist!
+
+- zh-CN: 已经翻过这个位置
+  en:    I have already flipped over this position
+
+- zh-CN: 起始位置不存在！
+  en:    The starting position does not exist!
+
+- zh-CN: 起始位置不存在可操作棋子！
+  en:    There are no operable chess pieces at the starting position!
+
+- zh-CN: 您只能操作自己的棋子！
+  en:    You can only operate your own chess pieces!
+
+- zh-CN: 起始位置和目标位置应该在同一直线上！
+  en:    The starting position and target position should be on the same straight line!
+
+- zh-CN: 一次只能走一个格子！
+  en:    You can only walk one grid at a time!
+
+- zh-CN: 不能吃自己的棋子！
+  en:    "You can't eat your own chess pieces!"
+
+- zh-CN: 不能吃相临位置未翻开的棋子！
+  en:    Cannot eat chess pieces that have not been opened in adjacent positions!
+
+- zh-CN: 兵卒只能吃將帥！
+  en:    Soldiers can only eat generals!
+
+- zh-CN: 將帥不能吃兵卒！
+  en:    Generals cannot eat soldiers!
+
+- zh-CN: 无法吃比自己大的子
+  en:    Unable to eat bigger than oneself
+
+- zh-CN: 不可以移动到远处的位置！
+  en:    Cannot move to a distant location!
+
+- zh-CN: 至少翻过一个子才能吃远处的子！
+  en:    At least flipping over one piece is enough to eat the ones in the distance!
+
+- zh-CN: 最多翻过一个子去吃远处的子！
+  en:    "At most, flip over one piece to eat the far-off piece!"
+
+- zh-CN: 非法操作！
+  en:    Illegal operation!
+
+- zh-CN: 棋局不存在！
+  en:    The chess game does not exist!
+
+- zh-CN: 房间观战人数已满！
+  en:    The room is full of spectators!
+
+- zh-CN: 无效的连接标识
+  en:    Invalid connection identifier
+
+- zh-CN: 缺少棋手！
+  en:    Lack of chess players!
+
+- zh-CN: 现在不该您操作！
+  en:    "It's not your turn to operate now!"
+
+- zh-CN: 完成，用时$1秒$2。
+  en:    "Complete! Time Used: $1s $2"
+
+- zh-CN: ，占用内存 $1
+  en:    ", Memory Used: $1"
+
+- zh-CN: 无法读取源路径：$1
+  en:    "Can not read from the source path: $1"
+
+- zh-CN: 提取文本时存在异常
+  en:    There is an exception when extracting text
+
+- zh-CN: 正在读取文件列表，请稍候..
+  en:    "Reading file list, please wait"
+
+- zh-CN: 正在提取字符串..
+  en:    Extracting string
+
+- zh-CN: 您的浏览器环境无法选择文件！
+  en:    Your browser environment is unable to select files!
+
+- zh-CN: 打开文件失败！
+  en:    Open file failed!
+
+- zh-CN: 请运行在有文件操作的环境下
+  en:    Please run in an environment with file operations
+
+- zh-CN: 文件名
+  en:    file name
+
+- zh-CN: 描述
+  en:    describe
+
+- zh-CN: 上传完成！
+  en:    Upload completed!
+
+- zh-CN: 有$1个文件上传失败！
+  en:    $1 file failed to upload!
+
+- zh-CN: "读取文件$1出错:"
+  en:    "Error reading file $1:"
+
+- zh-CN: 文件不存在
+  en:    file does not exist
+
+- zh-CN: 请求无效
+  en:    Invalid request
+
+- zh-CN: 文件内容不足
+  en:    Insufficient file content
+
+- zh-CN: 路径不存在
+  en:    path does not exist
+
+- zh-CN: 文件已存在
+  en:    file already exist
+
+- zh-CN: 服务繁忙
+  en:    Busy service
+
+- zh-CN: 拒绝访问
+  en:    access denied
+
+- zh-CN: $1 请求方法无效
+  en:    The $1 request method is invalid
+
+- zh-CN: 目标文件已存在
+  en:    The target file already exists
+
+- zh-CN: 复制文件夹
+  en:    Copy folder
+
+- zh-CN: 复制文件
+  en:    Copying files
+
+- zh-CN: 创建文件夹失败
+  en:    Failed to create folder
+
+- zh-CN: 发送
+  en:    send
+
+- zh-CN: 返回(O)
+  en:    Return(O)
+
+- zh-CN: 打开(O)
+  en:    Open(O)
+
+- zh-CN: 剪切(C)
+  en:    Cut(C)
+
+- zh-CN: 复制(R)
+  en:    Copy(R)
+
+- zh-CN: 全选(A)
+  en:    Select All(A)
+
+- zh-CN: 替换(R)
+  en:    Replace(R)
+
+- zh-CN: 粘贴(V)
+  en:    Paste(V)
+
+- zh-CN: 不能移入子文件夹
+  en:    Unable to move into sub folder
+
+- zh-CN: "请输入新的$1名:"
+  en:    "Please enter a new $1 name:"
+
+- zh-CN: 文件夹
+  en:    Folder
+
+- zh-CN: 命名冲突
+  en:    Name conflict
+
+- zh-CN: 有文件正在复制！
+  en:    There are files being copied!
+
+- zh-CN: 新建文件夹(D)
+  en:    New folder(D)
+
+- zh-CN: 添加文件(F)
+  en:    Add file(F)
+
+- zh-CN: 重命名(R)
+  en:    Renaming(R)
+
+- zh-CN: 确认删除(D)
+  en:    Confirm deletion(D)
+
+- zh-CN: 删除(D)
+  en:    Delete(D)
+
+- zh-CN: 确认要删除如下 $1 项吗？
+  en:    Are you sure you want to delete the following $1 item?
+
+- zh-CN: 修改
+  en:    Modify
+
+- zh-CN: 添加
+  en:    Add
+
+- zh-CN: 保存
+  en:    Save
+
+- zh-CN: 无法删除！
+  en:    Unable to delete!
+
+- zh-CN: 无法移动！
+  en:    Unable to move!
+
+- zh-CN: 无法复制！
+  en:    Unable to copy!
+
+- zh-CN: 无法读取文件内容！
+  en:    Unable to read file content!
+
+- zh-CN: 无法重命名！
+  en:    Unable to rename!
+
+- zh-CN: 添加失败！
+  en:    Add failed!
+
+- zh-CN: 将不处理此文件的页面自动预载<gray>$1</gray>
+  en:    Automatically preload pages that do not process this file<gray>$1</gray>
+
+- zh-CN: 文件名无法生成导出变量！
+  en:    The file name cannot generate export variables!
+
+- zh-CN: 文件中存在冗余数据<gray>$1</gray>:<data>$2</data>
+  en:    There is redundant data in the file<gray>$1</gray>:<data>$2</data>
+
+- zh-CN: 路径所指向的不是文件$1
+  en:    The path does not point to file $1
+
+- zh-CN: 文件过大!$1
+  en:    The file is too large$ one
+
+- zh-CN: 读取文件信息出错$1
+  en:    Error reading file information $1
+
+- zh-CN: 源路径不存在文件$1
+  en:    File $1 does not exist in the source path
+
+- zh-CN: 加载$1出错
+  en:    Error loading $1
+
+- zh-CN: 读取less文件出错！lessfile:$1
+  en:    "Error reading less file! Lessfile: $1"
+
+- zh-CN: 读取html文件出错！htmlfile:$1
+  en:    "Error reading HTML file! Htmlfile: $1"
+
+- zh-CN: $1 将被内置模块替换！
+  en:    $1 will be replaced by built-in modules!
+
+- zh-CN: 没有发现文件：$1
+  en:    "No file found: $1"
+
+- zh-CN: $1 将使用运行环境的全局变量
+  en:    $1 will use the global variables of the runtime environment
+
+- zh-CN: 本页使用的证书服务来自
+  en:    The certificate service used on this page comes from
+
+- zh-CN: 单次签名
+  en:    Single signature
+
+- zh-CN: 公钥
+  en:    Public key
+
+- zh-CN: 域名
+  en:    Domain Name
+
+- zh-CN: 更新连接
+  en:    Update Connection
+
+- zh-CN: $1首次引用点如下：
+  en:    "the first position $1 occurs is:"
+
+- zh-CN: 与$1相关的项
+  en:    item related to $1
+
+- zh-CN: 没有与指定的参数$1相关的项
+  en:    No item related to parameter $1 exists
+
+- zh-CN: $1 $2 中没有找到外部变量
+  en:    "No outside variable were found: $1 $2"
+
+- zh-CN: $1 $2 中共有 $3 个外部变量
+  en:    "$3 outside variable(s) were found: $1 $2"
+
+- zh-CN: 写入文件失败：$1
+  en:    "Write file faild: $1"
+
+- zh-CN: 读取文件失败：$1
+  en:    "Read file faild: $1"
+
+- zh-CN: 创建目录失败：$1
+  en:    "Create path failed: $1"
+
+- zh-CN: 读取目录失败：$1
+  en:    "Can't read from source path."
+
+- zh-CN: 源路径不存在：$1
+  en:    "Source path doesn't exists."
+
+- zh-CN: 目标路径无法创建！
+  en:    Create path failed!
+
+- zh-CN: 目标路径已存在：$1
+  en:    "Target path already Exists: $1"
+
+- zh-CN: 请先设置app名称！如：$1
+  en:    "Please set app, such as: $1"
+
+- zh-CN: $1 已存在！
+  en:    $1 already exists.
+
+- zh-CN: "文件$1用到可能不存在的外部模块: $2"
+  en:    "Outside Modules not found in File $1: $2"
+
+- zh-CN: "文件$1用到可能不存在的外部变量: $2"
+  en:    "Outsize Variables not found in File $1: $2"
+
 - zh-CN: 六十进制
-  en:    sexagesimal
+  en:    Sexagesimal
 
 - zh-CN: 翻译工具
-  en:    translation tool
+  en:    Translation Tool
 
 - zh-CN: 数值过大易造成页面卡死！
   en:    Too large a value can easily cause the page to freeze!
@@ -14,7 +809,7 @@
   en:    Automatically recognize the environment and start the testing environment server
 
 - zh-CN: 返回
-  en:    back
+  en:    Back
 
 - zh-CN: 未没找到匹配的资源：$1
   en:    "No matching resources found: $1"
@@ -44,7 +839,7 @@
   en:    The specified global variable was not found
 
 - zh-CN: 在以上 $1 个文件中找到了指定的全局变量
-  en:    Found the specified global variable in the $1 file above
+  en:    Found the specified global variable in the $1 file(s) above
 
 - zh-CN: 正在查找
   en:    Finding
@@ -71,7 +866,7 @@
   en:    "The server is busy, please try again later!"
 
 - zh-CN: 重试
-  en:    retry
+  en:    Retry
 
 - zh-CN: $1秒后再试
   en:    Try again in $1 second
@@ -173,7 +968,7 @@
   en:    "Detected external variables that may not exist in $1:"
 
 - zh-CN: "压缩($1/$2):"
-  en:    "Compression ($1/$2):"
+  en:    "Compress ($1/$2):"
 
 - zh-CN: 存在环形引用：$1
   en:    "There is a circular reference: $1"
@@ -200,7 +995,7 @@
   en:    Please do not write files to non publishing directories!
 
 - zh-CN: 十进制
-  en:    Decimal system
+  en:    Decimalism
 
 - zh-CN: 十六进制
   en:    Hexadecimal
@@ -224,16 +1019,16 @@
   en:    Numerical conversion
 
 - zh-CN: 检查utf8
-  en:    Check utf8
+  en:    Check UTF8
 
 - zh-CN: 检查gbk
-  en:    Check gbk
+  en:    Check GBK
 
 - zh-CN: 要检查的字符集区间(双字节以内)
   en:    Character set interval to check (within double bytes)
 
 - zh-CN: 编码
-  en:    coding
+  en:    Code
 
 - zh-CN: 识别为unicode后的字符
   en:    Characters recognized as unicode
@@ -248,7 +1043,7 @@
   en:    "Download files from the network, similar to wget in Unix"
 
 - zh-CN: 输入内容..
-  en:    Input content
+  en:    Type content..
 
 - zh-CN: readme.md
   en:    readme-en.md
@@ -287,7 +1082,7 @@
   en:    Character Set Check
 
 - zh-CN: 国际化
-  en:    internationalization
+  en:    Internationalization
 
 - zh-CN: 开发者选项
   en:    Developer Options
@@ -332,13 +1127,13 @@
   en:    No import items
 
 - zh-CN: 清理
-  en:    clean up
+  en:    Clean up
 
 - zh-CN: 载入测试代码
-  en:    Load Test Code
+  en:    Load code exists
 
 - zh-CN: 运行
-  en:    working
+  en:    Run
 
 - zh-CN: 简介
   en:    brief introduction
@@ -350,7 +1145,7 @@
   en:    Character Set Checker
 
 - zh-CN: 检查
-  en:    inspect
+  en:    Inspect
 
 - zh-CN: 要检查的字符集区间
   en:    Character set interval to check
@@ -383,7 +1178,7 @@
   en:    $1 in total
 
 - zh-CN: 序号
-  en:    Serial number
+  en:    Number
 
 - zh-CN: "翻译结果仅做为参考，未必完美替换，语法参考:"
   en:    "The translation results are only for reference and may not be a perfect replacement. Grammar reference:"
@@ -419,13 +1214,19 @@
   en:    The appid and key cannot have only one!
 
 - zh-CN: 提示
-  en:    prompt
+  en:    INFO
+
+- zh-CN: 注意
+  en:    WARN
+
+- zh-CN: 错误
+  en:    ERROR
 
 - zh-CN: appid及密钥申请地址
   en:    AppID and key application address
 
 - zh-CN: 目标语言
-  en:    target language
+  en:    Target Language
 
 - zh-CN: efront目前使用的翻译接口免费额度受限，如果遇到翻译失败的情况，您可以自己申请一个appid和密钥配置后使用
   en:    "The free quota of the translation interface currently used by efront is limited. If you encounter translation failure, you can apply for an appid and key configuration yourself before using it"
@@ -503,7 +1304,7 @@
   en:    Slovene language
 
 - zh-CN: 字符串
-  en:    character string
+  en:    string
 
 - zh-CN: 已翻译
   en:    Translated
@@ -524,7 +1325,7 @@
   en:    One click Baidu
 
 - zh-CN: yml文件
-  en:    Yml file
+  en:    yml File
 
 - zh-CN: 数据无法解析
   en:    Data cannot be parsed
@@ -557,7 +1358,7 @@
   en:    Only data of object type is supported!
 
 - zh-CN: 帮助
-  en:    help
+  en:    HELP
 
 - zh-CN: $1可以使用的命令语法有：
   en:    "The command syntax that can be used for $1 is:"
@@ -590,7 +1391,7 @@
   en:    Open ports can be accessed through a browser to view documents
 
 - zh-CN: 可以通过浏览器访问已打开的端口以查看示例项目:$1
-  en:    
+  en:    "You may open the port opened to view the demo: $1"
 
 - zh-CN: 请在空目录或efront目录执行创建操作!
   en:    Please perform the creation operation in an empty or front directory!
@@ -633,9 +1434,6 @@
 
 - zh-CN: 如下命令与您输入的命令相似：
   en:    "The following command is similar to the one you entered:"
-
-- zh-CN: 错误
-  en:    error
 
 - zh-CN: 异常退出
   en:    Abnormal exit
@@ -700,6 +1498,9 @@
 - zh-CN: 编译项目
   en:    Compile Project
 
+- zh-CN: 编译
+  en:    Compile
+
 - zh-CN: 监测文件变化，自动编译更新的部分并输出到指定目录
   en:    "Monitor file changes, automatically compile updated parts and output them to the specified directory"
 
@@ -734,7 +1535,7 @@
   en:    Find the real path based on the search path of the module
 
 - zh-CN: 格式化代码
-  en:    formatting code
+  en:    Formatting code
 
 - zh-CN: 导出与指定的对象路径关联的代码
   en:    Export code associated with the specified object path
@@ -770,22 +1571,22 @@
   en:    Command Name
 
 - zh-CN: 您的应用名
-  en:    Your app name
+  en:    Your App Name
 
 - zh-CN: 源项目
-  en:    source item
+  en:    Source Project
 
 - zh-CN: http端口
-  en:    HTTP port
+  en:    HTTP Port
 
 - zh-CN: https端口
-  en:    HTTPS port
+  en:    HTTPS Port
 
 - zh-CN: 变量名
-  en:    Variable name
+  en:    Variable Name
 
 - zh-CN: efront服务器地址
-  en:    Efront server address
+  en:    efront Server Address
 
 - zh-CN: efront服务器提供的连接号
   en:    The Dash provided by the efront server
@@ -803,7 +1604,7 @@
   en:    The path where the JSON file is located
 
 - zh-CN: 签名
-  en:    autograph
+  en:    Autograph
 
 - zh-CN: 文件或文件夹的路径
   en:    Path to file or folder
@@ -821,25 +1622,25 @@
   en:    The property path of the object
 
 - zh-CN: 缩进空格数
-  en:    Indent spaces
+  en:    Indent Spaces
 
 - zh-CN: 文件路径
   en:    File Path
 
 - zh-CN: 用户名
-  en:    user name
+  en:    User Name
 
 - zh-CN: 游客
-  en:    tourist
+  en:    Tourist
 
 - zh-CN: 登录中
   en:    Logging in
 
 - zh-CN: 确定
-  en:    confirm
+  en:    Confirm
 
 - zh-CN: 取消
-  en:    cancel
+  en:    Cancel
 
 - zh-CN: 服务器异常$1
   en:    Server Exception $1
@@ -875,7 +1676,7 @@
   en:    The server canceled your request
 
 - zh-CN: 文件
-  en:    file
+  en:    File
 
 - zh-CN: 键名
   en:    Key Name
@@ -884,10 +1685,10 @@
   en:    Display Name
 
 - zh-CN: 密钥
-  en:    secret key
+  en:    Secret Key
 
 - zh-CN: 备注
-  en:    remarks
+  en:    Remarks
 
 - zh-CN: 任务ID
   en:    Task ID
@@ -896,52 +1697,52 @@
   en:    Task Name
 
 - zh-CN: 是否启用
-  en:    Enabled or not
+  en:    Enabled or Not
 
 - zh-CN: 任务代码
   en:    Task Code
 
 - zh-CN: 标识
-  en:    identification
+  en:    Identification
 
 - zh-CN: 应用名
   en:    App Name
 
 - zh-CN: 路径
-  en:    route
+  en:    Route
 
 - zh-CN: 代理路径
   en:    Proxy Path
 
 - zh-CN: 二维码
-  en:    QR code
+  en:    QR Code
 
 - zh-CN: 真实路径
-  en:    Real path
+  en:    Real Path
 
 - zh-CN: 动作
-  en:    action
+  en:    Action
 
 - zh-CN: 状态
-  en:    state
+  en:    State
 
 - zh-CN: 地址
-  en:    address
+  en:    Address
 
 - zh-CN: 地理位置
-  en:    geographical position
+  en:    Geographical Position
 
 - zh-CN: 启动时间
-  en:    Start time
+  en:    Start Time
 
 - zh-CN: 端口
-  en:    port
+  en:    Port
 
 - zh-CN: 版本
-  en:    edition
+  en:    Edition
 
 - zh-CN: 进程
-  en:    process
+  en:    Process
 
 - zh-CN: 访问量
   en:    Visits
@@ -950,31 +1751,31 @@
   en:    Room name
 
 - zh-CN: 数值
-  en:    numerical value
+  en:    Value
 
 - zh-CN: 文本
-  en:    text
+  en:    Text
 
 - zh-CN: 字典ID
-  en:    Dictionary ID
+  en:    ID
 
 - zh-CN: 字典名
-  en:    Dictionary name
+  en:    Dictionary Name
 
 - zh-CN: 字典数据
-  en:    Dictionary data
+  en:    Dictionary Data
 
 - zh-CN: 名称
-  en:    name
+  en:    Name
 
 - zh-CN: 服务器
-  en:    The server
+  en:    Server
 
 - zh-CN: 服务器地址
-  en:    server address
+  en:    Server Address
 
 - zh-CN: 密码
-  en:    password
+  en:    Password
 
 - zh-CN: 这是一个空白项目
   en:    This is a blank project

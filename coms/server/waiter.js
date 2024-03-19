@@ -205,7 +205,7 @@ var doOptions = async function (req, res, type) {
         case "login":
             var a = type[2] || '';
             return require("./login")(a, remoteAddress).then(b => {
-                if (!b) throw "密码不正确！";
+                if (!b) throw i18n`密码不正确！`;
                 res.end(b);
             }).catch(e => {
                 res.writeHead(403, utf8error);
@@ -216,7 +216,7 @@ var doOptions = async function (req, res, type) {
                 try {
                     var roomid = encode62.timedecode(type[2]);
                     var room = await userdata.getOptionObj("room", roomid);
-                    if (!room) { throw "房间不存在！"; }
+                    if (!room) { throw i18n`房间不存在！`; }
                     if (!room.linkid || !clients.checkId(room.linkid)) {
                         room.linkid = clients.create().id;
                         await userdata.setOptionObj("room", roomid, room);
@@ -322,6 +322,7 @@ var doOptions = async function (req, res, type) {
             return;
         case "task":
         case "dict":
+        case "cert":
         case "room":
         case "proxy":
         case "private":
@@ -698,8 +699,8 @@ var showServerInfo = async function () {
     var maxLength = 0;
     for (var cx = 0, dx = port.length; cx < dx; cx++) {
         var p = port[cx];
-        var m = p ? `${portedServersList[cx] === server2 ? 'https ' : 'http  '}端口：${p}` : '';
-        m = m.toUpperCase();
+        var ishttps = portedServersList[cx] === server2
+        var m = p ? (ishttps ? `https ` : `http `).toUpperCase() + i18n`端口` + (ishttps ? ': ' : ":  ") + p : '';
         if (maxLength < m.length) maxLength = m.length;
         msg.push(m);
     }

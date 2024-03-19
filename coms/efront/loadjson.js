@@ -9,8 +9,8 @@ loadjson.async = function (url, ignoreIfNotExist) {
         if (!fs.existsSync(url)) return;
         fs.stat(url, function (error, stats) {
             if (error) return oh(error);
-            if (!stats.isFile()) return oh(new Error(`路径所指向的不是文件${url}`));
-            if (stats.size > 2 * 1024 * 1024) return oh(new Error(`文件过大!${url}`));
+            if (!stats.isFile()) return oh(new Error(i18n`路径所指向的不是文件${url}`));
+            if (stats.size > 2 * 1024 * 1024) return oh(new Error(i18n`文件过大!${url}`));
             fs.readFile(url, function (error, buffer) {
                 if (error) return oh(error);
                 try {

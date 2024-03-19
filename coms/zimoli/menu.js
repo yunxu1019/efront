@@ -197,7 +197,7 @@ function main(elem, mode) {
                 }
                 break;
             default:
-                throw new Error(`不支持的菜单类型：${mode}`);
+                throw new Error(i18n`不支持的菜单类型：${mode}`);
         }
     } else {
         mode = mode || "horizonal";

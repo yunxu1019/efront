@@ -128,7 +128,7 @@ function createResponse(response, status = 0) {
  */
 function cross_(jsonp, digest = noop, method, url, headers) {
     var originDomain = getDomainPath(url);
-    if (!originDomain) throw new Error("路径格式错误！");
+    if (!originDomain) throw new Error(i18n`路径格式错误！`);
     var loaded, errored;
     var onload = function (data) {
         if (!~requests.indexOf(_xhr)) return;
@@ -217,7 +217,7 @@ function cross_(jsonp, digest = noop, method, url, headers) {
 
                 }
                 if (exposeMap["strict-transport-security"] || exposeMap["efront-transport-security"]) {
-                    if (!/^https\:\/\/|^s\/\//.test(url)) console.warn("请使用https访问如下路径:" + url);
+                    if (!/^https\:\/\/|^s\/\//.test(url)) console.warn(i18n`请使用https访问如下路径:` + url);
                 }
             }
             if (isencrypt && xhr.response) {

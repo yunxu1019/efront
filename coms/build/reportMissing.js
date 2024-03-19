@@ -58,11 +58,13 @@ function reportMissing(responseTree) {
             map[p].push(k2);
         }
     }
+    var fileNameColor = console.format(' <green>;</green> ').split(';');
+    var splitPunctuator = console.format("<gray>,</gray> ");
     for (var k in missingMap) {
-        console.warn(`文件 <green>${k}</green> 用到可能不存在的外部变量: ${missingMap[k].join("<gray>,</gray> ")}`);
+        console.warn(i18n`文件${fileNameColor.join(k)}用到可能不存在的外部变量: ${missingMap[k].join(splitPunctuator)}`);
     }
     for (var k in missingMap2) {
-        console.warn(`文件 <green>${k}</green> 用到可能不存在的外部模块: ${missingMap2[k].join("<gray>,</gray> ")}`);
+        console.warn(i18n`文件${fileNameColor.join(k)}用到可能不存在的外部模块: ${missingMap2[k].join(splitPunctuator)}`);
     }
 
 }

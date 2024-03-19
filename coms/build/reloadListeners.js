@@ -18,7 +18,7 @@ server.once("error", function () {
 var memery = require("../efront/memery");
 server.once("listening", function (event) {
     var port = memery.WATCH_PORT = server.address().port;
-    console.info(`watchport:${port}\r\n`);
+    console.info(i18n`监听端口:${port}\r\n`);
 });
 module.exports = {
     run() {

@@ -221,8 +221,10 @@ var removePrequoted = function (code) {
     }
     return prequoted;
 };
+if (typeof i18n === 'undefined') var show_building = console.info.bind(console, '编译');
+else show_building = console.info.bind(console, i18n`编译`);
 var loadJsBody = function (data, filename, lessdata, commName, className, htmlData) {
-    if (data.length > 0x200) console.info("编译", filename);
+    if (data.length > 0x200) show_building(filename);
     data = trimNodeEnvHead(data);
     data = data.replace(/\bDate\(\s*(['"`])(.*?)\1\s*\)/g, (match, quote, dateString) => `Date(${+new Date(dateString)})`);
     var destpaths = commbuilder.prepare === false ? [] : getRequiredPaths(data);
@@ -307,7 +309,7 @@ var loadJsBody = function (data, filename, lessdata, commName, className, htmlDa
             prepareCodeBody = scanner2(`prepare(${stringifiedpaths});`);
         }
         else {
-            console.warn(`将不处理此文件的页面自动预载<gray>${filename}</gray>`);
+            console.warn(i18n`将不处理此文件的页面自动预载<gray>${filename}</gray>`);
         }
     }
     var code_body = code;
@@ -609,7 +611,7 @@ var renderImageUrl = function (data, filepath) {
     return bindLoadings(urlReg, data, filepath, replacer, false);
 };
 var renderLessData = function (data, lesspath, commName, watchurls, className) {
-    if (data.length > 0x1000) console.info("编译", lesspath);
+    if (data.length > 0x1000) show_building(lesspath);
     data = data || '';
     var that = this;
     var importLessReg = /^\s*@(?:import)\s*(['"`]?)(.*?)\1(\s*;)?\s*$/im;
@@ -663,7 +665,7 @@ var renderLessData = function (data, lesspath, commName, watchurls, className) {
 
 function prepare(filename, fullpath) {
     var commName = fullpath.match(/(?:^|[^\w\u3000-\uffff])([\$_\w\u3000-\uffff][\w\u3000-\uffff]*?)(\.[^\.]*)?$/i);
-    if (!commName) console.warn("文件名无法生成导出变量！", fullpath);
+    if (!commName) console.warn(i18n`文件名无法生成导出变量！`, fullpath);
     commName = commName && commName[1];
     var className = filename.replace(/[\\\/\:\.]+/g, "-");
     if (!/\-/.test(className)) className += "- " + className;
@@ -815,7 +817,7 @@ function getMouePromise(data, filename, fullpath, watchurls) {
     });
     if (!/^[\s]*$/i.test(data)) {
         data = data.trim();
-        console.warn(`文件中存在冗余数据<gray>${fullpath}</gray>:<data>${data.length > 12 ? data.slice(0, 10) + '...' : data}</data>`);
+        console.warn(i18n`文件中存在冗余数据<gray>${fullpath}</gray>:<data>${data.length > 12 ? data.slice(0, 10) + '...' : data}</data>`);
     }
     var promise = new Promise((ok, oh) => {
         function fire() {

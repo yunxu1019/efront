@@ -199,7 +199,7 @@ var parseEventTypes = function (eventtypes) {
                         types.keyCode = keyCodeMap[t];
                     }
                     else {
-                        throw new Error(`绑定事件参数无效${t}`);
+                        throw new Error(i18n`绑定事件参数无效${t}`);
                     }
 
             }
@@ -315,7 +315,7 @@ var checkroot = function (element, k) {
         if (element === window && k in document) {
             element = document;
             // <!--
-            if (!checkroot[k]) checkroot[k] = true, console.warn("使用 document 的", k, "替代 window 的");
+            if (!checkroot[k]) checkroot[k] = true, console.warn(i18n`使用 document 的`, k, "替代 window 的");
             // -->
         }
     }
@@ -365,7 +365,7 @@ var on = document.efronton = function (k) {
     else {
         var _addhandler = function (target, context, handler, firstmost = false) {
             if (eventtypes.capture) {
-                console.warn("当前运行环境不支持事件capture");
+                console.warn(i18n`当前运行环境不支持事件capture`);
                 firstmost = true;
             }
             target = checkroot(target, k);

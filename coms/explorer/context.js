@@ -55,7 +55,7 @@ var popupEdit = function ($scope, active) {
 };
 return extend([
     {
-        name: "返回(O)",
+        name: i18n`返回(O)`,
         hotkey: "backspace",
         when: never,
         do() {
@@ -63,7 +63,7 @@ return extend([
         }
     },
     {
-        name: "打开(O)",
+        name: i18n`打开(O)`,
         hotkey: "Enter",
         when: never,
         do(d) {
@@ -73,7 +73,7 @@ return extend([
         }
     },
     {
-        name: "剪切(C)",
+        name: i18n`剪切(C)`,
         hotkey: "Ctrl+X",
         when: getStable,
         do(d) {
@@ -83,7 +83,7 @@ return extend([
         }
     },
     {
-        name: "复制(R)",
+        name: i18n`复制(R)`,
         hotkey: "Ctrl+C",
         when: getStable,
         do(d) {
@@ -93,7 +93,7 @@ return extend([
         }
     },
     {
-        name: "全选(A)",
+        name: i18n`全选(A)`,
         hotkey: "Ctrl+A",
         when: never,
         do(d) {
@@ -103,11 +103,11 @@ return extend([
         }
     },
     {
-        name: "替换(R)",
+        name: i18n`替换(R)`,
         when: never,
     },
     {
-        name: "粘贴(V)",
+        name: i18n`粘贴(V)`,
         hotkey: "Ctrl+V",
         when(e) {
             var copyed = getPageScope(e.target).copyed;
@@ -122,16 +122,16 @@ return extend([
             var pathbase = "/" + $scope.pathlist.join("/").replace(/^\/+|\/+$/g, '');
             for (var c of cp) {
                 if (pathbase.indexOf(c.fullpath.replace(/^\/+|\/+$/g, '')) >= 0) {
-                    return alert.warn("不能移入子文件夹");
+                    return alert.warn(i18n`不能移入子文件夹`);
                 }
             }
             var token = await $scope.getToken();
             for (var c of cp) {
                 var newname = c.name;
                 if ($scope.hasName(c.name)) {
-                    newname = prompt(`请输入新的${cp.isfolder ? '文件夹' : "文件"}名:`, function (a) {
+                    newname = prompt(i18n`请输入新的${cp.isfolder ? i18n`文件夹` : i18n`文件`}名:`, function (a) {
                         if (isEmpty(a)) return false;
-                        if ($scope.hasName(a)) return "命名冲突"
+                        if ($scope.hasName(a)) return i18n`命名冲突`
                         return explorer$filetip(a);
                     });
                     newname.querySelector("input,textarea").value = c.name.replace(/\/$/, '');
@@ -141,7 +141,7 @@ return extend([
                 else {
                     var offunload = on("beforeunload")(window, function (event) {
                         event.preventDefault();
-                        alert("有文件正在复制！");
+                        alert(i18n`有文件正在复制！`);
                         return false;
                     });
                     var task = explorer$deepcp($scope, c, pathbase + "/" + newname);
@@ -157,12 +157,12 @@ return extend([
         }
     },
     {
-        name: "新建文件夹(D)",
+        name: i18n`新建文件夹(D)`,
         when: notGetActive,
         do: popupAdd
     },
     {
-        name: "添加文件(F)",
+        name: i18n`添加文件(F)`,
         when: notGetActive,
         async do(d) {
             var $scope = getPageScope(d);
@@ -171,13 +171,13 @@ return extend([
     },
     {
         hotkey: "F2",
-        name: '重命名(R)',
+        name: i18n`重命名(R)`,
         when: getStable,
         do: popupRen
     },
     {
         get name() {
-            return this.confirm ? "确认删除(D)" : "删除(D)";
+            return this.confirm ? i18n`确认删除(D)` : i18n`删除(D)`;
         },
         hotkey: "Shift+Del",
         confirm: false,
@@ -192,7 +192,7 @@ return extend([
                 var elem = div();
                 elem.innerHTML = `<fileitem -repeat="d in selected"></fileitem>`;
                 render(elem, { fileitem: explorer$fileitem, selected });
-                await yousure(`确认要删除如下 ${selected.length} 项吗？`, elem);
+                await yousure(i18n`确认要删除如下 ${selected.length} 项吗？`, elem);
             }
             else if (this.confirm === null) {
                 this.confirm = e;

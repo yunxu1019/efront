@@ -167,7 +167,7 @@ function builder(cleanAfterBuild = false, cleanBeforeBuild = false) {
         });
     } else {
         console.error(
-            new Error(`要发布或打包的项目不存在:${PUBLIC_APP}`)
+            new Error(i18n`要发布或打包的项目不存在:${PUBLIC_APP}`)
         );
         process.exit(1);
     }

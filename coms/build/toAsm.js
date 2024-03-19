@@ -11,7 +11,7 @@ function sortfile(a, b) {
 }
 
 function rename(f, from, to) {
-    throw new Error("暂不支持变量重命名");
+    throw new Error(i18n`暂不支持变量重命名`);
     if (from in f.datas) {
         f.datas[to] = f.datas[from];
         delete f.datas[from];

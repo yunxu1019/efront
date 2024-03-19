@@ -17,7 +17,7 @@ function cast(target, type, data) {
             type = "default";
             break;
         default:
-            throw new Error("参数数量不正确");
+            throw new Error(i18n`参数数量不正确`);
     }
     if (!isObject(target)) return;
 

@@ -77,7 +77,7 @@ function fromhuff(buff, result = [], scanstart, type) {
             "\r\nbitwidth:", t,
             "\r\ncodemap:", map
         );
-        throw console.warn("数据异常！");
+        throw console.warn(i18n`数据异常！`);
     }
     bitoffset = bitoffset + endflag[1];
     return bitoffset;
@@ -190,11 +190,11 @@ function unpack(buff) {
                         result.push(res);
                         break;
                     default:
-                        throw new Error("编码异常！");
+                        throw new Error(i18n`编码异常！`);
                 }
                 break;
             default:
-                throw new Error("数据异常！");
+                throw new Error(i18n`数据异常！`);
         }
     } while (byteoffset + 1 < buff.length);
     result = concatByte(result);

@@ -48,7 +48,7 @@ Scanner.prototype = {
                 }
                 block.end = index;
             } else if (/y/.test(reg.flags)) {
-                throw new Error(`unexcepted token ${dataString[index]}`);
+                throw new Error(i18n`意外标记 ${dataString[index]}`);
             } else {
                 index = dataString.length;
             }

@@ -82,7 +82,7 @@ var exec_ = function (args, ok, oh, int) {
                 case 7: index++; catches.push([index, p]); break; // try catch finally?
                 case 8: index++; catches.push([index, p, 1]); break; // try finally
                 case 9: return p ? fine() : fina(); // finally
-                default: throw console.log(a), "代码异常！";
+                default: throw console.log(a), i18n`代码异常！`;
             }
         }
         retn();

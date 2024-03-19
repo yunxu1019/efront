@@ -177,7 +177,7 @@ var buildHtml = function (html, code, outsideMain, responseTree) {
             var reloader = function(){
                 load(location.pathname + "?time=" + +new Date(), function(xhr){
                     var version = xhr.responseText.match(/\\b${efrontReloadVersionAttribute}\\s*=\\s*(\\d+)\\b/);
-                    console.info("当前版本:${reloadVersion},目标版本:" + targetVersion + "正在重新加载,..");
+                    console.info("${i18n`当前版本`}:${reloadVersion},${i18n`目标版本`}:" + targetVersion + "${i18n`正在重新加载`}..");
                     if( !version || +version[1] !== ${reloadVersion}) location.reload() | console.warn("reload..", new Date);
                     else setTimeout(reloader, 200);
                 }, "get");
@@ -290,7 +290,7 @@ var rebuildData = function (responseTree) {
         var o = responseTree[k];
         if (o.type !== '') {
             delete renmap[k];
-            console.warn("发现可能被覆盖的路径", o.destpath);
+            console.warn(i18n`发现可能被覆盖的路径`, o.destpath);
             return;
         }
 
@@ -382,7 +382,7 @@ module.exports = async function (responseTree) {
         }
         reportMissing(responseTree);
         report(responseTree);
-        console.warn("<yellow2>在您所编译的项目中没有发现主程序</yellow2>");
+        console.warn(`<yellow2>${i18n`在您所编译的项目中没有发现主程序`}</yellow2>`);
         return responseTree;
     }
     var commbuilder = require("../efront/commbuilder");

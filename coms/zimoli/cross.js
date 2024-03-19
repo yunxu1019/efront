@@ -13,12 +13,12 @@ if (cookiesData) {
     try {
         extend(cookiesMap, JSAM.parse(cookiesData));
     } catch (e) {
-        console.warn("加载cookie出错！");
+        console.warn(i18n`加载cookie出错！`);
     }
 }
 
 var digest = function () {
-    Promise.resolve().then(function(){
+    Promise.resolve().then(function () {
         dispatch('render', window);
     });
 };
@@ -56,7 +56,7 @@ var cross = cross_.bind(function (callback, onerror) {
 
 cross.setHost = function (host) {
     var parsed = parseURL(host);
-    if (!host) return console.error("cross_host格式不正确", host);
+    if (!host) return console.error(i18n`cross_host格式不正确`, host);
     var host = parsed.host + (parsed.pathname || '/');
     host = (/^https/.test(location_href) ? "https://" : "http://") + host;
     cross_.setHost(host);

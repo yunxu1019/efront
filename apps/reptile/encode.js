@@ -31,7 +31,7 @@ var crypt = function (error, files) {
     }, files);
 };
 if (!code) {
-    throw new Error("请设置密码");
+    throw new Error(i18n`请设置密码`);
 }
 crypt(null, [
     'photos/05.jpg'

@@ -75,11 +75,14 @@ module.exports = function (root) {
             return 0;
         });
         var isFolder = fs.statSync(root).isDirectory();
-        var name = isFolder ? "路径" : "文件";
+        var name = isFolder ? i18n`路径` : `文件`;
+        var cyan = console.format(`<cyan>;</cyan>`).split(';');
+        var white = console.format(`<white>;</white>`).split(';');
         if (!args.length) {
-            console.line(`${name} <cyan>${root}</cyan> 中没有找到外部变量`);
+
+            console.line(i18n`${name} ${cyan.join(root)} 中没有找到外部变量`);
         } else {
-            console.line(`${name} <cyan>${root}</cyan> 中共有 <white>${args.length}</white> 个外部变量`);
+            console.line(i18n`${name} ${cyan.join(root)} 中共有 ${white.join(args.length)} 个外部变量`);
         }
         if (isFolder) {
             args.forEach(log);
@@ -94,10 +97,10 @@ module.exports = function (root) {
         if (query !== undefined) {
             args = args.filter(a => query.indexOf(a) === 0 || a.indexOf(query) === 0);
             if (!args.length) {
-                console.log(`\r\n没有与指定的参数${query}相关的项`);
+                console.log(i18n`\r\n没有与指定的参数${query}相关的项`);
             }
             else {
-                console.log(`\r\n${query ? "与 " + query + " 相关的项" : ''}首次引用点如下：`)
+                console.log(i18n`\r\n${query ? i18n`与${query}相关的项` : ''}首次引用点如下：`)
                 args.forEach(a => {
                     var logmap = Object.create(null);
                     for (var u of undeclares[a]) {
@@ -116,7 +119,7 @@ module.exports = function (root) {
     var run = function () {
         if (!rest.length) return list();
         var fullpath = rest.pop();
-        if (!fs.existsSync(fullpath)) return console.error("路径不存在:", fullpath), run();
+        if (!fs.existsSync(fullpath)) return console.error(i18n`路径不存在:`, fullpath), run();
         fs.stat(fullpath, function (error, stats) {
             if (error) return console.error(error);
             if (stats.isDirectory()) {

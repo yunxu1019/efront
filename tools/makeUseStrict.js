@@ -7,11 +7,11 @@ var path = require("path");
  */
 var replace = function (dir, deep) {
     if (!fs.existsSync(dir)) {
-        return console.warn(`指定的路径${dir}不存在!`);
+        return console.warn(i18n`指定的路径${dir}不存在!`);
     }
     if (dir.match(/node_modules/)) {
         if (typeof deep !== "number") {
-            return console.error("不要在这个层级未知的地方下手！");
+            return console.error(i18n`不要在这个层级未知的地方下手！`);
         }
     }
     if (deep < 0) {

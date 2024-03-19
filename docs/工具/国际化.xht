@@ -340,7 +340,7 @@
             return compile$translate.getI18nPrefixed(code);
         }
         catch (e) {
-            alert("提取文本时存在异常", "error");
+            alert(i18n`提取文本时存在异常`, "error");
             console.error(e, f.path);
             return [];
         }
@@ -481,7 +481,7 @@
     }
     var chooseFolder = async function () {
         var dp = await window.showDirectoryPicker();
-        var msg = alert("正在读取文件列表，请稍候..", false);
+        var msg = alert(i18n`正在读取文件列表，请稍候..`, false);
         var rest = [dp];
         var result = [];
         dp.path = "";
@@ -511,7 +511,7 @@
                 }
             }
         }
-        msg.setText("正在提取字符串..");
+        msg.setText(i18n`正在提取字符串..`);
         css(msg.firstElementChild, 'text-align:left');
         var textMap = Object.create(null);
         已找到的字符串.is_loading = true;

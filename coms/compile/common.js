@@ -558,7 +558,7 @@ var createScoped = function (parsed, wash) {
                             if (o.next.type === STAMP) {
                                 isAster = true;
                                 o = o.next;
-                                o.isExpress = op.isExpress;
+                                o.isExpress = op?.isExpress;
                             }
                         case "catch":
                             if (s === 'catch') isCatch = true;
@@ -917,7 +917,7 @@ var getDeclared = function (o, kind, queue) {
                 break;
             default:
                 console.log(o);
-                throw new Error("代码结构异常");
+                throw new Error(i18n`代码结构异常`);
         }
         if (!o) break;
         switch (o.type) {
@@ -932,7 +932,7 @@ var getDeclared = function (o, kind, queue) {
                     o.prev.equal = o;
                     o = o.next;
                     var o0 = skipAssignment(o);
-                    if (isrest) throw "余集变量不能有默认值";
+                    if (isrest) throw i18n`余集变量不能有默认值`;
                     attributes[attributes.length - 1].push(queue, o, o0);
                     while (o !== o0) {
                         skiped.push(o);
@@ -1046,7 +1046,7 @@ var createString = function (parsed) {
     var helpcode = parsed.helpcode;
     var express_reg = parsed.program?.express_reg;
     if (typeof helpcode === 'string') {
-        if (express_reg && !express_reg.test(helpcode.replace(/[\/\||,]/g, ''))) throw new Error("辅助级别异常：" + debug);
+        if (express_reg && !express_reg.test(helpcode.replace(/[\/\||,]/g, ''))) throw new Error(i18n`辅助级别异常：` + debug);
         if (/[\/\|,]/i.test(helpcode)) var debug = `(?:${helpcode.replace(/[\/\|,]/g, '|')})`;
         else debug = helpcode;
     }

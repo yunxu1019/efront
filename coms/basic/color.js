@@ -263,7 +263,7 @@ function doWith(manager, color, ...args) {
 	var isparsed = color instanceof Array,
 		c = isparsed ? color : parse(color);
 	if (!c) {
-		console.warn(`颜色数据不正确:${color}`);
+		console.warn(i18n`颜色数据不正确:${color}`);
 		return color;
 	}
 	c = manager(c, ...args);

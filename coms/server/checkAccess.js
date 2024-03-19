@@ -5,7 +5,7 @@ var fs = require("fs");
 var getFile = function (configfilepath) {
     if (!fs.existsSync(configfilepath)) return;
     fs.readFile(configfilepath, function (error, data) {
-        if (error) return console.warn("加载共享路径出错", error);
+        if (error) return console.warn(i18n`加载共享路径出错`, error);
         if (/^\s*\[\s*"[\s\S]*\]\s*$/.test(data)) data = JSON.parse(String(data));
         else data = String(data).split(/[\r\n]+/).filter(a => !!a);
         rootDirectorys.splice(0, rootDirectorys.length);
@@ -57,11 +57,11 @@ checkAccess.remove = function (root) {
     return save();
 };
 checkAccess.append = function (p) {
-    if (!p) throw { status: 400, error: "请求无效" };
+    if (!p) throw { status: 400, error: i18n`请求无效` };
     p = require("path").normalize(p);
     var exists = require("fs").existsSync(p);
-    if (!exists) throw { status: 400, error: "路径不存在" };
-    if (rootDirectorys.indexOf(p) >= 0) throw { status: 409, error: "请不要重复添加" };
+    if (!exists) throw { status: 400, error: i18n`路径不存在` };
+    if (rootDirectorys.indexOf(p) >= 0) throw { status: 409, error: i18n`请不要重复添加` };
     rootDirectorys.push(p);
     return save();
 };

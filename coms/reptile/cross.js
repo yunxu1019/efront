@@ -101,7 +101,7 @@ var cross = cross_.bind(function (callback, onerror) {
         },
         set responseType(v) {
             if (v === "document") return;
-            if (this.status !== 0) throw new Error("状态错误");
+            if (this.status !== 0) throw new Error(i18n`状态错误`);
             responseType = v;
         },
         setRequestHeader(key, value) {

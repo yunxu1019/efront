@@ -45,7 +45,7 @@ async function parseUrl(hostpath, real) {
             });
         } else {
             var { url: hostpath, token, headers = {} } = JSON.parse(decodeURIComponent(jsonlike));
-            if (!token) throw new Error("验证身份失败！");
+            if (!token) throw new Error(i18n`验证身份失败！`);
             hostpath = escape(hostpath);
         }
     }

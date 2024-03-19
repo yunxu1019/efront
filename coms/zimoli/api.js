@@ -42,7 +42,7 @@ var api = function () {
     }
 
     if (!uri) {
-        throw '不存在uri';
+        throw i18n`不存在uri`;
     }
     if (typeof parameters === "string") {
         prefix = parameters;
@@ -52,7 +52,7 @@ var api = function () {
     var url = baseUrl + uri;
     var req = function () {
         onstart && onstart();
-        prefix && console.log("正在" + prefix);
+        prefix && console.log(i18n`正在` + prefix);
         var clear = function () {
             req.ing = false;
             api.count--;
@@ -66,11 +66,11 @@ var api = function () {
         var xhr_onerror = function () {
             setTimeout(clear);
             if (!navigator.onLine) {
-                onerror && onerror("请求网络失败，请确认网络连接正常！", -1);
+                onerror && onerror(i18n`请求网络失败，请确认网络连接正常！`, -1);
             } else {
-                onerror && onerror(xhr.responseText || "无法访问服务器！", xhr);
+                onerror && onerror(xhr.responseText || i18n`无法访问服务器！`, xhr);
             }
-            prefix && console.error(prefix + "失败！");
+            prefix && console.error(prefix + i18n`失败！`);
         };
 
         var xhr_onload = function () {
@@ -80,8 +80,8 @@ var api = function () {
                 try {
                     var result = JSON.parse(text);
                     if (result.result === "error") {
-                        prefix && console.error(prefix + "失败！");
-                        return onerror && onerror(result.message || prefix + "失败！", 0);
+                        prefix && console.error(prefix + i18n`失败！`);
+                        return onerror && onerror(result.message || prefix + i18n`失败！`, 0);
                     }
                     if (result.result === "timeout") {
                         return onlogout && onlogout(result);
@@ -89,17 +89,17 @@ var api = function () {
                     try {
                         onsuccess && onsuccess(result);
                     } catch (e) {
-                        onerror && onerror(prefix + "处理返回结果失败！");
-                        console.error('处理结果失败！', e);
+                        onerror && onerror(prefix + i18n`处理返回结果失败！`);
+                        console.error(i18n`处理结果失败！`, e);
                     }
-                    prefix && console.info(prefix + "成功！");
+                    prefix && console.info(prefix + i18n`成功！`);
                 } catch (e) {
-                    prefix && console.error(prefix + "失败！", e);
-                    onerror && onerror(xhr.responseText || prefix + "接口返回信息异常！", 1);
+                    prefix && console.error(prefix + i18n`失败！`, e);
+                    onerror && onerror(xhr.responseText || prefix + i18n`接口返回信息异常！`, 1);
                 }
             } else {
-                prefix && console.error(prefix + "失败！");
-                onerror && onerror(prefix + "接口未返回信息！", 2);
+                prefix && console.error(prefix + i18n`失败！`);
+                onerror && onerror(prefix + i18n`接口未返回信息！`, 2);
             }
         };
         if (REQ) {
@@ -109,7 +109,7 @@ var api = function () {
             xhr.setRequestHeader = function (key, value) {
                 if (setted_headers[key]) {
                     if (setted_headers[key] === value) return;
-                    console.warn('屏蔽了重复设置', key);
+                    console.warn(i18n`屏蔽了重复设置`, key);
                     return;
                 }
                 setted_headers[key] = value;
@@ -141,7 +141,7 @@ var api = function () {
         };
         xhr.onabort = function (event) {
             setTimeout(clear);
-            onerror && onerror("请求取消！");
+            onerror && onerror(i18n`请求取消！`);
             return xhr;
         };
         xhr.onprogress = function (event) {
@@ -149,7 +149,7 @@ var api = function () {
         };
         xhr.ontimeout = function () {
             setTimeout(clear);
-            onerror && onerror("请求超时！");
+            onerror && onerror(i18n`请求超时！`);
         };
         if (typeof parameters !== "string") {
             switch ({
@@ -180,7 +180,7 @@ var api = function () {
                 case "[object FormData]":
                     break;
                 default:
-                    console.warn("不支持的数据格式", {}.toString.call(parameters));
+                    console.warn(i18n`不支持的数据格式`, {}.toString.call(parameters));
             }
         }
         for (let k in useXMLHttpRequestHeaders) {
@@ -242,7 +242,7 @@ var api = function () {
             }
             runner = req;
             req();
-            console.log("队列有" + api.inqueue + "个请求");
+            console.log(i18n`队列有${api.inqueue}个请求`);
         } else {
             if (req.ing) {
                 return;

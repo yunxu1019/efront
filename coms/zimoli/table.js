@@ -471,7 +471,7 @@ function table(elem) {
         else if (src instanceof Array) {
             var [fields, data] = src;
         }
-        else throw new Error("table组件源数据错误！");
+        else throw new Error(i18n`table组件源数据错误！`);
         if (_vbox) _vbox(), _vbox = null;
         watch(table, {
             find(text) {

@@ -24,10 +24,10 @@ var popup = function (path) {
     if (isNode(path)) {
         return popup_view.apply(null, arguments);
     }
-    throw new Error(`参数异常:${path}`);
+    throw new Error(i18n`参数异常:${path}`);
 };
 var popup_path = function (path = "", parameters, target) {
-    if (!popup.go || !popup.prepare) throw new Error("当前环境无法使用");
+    if (!popup.go || !popup.prepare) throw new Error(i18n`当前环境无法使用`);
     // 3 has mask has view control
     var element;
     if (/^[#\+]/.test(path)) {

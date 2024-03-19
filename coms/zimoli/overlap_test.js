@@ -3,7 +3,7 @@ addClass(sample, "overlap-test");
 css(".overlap-test", "position:absolute;z-index:10;");
 var assert = function (a, b) {
     if (a !== b) return console.error(`${a} is not equal ${b}!`), 0;
-    else return console.info("验证通过"), 1;
+    else return console.info(i18n`验证通过`), 1;
 }
 var getElement = function (left, top, width, height) {
     var element1 = createElement(sample)

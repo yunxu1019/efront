@@ -256,7 +256,7 @@ var getBuildRoot = function (files, matchFileOnly) {
             }
             erroredFiles[file1] = true;
             if (!matchFileOnly) console.error(e, "\r\n");
-            else console.warn(e + ",", '已跳过', `<gray>${file1}</gray>`);
+            else console.warn(e + ",", i18n`已跳过`, `<gray>${file1}</gray>`);
         }).then(run);
     };
     return new Promise(function (ok) {

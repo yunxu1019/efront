@@ -1,6 +1,6 @@
 function numberUTF16(t, dist = []) {
     if (t > 0x10ffff) {
-        throw new Error("编码错误");
+        throw new Error(i18n`编码错误`);
     }
     if (t <= 0xffff) {
         dist.push(t >> 8, t & 0xff);
@@ -13,7 +13,7 @@ function numberUTF16(t, dist = []) {
 }
 function numberUTF16LE(t, dist = []) {
     if (t > 0x10ffff) {
-        throw new Error("编码错误");
+        throw new Error(i18n`编码错误`);
     }
     if (t <= 0xffff) {
         dist.push(t & 0xff, t >> 8);

@@ -177,17 +177,17 @@ async function compile(buildInfo, lastBuildTime, destroot) {
         };
         var setRealpath = function (_filepath) {
             fs.stat(_filepath, function (error, stat) {
-                if (error) throw new Error(`读取文件信息出错${url}`);
+                if (error) throw new Error(i18n`读取文件信息出错${url}`);
                 var isDirectory = false;
                 if (!stat.isFile()) {
                     if (!stat.isDirectory()) {
-                        throw new Error(`源路径不存在文件${url}`);
+                        throw new Error(i18n`源路径不存在文件${url}`);
                     }
                     isDirectory = true;
                 }
                 var loadpackage = function (packagepath) {
                     fs.readFile(packagepath, function (error, packagedata) {
-                        if (error) throw new Error(`加载${packagepath}出错`);
+                        if (error) throw new Error(i18n`加载${packagepath}出错`);
                         var packageobject = JSON.parse(String(packagedata));
                         loadindex(packageobject.main || 'index');
                     });
@@ -230,7 +230,7 @@ async function compile(buildInfo, lastBuildTime, destroot) {
                         var __filepath = path.join(_filepath, 'package.json');
                         if (fs.existsSync(__filepath)) {
                             fs.stat(__filepath, function (error, stat) {
-                                if (error) throw new Error(`加载${url}出错！`);
+                                if (error) throw new Error(i18n`加载${url}出错！`);
                                 if (stat.isFile()) loadpackage(__filepath);
                                 else loadindex();
                             });
@@ -241,14 +241,14 @@ async function compile(buildInfo, lastBuildTime, destroot) {
                     }
 
                     fs.readFile(_filepath, function (error, buffer) {
-                        if (error) throw new Error("加载" + url + "出错！");
+                        if (error) throw new Error(i18n`加载${url}出错！`);
                         response(buffer);
                     });
                 };
                 var reader = function (hasless) {
                     if (!fs.existsSync(destpath)) return loader();
                     return fs.readFile(destpath, function (error, buffer) {
-                        if (error) throw new Error(`读取已编译数据失败！url:${url}`);
+                        if (error) throw new Error(i18n`读取已编译数据失败！url:${url}`);
                         if (hasless === false && getDepedence({ data: buffer }).indexOf("cless") >= 0) {
                             return loader();
                         }
@@ -264,7 +264,7 @@ async function compile(buildInfo, lastBuildTime, destroot) {
                         var less_file = _filepath.replace(/\.([cm]?[jt]sx?|html?)$/i, ".less");
                         if (!fs.existsSync(less_file)) return reader(false);
                         fs.stat(less_file, function (error, stat) {
-                            if (error) throw new Error(`读取less文件出错！lessfile:${less_file}`);
+                            if (error) throw new Error(i18n`读取less文件出错！lessfile:${less_file}`);
                             if (lastBuildTime - stat.mtime > 10000) {
                                 reader(true);
                             } else {
@@ -277,7 +277,7 @@ async function compile(buildInfo, lastBuildTime, destroot) {
                             var html_file = _filepath.replace(/\.[cm]?[jt]sx?$/i, ".html");
                             if (!fs.existsSync(html_file)) return statless();
                             fs.stat(html_file, function (error, stat) {
-                                if (error) throw new Error(`读取html文件出错！htmlfile:${html_file}`)
+                                if (error) throw new Error(i18n`读取html文件出错！htmlfile:${html_file}`)
                                 if (lastBuildTime - stat.mtime > 10000) {
                                     statless();
                                 } else {
@@ -297,9 +297,9 @@ async function compile(buildInfo, lastBuildTime, destroot) {
         };
         var findRealpath = function () {
             if (fullpath instanceof Array && !fullpath.length) {
-                if (window.modules[name]) console.info(`${url} 将被内置模块替换！`), moduleValue = window.modules[name];
-                else if (!window.hasOwnProperty(name)) responseWithWarning = `没有发现文件：${url}`;
-                else console.info(`${url} 将使用运行环境的全局变量`);
+                if (window.modules[name]) console.info(i18n`${url} 将被内置模块替换！`), moduleValue = window.modules[name];
+                else if (!window.hasOwnProperty(name)) responseWithWarning = i18n`没有发现文件：${url}`;
+                else console.info(i18n`${url} 将使用运行环境的全局变量`);
                 resolve();
                 return;
             }

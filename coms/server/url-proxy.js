@@ -73,7 +73,7 @@ async function getProxyURL(req, url = req.url) {
         var proxy = urlProxyMap[proxyname];
         if (proxy instanceof Array) req.jump = proxy[1], proxy = proxy[0];
         url = wrapProxy(proxy, url, query);
-        console.info(`Proxy: ${req.url} => ${url}`);
+        console.info(i18n`代理: ${req.url} => ${url}`);
     }
     else {
         req.jump = false;

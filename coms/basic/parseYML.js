@@ -169,13 +169,13 @@ var scan = function (text) {
                             push();
                             break;
                         case "]":
-                            if (jsonlikes[jsonlikes.length - 1] !== "[") console.warn('数据存在错误！', jsonlikes, pre);
+                            if (jsonlikes[jsonlikes.length - 1] !== "[") console.warn(i18n`数据存在错误！`, jsonlikes, pre);
                             if (data) push();
                             jsonlikes.pop();
                             parents.pop();
                             break;
                         case "}":
-                            if (jsonlikes[jsonlikes.length - 1] !== "{") console.warn("数据存在错误！", jsonlikes, pre);
+                            if (jsonlikes[jsonlikes.length - 1] !== "{") console.warn(i18n`数据存在错误！`, jsonlikes, pre);
                             if (prop !== undefined || data) push();
                             jsonlikes.pop();
                             parents.pop();

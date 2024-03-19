@@ -23,7 +23,7 @@ var encrypt = function (data, mask) {
 };
 var stringify = function (data, password) {
     if (!password || password.length < 2) {
-        throw new Error("请传入更高强度的密码！");
+        throw new Error(i18n`请传入更高强度的密码！`);
     }
     data = JSAM.stringify(data);
     var code = calc("password", password) + password;
@@ -33,11 +33,11 @@ var stringify = function (data, password) {
 };
 var parse = function (data, password) {
     var d = data.lastIndexOf('/');
-    if (d < 0) throw new Error("数据异常！");
+    if (d < 0) throw new Error(i18n`数据异常！`);
     var sign = data.slice(d);
     data = data.slice(0, d);
     var sign0 = calc(data, password);
-    if (sign !== sign0) throw new Error("密码不正确！");
+    if (sign !== sign0) throw new Error(i18n`密码不正确！`);
     var code = calc("password", password) + password;
     data = encrypt(data, code);
     return data;

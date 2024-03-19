@@ -21,11 +21,11 @@ function mkdirIfNotExists(dirname) {
 }
 function throwMakeIfExists(dirname) {
     if (fs.existsSync(dirname))
-        throw new Error(`${dirname} 已存在！`);
+        throw new Error(i18n`${dirname} 已存在！`);
     else fs.mkdirSync(dirname);
 }
 function from(srcname = 'kugou', destname = appname) {
-    if (!appname) throw `请先设置app名称！如：${/win\d/i.test(process.platform) ? 'set' : 'export'} app=abc`;
+    if (!appname) throw i18n`请先设置app名称！如：${/win\d/i.test(process.platform) ? 'set app=abc' : 'export app=abc'}`;
     var setupData = [
     ];
     if (destname) {
@@ -68,19 +68,19 @@ function from(srcname = 'kugou', destname = appname) {
 module.exports = from;
 function copy(path1, path2) {
     if (fs.existsSync(path2)) {
-        console.error(`目标路径已存在：${path2}`);
+        console.error(i18n`目标路径已存在：${path2}`);
     } else if (!fs.existsSync(path.dirname(path2))) {
-        console.error("目标路径无法创建！");
+        console.error(i18n`目标路径无法创建！`);
     } else if (!fs.existsSync(path1)) {
-        console.error(`源路径不存在：${path1}`);
+        console.error(i18n`源路径不存在：${path1}`);
     } else {
         fs.stat(path1, function (error, stats) {
-            if (error) console.error(`无法读取源路径：${path1}`);
+            if (error) console.error(i18n`无法读取源路径：${path1}`);
             else if (stats.isDirectory()) {
                 fs.readdir(path1, function (error, names) {
-                    if (error) console.error(`读取目录失败：${path1}`)
+                    if (error) console.error(i18n`读取目录失败：${path1}`)
                     else fs.mkdir(path2, function (error) {
-                        if (error) console.error(`创建目录失败：${path2}`);
+                        if (error) console.error(i18n`创建目录失败：${path2}`);
                         else names.forEach(function (name) {
                             copy(path.join(path1, name), path.join(path2, name));
                         })
@@ -88,9 +88,9 @@ function copy(path1, path2) {
                 });
             } else {
                 fs.readFile(path1, function (error, data) {
-                    if (error) console.error(`读取文件失败：${path1}`);
+                    if (error) console.error(i18n`读取文件失败：${path1}`);
                     else fs.writeFile(path2, data, function (error) {
-                        if (error) console.error(`写入文件失败：${path2}`);
+                        if (error) console.error(i18n`写入文件失败：${path2}`);
                     });
                 })
             }

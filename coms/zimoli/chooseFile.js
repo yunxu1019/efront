@@ -17,7 +17,7 @@ function chooseFile(accept, multiple, extra) {
                 if (!value) return;
                 var ActiveXObject = window.ActiveXObject;
                 if (!ActiveXObject) {
-                    alert("您的浏览器环境无法选择文件！");
+                    alert(i18n`您的浏览器环境无法选择文件！`);
                     return;
                 }
                 try {
@@ -25,7 +25,7 @@ function chooseFile(accept, multiple, extra) {
                     var file = fso.GetFile(value);
                     ok([file]);
                 } catch (e) {
-                    alert(e + "打开文件失败！");
+                    alert(e + i18n`打开文件失败！`);
                 }
             } else {
                 var count = 0;

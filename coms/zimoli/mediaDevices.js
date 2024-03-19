@@ -30,7 +30,7 @@ var load = function () {
     });
 }
 if (!_mediaDevices) {
-    console.info("当前环境不支持mediaDevices！");
+    console.info(i18n`当前环境不支持mediaDevices！`);
 } else {
     _mediaDevices.ondevicechange = load;
     load();

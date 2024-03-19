@@ -19,7 +19,7 @@ var prototype = {
     },
     insertBefore(child, referer) {
         if (referer) {
-            if (referer.parentNode !== this) throw new Error('The node before which the new node is to be inserted is not a child of this node');
+            if (referer.parentNode !== this) throw new Error(i18n`父元素不能是当前元素的子元素`);
             appendChild.before(referer, child, false);
         } else {
             appendChild(this, child, false);
@@ -55,7 +55,7 @@ var prototype = {
         return this;
     }
 }
-console.error("createElement将会在未来的版本中移除！");
+console.error(i18n`createElement将会在未来的版本中移除！`);
 function createElement(name) {
     var node = isNode(name) ? name.cloneNode() : isFunction(name) ? name() : document.createElement(name);
     if (name.className) addClass(node, name.className);

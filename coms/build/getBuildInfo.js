@@ -130,7 +130,7 @@ function getBuildInfo(url) {
             //     fullpath = path.join(aapis_root, name + extt);
             //     break;
             default:
-                throw new Error("类型不被支持!");
+                throw new Error(i18n`类型不被支持!`);
         }
         return new BuildInfo({
             appc,
@@ -146,7 +146,7 @@ function getBuildInfo(url) {
             url
         });
     }
-    console.warn("路径不支持", url);
+    console.warn(i18n`路径不支持`, url);
 }
 module.exports = getBuildInfo;
 getBuildInfo.commap = commap;

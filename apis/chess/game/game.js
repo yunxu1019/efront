@@ -29,13 +29,13 @@ Game.prototype = {
     //游戏初始化
     init() {
         if (games_count >= games_count_limit) {
-            throw new Error("服务器已满！");
+            throw new Error(i18n`服务器已满！`);
         }
         games_count++;
         this.autoComplete();
         var id = Date.now();
         if (id in games) {
-            throw new Error("当前并发量大，请重试！");
+            throw new Error(i18n`当前并发量大，请重试！`);
         }
         this.id = id;
         games[id] = this;
@@ -66,10 +66,10 @@ Game.prototype = {
     detect(index) {
         var chessman = this.getChessman(index);
         if (chessman === undefined) {
-            throw new Error("目标位置不存在！");
+            throw new Error(i18n`目标位置不存在！`);
         }
         if (chessman !== "") {
-            throw new Error("已经翻过这个位置");
+            throw new Error(i18n`已经翻过这个位置`);
         }
         var source = this.source;
         var chessman = source.splice(source.length * Math.random() | 0, 1)[0];
@@ -90,15 +90,15 @@ Game.prototype = {
         var chessman1 = this.getChessman(point1);
         var chessman2 = this.getChessman(point2);
         if (chessman2 === undefined) {
-            throw new Error("目标位置不存在！");
+            throw new Error(i18n`目标位置不存在！`);
         } else if (chessman1 === undefined) {
-            throw new Error("起始位置不存在！");
+            throw new Error(i18n`起始位置不存在！`);
         }
         if (!chessman1) {
-            throw new Error("起始位置不存在可操作棋子！");
+            throw new Error(i18n`起始位置不存在可操作棋子！`);
         }
         if (chessman1.color !== color) {
-            throw new Error("您只能操作自己的棋子！");
+            throw new Error(i18n`您只能操作自己的棋子！`);
         }
         var step_count, step_delta;
         if (this.getCol(point1) === this.getCol(point2)) {
@@ -110,7 +110,7 @@ Game.prototype = {
             step_count = this.getCol(point1) - this.getCol(point2);
             step_delta = 8;
         } else {
-            throw new Error("起始位置和目标位置应该在同一直线上！");
+            throw new Error(i18n`起始位置和目标位置应该在同一直线上！`);
         }
         if (step_count < 0) {
             step_delta = -step_delta;
@@ -119,29 +119,29 @@ Game.prototype = {
         if (chessman2 === null) {
             //移棋
             if (step_count !== 1) {
-                throw new Error("一次只能走一个格子！");
+                throw new Error(i18n`一次只能走一个格子！`);
             }
             this.setChessman(point1, null);
             this.setChessman(point2, chessman1);
         } else {
             //吃子
             if (chessman2.color === color) {
-                throw new Error("不能吃自己的棋子！");
+                throw new Error(i18n`不能吃自己的棋子！`);
             }
             if (step_count === 1) {
                 //吃相临子
                 if (chessman2 === "") {
-                    throw new Error("不能吃相临位置未翻开的棋子！");
+                    throw new Error(i18n`不能吃相临位置未翻开的棋子！`);
                 }
                 if (/[兵卒]/.test(chessman1.name)) {
                     if (!/[帥將]/.test(chessman2.name)) {
-                        throw new Error("兵卒只能吃將帥！");
+                        throw new Error(i18n`兵卒只能吃將帥！`);
                     }
                     this.setChessman(point1, null);
                     this.setChessman(point2, chessman1);
                 } else {
                     if (/[帥將]/.test(chessman1.name) && /[兵卒]/.test(chessman2.name)) {
-                        throw new Error("將帥不能吃兵卒！");
+                        throw new Error(i18n`將帥不能吃兵卒！`);
                     }
                     var delta_power = this.compare(chessman1, chessman2);
                     if (delta_power > 0) {
@@ -154,13 +154,13 @@ Game.prototype = {
                         this.setChessman(point2, null);
                     } else {
                         //不可以吃
-                        throw new Error("无法吃比自己大的子");
+                        throw new Error(i18n`无法吃比自己大的子`);
                     }
                 }
             } else if (/砲炮/.test(chessman1.name)) {
                 //翻子吃子
                 if (chessman2 === null) {
-                    throw new Error("不可以移动到远处的位置！");
+                    throw new Error(i18n`不可以移动到远处的位置！`);
                 }
                 var chessman_count = 0;
                 var temp_index = point1;
@@ -171,14 +171,14 @@ Game.prototype = {
                     }
                 }
                 if (chessman_count < 1) {
-                    throw new Error("至少翻过一个子才能吃远处的子！");
+                    throw new Error(i18n`至少翻过一个子才能吃远处的子！`);
                 } else if (chessman_count > 1) {
-                    throw new Error("最多翻过一个子去吃远处的子！");
+                    throw new Error(i18n`最多翻过一个子去吃远处的子！`);
                 }
                 this.setChessman(point1, null);
                 this.setChessman(point2, chessman1);
             } else {
-                throw new Error("非法操作！");
+                throw new Error(i18n`非法操作！`);
             }
         }
     },
@@ -270,12 +270,12 @@ module.exports = function ({ type, game_id, user_id, link_id, step }) {
             }
             var game = games[game_id];
             if (!game) {
-                throw new Error("棋局不存在！");
+                throw new Error(i18n`棋局不存在！`);
             }
             var extraPromise = game.extraPromise;
             if (!link_id) {
                 if (game.extraUsers_count >= 500) {
-                    throw new Error("房间观战人数已满！");
+                    throw new Error(i18n`房间观战人数已满！`);
                 }
                 link_id = Date.now() + ":" + ++game.extraUsers_count;
                 extraPromise[link_id] = null;
@@ -283,7 +283,7 @@ module.exports = function ({ type, game_id, user_id, link_id, step }) {
                 return { game_id, link_id };
             }
             if (extraPromise[link_id] instanceof Array) {
-                throw new Error("无效的连接标识");
+                throw new Error(i18n`无效的连接标识`);
             } else if (extraPromise[link_id] instanceof Object) {
                 var extra = extraPromise[link_id];
                 extraPromise[link_id] = null;
@@ -297,17 +297,17 @@ module.exports = function ({ type, game_id, user_id, link_id, step }) {
             //下棋
             var game = games[game_id];
             if (!game) {
-                throw new Error("棋局不存在！");
+                throw new Error(i18n`棋局不存在！`);
             }
             if (!(step instanceof Array)) {
-                throw new Error("参数异常！");
+                throw new Error(i18n`参数异常！`);
             }
             game.autoComplete();
             if (!game.player_id) {
-                throw new Error("缺少棋手！");
+                throw new Error(i18n`缺少棋手！`);
             }
             if (game.current_player_id !== user_id) {
-                throw new Error("现在不该您操作！");
+                throw new Error(i18n`现在不该您操作！`);
             }
 
             switch (step.length) {
@@ -329,7 +329,7 @@ module.exports = function ({ type, game_id, user_id, link_id, step }) {
             //第二个用户加入，开局
             var game = games[game_id];
             if (!game) {
-                throw new Error("房间不存在！");
+                throw new Error(i18n`房间不存在！`);
             }
             game.autoComplete();
             if (user_id === game.user_id) {

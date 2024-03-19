@@ -43,12 +43,12 @@ function getFilepath($url) {
 function write(fullpath, data) {
     fs.mkdir(path.dirname(fullpath), { recursive: true }, function (error) {
         if (error) {
-            console.error("创建文件夹失败", error);
+            console.error(i18n`创建文件夹失败`, error);
         }
         var stream = fs.createWriteStream(fullpath);
         stream.write(data);
         stream.end();
-        console.info('grap', fullpath);
+        console.info(i18n`抓取`, fullpath);
     });
 }
 function record($url, request, response, req, res) {

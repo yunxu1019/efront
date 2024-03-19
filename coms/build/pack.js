@@ -22,7 +22,7 @@ function pack(readfrom, writeto, type) {
         var run = function () {
             if (!queue.length) return ok(dist);
             var file = queue.pop();
-            console.info(`正在处理(${++index}/${total}): ${file}`);
+            console.info(i18n`正在处理(${++index}/${total}): ${file}`);
             fs.stat(file, function (error, stats) {
                 if (error) return oh(error);
                 if (stats.isDirectory()) {

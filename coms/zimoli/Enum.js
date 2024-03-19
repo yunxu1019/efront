@@ -29,7 +29,7 @@ Enum.prototype = {
     }
 };
 function Enum(keys) {
-    if (!this) throw new Error("请用new关键字创建！");
+    if (!this) throw new Error(i18n`请用new关键字创建！`);
     this[0] = 0;
     if (keys) {
         if (!isArray(keys)) {

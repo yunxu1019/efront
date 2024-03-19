@@ -390,7 +390,7 @@ function cross(vec1, vec2) {
     if (vec1.length !== vec2.length) throw notMatchLength;
     if (vec1.length === 2) return cross2(vec1, vec2);
     if (vec1.length === 3) return cross3(vec1, vec2);
-    throw new Error("向量维度不支持！");
+    throw new Error(i18n`向量维度不支持！`);
 }
 function 负(a) {
     return -a;

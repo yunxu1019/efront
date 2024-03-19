@@ -17,7 +17,7 @@ function decodeHttpResponse(response) {
         case undefined:
             break;
         default:
-            console.warn("内容格式不支持:", response.headers["content-encoding"]);
+            console.warn(i18n`内容格式不支持:`, response.headers["content-encoding"]);
     }
     if (decoder) response = response.pipe(decoder);
     return response;

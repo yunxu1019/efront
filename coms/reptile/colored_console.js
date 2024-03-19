@@ -98,11 +98,12 @@ var write = function (hasNewLine, str) {
         reset = colors.Reset;
     var hasNewLine = /^(warn|error|pass|fail)$/.test(log);
     var logger = function () {
-        var label = fgColor + bgColor + info + reset;
+        var label = logger.tip ? fgColor + bgColor + logger.tip + reset : '';
         var time_stamp = '';
-        var str = [time_stamp, label].concat(Array.prototype.map.call(arguments, a => renderColor(a))).join(" ");
+        var str = [time_stamp, label].filter(a => !!a).concat(Array.prototype.map.call(arguments, a => renderColor(a))).join(" ");
         write1(hasNewLine, str);
     };
+    logger.tip = info;
     colored[log] = logger;
 });
 var write1 = function (hasNewLine, str) {
@@ -296,4 +297,9 @@ colored.format = function (a) {
     a = renderColor(a);
     return a;
 };
+if (typeof i18n !== 'undefined') {
+    colored.info.tip = i18n`提示`;
+    colored.warn.tip = i18n`注意`;
+    colored.error.tip = i18n`错误`;
+}
 module.exports = colored;

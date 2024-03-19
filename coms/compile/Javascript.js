@@ -478,7 +478,7 @@ var collectProperty = function (o, text) {
         while (n && (n.type !== STAMP || n.text !== ',')) n = n.next;
         var end = n ? q.indexOf(n, start) + 1 : q.length;
         var s = splice(q, start, end - start);
-        if (s.length) console.info(`属性<green>${text}</green>被后文覆盖，已移除<yellow>${createString(s)}</yellow>\r\n`);
+        if (s.length) console.info(i18n`属性<green>${text}</green>被后文覆盖，已移除<yellow>${createString(s)}</yellow>\r\n`);
         if (p && n) {
             var pp = p.prev;
             n.prev = pp;
@@ -829,7 +829,7 @@ var removeExport = function (c, i, code) {
         return;
     }
     var nn = n.next;
-    if (!nn) throw new Error('缺少导出项！');
+    if (!nn) throw new Error(i18n`缺少导出项！`);
     if (nn.type === SCOPED && nn.entry !== '{' && c.prev) {
         if (c.prev.type !== STAMP || c.prev.text !== ';') {
             code.splice(i++, 0, { type: STAMP, text: ';' });

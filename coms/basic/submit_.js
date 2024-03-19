@@ -49,15 +49,15 @@ function submit(fields, data) {
     }
     if (checks.length + select.length + inputs.length) {
         var errors = [];
-        if (inputs.length) errors.push("请输入" + inputs.map(trimname).join("、"));
-        if (select.length) errors.push("请选择" + select.map(trimname).join("、"));
+        if (inputs.length) errors.push(i18n`请输入` + inputs.map(trimname).join(i18n`、`));
+        if (select.length) errors.push(i18n`请选择` + select.map(trimname).join(i18n`、`));
         if (select.id < inputs.id) {
             errors = errors.reverse();
         }
         if (checks.length) {
-            errors.push("您输入的" + checks.map(trimname).join("、") + "有误");
+            errors.push(i18n`您输入的${checks.map(trimname).join(i18n`、`)}有误`);
         }
-        errors = errors.join("，") + "！";
+        errors = errors.join(i18n`，`) + i18n`！`;
         throw errors;
     }
     return params;

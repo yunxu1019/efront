@@ -96,7 +96,7 @@ var getZimoliParams = function (pagepath) {
     try {
         return JSAM.parse(hostoryStorage.getItem(_zimoli_params_key + pagepath)) || {};
     } catch (e) {
-        console.warn("存储空间被破坏");
+        console.warn(i18n`存储空间被破坏`);
     }
     return {};
 };
@@ -106,7 +106,7 @@ var setZimoliParams = function (pagepath, args) {
         if (stringified_args.length === 2) hostoryStorage.removeItem(_zimoli_params_key + pagepath);
         else hostoryStorage.setItem(_zimoli_params_key + pagepath, stringified_args);
     } catch (e) {
-        console.warn("写入存储空间失败！", e);
+        console.warn(i18n`写入存储空间失败！`, e);
     }
 };
 var fullfill_is_dispatched = 0;
@@ -391,7 +391,7 @@ function create(pagepath, args, from, needroles) {
     if (typeof pagepath === 'string') {
         var page_object = page_generators[pagepath];
         if (!page_object) {
-            throw new Error(`调用create前请确保prepare执行完毕:${pagepath}`);
+            throw new Error(i18n`调用create前请确保prepare执行完毕:${pagepath}`);
         }
         var { pg, "with": _with_elements, state, onback: _pageback_listener, roles } = page_object;
     }
