@@ -74,7 +74,7 @@ function filterTime(time, format) {
                 case 0:
                     return `${month}${format || '月'}${date}${format ? '' : '日'} `;
                 case 1:
-                    if (month1 % 12 - month % 12 === 1) {
+                    if (month1 < month) {
                         return `${month}${format || '月'}${date}${format ? '' : '日'} `;
                     }
                     return "去年" + month + "月";
