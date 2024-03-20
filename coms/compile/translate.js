@@ -98,14 +98,21 @@ function translate([imap, supports], code) {
         return 0;
     });
     var getm = function (tt, nodup, warn) {
-        tt = tt.trim();
+        var mq = /^(\s*)([\s\S]*?)(\s*)$/.exec(tt);
+        var mq = [mq[1] || '', mq[2], mq[3] || ''];
+        var tt = mq[1];
+        var wrap = m => {
+            mq[1] = m || tt;
+            return strings.encode(mq.join(''), '`');
+        };
+
         var imp = imap[tt];
         if (!imp) {
             if (warn !== false) console.warn(`<yellow>${i18n`国际化翻译缺失：`}</yellow>${tt}`);
             imp = imap[tt] = supports.map(_ => tt);
         }
         if (nodup && imp.length <= 1) nodup = false;
-        var mp = nodup ? m => "()=>" + strings.encode(m || tt, '`') : m => strings.encode(m || tt, '`');
+        var mp = nodup ? m => "()=>" + wrap(m) : m => wrap(m);
         var m = `(${imp.map(mp)})`;
         if (nodup) m += '()';
         return m;
