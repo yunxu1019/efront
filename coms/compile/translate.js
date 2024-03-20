@@ -1,10 +1,16 @@
 var scanner2 = require("./scanner2");
-var { SCOPED, QUOTED, SCOPED, PROPERTY, STAMP, PIECE, setqueue, splice, relink, number_reg, replace, createString } = require("./common");
+var { SCOPED, QUOTED, SCOPED, PROPERTY, STAMP, PIECE, setqueue, splice, relink, number_reg, replace, canbeDuplicate, createString } = require("./common");
 var strings = require("../basic/strings");
 var program = null;
 var patchTranslate = function (c) {
     if (c.length) {
-        c.translate = c.map((o, i) => o.type === PIECE ? strings.decode(`\`${o.text}\``) : `$${i + 1 >> 1}`).join('').replace(/\r\n|\r|\n/g, '\r\n');
+        var canbeDup = true;
+        c.translate = c.map((o, i) => {
+            if (o.type === PIECE) return strings.decode(`\`${o.text}\``);
+            if (canbeDup && !canbeDuplicate(o)) canbeDup = false;
+            return `$${i + 1 >> 1}`;
+        }).join('').replace(/\r\n|\r|\n/g, '\r\n');
+        c.nodup = !canbeDup;
     }
     else {
         if (/^['"`]/.test(c.text) && c.text.length > 2) {
@@ -74,7 +80,7 @@ var ctn = function (tt, t) {
         if (a in t) return `\${${a}}`;
         return _;
     }));
-    tn[tn.length - 1].forEach(n => {
+    (tn[0].type === SCOPED ? tn[0] : tn[1]).forEach(n => {
         if (n.type !== QUOTED || !n.length) return;
         n.forEach((a, i) => {
             if (a.type !== SCOPED) return;
@@ -91,13 +97,18 @@ function translate([imap, supports], code) {
         if (a.start > b.start && a.end < b.end) return -1;
         return 0;
     });
-    var getm = function (tt, warn) {
+    var getm = function (tt, nodup, warn) {
         tt = tt.trim();
-        if (!imap[tt]) {
+        var imp = imap[tt];
+        if (!imp) {
             if (warn !== false) console.warn(`<yellow>${i18n`国际化翻译缺失：`}</yellow>${tt}`);
-            imap[tt] = supports.map(_ => tt);
+            imp = imap[tt] = supports.map(_ => tt);
         }
-        return imap[tt].map(m => strings.encode(m || tt, '`'));
+        if (nodup && imp.length <= 1) nodup = false;
+        var mp = nodup ? m => "()=>" + strings.encode(m || tt, '`') : m => strings.encode(m || tt, '`');
+        var m = `(${imp.map(mp)})`;
+        if (nodup) m += '()';
+        return m;
     };
     var used = code.used;
     for (var t of texts) {
@@ -109,8 +120,8 @@ function translate([imap, supports], code) {
                 p.leave = ")";
             }
             var tt = t.translate;
-            var tn = ctn(`(${getm(tt)})`, t);
-            replace(t, tn[0]);
+            var tn = ctn(getm(tt, t.nodup), t);
+            replace(t, ...tn);
         }
         else if (t.transtype === 字段名) {
             var i = t.queue.indexOf(t.prev);
@@ -138,7 +149,7 @@ function translate([imap, supports], code) {
                         if (a in t) v = t[a];
                         else v = scanner2(JSON.stringify(v));
                     }
-                    else if (k === 'name') v = ctn(`i18n(${getm(v, t.warn)})`, t);
+                    else if (k === 'name') v = ctn('i18n' + getm(v, t.nodup, t.warn), t);
                     else v = scanner2(JSON.stringify(v));
                     o.push({ type: PROPERTY, isprop: true, text: JSON.stringify(k) }, { type: STAMP, text: ':' }, ...v, { type: STAMP, text: ',' });
                 })

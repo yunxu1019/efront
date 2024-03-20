@@ -1374,6 +1374,28 @@ var canbeTemp = function (body, strip = false) {
     if (!o) return false;
     return o.type === EXPRESS && (strip || !/[\.\[]/.test(o.text)) || o.type === VALUE || o.type === QUOTED && !o.length;
 };
+var canbeDuplicate = function (body) {
+    for (var b of body) {
+        switch (b.type) {
+            case EXPRESS:
+                if (/[\.\[]/.test(b.text)) return false;
+                break;
+            case SCOPED:
+                if (b.isObject || b.isClass || b.entry === '[') return false;
+                if (!isEval(b)) return false;
+                if (!canbeTemp(b)) return false;
+                break;
+            case QUOTED:
+                if (b.length && !canbeTemp(b)) return false;
+                break;
+            case STAMP:
+                if (/^(\+\+|\-\-)$|^([^\=\>\<]+|>>>?|<<)?\=$/.test(b.text)) return false;
+                break;
+            case ELEMENT: return false;
+        }
+    }
+    return true;
+};
 var pickArgument = function (o) {
     var res = [];
     var t = o && o.prev, p = o;
@@ -1457,6 +1479,7 @@ module.exports = {
     setqueue,
     replace,
     canbeTemp,
+    canbeDuplicate,
     skipFunction,
     isHalfSentence,
     splice,
