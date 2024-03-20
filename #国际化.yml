@@ -1448,7 +1448,7 @@
   en:    "Other environmental variables are as follows:"
 
 - zh-CN: 不支持该命令<red2> $1 </red2>
-  en:    The command is not supported<red2>$1</red2>
+  en:    The command <red2>$1</red2> is not supported
 
 - zh-CN: 如下命令与您输入的命令相似：
   en:    "The following command is similar to the one you entered:"
