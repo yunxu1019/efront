@@ -13,6 +13,7 @@ var memory = require("../efront/memery");
 var toComponent = require("./toComponent");
 var scanner2 = require("../compile/scanner2");
 var patchDependence = require("./getDependence");
+var { createString } = require('../compile/common');
 var codetemp = function (delta) {
     var temp = [];
     while (delta > 0) {
@@ -83,7 +84,7 @@ var buildHtml = function (html, code, outsideMain, responseTree) {
             if (a.type === scanned.STAMP && a.text === '=') {
                 var p = a.prev, n = a.next;
                 if (!p || !n) continue;
-                attrs[p.text] = strings.decode(n.text);
+                attrs[p.text] = strings.decode(createString([n]));
                 attrValues[p.text] = n;
             }
         }
@@ -104,7 +105,10 @@ var buildHtml = function (html, code, outsideMain, responseTree) {
                 if (!type) break;
                 data = `data:${attrs.type || ''};base64,` + Buffer.from(data).toString("base64");
                 if (data.length > 8192) break;
-                attrValues.href.text = strings.encode(data);
+                var href = attrValues.href;
+                if (href.length) href.splice(0, href.length);
+                href.text = strings.encode(data);
+                href.type = scanned.QUOTED;
                 delete responseTree[k];
                 return scanned.toString();
             case "stylesheet":
@@ -205,6 +209,7 @@ var getTreeIndex = function (tree) {
     }
 };
 var findTreeKey = function (tree, k) {
+    if (!k) return k;
     k = path.normalize(k).replace(/\\/g, '/');
     if (k in tree) return k;
     var k1 = "/" + k;
