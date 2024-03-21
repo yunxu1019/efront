@@ -183,7 +183,7 @@ var getBuildRoot = function (files, matchFileOnly) {
                         }
                         var rel = getPathIn(comms_root, file);
                         if (rel) {
-                            return saveComm(commap[file], file), ok();
+                            return saveComm(rel, file), ok();
                         }
                         var rel = getPathIn(pages_root, file);
                         if (rel) {
