@@ -109,8 +109,8 @@
                 case QUOTED:
                     if (o.length || !o.text) {
                         o.forEach(setcolor);
-                        o.entry = "<text>" + o.entry;
-                        o.leave = o.leave + "</text>";
+                        o.entry = "<text>" + o.entry + "</text>";
+                        o.leave = "<text>" + o.leave + "</text>";
                         break;
                     }
                 case PIECE:
