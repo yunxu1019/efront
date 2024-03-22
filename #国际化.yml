@@ -8,7 +8,7 @@
   en:    "."
 
 - zh-CN: ！
-  en:    ","
+  en:    "!"
 
 - zh-CN: https://letsencrypt.org/zh-cn/
   en:    
@@ -260,7 +260,7 @@
   en:    Server restart
 
 - zh-CN: 正在退出..
-  en:    Exiting
+  en:    Exiting..
 
 - zh-CN: 进程已退出
   en:    Process has exited
@@ -401,7 +401,7 @@
   en:    Not supported
 
 - zh-CN: 当前运行环境使用class extends Array会有难以解决的不兼容性问题，请更换代码的实现方式！
-  en:    
+  en:    The current operating environment using class extends Array may have compatibility issues that are difficult to solve. Please change the implementation method of the code!
 
 - zh-CN: 代码异常！
   en:    Code exception!
