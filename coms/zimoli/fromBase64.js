@@ -5,6 +5,8 @@ var decodeMap = function () {
     for (var cx = 0, dx = encoding.length; cx < dx; cx++) {
         map[encoding[cx]] = cx;
     }
+    map["-"] = map["+"];
+    map["_"] = map["/"];
     return map;
 }();
 function fromBase64(input) {
