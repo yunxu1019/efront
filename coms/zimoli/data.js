@@ -468,7 +468,14 @@ function LoadingArray_then(ok, oh) {
 function LoadingArray_abort(ok, oh) {
     if (this.loading) this.loading.abort();
 }
-
+var getApi = function (serviceId, promised_map) {
+    return promised_map.then((apiMap) => {
+        serviceId = serviceId.replace(/[\?\:][\s\S]*$/, "");
+        const api = apiMap[serviceId];
+        if (!api) throw new Error(i18n`没有找到对应的接口 id ${serviceId}.`);
+        return extend({}, api, { root: apiMap });
+    });
+};
 var privates = {
     pack(serviceId, params) {
         if (/\?/.test(serviceId)) {
@@ -545,12 +552,7 @@ var privates = {
         return true;
     },
     getApi(serviceId) {
-        return this.getConfigPromise().then((apiMap) => {
-            serviceId = serviceId.replace(/[\?\:][\s\S]*$/, "");
-            const api = apiMap[serviceId];
-            if (!api) throw new Error(i18n`没有找到对应的接口 id ${serviceId}.`);
-            return extend({}, api, { root: apiMap });
-        });
+        return getApi(serviceId, this.getConfigPromise());
     },
     prepare(method, url, params) {
         var spliterIndex = /[\:\|\/\~\!\?]/.exec(method), search;
@@ -817,6 +819,9 @@ var data = {
                     var a = data[id];
                     return privates.fromApi(a, params);
                 });
+            },
+            getApi(id) {
+                return getApi(id, config);
             },
             queue(ids, params, cb) {
                 ids = ids.slice(0);
