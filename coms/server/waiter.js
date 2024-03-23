@@ -125,7 +125,7 @@ var care = function (req, res, type) {
     if (id) {
         if (clients.length > 40000) {
             res.writeHead(503, utf8error);
-            res.end("服务器忙！");
+            res.end(i18n[req.headers['accept-language']]`服务器忙！`);
             return;
         }
         var ct = clients.getType(id);
@@ -205,7 +205,7 @@ var doOptions = async function (req, res, type) {
         case "login":
             var a = type[2] || '';
             return require("./login")(a, remoteAddress).then(b => {
-                if (!b) throw i18n`密码不正确！`;
+                if (!b) throw i18n[req.headers["accept-language"]]`密码不正确！`;
                 res.end(b);
             }).catch(e => {
                 res.writeHead(403, utf8error);
@@ -216,7 +216,7 @@ var doOptions = async function (req, res, type) {
                 try {
                     var roomid = encode62.timedecode(type[2]);
                     var room = await userdata.getOptionObj("room", roomid);
-                    if (!room) { throw i18n`房间不存在！`; }
+                    if (!room) { throw i18n[req.headers["accept-language"]]`房间不存在！`; }
                     if (!room.linkid || !clients.checkId(room.linkid)) {
                         room.linkid = clients.create().id;
                         await userdata.setOptionObj("room", roomid, room);
@@ -254,7 +254,7 @@ var doOptions = async function (req, res, type) {
     }
     if (needLogin && !await require("./checkAuth")(getHeader(req.headers, 'authorization'), remoteAddress)) {
         res.writeHead(401, utf8error);
-        res.write("无权访问");
+        res.write(i18n[req.headers["accept-language"]]`无权访问`);
         needLogin = false;
     }
     if (needLogin) switch (type[1]) {
@@ -288,7 +288,7 @@ var doOptions = async function (req, res, type) {
             break;
         case "clear":
             doGet.reset();
-            res.write("清理完成");
+            res.write(i18n[req.headers["accept-language"]]`清理完成`);
             break;
         case "rehost":
             res.on("finish", function () {
@@ -297,7 +297,7 @@ var doOptions = async function (req, res, type) {
             res.on("finish", safeQuitProcess);
             safeQuitProcess = function () { };
             message.send('rehost', null, function () {
-                res.end("正在重启");
+                res.end(i18n[req.headers["accept-language"]]`正在重启`);
             });
             return;
         case "params":
@@ -335,7 +335,7 @@ var doOptions = async function (req, res, type) {
                         if (!type[3]) return res.end(encode62.timeencode(String(exists)));
                         if (exists && type[3]) {
                             res.writeHead(403, utf8error);
-                            res.end("已存在相同标识的数据");
+                            res.end(i18n[req.headers["accept-language"]]`已存在相同标识的数据`);
                             return;
                         }
                     }
@@ -375,7 +375,7 @@ var doOptions = async function (req, res, type) {
                         break;
                     default:
                         res.writeHead(400, utf8error);
-                        res.write("非法操作！");
+                        res.write(i18n[req.headers["accept-language"]]`非法操作！`);
                 }
             }
             catch (e) {
@@ -462,7 +462,7 @@ var requestListener = async function (req, res) {
             req.url = req.url.slice(0, 2) + encode62.safedecode(encode62.timedecode(req.url.slice(2)), crypted);
         } catch (e) {
             res.writeHead(403, utf8error);
-            res.end("禁止访问");
+            res.end(i18n[req.headers["accept-language"]]`禁止访问`);
             return;
         }
         delete req.headers["content-length"];
@@ -515,7 +515,7 @@ var requestListener = async function (req, res) {
                 } catch (e) {
                     if (res.closed) return;
                     res.writeHead(403, utf8error);
-                    res.end("数据异常！");
+                    res.end(i18n[req.headers["accept-language"]]`数据异常！`);
                     req.destroy();
                     res.closed = true;
                     return;
@@ -555,7 +555,7 @@ var requestListener = async function (req, res) {
                 case "exit":
                     let ports = portedServersList.filter(a => a && a.listening).map(a => a.address().port);
                     message.send('quit');
-                    res.end(`已关闭${ports.join("、")}端口`);
+                    res.end(i18n[req.headers["accept-language"]]`已关闭${ports.join("、")}端口`);
                     return;
             }
             var type = /^(\w+)(?:[\-\/\!]([\/\!\'\(\)\*\-\.\w]*))?(?:[\?\:\+]([\s\S]*))?$/.exec(option);
@@ -673,7 +673,7 @@ var checkServerState = function (http, port0) {
                 ok(i18n`检查到${port}可以正常访问\r\n`);
                 if (!memery.proted) memery.proted = true;
             } else {
-                oh("<red>端口异常</red>");
+                oh(i18n`<red>端口异常</red>`);
             }
         });
         req.on("error", oh);

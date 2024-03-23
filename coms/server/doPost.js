@@ -47,11 +47,11 @@ var doPost = module.exports = async function (req, res) {
                 break;
             case 404:
                 res.writeHead(404, utf8err);
-                res.end(i18n`未没找到匹配的资源：${url}`);
+                res.end(i18n[req.headers["accept-language"]]`未没找到匹配的资源：${url}`);
                 break;
             case 500:
                 res.writeHead(500, utf8err);
-                res.end(i18n`服务异常`);
+                res.end(i18n[req.headers["accept-language"]]`服务异常`);
                 break;
 
             default:

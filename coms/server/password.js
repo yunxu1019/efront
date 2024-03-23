@@ -20,7 +20,7 @@ async function getPassword(name) {
                     break;
                 case 3:// cancel
                     process.stdin.off("data", ondata);
-                    oh("已取消");
+                    oh(i18n`已取消`);
                     break;
                 case 13:// enter
                     process.stdin.off("data", ondata);
@@ -50,7 +50,7 @@ var clearRow = function () {
 };
 async function requestPassword() {
     if (!memery.FORCE && await userdata.hasPassword()) {
-        var p = await getPassword("输入原密码：");
+        var p = await getPassword(i18n`输入原密码：`);
         clearRow();
         if (!await userdata.checkPassword(p)) {
             throw i18n`密码不正确！`;

@@ -1,3 +1,51 @@
+- zh-CN: 请求无效!
+  en:    Request is invalid!
+
+- zh-CN: 已取消
+  en:    Canceled
+
+- zh-CN: 输入原密码：
+  en:    "Enter the original password:"
+
+- zh-CN: 数据过载..
+  en:    Data overload..
+
+- zh-CN: 服务器忙！
+  en:    Server busy!
+
+- zh-CN: 无权访问
+  en:    Unauthorized access
+
+- zh-CN: 清理完成
+  en:    Cleaning completed
+
+- zh-CN: 正在重启
+  en:    Restarting
+
+- zh-CN: 已存在相同标识的数据
+  en:    Data with the same identifier already exists
+
+- zh-CN: 禁止访问
+  en:    Prohibit access
+
+- zh-CN: 已关闭$1端口
+  en:    $1 port has been closed
+
+- zh-CN: <red>端口异常</red>
+  en:    <red>Port exception</red>
+
+- zh-CN: filelist
+  en:    filelist
+
+- zh-CN: pathlist
+  en:    pathlist
+
+- zh-CN: pathend
+  en:    pathend
+
+- zh-CN: 邮箱
+  en:    mailbox
+
 - zh-CN: 过滤空串
   en:    Filter empty strings
 
@@ -5,10 +53,10 @@
   en:    ","
 
 - zh-CN: ，
-  en:    "."
+  en:    .
 
 - zh-CN: ！
-  en:    "!"
+  en:    !
 
 - zh-CN: https://letsencrypt.org/zh-cn/
   en:    

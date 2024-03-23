@@ -91,7 +91,7 @@ async function cross(req, res, referer) {
     }
     catch (e) {
         res.writeHead(403, utf8error);
-        return res.end("请求无效!");
+        return res.end(i18n[req.headers["accept-language"]]`请求无效!`);
     }
     for (let key in headers) {
         let k = key.toLowerCase();

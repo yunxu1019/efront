@@ -7,7 +7,7 @@ var readdata = function (req, max_length) {
         var buff = [], length = 0;
         req.on("data", function (buf) {
             length += buf.length;
-            if (length > max_length) return oh("数据过载...");
+            if (length > max_length) return oh(i18n`数据过载..`);
             buff.push(buf);
         });
         req.on("end", function () {
