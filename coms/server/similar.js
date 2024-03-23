@@ -56,12 +56,7 @@ var save = async function (o, filepath = logpath) {
     if (hosts.length > 0xfff) clear();
     o.id = `${o.ip}:${o.port}`;
     var index = getIndexFromOrderedArray(hosts, o, sortbyId);
-    if (index >= 0 && o.id === hosts[index].id) {
-        hosts[index] = o;
-    }
-    else {
-        hosts.splice(index + 1, 0, o);
-    }
+    hosts.splice(index + 1, 0, o);
     var data = await userdata.encode(`${o.ip} ${o.port} ${o.ppid} ${o.time}`);
     data = encodeURI(data);
     await init(filepath);
