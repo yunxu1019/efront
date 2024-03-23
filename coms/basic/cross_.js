@@ -20,7 +20,7 @@ var setHost = function (host) {
     base = host;
     encrypt = null;
 };
-var HeadersKeys = ["Content-Type"];
+var RealHeadersKeys = { "content-type": "Content-Type" };
 var cors_hosts = [];
 function getDomainPath(url) {
     return url.replace(domainReg, "$2/$3");
@@ -330,7 +330,8 @@ function cross_(jsonp, digest = noop, method, url, headers) {
             }
             else if (cachedata.length && isEmpty(datas)) {
                 var jsondata = mergedata(cachedata, parseKV);
-                if (isform) {
+                if (realHeaders["Content-Type"]);
+                else if (isform) {
                     var hasfile = hasFile(jsondata);
                     if (hasfile) {
                         datas = kv2form(jsondata);
@@ -383,7 +384,13 @@ function cross_(jsonp, digest = noop, method, url, headers) {
                 }
             }
             else {
-                _headers[k] = headers[k];
+                var k1 = RealHeadersKeys[k.toLowerCase()];
+                if (k1) {
+                    realHeaders[k1] = headers[k];
+                }
+                else {
+                    _headers[k] = headers[k];
+                }
             }
         }
     };
