@@ -1,18 +1,42 @@
 var mark = require("./mark");
-if (console.format) {
-    var gray = console.format('<gray>;</gray>').split(';');
-    var green = console.format('<green>;</green>').split(';');
-    var crack = console.format('<red2>;</red2>').split(';');
-}
-else {
-    var gray = [, ,];
-    var green = [, ,];
-    var crack = [, ,];
-}
+var format = console.format, clog = console.log;
+if (!format) format = a => a, clog = function () {
+    var args = [];
+    var colors = {
+        green: 'color:green;',
+        gray: "color:gray;",
+        red2: "color:red;",
+        bgblue: 'background-color:blue;',
+        bgred: 'background-color:red;',
+        cyan: 'color:#29c;',
+        reset: 'color:;background-color:;',
+    }
+    for (var a of arguments) {
+        if (typeof a === "string") {
+            var tags = [];
+            a = renderTags(a, function (tag, e) {
+                var c = tag ? colors[tag] : colors.reset;
+                if (c) {
+                    if (e !== false) tags.push(c);
+                    return '%c'
+                }
+                return '';
+            });
+            args.push(a, ...tags);
+        }
+        else args.push(a);
+    }
+    console.log(...args);
+};
+
+
+var gray = format('<gray>;</gray>').split(';');
+var green = format('<green>;</green>').split(';');
+var crack = format('<red2>;</red2>').split(';');
 var dump = function (a, msg) {
-    if (a instanceof Object) console.error(i18n`属性错误`), console.log(msg ? msg + " " : "  {\r\n", Object.keys(a).map(k => `  ${k}${gray.join(':')}\r\n      ${a[k]}`).join('\r\n') + "\r\n }");
-    else if (msg) console.log(msg + ":", a);
-    else console.log(a);
+    if (a instanceof Object) console.error(i18n`属性错误`), clog(msg ? msg + " " : "  {\r\n", Object.keys(a).map(k => `  ${k}${gray.join(':')}\r\n      ${a[k]}`).join('\r\n') + "\r\n }");
+    else if (msg) clog(msg + ":", a);
+    else clog(a);
 };
 var colorString = function (s, color1, e, color2) {
     s = String(s);
@@ -35,9 +59,9 @@ var assert = function (result, expect, log = dump) {
             errors = `结果 (${args}) 应为 ${JSON.stringify(k)}`;
         }
         if (k === undefined) return function () {
-            var color1 = console.format("<bgred>; </bgred>").split(";");
-            var color2 = console.format("<bgblue>; </bgblue>").split(";");
-            var color3 = console.format("<cyan>;</cyan>").split(";");
+            var color1 = format("<bgred>; </bgred>").split(";");
+            var color2 = format("<bgblue>; </bgblue>").split(";");
+            var color3 = format("<cyan>;</cyan>").split(";");
             mark.setTag1(color1[1], color1[0]);
             mark.setTag2(color2[1], color2[0]);
             var [r, e] = mark.pair(result, expect);

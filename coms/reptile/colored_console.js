@@ -2,10 +2,12 @@
 var colored = Object.create(null);
 var lazy = require("../basic/lazy");
 var colors = require("./colors");
+var renderTags = require("../basic/renderTags");
 var strings = require("../basic/strings");
 var lastLogLength = 0;
 var needNextLine = false;
 var getColor = function (c) {
+    if (!c) return colors.Reset;
     switch (c) {
         case "red":
         case "error":
@@ -30,23 +32,9 @@ var getColor = function (c) {
     }
     return '';
 };
-var colorReg = /<(\/?)([a-z][\w]*)\>/ig;
+var colorReg = renderTags.reg;
 var renderColor = function (obj) {
-    var colorpath = [];
-    return String(obj).replace(colorReg, function (_, e, c) {
-        if (!c || c.length < 3 || !getColor(c)) return _;
-        if (e) {
-            colorpath.pop();
-            c = colorpath[colorpath.length - 1];
-        }
-        else colorpath.push(c);
-        if (c) var color = getColor(c);
-        var res = [];
-        if (e) res.push(colors.Reset);
-        if (color) res.push(color);
-        if (res.length) return res.join('');
-        return _;
-    });
+    return renderTags(obj, getColor);
 };
 
 var write = function (hasNewLine, str) {
