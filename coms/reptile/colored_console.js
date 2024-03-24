@@ -195,7 +195,7 @@ var format = function (arg, deep = 0) {
         }
         if (arg instanceof Buffer || arg instanceof ArrayBuffer || arg instanceof SharedArrayBuffer) {
             var data = new Uint8Array(arg.buffer || arg, arg.byteOffset || 0, arg.byteLength);
-            return `<magenta><${arg.constructor.name} ${Array.prototype.slice.call(data, 0, 20).map(a => a < 16 ? "0" + a.toString(16) : a.toString(16)).join(' ')}${arg.byteLength > 20 ? ` ... 其他 ${arg.byteLength - 20} 字节` : ''}></megenta>`;
+            return `<magenta><${arg.constructor.name} ${Array.prototype.slice.call(data, 0, 20).map(a => a < 16 ? "0" + a.toString(16) : a.toString(16)).join(' ')}${arg.byteLength > 20 ? ` ... 其他 ${arg.byteLength - 20} 字节` : ''}></magenta>`;
         }
         else if (isFinite(arg.length)) {
             var entry = "[";
