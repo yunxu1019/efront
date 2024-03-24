@@ -299,7 +299,7 @@
             }
         }
         if (minSpace > 0) codes = codes.map(c => /^\s+/.test(c) ? c.slice(minSpace) : c);
-        return `<code type=${type}>${codes.join("<br/>").replace(/\t/g, Array(5).join('&ensp;')).replace(/\s/g, '&ensp;')}</code> `;
+        return `<code type=${type}>${codes.join("<br/>").replace(/\t/g, Array(5).join('&ensp;')).replace(/\s/g, '&ensp;')}</code>`;
     }
     codetext.encode = encode;
 </script>
