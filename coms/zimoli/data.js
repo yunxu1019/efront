@@ -683,6 +683,10 @@ function responseCrash(e, data) {
     } else {
         data.error = e;
     }
+    if (isObject(e)) {
+        if (e.reported) return;
+        e.reported = true;
+    }
     error_report(e, e.status < 500 ? 'warn' : 'error');
 }
 var toDataString = function () { return isEmpty(this.data) ? '' : this.data };
