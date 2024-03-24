@@ -767,7 +767,7 @@
   en:    The path does not point to file $1
 
 - zh-CN: 文件过大!$1
-  en:    The file is too large$ one
+  en:    The file is too large! $1
 
 - zh-CN: 读取文件信息出错$1
   en:    Error reading file information $1
