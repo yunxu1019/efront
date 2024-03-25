@@ -1,12 +1,24 @@
 & {
     position: absolute;
     width: 6px;
-    background-color: rgba(0, 0, 0, .1);
     border-radius: 7px;
     height: 100px;
     border-left: 3px solid transparent;
 
-    &:hover {
+    &[x],
+    &.x {
+        left: 0;
+        bottom: 0;
+    }
+
+    &[y],
+    &.y {
+        top: 0;
+        right: 0;
+    }
+
+    &:hover,
+    &:active {
         >.thumb {
             opacity: 1 !important;
             overflow: visible;

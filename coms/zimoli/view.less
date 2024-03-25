@@ -40,6 +40,10 @@ body>& {
     border-top: 6px solid #fff2;
     border-bottom: 6px solid #fff2;
 
+    +.scrollbar {
+        z-index: 3;
+    }
+
     &:not(:nth-last-child(1)) {
         padding-bottom: 42px;
     }
@@ -119,6 +123,7 @@ body>& {
 .button {
     vertical-align: middle;
 }
+
 
 >.foot,
 >[foot] {

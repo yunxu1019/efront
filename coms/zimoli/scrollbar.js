@@ -65,6 +65,13 @@ var scrollbary = function () {
             css(thumb, { top: targetY });
             dispatch(target, "change");
         }
+        var tt = target.target;
+        if (tt) {
+            var { Height, height } = getTargetHeight(tt);
+            var top = targetY * (Height - height) / (target.clientHeight - thumb.offsetHeight);
+            setTargetTop(tt, top);
+        }
+
     };
 
     var mouseup = function () {
@@ -141,29 +148,30 @@ var scrollbary = function () {
         return { Height, height };
     };
 
-    function bindTarget(_container, followResize = _container) {
-        var _scrollbar = this;
-        _container.with = _scrollbar;
-        _scrollbar.target = _container;
-        onmounted(_container, _scrollbar.reshape);
-        on("scroll")(_container, function () {
-            var top = getTargetTop(_container);
+    function scrollbar(elem) {
+        var onscroll = function () {
+            var top = getTargetTop(this);
             _scrollbar.scrollTo(top);
             _scrollbar.autoshow();
-        });
-        on("change")(_scrollbar, function () {
+        };
+        var onchange = function () {
             var top = _scrollbar.$Top();
-            setTargetTop(_container, top);
-        });
-        if (followResize) on("resize")(followResize, _scrollbar.reshape);
-    }
-    function scrollbar(elem) {
+            setTargetTop(this, top);
+        };
+        function bindTarget(_container, followResize = _container) {
+            _container.with = _scrollbar;
+            _scrollbar.target = _container;
+            onmounted(_container, _scrollbar.reshape);
+            on("scroll")(_container, onscroll);
+            on("change")(_scrollbar, onchange);
+            if (followResize) resizingList.set(followResize, _scrollbar.reshape);
+        }
         var _scrollbar = elem || document.createElement("scrollbar");
-        _scrollbar.reshape = function () {
+        _scrollbar.reshape = lazy(function () {
             var _container = _scrollbar.target;
             var { Height, height } = getTargetHeight(_container);
             reshape.call(_scrollbar, Height, height);
-        };
+        });
         _scrollbar.scrollTo = scrollTo;
         var _handler = document.createElement("scrollbar-thumb");
         _handler.className = "thumb";
@@ -192,16 +200,41 @@ var scrollbary = function () {
 }
 var scrollbar_y = scrollbary();
 var scrollbar_x = arriswise(scrollbary, arguments)();
-function main(direction) {
+var isBody = function (elem) {
+    return hasClass(elem, 'body') || elem.hasAttribute('body');
+}
+function main(elem) {
+    var direction, bar, target;
+    if (typeof elem === 'string') {
+        direction = elem;
+        elem = null;
+    }
+    else if (isElement(elem)) {
+        direction = elem.tagName;
+        var $struct = elem.$struct;
+        if ($struct) {
+            if ($struct.props?.target);
+            else if (isBody(elem.previousElementSibling)) {
+                target = elem.previousElementSibling;
+            }
+            else if (isBody(elem.nextElementSibling)) {
+                target = elem.nextElementSibling;
+            }
+        }
+        else if (!/^(\w*\-?)?scroll/i.test(direction)) target = elem, elem = null;
+    }
+    else {
+        elem = null;
+    }
     var bar, target;
     if (isElement(direction)) {
         target = direction;
         direction = target.tagName;
     }
     if (/^[xh]/i.test(direction)) {
-        bar = scrollbar_x();
+        bar = scrollbar_x(elem);
     } else {
-        bar = scrollbar_y();
+        bar = scrollbar_y(elem);
     }
     if (target) bar.bindTarget(target);
     return bar;

@@ -120,22 +120,29 @@ var resize2 = function () {
             marginTop: fromOffset(-height)
         })
     }
+    if (body.scrollHeight + body.offsetTop > this.clientHeight) {
+        css(body, { height: fromOffset(this.clientHeight) });
+    }
+    else {
+        css(body, { height: '' });
+    }
 };
 function view(element) {
-    var window = isNode(element) ? element : document.createElement("form");
+    var w = isNode(element) ? element : document.createElement("form");
     init();
-    extend(window, prototype);
-    if (window !== element) {
-        extend(window, element);
-        once("append")(window, function () {
-            if (window.draggable !== true && window.draggable !== false) {
-                window.draggable = /^(fixed|absolute)$/i.test(getComputedStyle(window).position);
+    extend(w, prototype);
+    if (w !== element) {
+        extend(w, element);
+        once("append")(w, function () {
+            if (w.draggable !== true && w.draggable !== false) {
+                w.draggable = /^(fixed|absolute)$/i.test(getComputedStyle(w).position);
             }
-            if (window.draggable) window.setAttribute('draggable', 'draggable');
+            if (w.draggable) w.setAttribute('draggable', 'draggable');
         })
-        if (window.resizable) resize.on(window);
+        if (w.resizable) resize.on(w);
     }
-    on('resize')(window, resize2);
-    onmounted(window, resize2);
-    return window;
+    resizingList.set(w, resize2);
+    w.reshape = lazy(resize2);
+    onmounted(w, w.reshape);
+    return w;
 }
