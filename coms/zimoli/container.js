@@ -16,19 +16,22 @@ var change = async function (data) {
     }
     else if (isString(data) || +data < 0) zimoli.go(data, this.params, this);
 };
-var gosrc = function () {
-    var { src } = this;
-    if (this.hasAttribute && this.hasAttribute('src')) {
-        src = this.getAttribute('src');
-    }
+var gosrc = function (src) {
     if (src !== this.$src) {
-        change.call(this, src);
         this.$src = src;
+        change.call(this, src);
     }
 };
 function container(element) {
     var comment = document.createComment('container');
     comment.$struct = element.$struct;
     care(comment, gosrc);
+    if (element.hasAttribute && element.hasAttribute('src')) {
+        var src = element.getAttribute('src');
+        if (src) oncemount(comment, function () {
+            if ("$src" in this) return;
+            gosrc.call(this, src);
+        });
+    }
     return comment;
 }
