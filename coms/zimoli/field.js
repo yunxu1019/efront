@@ -37,7 +37,6 @@ function main(elem) {
                         scope.error = error;
                     }
                     else {
-                        console.log(error)
                         scope.error = document.createElement('error');
                         scope.error.innerHTML = error;
                     }

@@ -9,7 +9,6 @@ var isTrue = function (v) {
     return !!+v || v in trueMap;
 };
 var changeValue = function (value) {
-    console.log(value)
     if (typeof value === 'boolean') return !value;
     if (value & 1 === value) return 1 - value;
     if (value in trueMap) return trueMap[value];
@@ -17,7 +16,6 @@ var changeValue = function (value) {
     return !+value;
 };
 var setValue = function (value) {
-    console.log(value, 'setvaleu')
     if (value === this.value) return;
     this.value = value;
     value = isTrue(value);
