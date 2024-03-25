@@ -46,6 +46,14 @@ unmark(checkbox);
 unmark(swap);
 unmark(image);
 unmark(success);
+var renderOptions = function (field, data) {
+    if (typeof field.options === 'string') return field.options;
+    return '';
+}
+var onoff = function () {
+    var { data, field } = this;
+    data[field.key] = checker.changeValue(data[field.key]);
+};
 var constructors = {
     input,
     swap(e) {
@@ -95,6 +103,11 @@ var constructors = {
         var { options } = field;
         if (options) img.setAttribute("uploadto", options.uploadto);
         return img;
+    },
+    checker(elem) {
+        var { data, field } = elem;
+        elem.innerHTML = `<span @click="onoff()"><checker -model=data[field.key]></checker><span -bind='field.holder'></span></span>${renderOptions(field, data)}`;
+        render(elem.children, { onoff, checker, data, field });
     },
     checkbox({ field }) {
         var elem = checkbox();
