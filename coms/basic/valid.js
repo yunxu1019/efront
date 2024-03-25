@@ -1,7 +1,7 @@
 var validators = {
     email(text) {
         var i = text.indexOf('@');
-        if (i < 0) return i18n`邮箱地址应包含符号“@”`;
+        if (i < 0) return i18n`电子邮箱地址应包含符号“@”`;
         if (i === 0) return i18n`@符号前应有内容`;
         if (i === text.length - 1) return i18n`@符号后应有内容`;
     }
