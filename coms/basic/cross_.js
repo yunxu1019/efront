@@ -330,7 +330,17 @@ function cross_(jsonp, digest = noop, method, url, headers) {
             }
             else if (cachedata.length && isEmpty(datas)) {
                 var jsondata = mergedata(cachedata, parseKV);
-                if (realHeaders["Content-Type"]);
+                if (realHeaders["Content-Type"]) {
+                    if (/json$/i.test(realHeaders["Content-Type"])) {
+                        datas = JSON.stringify(jsondata);
+                    }
+                    else {
+                        if (hasFile(jsondata)) {
+                            datas = kv2form(jsondata);
+                        }
+                        else datas = serialize(jsondata, '&', "=");
+                    }
+                }
                 else if (isform) {
                     var hasfile = hasFile(jsondata);
                     if (hasfile) {
@@ -347,6 +357,7 @@ function cross_(jsonp, digest = noop, method, url, headers) {
                         realHeaders["Content-Type"] = "application/json;charset=UTF-8";
                     }
                 }
+                console.log(datas)
             }
             var is_gb2312 = /^[gbk][^e]/i.test(method);
             if (is_gb2312) method = method.slice(1);

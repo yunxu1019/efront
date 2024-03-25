@@ -98,7 +98,7 @@ var seekFromSource = function (obj, base) {
 function getErrorMessage(error = this) {
     if (!isObject(error)) return String(error);
     if (error instanceof Error) return String(error);
-    var words = "reason,message,desc,descption,msg,err,error,data".split(',');
+    var words = "reason,message,desc,descption,msg,err,error,detail,data".split(',');
     while (words.length) {
         var a = words.shift();
         if (error[a]) {
@@ -607,7 +607,7 @@ var privates = {
                 }).error(xhr => {
                     try {
                         var e = getErrorMessage(parseData(xhr.response || xhr.responseText || xhr.statusText || xhr.status));
-                        oh({ status: xhr.status, api, params: params1, error: e, toString: getErrorMessage })
+                        oh({ status: loading.status, api, params: params1, error: e, toString: getErrorMessage })
                     } catch (error) {
                         oh(error);
                     }
@@ -730,6 +730,9 @@ var unbindInstance = function (instanceId, callback) {
 };
 var OUTDATE = new Error(i18n`请求被覆盖`);
 var ABORTED = new Error(i18n`请求已取消`);
+var wrapRequest = function (p, req) {
+
+};
 var data = {
     decodeStructure,
     encodeStructure,
@@ -818,10 +821,10 @@ var data = {
             config = Promise.resolve(config).then(createApiMap);
         }
         return enrich({
-            from(id, params) {
-                return config.then(function (data) {
-                    var a = data[id];
-                    return privates.fromApi(a, params);
+            from(id, params, parse) {
+                return config.then(function (map) {
+                    var a = map[id];
+                    return data.fromApi(a, params, parse);
                 });
             },
             getApi(id) {
