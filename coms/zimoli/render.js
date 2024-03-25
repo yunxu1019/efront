@@ -470,8 +470,11 @@ var src2 = function (search) {
         var temp = origin;
         if (origin instanceof Array) {
             temp = extend([], origin);
-        } else if (isObject(origin)) {
-            temp = extend({}, origin);
+        }
+        else if (isObject(origin)) {
+            if (!origin.constructor || origin.constructor === Object) {
+                temp = extend({}, origin);
+            }
         } else if (!isHandled(origin)) {
             temp = "";
         }
