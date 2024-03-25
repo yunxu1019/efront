@@ -1,3 +1,11 @@
+var validators = {
+    email(text) {
+        var i = text.indexOf('@');
+        if (i < 0) return i18n`邮箱地址应包含符号“@”`;
+        if (i === 0) return i18n`@符号前应有内容`;
+        if (i === text.length - 1) return i18n`@符号后应有内容`;
+    }
+}
 function valid(field, data) {
     var error;
     if (isEmpty(data[field.key])) {
@@ -6,8 +14,13 @@ function valid(field, data) {
         }
         return;
     }
-    var tmp;
-    if (tmp = /\:(\d+)(?:\.(\d+))?$/.exec(field.type)) {
+    var tmp = validators[field.type];
+    if (tmp) {
+        var value = data[field.key];
+        var error = tmp(String(value ?? ''));
+        if (error) return error;
+    }
+    else if (tmp = /\:(\d+)(?:\.(\d+))?$/.exec(field.type)) {
         var [, a, b] = tmp;
         var value = data[field.key];
         a = +a;
