@@ -1,4 +1,4 @@
-var change = async function (data) {
+var change = lazy(async function (data) {
     if (!data) remove(this.with);
     else if (isNode(data)) {
         if (isElement(data) && this.$struct.copys) {
@@ -15,7 +15,7 @@ var change = async function (data) {
         zimoli.global(data, this);
     }
     else if (isString(data) || +data < 0) zimoli.go(data, this.params, this);
-};
+});
 var gosrc = function (src) {
     if (src !== this.$src) {
         this.$src = src;
