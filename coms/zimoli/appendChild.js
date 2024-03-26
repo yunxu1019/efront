@@ -71,6 +71,7 @@ function insertAfter(alreadyMounted, obj, transition) {
     children = children.reverse();
     for (var cx = 0, dx = children.length; cx < dx; cx++) {
         var o = release(children[cx]);
+        if (!o) continue;
         if (o.removeTimer) clearTimeout(o.removeTimer);
         parent.insertBefore(o, alreadyMounted.nextSibling);
         o.with && insertBefore(alreadyMounted.nextSibling, o.with, transition);
