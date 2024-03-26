@@ -1,20 +1,21 @@
-var change = lazy(async function (data) {
-    if (!data) remove(this.with);
-    else if (isNode(data)) {
-        if (isElement(data) && this.$struct.copys) {
+var change = lazy(async function (src) {
+    if (src !== this.$src) return;
+    if (!src) remove(this.with);
+    else if (isNode(src)) {
+        if (isElement(src) && this.$struct.copys) {
             for (var c of this.$struct.copys) {
                 if (c.name === 'class') {
-                    addClass(data, c.value);
+                    addClass(src, c.value);
                 }
                 else if (c.name === 'style') {
-                    css(data, c.value);
+                    css(src, c.value);
                 }
-                else data.setAttribute(c.name, c.value);
+                else src.setAttribute(c.name, c.value);
             }
         }
-        zimoli.global(data, this);
+        zimoli.global(src, this);
     }
-    else if (isString(data) || +data < 0) zimoli.go(data, this.params, this);
+    else if (isString(src) || +src < 0) zimoli.go(src, this.params, this);
 });
 var gosrc = function (src) {
     if (src !== this.$src) {
