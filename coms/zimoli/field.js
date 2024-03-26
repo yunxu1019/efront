@@ -1,8 +1,7 @@
 function main(elem) {
     elem = optionbar.apply(null, arguments);
     var scope = {};
-    care(elem, function (p) {
-        if (elem.childNodes.length) return;
+    if (!elem.childNodes.length) care(elem, function (p) {
         var [f, data] = p;
         elem.innerHTML = field;
         render(elem, scope = {

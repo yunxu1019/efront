@@ -467,20 +467,9 @@ var src2 = function (search) {
     var savedValue;
     this.renders.push(function () {
         var origin = getter(this);
-        var temp = origin;
-        if (origin instanceof Array) {
-            temp = extend([], origin);
-        }
-        else if (isObject(origin)) {
-            if (!origin.constructor || origin.constructor === Object) {
-                temp = extend({}, origin);
-            }
-        } else if (!isHandled(origin)) {
-            temp = "";
-        }
+        var temp = shallowClone(origin, 2);
         if (isHandled(savedValue)) {
-            var changes = getChanges(temp, savedValue);
-            if (!changes) return;
+            if (!shallowEqual(temp, savedValue, 2)) return;
         }
         else {
             if (isSame(savedValue, temp)) return;
