@@ -38,6 +38,7 @@ function format(formater) {
     });
 }
 function filterTime(time, format) {
+    if (!isHandled(time)) return '';
     if (isFinite(time)) time = +time;
     var value = new Date(time);
     if (!+value) {
@@ -50,37 +51,67 @@ function filterTime(time, format) {
         format = format.charAt(0);
     }
     var splited = getSplitedDate(value);
+    var now = new Date;
     var [year, month, date, hour, minute, second, milli, day] = splited;
-    var [year1, month1, date1, hour1, minute1] = getSplitedDate(new Date);
+    var [year1, month1, date1, hour1, minute1, second1, milli1, day1] = getSplitedDate(now);
     var today = new Date(year1, month1 - 1, date1);
     var thatday = new Date(year, month - 1, date);
     var delta = (today - thatday) / 24 / 3600000;
-    var time = `${hour}:${fixLength(minute)}`;
-    if (delta < 6 && delta > 2) {
-        return `星期` + days[day] + hour + "点";
+    if (minute === 0) var time = hour + "点";
+    else if (minute === 30) time = hour + "点半";
+    else time = `${hour}:${fixLength(minute)}`;
+    if (delta < 7 && delta > 2) {
+        if (day >= day1) {
+            return `上星期` + days[day] + time;
+        }
+        return `星期` + days[day] + time;
+    }
+    else if (delta > -7 && delta < -2) {
+        if (day <= day1) {
+            return `下星期` + days[day] + time;
+        }
+        return `星期` + days[day] + time;
     }
     switch (delta) {
         case 0:
             if (minute === minute1 && hour === hour1) {
-                return `刚刚`;
+                if (second <= second1) return `刚刚`;
+                return `${second - second1}秒后`;
+            }
+            else if (value > now) {
+                if (hour === hour1) {
+                    return `${minute - minute1}分钟后`;
+                }
+                return `还有${hour - hour1}小时${minute - minute1}分钟`;
             }
             return time;
+        case -1:
+            return "明天" + time;
         case 1:
-            return '昨天' + hour + "点"
+            return '昨天' + time;
         case 2:
-            return '前天' + hour + "点"
+            return '前天' + time;
+        case -2:
+            return "后天" + time;
         default:
             switch (year1 - year) {
                 case 0:
+                    if (value > now) {
+                        return `今年${month}${format || '月'}${date}${format ? '' : '日'} ${time}`;
+                    }
                     return `${month}${format || '月'}${date}${format ? '' : '日'} `;
                 case 1:
                     if (month1 < month) {
                         return `${month}${format || '月'}${date}${format ? '' : '日'} `;
                     }
                     return "去年" + month + "月";
+                case -1:
+                    return "明年" + month + "月" + date + "日";
                 case 2:
                     return "前年" + month + "月";
+                case -2:
+                    return "后年" + month + "月" + date + "日";
             }
-            return `${year}${format || '年'}`;
+            return `${year}${format || '年'}${month}${format || "月"}`;
     }
 }
