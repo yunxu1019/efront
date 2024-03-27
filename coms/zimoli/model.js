@@ -46,8 +46,30 @@ unmark(checkbox);
 unmark(swap);
 unmark(image);
 unmark(success);
+var renderOption = function (o, index) {
+    if (typeof o === 'string') return o;
+    if (isFunction(o)) {
+        var name = typeof index === 'number' ? o.name : index;
+        return `<a href="javascript:;" @click=field.options[${strings.encode(index)}](data)>${name}</a>`
+    }
+    if (isObject(o)) {
+        if (o.href) {
+            return `<a href=${strings.encode(o.href)}>${o.name}</a>`;
+        }
+        return `<a href='javascript:;' @click=field.options[${strings.encode(index)}](data)>${o.name}</a>`
+    }
+    return o;
+}
 var renderOptions = function (field, data) {
-    if (typeof field.options === 'string') return field.options;
+    var { options } = field;
+    if (typeof options === 'string') return options;
+    if (isFunction(options)) return renderOption(options);
+    if (options instanceof Array) {
+        return options.map(renderOption).join('');
+    }
+    else if (isObject(options)) {
+        return Object.keys(options).map(k => renderOption(options[k], k)).join('');
+    }
     return '';
 }
 var onoff = function () {
@@ -196,7 +218,8 @@ var readonly_types = {
         if (field.options) {
             if (!field.optionsMap) field.optionsMap = createOptionsMap(field.options);
             var o = field.optionsMap[v];
-            if (isObject(o)) return o.name;
+            try { e.setAttribute(field.key, v); } catch { }
+            if (isObject(o)) return `<s></s>` + o.name;
             if (isHandled(o)) return o;
         }
         if (isEmpty(v)) v = '';
