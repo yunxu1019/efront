@@ -1,7 +1,7 @@
 function autofocus(e) {
-    if (!e.renders) e.renders = [];
+    if (!e.$renders) e.$renders = [];
     var savedElement;
-    e.renders.push(function () {
+    e.$renders.push(function () {
         var parent = rootElements[rootElements.length - 1] || document.body;
         if (savedElement === this) {
             if (this !== parent || getTargetIn(parent, document.activeElement)) return;

@@ -85,7 +85,7 @@ var constructors = {
     date() {
         var elem = document.createElement("input");
         elem.type = "date";
-        elem.renders = [function () {
+        elem.$renders = [function () {
             var { data, field } = this.$scope;
             if (data && field) elem.value = parseDate(data[field.key]);
         }]
@@ -107,7 +107,7 @@ var constructors = {
     checker(elem) {
         var { data, field } = elem;
         elem.innerHTML = `<span @click="onoff()"><checker -model=data[field.key]></checker><span -bind='field.holder'></span></span>${renderOptions(field, data)}`;
-        render(elem.children, { onoff, checker, data, field });
+        render(elem.children, { onoff, checker, data, a: button, field });
     },
     checkbox({ field }) {
         var elem = checkbox();
@@ -145,7 +145,7 @@ var constructors = {
     },
     "repeat"(_, field_type) {
         var elem = input();
-        elem.renders = [function () {
+        elem.$renders = [function () {
             var { field, data } = this.$scope;
             var { status } = this;
             var valid = this.value === data[field_type];
@@ -306,7 +306,7 @@ function main(elem) {
                     if (!ipt.$scope) {
                         renderModel.call(ipt, field, data);
                         var saved_sataus;
-                        ipt.renders.push(function () {
+                        ipt.$renders.push(function () {
                             var { valid, status } = this;
                             if (elem.valid !== valid) elem.valid = valid;
                             if (saved_sataus === status) return;
@@ -323,7 +323,7 @@ function main(elem) {
                         on("change")(ipt, copyOptionData);
                     }
                     if ("options_from" in field) {
-                        ipt.renders.push(rebuildOptions);
+                        ipt.$renders.push(rebuildOptions);
                     }
                 }
             }

@@ -263,7 +263,7 @@ var remove = function (k, hk, [eventtypes, handler, context]) {
             var [e, h, c] = hs[cx];
             if (h === handler && e === eventtypes && c === context) {
                 hs.splice(cx, 1);
-                if (k === changes_key) element.needchanges--;
+                if (k === changes_key) element.$needchanges--;
             }
         }
         if (!hs.length && hs.h) {
@@ -330,8 +330,8 @@ var append = function (k, hk, listener2, firstmost) {
         if (h === handler && eventtypes === e && c === context) return;
     }
     if (k === changes_key) {
-        if (!element.needchanges) element.needchanges = 0;
-        element.needchanges++;
+        if (!element.$needchanges) element.$needchanges = 0;
+        element.$needchanges++;
     }
     if (firstmost) handlers.unshift(listener2);
     else handlers.push(listener2);
@@ -342,7 +342,7 @@ var on = document.efronton = function (k) {
     if (handlersMap[on_event_path]) return handlersMap[on_event_path];
     var eventtypes = parseEventTypes(k);
     k = k.replace(eventtypereg, '');
-    var handler_path = k + "handlers";
+    var handler_path = "$h_" + k;
     var hk = handler_path + +!!eventtypes.capture;
     if (supportPassive) hk += +!!eventtypes.passive;
     if (is_addEventListener_enabled) var addhandler = function (context, handler, firstmost = false) {

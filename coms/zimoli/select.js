@@ -219,10 +219,10 @@ function select(target, list, removeOnSelect, direction) {
         }
         else _remove();
     };
-    if (!target.renders) {
-        target.renders = [];
+    if (!target.$renders) {
+        target.$renders = [];
     }
-    target.renders.push(setIcon);
+    target.$renders.push(setIcon);
     onclick(target, mousedown);
     return target;
 }

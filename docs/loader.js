@@ -114,7 +114,7 @@ var build = function () {
                 return;
             }
             if (isNode(comm)) {
-                if (!comm.isMounted) appendChild(mainArea, comm);
+                if (!comm.$mounted) appendChild(mainArea, comm);
             }
             else mainArea.innerHTML = `<div>[Data Object]{\r\n${isObject(comm) ? Object.keys(comm).join("\r\n\t") : comm}</div>`
             appendChild(mainArea, logpad);

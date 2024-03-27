@@ -506,7 +506,7 @@ function table(elem) {
             },
             thead(t) {
                 var tr = document.createElement('thead');
-                tr.renders = [function () {
+                tr.$renders = [function () {
                     resizeT(this.firstChild)
                 }];
                 css(tr, { display: 'block' });

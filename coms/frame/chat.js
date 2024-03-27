@@ -168,7 +168,7 @@ function chat(title = '会话窗口') {
             }
         }
     };
-    page.renders = [function () {
+    page.$renders = [function () {
         this.$scope.resize(this.$scope.body);
     }];
     page.localid = localid;

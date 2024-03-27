@@ -38,12 +38,12 @@ function setCurrentPage(page) {
     var currentLayer = getCurrentLayer();
     if (page !== leftPage) {
         if (currentLayer !== leftLayer) {
-            if (!leftPage.isMounted) appendChild(leftLayer, leftPage);
+            if (!leftPage.$mounted) appendChild(leftLayer, leftPage);
         } else {
             remove(leftPage, false);
         }
         if (page.parentNode !== currentLayer) appendChild(currentLayer, page, false);
-    } else if (!leftPage.isMounted) {
+    } else if (!leftPage.$mounted) {
         appendChild(leftLayer, leftPage, false);
     }
 }
@@ -54,16 +54,16 @@ function main(_leftPage) {
 layer.layer = function (child, old) {
     remove(old);
     if (child === leftPage) {
-        if (!leftPage.isMounted) appendChild(leftLayer, child);
+        if (!leftPage.$mounted) appendChild(leftLayer, child);
     } else if (child) {
         var currentLayer = getCurrentLayer();
         appendChild(currentLayer, child);
         if (currentLayer === leftLayer) {
             if (arguments.length > 1) remove(leftPage);
-        } else if (!leftPage.isMounted) {
+        } else if (!leftPage.$mounted) {
             appendChild(leftLayer, leftPage);
         }
     } else {
-        if (!leftPage.isMounted) appendChild(leftLayer, leftPage);
+        if (!leftPage.$mounted) appendChild(leftLayer, leftPage);
     }
 };

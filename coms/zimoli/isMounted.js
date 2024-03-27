@@ -1,9 +1,9 @@
 function isMounted(parent) {
-    if ("isMounted" in parent) return parent.isMounted;
+    if ("$mounted" in parent) return parent.$mounted;
     var temp = parent;
     while (temp && temp !== document.documentElement) {
-        if ("isMounted" in temp) {
-            return parent.isMounted = temp.isMounted;
+        if ("$mounted" in temp) {
+            return parent.$mounted = temp.$mounted;
         }
         temp = temp.parentNode;
     }

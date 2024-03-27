@@ -71,7 +71,7 @@ var removeRenderElement = function () {
 function refresh(root) {
     var rest = [];
     var body = document.documentElement;
-    if (root && root.renders) {
+    if (root && root.$renders) {
         for (var k in renderElements) {
             var element = renderElements[k];
             if (
@@ -90,8 +90,8 @@ function refresh(root) {
     if (rest.length) rest.forEach(a => removeRenderElement.call(a));
 }
 function rebuild(element) {
-    if (!element.needchanges) {
-        element.renders.forEach(a => a.call(element));
+    if (!element.$needchanges) {
+        element.$renders.forEach(a => a.call(element));
         return;
     }
     var props = {};
@@ -99,9 +99,11 @@ function rebuild(element) {
         var data = element[key];
         props[key] = isObject(data) && !isFunction(data) && !isDate(data) && !isNode(data) ? extend(data instanceof Array ? [] : {}, data) : data;
     });
-    element.renders.forEach(a => a.call(element));
+    console.log(props)
+    element.$renders.forEach(a => a.call(element));
     var changes = getChanges(element, props);
     if (changes) {
+        console.log(props)
         var event = createEvent('changes');
         event.changes = changes;
         dispatch(event, element);
@@ -118,7 +120,7 @@ var createGetter = function (target, search, isprop = true) {
 };
 var createComment = function (renders, type, expression) {
     var comment = document.createComment(`${type} ${expression}`);
-    comment.renders = renders;
+    comment.$renders = renders;
     comment.$scope = this.$scope;
     comment.$struct = this.$struct;
     comment.$parentScopes = this.$parentScopes;
@@ -294,7 +296,7 @@ var createIf = function (search, id = 0) {
     elements.comment = search;
     if (this.$struct.repeat) id = -3;
 
-    elements.renders = [function () {
+    elements.$renders = [function () {
         var shouldMount = -1;
         for (var cx = 0, dx = elements.length; cx < dx; cx += 2) {
             var getter = elements[cx + 1];
@@ -322,7 +324,7 @@ var createIf = function (search, id = 0) {
         }
 
     }];
-    return elements[0] = createComment.call(element, elements.renders, 'if', elements.comment);
+    return elements[0] = createComment.call(element, elements.$renders, 'if', elements.comment);
 };
 var parseIfWithRepeat = function (ifExpression, repeatExpression) {
     var repeater = parseRepeat(repeatExpression);
@@ -443,7 +445,7 @@ var createBinder = function (binder) {
     return function (search) {
         var getter = createGetter(this, `(${search})`);
         var oldValue;
-        this.renders.push(function () {
+        this.$renders.push(function () {
             var value = getter(this);
             if (shallowEqual(value, oldValue)) return;
             var oldv = oldValue;
@@ -465,7 +467,7 @@ var createBinder = function (binder) {
 var src2 = function (search) {
     var getter = createGetter(this, search);
     var savedValue;
-    this.renders.push(function () {
+    this.$renders.push(function () {
         var origin = getter(this);
         var temp = shallowClone(origin, 2);
         if (isHandled(savedValue)) {
@@ -525,16 +527,16 @@ var directives = {
             this[key] = value;
         };
         if (/^input$/i.test(target.tagName) && /^checkbox$/i.test(target.type) || /^checkbox$/i.test(target.tagName)) {
-            this.renders.push(setter || setter2.bind(target, 'checked'));
+            this.$renders.push(setter || setter2.bind(target, 'checked'));
             var change = getstr || "this.checked";
         } else if (("value" in target || target.getValue instanceof Function) && target.setValue instanceof Function) {
-            this.renders.push(setter);
+            this.$renders.push(setter);
             var change = getstr || "this.value";
         } else if (/^(select|input|textarea)$/i.test(target.tagName) || "value" in target) {
-            this.renders.push(setter || setter2.bind(target, 'value'));
+            this.$renders.push(setter || setter2.bind(target, 'value'));
             var change = getstr || "this.value";
         } else {
-            this.renders.push(setter || function () {
+            this.$renders.push(setter || function () {
                 var value = getter(this);
                 if (value === undefined) value = "";
                 if (deepEqual(oldValue, value)) return;
@@ -561,7 +563,7 @@ var directives = {
         var getter = createGetter(this, `(${search})`);
         var generatedClassNames = {};
         var oldValue;
-        this.renders.push(function () {
+        this.$renders.push(function () {
             var className = getter(this);
             if (deepEqual(oldValue, className)) return;
             oldValue = className;
@@ -600,7 +602,7 @@ var binders = {
         attr = attr.replace(/\-(\w)/g, (_, w) => w.toUpperCase());
         var getter = createGetter(this, search);
         var oldValue;
-        this.renders.push(function () {
+        this.$renders.push(function () {
             var value = getter(this);
             if (deepEqual(value, oldValue)) return;
             oldValue = value;
@@ -612,7 +614,7 @@ var binders = {
     ""(attr, search) {
         var getter = createGetter(this, search);
         var oldValue;
-        this.renders.push(function () {
+        this.$renders.push(function () {
             var value = getter(this);
             if (deepEqual(value, oldValue)) return;
             oldValue = value;
@@ -712,8 +714,8 @@ function getFromScopes(key, scope, parentScopes) {
 }
 
 function renderRest(element, struct, replacer = element) {
-    var renders = element.renders;
-    element.renders = [];
+    var renders = element.$renders;
+    element.$renders = [];
     var { binds, attrs, props } = struct;
     for (var k in binds) {
         if (k === 'src') continue;
@@ -733,7 +735,7 @@ function renderRest(element, struct, replacer = element) {
         } catch (e) { }
     }
     if (binds.src) directives.src.call(element, binds.src);
-    if (renders && renders.length) element.renders.push.apply(element.renders, renders);
+    if (renders && renders.length) element.$renders.push.apply(element.$renders, renders);
 }
 
 function renderElement(element, scope = element.$scope, parentScopes = element.$parentScopes, once) {
@@ -778,7 +780,7 @@ function renderElement(element, scope = element.$scope, parentScopes = element.$
         if (parentNode) {
             if (parentNode.$renderid > 1 || isMounted(parentNode)) element.$renderid = 2;
         }
-        element.renders = element.renders ? [].concat(element.renders) : [];
+        element.$renders = element.$renders ? [].concat(element.$renders) : [];
         var { copys, binds, once } = element.$struct;
         if (once) element.$renderid = 9;
         if (binds.src) {
@@ -815,8 +817,8 @@ function renderElement(element, scope = element.$scope, parentScopes = element.$
     if (!isFirstRender) return element;
     renderRest(element, element.$struct, replacer);
     if (isNode(replacer) && replacer !== element) {
-        if (!replacer.renders) replacer.renders = [];
-        replacer.renders.push.apply(replacer.renders, element.renders);
+        if (!replacer.$renders) replacer.$renders = [];
+        replacer.$renders.push.apply(replacer.$renders, element.$renders);
         if (replacer.$struct && replacer.$struct !== element.$struct) {
             element.$struct.ons.forEach(([on, key, value]) => on.call(element, replacer, key, value));
         }
@@ -825,7 +827,7 @@ function renderElement(element, scope = element.$scope, parentScopes = element.$
     else {
         element.$struct.ons.forEach(([on, key, value]) => on.call(element, element, key, value));
     }
-    if (element.renders.length) {
+    if (element.$renders.length) {
         if (element.$renderid !== 9) {
             onmounted(element, addRenderElement);
             onremove(element, removeRenderElement);

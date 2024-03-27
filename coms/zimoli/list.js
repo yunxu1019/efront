@@ -9,10 +9,10 @@ function ylist(container, generator, $Y) {
     list.autoFix = true;
     var saved_itemIndex = 0;
     addClass(list, 'list-' + $Y.toLowerCase());
-    if (!list.renders) {
-        list.renders = [];
+    if (!list.$renders) {
+        list.$renders = [];
     }
-    list.renders.push(function () {
+    list.$renders.push(function () {
         var a = saved_itemIndex;
         saved_itemIndex = void 0;
         if (a !== void 0) scrollTo(a);

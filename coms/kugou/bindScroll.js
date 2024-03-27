@@ -53,6 +53,6 @@ function bindScroll(titlebar, page) {
         setOpacity(label, 1 - (titlebar.offsetHeight - topHeight) / (offsetHeight - topHeight));
         return {};
     };
-    if (!page.renders) page.renders = [];
+    if (!page.$renders) page.$renders = [];
     page.onscroll = refresh;
 }

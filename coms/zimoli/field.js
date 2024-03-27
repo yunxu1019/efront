@@ -16,7 +16,7 @@ function main(elem) {
         elem.setAttribute("field", f.key);
     }, false);
     elem.setAttribute("field", '');
-    elem.renders = [function () {
+    elem.$renders = [function () {
         if (!(this.src instanceof Array)) return;
         var [f, data] = this.src;
         if (!f || !data) return;

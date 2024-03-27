@@ -72,7 +72,7 @@ function createLRC(lrc) {
                     setClass(krcList, index);
                 }
             }
-            if (ele && firstChild && firstChild.isMounted) {
+            if (ele && firstChild && firstChild.$mounted) {
                 var marginTop = (firstChild.parentNode.offsetHeight - ele.offsetHeight >> 1) - ele.offsetTop + firstChild.offsetTop;
                 css(firstChild, `margin-top:${marginTop | 0}px;`);
             }
@@ -140,7 +140,7 @@ function createKRC(krc) {
             var current_row_word = current_words[current_row_index];
             var ele = krcList[index];
             var firstChild = krcList[0];
-            if (ele && firstChild && firstChild.isMounted) {
+            if (ele && firstChild && firstChild.$mounted) {
                 var marginTop = (firstChild.parentNode.offsetHeight - ele.offsetHeight >> 1) - ele.offsetTop + firstChild.offsetTop;
                 if (index > 0) {
                     if (markerLabel.parentNode !== ele) {
