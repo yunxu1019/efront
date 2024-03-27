@@ -3,7 +3,7 @@ function shallowEqual(o1, o2, deep) {
     // 浅层比对，对内层对象不进行递归比对
     if (--deep < 0) return singleEqual(o1, o2);
     if (singleEqual(o1, o2)) return true;
-    if (isObject(o1) && isObject(o2) && deep-- > 0) {
+    if (isObject(o1) && isObject(o2)) {
         var keys1 = Object.keys(o1), keys2 = Object.keys(o2);
         if (keys1.length !== keys2.length) return false;
         keys1.sort(), keys2.sort();

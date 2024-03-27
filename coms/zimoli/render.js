@@ -99,11 +99,9 @@ function rebuild(element) {
         var data = element[key];
         props[key] = isObject(data) && !isFunction(data) && !isDate(data) && !isNode(data) ? extend(data instanceof Array ? [] : {}, data) : data;
     });
-    console.log(props)
     element.$renders.forEach(a => a.call(element));
     var changes = getChanges(element, props);
     if (changes) {
-        console.log(props)
         var event = createEvent('changes');
         event.changes = changes;
         dispatch(event, element);
@@ -471,7 +469,7 @@ var src2 = function (search) {
         var origin = getter(this);
         var temp = shallowClone(origin, 2);
         if (isHandled(savedValue)) {
-            if (!shallowEqual(temp, savedValue, 2)) return;
+            if (shallowEqual(temp, savedValue, 2)) return;
         }
         else {
             if (isSame(savedValue, temp)) return;
