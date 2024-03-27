@@ -467,9 +467,9 @@ var src2 = function (search) {
     var savedValue;
     this.$renders.push(function () {
         var origin = getter(this);
-        var temp = shallowClone(origin, 2);
+        var temp = shallowClone(origin, 1);
         if (isHandled(savedValue)) {
-            if (shallowEqual(temp, savedValue, 2)) return;
+            if (shallowEqual(temp, savedValue, 1)) return;
         }
         else {
             if (isSame(savedValue, temp)) return;
