@@ -357,7 +357,6 @@ function cross_(jsonp, digest = noop, method, url, headers) {
                         realHeaders["Content-Type"] = "application/json;charset=UTF-8";
                     }
                 }
-                console.log(datas)
             }
             var is_gb2312 = /^[gbk][^e]/i.test(method);
             if (is_gb2312) method = method.slice(1);
