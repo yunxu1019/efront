@@ -401,7 +401,6 @@ var getFromScopeList = function (name, varsList, value = name) {
 };
 var removeSelectorSpace = a => a.trim().replace(/\s*([\+~\>])\s*/g, "$1");
 var fixBase = function (b, a) {
-    var s = splitParams(a);
     return splitParams(a).map(a => {
         if (presets.test(a)) a = `@{${a}}`;
         var replaced = false;
@@ -426,9 +425,11 @@ function evalscoped(scoped, base = '') {
     base = removeSelectorSpace(base);
     var smaps = scoped.maps;
     var root = smaps[":root"], scope = smaps[":scope"];
+    var and = smaps["&"];
     var vars = extend(Object.create(null), scoped.vars);
     if (root) root.forEach(r => extend(vars, r.vars));
     if (scope) scope.forEach(s => extend(vars, s.vars));
+    if (and) and.forEach(a => extend(vars, a.vars));
     var vlist = [vars];
     var mlist = [macros];
     var clist = [smaps];
