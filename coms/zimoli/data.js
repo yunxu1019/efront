@@ -178,11 +178,10 @@ function getUrlParamsForApi(api, url) {
     var cap = [];
     var base = api.url.replace(/[\?\#][\s\S]*$/, '')
         .replace(/[\.\*\+\-\[\]\{\}\(\)\\\/\!<\>\^]/g, '\\$&')
-        .replace(/\:\w+/, function (a) {
+        .replace(/\:\w+/g, function (a) {
             cap.push(a.slice(1));
             return r;
         });
-    if (api.base) base = api.base + base;
     if (/\/$/.test(base)) base += "?";
     var params = {};
     url = url.replace(/[\?#]*$/g, function (match) {
@@ -192,13 +191,14 @@ function getUrlParamsForApi(api, url) {
             params[k] = v;
         });
         return '';
-    }).replace(new RegExp(`^${base}$`, 'ig'), function () {
+    });
+    if (api.base) url = url.slice(api.base.length);
+    url.replace(new RegExp(`^${base}$`, 'ig'), function () {
         var args = arguments;
         cap.forEach(function (a, cx) {
             params[a] = args[cx + 1];
         });
     });
-    params = serialize(params);
     return params;
 }
 
@@ -256,7 +256,7 @@ function seekResponse(data, seeker, apiMap = {}) {
                 data = JSON.parse(data);
             }
             if (next) {
-                data = (pick || next.id) + "?" + getUrlParamsForApi(next, data);
+                data = (pick || next.id) + "?" + serialize(getUrlParamsForApi(next, data));
                 if (getNextValue) {
                     data = getParamsFromUrl(data);
                     if (pick) data = data[pick];
@@ -476,6 +476,34 @@ var getApi = function (serviceId, promised_map) {
         return extend({}, api, { root: apiMap });
     });
 };
+var prepareURL = function (url, params) {
+    var rest = [];
+    var uri = url.replace(/#[\s\S]*$/, "").replace(/[\\\:]\:|\:[a-z\_][\w]*/gi, function (d) {
+        d = d.slice(1);
+        if (d === ":") return d;
+        rest.push(d);
+        return seekResponse(params, d) || '';
+    });
+    if (isObject(params)) params = extend(params instanceof Array ? [] : {}, params);
+    if (/\?/.test(uri)) search = uri.replace(/^[\s\S]*?\?/, "");
+    var baseuri = uri.replace(/\?[\s\S]*$/, "");
+    var hasOwnProperty = {}.hasOwnProperty;
+    if (search) {
+        var searchParams = parseKV(search);
+        if (params) for (var k in searchParams) {
+            if (hasOwnProperty.call(searchParams, k) && hasOwnProperty.call(params, k)) {
+                searchParams[k] = params[k];
+                rest.push(k);
+            }
+        }
+        search = serialize(searchParams);
+        if (search) uri = baseuri + "?" + search;
+        else uri = baseuri;
+    } else {
+        uri = baseuri;
+    }
+    return [uri, rest, baseuri, search];
+};
 var privates = {
     pack(serviceId, params) {
         if (/\?/.test(serviceId)) {
@@ -560,33 +588,8 @@ var privates = {
         else spliterIndex = method.length;
         var coinmethod = method.slice(0, spliterIndex).toLowerCase();
         var realmethod = coinmethod.replace(/\W+$/g, '');
-        var rest = [];
-        var uri = url.replace(/#[\s\S]*$/, "").replace(/[\\\:]\:|\:[a-z\_][\w]*/gi, function (d) {
-            d = d.slice(1);
-            if (d === ":") return d;
-            rest.push(d);
-            return seekResponse(params, d) || '';
-        });
-        if (isObject(params)) params = extend(params instanceof Array ? [] : {}, params);
-        if (/\?/.test(uri)) search = uri.replace(/^[\s\S]*?\?/, "");
-        var baseuri = uri.replace(/\?[\s\S]*$/, "");
-        var hasOwnProperty = {}.hasOwnProperty;
-        if (search) {
-            var searchParams = parseKV(search);
-            if (params) for (var k in searchParams) {
-                if (hasOwnProperty.call(searchParams, k) && hasOwnProperty.call(params, k)) {
-                    searchParams[k] = params[k];
-                    rest.push(k);
-                }
-            }
-            search = serialize(searchParams);
-            if (search) uri = baseuri + "?" + search;
-            else uri = baseuri;
-        } else {
-            uri = baseuri;
-        }
-
-        rest.forEach(k => delete params[k]);
+        var [uri, rest, baseuri, search] = prepareURL(url, params);
+        if (params && rest.length) rest.forEach(r => delete params[r]);
         return { method: realmethod, coinmethod, selector: method.slice(spliterIndex + 1), search, baseuri, uri, params };
     },
     loadIgnoreConfig(method, url, params1, api) {
@@ -734,7 +737,9 @@ var wrapRequest = function (p, req) {
 
 };
 var data = {
+    prepareURL,
     decodeStructure,
+    getUrlParamsForApi,
     encodeStructure,
     abortAll: cross.abortAll,
     responseLoaded(response) {
