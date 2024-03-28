@@ -778,7 +778,7 @@ function renderElement(element, scope = element.$scope, parentScopes = element.$
         if (parentNode) {
             if (parentNode.$renderid > 1 || isMounted(parentNode)) element.$renderid = 2;
         }
-        element.$renders = element.$renders ? [].concat(element.$renders) : [];
+        element.$renders = element.$renders || element.renders ? [].concat(element.$renders || [], element.renders || []) : [];
         var { copys, binds, once } = element.$struct;
         if (once) element.$renderid = 9;
         if (binds.src) {
