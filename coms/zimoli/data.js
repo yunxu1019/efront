@@ -300,7 +300,7 @@ function parseConfig(api) {
         });
         return '';
     });
-    url.replace(/[\?\#][\s\S]*$/, '').replace(/([\:\\]\:|\:\w+)/g, function (p) {
+    url.replace(/[\#][\s\S]*$/, '').replace(/([\:\\]\:|\:\w+)/g, function (p) {
         p = p.slice(1);
         if (!required[p] && p !== ':') {
             required.push(p);
