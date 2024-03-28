@@ -514,6 +514,11 @@ Javascript.prototype.detour = function (o, ie) {
     context = null;
     return envs;
 }
+var getfunc = function (o, k) {
+    var q = o.queue;
+    while (q && (!q.scoped || !q.scoped.used[k])) q = q.queue;
+    return q;
+};
 var context = null, rootenvs = null;
 function detour(o, ie) {
     while (o) {
@@ -528,21 +533,30 @@ function detour(o, ie) {
                     var m = /^[^\.\[\]]+/.exec(o.text);
                     if (m) { context.avoidMap[m[0]] = true; }
                 }
-                if (/\?\./.test(text)) {
-                    if (/\?\.$/.test(text)) {
-                        o = snapExpressHead(o);
-                        var f = snapExpressFoot(o);
-                        var rest = [o];
-                        remove(o, f.prev);
-                        while (o !== f) {
-                            o = o.next;
-                            rest.push(o);
-                        }
-                        text = createString(rest);
+                if (/\?\.|\?\?/.test(text)) {
+                    o = snapExpressHead(o);
+                    var f = snapExpressFoot(o);
+                    var rest = [o];
+                    remove(o, f.prev);
+                    while (o !== f) {
+                        o = o.next;
+                        rest.push(o);
                     }
+                    text = createString(rest);
                     text = renderExpress(text, false);
                     if (hasdot) text = "..." + text;
-                    o = replace(o, ...scan(text));
+                    var o1 = scan(text);
+                    var s1 = createScoped(o1);
+                    if (s1.used.this) {
+                        var s = getfunc(o, 'this').scoped;
+                        console.log(createString([getfunc(o,'this')]))
+                        s.used.this.push(...s1.used.this);
+                    }
+                    if (s1.used.arguments) {
+                        var s = getfunc(o, 'arguments').scoped;
+                        s.used.arguments.push(...s1.used.arguments);
+                    };
+                    o = replace(o, ...o1);
                     continue;
                 }
                 text = text.replace(/\.([^\.\[\!\=\:]+)/g, (_, a) => ie === undefined || context.strap_reg.test(a) || /#/.test(a) ? `[${strings.recode(a)}]` : _);
