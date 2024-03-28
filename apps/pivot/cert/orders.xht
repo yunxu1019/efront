@@ -91,9 +91,17 @@
             elem.innerHTML = filterTime(data[field.key]);
         }}
     `;
+    var order = {
+        authorizations: [],
+        expires: NaN,
+        finalize: '',
+        identifiers: [],
+        status: ''
+    };
+
     function main(params) {
         var orders = params || [];
-        console.log(params, 'params');
+        orders = orders.map(acme2.parseOrder);
         orders[0].actived = true;
         var page = document.createElement('orders');
         page.innerHTML = template;
@@ -105,8 +113,10 @@
             order: null,
             async openOrder(o) {
                 this.order = o;
+                if (!o.oid) return;
                 var order = await acme2.getOrder(orders[0]);
                 extend(o, order);
+                if (o !== this.order) return;
                 this.order = shallowClone(o);
             },
             async auditOrder(o) {
@@ -115,7 +125,7 @@
                     if (o.challenges) {
                         for (var c of o.challenges) {
                             if (c.type === 'http-01') {
-                                await data.from("setauth", c);
+                                await data.from("setauth", { token: c.token, thumb: await acme2.thumbprint() });
                                 await data.fromURL(c.url);
                                 continue a;
                             }
@@ -127,7 +137,7 @@
             }
         }
         renderWithDefaults(page, scope);
-        scope.openOrder(orders[0]).then(render.digest);
+        if (orders.length) scope.openOrder(orders[0]).then(render.digest);
 
         return page;
     }

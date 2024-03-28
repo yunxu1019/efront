@@ -18,6 +18,9 @@
   room: options ::link-:id
   care: options ::care-:id
   cast: options ::cast-:id?:msg
+  setauth|: options ::setauth-/.well-known/acme-challenge/:token?:token.:thumb
+  unique: options ::unique
+  unique-save: options ::unique-:data
   upload: put :path
 https://www.ip.cn/:
   iplocation: get https://www.ip.cn/api/index?ip=:ip&type=1

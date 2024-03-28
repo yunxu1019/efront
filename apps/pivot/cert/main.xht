@@ -84,17 +84,16 @@
         extend(formdata, acme2);
     };
     var publicKey, privateKey;
-    var initUnique = acme2.initUnique;
     loadUnique().then(render.digest).then(lazy(function () {
         box.reshape();
         bar.reshape();
     }));
-    var acmev2;
     var a = button;
     var xmenu = menu;
     var that = this;
-    var data1 = data.enrich('cert/avme2.yml');
-    var saveUnique = async function () {
+
+    var saveUnique = async function (params) {
+        extendIfOccurs(acme2, params);
         var extra = acme2.pickUnique();
         await data.from("unique-save", { data: extra });
     };
@@ -107,8 +106,14 @@
             fields: refilm`
             $公钥/public_key/单击生成 ${function (elem) {
                     var { data, field } = elem;
-                    elem.innerHTML = `<a @click="avme2.initUnique()" -if="!data[field.key]">单击生成</a><span -else -bind="data[field.key]"></span>`;
-                    render(elem, { data, field, acme2 })
+                    elem.innerHTML = `<a @click="gen()" -if="!data[field.key]">单击生成</a><span -else -bind="data[field.key]"></span>`;
+                    render(elem, {
+                        data, field, async gen() {
+                            await acme2.initUnique();
+                            formdata.public_key = acme2.public_key;
+                            await saveUnique();
+                        }
+                    })
                 }} 
             *邮箱/email email
             /termsOfServiceAgreed/同意 checker ${{
@@ -124,7 +129,9 @@
             actions: {
                 async 创建账户(actived) {
                     var params = submit(actived.fields, formdata);
+                    await saveUnique(params);
                     formdata.kid = await acme2.newAccount(params);
+                    await saveUnique();
                 }
             }
         },
@@ -141,11 +148,9 @@
                 async 创建订单(actived) {
                     var params = submit(actived.fields, formdata);
                     var order = await acme2.newOrder(params);
-                    if (!formdata.orders) {
-                        formdata.orders = [];
-                    }
-                    formdata.orders.unshift(order);
+                    formdata.orders = acme2.orders;
                     await saveUnique();
+                    activeMenu(menus[2], 2);
                 }
             }
         },

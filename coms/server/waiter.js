@@ -171,7 +171,10 @@ var care = function (req, res, type) {
         res.end();
     }
 };
-
+/**
+ * @param {Http2ServerRequest} req
+ * @param {Http2ServerResponse} res
+ */
 var doOptions = async function (req, res, type) {
     res.setHeader('Content-Type', 'text/plain;charset=UTF-8');
     var needLogin = false;
@@ -193,9 +196,15 @@ var doOptions = async function (req, res, type) {
                 if (!env) break;
                 res.env = env;
                 res.referer = getHeader(req.headers, "referer");
-                req.once('close', () => {
+                var remove = () => {
+                    req.off("close", remove);
+                    req.off("aborted", remove);
+                    req.off("error", remove);
                     removeFromList(liveload, res);
-                });
+                };
+                req.once('close', remove);
+                req.once("aborted", remove);
+                req.once("error", remove);
                 return liveload.mount(type[2], res);
             }
             break;

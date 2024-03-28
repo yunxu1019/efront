@@ -7,9 +7,9 @@ ${acmebase}acme/ Content-Type=application/jose+json:
   key-change: get key-change
   new-account: post:^efront-location new-acct
   get-account: get acct/:aid
+  new-order: post:^efront-location new-order
   get-order|: get order/:aid/:oid
   new-nonce: head:^Replay-Nonce new-nonce
-  new-order: post:^efront-location new-order
   revert-cert: post:^efront-location revert-cert
 `));
 var publicKey, privateKey;
@@ -17,7 +17,7 @@ var private_key, public_key;
 var RSASSA_PKCS1_v1_5 = "RSASSA-PKCS1-v1_5";
 var base64url = function (params) {
     var data = JSON.stringify(params);
-    return btoa(data).replace(/\=+$/, '').replace(/\+/g, "-").replace(/\//g, "_");
+    return toBase64(encodeUTF8(data), true);
 };
 var accountApi = await data1.getApi('get-account');
 var orderApi = await data1.getApi('get-order');
@@ -37,8 +37,8 @@ var request = async function (id, params) {
     if (/new-account|revert-cert/i.test(id)) {
         protected.jwk = {
             e: jwk.e,
-            n: jwk.n,
-            kty: jwk.kty
+            kty: jwk.kty,
+            n: jwk.n
         };
     }
     else {
@@ -50,20 +50,13 @@ var request = async function (id, params) {
     var params = {
         protected,
         payload,
-        signature: toBase64(new Uint8Array(await subtle.sign({ name: RSASSA_PKCS1_v1_5, saltLength: 32 }, privateKey, new Uint8Array(encodeUTF8([protected, '.', payload].join('')))))).replace(/\=+$/, "").replace(/\+/g, "-").replace(/\//g, "_")
+        signature: toBase64(new Uint8Array(await subtle.sign({ name: RSASSA_PKCS1_v1_5, saltLength: 32 }, privateKey, new Uint8Array(encodeUTF8([protected, '.', payload].join(''))))), true)
     };
     extend(params, restparams);
     var account = await data1.from(id, params);
     return account;
 };
 var subtle = this.crypto?.subtle;
-var order = {
-    authorizations: [],
-    expires: NaN,
-    finalize: '',
-    identifiers: [],
-    status: ''
-};
 var acme2 = new class {
     email = '';
     kid = '';
@@ -98,7 +91,7 @@ var acme2 = new class {
         var extra;
         [private_key, public_key, extra] = unique.split(',');
         if (extra) {
-            extra = parseKV(extra);
+            extra = JSON.parse(decodeUTF8(fromBase64(extra)));
             avme2.email = extra.email;
             avme2.kid = extra.kid;
             if (extra.kid) {
@@ -106,10 +99,8 @@ var acme2 = new class {
                 avme2.aid = account.aid;
             }
             avme2.domain = extra.domain;
-            avme2.termsOfServiceAgreed = "agreed" in extra;
-            if (extra.orders) {
-                avme2.orders = extra.orders.split(",").map(this.parseOrder);
-            }
+            avme2.termsOfServiceAgreed = extra.termsOfServiceAgreed;
+            avme2.orders = extra.orders;
         }
         try {
             privateKey = await subtle.importKey("pkcs8", new Uint8Array(fromBase64(private_key)), {
@@ -130,10 +121,10 @@ var acme2 = new class {
             kid: avme2.kid,
             email: avme2.email,
             domain: avme2.domain,
-            orders: avme2.orders?.join(','),
+            orders: avme2.orders,
+            termsOfServiceAgreed: avme2.termsOfServiceAgreed
         };
-        if (this.termsOfServiceAgreed) extra.agreed = undefined;
-        return [private_key, public_key, serialize(extra)].join(",");
+        return [private_key, public_key, base64url(extra)].join(",");
     }
     async getTermsOfService() {
         var data = await data1.from("directory");
@@ -165,12 +156,13 @@ var acme2 = new class {
         };
         var order = await request("new-order", params);
         this.domain = params.domain;
-        this.orders.unshift(order);
+        if (!this.orders) this.orders = [];
+        if (this.orders.indexOf(order) < 0) this.orders.unshift(order);
         return order;
     }
     parseOrder(o) {
+        if (typeof o !== 'string') return o;
         var order = data.getUrlParamsForApi(orderApi, o);
-        console.log(order)
         order.name = order.oid;
         return order;
     }
@@ -178,6 +170,14 @@ var acme2 = new class {
         var r = await data.from(orderApi, o);
         if (r.expires) r.expires = new Date(r.expires);
         return r;
+    }
+    async thumbprint() {
+        var jwk = await subtle.exportKey('jwk', publicKey);
+        jwk = `{"e":"${jwk.e}","kty":"${jwk.kty}","n":"${jwk.n}"}`;
+        console.log(JSON.parse(jwk))
+        var thumb = await subtle.digest("SHA-256", new Uint8Array(encodeUTF8(jwk)));
+        thumb = toBase64(new Uint8Array(thumb), true);
+        return thumb;
     }
     async audit(url) {
         return data.fromURL(url);
