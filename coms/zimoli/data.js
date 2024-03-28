@@ -478,6 +478,7 @@ var getApi = function (serviceId, promised_map) {
 };
 var prepareURL = function (url, params) {
     var rest = [];
+    var search;
     var uri = url.replace(/#[\s\S]*$/, "").replace(/[\\\:]\:|\:[a-z\_][\w]*/gi, function (d) {
         d = d.slice(1);
         if (d === ":") return d;
