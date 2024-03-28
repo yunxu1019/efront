@@ -120,11 +120,13 @@ var resize2 = function () {
             marginTop: fromOffset(-height)
         })
     }
-    if (body.scrollHeight + body.offsetTop > this.clientHeight) {
-        css(body, { height: fromOffset(this.clientHeight) });
-    }
-    else {
-        css(body, { height: '' });
+    if (body) {
+        if (body.scrollHeight + body.offsetTop > this.clientHeight) {
+            css(body, { height: fromOffset(this.clientHeight) });
+        }
+        else {
+            css(body, { height: '' });
+        }
     }
 };
 function view(element) {
