@@ -1,0 +1,134 @@
+<style>
+    &>list,
+    &>div {
+        display: inline-block;
+    }
+
+    & {
+        --border: 1px solid #0006;
+    }
+
+    &>xmenu[horizonal] {
+        width: 100%;
+        margin-bottom: -2px;
+        z-index: 1;
+        border-bottom: none;
+        box-shadow: none;
+
+        &:after {
+            content: "";
+            display: block;
+            position: absolute;
+            left: 0;
+            bottom: 0;
+            right: 0;
+            height: 0;
+            border-bottom: --border;
+            z-index: -1;
+        }
+
+        .actived {
+            background: #fff;
+            color: #333;
+            border: --border;
+            border-bottom: none;
+        }
+
+        +form {
+            border: --border;
+            background: #fff;
+        }
+    }
+
+    [actived] {
+        background: #fff;
+        /* border-bottom: 2px solid; */
+    }
+
+    [status]>s {
+        width: 0;
+        height: 0;
+        border-radius: 50%;
+        display: inline-block;
+        border: .3em solid;
+        margin-right: 6px;
+    }
+
+    @status(@s, @c) {
+        [status=@s] {
+            color: @c;
+        }
+    }
+
+    @status(pending, #777);
+    @status(processing, #f82);
+    @status(ready, #284);
+    @status(valid, #26c);
+    @status(invalid, #c24);
+</style>
+<xmenu -src="o of orders" @active="openOrder(o)"></xmenu>
+<form -if="order?.oid" onsubmit="event.preventDefault()">
+    <div body>
+        <field -repeat="f in fields" _src="[f,order]"></field>
+    </div>
+    <div foot>
+        <button -if="order.authorizations?.length" @click="auditOrder(order)">提审</button>
+        <button -if="order.finalize">定案</button>
+    </div>
+</form>
+<script>
+    var fields = refilm`
+    $状态/status radio [待定/pending,完毕/ready,审核中/processing,生效/valid,无效/invalid]
+    $证书/certificate anchor
+    $域名/identifiers ${function (elem) {
+            var { field, data } = elem;
+            var value = data[field.key];
+            if (value instanceof Array) elem.innerHTML = value.map(v => `${v.value} (${v.type})`).join("<br/>")
+            else elem.innerHTML = '';
+        }}
+    $失效时间/expires ${function (elem) {
+            var { field, data } = elem;
+            elem.innerHTML = filterTime(data[field.key]);
+        }}
+    `;
+    function main(params) {
+        var orders = params || [];
+        console.log(params, 'params');
+        orders[0].actived = true;
+        var page = document.createElement('orders');
+        page.innerHTML = template;
+        var scope = {
+            fields,
+            form: view,
+            xmenu: menu,
+            orders,
+            order: null,
+            async openOrder(o) {
+                this.order = o;
+                var order = await acme2.getOrder(orders[0]);
+                extend(o, order);
+                this.order = shallowClone(o);
+            },
+            async auditOrder(o) {
+                a: for (var a of o.authorizations) {
+                    var o = await acme2.audit(a);
+                    if (o.challenges) {
+                        for (var c of o.challenges) {
+                            if (c.type === 'http-01') {
+                                await data.from("setauth", c);
+                                await data.fromURL(c.url);
+                                continue a;
+                            }
+                        }
+                    }
+                    alert("无法找到可用的提审方案" + o.identifier?.value, 'warn');
+                }
+                await this.openOrder(this.order);
+            }
+        }
+        renderWithDefaults(page, scope);
+        scope.openOrder(orders[0]).then(render.digest);
+
+        return page;
+    }
+</script>

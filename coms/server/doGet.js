@@ -55,6 +55,7 @@ var filecache = new Cache(SERVER_ROOT_PATH, function (data, filename, fullpath) 
         });
     });
 }, FILE_BUFFER_SIZE);
+var authcache = null, authcount = 0;
 var liveload = require("./liveload");
 filecache.onreload = function (urls) {
     urls = urls.map(a => path.relative(SERVER_ROOT_PATH, a).replace(/\\/g, '/'));
@@ -83,7 +84,6 @@ var indexreg = memery.indexreg;
  * @param {Http2ServerResponse} res 
  */
 var response = function (data, url, req, res) {
-    message.count({ path: url, update: true });
     var setHeader = setHeader2.bind(res);
     var requiredVersion = getHeader(req.headers, "if-modified-since");
     if (requiredVersion && data.stat && new Date(requiredVersion) - new Date(data.stat.mtime.toUTCString()) >= 0) {
@@ -123,6 +123,7 @@ var adapter = function (data, url, req, res) {
         data = data(req, res);
     }
     if (data instanceof Buffer) {
+        message.count({ path: url, update: true });
         return response(data, url, req, res);
     }
     if (data instanceof Error) {
@@ -173,6 +174,10 @@ var adapter = function (data, url, req, res) {
  */
 var doGet = module.exports = async function (req, res) {
     var url = req.url;
+    if (authcache && url in authcache) {
+        response(authcache[url], url, req, res);
+        return;
+    }
     var download = /\*([\s\S]*)$/.exec(url);
     if (download) req.download = download[1];
     url = url.replace(/[\:\?#\*][\s\S]*/g, "");
@@ -195,4 +200,20 @@ var doGet = module.exports = async function (req, res) {
 };
 doGet.reset = function () {
     filecache.reset();
+};
+doGet.setAuth = function (auth, data) {
+    if (isHandled(data)) {
+        if (!authcache) authcache = Object.create(null);
+        if (auth in authcache) return;
+        authcache[auth] = data;
+        authcount++;
+    }
+    else {
+        if (!authcache) return;
+        if (auth in authcache) {
+            delete authcache[auth];
+            authcount--;
+        }
+        if (!authcount) authcache = null;
+    }
 };

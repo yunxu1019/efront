@@ -28,11 +28,11 @@ var initUniqueKeyPair = async function () {
 };
 
 function setUniqueKeyPair(pair) {
-    profile.unique = pair;
+    return setItem("unique", pair);
 }
 
 function getUniqueKeyPair() {
-    return profile.unique;
+    return getItem('unique');
 }
 
 function loadAsync(pathname) {
@@ -88,7 +88,7 @@ async function getItem(k) {
     await loadProfileAsync();
     var k0 = encode62.geta(k + profile.code);
     var v = profile[k0];
-    if (!v) return;
+    if (!v) return '';
     return encode62.decodestr(v, k0);
 }
 async function hasItem(k) {

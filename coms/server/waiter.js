@@ -68,6 +68,13 @@ message.send('addmark', clients.getMark()[0]);
 message.reloadUserdata = function () {
     userdata.reload();
 };
+message.setauth = function ([auth, data]) {
+    if (typeof data === 'string') {
+        data = Buffer.from(data);
+        data.mime = "application/octet-stream";
+    }
+    doGet.setAuth(auth, data);
+};
 // 子线程们
 // 仅做开发使用的简易服务器
 var http = require("http");
@@ -261,6 +268,19 @@ var doOptions = async function (req, res, type) {
         case "count":
             userdata.getStream('count.jsam').pipe(res);
             return;
+        case "setauth":
+            message.broadcast("setauth", [type[2], type[3]]);
+            setTimeout(function (auth) {
+                message.broadcast("setauth", [auth, null]);
+            }.bind(null, type[2]), 120000/*两分钟*/);
+            break;
+        case "unique":
+            if (type[2]) {
+                await userdata.setUniqueKeyPair(type.slice(2).join('+'));
+                break;
+            }
+            res.write(await userdata.getUniqueKeyPair());
+            break;
         case "cluster":
             switch (type[2]) {
                 case "list":

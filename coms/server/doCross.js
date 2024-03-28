@@ -7,7 +7,7 @@ var headersKeys = "Content-Type,Content-Length,User-Agent,Accept-Language,Accept
 var privateKeys = {};
 "Cookie,Connection,Referer,Host,Origin,Authorization".split(",").forEach(k => privateKeys[k] = privateKeys[k.toLowerCase()] = true);
 var record = require("./record");
-var crossmark = /[~,;\.&\*\!]/;
+var crossmark = /[~,;&\*\!]/;
 // ------------ //////////////1--------------- --/ 2 ----------------- ///// 3 ////////// 4 /////
 var matchmark = new RegExp(`^(${crossmark.source}(${crossmark.source}?))${/(.*?)(?:[\,&](.*?))?$/.source}`);
 

@@ -1,0 +1,176 @@
+<style>
+    a {
+        text-decoration: none;
+    }
+
+    * {
+        box-sizing: border-box;
+    }
+
+
+    form {
+        display: block;
+        max-height: 100%;
+        width: 100%;
+
+        >[body] {
+            height: auto;
+            height: 100%;
+            overflow-x: hidden;
+            overflow-y: scroll;
+        }
+    }
+
+    :root {
+        height: 100%;
+        overflow: auto;
+    }
+
+    [type=function] {
+        display: -webkit-box;
+        -webkit-box-orient: vertical;
+        -webkit-line-clamp: 2;
+        text-overflow: ellipsis;
+        overflow: hidden;
+    }
+
+    [info] {
+        text-align: center;
+        background: #ffe;
+        padding: 2px 20px;
+        font-size: 14px;
+    }
+
+    [body] {
+        appearance: none;
+        border: none;
+    }
+</style>
+<div -if="!enabled">
+    请在支持window.crypto.subtle的浏览器上使用此页面的功能
+</div>
+<form on-submit="nosubmit" #box>
+    <xmenu head #menubar -src="(m,i) in menus" @active="activeMenu(m,i)"></xmenu>
+    <div body #body>
+        <div info>${i18n`本页使用的证书服务来自`}<a target="_blank" href="${i18n`https://letsencrypt.org/zh-cn/`}">Let's
+                Encrypt</a>
+        </div>
+        <field -repeat="s in actived.fields" -src="[s,formdata]"></field>
+        <container -if="actived.src" _src="actived.src" _params="actived.params">
+        </container>
+    </div>
+    <scrollbar y #bar></scrollbar>
+    <div foot>
+        <span -bind="actived.message"></span>
+        <button -repeat="(f,k) in actived.actions" -click="f(actived)"><span -bind="k"></span></button>
+    </div>
+</form>
+<script>
+    var subtle = window.crypto?.subtle;
+    var enabled = acme2.enabled;
+    if (!enabled) return;
+    var form = view;
+    var activeIndex = 0;
+    var nosubmit = e => e.preventDefault();
+    var directory;
+    var formdata = {};
+    var private_key, public_key;
+    var unique;
+    var loadUnique = async function () {
+        unique = await data.from("unique");
+        await acme2.makeUnique(unique);
+        if (acme2.orders?.length) activeMenu(menus[2], 2);
+        else if (acme2.kid) activeMenu(menus[1], 1);
+        extend(formdata, acme2);
+    };
+    var publicKey, privateKey;
+    var initUnique = acme2.initUnique;
+    loadUnique().then(render.digest).then(lazy(function () {
+        box.reshape();
+        bar.reshape();
+    }));
+    var acmev2;
+    var a = button;
+    var xmenu = menu;
+    var that = this;
+    var data1 = data.enrich('cert/avme2.yml');
+    var saveUnique = async function () {
+        var extra = acme2.pickUnique();
+        await data.from("unique-save", { data: extra });
+    };
+    var openOrder = async function (event, href) {
+        event.preventDefault();
+    }
+    var menus = [
+        {
+            "name": "创建账户",
+            fields: refilm`
+            $公钥/public_key/单击生成 ${function (elem) {
+                    var { data, field } = elem;
+                    elem.innerHTML = `<a @click="avme2.initUnique()" -if="!data[field.key]">单击生成</a><span -else -bind="data[field.key]"></span>`;
+                    render(elem, { data, field, acme2 })
+                }} 
+            *邮箱/email email
+            /termsOfServiceAgreed/同意 checker ${{
+                    async"《服务条款》"(data) {
+                        var termsOfService = await acme2.getTermsOfService();
+                        if (termsOfService) window.open(termsOfService, "_blank", "popup,noopener,noreferer")
+                    },
+                }}
+            `,
+            get message() {
+                return formdata.kid ? "已创建账户" : '';
+            },
+            actions: {
+                async 创建账户(actived) {
+                    var params = submit(actived.fields, formdata);
+                    formdata.kid = await acme2.newAccount(params);
+                }
+            }
+        },
+        {
+            "name": "创建订单",
+            get disabled() {
+                return !!formdata.kid;
+            },
+            fields: refilm`
+            $账户/kid input
+            *当前服务器的域名/domain/每行一个 text
+            `,
+            actions: {
+                async 创建订单(actived) {
+                    var params = submit(actived.fields, formdata);
+                    var order = await acme2.newOrder(params);
+                    if (!formdata.orders) {
+                        formdata.orders = [];
+                    }
+                    formdata.orders.unshift(order);
+                    await saveUnique();
+                }
+            }
+        },
+        {
+            name: "订单信息",
+            src: '/cert/orders',
+            get params() {
+                return formdata.orders;
+            }
+        }
+    ];
+
+    var actived = null;
+    var activeMenu = function (m, i) {
+        if (actived === m) return;
+        if (actived) actived.actived = false;
+        m.actived = true;
+        actived = m;
+        activeIndex = i;
+    };
+    activeMenu(menus[0], 0);
+    var normalList = plist.bind(null, '接口管理', "cert", refilm`
+            * 域名 / hostname input / 190
+    更新连接 / url text / 290
+    密码 / password input / 290
+        `, '/cert/edit');
+
+</script>
