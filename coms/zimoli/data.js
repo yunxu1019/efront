@@ -302,7 +302,7 @@ function parseConfig(api) {
     });
     url.replace(/[\#][\s\S]*$/, '').replace(/([\:\\]\:|\:\w+)/g, function (p) {
         p = p.slice(1);
-        if (!required[p] && p !== ':') {
+        if (p !== ':' && required.indexOf(p) < 0) {
             required.push(p);
         }
     });
@@ -853,37 +853,25 @@ var data = {
         });
     },
     fromApi(api, params, parse) {
-        var id = parse instanceof Function ? getInstanceId() : 0;
         var p = privates.fromApi(api, params);
-        if (id) this.removeInstance(id);
-        var url = api.url;
-        var response = this.getInstance(id || url);
-        if (!isObject(response)) response = new LoadingArray;
-        this.responseLoading(response);
-        response.loading = p.loading;
-        p = response.loading_promise = p.then((data) => {
-            response.loading = null;
-            if (id) {
-                data = parse(data);
-                this.setInstance(id, data, false);
-                this.removeInstance(id);
-            } else {
-                this.setInstance(url, data);
-            }
-            this.responseLoaded(response);
-            return data;
-        });
-        p.catch((e) => {
-            this.responseCrash(e, response);
-        });
-        return response;
-
+        p.id = api.id;
+        return this.createResponse(p, parse);
+    },
+    postURL(url, data, parse) {
+        var p = privates.loadIgnoreConfig("post", url, data);
+        p.id = "post " + url;
+        return this.createResponse(p, parse);
     },
     fromURL(url, parse) {
-        var id = parse instanceof Function ? getInstanceId() : 0;
         var p = privates.loadIgnoreConfig('get', url);
+        p.id = "get " + url;
+        return this.createResponse(p, parse);
+    },
+    createResponse(p, parse) {
+        var id = parse instanceof Function ? getInstanceId() : 0;
         if (id) this.removeInstance(id);
-        var response = this.getInstance(id || url);
+        var pid = p.id;
+        var response = this.getInstance(id || pid);
         if (!isObject(response)) response = new LoadingArray;
         this.responseLoading(response);
         response.loading = p.loading;
@@ -894,7 +882,7 @@ var data = {
                 this.setInstance(id, data, false);
                 this.removeInstance(id);
             } else {
-                this.setInstance(url, data);
+                this.setInstance(pid, data);
             }
             this.responseLoaded(response);
             return data;
