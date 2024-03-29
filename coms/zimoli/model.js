@@ -104,6 +104,15 @@ var constructors = {
         input(ipt);
         return ipt;
     },
+    generator(elem) {
+        var { data, field } = elem;
+        elem.innerHTML = `<a @click="gen()" -if="!data[field.key]">${field.holder || '单击生成'}</a><span -else -bind="data[field.key]"></span>`;
+        render(elem, {
+            data, field, a: button, async gen() {
+                await field.options(data);
+            }
+        });
+    },
     date() {
         var elem = document.createElement("input");
         elem.type = "date";
@@ -192,6 +201,7 @@ var constructors = {
     }
 };
 constructors.price = constructors.money = constructors.number;
+constructors.gen = constructors.generator;
 var readonly_types = {
     "date"({ field }, data) {
         var string = data[field.key];
@@ -212,6 +222,10 @@ var readonly_types = {
         t.innerHTML = seek(data, a.field.key);
         return t;
     },
+    text(e) {
+        var { data, field } = e;
+        e.innerHTML = data[field.key] ?? '';
+    },
     swap(e, data) {
         var { field } = e;
         var v = data[field.key];
@@ -227,6 +241,7 @@ var readonly_types = {
     },
 };
 readonly_types.anchor = readonly_types.url;
+readonly_types.gen = readonly_types.generator = readonly_types.text;
 var createOptionsMap = function (options) {
     if (!isObject(options[0])) return options;
     var map = Object.create(null);

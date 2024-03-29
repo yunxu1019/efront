@@ -45,8 +45,10 @@ function valid(field, data) {
         if (e) return e;
     }
     if (field.options instanceof Function) {
-        var e = field.options(data[field.key]);
-        if (e) return e;
+        if (/^(input|text|html|password|raw)/.test(field.type)) {
+            var e = field.options(data[field.key]);
+            if (e) return e;
+        }
     }
     return error;
 }
