@@ -103,12 +103,12 @@ var resize2 = function () {
         else if (isType(c, "foot")) foot = c;
     }
     if (head && body) {
-        var height = head.offsetHeight;
+        var height = head.offsetHeight + head.offsetTop;
         css(head, {
             marginBottom: fromOffset(-height),
         })
         css(body, {
-            paddingTop: fromOffset(height)
+            paddingTop: fromOffset(height - body.clientTop)
         });
     }
     if (foot && body) {
@@ -144,6 +144,7 @@ function view(element) {
         if (w.resizable) resize.on(w);
     }
     resizingList.set(w, resize2);
+    w.renders = [resize2];
     w.reshape = lazy(resize2);
     onmounted(w, w.reshape);
     return w;
