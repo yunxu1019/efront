@@ -154,8 +154,9 @@ function cross_(jsonp, digest = noop, method, url, headers) {
         if (e.type === 'error') {
             e = createResponse("无法访问服务器！");
         }
+        headers = extend({}, _headers);
         for (var r of reforms) {
-            var r = await reform.call(xhr, r, { method, url, status: xhr.status, headers: _headers }, fire, onerror1, e);
+            var r = await reform.call(xhr, r, { method, url, status: xhr.status, headers }, fire, onerror1, e);
             if (r === false) {
                 return;
             }
