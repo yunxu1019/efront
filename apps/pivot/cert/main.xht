@@ -76,8 +76,10 @@
     var loadUnique = async function () {
         unique = await data.from("unique");
         await acme2.makeUnique(unique);
-        if (acme2.orders?.length) activeMenu(menus[2], 2);
-        else if (acme2.kid) activeMenu(menus[1], 1);
+        if (menuIndex === 0) {
+            if (acme2.orders?.length) activeMenu(menus[2], 2);
+            else if (acme2.kid) activeMenu(menus[1], 1);
+        }
         extend(formdata, acme2);
     };
 
@@ -164,6 +166,10 @@
         {
             name: "证书列表",
             src: "/cert/list",
+        },
+        {
+            name: "更新服务",
+            src: "/cert/update",
         }
     ];
 
@@ -174,7 +180,9 @@
         m.actived = true;
         actived = m;
         activeIndex = i;
+        state({ index: i })
     };
-    activeMenu(menus[0], 0);
+    var menuIndex = state().index || 0;
+    activeMenu(menus[menuIndex], menuIndex);
 
 </script>

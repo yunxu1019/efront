@@ -1,0 +1,7 @@
+<div><button @click="updateCert()">更新证书</button></div>
+<script>
+    var updateCert = async function () {
+        await data.from("recert");
+        alert("更新完成！", 'success');
+    };
+</script>

@@ -318,8 +318,15 @@ var doOptions = async function (req, res, type) {
             break;
         case "clear":
             doGet.reset();
-            res.write(i18n[req.headers["accept-language"]]`清理完成`);
+            res.write(i18n[getHeader(req.headers, "accept-language")]`清理完成`);
             break;
+        case "recert":
+            res.on("cert", function () {
+                this.socket.destroy();
+            });
+            await message.broadcast("reloadCert");
+            res.end();
+            return;
         case "rehost":
             res.on("finish", function () {
                 this.socket.destroy();
@@ -327,7 +334,7 @@ var doOptions = async function (req, res, type) {
             res.on("finish", safeQuitProcess);
             safeQuitProcess = function () { };
             message.send('rehost', null, function () {
-                res.end(i18n[req.headers["accept-language"]]`正在重启`);
+                res.end(i18n[getHeader(req.headers, "accept-language")]`正在重启`);
             });
             return;
         case "params":
@@ -689,16 +696,15 @@ var checkServerState = function (http, hosted) {
                 [, protocol, port] = /^([a-z]+)(\d+)$/.exec(type[0]);
                 http = require(protocol);
             }
-            port = hosted;
         }
         else {
             if (!protocol) {
                 protocol = +port === 443 ? "https" : 'http';
             }
-            if (!port) {
-                port = protocol === 'https' ? 443 : 80;
-            }
             http = require(protocol);
+        }
+        if (!port) {
+            port = /^https/.test(protocol) ? 443 : 80;
         }
         var req = http.request(Object.assign({
             method: 'options',
@@ -714,7 +720,7 @@ var checkServerState = function (http, hosted) {
                 ok(i18n`检查到${port}可以正常访问\r\n`);
                 if (!memery.proted) memery.proted = true;
             } else {
-                oh(i18n`<red>端口异常</red>`);
+                oh(i18n`端口异常`);
             }
         });
         req.on("error", oh);
@@ -737,11 +743,10 @@ var isHttpsServer = function (server) {
 var showServerInfo = async function () {
     if (--loading > 0) return;
     var address = require("../efront/getLocalIP")();
-    var port = portedServersList.map(a => a && a.port);
     var msg = [
         i18n`服务器地址：${address}`];
     var maxLength = 0;
-    for (var cx = 0, dx = port.length; cx < dx; cx++) {
+    for (var cx = 0, dx = portedServersList.length; cx < dx; cx++) {
         var s = portedServersList[cx];
         var ishttps = isHttpsServer(s);
         var m = s.hosted;
@@ -755,7 +760,7 @@ var showServerInfo = async function () {
     var showError = function (i, e = portedServersList[i].error) {
         var s = portedServersList[i];
         s.removeAllListeners();
-        console.error(msg[i + 1] + "\t" + e);
+        console.error(msg[i + 1] + "\t" + `<red>${e}</red>`);
         s.close(closeListener);
     };
     var showValid = function (i) {
@@ -787,7 +792,6 @@ var showServerInfo = async function () {
 var showServerError = function (error) {
     var s = this;
     if (!s) return;
-
     if (error instanceof Error) {
         switch (error.code) {
             case "EADDRINUSE":
@@ -795,6 +799,9 @@ var showServerError = function (error) {
                 break;
             case "EACCES":
                 error = i18n`没有权限`;
+                break;
+            case "EADDRNOTAVAIL":
+                error = i18n`分配地址失败`;
                 break;
             case "ECONNRESET":
                 return;
@@ -818,8 +825,9 @@ function initServer(port, hostname) {
             }
             socket.end('HTTP/1.1 400 Bad Request\r\n\r\n');
         })
-        .once("listening", showServerInfo)
-        .listen(+port, hostname);
+        .once("listening", showServerInfo);
+    if (!hostname) server.listen(+port);
+    else server.listen(+port, hostname);
     portedServersList.push(server);
     server.hostname = hostname;
     if (!hostname) hostname = 'localhost';
@@ -876,20 +884,29 @@ var httpsOptions = {
     allowHTTP1: true,
 };
 
-var createHttpsServer = function (certlist) {
-    if (httpsOptions.pfx || httpsOptions.cert && httpsOptions.key && !certlist) {
+var createHttpsServer = function () {
+    if (httpsOptions.pfx || httpsOptions.cert && httpsOptions.key) {
         HTTPS_PORT = +HTTPS_PORT || 443;
         var server2 = http2.createSecureServer(httpsOptions, requestListener);
         initServer.call(server2, HTTPS_PORT);
     }
-    if (certlist) {
-        certlist.forEach(cert => {
-            httpsOptions.key = cert.private;
-            httpsOptions.cert = cert.cert;
-            var serveri = http2.createSecureServer(httpsOptions, requestListener);
-            initServer.call(serveri, cert.hostname);
-        });
-    }
+};
+
+var createCertedServer = function (certlist) {
+    var wantdie = portedServersList.filter(s => !!portedServersList[s.hostname]);
+    wantdie.forEach(servern => {
+        removeFromList(portedServersList, servern);
+        servern.close();
+        servern.removeAllListeners();
+        servern.unref();
+    });
+    certlist.forEach(c => {
+        httpsOptions.key = c.private;
+        httpsOptions.cert = c.cert;
+        var serveri = http2.createSecureServer(httpsOptions, requestListener);
+        initServer.call(serveri, +HTTPS_PORT || 443, c.hostname);
+        portedServersList[c.hostname] = serveri;
+    });
 };
 
 var createHttpServer = function () {
@@ -909,16 +926,27 @@ process.on('exit', function () {
 });
 
 message.count("boot");
-userdata.getOptionsList("cert").then(function (certlist) {
-    certlist = certlist.filter(c => cert.private && cert.cert && cert.hostname);
+var getCertList = function () {
+    return userdata.getOptionsList("cert").then(certlist => {
+        certlist = certlist.filter(c => c.private && c.cert && c.hostname);
+        if (HTTPS_PORT) {
+            if (!certlist.length && !memery.FILE_PATH) {
+                console.warn(`<yellow>${i18n`HTTPS端口正在使用默认证书，请不要在生产环境使用此功能！`}</yellow>`);
+                certlist.push({ private: cert.key, cert: cert.cert, hostname: 'localhost' });
+            }
+        }
+        return certlist;
+    });
+}
+message.reloadCert = async function () {
+    var certlist = await getCertList();
+    createCertedServer(certlist);
+};
+getCertList().then(function (certlist) {
     if (HTTP_PORT) createHttpServer();
-    if (memery.PFX_PATH || certlist.length) {
-        Object.assign(httpsOptions, cert);
-        createHttpsServer(certlist);
-    }
-    else if (HTTPS_PORT) {
-        console.warn(`<yellow>${i18n`HTTPS端口正在使用默认证书，请不要在生产环境使用此功能！`}</yellow>`);
+    if (memery.PFX_PATH) {
         Object.assign(httpsOptions, cert);
         createHttpsServer();
     }
+    if (certlist.length) createCertedServer(certlist);
 });
