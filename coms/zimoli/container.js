@@ -21,6 +21,7 @@ var change = lazy(async function (src) {
     }
 });
 var gosrc = function (src) {
+    if (!isHandled(this.$src) && !isHandled(src)) return;
     if (src !== this.$src) {
         this.$src = src;
         change.call(this, src);

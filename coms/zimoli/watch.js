@@ -3,7 +3,7 @@ function watcher({ changes }) {
     for (var k in changes) {
         if (k in watches) {
             var { current, previous } = changes[k];
-            watches[k](current, previous);
+            watches[k].call(this, current, previous);
         }
     }
 }
