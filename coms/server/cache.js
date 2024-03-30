@@ -543,6 +543,7 @@ class Cache {
     reset() {
         for (var t of this.directs) {
             delete t.promise;
+            t.loaded = Object.create(null);
         }
     }
 }
