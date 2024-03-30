@@ -465,7 +465,7 @@ function ylist(container, generator, $Y) {
      */
     list.setFocus = function (focused, animate) {
         if (isElement(focused) && (focused.hasAttribute("disabled") || focused.hasAttribute("line"))) return;
-        if (isFinite(focused)) {
+        if (focused === (focused | 0)) {
             var index = focused;
             focused = list.getIndexedElement(index);
             if (!focused) {
