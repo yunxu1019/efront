@@ -1,5 +1,10 @@
-
-function main() {
+function load(type) {
+    return data.from("list", { type }, a => JSAM.parse(encode62.timedecode(a || '')));
+}
+function remove(type, key) {
+    return data.from("edit", { type, key: encode62.timeencode(key), value: encode62.timeencode("") }).loading_promise;
+}
+function plist() {
     var title, type, fields, edit_ref, options, idkey, buttons;
     var parse = function (a) {
         switch (typeof a) {
@@ -33,10 +38,10 @@ function main() {
     if (!idkey) idkey = fields[0].key;
     return frame$list(title, {
         load() {
-            return data.from("list", { type }, a => JSAM.parse(encode62.timedecode(a || '')));
+            return load(type);
         },
         remove(o) {
-            return data.from("edit", { type, key: encode62.timeencode(o[idkey]), value: encode62.timeencode("") }).loading_promise;
+            return remove(type, o[idkey]);
         },
         fields,
         buttons,
@@ -49,3 +54,5 @@ function main() {
         return p;
     });
 }
+plist.load = load;
+plist.remove = remove;

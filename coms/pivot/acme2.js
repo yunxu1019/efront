@@ -21,20 +21,13 @@ var base64url = function (params) {
 };
 var accountApi = await data1.getApi('get-account');
 var orderApi = await data1.getApi('get-order');
-
-var request = async function (id, params) {
-    var api = await data1.getApi(id);
-    if (/^(get|head)$/i.test(api.method)) return data1.from(id, params);
+var wrapParams = async function (url, params, usejwk = false) {
     var protected = {
-        url: api.base + api.path,
+        url
     };
-    var rest;
-    [protected.url, rest] = data.prepareURL(protected.url, params);
-    var restparams = {};
-    rest.forEach(k => { restparams[k] = params[k]; delete params[k]; });
     var jwk = await subtle.exportKey("jwk", publicKey);
     protected.alg = jwk.alg;
-    if (/new-account|revert-cert/i.test(id)) {
+    if (usejwk) {
         protected.jwk = {
             e: jwk.e,
             kty: jwk.kty,
@@ -45,16 +38,123 @@ var request = async function (id, params) {
         protected.kid = acme2.kid;
     }
     protected.nonce = await data1.from("new-nonce");
-    var payload = isEmpty(params) ? '' : base64url(params);
     protected = base64url(protected);
+    var payload = isHandled(params) ? base64url(params) : '';
     var params = {
         protected,
         payload,
         signature: toBase64(new Uint8Array(await subtle.sign({ name: RSASSA_PKCS1_v1_5, saltLength: 32 }, privateKey, new Uint8Array(encodeUTF8([protected, '.', payload].join(''))))), true)
     };
+    return params;
+}
+var request = async function (id, params) {
+    var api = await data1.getApi(id);
+    if (/^(get|head)$/i.test(api.method)) return data1.from(id, params);
+    var [url, rest] = data.prepareURL(api.base + api.path, params);
+    var restparams = {};
+    rest.forEach(k => { restparams[k] = params[k]; delete params[k]; });
+    var params = await wrapParams(url, params, /new-account|revert-cert/i.test(id));
     extend(params, restparams);
     var account = await data1.from(id, params);
     return account;
+};
+var ASN1 = function (type) {
+    var length = 0;
+    var bytesarr = [];
+    for (var cx = 1, dx = arguments.length; cx < dx; cx++) {
+        var bytes = arguments[cx];
+        if (bytes.constructor !== Array) {
+            bytes = Array.apply(null, bytes);
+        }
+        bytesarr.push(bytes);
+        length += bytes.length;
+    }
+    var asn1 = [type];
+    if (length === (2 << 8 | 36)) console.log(arguments)
+    if (length > 127) {
+        var nums = [];
+        while (length > 0) {
+            nums.unshift(length & 0xff);
+            length = length >>> 8;
+        }
+        asn1.push(0x80 | nums.length, ...nums);
+    }
+    else {
+        asn1.push(length);
+    }
+    asn1 = asn1.concat(...bytesarr);
+    return asn1;
+};
+var packUint = function (bytes) {
+    if (bytes[0] & 0x80) {
+        return ASN1(0x02, [0], bytes);
+    }
+    return ASN1(0x02, bytes);
+};
+var packBits = function (bytes) {
+    return ASN1(0x03, [0x00], bytes);
+};
+var packPublicKey = function (jwk) {
+    var n = packUint(fromBase64(jwk.n));
+    var e = packUint(fromBase64(jwk.e));
+    var p = ASN1(0x30, n, e);
+    return ASN1(0x30, ASN1(0x30,
+        ASN1(0x06, [0x2a, 0x86, 0x48, 0x86, 0xf7, 0x0d, 0x01, 0x01, 0x01]),
+        ASN1(0x05),
+    ), packBits(p));
+};
+var packCSR = function (asn1pubkey, domains) {
+    return ASN1(0x30,
+        packUint([0x00]),
+        ASN1(0x30, ASN1(0x31, ASN1(0x30,
+            ASN1(0x06, [0x55, 0x04, 0x03]),
+            ASN1(0x0c, encodeUTF8(domains[0]))
+        ))),
+        asn1pubkey,
+        ASN1(0xa0, ASN1(0x30,
+            ASN1(0x06, [0x2a, 0x86, 0x48, 0x86, 0xf7, 0x0d, 0x01, 0x09, 0x0e]),
+            ASN1(0x31, ASN1(0x30, ASN1(0x30,
+                ASN1(0x06, [0x55, 0x1d, 0x11]),
+                ASN1(0x04, ASN1(0x30,
+                    ...domains.map(d => ASN1(0x82, encodeUTF8(d)))
+                ))
+            )))
+        ))
+    )
+}
+
+var createCSR = async function (domains, private_key) {
+    var privateKey = await subtle.importKey("pkcs8", new Uint8Array(fromBase64(private_key)), {
+        name: RSASSA_PKCS1_v1_5,
+        hash: "SHA-256",
+    }, true, ["sign"]);
+    var jwk = await subtle.exportKey("jwk", privateKey);
+    var pubkey = packPublicKey(jwk);
+    var request = packCSR(pubkey, domains);
+    var sign = new Uint8Array(await subtle.sign({ name: RSASSA_PKCS1_v1_5, saltLength: 32 }, privateKey, new Uint8Array(request)));
+    var sty = ASN1(0x30,
+        ASN1(0x06, [0x2a, 0x86, 0x48, 0x86, 0xf7, 0x0d, 0x01, 0x01, 0x0b]),
+        ASN1(0x05)
+    );
+    return ASN1(0x30, request,
+        sty,
+        packBits(sign)
+    );
+};
+var makeKeyPair = async function (modulusLength = 2048) {
+    //https://www.w3.org/TR/WebCryptoAPI/ 第20章 只有RSASSA-PKCS1-v1_5的jwk的alg才是rs256
+    var k = await subtle.generateKey({
+        name: RSASSA_PKCS1_v1_5,
+        modulusLength,
+        publicExponent: new Uint8Array([1, 0, 1]),
+        hash: "SHA-256",
+    }, true, ["sign", "verify"]);
+    var { publicKey, privateKey } = k;
+    var private_key = await subtle.exportKey("pkcs8", privateKey);
+    var public_key = await subtle.exportKey("spki", publicKey);
+    private_key = toBase64(new Uint8Array(private_key));
+    public_key = toBase64(new Uint8Array(public_key));
+    return [private_key, public_key];
 };
 var subtle = this.crypto?.subtle;
 var acme2 = new class {
@@ -69,19 +169,14 @@ var acme2 = new class {
     get enabled() {
         return !!subtle;
     }
+    async requestURL(url, params) {
+        params = await wrapParams(url, params);
+        var res = data.postURL(url, params);
+        if (res.loading) res.loading.setRequestHeader("Content-Type", "application/jose+json");
+        return res;
+    }
     async initUnique() {
-        //https://www.w3.org/TR/WebCryptoAPI/ 第20章 只有RSASSA-PKCS1-v1_5的jwk的alg才是rs256
-        var k = await subtle.generateKey({
-            name: RSASSA_PKCS1_v1_5,
-            modulusLength: 4096,
-            publicExponent: new Uint8Array([1, 0, 1]),
-            hash: "SHA-256",
-        }, true, ["sign", "verify"]);
-        var { publicKey, privateKey } = k;
-        private_key = await subtle.exportKey("pkcs8", privateKey);
-        public_key = await subtle.exportKey("spki", publicKey);
-        private_key = toBase64(new Uint8Array(private_key));
-        public_key = toBase64(new Uint8Array(public_key));
+        [private_key, public_key] = await makeKeyPair(4096);
         var unique = [private_key, public_key].join(',');
         await acme2.makeUnique(unique);
     }
@@ -148,16 +243,19 @@ var acme2 = new class {
         return account;
     }
     async newOrder(params) {
+        if (!this.orders) this.orders = [];
+        if (this.orders.length > 20) return alert("请删除一些订单后再试！", "error");
         var params = {
             "identifiers": params.domain.trim().split(/[,;+，；\r\n\u2029\u2028\s]+/).map(n => {
-                if (/^\d+(\.\d+){3}$|^\[[\da-f\:]+\]$|^[\da-f\:]+$/i.test(n)) return { type: "ipv4", value: n };
+                if (/^\d+(\.\d+){3}$/.test(n)) return { type: "ipv4", value: n };
                 return { type: "dns", value: n };
             })
         };
         var order = await request("new-order", params);
         this.domain = params.domain;
-        if (!this.orders) this.orders = [];
-        if (this.orders.indexOf(order) < 0) this.orders.unshift(order);
+        var i = this.orders.indexOf(order);
+        if (i >= 0) this.orders.splice(i, 1);
+        this.orders = [order].concat(this.orders);
         return order;
     }
     parseOrder(o) {
@@ -174,10 +272,16 @@ var acme2 = new class {
     async thumbprint() {
         var jwk = await subtle.exportKey('jwk', publicKey);
         jwk = `{"e":"${jwk.e}","kty":"${jwk.kty}","n":"${jwk.n}"}`;
-        console.log(JSON.parse(jwk))
         var thumb = await subtle.digest("SHA-256", new Uint8Array(encodeUTF8(jwk)));
         thumb = toBase64(new Uint8Array(thumb), true);
         return thumb;
+    }
+    async createKeyPair() {
+        return makeKeyPair(2048);
+    }
+    async createCSR(domains, private_key) {
+        var csr = await createCSR(domains, private_key);
+        return toBase64(csr, true);
     }
     async audit(url) {
         return data.fromURL(url);

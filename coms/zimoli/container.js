@@ -15,7 +15,10 @@ var change = lazy(async function (src) {
         }
         zimoli.global(src, this);
     }
-    else if (isString(src) || +src < 0) zimoli.go(src, this.params, this);
+    else if (isString(src) || +src < 0) {
+        watch(this, 'params', onparams);
+        onparams.call(this, this.params);
+    }
 });
 var gosrc = function (src) {
     if (src !== this.$src) {
@@ -23,6 +26,9 @@ var gosrc = function (src) {
         change.call(this, src);
     }
 };
+var onparams = lazy(function (params) {
+    zimoli.go(this.$src, params, this);
+});
 function container(element) {
     var comment = document.createComment('container');
     comment.$struct = element.$struct;

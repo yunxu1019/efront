@@ -1,0 +1,1 @@
+pedit.bind(null, "证书", "cert");

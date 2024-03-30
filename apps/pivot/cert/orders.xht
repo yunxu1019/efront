@@ -67,26 +67,36 @@
     @status(invalid, #c24);
 </style>
 <xmenu -src="o of orders" @active="openOrder(o)"></xmenu>
-<form -if="order?.oid" onsubmit="event.preventDefault()">
+<div -if="!order">
+    暂无订单
+</div>
+<form -elseif="order.oid" onsubmit="event.preventDefault()">
     <div body>
         <field -repeat="f in fields" _src="[f,order]"></field>
     </div>
     <div foot>
-        <button -if="order.authorizations?.length" @click="auditOrder(order)">提审</button>
-        <button -if="order.finalize">定案</button>
+        <button -if="order?.removable" class="danger" confirm @click="dropOrder(order)">删除订单</button>
+        <button -if="order.status==='processing'" @click="openOrder(order)">刷新</button>
+        <button -if="order.status==='pending'" @click="auditOrder(order)">提交审核</button>
+        <button -if="order.status==='ready'" @click="finalize(order)">请求证书</button>
+        <button -if="order.status==='valid'" @click="see(order)">查看证书</button>
+        <button -if="order.shouldupload" @click="upload(order)">上传到服务器</button>
     </div>
 </form>
+<div -else>
+    订单异常
+</div>
 <script>
     var fields = refilm`
-    $状态/status radio [待定/pending,完毕/ready,审核中/processing,生效/valid,无效/invalid]
-    $证书/certificate anchor
+    $状态/status radio [未审核/pending,审核通过/ready,生成中/processing,生效/valid,无效/invalid]
+    $证书/certificate/下载 anchor
     $域名/identifiers ${function (elem) {
             var { field, data } = elem;
             var value = data[field.key];
             if (value instanceof Array) elem.innerHTML = value.map(v => `${v.value} (${v.type})`).join("<br/>")
             else elem.innerHTML = '';
         }}
-    $失效时间/expires ${function (elem) {
+    $订单失效时间/expires ${function (elem) {
             var { field, data } = elem;
             elem.innerHTML = filterTime(data[field.key]);
         }}
@@ -100,11 +110,12 @@
     };
 
     function main(params) {
-        var orders = params || [];
+        var { orders = [], saveUnique } = params;
         orders = orders.map(acme2.parseOrder);
         orders[0].actived = true;
         var page = document.createElement('orders');
         page.innerHTML = template;
+        console.log(params, 'params')
         var scope = {
             fields,
             form: view,
@@ -112,28 +123,106 @@
             orders,
             order: null,
             async openOrder(o) {
-                this.order = o;
-                if (!o.oid) return;
-                var order = await acme2.getOrder(orders[0]);
+                o = this.order = shallowClone(o);
+                if (!o || !o.oid) return;
+                var order = await acme2.getOrder(o);
                 extend(o, order);
                 if (o !== this.order) return;
+                if (o.certificate && !o.shouldupload) {
+                    var identifiers = o.identifiers;
+                    var d = await pedit.query("cert", identifiers[identifiers.length - 1].value);
+                    if (d && d.oid === o.oid && !d.cert) {
+                        o.shouldupload = true;
+                    }
+                    else {
+                        o.removable = true;
+                    }
+                }
+                if (o.status === 'invalid') {
+                    o.removable = true;
+                }
+                else {
+                    if (o.certificate && +o.expires < Date.now()) {
+                        o.removable = true;
+                    }
+                }
                 this.order = shallowClone(o);
             },
             async auditOrder(o) {
                 a: for (var a of o.authorizations) {
-                    var o = await acme2.audit(a);
-                    if (o.challenges) {
-                        for (var c of o.challenges) {
+                    var b = await acme2.audit(a);
+                    if (b.challenges) {
+                        for (var c of b.challenges) {
                             if (c.type === 'http-01') {
+                                if (c.status !== 'pending') continue a;
                                 await data.from("setauth", { token: c.token, thumb: await acme2.thumbprint() });
-                                await data.fromURL(c.url);
+                                await acme2.requestURL(c.url, {});
                                 continue a;
                             }
                         }
                     }
-                    alert("无法找到可用的提审方案" + o.identifier?.value, 'warn');
+                    alert("无法找到可用的提审方案" + b.identifier?.value, 'warn');
                 }
-                await this.openOrder(this.order);
+                await wait(600);
+                if (this.order === o) await this.openOrder(this.order);
+            },
+            async finalize(o) {
+                var domains = o.identifiers.map(d => d.value);
+                var kp = await acme2.createKeyPair();
+                var csr = await acme2.createCSR(domains, kp[0]);
+                var order = await acme2.requestURL(o.finalize, { csr });
+                order = extend({}, o, order);
+                if (o === this.order) o = this.order = order;
+                render.digest();
+                await wait(600);
+                var order = await acme2.getOrder(o);
+                var cert = order.certificate;
+                if (!cert) {
+                    order.shouldupload = true;
+                }
+                else {
+                    cert = await data.fromURL(cert);
+                }
+                for (var d of domains) {
+                    pedit.update("cert", d, { hostname: d, private: kp[0], public: kp[1], cert, oid: o.oid })
+                }
+                if (this.order === o) this.order = extend({}, o, order);
+            },
+            async dropOrder(o) {
+                for (var cx = 0, dx = orders.length; cx < dx; cx++) {
+                    if (orders[cx].oid === o.oid) break;
+                };
+                if (cx < 0) return;
+                orders.splice(cx, 1);
+                acme2.orders.splice(cx, 1);
+                if (cx >= orders.length) cx = orders.length - 1;
+                await saveUnique();
+                this.openOrder(orders[cx]);
+            },
+            async see(o) {
+                var content = `<div head>${o.identifiers.map(d => d.value).join(', ')}<close @click=remove()></close></div><loading -if='cert.loading'></loading><div body style='font-size:10px;font-family:Consolas, "Courier New", monospace;white-space:pre;' -bind='cert.data'></div><scrollbar y></scrollbar>`;
+                var e = view();
+                css(e, 'position:absolute;width:366px;');
+                e.innerHTML = content;
+                drag.on(e.firstElementChild, e);
+                resize.on(e);
+                renderWithDefaults(e, {
+                    cert: data.fromURL(o.certificate),
+                    scrollbar,
+                    remove() {
+                        remove(e);
+                    }
+                })
+                popup(e);
+                move.setPosition(e, [.5, .5]);
+            },
+            async upload(o) {
+                var cert = await data.fromURL(o.certificate);
+                for (var d of o.identifiers) {
+                    await pedit.merge("cert", d.value, { cert });
+                }
+                o.shouldupload = false;
+                o.removable = true;
             }
         }
         renderWithDefaults(page, scope);

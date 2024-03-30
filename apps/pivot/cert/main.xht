@@ -46,10 +46,8 @@
         border: none;
     }
 </style>
-<div -if="!enabled">
-    请在支持window.crypto.subtle的浏览器上使用此页面的功能
-</div>
-<form on-submit="nosubmit" #box>
+<div -if="!enabled"></div>
+<form on-submit="nosubmit" renderid=box>
     <xmenu head #menubar -src="(m,i) in menus" @active="activeMenu(m,i)"></xmenu>
     <div body #body>
         <div info>${i18n`本页使用的证书服务来自`}<a target="_blank" href="${i18n`https://letsencrypt.org/zh-cn/`}">Let's
@@ -66,9 +64,8 @@
     </div>
 </form>
 <script>
-    var subtle = window.crypto?.subtle;
     var enabled = acme2.enabled;
-    if (!enabled) return;
+    if (!enabled) return ["请在支持window.crypto.subtle的浏览器上使用此页面的功能"];
     var form = view;
     var activeIndex = 0;
     var nosubmit = e => e.preventDefault();
@@ -83,10 +80,14 @@
         else if (acme2.kid) activeMenu(menus[1], 1);
         extend(formdata, acme2);
     };
+
     var publicKey, privateKey;
-    loadUnique().then(render.digest).then(lazy(function () {
+    loadUnique().then(render.digest).then(lazy(async function () {
         box.reshape();
         bar.reshape();
+        var certlist = await plist.load('cert');
+        formdata.domain = certlist.map(c => c.hostname).join("\r\n");
+        render.digest();
     }));
     var a = button;
     var xmenu = menu;
@@ -114,7 +115,7 @@
                             await saveUnique();
                         }
                     })
-                }} 
+                }}
             *邮箱/email email
             /termsOfServiceAgreed/同意 checker ${{
                     async"《服务条款》"(data) {
@@ -148,7 +149,6 @@
                 async 创建订单(actived) {
                     var params = submit(actived.fields, formdata);
                     var order = await acme2.newOrder(params);
-                    formdata.orders = acme2.orders;
                     await saveUnique();
                     activeMenu(menus[2], 2);
                 }
@@ -158,8 +158,12 @@
             name: "订单信息",
             src: '/cert/orders',
             get params() {
-                return formdata.orders;
+                return { orders: acme2.orders, saveUnique };
             }
+        },
+        {
+            name: "证书列表",
+            src: "/cert/list",
         }
     ];
 
@@ -172,10 +176,5 @@
         activeIndex = i;
     };
     activeMenu(menus[0], 0);
-    var normalList = plist.bind(null, '接口管理', "cert", refilm`
-            * 域名 / hostname input / 190
-    更新连接 / url text / 290
-    密码 / password input / 290
-        `, '/cert/edit');
 
 </script>

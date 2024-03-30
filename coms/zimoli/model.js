@@ -209,9 +209,11 @@ var readonly_types = {
     },
     "url"({ field }, data) {
         var href = data[field.key];
-        var e = anchor2(href, href);
-        e.target = "_blank";
-        return e;
+        if (href) {
+            var e = anchor2(field.holder || href, href);
+            e.target = "_blank";
+            return e;
+        }
     },
     "size"({ field }, data) {
         var f = data[field.key];

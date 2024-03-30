@@ -666,19 +666,19 @@ var selfLogged = false;
 /**
  * @param {Http2ServerRequest} http
  */
-var checkServerState = function (http, port0) {
+var checkServerState = function (http, hosted) {
     if (arguments.length === 1) var type = http;
     return new Promise(function (ok, oh) {
         var v = version;
         if (type) v += "?" + type;
-        var { hostname: host, port, protocol } = parseURL(memery.REPORT);
+        var { hostname: host, port, protocol } = parseURL(hosted ? hosted : memery.REPORT);
         if (!host || !type || selfLogged) {
-            host = '127.0.0.1';
+            if (!hosted) host = '127.0.0.1';
             if (type) {
                 [, protocol, port] = /^([a-z]+)(\d+)$/.exec(type[0]);
                 http = require(protocol);
             }
-            port = port0;
+            port = hosted;
         }
         else {
             if (!protocol) {
@@ -720,6 +720,9 @@ var checkOutside = lazy(async function (type) {
         }
     } catch { };
 }, 80);
+var isHttpsServer = function (server) {
+    return server !== server0 && server !== server1;
+};
 var showServerInfo = async function () {
     if (--loading > 0) return;
     var address = require("../efront/getLocalIP")();
@@ -728,9 +731,9 @@ var showServerInfo = async function () {
         i18n`服务器地址：${address}`];
     var maxLength = 0;
     for (var cx = 0, dx = port.length; cx < dx; cx++) {
-        var p = port[cx];
-        var ishttps = portedServersList[cx] === server2
-        var m = p ? (ishttps ? `https ` : `http `).toUpperCase() + i18n`端口` + (ishttps ? ': ' : ":  ") + p : '';
+        var s = portedServersList[cx];
+        var ishttps = isHttpsServer(s);
+        var m = s.hosted;
         if (maxLength < m.length) maxLength = m.length;
         msg.push(m);
     }
@@ -753,20 +756,21 @@ var showServerInfo = async function () {
         if (!m) continue;
         if (m.length < maxLength) m += ' '.repeat(maxLength - m.length);
         var i = cx - 1;
-        var ishttps = portedServersList[i] === server2;
+        var s = portedServersList[i];
+        var ishttps = isHttpsServer(s);
         if (portedServersList[i].error) {
             showError(i);
         }
         else try {
-            await checkServerState(ishttps ? require("https") : http, ishttps ? HTTPS_PORT : HTTP_PORT);
+            await checkServerState(ishttps ? require("https") : http, s.hosted);
             showValid(i);
-            types.push(ishttps ? "https" + HTTPS_PORT : "http" + HTTP_PORT);
-            types.sort();
+            types.push(s.hosted);
         }
         catch (error) {
             showError(i, error);
         }
     }
+    types.sort();
     if (types.length) checkOutside(types);
 };
 var showServerError = function (error) {
@@ -794,7 +798,8 @@ var portedServersList = [];
 /**
  * @this http.Server
  */
-function initServer(port) {
+function initServer(port, hostname) {
+    loading++;
     var server = this.once("error", showServerError)
         .on('clientError', function (err, socket) {
             if (err.code === 'ECONNRESET' || !socket.writable) {
@@ -803,8 +808,22 @@ function initServer(port) {
             socket.end('HTTP/1.1 400 Bad Request\r\n\r\n');
         })
         .once("listening", showServerInfo)
-        .listen(+port);
+        .listen(+port, hostname);
     portedServersList.push(server);
+    server.hostname = hostname;
+    if (!hostname) hostname = 'localhost';
+    if (isHttpsServer(server)) {
+        if (+port !== 443) {
+            hostname += ":" + port;
+        }
+        server.hosted = "https://" + hostname;
+    }
+    else {
+        if (+port !== 80) {
+            hostname += ":" + port;
+        }
+        server.hosted = "http://" + hostname;
+    }
     server.port = port;
     return server;
 }
@@ -818,7 +837,8 @@ function netOnceDataAdapter(buf) {
     socket.on('error', function () { })
     socket.unshift(buf);
     if (socket_type === 0) {
-        if (server2 === socket.server) server2.emit("connection", socket);
+        var server = socket.server;
+        if (server !== server0 && server !== server1) server.emit("connection", socket);
         else socket.destroy();
     } else if (socket_type > 0) {
         doProxy(socket);
@@ -837,7 +857,7 @@ var getIntVersion = function (version) {
     var [a, b, c] = version.split('.');
     return (+a << 16) + (+b << 8) + +c;
 };
-var server0, server1, server2;
+var server0, server1;
 /**
  * @type {http2.SecureServerOptions}
  */
@@ -845,11 +865,19 @@ var httpsOptions = {
     allowHTTP1: true,
 };
 
-var createHttpsServer = function () {
-    if (httpsOptions.pfx || httpsOptions.cert && httpsOptions.key) {
+var createHttpsServer = function (certlist) {
+    if (httpsOptions.pfx || httpsOptions.cert && httpsOptions.key && !certlist) {
         HTTPS_PORT = +HTTPS_PORT || 443;
-        server2 = http2.createSecureServer(httpsOptions, requestListener);
+        var server2 = http2.createSecureServer(httpsOptions, requestListener);
         initServer.call(server2, HTTPS_PORT);
+    }
+    if (certlist) {
+        certlist.forEach(cert => {
+            httpsOptions.key = cert.private;
+            httpsOptions.cert = cert.cert;
+            var serveri = http2.createSecureServer(httpsOptions, requestListener);
+            initServer.call(serveri, cert.hostname);
+        });
     }
 };
 
@@ -862,103 +890,7 @@ var createHttpServer = function () {
         initServer.call(server1, HTTP_PORT);
     }
 };
-var Deno = global.Deno;
 
-if (Deno) {
-
-    var Response = global.Response;
-    var TransformStream = global.TransformStream;
-    var ServerResponse = class ServerResponse {
-        constructor(e) {
-            Object.defineProperty(this, '_req', { value: e, configurable: false });
-        }
-        headers = {};
-        writeHead(status, headers) {
-            Object.assign(this.headers, headers);
-            this.status = status;
-        }
-        get writer() {
-            if (!this._writer) {
-                var stream = new TransformStream;
-                Object.defineProperty(this, "_writer", { value: stream.writable.getWriter(), configurable: false });
-                this._req.respondWith(new Response(stream.readable, this));
-            }
-            return this._writer;
-        }
-        setHeader(k, v) {
-            this.headers[k] = v;
-        }
-        write(a) {
-            var b = Buffer.from(a);
-            b = new Uint8Array(b.buffer, b.byteOffset, b.byteLength);
-            this.writer.write(b);
-        }
-        end(a) {
-            if (a) this.write(a);
-            this.closed = true;
-            this.writer.close();
-        }
-        on(type, handle) {
-        }
-    }
-    var ServerRequest = class ServerRequest {
-        constructor(e, a) {
-            e = e.request;
-            a.remoteAddress = a.remoteAddr.hostname;
-            this.socket = a;
-            this.method = e.method;
-            var url = parseURL(e.url);
-            this.url = url.path;
-            this.headers = e.headers;
-            this.body = e.body;
-
-        }
-        on() { }
-        once() { }
-        pipe(a) {
-            console.log(this.body);
-            if (this.body) return this.body.pipe(a);
-            else a.end();
-        }
-    }
-    var serve = function (e, a) {
-        var res = new ServerResponse(e);
-        var req = new ServerRequest(e, a);
-        requestListener(req, res).catch(r => e.respondWith(new Response(String(r), { status: 500 })));
-    };
-    initServer = function (c) {
-        c.port = c.addr.port;
-        portedServersList.push(c);
-        var conn = async function (a) {
-            for await (var e of Deno.serveHttp(a)) serve(e, a);
-        };
-        var handler = async function (a) {
-            for await (var a of c) conn(a);
-        }
-        c.removeAllListeners = function () {
-        };
-        var close = c.close;
-        c.listening = true;
-        c.timeout = 0;
-        c.close = function (cb) {
-            c.listening = false;
-            Promise.resolve().then(function () {
-                close.call(c);
-                cb();
-            });
-        };
-        handler();
-        showServerInfo();
-    }
-    createHttpsServer = function () {
-        var c = Deno.listenTls(Object.assign({ port: +HTTPS_PORT || 443 }, httpsOptions));
-        initServer(c);
-    }
-    createHttpServer = function () {
-        var c = Deno.listen({ port: HTTP_PORT });
-        initServer(c);
-    };
-}
 process.on('exit', function () {
     if (process.stdin.unref) process.stdin.unref();
     if (process.stderr.unref) process.stderr.unref();
@@ -966,15 +898,16 @@ process.on('exit', function () {
 });
 
 message.count("boot");
-if (HTTP_PORT) loading++, createHttpServer();
-if (memery.PFX_PATH) {
-    loading++;
-    Object.assign(httpsOptions, cert);
-    createHttpsServer();
-}
-else if (HTTPS_PORT) {
-    loading++;
-    console.warn(`<yellow>${i18n`HTTPS端口正在使用默认证书，请不要在生产环境使用此功能！`}</yellow>`);
-    Object.assign(httpsOptions, cert);
-    createHttpsServer();
-}
+userdata.getOptionsList("cert").then(function (certlist) {
+    certlist = certlist.filter(c => cert.private && cert.cert && cert.hostname);
+    if (HTTP_PORT) createHttpServer();
+    if (memery.PFX_PATH || certlist.length) {
+        Object.assign(httpsOptions, cert);
+        createHttpsServer(certlist);
+    }
+    else if (HTTPS_PORT) {
+        console.warn(`<yellow>${i18n`HTTPS端口正在使用默认证书，请不要在生产环境使用此功能！`}</yellow>`);
+        Object.assign(httpsOptions, cert);
+        createHttpsServer();
+    }
+});
