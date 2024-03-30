@@ -462,9 +462,10 @@ var setHeader = function (crypted, k, v) {
     if (k === 'content-length') return;
     if (k === 'set-cookie' || k === 'efront-cookie') {
         v = [].concat(v).map(e => encode62.safeencode(e, crypted));
-
     }
-    this.setHeader(k, v);
+    try { this.setHeader(k, v); } catch {
+        // 忽略客户端传过来的错误头
+    }
 };
 var proxy = require("./url-proxy");
 /**
