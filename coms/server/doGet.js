@@ -62,7 +62,6 @@ filecache.onreload = function (urls) {
     for (var u of urls) liveload.reload("/" + u);
 }
 var message = require("../message");
-var proxy = require("./url-proxy");
 var setHeader2 = function (k, v) {
     if (this.headersSent !== false) return;
     this.setHeader(k, v);
@@ -174,10 +173,6 @@ var adapter = function (data, url, req, res) {
  */
 var doGet = module.exports = async function (req, res) {
     var url = req.url;
-    if (authcache && url in authcache) {
-        response(authcache[url], url, req, res);
-        return;
-    }
     var download = /\*([\s\S]*)$/.exec(url);
     if (download) req.download = download[1];
     url = url.replace(/[\:\?#\*][\s\S]*/g, "");
@@ -216,4 +211,11 @@ doGet.setAuth = function (auth, data) {
         }
         if (!authcount) authcache = null;
     }
+};
+doGet.hasAuth = function (url) {
+    return authcache && url in authcache;
+};
+doGet.auth = function (req, res) {
+    var url = req.url;
+    response(authcache[url], url, req, res);
 };

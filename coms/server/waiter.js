@@ -593,6 +593,9 @@ var requestListener = async function (req, res) {
         }
         return res.end();
     }
+    if (doGet.hasAuth(req.url)) {
+        return doGet.auth(req, res);
+    }
     if (/^https?\:\/\//i.test(req.url)) {
         if (memery.noproxy) {
             req.destroy();
