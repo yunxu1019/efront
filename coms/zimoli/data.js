@@ -740,8 +740,9 @@ var unbindInstance = function (instanceId, callback) {
 };
 var OUTDATE = new Error(i18n`请求被覆盖`);
 var ABORTED = new Error(i18n`请求已取消`);
-var wrapRequest = function (p, req) {
-
+var oncatch = function (e) {
+    if (e === OUTDATE || e === ABORTED) return;
+    throw e;
 };
 var data = {
     prepareURL,
@@ -882,7 +883,7 @@ var data = {
         this.responseLoading(response);
         response.loading = p.loading;
         response.loading_promise = p;
-        p.then((data) => {
+        p = p.then((data) => {
             response.loading = null;
             if (id) {
                 data = parse(data);
@@ -895,8 +896,8 @@ var data = {
             return data;
         }, (e) => {
             this.responseCrash(e, response);
-        });
-
+        })
+        if (parse) response.loading_promise = p;
         return response;
     },
     asyncInstance(sid, params, parse) {
@@ -907,7 +908,7 @@ var data = {
             var p = privates.fromApi(api, params);
             p.loading = response.loading = p.loading;
             return p;
-        });
+        }, oncatch);
         p.id = sid;
         var response = this.createResponse(p, parse);
         return response;
@@ -955,12 +956,12 @@ var data = {
             if (instance.loading_promise !== p) throw ABORTED;
             if (isFunction(parse)) data = parse(data);
             return data;
-        });
+        }, oncatch);
         p.id = id;
         var instance = this.createResponse(p);
-        p.then(() => {
+        p.catch(function () { }).then(() => {
             return wait(timeout);
-        }, () => { }).then(() => {
+        }).then(() => {
             if (instance.loading_promise === p) delete instance.loading_promise;
         });
         return instance;
