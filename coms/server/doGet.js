@@ -175,8 +175,8 @@ var doGet = module.exports = async function (req, res) {
     var url = req.url;
     var download = /\*([\s\S]*)$/.exec(url);
     if (download) req.download = download[1];
+    var id = /\:/.test(url) ? url.replace(/^[\s\S]*?\:([\s\S]*?)([\?][\s\S]*)?$/, "$1") : null;
     url = url.replace(/[\:\?#\*][\s\S]*/g, "");
-    var id = /\:/.test(req.url) ? req.url.replace(/^[\s\S]*?\:([\s\S]*?)([\?][\s\S]*)?$/, "$1") : null;
     req.id = id;
     var exts = [''];
     req.deno = /^Deno\//.test(getHeader(req.headers, "user-agent"));

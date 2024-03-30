@@ -83,6 +83,7 @@ var http2 = require("http2");
 var doGet = require("./doGet");
 var doPost = require("./doPost");
 var doCross = require("./doCross");
+var { referer: crossReferer, prefix: crossPrefix } = doCross;
 var doFile = require("./doFile");
 var doProxy = require("./doProxy");
 var doFolder = require("./doFolder");
@@ -468,13 +469,16 @@ var setHeader = function (crypted, k, v) {
     }
 };
 var proxy = require("./url-proxy");
+var hasAuth = doGet.hasAuth;
+var doAuth = doGet.auth;
 /**
  * @param {Http2ServerRequest}req
  * @param {Http2ServerResponse}res
  * @this {net.Server}
  */
 var requestListener = async function (req, res) {
-    if (req.socket.unref) req.socket.unref();
+    var socket = req.socket;
+    if (socket.unref) socket.unref();
     try {
         var remoteAddress = require("./remoteAddress")(req);
     } catch {
@@ -484,18 +488,20 @@ var requestListener = async function (req, res) {
         res.end("禁止访问");
         return;
     }
-    var crypted = /^\/\!/.test(req.url);
-    if (crypted) {
-        crypted = await userdata.getRequestCode(req);
-        if (req.url.length === 2) return res.end(encode62.timeencode(crypted));
+    var method = req.method;
+    var url = req.url;
+    var headers = req.headers;
+    if (/^\/\!/.test(url)) {
+        var crypted = await userdata.getRequestCode(req);
+        if (url.length === 2) return res.end(encode62.timeencode(crypted));
         try {
-            req.url = req.url.slice(0, 2) + encode62.safedecode(encode62.timedecode(req.url.slice(2)), crypted);
+            url = req.url = url.slice(0, 2) + encode62.safedecode(encode62.timedecode(url.slice(2)), crypted);
         } catch (e) {
             res.writeHead(403, utf8error);
-            res.end(i18n[req.headers["accept-language"]]`禁止访问`);
+            res.end(i18n[getHeader(headers, "accept-language")]`禁止访问`);
             return;
         }
-        delete req.headers["content-length"];
+        delete headers["content-length"];
         var size = 0;
         var res1 = new Transform({
             transform(chunk, _, ok) {
@@ -545,38 +551,38 @@ var requestListener = async function (req, res) {
                 } catch (e) {
                     if (res.closed) return;
                     res.writeHead(403, utf8error);
-                    res.end(i18n[req.headers["accept-language"]]`数据异常！`);
+                    res.end(i18n[getHeader(headers, "accept-language")]`数据异常！`);
                     req.destroy();
                     res.closed = true;
                     return;
                 }
             }
         }));
-        req1.headers = req.headers;
-        req1.url = req.url;
-        req1.method = req.method;
-        req1.socket = req.socket;
+        req1.headers = headers;
+        req1.url = url;
+        req1.method = method;
+        req1.socket = socket;
         req = req1;
-        if (/^\/\!\//.test(req.url)) req.url = req.url.slice(2);
+        if (/^\/\!\//.test(url)) url = req.url = url.slice(2);
     }
 
     req.protocol = this === server1 ? 'http:' : 'https:';
-    var req_access_origin = getHeader(req.headers, "origin");
-    var req_access_headers = getHeader(req.headers, "access-control-request-headers");
-    var req_access_method = getHeader(req.headers, "access-control-request-method");
+    var req_access_origin = getHeader(headers, "origin");
+    var req_access_headers = getHeader(headers, "access-control-request-headers");
+    var req_access_method = getHeader(headers, "access-control-request-method");
     if (memery.CORS) {
         req_access_origin && res.setHeader("Access-Control-Allow-Origin", req_access_origin);
-        /^cross/i.test(getHeader(req.headers, "sec-fetch-site")) && res.setHeader("Cross-Origin-Resource-Policy", "cross-origin");
+        /^cross/i.test(getHeader(headers, "sec-fetch-site")) && res.setHeader("Cross-Origin-Resource-Policy", "cross-origin");
         /^https:/i.test(req_access_origin) && res.setHeader("Access-Control-Allow-Credentials", true);
         req_access_headers && res.setHeader("Access-Control-Allow-Headers", req_access_headers);
         req_access_method && res.setHeader("Access-Control-Allow-Methods", req_access_method);
     }
-    if (/^option/i.test(req.method)) {
+    if (/^option/i.test(method)) {
         if (req_access_method || req_access_headers) {
             return res.end();
         }
-        if (/^\/\:/.test(req.url)) {
-            var option = req.url.slice(2);
+        if (/^\/\:/.test(url)) {
+            var option = url.slice(2);
             if (option === version) res.setHeader("Powered-By", version);
             else if (!/^(?:\:\:1?|(?:\:\:ffff\:)?127\.0\.0\.1)$/i.test(remoteAddress)) {
             }
@@ -585,7 +591,7 @@ var requestListener = async function (req, res) {
                 case "exit":
                     let ports = portedServersList.filter(a => a && a.listening).map(a => a.address().port);
                     message.send('quit');
-                    res.end(i18n[req.headers["accept-language"]]`已关闭${ports.join("、")}端口`);
+                    res.end(i18n[getHeader(headers, "accept-language")]`已关闭${ports.join("、")}端口`);
                     return;
             }
             var type = /^(\w+)(?:[\-\/\!]([\/\!\'\(\)\*\-\.\w]*))?(?:[\?\:\+]([\s\S]*))?$/.exec(option);
@@ -593,10 +599,10 @@ var requestListener = async function (req, res) {
         }
         return res.end();
     }
-    if (doGet.hasAuth(req.url)) {
-        return doGet.auth(req, res);
+    if (hasAuth(url)) {
+        return doAuth(req, res);
     }
-    if (/^https?\:\/\//i.test(req.url)) {
+    if (/^https?\:\/\//i.test(url)) {
         if (memery.noproxy) {
             req.destroy();
             res.destroy();
@@ -604,39 +610,41 @@ var requestListener = async function (req, res) {
         }
         return doCross(req, res);
     }
-    if (doCross.prefix.test(req.url)) {
+    if (crossPrefix.test(url)) {
         return doCross(req, res, false);
     }
-    if (doCross.referer.test(getHeader(req.headers, 'referer'))) {
-        return doCross(req, res, getHeader(req.headers, 'referer'));
+    var referer = getHeader(headers, 'referer');
+    if (crossReferer.test(referer)) {
+        return doCross(req, res, referer);
     }
-    if (/^\/\*{1,2}$/.test(req.url) && !getHeader(req.headers, "authorization") || /^\/\*{3,}$/.test(req.url)) {
+    var authorization = getHeader(headers, "authorization");
+    if (/^\/\*{1,2}$/.test(url) && !authorization || /^\/\*{3,}$/.test(url)) {
         res.writeHead(401, {
             "WWW-Authenticate": "Basic",
         });
         res.end(`<script>location.href="/"</script>`);
         return;
     }
-    else if (getHeader(req.headers, "authorization")) {
-        var auth = Buffer.from(getHeader(req.headers, "authorization").replace(/^Basic\s+/i, ''), 'base64').toString();
+    else if (authorization) {
+        var auth = Buffer.from(authorization.replace(/^Basic\s+/i, ''), 'base64').toString();
         if (/^~~/.test(auth)) {
             auth = auth.replace(/\:$/, '');
-            req.url = "/" + auth + req.url.replace(/^\/\*+/, '');
+            req.url = "/" + auth + url.replace(/^\/\*+/, '');
             return doCross(req, res);
         }
     }
     try {
-        req.url = decodeURI(req.url);
+        url = req.url = decodeURI(url);
     } catch {
-        req.url = unescape(req.url);
+        url = req.url = unescape(url);
     }
-    if (/^\/@/i.test(req.url)) {
+    if (/^\/@/i.test(url)) {
         return doFile(req, res);
     }
-    if (memery.CHANNEL_ENABLED && /^\/\([\s\S]*\)/.test(req.url)) {
+    if (memery.CHANNEL_ENABLED && /^\/\([\s\S]*\)/.test(url)) {
         return doChannel(req, res);
     };
-    if (memery.islive && /\/\:(\w{3,4})\//.test(req.url)) {
+    if (memery.islive && /\/\:(\w{3,4})\//.test(url)) {
         return doPost.call(this, req, res);
     }
     var url = await proxy(req);
@@ -647,17 +655,17 @@ var requestListener = async function (req, res) {
         res.end();
         return;
     }
-    if (/^post/i.test(req.method) && !crypted) {
+    if (/^post/i.test(method) && !crypted) {
         return doPost.call(this, req, res);
     }
     req.url = url;
     if (/^~~?|^&/.test(url)) {
         return doCross(req, res);
     }
-    if (getHeader(req.headers, "range")) {
+    if (getHeader(headers, "range")) {
         return doFile(req, res);
     }
-    if (/^get/i.test(req.method) || crypted) {
+    if (/^get/i.test(method) || crypted) {
         return doGet(req, res);
     }
     else {
