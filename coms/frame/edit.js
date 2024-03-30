@@ -19,7 +19,7 @@ function main(title, { submit }, { data: origin, fields, }) {
     on('submit')(page, async function (e) {
         e.preventDefault();
         var res = await submit(item, fields, origin);
-        if (typeof res === 'string') {
+        if (typeof res === 'string' && res) {
             return alert(res, 'error');
         }
         if (res === false) return;
