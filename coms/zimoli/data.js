@@ -601,7 +601,7 @@ var privates = {
         var temp = JSON.stringify(params);
         var currentTime = +new Date;
         var loading = promise && promise.loading;
-        if (!promise || currentTime - promise.time > 60 || temp !== promise.params || promise.search !== search) {
+        if (!promise || currentTime - promise.time > 60 || temp !== promise.params || promise.search !== search || promise.uri !== uri) {
             var promise = new Promise(function (ok, oh) {
                 if (headers) {
                     headers = seekFromSource(headers, api.base);
@@ -617,6 +617,7 @@ var privates = {
                     }
                 });
             });
+            promise.uri = uri;
             promise.loading = loading;
             promise.search = search;
             promise.params = temp;
@@ -625,7 +626,11 @@ var privates = {
         }
         var p = promise.then(function (response) {
             if (/\*$/.test(coinmethod)) return response;
-            var data = parseData(response);
+            var type = loading.getResponseHeader?.("content-type");
+            var data = response;
+            if (/text\/plain|json|[xyt]ml/i.test(type)) {
+                data = parseData(data);
+            }
             var checked = error_check(data);
             var apiMap = api && api.root;
             var trans = api ? api.transpile : getTranspile(url);
