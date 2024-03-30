@@ -534,7 +534,7 @@ var privates = {
             params = this.repare(api, params);
             return this.loadIgnoreConfig(api.method, url, params, api);
         }
-        return Promise.resolve();
+        return Promise.reject(ABORTED);
     },
     repare(api, params) {
         var { required, autotrim, prepared } = api;
@@ -683,6 +683,7 @@ var loadInstance = function (storage, id) {
 };
 
 function responseCrash(e, data) {
+    if (e === ABORTED || e === OUTDATE) return;
     data.is_errored = true;
     data.is_loading = false;
     data.error_message = getErrorMessage(e);
@@ -880,7 +881,8 @@ var data = {
         if (!isObject(response)) response = new LoadingArray;
         this.responseLoading(response);
         response.loading = p.loading;
-        p = response.loading_promise = p.then((data) => {
+        response.loading_promise = p;
+        p.then((data) => {
             response.loading = null;
             if (id) {
                 data = parse(data);
@@ -891,8 +893,7 @@ var data = {
             }
             this.responseLoaded(response);
             return data;
-        });
-        p.catch((e) => {
+        }, (e) => {
             this.responseCrash(e, response);
         });
 
@@ -901,31 +902,14 @@ var data = {
     asyncInstance(sid, params, parse) {
         // 不同参数的请求互不影响
         if (typeof sid !== "string") throw new Error(i18n`serviceId 只能是字符串`);
-        var id = parse instanceof Function || params ? getInstanceId() : 0;
-        if (id) this.removeInstance(id);
-        var response = this.getInstance(id || sid);
-        if (!isObject(response)) response = new LoadingArray;
-        this.responseLoading(response);
-        var p = response.loading_promise = privates.getApi(sid).then((api) => {
+        var p = privates.getApi(sid).then((api) => {
             params = privates.pack(sid, params);
             var p = privates.fromApi(api, params);
-            response.loading = p.loading;
+            p.loading = response.loading = p.loading;
             return p;
-        }).then((data) => {
-            response.loading = null;
-            if (id) {
-                data = parse instanceof Function ? parse(data) : data;
-                this.setInstance(id, data, false);
-                this.removeInstance(id);
-            } else {
-                this.setInstance(sid, data);
-            }
-            this.responseLoaded(response);
-            return data;
         });
-        p.catch((e) => {
-            this.responseCrash(e, response);
-        });
+        p.id = sid;
+        var response = this.createResponse(p, parse);
         return response;
     },
 
@@ -950,77 +934,35 @@ var data = {
         });
         var id = "." + sid;
         var instance = this.getInstance(id);
-        if (!isObject(instance)) instance = new LoadingArray;
-
-        var promise1 = instance.loading_promise;
-        if (promise1) {
-            var params = promise1.params;
-            if (shallowEqual(params1, params)) {
-                return instance;
-            }
-        }
-        this.responseLoading(instance);
-        promise1 = instance.loading_promise = new Promise(function (ok) {
-            if (!instance.loading) {
-                instance.loading = false;
-            }
-            setTimeout(ok, timeout);
+        var loading_promise = instance && instance.loading_promise;
+        var p = Promise.resolve().then(function () {
+            if (loading_promise) return wait(timeout);
+            return wait(60);
         }).then(function () {
-            if (promise1 !== instance.loading_promise) throw OUTDATE;
+            if (p !== instance.loading_promise) throw OUTDATE;
             return privates.getApi(sid);
         }).then((api) => {
-            if (promise1 !== instance.loading_promise) throw OUTDATE;
+            if (p !== instance.loading_promise) throw OUTDATE;
+            if ("params" in instance && shallowEqual(instance.params, params1)) throw ABORTED;
+            instance.params = params1;
             if (instance.loading) {
                 instance.loading.abort();
             }
-            var params2 = privates.pack(sid, params1);
-            if (!privates.validApi(api, params2)) throw ABORTED;
-            let url = api.url;
-            var base = api.base;
-            if (base) url = base + api.path;
-            var { method, uri, params, selector } = privates.prepare(api.method, url, params2);
-            var promise = new Promise(function (ok, oh) {
-                var headers = api.headers;
-                if (headers) {
-                    headers = seekFromSource(headers, api.base);
-                }
-                instance.loading = cross(method, uri, headers).send(params).done(xhr => {
-                    if (instance.loading !== xhr) return oh(ABORTED);
-                    instance.loading = null;
-                    ok(xhr.responseText || xhr.response);
-                }).error(xhr => {
-                    if (instance.loading !== xhr) return oh(ABORTED);
-                    instance.loading = null;
-                    try {
-                        var e = getErrorMessage(parseData(xhr.response || xhr.responseText || xhr.statusText || xhr.status));
-                        oh({ status: xhr.status, error: e, api, params: params2, toString: getErrorMessage })
-                    } catch (error) {
-                        oh(error);
-                    }
-                });
-            }).then(function (response) {
-                return transpile(seekResponse(parseData(response), selector), api.transpile, api.root);
-            });
-            return promise;
+            var r = privates.fromApi(api, params1);
+            instance.loading = r.loading;
+            return r;
         }).then((data) => {
-            if (instance.loading_promise !== promise1) throw ABORTED;
-            if (id) {
-                data = parse instanceof Function ? parse(data) : data;
-                this.setInstance(id, data, false);
-            } else {
-                this.setInstance(sid, data);
-            }
-            this.responseLoaded(instance);
+            if (instance.loading_promise !== p) throw ABORTED;
+            if (isFunction(parse)) data = parse(data);
             return data;
-        }).catch(function (e) {
-            if (e === OUTDATE || e === ABORTED) return;
-            throw e;
         });
-        promise1.params = params;
-        promise1.catch((e) => {
-            this.responseCrash(e, instance);
+        p.id = id;
+        var instance = this.createResponse(p);
+        p.then(() => {
+            return wait(timeout);
+        }, () => { }).then(() => {
+            if (instance.loading_promise === p) delete instance.loading_promise;
         });
-
         return instance;
     },
     /**
