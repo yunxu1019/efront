@@ -549,7 +549,6 @@ function detour(o, ie) {
                     var s1 = createScoped(o1);
                     if (s1.used.this) {
                         var s = getfunc(o, 'this').scoped;
-                        console.log(createString([getfunc(o,'this')]))
                         s.used.this.push(...s1.used.this);
                     }
                     if (s1.used.arguments) {
