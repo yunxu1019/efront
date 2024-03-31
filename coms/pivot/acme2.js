@@ -261,11 +261,12 @@ var acme2 = new class {
     parseOrder(o) {
         if (typeof o !== 'string') return o;
         var order = data.getUrlParamsForApi(orderApi, o);
+        order.url = o;
         order.name = order.oid;
         return order;
     }
     async getOrder(o) {
-        var r = await data.from(orderApi, o);
+        var r = await data.fromURL(o.url);
         if (r.expires) r.expires = new Date(r.expires);
         return r;
     }

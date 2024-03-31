@@ -176,15 +176,15 @@ function getParamsFromUrl(url, s = "?") {
 function getUrlParamsForApi(api, url) {
     var r = /([\s\S]*?)/.source;
     var cap = [];
-    var base = api.url.replace(/[\?\#][\s\S]*$/, '')
+    var reg = api.url.replace(/[\?\#][\s\S]*$/, '')
         .replace(/[\.\*\+\-\[\]\{\}\(\)\\\/\!<\>\^]/g, '\\$&')
         .replace(/\:\w+/g, function (a) {
             cap.push(a.slice(1));
             return r;
         });
-    if (/\/$/.test(base)) base += "?";
+    if (/\/$/.test(reg)) reg += "?";
     var params = {};
-    url = url.replace(/[\?#]*$/g, function (match) {
+    url = url.replace(/[\?#][\s\S]*$/g, function (match) {
         match.split(/[&#\?]+/).forEach(function (s) {
             if (!s) return;
             var [k, v] = s.split("=");
@@ -192,8 +192,9 @@ function getUrlParamsForApi(api, url) {
         });
         return '';
     });
-    if (api.base) url = url.slice(api.base.length);
-    url.replace(new RegExp(`^${base}$`, 'ig'), function () {
+    if (api.base === url.slice(0, api.base.length)) url = url.slice(api.base.length), reg = new RegExp(`^${reg}$`);
+    else reg = new RegExp(reg + '$');
+    url.replace(reg, function () {
         var args = arguments;
         cap.forEach(function (a, cx) {
             params[a] = args[cx + 1];
