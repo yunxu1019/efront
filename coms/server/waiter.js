@@ -892,7 +892,7 @@ var createHttpsServer = function () {
 };
 
 var createCertedServer = function (certlist) {
-    var wantdie = portedServersList.filter(s => !!portedServersList[s.hostname]);
+    var wantdie = portedServersList.filter(s => isHttpsServer(s) && !!portedServersList[s.hostname]);
     wantdie.forEach(servern => {
         removeFromList(portedServersList, servern);
         servern.close();
