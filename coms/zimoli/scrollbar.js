@@ -232,11 +232,11 @@ function main(elem) {
         direction = target.tagName;
     }
     if (/^[xh]/i.test(direction)) {
-        elem.setAttribute('x', '');
         bar = scrollbar_x(elem);
+        bar.setAttribute('x', '');
     } else {
-        elem.setAttribute('y', '');
         bar = scrollbar_y(elem);
+        bar.setAttribute('y', '');
     }
     if (target) bar.bindTarget(target);
     return bar;
