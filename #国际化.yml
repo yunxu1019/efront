@@ -1,3 +1,33 @@
+- zh-CN: 端口异常
+  en:    Port abnormality
+
+- zh-CN: 分配地址失败
+  en:    Address allocation failed
+
+- zh-CN: 电子邮箱地址应包含符号“@”
+  en:    "The email address should contain the symbol \"@\""
+
+- zh-CN: "@符号前应有内容"
+  en:    "There should be content before the symbol \"@\""
+
+- zh-CN: "@符号后应有内容"
+  en:    "There should be content after the symbol\"@\""
+
+- zh-CN: 私钥
+  en:    Private key
+
+- zh-CN: 证书
+  en:    certificate
+
+- zh-CN: 账户
+  en:    account
+
+- zh-CN: 当前服务器的域名
+  en:    The domain name of the current server
+
+- zh-CN: 订单失效时间
+  en:    Order expiration time
+
 - zh-CN: 请求无效!
   en:    Request is invalid!
 
