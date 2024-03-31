@@ -907,8 +907,10 @@ var createCertedServer = function (certlist) {
             var serveri = http2.createSecureServer(httpsOptions, requestListener);
             initServer.call(serveri, +HTTPS_PORT || 443, c.hostname);
             portedServersList[c.hostname] = serveri;
-        } catch {
-            console.warn(`用于${cert.hostname}的证书不可用`)
+        } catch (e) {
+            console.log(cert, httpsOptions)
+            //<!-- console.error(e); -->
+            console.warn(`<yellow2>用于<red2>${c.hostname}</red2>的证书不可用</yellow2>`);
         }
     });
 };
@@ -935,7 +937,7 @@ var getCertList = function () {
         certlist = certlist.filter(c => c.private && c.cert && c.hostname);
         if (HTTPS_PORT) {
             if (!certlist.length && !memery.FILE_PATH) {
-                console.warn(`<yellow>${i18n`HTTPS端口正在使用默认证书，请不要在生产环境使用此功能！`}</yellow>`);
+                console.warn(`<yellow2>${i18n`HTTPS端口正在使用默认证书，请不要在生产环境使用此功能！`}</yellow2>`);
                 certlist.push({ private: cert.key, cert: cert.cert, hostname: 'localhost' });
             }
         }

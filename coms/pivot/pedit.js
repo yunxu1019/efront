@@ -3,7 +3,7 @@ function send(type, key, value, origin) {
         type,
         key: encode62.timeencode(key),
         value: isHandled(value) ? encode62.timeencode(JSON.stringify(value)) : '',
-    }, e => e ? JSON.parse(encode62.timedecode(e)) : '').loading_promise;
+    }, e => e ? JSAM.parse(encode62.timedecode(e)) : '').loading_promise;
 }
 function pedit(title, type, params, idkey = params.fields[0].key) {
     var pdata = params.data;

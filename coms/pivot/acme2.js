@@ -1,5 +1,4 @@
 var acmebase = `https://acme-v02.api.letsencrypt.org/`;
-// <!-- acmebase=`https://acme-staging-v02.api.letsencrypt.org/` -->
 var data1 = data.enrich(parseYML(`
 ${acmebase}:
   directory: get directory
@@ -240,6 +239,7 @@ var acme2 = new class {
         this.kid = account;
         var a = data.getUrlParamsForApi(accountApi, account);
         this.aid = a.aid;
+        alert('创建成功！', 'success');
         return account;
     }
     async newOrder(params) {
