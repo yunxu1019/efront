@@ -901,7 +901,7 @@ var createCertedServer = function (certlist) {
         servern.unref();
     });
     certlist.forEach(c => {
-        httpsOptions.key = c.private;
+        httpsOptions.key = c.key || `-----BEGIN RSA PRIVATE KEY-----\n${c.private}\n-----END RSA PRIVATE KEY-----\n`;
         httpsOptions.cert = c.cert;
         try {
             var serveri = http2.createSecureServer(httpsOptions, requestListener);
@@ -929,19 +929,20 @@ process.on('exit', function () {
     if (process.stderr.unref) process.stderr.unref();
     if (process.stdout.unref) process.stdout.unref();
 });
-
+var cert;
 message.count("boot");
-var getCertList = function () {
-    return userdata.getOptionsList("cert").then(certlist => {
-        certlist = certlist.filter(c => c.private && c.cert && c.hostname);
-        if (HTTPS_PORT) {
-            if (!certlist.length && !memery.PFX_PATH) {
-                console.warn(`<yellow2>${i18n`HTTPS端口正在使用默认证书，请不要在生产环境使用此功能！`}</yellow2>`);
-                certlist.push({ private: cert.key, cert: cert.cert});
-            }
+var getCertList = async function () {
+    var certlist = await userdata.getOptionsList("cert");
+    certlist = certlist.filter(c => c.private && c.cert && c.hostname);
+    if (memery.PFX_PATH) cert = await import('./cert');
+    if (HTTPS_PORT) {
+        if (!certlist.length && !memery.PFX_PATH) {
+            console.warn(`<yellow2>${i18n`HTTPS端口正在使用默认证书，请不要在生产环境使用此功能！`}</yellow2>`);
+            if (!cert) cert = await import('./cert');
+            certlist.push(cert);
         }
-        return certlist;
-    });
+    }
+    return certlist;
 }
 message.reloadCert = async function () {
     var certlist = await getCertList();
