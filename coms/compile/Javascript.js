@@ -546,6 +546,7 @@ function detour(o, ie) {
                     text = renderExpress(text, false);
                     if (hasdot) text = "..." + text;
                     var o1 = scan(text);
+                    detour(o1.first, ie);
                     var s1 = createScoped(o1);
                     if (s1.used.this) {
                         var s = getfunc(o, 'this').scoped;
