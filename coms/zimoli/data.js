@@ -862,7 +862,7 @@ var data = {
     },
     fromApi(api, params, parse) {
         var p = privates.fromApi(api, params);
-        p.id = api.id;
+        p.id = api.id + "?" + serialize(params);
         return this.createResponse(p, parse);
     },
     postURL(url, data, parse) {
@@ -904,6 +904,7 @@ var data = {
     asyncInstance(sid, params, parse) {
         // 不同参数的请求互不影响
         if (typeof sid !== "string") throw new Error(i18n`serviceId 只能是字符串`);
+        sid += "?" + serialize(params);
         var p = privates.getApi(sid).then((api) => {
             params = privates.pack(sid, params);
             var p = privates.fromApi(api, params);
