@@ -77,7 +77,7 @@ function record($url, request, response, req, res) {
             if (record.enabled) {
                 write(fullpath, data);
             }
-            var host = getHeader(req.headers, 'host') || parseURL(req.referer).host;
+            var host = getHeader(req.headers, 'host') || getHeader(req.headers, ':authority') || parseURL(req.referer).host;
             data = String(data).replace(reg0, (_, b, c) => `${b}${host ? '//' + host : ''}/&${c}${b}`)
                 .replace(reg, (_, a, b, c, d) => `${a}${b}/${mark}${c ? mark : ''}${d}`);
         } else {
