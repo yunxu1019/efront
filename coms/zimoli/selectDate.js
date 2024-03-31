@@ -257,9 +257,9 @@ var render = function (value, models = "年月日", message = "") {
                 if (_index >= models.length) {
                     _index--;
                     preventDefault = false;
-                    container.value = map.call(models, (model, index) => `${value[model]()}${index + 1 < models.length ? value[model].format : ''}`).join("");
-                    dispatch("change", container);
                 }
+                container.value = map.call(models, (model, index) => `${value[model]()}${index + 1 < models.length ? value[model].format : ''}`).join("");
+                dispatch("change", container);
                 break;
             case "val":
                 var val = target.innerText.trim().split(/\s+/);

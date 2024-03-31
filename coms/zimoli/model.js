@@ -113,15 +113,21 @@ var constructors = {
             }
         });
     },
-    date() {
-        var elem = document.createElement("input");
-        elem.type = "date";
-        elem.$renders = [function () {
-            var { data, field } = this.$scope;
-            if (data && field) elem.value = parseDate(data[field.key]);
-        }]
-        input(elem);
-        return elem;
+    date(m) {
+        var { data, field } = m;
+        m.innerHTML = `<input placeholder=${field.holder || '选择日期'} readonly -model=data[field.key] />`;
+        render(m, {
+            data, field, input,
+        });
+        select(m.firstChild, datepicker("年月日"), data[field.key]);
+    },
+    datetime(m) {
+        var { data, field } = m;
+        m.innerHTML = `<input placeholder=${field.holder || '选择日期和时间'} readonly -model=data[field.key] />`;
+        render(m, {
+            data, field, input,
+        });
+        select(m.firstChild, datepicker("年月日时分"), data[field.key]);
     },
     color() {
         return colorpicker();
