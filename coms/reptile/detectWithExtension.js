@@ -2,6 +2,7 @@ var path = require("path");
 var fs = require("fs").promises;
 var $split = require("../basic/$split");
 var str2array = require("../basic/str2array");
+var colors = require('./colors');
 async function detectWithExtension(filenames, extensions = [""], folders = [""]) {
     if (typeof filenames === 'string') filenames = str2array(filenames);
     if (typeof extensions === 'string') extensions = str2array(extensions);
@@ -31,7 +32,7 @@ async function detectWithExtension(filenames, extensions = [""], folders = [""])
             if (!findedFolder) findedFolder = f + params;
         } catch { }
     }
-    if (!findedFolder) throw new Error(i18n`路径<gray>${filenames}</gray>不存在`);
+    if (!findedFolder) throw new Error(`路径${filenames.map(f => colors.FgYellow + f[0] + colors.Reset).join(', ')}不存在`);
     return findedFolder;
 }
 module.exports = detectWithExtension;

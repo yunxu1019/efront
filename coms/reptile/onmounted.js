@@ -1,0 +1,1 @@
+function onmounted(target, handler) { }

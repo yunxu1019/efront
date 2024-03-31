@@ -8,8 +8,8 @@ var setupenv = require("./setupenv");
 var parseURL = require("../basic/parseURL");
 var userAgent = "Efront/1.0";
 var memery = require("./memery");
-const extendIfNeeded = require("../basic/extendIfNeeded");
 var resolve_config = { paths: [process.cwd().replace(/\\/g, '/'), ...memery.COMS_PATH.split(',')], extensions: ["", ".js", '.cjs', '.mjs'] };
+var detect = require("../reptile/detectWithExtension");
 var mainLoaderPromise = new Promise(function (ok, oh) {
     fs.readFile(path.join(__dirname, "../basic/#loader.js"), function (error, data) {
         if (error) oh(error);
@@ -22,15 +22,16 @@ function fromComponent(env, base) {
     var pathname = this.location.pathname;
     var resolve_options = Object.assign({}, resolve_config, { paths: [pathname].concat(resolve_config.paths) });
     var requestInternet = fromInternet("");
-    var request = function (url, onsuccess, onerror) {
+    var request = async function (url, onsuccess, onerror) {
         var isdestroied = false;
         if (/^https?\:\/\//i.test(url)) {
             return requestInternet(url, onsuccess, onerror);
         }
-        if (/^\/?comm\b/i.test(url)) {
+        if (/^\/?comm\//i.test(url)) {
             try {
-                var temppath = require.resolve(url.replace(/^\/?comm\b/i, '.').replace(/([\s\S])\$|[\\]/g, '$1/'), resolve_options)
-                if (isLib(temppath) || !inCom(temppath, resolve_config.paths)) {
+                var temppath = await detect(url.replace(/^\/?comm\b/i, '.').replace(/([\s\S])\$|[\\]/g, '$1/'), resolve_options.extensions, resolve_config.paths);
+                var compath = inCom(temppath, resolve_config.paths);
+                if (isLib(temppath) || !compath) {
                     var mode = function () {
                         return require(temppath);
                     };
@@ -38,8 +39,8 @@ function fromComponent(env, base) {
                     onsuccess(mode);
                     return;
                 }
-            } catch (e) {
-
+                url = "comm/" + compath.replace(/\\/g, '/');
+            } catch {
             }
         }
         var abort = function () {
@@ -48,7 +49,7 @@ function fromComponent(env, base) {
         requestHandles.push(abort);
         var url1 = base.replace(/[^\\\/]*$/, '') + url;
         url1 = url1.replace(/^\/?/, "/");
-        packer(url1, function (result) {
+        packer(url1, async function (result) {
             var index = requestHandles.indexOf(abort);
             if (index >= 0) {
                 requestHandles.splice(index, 1);
@@ -67,14 +68,14 @@ function fromComponent(env, base) {
                     } else {
                         try {
                             url1 = require("../basic/$split")(url1).join("/");
-                            if (/^\.*\//.test(url1)) {
+                            if (/\./.test(url1)) {
                                 var parth = path.relative(url1, '.');
                                 if (/^\./.test(parth)) {
                                     url1 = "./" + path.relative('.', url1).replace('\\', '/');
                                 }
-                                var resolved = require.resolve(url1, resolve_options);
+                                var resolved = await detect(url1, resolve_options.extensions, resolve_config.paths);
                             } else {
-                                var resolved = require.resolve(url1);
+                                var resolved = url1;
                             }
                             if (resolved) {
                                 result = function () {
@@ -84,6 +85,7 @@ function fromComponent(env, base) {
                                 result.args = [];
                             }
                         } catch (e) {
+                            console.log(url1, require.resolve)
                             onerror(url1);
                         }
                     }
@@ -144,61 +146,9 @@ var timeoutHandles = {};
 var intervalHandles = {};
 var requestHandles = [];
 function efront() {
-    var Window = function () {
-    };
-    var window = new Window;
     var colors = require("../reptile/colors");
-    var global1 = typeof globalThis !== 'undefined' ? globalThis : typeof global !== "undefined" ? global : {};
+    var window = require("../reptile/window");
     Object.assign(window, {
-        require,
-        Date,
-        process: global1.process,
-        Promise,
-        Function,
-        RegExp,
-        Object,
-        String,
-        Array,
-        Number,
-        Boolean,
-        Error,
-        TypeError,
-        Uint8Array,
-        Uint16Array,
-        Uint32Array,
-        Uint8ClampedArray,
-        ArrayBuffer,
-        Int8Array,
-        Int16Array,
-        Int32Array,
-        BigInt64Array: global1.BigInt64Array,
-        Buffer: global1.Buffer,
-        Intl: global1.Intl,
-        Float32Array,
-        Float64Array,
-        Map,
-        Set,
-        Proxy,
-        WeakMap,
-        BigInt: global1.BigInt,
-        Reflect,
-        console,
-        Math,
-        Symbol: global1.Symbol,
-        JSON,
-        NaN,
-        Infinity,
-        isNaN,
-        isFinite,
-        parseInt,
-        parseFloat,
-        decodeURI,
-        encodeURI,
-        decodeURIComponent,
-        encodeURIComponent,
-        SharedArrayBuffer: global1.SharedArrayBuffer,
-        escape: global1.escape,
-        unescape: global1.unescape,
         eval(str, filename) {
             return require("vm").runInThisContext(str, { filename: `${colors.FgYellow}${loadedmap[filename] || filename}${colors.Reset}` });
         },
@@ -233,11 +183,9 @@ function efront() {
             return clearInterval(handle);
         }
     });
-    window.globalThis = window.global = window.top = window.window = window;
-    extendIfNeeded(window, global1);
     return window;
 }
-module.exports = function (mainpath, args) {
+module.exports = async function (mainpath, args) {
     var fullpath = mainpath;
     var appname = path.isAbsolute(mainpath) ? mainpath : "./" + mainpath.replace(/^\.[\/\\]/, '').replace(/\\/g, '/');
     mainpath = mainpath.replace(/\.[cm]?[jt]sx?$/i, '');
@@ -246,7 +194,7 @@ module.exports = function (mainpath, args) {
         Object.keys(timeoutHandles).forEach(clearTimeout);
         requestHandles.splice(0, requestHandles.length).forEach(r => r());
     };
-    if (!path.isAbsolute(fullpath)) fullpath = fs.existsSync(fullpath) ? path.resolve(fullpath) : require.resolve("./" + fullpath.replace(/\\/g, '/').replace(/^\.\//, ''), resolve_config);
+    if (!path.isAbsolute(fullpath)) fullpath = fs.existsSync(fullpath) ? path.resolve(fullpath) : await detect("./" + fullpath.replace(/\\/g, '/').replace(/^\.\//, ''), resolve_config.extensions, resolve_config.paths);
     var pathname = path.relative(mainpath.replace(/[^\\\/]+$/, ''), '.');
     pathname = path.join(fullpath, pathname);
     pathname = pathname.replace(/\\/g, '/').replace(/[^\/]+$/, '');

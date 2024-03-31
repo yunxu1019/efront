@@ -47,7 +47,8 @@ function encodeStructure(array) {
         body
     };
 }
-const pagePathName = location.pathname;
+var { location, navigator, window, document } = this;
+const pagePathName = location ? location.pathname : '';
 const dataSourceMap = {};
 const sourceDataId = 'datasource' + pagePathName;
 const userPrefix = ';';
@@ -318,7 +319,7 @@ function parseConfig(api) {
         required
     };
 }
-var isWorseIE = /msie\s+[2-9]/i.test(navigator.userAgent);
+var isWorseIE = navigator && /msie\s+[2-9]/i.test(navigator.userAgent);
 var parseData = function (sourceText) {
     if (/^\s*<[^\s\'\"\`]/i.test(sourceText)) {
         if (!isWorseIE && window.DOMParser) {
@@ -326,6 +327,7 @@ var parseData = function (sourceText) {
                 return new window.DOMParser().parseFromString(sourceText, "text/html");
             } catch (e) { }
         }
+        if (!document) throw new Error("当前环境不支持处理xml数据！");
         // XML 格式
         var { implementation } = document;
         if (implementation.createHTMLDocument) var doc = implementation.createHTMLDocument("");

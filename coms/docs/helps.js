@@ -1,5 +1,5 @@
 // <!--
-if (typeof i18n === "undefined") i18n = a => a;
+if (typeof i18n === "undefined") i18n = (a, ...b) => a[0] + b.map((c, i) => c + a[i + 1]).join(',');
 // -->
 var helps = [
     ["f", i18n`显示版本号`, "version", "-v", "--version"],
