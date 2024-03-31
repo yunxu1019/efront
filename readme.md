@@ -120,8 +120,6 @@ efront 默认读取当前路径下的`_envs/`和用户目录的`.efront/_envs/`�
 | `COMM`             | 组件文件存放的路径，默认为应用名加efront默认组件库`APP,zimoli`                                                                                                                                     |
 | `PREFIX`           | 发布时指定组件className前缀，默认无前缀                                                                                                                                                            |
 | `NOPROXY`          | 传统代理，默认在开发环境开启传统代理，在生产环境禁用传统代理                                                                                                                                       |
-| `PATH.SSL_PFX`     | ssl证书的路径，证书要使用pfx格式的                                                                                                                                                                 |
-| `PASSWORD.SSL_PFX` | ssl证书密码                                                                                                                                                                                        |
 | `DIRECT`           | 如果是用`pathname`作为单页应用的页面路径，可以配置此参数，以使空路都指向该参数所指定的路径。如果配置为数值，则自动截取用户路径的前几级，如果指定为字符串，则所有空路径都返回该字符串路径下的内容。 |
 | `ENTRY_NAME`       | efront默认依次查找文件中声明的`main`,`Main`,`MAIN`,`<文件名>`做为导出对象（入口），用户可配置此环境变量以进行修改                                                                                  |
 | `EXTRACT`          | 如果项目有多个入口，efront默认将主程序写入独立的文件，如果项目是单入口，efront默认将主程序并入index.html，如果您的代码有特殊要求，可以配置引此参数指定efront的行为                                 |
