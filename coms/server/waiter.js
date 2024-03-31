@@ -908,7 +908,6 @@ var createCertedServer = function (certlist) {
             initServer.call(serveri, +HTTPS_PORT || 443, c.hostname);
             portedServersList[c.hostname] = serveri;
         } catch (e) {
-            console.log(cert, httpsOptions)
             //<!-- console.error(e); -->
             console.warn(`<yellow2>用于<red2>${c.hostname}</red2>的证书不可用</yellow2>`);
         }
