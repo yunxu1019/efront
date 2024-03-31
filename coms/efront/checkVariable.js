@@ -2,6 +2,8 @@ var mixin = require("./mixin");
 var fs = require("fs");
 var path = require("path");
 var env = require("./setupenv")();
+var fsp = fs.promises;
+var { createString, SCOPED, QUOTED } = require("../compile/common");
 var joinpath = ([a, b]) => path.resolve(path.join(a || '', b || ''));
 var comms_root = mixin(env.COMS_PATH, env.COMM).map(joinpath).filter(fs.existsSync);
 var comms_root_length = comms_root.length;
@@ -26,8 +28,8 @@ var globals = require("./globals");
 module.exports = function (root) {
     var qindex = root.indexOf("?");
     if (qindex > 0) {
-        root = root.slice(0, qindex);
         query = root.slice(qindex + 1);
+        root = root.slice(0, qindex);
     }
     var rest = [root];
     var map = {
@@ -79,7 +81,6 @@ module.exports = function (root) {
         var cyan = console.format(`<cyan>;</cyan>`).split(';');
         var white = console.format(`<white>;</white>`).split(';');
         if (!args.length) {
-
             console.line(i18n`${name} ${cyan.join(root)} 中没有找到外部变量`);
         } else {
             console.line(i18n`${name} ${cyan.join(root)} 中共有 ${white.join(args.length)} 个外部变量`);
@@ -94,21 +95,29 @@ module.exports = function (root) {
                 return `<${c}>${a} (${u[0].row}:${u[0].col})</${c}>`;
             }).join("<gray>,</gray> "));
         }
-        if (query !== undefined) {
+
+        if (isHandled(query)) {
             args = args.filter(a => query.indexOf(a) === 0 || a.indexOf(query) === 0);
             if (!args.length) {
-                console.log(i18n`\r\n没有与指定的参数${query}相关的项`);
+                console.line(i18n`\r\n没有与指定的参数${wrapcolor(query)}相关的项`);
             }
             else {
-                console.log(i18n`\r\n${query ? i18n`与${query}相关的项` : ''}首次引用点如下：`)
+                var wrapcolor = a => {
+                    var c = color(a);
+                    return `<${c}>${a}</${c}>`;
+                }
+                if (query === 'require' && required && required.length > 0) {
+                    console.line(i18n`\r\n${name}中，由${wrapcolor(query)}引用了如下${required.length}个路径:`);
+                    console.line(required.map((c, i) => `${strings.decode(c)}`).join('\r\n'));
+                }
+                console.line(i18n`\r\n${query ? i18n`与${wrapcolor(query)}相关的项` : ''}首次引用点如下：`)
                 args.forEach(a => {
                     var logmap = Object.create(null);
                     for (var u of undeclares[a]) {
                         if (u.text.indexOf(a) >= 0) {
-                            var c = color(a);
                             if (u.text in logmap) continue;
                             logmap[u.text] = true;
-                            console.line(`<${c}>${a}</${c}>${u.text.replace(/^[^\.\[]+/, '')} ${u.row}:${u.col}`)
+                            console.line(`${wrapcolor(a)}${u.text.replace(/^[^\.\[]+/, '')} ${u.row}:${u.col}`)
                         }
                     }
                 })
@@ -116,50 +125,61 @@ module.exports = function (root) {
         }
     }
     var query;
-    var run = function () {
-        if (!rest.length) return list();
-        var fullpath = rest.pop();
-        if (!fs.existsSync(fullpath)) return console.error(i18n`路径不存在:`, fullpath), run();
-        fs.stat(fullpath, function (error, stats) {
-            if (error) return console.error(error);
-            if (stats.isDirectory()) {
-                fs.readdir(fullpath, function (error, names) {
-                    if (error) return console.error(error);
+    var required = null;
+    var run = async function () {
+        var total = rest.length;
+        while (rest.length) {
+            var fullpath = rest.pop();
+            if (!fs.existsSync(fullpath)) {
+                console.error(i18n`路径不存在:`, fullpath);
+                continue;
+            }
+            try {
+                var stats = await fsp.stat(fullpath);
+                if (stats.isDirectory()) {
+                    var names = await fsp.readdir(fullpath);
                     rest.push.apply(rest, names.map(n => path.join(fullpath, n)));
-                    run();
-                });
-                return;
-            }
-            if (stats.isFile()) {
-                var basename = path.relative(root, fullpath);
-                basename = basename.replace(/[\\\/]/g, '$') || root;
-                if (/\.json$/i.test(basename)) {
-                    map[basename.replace(/\.json$/i, "")] = true;
+                    total += names.length - 1;
+                    continue;
                 }
-                if (/\.(html?|xml)$/i.test(basename)) {
-                    map[path.basename(basename).replace(/\.(html?|xml)$/i, "")] = true;
-                }
-                if (!/\.[cm]?[jt]sx?$/i.test(fullpath)) return run();
-                map[basename.replace(/\.[cm]?[jt]sx?$/i, "")] = true;
-                fs.readFile(fullpath, function (error, data) {
-                    if (error) return console.error(error);
-                    try {
-                        data = String(data).replace(/^\s*#!/, '//');
-                        undeclares = find(data);
-                        Object.keys(undeclares).map(k => k).forEach(k => {
-                            if (!needs[k]) needs[k] = [];
-                            needs[k].push(basename);
-                        });
-                        filesCount++;
-                    } catch (e) {
-                        console.error(basename, String(e));
+                if (stats.isFile()) {
+                    var basename = path.relative(root, fullpath);
+                    basename = basename.replace(/[\\\/]/g, '$') || root;
+                    if (/\.json$/i.test(basename)) {
+                        map[basename.replace(/\.json$/i, "")] = true;
                     }
-                    run();
-                });
-                return;
+                    if (/\.(html?|xml)$/i.test(basename)) {
+                        map[path.basename(basename).replace(/\.(html?|xml)$/i, "")] = true;
+                    }
+                    if (!/\.[cm]?[jt]sx?$/i.test(fullpath)) return run();
+                    map[basename.replace(/\.[cm]?[jt]sx?$/i, "")] = true;
+                    var data = await fsp.readFile(fullpath);
+                    data = String(data).replace(/^\s*#!/, '//');
+                    undeclares = find(data);
+                    Object.keys(undeclares).map(k => k).forEach(k => {
+                        if (!needs[k]) needs[k] = [];
+                        needs[k].push(basename);
+                        if (total === 1) {
+                            if (k === 'require') {
+                                required = undeclares[k].map(a => {
+                                    if (a.text !== 'require') return;
+                                    a = a.next;
+                                    if (a.type !== SCOPED) return;
+                                    a = a.first;
+                                    if (a.type !== QUOTED) return;
+                                    if (a.first !== a.last) return;
+                                    return createString([a]);
+                                }).filter(a => !!a);
+                            }
+                        }
+                    });
+                }
+            } catch {
+                console.error(i18n`读取出错了，路径:`, fullpath);
             }
-            run();
-        });
+            filesCount = total;
+        }
+        return list();
     }
-    Promise.all(findx).then(run);
+    return Promise.all(findx).then(run);
 }
