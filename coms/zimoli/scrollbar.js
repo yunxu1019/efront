@@ -232,8 +232,10 @@ function main(elem) {
         direction = target.tagName;
     }
     if (/^[xh]/i.test(direction)) {
+        elem.setAttribute('x', '');
         bar = scrollbar_x(elem);
     } else {
+        elem.setAttribute('y', '');
         bar = scrollbar_y(elem);
     }
     if (target) bar.bindTarget(target);

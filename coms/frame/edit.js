@@ -11,6 +11,7 @@ function main(title, { submit }, { data: origin, fields, }) {
         fields,
         title,
         origin,
+        scrollbar,
         data: item,
         remove() {
             remove(page);
@@ -31,7 +32,7 @@ function main(title, { submit }, { data: origin, fields, }) {
         await submit(item, fields, origin);
         dispatch(this, 'submited');
     });
-    on("append")(page, lazy(function () {
+    on("mounted")(page, lazy(function () {
         page.querySelector("input").focus();
     }));
     return page;
