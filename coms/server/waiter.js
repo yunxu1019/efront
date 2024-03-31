@@ -829,7 +829,6 @@ function initServer(port, hostname) {
     if (!hostname) server.listen(+port);
     else server.listen(+port, hostname);
     portedServersList.push(server);
-    server.hostname = hostname;
     if (!hostname) hostname = 'localhost';
     if (isHttpsServer(server)) {
         if (+port !== 443) {
@@ -900,12 +899,29 @@ var createCertedServer = function (certlist) {
         servern.removeAllListeners();
         servern.unref();
     });
+    if (!certlist.length) return;
+    var isSingleCert = !memery.PFX_PATH;
+    var wrapkey = k => `-----BEGIN RSA PRIVATE KEY-----\n${k}\n-----END RSA PRIVATE KEY-----\n`;
+    if (isSingleCert) {
+        var { private: private1, key = wrapkey(private1), cert } = certlist[0];
+        for (var cx = 1, dx = certlist.length; cx < dx; cx++) {
+            var { private: private1, key: key1 = wrapkey(private1), cert: cert1 } = certlist[0];
+            if (key1 !== key || cert1 !== cert) {
+                isSingleCert = false;
+                break;
+            }
+        }
+        if (isSingleCert) {
+            certlist = [{ cert, key }];
+        }
+    }
     certlist.forEach(c => {
-        httpsOptions.key = c.key || `-----BEGIN RSA PRIVATE KEY-----\n${c.private}\n-----END RSA PRIVATE KEY-----\n`;
+        httpsOptions.key = c.key || wrapkey(c.private);
         httpsOptions.cert = c.cert;
         try {
             var serveri = http2.createSecureServer(httpsOptions, requestListener);
             initServer.call(serveri, +HTTPS_PORT || 443, c.hostname);
+            serveri.hostname = c.hostname;
             portedServersList[c.hostname] = serveri;
         } catch (e) {
             //<!-- console.error(e); -->
@@ -950,9 +966,11 @@ message.reloadCert = async function () {
 };
 getCertList().then(function (certlist) {
     if (HTTP_PORT) createHttpServer();
+    if (certlist.length) createCertedServer(certlist);
     if (memery.PFX_PATH) {
+        delete httpsOptions.key;
+        delete httpsOptions.cert;
         Object.assign(httpsOptions, cert);
         createHttpsServer();
     }
-    if (certlist.length) createCertedServer(certlist);
 });
