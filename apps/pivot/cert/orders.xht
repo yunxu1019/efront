@@ -112,7 +112,7 @@
     function main(params) {
         var { orders = [], saveUnique } = params;
         orders = orders.map(acme2.parseOrder);
-        orders[0].actived = true;
+        if (orders.length) orders[0].actived = true;
         var page = document.createElement('orders');
         page.innerHTML = template;
         var scope = {
