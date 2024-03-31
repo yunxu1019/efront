@@ -65,9 +65,7 @@ function confirm() {
     if (conflictReg.test(String(body.innerText).replace(/\s+/g, ""))) {
         throw new Error(i18n`您的传达了有歧义的信息：${message}`);
     }
-    var isOptionsPatched = false;
     if (!options) {
-        isOptionsPatched = true;
         for (var k in defaultOptions) {
             if (message.indexOf(k) >= 0) {
                 options = defaultOptions[k];
@@ -77,6 +75,12 @@ function confirm() {
         if (!options) {
             options = ["取消", "确认"];
         }
+        options = options.map((label, index) => {
+            if (index === 0) label += '#white';
+            var btn = button(label);
+            btn.result = index;
+            return btn;
+        }).reverse();
     }
     var clickbtn = function (event) {
         event.preventDefault();
@@ -116,7 +120,7 @@ function confirm() {
     var buttons = options.map(function (label, index, options) {
         if (isNode(label)) {
             label.index = index;
-            if (isFunction(callback)) onclick(label, clickbtn);
+            onclick(label, clickbtn);
             return label;
         }
         if (options.length === 2) for (var k in defaultOptions) {
@@ -127,7 +131,7 @@ function confirm() {
         }
         var btn = button(label);
         btn.index = index;
-        btn.result = isOptionsPatched ? index : option[index];
+        btn.result = options[index];
         onclick(btn, clickbtn);
         return btn;
     });
