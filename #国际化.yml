@@ -1285,8 +1285,8 @@
 - zh-CN: 导出到文件
   en:    Export to file
 
-- zh-CN: 国际化翻译缺失：
-  en:    "Lack of international translation:"
+- zh-CN: 翻译缺失：
+  en:    "Lack of translation:"
 
 - zh-CN: "翻译:"
   en:    "Translation:"

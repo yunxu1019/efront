@@ -91,6 +91,7 @@ var ctn = function (tt, t) {
     })
     return tn;
 }
+var warningMap = Object.create(null);
 function translate([imap, supports], code) {
     var texts = getI18nPrefixedText(code);
     texts.sort((a, b) => {
@@ -108,7 +109,7 @@ function translate([imap, supports], code) {
 
         var imp = imap[tt];
         if (!imp) {
-            if (warn !== false) console.warn(`<yellow>${i18n`国际化翻译缺失：`}</yellow>${tt}`);
+            if (warn !== false && !warningMap[tt]) warningMap[tt] = true, console.warn(`<yellow>${i18n`翻译缺失：`}</yellow>${tt}`);
             imp = imap[tt] = supports.map(_ => tt);
         }
         if (nodup && imp.length <= 1) nodup = false;
