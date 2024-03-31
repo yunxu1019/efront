@@ -131,6 +131,9 @@
             },
             actions: {
                 async 创建账户(actived) {
+                    if (formdata.kid) {
+                        if (!await confirm("您已创建账户，请确认是否重新创建？")) return;
+                    }
                     var params = submit(actived.fields, formdata);
                     await saveUnique(params);
                     formdata.kid = await acme2.newAccount(params);
