@@ -936,9 +936,9 @@ var getCertList = function () {
     return userdata.getOptionsList("cert").then(certlist => {
         certlist = certlist.filter(c => c.private && c.cert && c.hostname);
         if (HTTPS_PORT) {
-            if (!certlist.length && !memery.FILE_PATH) {
+            if (!certlist.length && !memery.PFX_PATH) {
                 console.warn(`<yellow2>${i18n`HTTPS端口正在使用默认证书，请不要在生产环境使用此功能！`}</yellow2>`);
-                certlist.push({ private: cert.key, cert: cert.cert, hostname: 'localhost' });
+                certlist.push({ private: cert.key, cert: cert.cert});
             }
         }
         return certlist;
