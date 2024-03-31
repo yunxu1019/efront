@@ -903,9 +903,13 @@ var createCertedServer = function (certlist) {
     certlist.forEach(c => {
         httpsOptions.key = c.private;
         httpsOptions.cert = c.cert;
-        var serveri = http2.createSecureServer(httpsOptions, requestListener);
-        initServer.call(serveri, +HTTPS_PORT || 443, c.hostname);
-        portedServersList[c.hostname] = serveri;
+        try {
+            var serveri = http2.createSecureServer(httpsOptions, requestListener);
+            initServer.call(serveri, +HTTPS_PORT || 443, c.hostname);
+            portedServersList[c.hostname] = serveri;
+        } catch {
+            console.warn(`用于${cert.hostname}的证书不可用`)
+        }
     });
 };
 
