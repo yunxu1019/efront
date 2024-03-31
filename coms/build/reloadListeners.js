@@ -1,7 +1,7 @@
 var reloadListeners = [];
 var listener = function (req, res) {
     if (/^\/reload/i.test(req.url)) {
-        var origin = getHeader(req.headers, "origin");
+        var origin = req.headers.origin;
         origin && res.setHeader("Access-Control-Allow-Origin", origin);
         var version = /^\/reload\/(\d+)$/i.exec(req.url);
         if (version && +version[1] === +memery.WATCH_PROJECT_VERSION) {
