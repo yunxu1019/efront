@@ -1,11 +1,11 @@
 var isOptionalReg = /^是否|是[吗吧]$|[？?]$|请|^难道|^确认/i;
 var conflictReg = /^确[\s\u00a0]*?认[\s\u00a0]*?取[\s\u00a0]*?消/i;
 var defaultOptions = {
-    是: ["是的", "不是"],
-    确认: ["确认", "取消"],
-    是否: ["是", "否"],
-    是吗: ["是", "不是"],
-    请: ["完成", "取消"],
+    是否: ["否", "是"],
+    确认: ["取消", "确认"],
+    是吗: ["不是", "是"],
+    是: ["不是", "是的"],
+    "": ["取消", "继续"],
 }
 function confirm() {
     var message, title, options, callback, closable = true, selected = -1, target;
@@ -65,7 +65,9 @@ function confirm() {
     if (conflictReg.test(String(body.innerText).replace(/\s+/g, ""))) {
         throw new Error(i18n`您的传达了有歧义的信息：${message}`);
     }
+    var isOptionsPatched = false;
     if (!options) {
+        isOptionsPatched = true;
         for (var k in defaultOptions) {
             if (message.indexOf(k) >= 0) {
                 options = defaultOptions[k];
@@ -73,7 +75,7 @@ function confirm() {
             }
         }
         if (!options) {
-            options = ["确认 ", "取消"];
+            options = ["取消", "确认"];
         }
     }
     var clickbtn = function (event) {
@@ -88,7 +90,8 @@ function confirm() {
             if (res instanceof Promise) {
                 element.setAttribute("locked", '');
                 this.setAttribute("loading", "");
-                res.then(() => {
+                res.then((res) => {
+                    element.result = res;
                     remove(element);
                     element.removeAttribute('locked');
                     this.removeAttribute('loading');
@@ -98,13 +101,18 @@ function confirm() {
                 });
             }
             else {
+                element.result = res;
                 remove(element);
             }
         }
         else {
+            element.result = isHandled(this.result) ? this.result : this;
             remove(element);
         }
     };
+    on('remove')(element, function () {
+        this.onload();
+    });
     var buttons = options.map(function (label, index, options) {
         if (isNode(label)) {
             label.index = index;
@@ -112,13 +120,14 @@ function confirm() {
             return label;
         }
         if (options.length === 2) for (var k in defaultOptions) {
-            if (label === defaultOptions[k][1]) {
+            if (label === defaultOptions[k][0]) {
                 label += " #white";
                 break;
             }
         }
         var btn = button(label);
         btn.index = index;
+        btn.result = isOptionsPatched ? index : option[index];
         onclick(btn, clickbtn);
         return btn;
     });
@@ -138,7 +147,7 @@ function confirm() {
             on("blur")(element, blur, true);
         }
     });
-    return element;
+    return awaitable(element, 'result');
 }
 var blur = lazy(function () {
     var element = this;
