@@ -460,14 +460,15 @@ var createModule = function (exec, originNames, compiledNames, prebuilds = {}) {
         }
         if (/^(?:window|global(This)?|undefined)$/.test(argName)) return window[argName];
         if (argName === "require") {
+            var r1 = window.require;
             let r = function (refer) {
-                if (refer.length) return window.require(refer);
+                if (refer.length) return r1(refer);
                 var mod = required[refer];
                 if ("created" in mod) return mod.created;
                 var c = mod.created = createModule(mod, mod.args || [], mod.argNames, prebuilds);
                 return c;
             };
-            for (let k in window.require) r[k] = window.require[k];
+            for (let k in r1) r[k] = r1[k];
             return r;
         }
         if (argName === "define") return window[argName] || function (m_name, requires, exec) {
