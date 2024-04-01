@@ -424,6 +424,7 @@ function parse(piece) {
         [name, key = name, needs, holder] = spreadkey(name);
     }
     if (typeof size === 'string') size = parseFloat(size);
+    if (unit === type) unit = '';
     var field = {
         name, type, key, value, comment, options,
         size, unit, ratio, holder,
