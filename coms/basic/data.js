@@ -864,21 +864,21 @@ var data = {
     },
     fromApi(api, params, parse) {
         var p = privates.fromApi(api, params);
-        p.id = api.id + "?" + serialize(params);
+        if (isEmpty(params)) p.id = api.id;
         return this.createResponse(p, parse);
     },
     postURL(url, data, parse) {
         var p = privates.loadIgnoreConfig("post", url, data);
-        p.id = "post " + url;
+        p.id = url;
         return this.createResponse(p, parse);
     },
     fromURL(url, parse) {
         var p = privates.loadIgnoreConfig('get', url);
-        p.id = "get " + url;
+        p.id = url;
         return this.createResponse(p, parse);
     },
     createResponse(p, parse) {
-        var id = parse instanceof Function ? getInstanceId() : 0;
+        var id = !p.id || parse instanceof Function ? getInstanceId() : 0;
         if (id) this.removeInstance(id);
         var pid = p.id;
         var response = this.getInstance(id || pid);
@@ -888,8 +888,8 @@ var data = {
         response.loading_promise = p;
         p = p.then((data) => {
             response.loading = null;
+            if (parse instanceof Function) data = parse(data);
             if (id) {
-                data = parse(data);
                 this.setInstance(id, data, false);
                 this.removeInstance(id);
             } else {
@@ -906,14 +906,13 @@ var data = {
     asyncInstance(sid, params, parse) {
         // 不同参数的请求互不影响
         if (typeof sid !== "string") throw new Error(i18n`serviceId 只能是字符串`);
-        sid += "?" + serialize(params);
         var p = privates.getApi(sid).then((api) => {
             params = privates.pack(sid, params);
             var p = privates.fromApi(api, params);
             p.loading = response.loading = p.loading;
             return p;
         }, oncatch);
-        p.id = sid;
+        if (!isEmpty(params)) p.id = sid;
         var response = this.createResponse(p, parse);
         return response;
     },

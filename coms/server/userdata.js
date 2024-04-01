@@ -9,25 +9,17 @@ var encode62 = require('../crypt/encode62');
 var isEmpty = require("../basic/isEmpty");
 var profile = {
     code: encode62.geta(Math.random().toString(36).slice(2)),
-    unique: '',
-};
-var initUniqueKeyPair = async function () {
-    if (profile.unique || !globalThis.crypto?.subtle) return;
-    var subtle = globalThis.crypto.subtle;
-    var { privateKey, publicKey } = await subtle.generateKey({
-        name: "RSA-PSS",
-        modulusLength: 4096,
-        publicExponent: new Uint8Array([1, 0, 1]),
-        hash: "SHA-256",
-    }, true, ["sign", "verify"]);
-    var private_key = await subtle.exportKey("pkcs8", privateKey);
-    var public_key = await subtle.exportKey("spki", publicKey);
-    private_key = Buffer.from(private_key).toString("base64");
-    public_key = Buffer.from(public_key).toString("base64");
-    profile.unique = [private_key, public_key].join(',');
 };
 
-function setUniqueKeyPair(pair) {
+
+async function setUniqueKeyPair(pair) {
+    if (!globalThis.subtle) {
+        var acme2 = await require("../pivot/acme2");
+        await acme2.makeUnique(pair);
+        if (acme2.schaduleEnabled && !acme2.enabled) {
+            return Promise.reject("无法启用自动更新，当前nodejs版本为" + process.version)
+        }
+    }
     return setItem("unique", pair);
 }
 
@@ -60,7 +52,6 @@ var profile_promise = null;
 var loadProfileAsync = function () {
     if (profile_promise) return profile_promise;
     return profile_promise = loadAsync(userdatafile).then(async function (data) {
-        if (!profile.unique) initUniqueKeyPair();
         Object.assign(profile, data);
     }, console.error);
 };
