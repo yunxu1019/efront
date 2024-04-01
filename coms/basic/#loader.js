@@ -458,7 +458,7 @@ var createModule = function (exec, originNames, compiledNames, prebuilds = {}) {
         if (argName === 'import_meta') {
             return new Meta(exec.file);
         }
-        if (/^(?:window|global|undefined)$/.test(argName)) return window[argName];
+        if (/^(?:window|global(This)?|undefined)$/.test(argName)) return window[argName];
         if (argName === "require") {
             let r = function (refer) {
                 if (refer.length) return window.require(refer);

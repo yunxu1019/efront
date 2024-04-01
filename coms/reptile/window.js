@@ -1,5 +1,5 @@
 var global1 = typeof globalThis !== 'undefined' ? globalThis : typeof global !== "undefined" ? global : {};
-
+var extendIfNeeded = require("../basic/extendIfNeeded");
 if (global1.window) {
     module.exports = global1.window;
 }
@@ -60,5 +60,6 @@ else {
         unescape: global1.unescape,
     });
     window.globalThis = window.global = window.top = window.window = window;
+    extendIfNeeded(window, global1);
     module.exports = window;
 }
