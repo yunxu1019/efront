@@ -27,6 +27,8 @@ const {
     setqueue,
     replace,
     skipAssignment,
+    insertAfter,
+    unshort,
 } = require("./common");
 var straps = `if,in,do,as,of
 var,for,new,try,let,get,set
@@ -409,42 +411,7 @@ Javascript.prototype.setType = function (o) {
         }
     }
 };
-var insertBefore = function (o) {
-    var queue = this || o.queue;
-    var index = queue.indexOf(o);
-    var os = [].slice.call(arguments, 1);
-    queue.splice.apply(queue, [index, 0].concat(os));
-    var prev = o && o.prev, next = o;
-    var desc = { value: queue, configurable: true, enumerable: false }
-    for (var o of os) {
-        if (prev) prev.next = o;
-        else queue.first = o;
-        o.prev = prev;
-        Object.defineProperty(o, 'queue', desc);
-        prev = o;
-    }
-    o.next = next;
-    if (next) next.prev = o;
-    else queue.last = o;
-}
-var insertAfter = function (o) {
-    var queue = this || o.queue;
-    var index = queue.indexOf(o) + 1;
-    var os = [].slice.call(arguments, 1);
-    queue.splice.apply(queue, [index, 0].concat(os));
-    var prev = o, next = o && o.next;
-    var desc = { value: queue, configurable: true, enumerable: false }
-    for (var o of os) {
-        if (prev) prev.next = o;
-        else queue.first = o;
-        o.prev = prev;
-        Object.defineProperty(o, 'queue', desc);
-        prev = o;
-    }
-    o.next = next;
-    if (next) next.prev = o;
-    else queue.last = o;
-};
+
 var js = new Javascript;
 var scan = function (data) {
     js.lastIndex = 0;
@@ -642,10 +609,7 @@ function detour(o, ie) {
                         collectProperty(o, text);
                     }
                     if (o.short) {
-                        insertBefore.call(o.queue, o, { text: text, short: false, isprop: true, type: PROPERTY }, { text: ':', type: STAMP });
-                        o.isprop = false;
-                        o.type = EXPRESS;
-                        delete o.short;
+                        unshort(o);
                     }
                     else {
                         o.text = text;

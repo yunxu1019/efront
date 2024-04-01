@@ -471,12 +471,7 @@ var createScoped = function (parsed, wash) {
                 case STAMP:
                     break;
                 case PROPERTY:
-                    if (o.next) {
-                        if (o.next.type !== STAMP || o.next.text !== ",") break;
-                    }
-                    if (o.prev && o.prev.type === STRAP && o.prev.text === 'as') {
-                        break;
-                    }
+                    if (!o.short) break;
                 case VALUE:
                     if (o.isdigit || /^(null|false|true)$/.test(o.text)) break;
                 case EXPRESS:
@@ -973,7 +968,11 @@ var saveTo = function (used, k, o) {
 var mergeTo = function (used, used0) {
     for (var k in used0) {
         var v = used0[k];
-        for (var s of v) saveTo(used, k, s);
+        if (!used[k]) used[k] = [];
+        var u = used[k];
+        for (var s of v) {
+            u.push(s);
+        }
     }
 };
 var breakSpace = function (o) {
@@ -1443,7 +1442,48 @@ var pickSentence = function (o) {
     } while (h !== e);
     return res;
 };
-
+var insertBefore = function (o) {
+    var queue = this || o.queue;
+    var index = queue.indexOf(o);
+    var os = [].slice.call(arguments, 1);
+    queue.splice.apply(queue, [index, 0].concat(os));
+    var prev = o && o.prev, next = o;
+    var desc = { value: queue, configurable: true, enumerable: false }
+    for (var o of os) {
+        if (prev) prev.next = o;
+        else queue.first = o;
+        o.prev = prev;
+        Object.defineProperty(o, 'queue', desc);
+        prev = o;
+    }
+    o.next = next;
+    if (next) next.prev = o;
+    else queue.last = o;
+}
+var insertAfter = function (o) {
+    var queue = this || o.queue;
+    var index = queue.indexOf(o) + 1;
+    var os = [].slice.call(arguments, 1);
+    queue.splice.apply(queue, [index, 0].concat(os));
+    var prev = o, next = o && o.next;
+    var desc = { value: queue, configurable: true, enumerable: false }
+    for (var o of os) {
+        if (prev) prev.next = o;
+        else queue.first = o;
+        o.prev = prev;
+        Object.defineProperty(o, 'queue', desc);
+        prev = o;
+    }
+    o.next = next;
+    if (next) next.prev = o;
+    else queue.last = o;
+};
+var unshort = function (o) {
+    insertBefore.call(o.queue, o, { text: o.text, short: false, isprop: true, type: PROPERTY }, { text: ':', type: STAMP });
+    o.isprop = false;
+    o.type = EXPRESS;
+    delete o.short;
+}
 module.exports = {
     /*   1 */COMMENT,
     /*   2 */SPACE,
@@ -1459,6 +1499,7 @@ module.exports = {
     /*2048 */ELEMENT,
     number_reg,
     equal_reg,
+    unshort,
     skipAssignment,
     getDeclared,
     remove,
@@ -1483,5 +1524,7 @@ module.exports = {
     skipFunction,
     isHalfSentence,
     splice,
+    insertAfter,
+    insertBefore,
     mergeTo
 };

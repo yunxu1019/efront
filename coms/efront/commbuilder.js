@@ -722,10 +722,18 @@ async function getXhtPromise(data, filename, fullpath, watchurls) {
         var jsvars = Object.assign({}, jscope.vars, scoped.vars);
         var jsenvs = jscope.envs;
         for (var k in jsvars) if (k in jsenvs) delete jsenvs[k];
+        var { COMMENT, SCOPED, STAMP } = jscode;
         jscode.forEach(o => {
             if (o.type === jscode.STRAP && /^(var|const|let)$/.test(o.text)) {
-                o.text = `/*${o.text}*/`;
-                o.type = jscode.COMMENT;
+                var n = o.next;
+                if (n && n.type === SCOPED && n.entry === '{') {
+                    o.text = "0,";
+                    o.type = COMMENT;
+                }
+                else {
+                    o.text = `/*${o.text}*/`;
+                    o.type = COMMENT;
+                }
             }
         });
         var htmlchanged = false;
