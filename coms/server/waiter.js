@@ -27,6 +27,7 @@ var closeListener = function () {
 require("./watch").start();
 recover.start();
 var safeQuitProcess = function () {
+    clearInterval(checker_interval);
     require("./watch").close();
     memery.islive = false;
     portedServersList.forEach((server) => {
@@ -996,7 +997,7 @@ if (acme2.enabled) {
     };
     message.updateAcme2();
     var checkTime = 8640000;/* 一天检查10次*/;
-    setInterval(async function () {
+    var checker_interval = setInterval(async function () {
         if (!acme2.schaduleEnabled) return;
         var time = +acme2.updateTime();
         var lock = await new Promise(ok => message.send('lock', key, ok));
