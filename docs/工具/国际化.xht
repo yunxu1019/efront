@@ -506,7 +506,7 @@
                     continue;
                 }
                 else {
-                    if (/^[\.]|_test\.js$/i.test(name)) continue;
+                    if (/^[\.]|^node_modules|_test\.js$/i.test(name)) continue;
                     if (e.kind === "file" && !/\.([mc]?[tj]sx?|xht|vue|html?)$/i.test(name)) continue;
                 }
                 e.path = path + e.name;

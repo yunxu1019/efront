@@ -367,8 +367,8 @@
 - zh-CN: 状态错误
   en:    Status error
 
-- zh-CN: 路径<gray>$1</gray>不存在
-  en:    Path<gray>$1</gray>does not exist
+- zh-CN: 路径$1不存在
+  en:    Path $1 does not exist
 
 - zh-CN: 只在主线程中使用
   en:    Only used in the main thread
