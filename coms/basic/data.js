@@ -912,7 +912,7 @@ var data = {
             p.loading = response.loading = p.loading;
             return p;
         }, oncatch);
-        if (!isEmpty(params)) p.id = sid;
+        if (isEmpty(params)) p.id = sid;
         var response = this.createResponse(p, parse);
         return response;
     },
