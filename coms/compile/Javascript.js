@@ -473,10 +473,10 @@ var removeQuote = function (o, c, i) {
     if (c.next) c.next.prev = cf;
 }
 
-Javascript.prototype.detour = function (o, ie) {
+Javascript.prototype.detour = function (body, ie) {
     context = this;
     var envs = rootenvs = Object.create(null);
-    detour(o, ie);
+    detour(body.first, ie);
     rootenvs = null;
     context = null;
     return envs;
@@ -523,7 +523,8 @@ function detour(o, ie) {
                         var s = getfunc(o, 'arguments').scoped;
                         s.used.arguments.push(...s1.used.arguments);
                     };
-                    o = replace(o, ...o1);
+                    replace(o, ...o1);
+                    o = o1.last;
                     continue;
                 }
                 text = text.replace(/\.([^\.\[\!\=\:]+)/g, (_, a) => ie === undefined || context.strap_reg.test(a) || /#/.test(a) ? `[${strings.recode(a)}]` : _);
