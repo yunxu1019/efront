@@ -316,5 +316,12 @@ a&,
         content: "确认";
     }
 
-    background: #333;
+    &:not(a, .anchor) {
+        background: #333;
+    }
+
+    a&,
+    &.anchor {
+        color: #c26;
+    }
 }

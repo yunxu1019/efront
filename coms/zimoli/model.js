@@ -99,10 +99,13 @@ var constructors = {
     password,
     text: textarea,
     number(e) {
-        var ipt = document.createElement('input');
-        ipt.setAttribute('type', e.field.type);
-        input(ipt);
-        return ipt;
+        var { data, field } = e;
+        var content = `<input type=${field.type} />` + (field.unit || '');
+        e.innerHTML = content;
+        if (field.unit && field.unit.length < 2) {
+            e.setAttribute("u" + field.unit.replace(/[\u0080-\ud7ff\uf000-\uffff]/g, '11').length, '')
+        }
+        render(e, { data, field, input });
     },
     generator(elem) {
         var { data, field } = elem;
@@ -206,7 +209,12 @@ var constructors = {
 
     }
 };
-constructors.price = constructors.money = constructors.number;
+constructors.int
+    = constructors.num
+    = constructors.integer
+    = constructors.price
+    = constructors.money
+    = constructors.number;
 constructors.gen = constructors.generator;
 var readonly_types = {
     "date"({ field }, data) {

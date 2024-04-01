@@ -1,15 +1,41 @@
-&{
+& {
     word-break: break-all;
 }
-&[type=date]{
-    >input{
+
+&[type=date] {
+    >input {
         width: 8em;
         cursor: default;
     }
 }
-&[type=datetime]{
-    >input{
+
+&[type=datetime] {
+    >input {
         width: 10em;
         cursor: default;
     }
 }
+
+&[type=int] {
+    >input {
+        text-align: right;
+        width: 8em;
+    }
+}
+
+@u(@l) {
+    @w: @{l}em/2 + .5em;
+    &[u@l] {
+        >input {
+            margin-right: -@w;
+            padding-right: @w;
+        }
+    }
+}
+
+@u(1);
+@u(2);
+@u(3);
+@u(4);
+@u(5);
+@u(6);
