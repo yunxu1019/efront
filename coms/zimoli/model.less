@@ -20,15 +20,20 @@
     >input {
         text-align: right;
         width: 8em;
+
+        +span {
+            pointer-events: none;
+        }
     }
 }
 
 @u(@l) {
     @w: @{l}em/2 + .5em;
+
     &[u@l] {
         >input {
             margin-right: -@w;
-            padding-right: @w;
+            padding-right: @w+.2em;
         }
     }
 }

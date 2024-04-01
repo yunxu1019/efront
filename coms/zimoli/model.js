@@ -100,9 +100,9 @@ var constructors = {
     text: textarea,
     number(e) {
         var { data, field } = e;
-        var content = `<input type=${field.type} />` + (field.unit || '');
+        var content = `<input type=${field.type} -model=data[field.key] />` + (field.unit ? `<span>${field.unit}</span>` : '');
         e.innerHTML = content;
-        if (field.unit && field.unit.length < 2) {
+        if (field.unit && field.unit.length <= 6) {
             e.setAttribute("u" + field.unit.replace(/[\u0080-\ud7ff\uf000-\uffff]/g, '11').length, '')
         }
         render(e, { data, field, input });
@@ -122,7 +122,7 @@ var constructors = {
         render(m, {
             data, field, input,
         });
-        select(m.firstChild, datepicker("年月日"), data[field.key]);
+        select(m.firstChild, datepicker("年月日", data[field.key]));
     },
     datetime(m) {
         var { data, field } = m;
@@ -130,7 +130,7 @@ var constructors = {
         render(m, {
             data, field, input,
         });
-        select(m.firstChild, datepicker("年月日时分"), data[field.key]);
+        select(m.firstChild, datepicker("年月日时分", data[field.key]));
     },
     color() {
         return colorpicker();
