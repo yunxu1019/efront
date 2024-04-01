@@ -505,7 +505,7 @@ var requestListener = async function (req, res) {
     }
     if (!remoteAddress) {
         res.writeHead(403, utf8error);
-        res.end("禁止访问");
+        res.end(i18n[getHeader(req.headers, 'accept-language')]`禁止访问`);
         return;
     }
     var method = req.method;
@@ -938,7 +938,7 @@ var createCertedServer = function (certlist) {
             portedServersList[c.hostname] = serveri;
         } catch (e) {
             //<!-- console.error(e); -->
-            console.warn(`<yellow2>用于<red2>${c.hostname}</red2>的证书不可用</yellow2>`);
+            console.warn(`<yellow2>${i18n`用于${`<red2>${c.hostname}</red2>`}的证书不可用`}</yellow2>`);
         }
     });
 };
@@ -1022,5 +1022,5 @@ if (acme2.enabled) {
     }, checkTime)
 }
 else if (acme2.schaduleEnabled) {
-    console.error("当前环境无法启用证书更新服务，nodeJs版本为" + process.version)
+    console.error(i18n`当前环境无法启用证书更新服务，nodeJs版本为${process.version}`)
 }

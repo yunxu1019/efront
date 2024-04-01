@@ -577,6 +577,7 @@
         runFilter();
     }
     var exportCSV = async function () {
+        var msg = alert("正在导出", false);
         var checked_supports = detailScope.supports;
         var objs = [];
         for (var d of tableData) {
@@ -601,7 +602,10 @@
             }],
         });
         var w = await f.createWritable();
+        msg.setText("正在导出.", false);
         await w.write(YAML.stringify(objs));
+        msg.setText("正在导出..", false);
         await w.close();
+        msg.setText(i18n`导出完成`, 'success')
     };
 </script>

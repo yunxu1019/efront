@@ -22,19 +22,19 @@
         var o = await acme2.autoUpdate(acme2.domain, setauth, uploadOnly);
         await saveUnique();
         if (o.status === 'valid') {
-            alert("证书已更新！", "success");
+            alert(i18n`证书已更新！`, "success");
         }
         else {
-            alert("更新失败！", 'error');
+            alert(i18n`更新失败！`, 'error');
         }
     };
     var saveSchadule = async function () {
         await saveUnique();
-        alert("保存成功", "success");
+        alert(i18n`保存成功`, "success");
     };
     var updateCert = async function () {
-        if (!await confirm("替换证书是在不重启服务器的情况下，替换当前服务器的证书")) return;
+        if (!await confirm(i18n`替换证书是在不重启服务器的情况下，替换当前服务器的证书`)) return;
         await data.from("recert");
-        alert("替换完成！", 'success');
+        alert(i18n`替换完成！`, 'success');
     };
 </script>

@@ -4,7 +4,7 @@ var defaultOptions = {
     是否: ["否", "是"],
     确认: ["取消", "确认"],
     是吗: ["不是", "是"],
-    "": ["取消", "继续"],
+    "": [i18n`取消`, i18n`继续`],
 }
 function confirm() {
     var message, title, options, callback, closable = true, selected = -1, target;
@@ -72,7 +72,7 @@ function confirm() {
             }
         }
         if (!options) {
-            options = ["取消", "确认"];
+            options = [i18n`取消`, i18n`确认`];
         }
         options = options.map((label, index) => {
             if (index === 0) label += '#white';

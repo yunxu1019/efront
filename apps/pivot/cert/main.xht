@@ -121,7 +121,7 @@
 
     var menus = [
         {
-            "name": "创建账户",
+            "name": i18n`创建账户`,
             fields: refilm`
             $公钥/public_key/单击生成 ${function (elem) {
                     var { data, field } = elem;
@@ -143,12 +143,12 @@
                 }}
             `,
             get message() {
-                return formdata.kid ? "已创建账户" : '';
+                return formdata.kid ? i18n`已创建账户` : '';
             },
             actions: {
                 async 创建账户(actived) {
                     if (formdata.kid) {
-                        if (!await confirm("您已创建账户，请确认是否重新创建？")) return;
+                        if (!await confirm(i18n`您已创建账户，请确认是否重新创建？`)) return;
                     }
                     var params = submit(actived.fields, formdata);
                     await saveUnique(params);
@@ -158,7 +158,7 @@
             }
         },
         {
-            "name": "创建订单",
+            "name": i18n`创建订单`,
             get disabled() {
                 return !!formdata.kid;
             },
@@ -176,18 +176,18 @@
             }
         },
         {
-            name: "订单信息",
+            name: i18n`订单信息`,
             src: '/cert/orders',
             get params() {
                 return { orders: acme2.orders, saveUnique, setauth, uploadOnly };
             }
         },
         {
-            name: "证书列表",
+            name: i18n`证书列表`,
             src: "/cert/list",
         },
         {
-            name: "更新服务",
+            name: i18n`更新服务`,
             params: { saveUnique, uploadOnly, setauth },
             src: "/cert/update",
         }

@@ -149,6 +149,7 @@ function efront() {
     var colors = require("../reptile/colors");
     var window = require("../reptile/window");
     Object.assign(window, {
+        require,
         eval(str, filename) {
             return require("vm").runInThisContext(str, { filename: `${colors.FgYellow}${loadedmap[filename] || filename}${colors.Reset}` });
         },

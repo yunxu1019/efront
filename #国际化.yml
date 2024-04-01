@@ -1,3 +1,75 @@
+- zh-CN: 确定
+  en:    Confirm
+
+- zh-CN: 导出完成
+  en:    Export completed
+
+- zh-CN: 继续
+  en:    Continue
+
+- zh-CN: 确认
+  en:    Confirm
+
+- zh-CN: 用于$1的证书不可用
+  en:    Certificate not available for $1
+
+- zh-CN: 当前环境无法启用证书更新服务，nodeJs版本为$1
+  en:    "The current environment cannot enable certificate update service, nodeJs version is $1"
+
+- zh-CN: "$1中，由$2引用了如下$3个路径:"
+  en:    "In $1, $2 references the following $3 paths:"
+
+- zh-CN: "读取出错了，路径:"
+  en:    "Error reading, path:"
+
+- zh-CN: 创建账户
+  en:    Create account
+
+- zh-CN: 已创建账户
+  en:    Account created
+
+- zh-CN: 您已创建账户，请确认是否重新创建？
+  en:    "You have created an account, please confirm if you want to create it again?"
+
+- zh-CN: 创建订单
+  en:    Create order
+
+- zh-CN: 订单信息
+  en:    Order information
+
+- zh-CN: 证书列表
+  en:    Certificate List
+
+- zh-CN: 更新服务
+  en:    Update Services
+
+- zh-CN: 证书已更新！
+  en:    The certificate has been updated!
+
+- zh-CN: 更新失败！
+  en:    Update failed!
+
+- zh-CN: 保存成功
+  en:    Save successful
+
+- zh-CN: 替换证书是在不重启服务器的情况下，替换当前服务器的证书
+  en:    "Replacing a certificate is replacing the current server's certificate without restarting the server"
+
+- zh-CN: 替换完成！
+  en:    Replacement completed!
+
+- zh-CN: 上次更新时间
+  en:    Last update time
+
+- zh-CN: 下次更新时间
+  en:    Next update time
+
+- zh-CN: 自动更新周期
+  en:    Automatic update cycle
+
+- zh-CN: 是否开启计划
+  en:    Do you want to start the plan
+
 - zh-CN: 端口异常
   en:    Port abnormality
 
@@ -5,13 +77,13 @@
   en:    Address allocation failed
 
 - zh-CN: 电子邮箱地址应包含符号“@”
-  en:    "The email address should contain the symbol \"@\""
+  en:    "The email address should contain the symbol \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\@\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\"\""
 
-- zh-CN: "@符号前应有内容"
-  en:    "There should be content before the symbol \"@\""
+- zh-CN: @符号前应有内容
+  en:    "There should be content before the symbol \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\@\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\"\""
 
-- zh-CN: "@符号后应有内容"
-  en:    "There should be content after the symbol\"@\""
+- zh-CN: @符号后应有内容
+  en:    "There should be content after the symbol\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\@\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\"\""
 
 - zh-CN: 私钥
   en:    Private key
@@ -1731,9 +1803,6 @@
 
 - zh-CN: 登录中
   en:    Logging in
-
-- zh-CN: 确定
-  en:    Confirm
 
 - zh-CN: 取消
   en:    Cancel
