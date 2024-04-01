@@ -1,3 +1,9 @@
+- zh-CN: 搜索
+  en:    Search
+
+- zh-CN: 发现不同的翻译
+  en:    Discovering different translations
+
 - zh-CN: 确定
   en:    Confirm
 
@@ -76,14 +82,14 @@
 - zh-CN: 分配地址失败
   en:    Address allocation failed
 
-- zh-CN: 电子邮箱地址应包含符号“@”
-  en:    "The email address should contain the symbol \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\@\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\"\""
+- zh-CN: "电子邮箱地址应包含符号“@”"
+  en:    "The email address should contain the symbol \\@\\\"\""
 
-- zh-CN: @符号前应有内容
-  en:    "There should be content before the symbol \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\@\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\"\""
+- zh-CN: "@符号前应有内容"
+  en:    "There should be content before the symbol \\@\\\"\""
 
-- zh-CN: @符号后应有内容
-  en:    "There should be content after the symbol\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\@\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\"\""
+- zh-CN: "@符号后应有内容"
+  en:    "There should be content after the symbol \\@\\\"\""
 
 - zh-CN: 私钥
   en:    Private key
