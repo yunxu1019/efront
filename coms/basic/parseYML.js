@@ -1,5 +1,10 @@
 
 var strings = require("./strings");
+var decode = strings.decode;
+var decodeString = function (str) {
+    if (/^[^"']|^""[\s\S]+/.test(str)) return str.replace(/""/g, '"');
+    return decode(str);
+};
 var eval2 = function (data) {
     if (typeof data === 'string') data = data.replace(/(\r\n|\r|\n)$/, '');
     if (!data) return null;
@@ -10,7 +15,7 @@ var eval2 = function (data) {
         /^[\+\-]?(\d+|\d*\.\d+|\d+\.)(e[\-\+]?\d+)?$/i.test(data) ||
         /^(0b[01]+|0x[\da-f]+|0o[0-7]+)$/i.test(data)
     ) data = parseNumber(data);
-    else data = strings.decode(data);
+    else data = decodeString(data);
     return data;
 };
 var scan = function (text) {
@@ -23,7 +28,7 @@ var scan = function (text) {
     var jsonlikes = [];
     var push = function (value) {
         if (data && prop === undefined && jsonlikes[jsonlikes.length - 1] === '{') {
-            prop = strings.decode(data);
+            prop = decodeString(data);
             data = '';
         }
         if (!value) {
@@ -58,9 +63,10 @@ var scan = function (text) {
     };
     while (rows.length) {
         var row = rows.shift();
-
+        isjson = false;
         if (/^['"]$/.test(rowtype)) {
-            if (jsonlikes.length) {
+            var isjson = !!jsonlikes.length || !data
+            if (isjson) {
                 var reg = new RegExp(/\\[\s\S]|/.source + rowtype, 'g');
                 var index = -1;
                 do {
@@ -78,6 +84,7 @@ var scan = function (text) {
                 continue;
             }
             data += row.slice(0, index + +!!jsonlikes.length);
+            if (index == 0 && !data) data = rowtype + rowtype;
             row = row.slice(index + 1);
             if (!row) push();
             else unshift(spacesize, row);
@@ -160,7 +167,7 @@ var scan = function (text) {
                 var pre = row[0];
                 row = row.slice(1);
                 if (pre === ":") {
-                    prop = strings.decode(data);
+                    prop = decodeString(data);
                     data = '';
                 }
                 else {
@@ -208,7 +215,7 @@ var scan = function (text) {
                 if (value) {
                     unshift(spacesize + 1, value);
                 }
-                prop = strings.decode(prop);
+                prop = decodeString(prop);
                 span = spacesize;
                 parents = parents.slice(0, span + 1);
                 continue;

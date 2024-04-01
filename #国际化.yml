@@ -83,13 +83,13 @@
   en:    Address allocation failed
 
 - zh-CN: "电子邮箱地址应包含符号“@”"
-  en:    "The email address should contain the symbol \\@\\\"\""
+  en:    "The email address should contain the symbol \"@\""
 
 - zh-CN: "@符号前应有内容"
-  en:    "There should be content before the symbol \\@\\\"\""
+  en:    "There should be content before the symbol \"@\""
 
 - zh-CN: "@符号后应有内容"
-  en:    "There should be content after the symbol \\@\\\"\""
+  en:    "There should be content after the symbol \"@\""
 
 - zh-CN: 私钥
   en:    Private key

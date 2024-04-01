@@ -2,7 +2,6 @@ var fs = require("fs");
 var path = require("path");
 var fullpath = path.join(__dirname, "../../.github/workflows/npmpublish.yml");
 var text = fs.readFileSync(fullpath).toString();
-var parseYML = require("./parseYML");
 var test = function (source, expect) {
     var result = parseYML(source);
     var same = assert(result, expect);
@@ -74,3 +73,8 @@ test(`
 c: d
 "a:": b
 `, { c: "d", "a:": "b" });
+
+test(`"@"`, "@")
+test(`"\\"@\\""`, "\"@\"")
+test(`@""@""`, "@\"@\"")
+test(`""@""`, "\"@\"")

@@ -1,5 +1,5 @@
 var string = function (a) {
-    if (/^#|\s#|\:(\s|$)|[\[\]\{\}\'\",\r\n\u2028\u2029]/i.test(a)) {
+    if (/^#|\s#|\:(\s|$)|[\[\]\{\}\'\"@,\r\n\u2028\u2029]/i.test(a)) {
         a = strings.encode(a, '"', false);
     }
     return a;
