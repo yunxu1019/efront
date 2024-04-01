@@ -1,7 +1,40 @@
-<div><button @click="updateCert()">更新证书</button></div>
+<form onsubmit="event.preventDefault()">
+    <div body>
+        <field -repeat="f in fields" -src="[f,acme2]"></field>
+    </div>
+    <div foot>
+        <a confirm @click="autoUpdate()">执行更新</a>
+        <a @click="updateCert()">替换证书</a>
+        <button @click="saveSchadule()">保存计划</button>
+    </div>
+</form>
 <script>
+    var form = view;
+    var a = button;
+    var fields = refilm`$上次更新时间/lastUpdateTime date
+    下次更新时间/nextUpdateTime date
+    自动更新周期/schadulePeriod 天/int
+    是否开启计划/schaduleEnabled swap
+    `;
+    var page = this;
+    var [{ saveUnique, setauth, uploadOnly }] = arguments;
+    var autoUpdate = async function () {
+        var o = await acme2.autoUpdate(acme2.domain, setauth, uploadOnly);
+        await saveUnique();
+        if (o.status === 'valid') {
+            alert("证书已更新！", "success");
+        }
+        else {
+            alert("更新失败！", 'error');
+        }
+    };
+    var saveSchadule = async function () {
+        await saveUnique();
+        alert("保存成功", "success");
+    };
     var updateCert = async function () {
+        if (!await confirm("替换证书是在不重启服务器的情况下，替换当前服务器的证书")) return;
         await data.from("recert");
-        alert("更新完成！", 'success');
+        alert("替换完成！", 'success');
     };
 </script>

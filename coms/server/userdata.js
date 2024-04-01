@@ -13,8 +13,8 @@ var profile = {
 
 
 async function setUniqueKeyPair(pair) {
-    if (!globalThis.subtle) {
-        var acme2 = await require("../pivot/acme2");
+    var acme2 = await require("../pivot/acme2");
+    if (!acme2.enabled) {
         await acme2.makeUnique(pair);
         if (acme2.schaduleEnabled && !acme2.enabled) {
             return Promise.reject("无法启用自动更新，当前nodejs版本为" + process.version)
@@ -182,6 +182,15 @@ module.exports = {
     },
     hasOption(type, key) {
         return this.option(type, key, null);
+    },
+    async patchOptionObj(type, key, obj) {
+        var opt = await this.getOptionObj(type, key);
+        Object.assign(opt, obj);
+        return this.setOptionObj(type, key, opt);
+    },
+    patchOptionStr(type, key, str) {
+        var obj = JSON.parse(str);
+        return this.patchOptionObj(type, key, obj);
     },
     removeOption(type, key) {
         return this.option(type, key, '');

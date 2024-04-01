@@ -155,7 +155,7 @@ var makeKeyPair = async function (modulusLength = 2048) {
     public_key = toBase64(new Uint8Array(public_key));
     return [private_key, public_key];
 };
-var subtle = this.crypto?.subtle;
+var subtle = globalThis.crypto?.subtle;
 var acme2 = new class {
     email = '';
     kid = '';
@@ -164,6 +164,11 @@ var acme2 = new class {
     domain = '';
     termsOfServiceAgreed = false;
     orders = [];
+    schadulePeriod = 90
+    nextUpdateTime = "";
+    lastUpdateTime = '';
+    schaduleEnabled = false;
+    enabled = !!subtle;
     public_key = '';
     get enabled() {
         return !!subtle;
@@ -179,22 +184,43 @@ var acme2 = new class {
         var unique = [private_key, public_key].join(',');
         await acme2.makeUnique(unique);
     }
+    async updateTime(update) {
+        if (!acme2.nextUpdateTime || update) {
+            if (!acme2.lastUpdateTime || new Date(acme2.lastUpdateTime) + 86400000 + acme2.schadulePeriod * 86400000 < Date.now()) {
+                acme2.nextUpdateTime = parseDate(Date.now() + +acme2.schadulePeriod * 86400000);
+            }
+            else {
+                acme2.nextUpdateTime = parseDate(new Date(acme2.lastUpdateTime) + +acme2.schadulePeriod * 86400000);
+            }
+        }
+        return new Date(acme2.nextUpdateTime);
+    }
     async makeUnique(unique) {
         if (!unique) return;
-        var avme2 = this;
+        var acme2 = this;
         var extra;
         [private_key, public_key, extra] = unique.split(',');
         if (extra) {
             extra = JSON.parse(decodeUTF8(fromBase64(extra)));
-            avme2.email = extra.email;
-            avme2.kid = extra.kid;
+            acme2.email = extra.email;
+            acme2.kid = extra.kid;
             if (extra.kid) {
                 var account = data.getUrlParamsForApi(accountApi, extra.kid);
-                avme2.aid = account.aid;
+                acme2.aid = account.aid;
             }
-            avme2.domain = extra.domain;
-            avme2.termsOfServiceAgreed = extra.termsOfServiceAgreed;
-            avme2.orders = extra.orders;
+            acme2.domain = extra.domain;
+            acme2.termsOfServiceAgreed = extra.termsOfServiceAgreed;
+            acme2.orders = extra.orders;
+            acme2.lastUpdateTime = parseDate(extra.lastUpdateTime);
+            acme2.nextUpdateTime = parseDate(extra.nextUpdateTime);
+            acme2.schadulePeriod = +extra.schadulePeriod || 80;
+            acme2.schaduleEnabled = extra.schaduleEnabled;
+            this.updateTime();
+        }
+        if (!this.enabled) {
+            public_key = null;
+            private_key = null;
+            return;
         }
         try {
             privateKey = await subtle.importKey("pkcs8", new Uint8Array(fromBase64(private_key)), {
@@ -205,18 +231,21 @@ var acme2 = new class {
                 name: RSASSA_PKCS1_v1_5,
                 hash: "SHA-256",
             }, true, ["verify"]);
-
-            avme2.public_key = public_key;
+            acme2.public_key = public_key;
         } catch (e) { alert("加载服务器公钥异常！", "error"); throw e }
     }
     pickUnique() {
-        var avme2 = this;
+        var acme2 = this;
         var extra = {
-            kid: avme2.kid,
-            email: avme2.email,
-            domain: avme2.domain,
-            orders: avme2.orders,
-            termsOfServiceAgreed: avme2.termsOfServiceAgreed
+            kid: acme2.kid,
+            email: acme2.email,
+            domain: acme2.domain,
+            orders: acme2.orders,
+            schadulePeriod: acme2.schadulePeriod,
+            nextUpdateTime: acme2.nextUpdateTime && +new Date(acme2.nextUpdateTime),
+            lastUpdateTime: acme2.lastUpdateTime && +new Date(acme2.lastUpdateTime),
+            schaduleEnabled: acme2.schaduleEnabled,
+            termsOfServiceAgreed: acme2.termsOfServiceAgreed
         };
         return [private_key, public_key, base64url(extra)].join(",");
     }
@@ -256,7 +285,7 @@ var acme2 = new class {
         var i = this.orders.indexOf(order);
         if (i >= 0) this.orders.splice(i, 1);
         this.orders = [order].concat(this.orders);
-        return order;
+        return this.parseOrder(order);
     }
     parseOrder(o) {
         if (typeof o !== 'string') return o;
@@ -268,6 +297,7 @@ var acme2 = new class {
     async getOrder(o) {
         var r = await data.fromURL(o.url);
         if (r.expires) r.expires = new Date(r.expires);
+        r = extend({}, o, r);
         return r;
     }
     async thumbprint() {
@@ -284,7 +314,61 @@ var acme2 = new class {
         var csr = await createCSR(domains, private_key);
         return toBase64(csr, true);
     }
-    async audit(url) {
-        return data.fromURL(url);
+    async waitStatus(o) {
+        if (!/ing$/i.test(o.status)) return o;
+        o = await this.getOrder(o);
+        while (/ing$/i.test(o.status)) {
+            wait(600);
+            o = await this.getOrder(o);
+        }
+        return o;
+    }
+    async auditOrder(o, setauth) {
+        if (o.status !== 'pending') return o;
+        a: for (var a of o.authorizations) {
+            var b = await data.fromURL(a);
+            if (b.challenges) {
+                for (var c of b.challenges) {
+                    if (c.type === 'http-01') {
+                        if (c.status !== 'pending') continue a;
+                        await setauth(`/.well-known/acme-challenge/${c.token}`, c.token + "." + await acme2.thumbprint());
+                        await acme2.requestURL(c.url, {});
+                        continue a;
+                    }
+                }
+            }
+        }
+        o = await this.waitStatus(o);
+        return o;
+    }
+    async finalizeOrder(o, upload) {
+        if (o.status !== 'ready') return o;
+        var domains = o.identifiers.map(d => d.value);
+        var kp = await this.createKeyPair();
+        var csr = await this.createCSR(domains, kp[0]);
+        var order = await this.requestURL(o.finalize, { csr });
+        o = extend({}, o, order);
+        upload(o, { oid: o.oid, private: kp[0], public: kp[1] });
+        return o;
+    }
+    async autoUpdate(domain, setauth, upload) {
+        if (!domain.length) return;
+        if (acme2.orders.length >= 20) acme2.orders.pop();
+        this.lastUpdateTime = parseDate(Date.now());
+        this.updateTime();
+        var o = await acme2.newOrder({ domain });
+        o = await acme2.getOrder(o);
+        if (o.status === 'pending') {
+            o = await acme2.auditOrder(o, setauth);
+        }
+        if (o.status === 'ready') {
+            await this.finalizeOrder(o, upload);
+            o = await this.waitStatus();
+        }
+        if (o.status === 'valid') {
+            var cert = await data.fromURL(o.certificate);
+            upload(o, { cert });
+        }
+        return o;
     }
 }

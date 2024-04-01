@@ -45,7 +45,12 @@
         appearance: none;
         border: none;
     }
+
+    loading {
+        z-index: 3;
+    }
 </style>
+<loading -if="!finished"></loading>
 <div -if="!enabled"></div>
 <form on-submit="nosubmit" renderid=box>
     <xmenu head #menubar -src="(m,i) in menus" @active="activeMenu(m,i)"></xmenu>
@@ -74,22 +79,25 @@
     var private_key, public_key;
     var unique;
     var loadUnique = async function () {
-        unique = await data.from("unique");
-        await acme2.makeUnique(unique);
-        if (menuIndex === 0) {
-            if (acme2.orders?.length) activeMenu(menus[2], 2);
-            else if (acme2.kid) activeMenu(menus[1], 1);
+        try {
+            unique = await data.from("unique");
+            await acme2.makeUnique(unique);
+            if (menuIndex === 0) {
+                if (acme2.orders?.length) activeMenu(menus[2], 2);
+                else if (acme2.kid) activeMenu(menus[1], 1);
+            }
+            extend(formdata, acme2);
+        } finally {
+            finished = true;
         }
-        extend(formdata, acme2);
     };
-
+    var finished = false;
     var publicKey, privateKey;
     loadUnique().then(render.digest).then(lazy(async function () {
         box.reshape();
         bar.reshape();
         var certlist = await plist.load('cert');
-        formdata.domain = certlist.map(c => c.hostname).join("\r\n");
-        render.digest();
+        acme2.domain = formdata.domain = certlist.map(c => c.hostname).join("\r\n");
     }));
     var a = button;
     var xmenu = menu;
@@ -102,7 +110,15 @@
     };
     var openOrder = async function (event, href) {
         event.preventDefault();
-    }
+    };
+    var uploadOnly = async function (o, extra) {
+        var domains = o.identifiers.map(d => d.value);
+        for (var d of domains) {
+            await pedit.patch("cert", d, extra);
+        }
+    };
+    var setauth = (auth, info) => data.from("setauth", { auth, info });
+
     var menus = [
         {
             "name": "创建账户",
@@ -153,7 +169,7 @@
             actions: {
                 async 创建订单(actived) {
                     var params = submit(actived.fields, formdata);
-                    var order = await acme2.newOrder(params);
+                    await acme2.newOrder(params);
                     await saveUnique();
                     activeMenu(menus[2], 2);
                 }
@@ -163,7 +179,7 @@
             name: "订单信息",
             src: '/cert/orders',
             get params() {
-                return { orders: acme2.orders, saveUnique };
+                return { orders: acme2.orders, saveUnique, setauth, uploadOnly };
             }
         },
         {
@@ -172,6 +188,7 @@
         },
         {
             name: "更新服务",
+            params: { saveUnique, uploadOnly, setauth },
             src: "/cert/update",
         }
     ];

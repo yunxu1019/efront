@@ -113,7 +113,7 @@ var invokeFunction = function (func, context) {
 
 var taskmap = {}, loadtime = userdata.loadtime;
 var gettask = async function (taskid) {
-    var task = await userdata.option("task", taskid, 0);
+    var task = await userdata.getOptionObj("task", taskid);
     if (!task) throw new Error(i18n`指定的任务 ${taskid} 不存在！`);
     if (task.status !== 1) throw new Error(i18n`任务 ${taskid} 未启用！`);
     var func = createFunction(task.code, 'private/main', { _private });
@@ -143,7 +143,7 @@ var _runtask = required_cache.runtask = async function (taskid, ...params) {
 };
 
 var _private = async function (privateid) {
-    var data = await userdata.option("private", privateid, 0);
+    var data = await userdata.getOptionObj("private", privateid);
     if (!data) throw i18n`密钥 ${privateid} 不存在！`;
     return data.value;
 };

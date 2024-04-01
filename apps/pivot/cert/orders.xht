@@ -99,7 +99,7 @@
     };
 
     function main(params) {
-        var { orders = [], saveUnique } = params;
+        var { orders = [], saveUnique, setauth, uploadOnly } = params;
         orders = orders.map(acme2.parseOrder);
         if (orders.length) orders[0].actived = true;
         var page = document.createElement('orders');
@@ -137,28 +137,12 @@
                 this.order = shallowClone(o);
             },
             async auditOrder(o) {
-                a: for (var a of o.authorizations) {
-                    var b = await acme2.audit(a);
-                    if (b.challenges) {
-                        for (var c of b.challenges) {
-                            if (c.type === 'http-01') {
-                                if (c.status !== 'pending') continue a;
-                                await data.from("setauth", { token: c.token, thumb: await acme2.thumbprint() });
-                                await acme2.requestURL(c.url, {});
-                                continue a;
-                            }
-                        }
-                    }
-                    alert("无法找到可用的提审方案" + b.identifier?.value, 'warn');
-                }
-                await wait(600);
+                await acme2.auditOrder(o, setauth);
                 if (this.order === o) await this.openOrder(this.order);
             },
+
             async finalize(o) {
-                var domains = o.identifiers.map(d => d.value);
-                var kp = await acme2.createKeyPair();
-                var csr = await acme2.createCSR(domains, kp[0]);
-                var order = await acme2.requestURL(o.finalize, { csr });
+                await acme2.finalizeOrder(o, uploadOnly);
                 order = extend({}, o, order);
                 if (o === this.order) o = this.order = order;
                 render.digest();
@@ -170,9 +154,7 @@
                 }
                 else {
                     cert = await data.fromURL(cert);
-                }
-                for (var d of domains) {
-                    pedit.update("cert", d, { hostname: d, private: kp[0], public: kp[1], cert, oid: o.oid })
+                    await uploadOnly(o, { cert });
                 }
                 if (this.order === o) this.order = extend({}, o, order);
             },
@@ -206,9 +188,7 @@
             },
             async upload(o) {
                 var cert = await data.fromURL(o.certificate);
-                for (var d of o.identifiers) {
-                    await pedit.merge("cert", d.value, { cert });
-                }
+                await uploadOnly(o, { cert });
                 o.shouldupload = false;
                 o.removable = true;
             }

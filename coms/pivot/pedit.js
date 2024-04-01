@@ -1,5 +1,5 @@
 function send(type, key, value, origin) {
-    return data.from(origin ? "edit" : "add", {
+    return data.from(origin, {
         type,
         key: encode62.timeencode(key),
         value: isHandled(value) ? encode62.timeencode(JSON.stringify(value)) : '',
@@ -10,21 +10,19 @@ function pedit(title, type, params, idkey = params.fields[0].key) {
     return frame$edit(title, {
         submit(a, fields) {
             a = submit(fields, a);
-            return send(type, a[idkey], a, pdata);
+            return send(type, a[idkey], a, pdata ? "edit" : "add");
         },
     }, params);
 }
 pedit.create = function (type, key, value) {
-    return send(type, key, value, false);
+    return send(type, key, value, "add");
 }
 var query = pedit.query = function (type, key) {
-    return send(type, key, null, true);
+    return send(type, key, null, "edit");
 }
 var update = pedit.update = function (type, key, value) {
-    return send(type, key, value, true);
+    return send(type, key, value, "edit");
 }
-pedit.merge = async function (type, key, params) {
-    var data = await query(type, key);
-    extendIfNeeded(params, data);
-    return update(type, key, params);
+pedit.patch = async function (type, key, params) {
+    return send(type, key, params, 'patch');
 }

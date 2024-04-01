@@ -151,5 +151,17 @@ message.fend = async function ([k1, params1, k2, params2], socket) {
     message.send(c, k2, params2, socket);
 };
 
+var locked = false;
+message.lock = function (key) {
+    if (locked) return false;
+    locked = key;
+    return true;
+};
+message.unlock = function (key) {
+    if (locked !== key) return false;
+    locked = false;
+    return true;
+};
+
 require("../efront/quitme")(end);
 run();

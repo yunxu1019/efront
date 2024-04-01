@@ -8,6 +8,7 @@
   list: options :::type
   edit: options :::type-:key?:value
   add: options :::type-:key+:value
+  patch: options :::type-:key*:value
   params: options ::params-:key
   invoke: options ::invoke-:key?:params
   version: options ::version
@@ -18,7 +19,7 @@
   room: options ::link-:id
   care: options ::care-:id
   cast: options ::cast-:id?:msg
-  setauth|: options ::setauth-/.well-known/acme-challenge/:token?:token.:thumb
+  setauth|: options ::setauth-:auth?:info
   unique: options ::unique
   unique-save: options ::unique-:data
   recert: options ::recert

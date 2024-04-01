@@ -75,6 +75,12 @@ message.setauth = function ([auth, data]) {
     }
     doGet.setAuth(auth, data);
 };
+var setAuth = function (auth, data) {
+    message.broadcast("setauth", [auth, data]);
+    setTimeout(function (auth) {
+        message.broadcast("setauth", [auth, null]);
+    }.bind(null, auth), 120000/*两分钟*/);
+};
 // 子线程们
 // 仅做开发使用的简易服务器
 var http = require("http");
@@ -279,14 +285,16 @@ var doOptions = async function (req, res, type) {
             userdata.getStream('count.jsam').pipe(res);
             return;
         case "setauth":
-            message.broadcast("setauth", [type[2], type[3]]);
-            setTimeout(function (auth) {
-                message.broadcast("setauth", [auth, null]);
-            }.bind(null, type[2]), 120000/*两分钟*/);
+            setAuth(type[2], type[3]);
             break;
         case "unique":
             if (type[2]) {
-                await userdata.setUniqueKeyPair(type.slice(2).join('+'));
+                try {
+                    await userdata.setUniqueKeyPair(type.slice(2).join('+'));
+                } catch (e) {
+                    res.writeHead(500, utf8error);
+                    res.write(String(e));
+                }
                 break;
             }
             res.write(await userdata.getUniqueKeyPair());
@@ -368,13 +376,18 @@ var doOptions = async function (req, res, type) {
                 if (type[3] !== undefined) {
                     let act = type[0].charAt(type[0].length - type[3].length - 1);
                     if (type[3] && act === "+" || !type[3] && act === "?") {
-                        var exists = await userdata.option(type[1], key, null/**检查是否存在*/);
+                        var exists = await userdata.hasOption(type[1], key);
                         if (!type[3]) return res.end(encode62.timeencode(String(exists)));
                         if (exists && type[3]) {
                             res.writeHead(403, utf8error);
                             res.end(i18n[req.headers["accept-language"]]`已存在相同标识的数据`);
                             return;
                         }
+                    }
+                    if (type[3] && act === '*') {
+                        await userdata.patchOptionStr(type[1], key, encode62.timedecode(type[3]));
+                        res.end();
+                        return;
                     }
                 }
                 var data = await userdata.option(type[1], key, type[3] && encode62.timedecode(type[3])) || '';
@@ -601,7 +614,7 @@ var requestListener = async function (req, res) {
                     res.end(i18n[getHeader(headers, "accept-language")]`已关闭${ports.join("、")}端口`);
                     return;
             }
-            var type = /^(\w+)(?:[\-\/\!]([\/\!\'\(\)\*\-\.\w]*))?(?:[\?\:\+]([\s\S]*))?$/.exec(option);
+            var type = /^(\w+)(?:[\-\/\!]([\/\!\'\(\)\*\-\.\w]*))?(?:[\?\:\+\*]([\s\S]*))?$/.exec(option);
             if (type) return doOptions(req, res, type);
         }
         return res.end();
@@ -974,3 +987,40 @@ getCertList().then(function (certlist) {
         createHttpsServer();
     }
 });
+var acme2 = await require("../pivot/acme2");
+if (acme2.enabled) {
+    message.updateAcme2 = function () {
+        return userdata.getUniqueKeyPair().then(function (pair) {
+            acme2.makeUnique(pair, false);
+        });
+    };
+    message.updateAcme2();
+    var checkTime = 8640000;/* 一天检查10次*/;
+    setInterval(async function () {
+        if (!acme2.schaduleEnabled) return;
+        var time = +acme2.updateTime();
+        var lock = await new Promise(ok => message.send('lock', key, ok));
+        if (!lock) return;
+        var key = Math.random();
+        try {
+            if (time + checkTime < Date.now()) {
+                return;
+            }
+            var certlist = await getCertList();
+            var domain = certlist.map(a => a.hostname).filter(a => !!a);
+            await acme2.autoUpdate(domain, setAuth, async function (o, data) {
+                for (var a of o.identifiers) {
+                    await userdata.patchOptionObj(a.value, data);
+                }
+            });
+            var pair = await acme2.pickUnique();
+            await userdata.setUniqueKeyPair(pair);
+        }
+        finally {
+            message.send("unlock", key);
+        };
+    }, checkTime)
+}
+else if (acme2.schaduleEnabled) {
+    console.error("当前环境无法启用证书更新服务，nodeJs版本为" + process.version)
+}
