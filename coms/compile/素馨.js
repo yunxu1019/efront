@@ -536,10 +536,11 @@ function evalscoped(scoped, base = '') {
                 k = removeSelectorSpace(k);
                 if (base && !p.rooted) p.base = fixBase(base, k);
                 else p.base = presets.test(k) ? `@{${k}}` : k;
-                if (p.vars) vlist.push(p.vars);
-                initvars(p.vars);
+                var vars = shallowClone(p.vars);
+                if (vars) vlist.push(vars);
+                initvars(vars);
                 var value = evalthis(p);
-                if (p.vars) vlist.pop();
+                if (vars) vlist.pop();
                 if (value.rest.length) rest = rest.concat(value.rest);
                 if (value.length) rest.push([p.base, '{', value.join(""), "}"]);
             }
