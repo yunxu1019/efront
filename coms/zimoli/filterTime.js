@@ -19,7 +19,7 @@ function format(formater) {
     o.D = o.d;
     o.H = o.h;
     o.Day = v[v.length - 1];
-    formater.replace(/[yY年]+|[M月]+|[hH时]+|毫秒|[m+分]+|[sS]{3}|[Ss秒]+|[星期周天][dD]*|[dD]{3}|[日号dD]+/g, function (m) {
+    return formater.replace(/[yY年]+|[M月]+|[hH时]+|毫秒|[m+分]+|[sS]{3}|[Ss秒]+|[星期周天][dD]*|[dD]{3}|[日号dD]+/g, function (m) {
         if (/^[dD]{3}$/.test(m)) {
             return o.Day;
         }
@@ -32,23 +32,23 @@ function format(formater) {
             var a = m.charAt(0);
             var v = o[a];
         }
-        var l = m.replace(/\W+/g, "");
-        var b = m.split(/[\w天]+/).map(a => a || fixLength(v, l.length)).join("");
+        var l = m.split(/\W+/).map(a => a.length);
+        var b = m.split(/[\w天]+/).map((a, i) => l[i] ? a + fixLength(v, l[i]) : a).join('');
         return b;
     });
 }
-function filterTime(time, format) {
+function filterTime(time, formater) {
     if (!isHandled(time)) return '';
     if (isFinite(time)) time = +time;
     var value = new Date(time);
     if (!+value) {
         return time;
     }
-    if (format && !/^[\-\/]+$/.test(format)) {
-        return format.call(value, format);
+    if (formater && !/^[\-\/]+$/.test(formater)) {
+        return format.call(value, formater);
     }
-    if (format) {
-        format = format.charAt(0);
+    if (formater) {
+        formater = format.charAt(0);
     }
     var splited = getSplitedDate(value);
     var now = new Date;
