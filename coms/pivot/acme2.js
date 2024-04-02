@@ -69,7 +69,6 @@ var ASN1 = function (type) {
         length += bytes.length;
     }
     var asn1 = [type];
-    if (length === (2 << 8 | 36)) console.log(arguments)
     if (length > 127) {
         var nums = [];
         while (length > 0) {
