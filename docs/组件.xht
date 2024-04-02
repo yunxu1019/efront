@@ -74,6 +74,7 @@
         overflow: auto;
         display: block;
         height: auto;
+        min-height: 100%;
         padding: 10px 20px 40px 20px;
         white-space: nowrap;
         outline: none;
@@ -350,12 +351,13 @@
         c.contentEditable = true;
     };
     var updatecode = lazy(function () {
+        var trimreg = /[\s\u00a0\u2002\u0080]+([\}\{\;\[\]\(\)\,\>\<\+\-\*\&\^\/%!~:?])*/g;
+        var innerText = coder.innerText;
+        if (jstext.replace(trimreg, trimspace).trim() === innerText.replace(trimreg, trimspace).trim()) return;
         markAnchorOffset();
         var innerText = coder.innerText;
         var trimspace = (_, a) => a ? "" : " ";
-        var trimreg = /[\s\u00a0\u2002\u0080]+([\}\{\;\[\]\(\)\,\>\<\+\-\*\&\^\/%!~:?])*/g;
         unmarkAnchorOffset();
-        if (jstext.replace(trimreg, trimspace).trim() === innerText.replace(trimreg, trimspace).trim()) return;
         initcode(innerText);
         unmarkAnchorOffset();
         jstext = coder.innerText;
