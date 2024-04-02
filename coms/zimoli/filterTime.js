@@ -57,8 +57,8 @@ function filterTime(time, format) {
     var today = new Date(year1, month1 - 1, date1);
     var thatday = new Date(year, month - 1, date);
     var delta = (today - thatday) / 24 / 3600000;
-    if (minute === 0) var time = hour + "点";
-    else if (minute === 30) time = hour + "点半";
+    if (minute === 0 && second === 0) var time = hour + "点整";
+    else if (minute === 30 && second === 0) time = hour + "点半";
     else time = `${hour}:${fixLength(minute)}`;
     if (delta < 7 && delta > 2) {
         if (day >= day1) {
