@@ -18,7 +18,7 @@ var _create = function (commFactory, className, _invoke) {
         commFactory.className = className;
         keys(commFactory).map(k => result[k] = commFactory[k]);
         result.call = function (context, ...args) {
-            if (!isEmpty(context)) var release = commFactory.apply(context, args);
+            if (isHandled(context)) var release = commFactory.apply(context, args);
             else release = commFactory.apply(result, args);
             if (release) release = _invoke(release, className, _invoke);
             return release;

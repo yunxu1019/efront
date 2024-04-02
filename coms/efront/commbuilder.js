@@ -780,18 +780,18 @@ async function getXhtPromise(data, filename, fullpath, watchurls) {
     }
     var xhtrender = `elem.innerHTML=template;render(elem,scope);`;
     xhtrender = async
-        ? `${xhtmain}.call(elem,...args).then(function([template,scope]){${xhtrender}})`
-        : `var [template,scope]=${xhtmain}.call(elem,...args);${xhtrender}`;
+        ? `${xhtmain}.apply(elem,arguments).then(function([template,scope]){${xhtrender}})`
+        : `var [template,scope]=${xhtmain}.apply(elem,arguments);${xhtrender}`;
     var createElement = tagName
         ? `var elem = ${creator}"${tagName}");`
-        : `var elem =isElement(args[0])?args[0]:${creator}"${commName}");`;
+        : `var elem =isElement(arguments[0])?arguments[0]:${creator}"${commName}");`;
     var xht = scope ? `
 var ${xhtmain}=${async}function(){
     ${scope}
     ${jsData}
     return [${htmltext},${xhtmain}];
 };
-function ${commName}(...args){
+function ${commName}(){
     ${createElement}
     ${attributes}
     ${xhtrender}
@@ -801,7 +801,7 @@ var ${xhtmain}=${async}function(){
     ${jsData}
     return ${htmltext};
 }
-function ${commName}(...args){
+function ${commName}(){
     ${createElement}
     ${attributes}
     ${xhtrender}
