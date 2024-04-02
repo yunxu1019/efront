@@ -19,13 +19,12 @@
     var page = this;
     var [{ saveUnique, setauth, uploadOnly }] = arguments;
     var autoUpdate = async function () {
-        var o = await acme2.autoUpdate(acme2.domain, setauth, uploadOnly);
-        await saveUnique();
+        var o = await acme2.autoUpdate(saveUnique, acme2.domain, setauth, uploadOnly);
         if (o.status === 'valid') {
             alert(i18n`证书已更新！`, "success");
         }
         else {
-            alert(i18n`更新失败！`, 'error');
+            alert(i18n`证书更新失败！`, 'error');
         }
     };
     var saveSchadule = async function () {

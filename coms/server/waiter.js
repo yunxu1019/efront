@@ -1010,13 +1010,14 @@ if (acme2.enabled) {
             }
             var certlist = await getCertList();
             var domain = certlist.map(a => a.hostname).filter(a => !!a);
-            await acme2.autoUpdate(domain, setAuth, async function (o, data) {
+            await acme2.autoUpdate(async function () {
+                var pair = await acme2.pickUnique();
+                await userdata.setUniqueKeyPair(pair);
+            }, domain, setAuth, async function (o, data) {
                 for (var a of o.identifiers) {
                     await userdata.patchOptionObj(a.value, data);
                 }
             });
-            var pair = await acme2.pickUnique();
-            await userdata.setUniqueKeyPair(pair);
         }
         finally {
             message.send("unlock", key);

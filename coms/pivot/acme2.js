@@ -351,12 +351,13 @@ var acme2 = new class {
         upload(o, { oid: o.oid, private: kp[0], public: kp[1] });
         return o;
     }
-    async autoUpdate(domain, setauth, upload) {
+    async autoUpdate(saveUnique, domain, setauth, upload) {
         if (!domain.length) return;
         if (acme2.orders.length >= 20) acme2.orders.pop();
         this.lastUpdateTime = parseDate(Date.now());
         this.updateTime();
         var o = await acme2.newOrder({ domain });
+        await saveUnique();// 及时保存订单信息以便后续查看
         o = await acme2.getOrder(o);
         if (o.status === 'pending') {
             o = await acme2.auditOrder(o, setauth);
