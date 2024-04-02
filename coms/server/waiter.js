@@ -771,7 +771,7 @@ var showServerInfo = async function () {
     })
     if (!ipLoged) ipLoged = true, console.info(msg[0] + "\r\n");
     msg = msg.map(a => a.length && a.length < maxLength ? a + " ".repeat(maxLength - a.length) : a);
-    var showError = function (i, e = portedServersList[i].error) {
+    var showError = function (i, e) {
         console.error(msg[i] + "\t" + `<red>${e}</red>`);
     };
     var showValid = function (i) {
@@ -784,7 +784,7 @@ var showServerInfo = async function () {
         for (var p of s.hosted) {
             i++;
             if (s.error) {
-                showError(i);
+                showError(i, s.error);
                 s.removeAllListeners();
                 s.close(closeListener);
             }
