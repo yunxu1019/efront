@@ -705,17 +705,18 @@ var checkServerState = function (http, hosted) {
         if (type) v += "?" + type;
         var { hostname: host, port, protocol } = parseURL(hosted ? hosted : memery.REPORT);
         if (!host || !type || selfLogged) {
-            if (!hosted) host = '127.0.0.1';
+            if (!hosted) {
+                var { hostname: host, port, protocol } = parseURL(http[0]);
+            }
             if (type) {
-                [, protocol, port] = /^([a-z]+)(\d+)$/.exec(type[0]);
-                http = require(protocol);
+                http = require(protocol.replace(/\:$/, ""));
             }
         }
         else {
             if (!protocol) {
                 protocol = +port === 443 ? "https" : 'http';
             }
-            http = require(protocol);
+            http = require(protocol.replace(/\:$/, ''));
         }
         if (!port) {
             port = /^https/.test(protocol) ? 443 : 80;

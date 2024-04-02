@@ -9,3 +9,34 @@ model {
         font-size: 9px;
     }
 }
+
+model[type=function] {
+    display: inline-block;
+    
+    a {
+        text-align: left;
+        &.ok {
+            color: green;
+            
+            &:after {
+                content: "(接通)";
+            }
+        }
+        
+        &.error {
+            &:after {
+                content: "(出错)";
+            }
+            
+            color: red;
+        }
+
+        &:nth-child(2),
+        &:nth-last-child(2) {
+            padding: 0;
+            line-height: 1.2;
+            font-size: 14px;
+            display: block;
+        }
+    }
+}

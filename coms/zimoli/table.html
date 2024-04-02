@@ -13,7 +13,7 @@
         <td fixed row-index -bind="i+1" :style="adapter.firstChild.getAttribute('style')">
         </td>
         <td fixed:="f.fixed" -repeat="(f,i) in fields" :style="adapter.children[i+1].getAttribute('style')">
-            <model -if="!isEmpty(f.key)&&!isEmpty(d[f.key])" :field=f :data=d readonly></model>
+            <model -if="!isEmpty(f.key)" :field=f :data=d readonly></model>
             <template -else>&nbsp;</template>
             <a on-click="o.do(d)" -if="isEmpty(f.key)&&f.options&&(!o.when||o.when(d))"
                 _type="o.type instanceof Function?o.type(d):o.type" -repeat="o in f.options">

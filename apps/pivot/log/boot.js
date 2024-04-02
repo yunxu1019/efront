@@ -1,63 +1,50 @@
 cross.addDirect(/^https?\:\/\/([[a-z\.\d\:\/%]+\]|[\d\.]+)(\:\d+)?\//);
-var fields = refilm`
-地址/ip
-地理位置/ip ${function (e) {
-        var ip = e.data[e.field.key];
-        var m = /(\d+\.){3}\d+$/.exec(ip);
-        if (m) {
-            var l = document.createElement('label');
-            appendChild(e, l);
-            l.innerHTML = '&nbsp;';
-            var setAddress = function (a) {
-                l.innerText = a;
-            };
-            if (e.data.address) setAddress(e.data.address);
-            else e.data.address = data.from("iplocation", { ip: m[0] }, function (a) {
-                setAddress(a.address);
-                return a.address;
-            });
+var checkPort = async function (p, ip) {
+    if (!p.host) {
+        if (/^::ffff:\d+\.\d+\.\d+\.\d+$/i.test(ip)) {
+            ip = ip.slice(7);
         }
-        return e;
+        else {
+            ip = `[${ip}]`;
+        }
+        p.locate(ip);
+    }
+    try {
+        p.locate("/:version");
+        var { response } = await cross("options", p.href);
+        if (/^efront/.test(response)) {
+            p.ok = true;
+        }
+    } catch (e) {
+        p.error = e;
+    }
+
+}
+var fields = refilm`
+IP地址/ip text/120
+地理位置/address/查看 act/80 ${async function (a) {
+        var ip = a.ip;
+        var m = /(\d+\.){3}\d+$/.exec(ip);
+        var { address } = await data.from("iplocation", { ip: m ? m[0] : ip });
+        a.address = address;
     }}
 启动时间/time ${function (e) {
         e.innerHTML = filterTime(e.data[e.field.key]);
     }}
-端口/port ${async function (e) {
+绑定地址/port 120/${async function (e) {
         var { data, field } = e;
-        var ports = data[field.key].split(/,/);
-        var loaded = data.loaded || ports;
-        data.loaded = loaded;
-        e.innerHTML = loaded.join(' ');
-        if (data.loaded === ports) for (let cx = 0, dx = ports.length; cx < dx; cx++) {
-            var p = ports[cx];
-            var p0 = p;
-            var protocol = /^https/.test(p) ? "https://" : "http://";
-            p = p.replace(/[^\d]+/g, '');
-            if (p) p = ":" + p;
-            try {
-                var ip = data.ip;
-                if (!ip) return;
-                if (/^::ffff:\d+\.\d+\.\d+\.\d+$/i.test(ip)) {
-                    ip = ip.slice(7);
-                }
-                else {
-                    ip = `[${ip}]`;
-                }
-                var xhr = await cross("options", `${protocol}${ip}${p}/:version`);
-                if (xhr.responseText === 'efront ' + data.version) {
-                    loaded[cx] = (`<span style="color:green">${p0}</span>`);
-                } else {
-                    loaded[cx] = (`<span style="color:red">${p0}</span>`);
-                }
-            } catch (e) {
-                loaded[cx] = (`<span style="color:gray">${p0}</span>`);
-            }
-            e.innerHTML = loaded.join(' ');
-        }
+        var ports = data[field.key].split(/,/).map(p => parseURL(p));
+        e.innerHTML = `<a -repeat="p in ports" @click="checkPort(p,ip)" -class="{ok:p.ok,error:p.error}"><span -bind=p></span></a>`;
+        render(e, {
+            ports,
+            ip: data.ip,
+            checkPort,
+        })
     }}
 版本/version input
 进程/pid
-    `;
+`;
+
 function main() {
     var page = div();
     page.innerHTML = template;

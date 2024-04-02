@@ -257,6 +257,7 @@ var readonly_types = {
     },
 };
 readonly_types.anchor = readonly_types.url;
+readonly_types.do = readonly_types.act = readonly_types.action = constructors.generator;
 readonly_types.gen = readonly_types.generator = readonly_types.text;
 var createOptionsMap = function (options) {
     if (!isObject(options[0])) return options;
