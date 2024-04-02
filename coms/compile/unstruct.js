@@ -403,14 +403,14 @@ var patchstep = function (r, nextindex, h) {
             x = rescan`if (${name}) return [${nextindex}, 0]`;
         }
         else if (o === RD) {
-            x = rescan`if (${name}!== null && ${name}!== undefined) return [${nextindex}, 0]`;
+            x = rescan`if (${name}!= null) return [${nextindex}, 0]`;
         }
         else continue;
         changed = true;
-        var p = o.prev;
+        var p = r[i - 1];
         if (!p || p.type === STAMP && p.text === ";");
         else x.unshift({ type: STAMP, text: ";" });
-        var n = o.next;
+        var n = r[i + 1];
         if (!n || n.type === STAMP && n.text === ';');
         else x.push({ type: STAMP, text: ';' });
         r.splice(i, 1, ...x);
@@ -504,6 +504,16 @@ var ispropcall = function (o) {
     if (o.type === SCOPED && o.entry === '[' && snapExpressHead(o) !== o) return true;
     return false;
 };
+var isAequalA = function (q) {
+    if (q.length < 3) return false;
+    if (!q.first) relink(q);
+    var f = q.first;
+    var t = q.last;
+    if (!f || !t || f.next !== t.prev) return false;
+    var m = f.next;
+    if (f.type !== EXPRESS || t.type !== EXPRESS || m.type !== STAMP) return false;
+    return f.text === t.text && m.text === '=';
+}
 var _invoke = function (t, getname) {
     var nameindex = 0;
     var getdeepname = function (deep = 0) {
@@ -531,9 +541,13 @@ var _invoke = function (t, getname) {
             continue;
         }
         if (needbreak(o)) {
+
             var s = splice(t, bx, cx + 1 - bx);
             if (cx > 0) s.name = [cloneNode(s[0])];
             else s.name = qname;
+            if (isAequalA(s.slice(0, s.length - 1))) {
+                s.splice(0, s.length - 1);
+            }
             queue.push(s);
             cx = bx - 1;
             bx = cx + 1;
@@ -591,8 +605,10 @@ var _invoke = function (t, getname) {
                 cache.push(...q);
                 nameindex++;
             }
+            if (iseval && o.entry === "(" && o.length === 1 && canbeOnce(o)) {
+                splice(t, cx, 1, o = o[0]);
+            }
             nameindex = _nameindex;
-            // if (!cache.length) continue;
             if (queue.length) flushqueue(result, queue), queue = [];
             if (cache.length) flushqueue(result, cache), cache = [];
             var n = o.next;
@@ -602,11 +618,18 @@ var _invoke = function (t, getname) {
                     var h = snapExpressHead(o);
                     var hx = t.lastIndexOf(h, cx);
                     var fs = splice(t, hx, cx + 1 - hx, { type: EXPRESS, text: getname(nameindex) });
-                    fs.unshift(...scanner2(`${getname(nameindex)}=`));
-                    relink(fs);
-                    fs.name = [{ text: getname(nameindex), type: EXPRESS }];
-                    pushstep(result, fs);
                     cx = hx - 1;
+                    a: {
+                        if (fs.length === 1 && canbeTemp(fs)) {
+                            if (fs[0].text === getname(nameindex)) {
+                                break a;
+                            }
+                        }
+                        fs.unshift(...scanner2(`${getname(nameindex)}=`));
+                        relink(fs);
+                        fs.name = [{ text: getname(nameindex), type: EXPRESS }];
+                        pushstep(result, fs);
+                    }
                 }
                 if (!lastlink) nameindex++;
             }
@@ -617,13 +640,15 @@ var _invoke = function (t, getname) {
         flushqueue(result, queue);
     }
     else if (t.length) {
-        var t0 = t[0];
-        if (t0.type === EXPRESS && /^[\.\[]/.test(t0.text) || t0.type & (STAMP | STRAP) && powermap[t0.text] < powermap.new) {
-            t.unshift(...rescan(`${qname}=${qname}`));
-            relink(t);
+        if (!isAequalA(t)) {
+            var t0 = t[0];
+            if (t0.type === EXPRESS && /^[\.\[]/.test(t0.text) || t0.type & (STAMP | STRAP) && powermap[t0.text] < powermap.new) {
+                t.unshift(...rescan(`${qname}=${qname}`));
+                relink(t);
+            }
+            t = uncurve(t);
+            pushstep(result, t);
         }
-        t = uncurve(t);
-        pushstep(result, t);
     }
     if (ret_) patchresult(result, 0);
     return result;
@@ -711,7 +736,10 @@ var popexp = function (explist) {
     return [asn, n];
 }
 var uncurve = function (c) {
-    if (c.length === 1 && c[0].type === SCOPED && c[0].entry === '(' && canbeOnce(c[0])) c = c[0];
+    if (c.length === 1) {
+        var c0 = c[0];
+        if (c0.type === SCOPED && c0.entry === '(' && canbeOnce(c0)) c = c0;
+    }
     return c;
 };
 var ternary = function (body, getname, ret) {
