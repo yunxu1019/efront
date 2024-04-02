@@ -615,7 +615,7 @@ var requestListener = async function (req, res) {
                     res.end(i18n[getHeader(headers, "accept-language")]`已关闭${ports.join("、")}端口`);
                     return;
             }
-            var type = /^(\w+)(?:[\-\/\!]([\/\!\'\(\)\*\-\.\w]*))?(?:[\?\:\+\*]([\s\S]*))?$/.exec(option);
+            var type = /^(\w+)(?:[\-\/\!]([\/\!\'\(\)\-\.\w]*))?(?:[\?\:\+\*]([\s\S]*))?$/.exec(option);
             if (type) return doOptions(req, res, type);
         }
         return res.end();
