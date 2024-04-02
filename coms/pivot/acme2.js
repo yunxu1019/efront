@@ -363,7 +363,7 @@ var acme2 = new class {
         }
         if (o.status === 'ready') {
             await this.finalizeOrder(o, upload);
-            o = await this.waitStatus();
+            o = await this.waitStatus(o);
         }
         if (o.status === 'valid') {
             var cert = await data.fromURL(o.certificate);
