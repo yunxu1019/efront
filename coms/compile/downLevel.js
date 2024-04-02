@@ -317,10 +317,20 @@ var killdec = function (queue, i, getobjname, _var = 'var', killobj, islet) {
                 var a = single(d, '');
                 if (a) {
                     if (index > 0) splice(queue, i++, 0, { type: STAMP, text: ',' });
-                    splice(queue, i, 0, ...a[1], { type: STAMP, text: "=" });
-                    i += 2;
                     var i2 = skipAssignment(queue, i);
-                    killobj(queue.slice(i, i2));
+                    var restq = splice(queue, i, i2 - i, ...a[1], { type: STAMP, text: "=" });
+                    killobj(restq);
+                    if (restq.length === 1) {
+                        restq = restq[0];
+                    }
+                    else {
+                        restq.entry = "("
+                        restq.leave = ")";
+                        restq.type = SCOPED;
+                        relink(restq);
+                    }
+                    splice(queue, i += a[1].length + 1, 0, restq);
+                    i2 = i + 1;
                     if (!a[2]) var q = scanner2(a[0]);
                     else {
                         var objname = getobjname(0);

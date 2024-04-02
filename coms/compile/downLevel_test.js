@@ -166,7 +166,7 @@ function () {
 _1 = 'date'; return [1, 0]
 },
 function () {
-_[_1] = "desc"; _0 = (_); _0 = (_0); return [_0, 2]
+_[_1] = "desc"; _0 = _; return [_0, 2]
 })
 var _0, _1 }
 var _`);
@@ -246,7 +246,7 @@ function () {
 _2 = !_["done"]; if (!_2) return [2, 0]; _2 = _["value"]; return [_2, 1]
 },
 function (_1) {
-_2 = _1; o = _2; _2 = (true)
+_2 = _1; o = _2; _2 = true
 },
 function () {
 if (!_2) return [2, 0]; noSymbol; _2 = _0["next"](); return [_2, 1]
@@ -287,13 +287,13 @@ function (_4) {
 _5 = _4; _1 = _5; _6 = Symbol["iterator"]; _6 = _1[_6]; if (_6) return [1, 0]; _6 = Array["prototype"]; _7 = Symbol["iterator"]; _6 = _6[_7]
 },
 function () {
-_6 = (_6); _2 = _6["call"](_1); _3 = undefined; _3 = _2["next"](); o = _3["value"]; _3 = _2["next"](); s = _3["value"]; _10 = !_3; if (_10) return [1, 0]; _10 = !_3["done"]
+_2 = _6["call"](_1); _3 = undefined; _3 = _2["next"](); o = _3["value"]; _3 = _2["next"](); s = _3["value"]; _10 = !_3; if (_10) return [1, 0]; _10 = !_3["done"]
 },
 function () {
-_10 = (_10); if (!_10) return [1, 0]; _10 = _2["return"]; _10 = isFunction(_10); if (!_10) return [1, 0]; _10 = _2["return"]()
+if (!_10) return [1, 0]; _10 = _2["return"]; _10 = isFunction(_10); if (!_10) return [1, 0]; _10 = _2["return"]()
 },
 function () {
-_3 = _10; _5 = (true)
+_3 = _10; _5 = true
 },
 function () {
 if (!_5) return [2, 0]; noSymbol; _5 = _0["next"](); return [_5, 1]
@@ -341,7 +341,7 @@ function () {
 _; _0 = 0; return [1, 0]
 },
 function () {
-_3 = _0 < a["length"]; if (!_3) return [1, 0]; _ = a[_0]; _3 = (true)
+_3 = _0 < a["length"]; if (!_3) return [1, 0]; _ = a[_0]; _3 = true
 },
 function () {
 if (!_3) return [2, 0]; return [_, 3]
@@ -362,7 +362,7 @@ function () {
 _0 = _2; _0 = _0["call"](b); _ = _0["next"](); return [1, 0]
 },
 function () {
-_2 = !_["done"]; if (!_2) return [1, 0]; a = _["value"]; _2 = (true)
+_2 = !_["done"]; if (!_2) return [1, 0]; a = _["value"]; _2 = true
 },
 function () {
 if (!_2) return [1, 0]; Symbol; _ = _0["next"](); return [-1, 0]
@@ -416,3 +416,11 @@ function () {
 _1 = getRequestProtocol(url); _0 = _1 + "//", location = _0 + location; return [1, 0]
 })
 var _0, _1 }`);
+assert(downLevel("var{a}=await b"), `return async_(
+function () {
+_0 = b; return [_0, 1]
+},
+function (_) {
+_0 = _; _0 = _0.a; a = _0
+})
+var a, _0`)
