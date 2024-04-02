@@ -1007,13 +1007,11 @@ if (acme2.enabled) {
     var checker_interval = setInterval(async function () {
         if (!acme2.schaduleEnabled) return;
         var time = +acme2.updateTime();
+        if (time > Date.now() + checkTime) return;
         var lock = await new Promise(ok => message.send('lock', key, ok));
         if (!lock) return;
         var key = Math.random();
         try {
-            if (time > Date.now() + checkTime) {
-                return;
-            }
             var certlist = await getCertList();
             var domain = certlist.map(a => a.hostname).filter(a => !!a);
             await acme2.autoUpdate(async function () {
