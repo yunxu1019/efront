@@ -1478,8 +1478,8 @@ var insertAfter = function (o) {
     if (next) next.prev = o;
     else queue.last = o;
 };
-var unshort = function (o) {
-    insertBefore.call(o.queue, o, { text: o.text, short: false, isprop: true, type: PROPERTY }, { text: ':', type: STAMP });
+var unshort = function (o, text) {
+    insertBefore.call(o.queue, o, { text: text || o.text, short: false, isprop: true, type: PROPERTY }, { text: ':', type: STAMP });
     o.isprop = false;
     o.type = EXPRESS;
     delete o.short;

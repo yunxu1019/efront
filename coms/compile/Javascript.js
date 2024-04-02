@@ -610,7 +610,7 @@ function detour(o, ie) {
                         collectProperty(o, text);
                     }
                     if (o.short) {
-                        unshort(o);
+                        unshort(o, text);
                     }
                     else {
                         o.text = text;
