@@ -726,9 +726,22 @@ async function getXhtPromise(data, filename, fullpath, watchurls) {
         jscode.forEach(o => {
             if (o.type === jscode.STRAP && /^(var|const|let)$/.test(o.text)) {
                 var n = o.next;
-                if (n && n.type === SCOPED && n.entry === '{') {
-                    o.text = "0,";
-                    o.type = COMMENT;
+                if (n && n.type === SCOPED) {
+                    if (n.entry === '{') {
+                        o.text = "0,";
+                        o.type = COMMENT;
+                    }
+                    else {
+                        var p = o.prev;
+                        if (p && p.type === STAMP && p.text === ';') {
+                            o.text = `/*${o.text}*/`;
+                            o.type = COMMENT
+                        }
+                        else {
+                            o.text = ';';
+                            o.type = STAMP;
+                        }
+                    }
                 }
                 else {
                     o.text = `/*${o.text}*/`;

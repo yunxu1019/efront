@@ -13,8 +13,8 @@
     [body] {
         border-top: 42px solid transparent;
         padding-top: 40px;
+        overflow: auto;
         padding-bottom: 0 !important;
-        border-bottom: 46px solid transparent;
     }
 
 
@@ -53,6 +53,11 @@
         color: #29c;
     }
 
+    h2[head] {
+        font-size: 18px;
+        padding: 6px 14px;
+    }
+
     h2 b {
         font-size: 14px;
         display: inline-block;
@@ -62,21 +67,20 @@
     }
 
     [codearea] {
-        width: 100%;
         height: 100%;
     }
 
     [codearea]>code {
         overflow: auto;
-        width: 100%;
-        height: 100%;
-        padding: 10px 20px 60px 20px;
+        display: block;
+        height: auto;
+        padding: 10px 20px 40px 20px;
         white-space: nowrap;
         outline: none;
     }
 
     markdown {
-        margin: -6px -20px 0 -10px;
+        margin: 20px auto;
     }
 
     [foot]>button {
@@ -85,52 +89,55 @@
 
     .result {
         position: absolute;
-        bottom: 0;
+        bottom: 40px;
         right: 0;
         left: 0;
-        padding: 10px 20px;
         border-top: 1px solid #333;
         background: #fff;
         display: block;
         z-index: 1;
     }
 </style>
-<xmenu -src="(t,i) in tags" @active="saveTagIndex(i)"></xmenu>
-<h2 head>
-    <span -bind="name"></span>
-    <b -if="doc?.less" l>${i18n`有样式表`}</b>
-    <b -if="doc?.mark" w>${i18n`有文档`}</b>
-    <b -if="doc?.test" t>${i18n`有测试代码`}</b>
-</h2>
-<div body -if="tags[0].actived">
-    <container -if="doc?.url" .src="doc.url">
-    </container>
-    <p4 envs>
-        <span -if="envs?.length">
-            ${i18n`环境依赖项:`}&nbsp; <m -repeat="c in envs" -bind="c"> </m>
-        </span>
-        <span -else> ${i18n`无环境依赖项`} </span>
-    </p4>
-    <p4 imported>
-        <span -if="required?.length">
-            ${i18n`导入项:`}&nbsp;<m -repeat="c in required" -bind="c"></m>
-        </span>
-        <span -else>
-            ${i18n`无导入项`}
-        </span>
-    </p4>
-</div>
-<div body -elseif="tags[1].actived">
-    <div codearea #coder onkeyup="!event.isComposing&&updatecode()" onkeydown.tab="keytab(event)"></div>
-    <resultpad .result #coderesult></resultpad>
-</div>
-<div foot -if="tags[1].actived">
-    <a -if="doc?.test" @click="clearpad()">${i18n`清理`}</a>
-    <a -if="doc?.test" @click="loadcode()">${i18n`载入测试代码`}</a>
-    <btn @click="execute()">${i18n`运行`}</btn>
-</div>
+<form onclick="event.preventDefault()">
+    <xmenu -src="(t,i) in tags" @active="saveTagIndex(i)"></xmenu>
+    <h2 head>
+        <span -bind="name"></span>
+        <b -if="doc?.less" l>${i18n`有样式表`}</b>
+        <b -if="doc?.mark" w>${i18n`有文档`}</b>
+        <b -if="doc?.test" t>${i18n`有测试代码`}</b>
+    </h2>
+    <div body -if="tags[0].actived">
+        <container -if="doc?.url" .src="doc.url">
+        </container>
+        <p4 envs>
+            <span -if="envs?.length">
+                ${i18n`环境依赖项:`}&nbsp; <m -repeat="c in envs" -bind="c"> </m>
+            </span>
+            <span -else> ${i18n`无环境依赖项`} </span>
+        </p4>
+        <p4 imported>
+            <span -if="required?.length">
+                ${i18n`导入项:`}&nbsp;<m -repeat="c in required" -bind="c"></m>
+            </span>
+            <span -else>
+                ${i18n`无导入项`}
+            </span>
+        </p4>
+    </div>
+    <div body onkeyup="!event.isComposing&&updatecode()" onkeydown.tab="keytab(event)" #coder codearea
+        -elseif="tags[1].actived">
+    </div>
+    <resultpad -if="tags[1].actived" .result #coderesult></resultpad>
+    <div foot -if="tags[1].actived">
+        <a -if="doc?.test" @click="clearpad()">${i18n`清理`}</a>
+        <a -if="doc?.test" @click="loadcode()">${i18n`载入测试代码`}</a>
+        <btn @click="execute()">${i18n`运行`}</btn>
+    </div>
+</form>
 <script>
+    var required, doc, envs;
     var commaps = Object.create(null);
+    var form = view;
     var initCommap = function (live) {
         var commap = commaps[live];
         if (!commap) {
@@ -164,14 +171,14 @@
     });
     var 分析 = lazy(async function (com, props) {
         if (props.mark) props.url = '/mark/coms/' + com.replace(/\.js$/i, '.md');
-        scope.doc = props;
-        scope.name = com;
+        doc = props;
+        name = com;
         var xhr = await cross("get", "./components:" + com);
         var code = compile$scanner2(xhr.response);
         code.fix();
-        var envs = code.envs;
+        envs = code.envs;
         if (props.less) envs.cless = true;
-        var required = [];
+        required = [];
         if (envs.require) code.used.require.forEach(r => {
             var next = r.next;
             if (!next) return;
@@ -181,27 +188,27 @@
             var req = code.program.createString([first]);
             required.push(req);
         });
-        scope.required = required;
-        scope.envs = Object.keys(envs);
+        envs = Object.keys(envs);
         render.refresh();
         if (tags[1].actived) loadcode();
     });
     var loadcode = async function () {
-        var modName = scope.name.replace(/\.js$/, '_test');
-        if (scope.doc.test) {
+        jschanged = false;
+        var modName = name.replace(/\.js$/, '_test');
+        if (doc.test) {
             var xhr = await cross('get', "./components:" + modName + '.js');
-            var codetext = xhr.responseText;
-            var code = compile$scanner2(codetext);
+            jstext = xhr.responseText;
+            var code = compile$scanner2(jstext);
             var envs = code.envs;
             var vars = code.vars;
             var commName = modName.replace(/^[\s\S]*\//, '');
             var lessName = commName + ".less", lessData;
             var cssWrap = `css-` + +new Date;
-            if (scope.doc.test.indexOf(lessName) >= 0) {
+            if (doc.test.indexOf(lessName) >= 0) {
                 lessData = await cross("get", "./components:" + modName + ".less");
                 lessData = compile$素馨(lessData.responseText, "." + cssWrap);
                 if (code.isExpressQueue()) {
-                    codetext = `return cless(${codetext},\`${lessData}\`,"${cssWrap}")`;
+                    jstext = `return cless(${jstext},\`${lessData}\`,"${cssWrap}")`;
                 }
                 else {
                     var entryName;
@@ -209,36 +216,36 @@
                     else if (vars.Main) entryName = 'Main';
                     else if (vars.MAIN) entryName = "MAIN";
                     else if (vars[commName]) entryName = commName;
-                    if (entryName) codetext += `\r\nreturn cless(${entryName},\`${lessData}\`,"${cssWrap}")`;
+                    if (entryName) jstext += `\r\nreturn cless(${entryName},\`${lessData}\`,"${cssWrap}")`;
                 }
             }
             else {
-                if (code.isExpressQueue()) codetext = "return " + codetext.trim();
-                else if (vars.main) codetext += '\r\nreturn main';
-                else if (vars.Main) codetext += '\r\nreturn Main';
-                else if (vars.MAIN) codetext += "\r\nreturn MAIN";
-                else if (vars[modName]) codetext += "\r\nreturn " + modName;
+                if (code.isExpressQueue()) jstext = "return " + jstext.trim();
+                else if (vars.main) jstext += '\r\nreturn main';
+                else if (vars.Main) jstext += '\r\nreturn Main';
+                else if (vars.MAIN) jstext += "\r\nreturn MAIN";
+                else if (vars[modName]) jstext += "\r\nreturn " + modName;
             }
             var templateName = commName;
             if (envs.template) templateName = 'template';
             if (envs[templateName]) {
                 delete envs[templateName];
                 var template = await cross("get", './components:' + modName + ".html");
-                codetext = `var ${templateName}={toString(){return \`${template.responseText.replace(/>\s+</g, '><')}\`}};\r\n` + codetext;
+                jstext = `var ${templateName}={toString(){return \`${template.responseText.replace(/>\s+</g, '><')}\`}};\r\n` + jstext;
             }
-            initcode(codetext);
+            initcode(jstext);
         }
         else {
             initcode('');
         }
-        scope.codetext = scope.coder.innerText;
+        jstext = coder.innerText;
         execute();
     };
     var blink = "\u0080";
     var markAnchorOffset = function () {
         var { anchorNode, anchorOffset } = document.getSelection();
-        if (!anchorNode || !scope.coder) return;
-        var [c] = scope.coder.children;
+        if (!anchorNode || !coder) return;
+        var [c] = coder.children;
         if (anchorNode.nodeType === 1) {
             var node = document.createTextNode(blink);
             anchorNode.insertBefore(node, anchorNode.childNodes[anchorOffset])
@@ -248,7 +255,7 @@
         }
     };
     var unmarkAnchorOffset = function () {
-        var [c] = scope.coder.children;
+        var [c] = coder.children;
         var node = c.firstChild;
         while (node) {
             if (node.nodeType === 1) {
@@ -273,7 +280,7 @@
     }
     var getAnchorOffset = function () {
         var { anchorNode, anchorOffset } = document.getSelection();
-        var [c] = scope.coder.children;
+        var [c] = coder.children;
         if (anchorNode === c || !anchorNode) return -anchorOffset;
         var sibling = anchorNode.previousSibling ? anchorNode.previousSibling : anchorNode.parentNode.previousSibling;
         while (sibling && sibling !== c) {
@@ -290,7 +297,7 @@
         return anchorOffset;
     };
     var setAnchorOffset = function (anchorOffset) {
-        var [c] = scope.coder.children;
+        var [c] = coder.children;
         if (anchorOffset < 0) {
             anchorOffset = -anchorOffset;
             if (anchorOffset > c.childNodes.length) anchorOffset = c.childNodes.length;
@@ -330,48 +337,50 @@
         try {
             var colored = codetext("js", innerText, blink);
         } catch { return; }
-        var innerHTML = scope.coder.innerHTML.replace(/\s*contenteditable\=[^\s\>]+/i, '');
+        var innerHTML = coder.innerHTML.replace(/\s*contenteditable\=[^\s\>]+/i, '');
         if (innerHTML === colored) return;
-        var [c0] = scope.coder.children;
+        var [c0] = coder.children;
         var contentLength = c0 ? innerText.length : 0;
         var scrollTop = c0 ? c0.scrollTop : 0;
         var scrollLeft = c0 ? c0.scrollLeft : 0;
-        scope.coder.innerHTML = colored;
-        var [c] = scope.coder.children;
+        coder.innerHTML = colored;
+        var [c] = coder.children;
         c.scrollTop = scrollTop;
         c.scrollLeft = scrollLeft;
         c.contentEditable = true;
     };
     var updatecode = lazy(function () {
         markAnchorOffset();
-        var innerText = scope.coder.innerText;
+        var innerText = coder.innerText;
         var trimspace = (_, a) => a ? "" : " ";
         var trimreg = /[\s\u00a0\u2002\u0080]+([\}\{\;\[\]\(\)\,\>\<\+\-\*\&\^\/%!~:?])*/g;
         unmarkAnchorOffset();
-        if (scope.codetext.replace(trimreg, trimspace).trim() === innerText.replace(trimreg, trimspace).trim()) return;
+        if (jstext.replace(trimreg, trimspace).trim() === innerText.replace(trimreg, trimspace).trim()) return;
         initcode(innerText);
         unmarkAnchorOffset();
-        scope.codetext = scope.coder.innerText;
+        jstext = coder.innerText;
+        jschanged = true;
     });
+    var jschanged = false;
     var execute = async function () {
         try {
-            var live = /^([\s\S]+)\//.exec(scope.name);
+            var live = /^([\s\S]+)\//.exec(name);
             if (live) live = live[1];
             var commap = initCommap(live);
-            remove(scope.coderesult.childNodes);
-            var codetext = scope.codetext.replace(/[\u2002\u00a0]/g, ' ');
-            data.patchInstance("docscode", { codetext: codetext })
-            var code = compile$scanner2(codetext);
+            remove(coderesult.childNodes);
+            jstext = jstext.replace(/[\u2002\u00a0]/g, ' ');
+            data.patchInstance("docscode", { codetext: jstext })
+            var code = compile$scanner2(jstext);
             var envs = code.envs;
             var argNames = Object.keys(envs);
             var args = await Promise.all(argNames.map(a => init(a + "*" + live, null, { ["init*" + live]: init, ["put*" + live]: put, ["zimoli*" + live]: zimoli, ["appendChild*" + live]: appendChild, ["remove*" + live]: remove, ["render*" + live]: render })));
-            var func = createFunction("", codetext, argNames, code.async, code.yield);
+            var func = createFunction("", jstext, argNames, code.async, code.yield);
             var res = func.apply(window, args);
             if (isFunction(res)) {
                 res = res.call(res);
             }
             if (isElement(res) || isArray(res)) {
-                appendChild(scope.coderesult, res);
+                appendChild(coderesult, res);
             }
         } catch (e) {
             alert(String(e), 'error');
@@ -384,35 +393,22 @@
     ];
     tags[data.getInstance("docscode").tagIndex | 0].actived = true;
     var actived = tags.map(t => t.actived);
+    // page.innerHTML = template;
+    var btn = button;
+    var a = button;
+    var jstext = '';
     var xmenu = menu;
-    var page = view();
-    on("submit")(page, e => e.preventDefault());
-    page.innerHTML = template;
-    var scope = {
-        btn: button,
-        container,
-        view,
-        tags,
-        a: button,
-        codetext: "",
-        xmenu: menu,
-        loadcode,
-        clearpad() {
-            remove(this.coderesult.childNodes);
-        },
-        execute,
-        updatecode,
-        saveTagIndex(i) {
-            data.setInstance("docscode", { tagIndex: i });
-            if (i === 1 && !scope.codetext) requestAnimationFrame(loadcode);
-        },
-        keytab(event) {
-            event.preventDefault();
-        }
+    var clearpad = function () {
+        remove(this.coderesult.childNodes);
     };
-    render(page, scope);
-    function main(name) {
-        分析(name, this.data);
-        return page;
-    }
+    var keytab = function (event) {
+        event.preventDefault();
+    };
+
+    var saveTagIndex = function (i) {
+        data.setInstance("docscode", { tagIndex: i });
+        if (i === 1 && !jschanged) requestAnimationFrame(loadcode);
+    };
+    var [name] = arguments;
+    分析(name, state.data);
 </script>
