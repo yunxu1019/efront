@@ -1005,7 +1005,7 @@ if (acme2.enabled) {
         if (!lock) return;
         var key = Math.random();
         try {
-            if (time + checkTime < Date.now()) {
+            if (time > Date.now() + checkTime) {
                 return;
             }
             var certlist = await getCertList();
