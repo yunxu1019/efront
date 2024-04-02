@@ -48,7 +48,7 @@ function filterTime(time, formater) {
         return format.call(value, formater);
     }
     if (formater) {
-        formater = format.charAt(0);
+        formater = formater.charAt(0);
     }
     var splited = getSplitedDate(value);
     var now = new Date;
@@ -97,12 +97,12 @@ function filterTime(time, formater) {
             switch (year1 - year) {
                 case 0:
                     if (value > now) {
-                        return `今年${month}${format || '月'}${date}${format ? '' : '日'} ${time}`;
+                        return `今年${month}${formater || '月'}${date}${formater ? '' : '日'} ${time}`;
                     }
-                    return `${month}${format || '月'}${date}${format ? '' : '日'} `;
+                    return `${month}${formater || '月'}${date}${formater ? '' : '日'} `;
                 case 1:
                     if (month1 < month) {
-                        return `${month}${format || '月'}${date}${format ? '' : '日'} `;
+                        return `${month}${formater || '月'}${date}${formater ? '' : '日'} `;
                     }
                     return "去年" + month + "月";
                 case -1:
@@ -112,6 +112,6 @@ function filterTime(time, formater) {
                 case -2:
                     return "后年" + month + "月" + date + "日";
             }
-            return `${year}${format || '年'}${month}${format || "月"}`;
+            return `${year}${formater || '年'}${month}${formater || "月"}`;
     }
 }
