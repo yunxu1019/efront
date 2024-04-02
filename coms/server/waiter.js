@@ -761,44 +761,41 @@ var showServerInfo = async function () {
     var msg = [
         i18n`服务器地址：${address}`];
     var maxLength = 0;
-    for (var cx = 0, dx = portedServersList.length; cx < dx; cx++) {
-        var s = portedServersList[cx];
-        var ishttps = isHttpsServer(s);
-        var m = s.hosted;
-        if (maxLength < m.length) maxLength = m.length;
-        msg.push(m);
-    }
     if (process.stdin.isTTY) process.title = msg.map(a => a.trim()).filter(a => !!a).join('，').replace(/\s/g, '');
     else process.title = 'efront';
+    portedServersList.forEach(s => {
+        s.hosted.forEach(m => {
+            if (maxLength < m.length) maxLength = m.length;
+            msg.push(m);
+        });
+    })
     if (!ipLoged) ipLoged = true, console.info(msg[0] + "\r\n");
     msg = msg.map(a => a.length && a.length < maxLength ? a + " ".repeat(maxLength - a.length) : a);
     var showError = function (i, e = portedServersList[i].error) {
-        var s = portedServersList[i];
-        s.removeAllListeners();
-        console.error(msg[i + 1] + "\t" + `<red>${e}</red>`);
-        s.close(closeListener);
+        console.error(msg[i] + "\t" + `<red>${e}</red>`);
     };
     var showValid = function (i) {
-        console.info(msg[i + 1] + `\t<green>${i18n`正常访问`}</green>\r\n`);
+        console.info(msg[i] + `\t<green>${i18n`正常访问`}</green>\r\n`);
     }
     var types = [];
-    for (var cx = 1, dx = msg.length; cx < dx; cx++) {
-        var m = msg[cx];
-        if (!m) continue;
-        if (m.length < maxLength) m += ' '.repeat(maxLength - m.length);
-        var i = cx - 1;
-        var s = portedServersList[i];
+    var i = 0;
+    for (var s of portedServersList) {
         var ishttps = isHttpsServer(s);
-        if (portedServersList[i].error) {
-            showError(i);
-        }
-        else try {
-            await checkServerState(ishttps ? require("https") : http, s.hosted);
-            showValid(i);
-            types.push(s.hosted);
-        }
-        catch (error) {
-            showError(i, error);
+        for (var p of s.hosted) {
+            i++;
+            if (s.error) {
+                showError(i);
+                s.removeAllListeners();
+                s.close(closeListener);
+            }
+            else try {
+                await checkServerState(ishttps ? require("https") : http, p);
+                showValid(i);
+                types.push(...s.hosted);
+            }
+            catch (error) {
+                showError(i, error);
+            }
         }
     }
     types.sort();
@@ -831,7 +828,7 @@ var portedServersList = [];
 /**
  * @this http.Server
  */
-function initServer(port, hostname) {
+function initServer(port, hostname, hostnames) {
     loading++;
     var server = this.once("error", showServerError)
         .on('clientError', function (err, socket) {
@@ -844,18 +841,27 @@ function initServer(port, hostname) {
     if (!hostname) server.listen(+port);
     else server.listen(+port, hostname);
     portedServersList.push(server);
-    if (!hostname) hostname = 'localhost';
-    if (isHttpsServer(server)) {
-        if (+port !== 443) {
-            hostname += ":" + port;
+    var wraphost = function (hostname) {
+        if (!hostname) hostname = 'localhost';
+        if (isHttpsServer(server)) {
+            if (+port !== 443) {
+                hostname += ":" + port;
+            }
+            hostname = "https://" + hostname;
         }
-        server.hosted = "https://" + hostname;
+        else {
+            if (+port !== 80) {
+                hostname += ":" + port;
+            }
+            hostname = "http://" + hostname;
+        }
+        return hostname;
+    };
+    if (hostnames) {
+        server.hosted = hostnames.map(wraphost);
     }
     else {
-        if (+port !== 80) {
-            hostname += ":" + port;
-        }
-        server.hosted = "http://" + hostname;
+        server.hosted = [wraphost(hostname)];
     }
     server.port = port;
     return server;
@@ -927,7 +933,7 @@ var createCertedServer = function (certlist) {
             }
         }
         if (isSingleCert) {
-            certlist = [{ cert, key }];
+            certlist = [{ cert, key, hostnames: certlist.map(c => c.hostname) }];
         }
     }
     certlist.forEach(c => {
@@ -935,7 +941,7 @@ var createCertedServer = function (certlist) {
         httpsOptions.cert = c.cert;
         try {
             var serveri = http2.createSecureServer(httpsOptions, requestListener);
-            initServer.call(serveri, +HTTPS_PORT || 443, c.hostname);
+            initServer.call(serveri, +HTTPS_PORT || 443, c.hostname, c.hostnames);
             serveri.hostname = c.hostname;
             portedServersList[c.hostname] = serveri;
         } catch (e) {
