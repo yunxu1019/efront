@@ -4,7 +4,7 @@ function fixLength(minute, length = 2) {
     if (minute.length >= length) return minute;
     return new Array(length - minute.length + 1).join("0") + minute;
 }
-var days = "天一二三四五六";
+var days = "日一二三四五六天";
 function format(formater) {
     var v = getSplitedDate(this);
     var o = {};
@@ -67,6 +67,7 @@ function filterTime(time, formater) {
         return `星期` + days[day] + time;
     }
     else if (delta > -7 && delta < -2) {
+        console.log(day,day1)
         if (day <= day1) {
             return `下星期` + days[day] + time;
         }
