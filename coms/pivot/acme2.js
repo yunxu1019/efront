@@ -353,7 +353,7 @@ var acme2 = new class {
     async autoUpdate(saveUnique, domain, setauth, upload) {
         if (!domain.length) return;
         if (acme2.orders.length >= 20) acme2.orders.pop();
-        this.lastUpdateTime = parseDate(Date.now());
+        this.lastUpdateTime = filterTime(Date.now(), 'y-MM-dd hh:mm');
         this.updateTime();
         var o = await acme2.newOrder({ domain });
         await saveUnique();// 及时保存订单信息以便后续查看

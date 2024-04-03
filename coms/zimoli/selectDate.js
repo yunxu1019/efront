@@ -280,7 +280,7 @@ var render = function (value, models = "年月日", message = "") {
         if (_value instanceof Event) {
             _value = _value.target.value;
         }
-        _value = parseDate(_value);
+        _value = filterTime(_value, "y-M-d h:mm:ss");
         _value = InternelDate(_value);
         value = _value;
     };
@@ -289,7 +289,7 @@ var render = function (value, models = "年月日", message = "") {
 };
 
 function main(models = "年月日", value, title) {
-    value = parseDate(value);
+    value = filterTime(value, 'y-M-d h:mm:ss');
     value = InternelDate(value);
     var datebox = render(value, models, title);
     addClass(datebox, 'date-' + models.length);

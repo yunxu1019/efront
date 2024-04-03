@@ -39,8 +39,25 @@ function format(formater) {
 }
 function filterTime(time, formater) {
     if (!isHandled(time)) return '';
-    if (isFinite(time)) time = +time;
-    var value = new Date(time);
+    var value = time;
+    if (isFinite(value)) value = +value;
+    if (typeof value === 'string') value = value.replace(/[\\\/]/g, "-")
+        .replace(/[年月](\d+)/g, '-$1')
+        .replace(/[日号]/, ' ')
+        .replace(/[时点分]/g, ":")
+        .replace(/[半]/g, "30")
+        .replace(/[整]/g, "00")
+        .replace(/[一1]刻/g, "15")
+        .replace(/[三3]刻/g, "45")
+        .replace(/凌晨|早上|上午/g, ' ')
+        .replace(/(?:傍?晚上?|下午)(\d+)/g, (_, d) => " " + (+d + 12))
+        .replace(/秒/g, '.')
+        .replace(/毫/, "")
+        .replace(/\.+$/, '')
+        .replace(/\s+$/, '')
+        .replace(/\s+/g, " ")
+        .replace(/^([^\s]+)\s+(\d+)$/g, "$1 $2:00");
+    var value = new Date(value);
     if (!+value) {
         return time;
     }
@@ -67,7 +84,7 @@ function filterTime(time, formater) {
         return `星期` + days[day] + time;
     }
     else if (delta > -7 && delta < -2) {
-        console.log(day,day1)
+        console.log(day, day1)
         if (day <= day1) {
             return `下星期` + days[day] + time;
         }
