@@ -77,7 +77,7 @@ class Table extends Array {
             var [p, m] = mark.power(name, searchtext);
             if (p > power) power = p;
             if (p >= searchtext.length) this.coverCount++;
-            if (!isEmpty(f.key)) o[f.key] = m;
+            if (!isEmpty(f.key) && !isFunction(f.key)) o[f.key] = m;
             else o.name = m, o.toString = returnName, o.valueOf = returnName;
         }
         o.power = power;

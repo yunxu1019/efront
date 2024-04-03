@@ -171,7 +171,6 @@ function main() {
                 case this.children[0]:
                     var a = prompt("请输入", a => {
                         if (!a) return false;
-                        console.log(itemMap, a);
                         if (a in itemMap) {
                             return `选项 ${a} 已存在！`;
                         }
