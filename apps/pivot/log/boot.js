@@ -1,4 +1,3 @@
-cross.addDirect(/^https?\:\/\/([[a-z\.\d\:\/%]+\]|[\d\.]+)(\:\d+)?\//);
 var checkPort = async function (p, ip) {
     if (!p.host) {
         if (/^::ffff:\d+\.\d+\.\d+\.\d+$/i.test(ip)) {
@@ -11,9 +10,12 @@ var checkPort = async function (p, ip) {
     }
     try {
         p.locate("/:version");
-        var { response } = await cross("options", p.href);
-        if (/^efront/.test(response)) {
+        var xhr = await cross("@options", p.href);
+        if (/^efront/.test(xhr.response)) {
             p.ok = true;
+        }
+        else {
+            p.error = '异常';
         }
     } catch (e) {
         p.error = e;

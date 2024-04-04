@@ -743,7 +743,7 @@ var showServerInfo = async function () {
             }
         }
     }
-    message.send("logsimilar", JSON.stringify({ ip: "selflog", ppid: process.ppid, port: ported.join(','), time: Date.now() }));
+    message.send("logsimilar", JSON.stringify({ ip: "selflog", ppid: version, port: ported.join(','), time: Date.now() }));
     if (memery.REPORT) try {
         await checkServerState(memery.REPORT, version, ported);
     } catch { }
