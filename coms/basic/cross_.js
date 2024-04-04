@@ -195,7 +195,9 @@ function cross_(jsonp, digest = noop, method, url, headers) {
     else {
         var isencrypt = /^[夏商周秦xszq]/i.test(method);
         if (isencrypt) method = method.slice(1);
-        var nocross = notCross(url, isencrypt);
+        var nocross = /^@/.test(method);
+        if (nocross) method = method.slice(1);
+        else nocross = notCross(url, isencrypt);
         if (nocross) isencrypt = false;
         var callback = async function () {
             if (xhr.getResponseHeader) {
