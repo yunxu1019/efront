@@ -190,9 +190,6 @@ var doOptions = async function (req, res, type) {
         case "efront":
             if (type[3]) {
                 message.send("logsimilar", JSON.stringify({ ip: remoteAddress(req), ppid: type[2], port: type[3], time: Date.now() }));
-                if (!selfLogged && type[2] === version.slice(7)) {
-                    selfLogged = true;
-                }
             }
             break;
         case "version":
@@ -694,64 +691,10 @@ var requestListener = async function (req, res) {
     }
 };
 var ipLoged = false;
-var selfLogged = false;
 /**
  * @param {Http2ServerRequest} http
  */
-var checkServerState = function (http, hosted) {
-    if (arguments.length === 1) var type = http;
-    return new Promise(function (ok, oh) {
-        var v = version;
-        if (type) v += "?" + type;
-        var { hostname: host, port, protocol } = parseURL(hosted ? hosted : memery.REPORT);
-        if (!host || !type || selfLogged) {
-            if (!hosted) {
-                var { hostname: host, port, protocol } = parseURL(http[0]);
-            }
-            if (type) {
-                http = require(protocol.replace(/\:$/, ""));
-            }
-        }
-        else {
-            if (!protocol) {
-                protocol = +port === 443 ? "https" : 'http';
-            }
-            http = require(protocol.replace(/\:$/, ''));
-        }
-        if (!port) {
-            port = /^https/.test(protocol) ? 443 : 80;
-        }
-        var req = http.request(Object.assign({
-            method: 'options',
-            host,
-            port: +port,
-            rejectUnauthorized: false,// 放行证书不可用的网站
-            path: '/:' + v
-        }, httpsOptions), function (response) {
-            req.destroy();
-            var powered = response.headers["powered-by"];
-            if (type) return ok();
-            if (powered === version) {
-                ok(i18n`检查到${port}可以正常访问\r\n`);
-                if (!memery.proted) memery.proted = true;
-            } else {
-                oh(i18n`端口异常`);
-            }
-        });
-        req.on("error", oh);
-        req.end();
-    });
-};
 var loading = 0;
-var checkOutside = lazy(async function (type) {
-    try {
-        await checkServerState(type);
-        if (!selfLogged) {
-            selfLogged = true;
-            await checkServerState(type);
-        }
-    } catch { };
-}, 80);
 var isHttpsServer = function (server) {
     return server !== server0 && server !== server1;
 };
@@ -777,29 +720,33 @@ var showServerInfo = async function () {
     var showValid = function (i) {
         console.info(msg[i] + `\t<green>${i18n`正常访问`}</green>\r\n`);
     }
-    var types = [];
     var i = 0;
+    var ported = [];
     for (var s of portedServersList) {
-        var ishttps = isHttpsServer(s);
         for (var p of s.hosted) {
             i++;
             if (s.error) {
                 showError(i, s.error);
                 s.removeAllListeners();
                 s.close(closeListener);
+                ported.push(p + "#" + s.error);
             }
             else try {
-                await checkServerState(ishttps ? require("https") : http, p);
+                await checkServerState(p, version);
+                if (!memery.proted) memery.proted = true;
+                ported.push(p);
                 showValid(i);
-                types.push(...s.hosted);
             }
             catch (error) {
+                ported.push(p + "#" + error);
                 showError(i, error);
             }
         }
     }
-    types.sort();
-    if (types.length) checkOutside(types);
+    message.send("logsimilar", JSON.stringify({ ip: "selflog", ppid: process.ppid, port: ported.join(','), time: Date.now() }));
+    if (memery.REPORT) try {
+        await checkServerState(memery.REPORT, version, ported);
+    } catch { }
 };
 var showServerError = function (error) {
     var s = this;

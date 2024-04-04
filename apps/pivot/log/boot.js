@@ -50,7 +50,7 @@ function main() {
     page.innerHTML = template;
     var items = data.from("bootlog", datas => {
         datas.forEach(a => {
-            var [v, p] = a.ppid.split("/");
+            var [v, p] = String(a.ppid).split("/");
             a.version = v;
             a.pid = p;
         });
