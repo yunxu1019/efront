@@ -68,11 +68,29 @@ var getRowsOfTdsByCol = function (table, start, end) {
 var getTdsByCol = function (table, start, end) {
     return [].concat.apply([], getRowsOfTdsByCol(table, start, end));
 };
+var resizeR = function (t) {
+    var h = 0;
+    var children = [];
+    for (var c of t.children) {
+        if (getColspan(c) > 1) continue;
+        children.push(c);
+    }
+    for (var c of children) {
+        var height = c.offsetHeight;
+        if (h < height) h = height;
+    }
+    for (var c of children) {
+        var height = c.offsetHeight;
+        if (h > height) {
+            css(c, { height: h });
+        }
+    }
+}
 var resizeT = function (t, w) {
     if (!w) {
         var w = 0;
-        for (var cx = 0, dx = t.children.length; cx < dx; cx++) {
-            w += t.children[cx].offsetWidth;
+        for (var c of t.children) {
+            w += c.offsetWidth;
         }
     }
     css(t, { width: w });
@@ -328,9 +346,7 @@ var removeYIng = function (activeCols) {
     });
 };
 var removeXIng = function (activeRows) {
-    activeRows.forEach(function (td) {
-        removeClass(td, 'x-ing');
-    });
+    for (var td of activeRows) removeClass(td, 'x-ing');
 };
 
 var getTdsOfSameRow = function (td) {
@@ -517,6 +533,7 @@ function table(elem) {
             data,
             adapter: null,
             resizeT,
+            resizeR,
             model,
             sort(f) {
                 this.data.sort(f);

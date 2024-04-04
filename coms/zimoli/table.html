@@ -9,7 +9,7 @@
     </tr>
 </thead>
 <tbody -src="(d,i) in data" :style="tbodyHeight(this,hasFoot)">
-    <tr inline-block :style="{width:adapter.style.width}" @click="rowClick(d,i,event)">
+    <tr inline-block :style="{width:adapter.style.width}" @click="rowClick(d,i,event)" @mounted="resizeR(this)">
         <td fixed row-index -bind="i+1" :style="adapter.firstChild.getAttribute('style')">
         </td>
         <td fixed:="f.fixed" -repeat="(f,i) in fields" :style="adapter.children[i+1].getAttribute('style')">
