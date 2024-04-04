@@ -18,11 +18,19 @@ var cert = {
 
 };
 if (memery.PFX_PATH) {
-    cert.pfx = await readFileAsync(memery.PFX_PATH);
-    cert.passphrase = memery.PFX_PASSWORD;
+    try {
+        cert.pfx = await readFileAsync(memery.PFX_PATH);
+        cert.passphrase = memery.PFX_PASSWORD;
+    } catch (e) {
+        console.error(e);
+    }
 }
 else {
-    cert.key = await loadCertFile("cross-key.pem");
-    cert.cert = await loadCertFile("cross-cert.pem");
+    try {
+        cert.key = await loadCertFile("cross-key.pem");
+        cert.cert = await loadCertFile("cross-cert.pem");
+    } catch (e) {
+        console.error(e);
+    }
 }
 module.exports = cert;
