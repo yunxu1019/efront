@@ -290,7 +290,7 @@ var memery = module.exports = {
     RECORD: getdirpath("RECORD_PATH,RECORD"),
     TRANSFORM_PIXEL: get("TRANSFORM_PIXEL", false),
     PFX_PATH: getdirpath("PFX_PATH, PATH.SSL_PFX"),
-    PFX_PASSWORD: get("PFX_PASSWORD, SSL_PASSWORD, PASSWORD.SSL_PFX"),
+    PFX_PASSWORD: get("PFX_PASSWORD, SSL_PASSWORD, PASSWORD.SSL_PFX", ''),
     PAGE: getdirpath("PAGE, APPS"),
     COMM: getdirpath("COMM, COMS", ''),
     AAPI: getdirpath("AAPI, APIS"),
