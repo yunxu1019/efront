@@ -4,6 +4,7 @@ assert(filterTime(undefined), '');
 assert(filterTime("我出生的第二年"), `我出生的第二年`);
 assert(filterTime(new Date(2024, 3, 3), `y年M月d日 h:mm`), '2024年4月3日 0:00');
 assert(filterTime(new Date(2024, 3, 3), `y年M月d日 h:mm`), '2024年4月3日 0:00');
+assert(filterTime(new Date(2024, 3, 3, 19, 26, 2, 100), `y年M月d日 h:mm:ss.SSS`), '2024年4月3日 19:26:02.100');
 assert(filterTime("2024年4月3号", `y年M月d日h:mm`), '2024年4月3日0:00');
 assert(filterTime("2024年4月3号8点半", `y年M月d日h:mm`), '2024年4月3日8:30');
 assert(filterTime("2024年4月3号9点三刻", `y年M月d日h:mm`), '2024年4月3日9:45');
@@ -16,3 +17,6 @@ assert(filterTime("2024年4月3号凌晨6点", `y年M月d日h:mm`), '2024年4月
 assert(filterTime("2024年4月3号凌晨6点整", `y年M月d日h:mm`), '2024年4月3日6:00');
 assert(filterTime("2024/4/3凌晨6点整", `y年M月d日h:mm`), '2024年4月3日6:00');
 assert(filterTime("2024-4-3早上6点整", `y年M月d日h:mm`), '2024年4月3日6:00');
+assert(filterTime("2024-4-3早上6点59分30秒20毫秒", `y年M月d日h:mm`), '2024年4月3日6:59');
+assert(filterTime("2024-4-3早上6点59分30秒20毫秒", `y年M月d日h:mm:ss`), '2024年4月3日6:59:30');
+assert(filterTime("2024-4-3早上6点59分30秒20毫秒", `y年M月d日h:mm:ss.S`), '2024年4月3日6:59:30.020');
