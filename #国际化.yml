@@ -322,7 +322,7 @@
 - zh-CN: 消息体不合法！
   en:    The message body is illegal!
 
-- zh-CN: 您的传达了有歧义的信息：$1
+- zh-CN: 您传达了有歧义的信息：$1
   en:    "Your message conveyed ambiguous information: $1"
 
 - zh-CN: 父元素不能是当前元素的子元素

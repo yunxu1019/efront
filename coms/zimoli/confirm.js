@@ -62,7 +62,7 @@ function confirm() {
     }
     message = String(body.innerText).replace(/\s+/g, " ");
     if (conflictReg.test(String(body.innerText).replace(/\s+/g, ""))) {
-        throw new Error(i18n`您的传达了有歧义的信息：${message}`);
+        throw new Error(i18n`您传达了有歧义的信息：${message}`);
     }
     if (!options) {
         for (var k in defaultOptions) {
