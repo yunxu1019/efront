@@ -61,11 +61,6 @@
         }
 
     }
-
-    p span,
-    p a {
-        vertical-align: middle;
-    }
 </style>
 <p><span>${i18n`翻译结果仅做为参考，未必完美替换，语法参考:`}<a @click="zimoli.go('/组件/basic/i18n.js',{mark:true})">i18n.js</a></span></p>
 <p -if="!window.showDirectoryPicker" error>${i18n`国际化工具仅在浏览器支持 showDirectoryPicker 时可用`}</p>
