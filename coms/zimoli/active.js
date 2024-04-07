@@ -9,6 +9,7 @@ function active(target, value, item = value, srcElem) {
             else activeEvent.active = srcElem;
         }
         activeEvent = dispatch(target, activeEvent);
+        return activeEvent;
     };
     var activeEvent = dispatchEvent("active");
     var actived = activeEvent && !activeEvent.defaultPrevented;
