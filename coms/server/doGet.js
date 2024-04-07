@@ -122,7 +122,25 @@ var adapter = function (data, url, req, res) {
         data = data(req, res);
     }
     if (data instanceof Buffer) {
-        message.count({ path: url, update: true });
+        var msg = { path: url, update: true };
+        if (req.indexed) {
+            msg.indexed = true;
+            msg.remote = remoteAddress(req);
+            msg.time = Date.now();
+            var headers = req.headers;
+            var referer = getHeader(headers, 'referer');
+            if (referer?.length > 300) {
+                //过长的源路径视为攻击型请求
+                referer = referer.slice(0, 297) + "...";
+            }
+            msg.host = headers.host || headers[":authority"];
+            msg.referer = referer;
+            // 忽略杂种浏览器过长的userAgent
+            var agent = getHeader(req.headers, "user-agent");
+            if (agent.length > 360) agent = agent.slice(0, 357) + "...";
+            msg.agent = agent;
+        }
+        message.count(msg);
         return response(data, url, req, res);
     }
     if (data instanceof Error) {
@@ -152,6 +170,7 @@ var adapter = function (data, url, req, res) {
     }
     if (url) {
         data = getfile(url, req.deno ? denoindex : indexlist);
+        req.indexed = true;
         return adapter(data, "", req, res);
     }
     if (!req.direct && memery.DIRECT) {

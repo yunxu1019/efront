@@ -1,5 +1,7 @@
+<xmenu -src="(m,i)in menus" @actived="saveState(i)"></xmenu>
 <div class="searchbox">
     <input -model="searchText" />
 </div>
-<table -src="[fields,items]" _find="searchText">
-</talbe>
+<table -if="menus[0].actived" -src="[fields,items]" _find="searchText">
+</table>
+<table -elseif="menus[1].actived" -src="[fields2,recent]" _find="searchText"></table>
