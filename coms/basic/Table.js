@@ -1,6 +1,6 @@
 
 function minusPower(a, b) {
-    return a.power - b.power >= 0;
+    return a.$power - b.$power >= 0;
 }
 function returnName() {
     return this.name;
@@ -20,12 +20,17 @@ class Table extends Array {
     searchid = 0;
     coverCount = 0;
     hasFullmatch = false;
+    summaryFields = [];
+    $summaryData = [];
+    $filterFields = [];
+    $unsummaryFileds = [];
     callback = null;
     static from(fields, data) {
         var t = new Table;
         t.fields = fields;
         t.source = data;
         t.searchFields = fields.filter(searchThis);
+        t.summaryFields = fields.filter(s => s.summary);
         t.update();
         return t;
     }
@@ -51,10 +56,47 @@ class Table extends Array {
         this.sorted = null;
         this.update();
     }
+    summary(o) {
+        var data = this.$summaryData;
+        var is = this.summaryFields.map((f, i) => {
+            if (!isHandled(f.key)) return;
+            var d = seek(o, f.key);
+            if (!isHandled(d)) d = '';
+            var dt = data[i];
+            var di = dt.indexOf(d);
+            if (di < 0) di = dt.length, dt.push(d);
+            return "-" + di;
+        }).join("");
+        var dis = data[is];
+        if (!dis) {
+            dis = data[is] = Object.assign({}, o);
+            dis.$summary = this.$unsummaryFileds.map(function (f, i) {
+                if (typeof f.key !== "string") return;
+                Object.defineProperty(dis, f.key, {
+                    get() {
+                        var s = this.$summary[i];
+                        if (s.length === 1) return s[0];
+                        return `共${this.$summary[i].length}个不同的项`;
+                    },
+                })
+                return [];
+            });
+            saveToOrderedArray(this, dis, minusPower);
+        }
+        var undata = dis.$summary;
+        this.$unsummaryFileds.forEach((f, i) => {
+            if (typeof f.key !== 'string') return;
+            var d = seek(o, f.key);
+            if (!isHandled(d)) d = '';
+            var dt = undata[i];
+            var di = dt.indexOf(d);
+            if (di < 0) di = dt.length, dt.push(d);
+        });
+    }
     addItem(o) {
         if (!isHandled(o)) return;
         var searchtext = this.searchText;
-        var fields = this.searchFields ? this.searchFields : this.fields;
+        var fields = this.$filterFields;
         var power = 0;
         var s = o;
         if (isNode(o)) {
@@ -80,9 +122,11 @@ class Table extends Array {
             if (!isEmpty(f.key) && !isFunction(f.key)) o[f.key] = m;
             else o.name = m, o.toString = returnName, o.valueOf = returnName;
         }
-        o.power = power;
-        if (o.power > 0) {
-            saveToOrderedArray(this, o, minusPower);
+        o.$power = power;
+        var summary = this.$summaryData;
+        if (o.$power > 0) {
+            if (!summary.length) saveToOrderedArray(this, o, minusPower);
+            else this.summary(o);
         }
     }
     search(text, callback) {
@@ -102,6 +146,12 @@ class Table extends Array {
         this.searched = 0;
         var source = this.sorted ? this.sorted : this.source;
         if (!source) return;
+        var summaryData = this.$summaryData = this.summaryFields.map(_ => []);
+        this.$unsummaryFileds = this.fields.filter(f => this.summaryFields.indexOf(f) < 0);
+        var $filterFields = this.searchFields || this.fields;
+        if (this.summaryFields.length) this.$filterFields = $filterFields.filter(f => this.summaryFields.indexOf(f) > 0);
+        else this.$filterFields = $filterFields;
+        var useSummaryOnly = summaryData.length > 0;
         var searchid = ++this.searchid;
         this.complete = false;
         this.coverCount = 0;
@@ -110,13 +160,12 @@ class Table extends Array {
             source = source.filter(a => origin.indexOf(a) < 0);
             source = origin.concat(source);
         }
-        if (this.searchText) for (var o of source) {
-            this.addItem(o);
+        if (this.searchText || summaryData.length > 0) for (var o of source) {
+            if (useSummaryOnly) this.summary(o);
+            else this.addItem(o);
             if (++this.searched % 600 === 0) {
                 if (isFunction(this.callback)) this.callback();
-                await new Promise(function (ok) {
-                    requestAnimationFrame(ok)
-                });
+                await new Promise(requestAnimationFrame);
                 if (this.searchid !== searchid) break;
             }
         }

@@ -161,6 +161,7 @@ var resizeColumn = function (target, targetW) {
     }
 };
 var resizeTarget = function (event) {
+    if (swapping && onclick.preventClick) swapping.end(), swapping = null;
     var { resizing } = this;
     if (!resizing) return;
     event.moveLocked = true;
@@ -406,15 +407,34 @@ function setContextMenu(thead) {
     var scope = this;
     contextmenu(thead, menuItems);
 }
+
+var swapping = null;
+
 function table(elem) {
     var tableElement = isElement(elem) ? elem : document.createElement("table");
     var activeCols = [];
     bind('mousemove')(tableElement, adaptTarget);
+    var updateSummaryFields = null;
     moveupon(tableElement, {
         start(event) {
-            if (this.resizing) event.preventDefault();
+            if (this.resizing) return event.preventDefault();
+            if (!updateSummaryFields) return;
+            var thead = getThead(this);
+            var th = getTargetIn(thead, event.target, false);
+            if (!th) return;
+            if (th.tagName.toLowerCase() === 'tr') th = getTargetIn(th, event.target, false);
+            var field = th.$scope?.f;
+            if (!field || field.fixed || !isHandled(field.key)) return;
+            swapping = lazySwap(th, function (value) {
+                field.summary = value;
+                updateSummaryFields();
+            });
+            swapping.start();
         },
         move: resizeTarget,
+        end() {
+            if (swapping) swapping.end(), swapping = null;
+        }
     });
     var activeRows = [];
     onmousemove(tableElement, function (event) {
@@ -436,6 +456,7 @@ function table(elem) {
         }
         if (!getTargetIn(thead, event.target)) return;
         var tds = cellMatchManager(event.target);
+
         if (!tds) return;
         setClass(tds, 'y-ing', activeCols);
         removeXIng(activeRows);
@@ -456,13 +477,15 @@ function table(elem) {
     };
     var cellMatchManager = function (element) {
         if (!thead) thead = getThead(table);
-        if (!getTargetIn(thead, element)) return false;
-        if (!tdElementReg.test(element.tagName)) return false;
+        var td = getTargetIn(thead, element, false);
+        if (!td) return false;
+        if (td.tagName.toLowerCase() === 'tr') td = getTargetIn(td, element, false);
+        if (!tdElementReg.test(td.tagName)) return false;
         if (!markedRows) {
             markThead();
             markedRows = true;
         }
-        var { colstart, colend } = element;
+        var { colstart, colend } = td;
         return getTdsByCol(table, colstart, colend);
     };
     watch(table, {
@@ -497,6 +520,10 @@ function table(elem) {
                 }
             }
         })
+        updateSummaryFields = function () {
+            $scope.data.summaryFields = fields.filter(f => f.summary);
+            $scope.data.update();
+        };
         thead = null;
         fields.forEach(enrichField);
         remove(this.children);

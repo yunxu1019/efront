@@ -1,7 +1,7 @@
 <thead @mounted="setFixedColumn.call(this.parentNode),setContextMenu(this)">
     <tr inline-block #adapter thead @mounted="resizeT(this)">
-        <td draggable="false" fixed row-index>${i18n`序号`}</td>
-        <td fixed:="f.fixed" -repeat="f in fields track by f.id" :style="{width:f.width}" @dblclick="sort(f)"><i
+        <td draggable="false" fixed row-index><mask></mask>${i18n`序号`}</td>
+        <td fixed:="f.fixed" -repeat="f in fields track by f.id" :style="{width:f.width}" @dblclick="sort(f)" swapped_="field.summary"><mask></mask><i
                 -if="f.icon" -class="f.icon"></i><span -if="f.name" -html="f.name"
                 type@="typeof f.type==='string'?f.type:''"></span><template -else>&nbsp;</template>
         </td>
@@ -10,9 +10,10 @@
 </thead>
 <tbody -src="(d,i) in data" :style="tbodyHeight(this,hasFoot)">
     <tr inline-block :style="{width:adapter.style.width}" @click="rowClick(d,i,event)" @mounted="resizeR(this)">
-        <td fixed row-index -bind="i+1" :style="adapter.firstChild.getAttribute('style')">
+        <td fixed row-index :style="adapter.firstChild.getAttribute('style')"><mask></mask><span -bind="i+1"></span>
         </td>
         <td fixed:="f.fixed" -repeat="(f,i) in fields" :style="adapter.children[i+1].getAttribute('style')">
+            <mask></mask>
             <model -if="!isEmpty(f.key)" :field=f :data=d readonly></model>
             <template -else>&nbsp;</template>
             <a on-click="o.do(d)" -if="isEmpty(f.key)&&f.options&&(!o.when||o.when(d))"
@@ -20,7 +21,7 @@
                 <span -text="o.name instanceof Function?o.name(d):o.name"></span>
             </a>
         </td>
-        <td :style="adapter.lastChild.getAttribute('style')">&nbsp;</td>
+        <td :style="adapter.lastChild.getAttribute('style')"><mask></mask>&nbsp;</td>
     </tr>
 </tbody>
 <tfoot>
