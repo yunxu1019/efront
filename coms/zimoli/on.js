@@ -278,7 +278,6 @@ var remove = function (k, hk, [eventtypes, handler, context]) {
 var broadcast = function (k, hk, event) {
     var element = this;
     var handlers = element[hk];
-    if (!handlers) console.log(handlers, hk, event, element)
     if (handlers.length > 1) handlers = handlers.slice();
     if (event.which === 1 && event.buttons === 0) {
         // firefox 无按键
@@ -426,7 +425,7 @@ var invoke = function (event, type, pointerType) {
 
 (function () {
     var pointeractive = null;
-    if ("onpointerdown" in document || document.efronton) return;
+    if ("onpointerdown" in document) return;
     var getPointerType = function (event) {
         return event.type.replace(/(start|move|end|cancel|down|up|leave|out|over|enter)$/i, '');
     };
@@ -455,8 +454,7 @@ var invoke = function (event, type, pointerType) {
 }());
 
 (function () {
-    // fastclick
-    if (window.fastclick) return;
+    // 不再兼容fastclick
     var onclick = on("click");
     var onmousedown = on("mousedown");
     var onmousemove = on("mousemove");
@@ -471,13 +469,15 @@ var invoke = function (event, type, pointerType) {
         onclick.preventClick = false;
         pointerX = event.clientX, pointerY = event.clientY;
     }
-    var abs = Math.abs;
+    var dis = (a, b) => a * a + b * b
     function clickcancel(event) {
-        if (!event || abs(event.clientX - pointerX) >= MOVELOCK_DELTA || abs(event.clientY - pointerY) >= MOVELOCK_DELTA) onclick.preventClick = true;
+        if (!event || event.which && dis(event.clientX - pointerX, event.clientY - pointerY) >= MOVELOCK_DELTA * MOVELOCK_DELTA) {
+            onclick.preventClick = true;
+        }
     }
-    onmousedown(window, clickstart);
+    onmousedown(window, clickstart, true);
 
-    onmousemove(window, clickcancel);
+    onmousemove(window, clickcancel, true);
     if (window.addEventListener) {
         window.addEventListener("touchmove", function (event) {
             extendTouchEvent(event);
