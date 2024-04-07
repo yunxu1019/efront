@@ -123,8 +123,8 @@ class Table extends Array {
             else o.name = m, o.toString = returnName, o.valueOf = returnName;
         }
         o.$power = power;
-        var summary = this.$summaryData;
         if (o.$power > 0) {
+            var summary = this.$summaryData;
             if (!summary.length) saveToOrderedArray(this, o, minusPower);
             else this.summary(o);
         }
@@ -148,10 +148,10 @@ class Table extends Array {
         if (!source) return;
         var summaryData = this.$summaryData = this.summaryFields.map(_ => []);
         this.$unsummaryFileds = this.fields.filter(f => this.summaryFields.indexOf(f) < 0);
-        var $filterFields = this.searchFields || this.fields;
-        if (this.summaryFields.length) this.$filterFields = $filterFields.filter(f => this.summaryFields.indexOf(f) > 0);
+        var $filterFields = this.searchFields?.length ? this.searchFields : this.fields;
+        if (this.summaryFields.length) this.$filterFields = $filterFields.filter(f => this.summaryFields.indexOf(f) >= 0);
         else this.$filterFields = $filterFields;
-        var useSummaryOnly = summaryData.length > 0;
+        var useSummaryOnly = !this.searchText && summaryData.length > 0;
         var searchid = ++this.searchid;
         this.complete = false;
         this.coverCount = 0;
