@@ -778,10 +778,13 @@ async function getXhtPromise(data, filename, fullpath, watchurls) {
         default:
             creator = 'document.createElement(';
     }
-    var xhtrender = `elem.innerHTML=template;render(elem,scope);`;
-    xhtrender = async
-        ? `${xhtmain}.apply(elem,arguments).then(function([template,scope]){${xhtrender}})`
-        : `var [template,scope]=${xhtmain}.apply(elem,arguments);${xhtrender}`;
+    if (htmltext !== '``' || tagName && jsvars[tagName] || commName && jsvars[commName]) {
+        var xhtrender = `elem.innerHTML=template;render(elem,scope);`;
+        xhtrender = async
+            ? `${xhtmain}.apply(elem,arguments).then(function([template,scope]){${xhtrender}})`
+            : `var [template,scope]=${xhtmain}.apply(elem,arguments);${xhtrender}`;
+    }
+    else xhtrender = `${xhtmain}.apply(elem,arguments)`;
     var createElement = tagName
         ? `var elem = ${creator}"${tagName}");`
         : `var elem =isElement(arguments[0])?arguments[0]:${creator}"${commName}");`;

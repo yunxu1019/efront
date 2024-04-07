@@ -1,0 +1,21 @@
+<style>
+    :scope {
+        position: absolute;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        top: 0;
+        border-radius: inherit;
+        z-index: 0;
+        background-color: #323636;
+    }
+</style>
+<script>
+    var msk = this;
+    onmousewheel(msk, function (event) {
+        event.preventDefault();
+    });
+    ontouchmove(msk, function (event) {
+        event.preventDefault();
+    });
+</script>
