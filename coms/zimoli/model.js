@@ -219,7 +219,7 @@ constructors.gen = constructors.generator;
 var readonly_types = {
     "date"({ field }, data) {
         var string = data[field.key];
-        return parseDate(string);
+        return filterTime(string, "y年M月d日");
     },
     "url"({ field }, data) {
         var href = data[field.key];
@@ -228,6 +228,14 @@ var readonly_types = {
             e.target = "_blank";
             return e;
         }
+    },
+    "datetime"(elem) {
+        var { data, field } = elem;
+        elem.innerHTML = filterTime(data[field.key], "y年M月d日 h:mm");
+    },
+    "timestamp"(elem) {
+        var { data, field } = elem;
+        elem.innerHTML = filterTime(data[field.key]);
     },
     "size"({ field }, data) {
         var f = data[field.key];
