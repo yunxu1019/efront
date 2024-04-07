@@ -123,7 +123,7 @@ var adapter = function (data, url, req, res) {
     }
     if (data instanceof Buffer) {
         var msg = { path: url || req.url, update: true };
-        if (req.indexed) {
+        if (req.indexed || /package\.json$/i.test(msg.path)) {
             msg.indexed = true;
             msg.remote = remoteAddress(req);
             msg.time = Date.now();
