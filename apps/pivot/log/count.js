@@ -6,6 +6,7 @@ var fields2 = refilm`
 域名/host text/100
 路径/path text/80
 远程地址/remote text/100
+地理位置/address/查看 act/80 ${checkGeo}
 时间/time timestamp
 来源/referer text/100
 客户端/agent text/200
