@@ -76,7 +76,7 @@ class Table extends Array {
                     get() {
                         var s = this.$summary[i];
                         if (s.length === 1) return s[0];
-                        return `共${this.$summary[i].length}个不同的项`;
+                        return i18n`共${this.$summary[i].length}个不同的项`;
                     },
                 })
                 return [];

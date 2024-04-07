@@ -12,10 +12,10 @@ var fields2 = refilm`
 `;
 var menus = [
     {
-        name: "计数",
+        name: i18n`计数`,
     },
     {
-        name: "千次快照",
+        name: i18n`千次快照`,
     }
 ];
 menus[state().index || 0].actived = true;
