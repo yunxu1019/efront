@@ -18,6 +18,6 @@ if (preventCache && navigator) {
         } else {
             search = "=" + mark_time.toString(36);
         }
-        if (!/Safari|Firefox|Sciter|Baiduspider/.test(navigator.userAgent)) location.replace(location.pathname + "?" + search);
+        if (!/Safari|Firefox|Sciter|Baiduspider|PetalBot|Googlebot|Odin/.test(navigator.userAgent)) location.replace(location.pathname + "?" + search);
     }
 }
