@@ -1483,7 +1483,27 @@ var unshort = function (o, text) {
     o.isprop = false;
     o.type = EXPRESS;
     delete o.short;
-}
+};
+var getScopeWith = function (o, k) {
+    var q = o.queue;
+    while (q && (!q.scoped || !q.scoped.used[k])) q = q.queue;
+    return q;
+};
+
+var patchArrawScope = function (arraw, origin) {
+    var s1 = createScoped(arraw);
+    if (s1.used.this) {
+        var s = getScopeWith(origin, 'this').scoped;
+        s.used.this.push(...s1.used.this);
+        s.insett = true;
+    }
+    if (s1.used.arguments) {
+        s.inseta = true;
+        var s = getScopeWith(origin, 'arguments').scoped;
+        s.used.arguments.push(...s1.used.arguments);
+    };
+};
+
 module.exports = {
     /*   1 */COMMENT,
     /*   2 */SPACE,
@@ -1502,6 +1522,8 @@ module.exports = {
     unshort,
     skipAssignment,
     getDeclared,
+    getScopeWith,
+    patchArrawScope,
     remove,
     createString,
     createScoped,

@@ -1,5 +1,5 @@
 var scanner2 = require("./scanner2");
-var { SCOPED, QUOTED, SCOPED, PROPERTY, STAMP, PIECE, setqueue, splice, relink, number_reg, replace, canbeDuplicate, createString } = require("./common");
+var { SCOPED, QUOTED, SCOPED, PROPERTY, STAMP, PIECE, setqueue, splice, relink, patchArrawScope, number_reg, replace, canbeDuplicate, createString } = require("./common");
 var strings = require("../basic/strings");
 var program = null;
 var patchTranslate = function (c) {
@@ -88,7 +88,8 @@ var ctn = function (tt, t) {
             if (e in t) n[i] = t[e];
         });
         relink(n);
-    })
+    });
+    patchArrawScope(tn, t);
     return tn;
 }
 var warningMap = Object.create(null);

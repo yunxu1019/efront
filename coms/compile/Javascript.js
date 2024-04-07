@@ -20,6 +20,7 @@ const {
     getDeclared,
     createScoped,
     snapExpressHead,
+    patchArrawScope,
     snapExpressFoot,
     splice,
     relink,
@@ -481,11 +482,6 @@ Javascript.prototype.detour = function (body, ie) {
     context = null;
     return envs;
 }
-var getfunc = function (o, k) {
-    var q = o.queue;
-    while (q && (!q.scoped || !q.scoped.used[k])) q = q.queue;
-    return q;
-};
 var context = null, rootenvs = null;
 function detour(o, ie) {
     while (o) {
@@ -514,15 +510,7 @@ function detour(o, ie) {
                     if (hasdot) text = "..." + text;
                     var o1 = scan(text);
                     detour(o1.first, ie);
-                    var s1 = createScoped(o1);
-                    if (s1.used.this) {
-                        var s = getfunc(o, 'this').scoped;
-                        s.used.this.push(...s1.used.this);
-                    }
-                    if (s1.used.arguments) {
-                        var s = getfunc(o, 'arguments').scoped;
-                        s.used.arguments.push(...s1.used.arguments);
-                    };
+                    patchArrawScope(o1, o);
                     replace(o, ...o1);
                     o = o1.last;
                     continue;
