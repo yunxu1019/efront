@@ -471,7 +471,7 @@ var invoke = function (event, type, pointerType) {
     }
     var dis = (a, b) => a * a + b * b
     function clickcancel(event) {
-        if (!event || event.which && dis(event.clientX - pointerX, event.clientY - pointerY) >= MOVELOCK_DELTA * MOVELOCK_DELTA) {
+        if (!event || (event.which || event.touches) && dis(event.clientX - pointerX, event.clientY - pointerY) >= MOVELOCK_DELTA * MOVELOCK_DELTA) {
             onclick.preventClick = true;
         }
     }
