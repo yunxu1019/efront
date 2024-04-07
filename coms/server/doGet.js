@@ -122,7 +122,7 @@ var adapter = function (data, url, req, res) {
         data = data(req, res);
     }
     if (data instanceof Buffer) {
-        var msg = { path: url, update: true };
+        var msg = { path: url || req.url, update: true };
         if (req.indexed) {
             msg.indexed = true;
             msg.remote = remoteAddress(req);
