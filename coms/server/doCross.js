@@ -125,7 +125,7 @@ async function cross(req, res, referer) {
     if (/^https\:/i.test(hostpath)) {
         http = require("https");
         if (!req.socket.agent2) req.socket.agent2 = new http.Agent({ keepAlive: true, keepAliveMsecs: 120000 });
-        options = cert;
+        options = null;
         agent = req.socket.agent2;
     } else {
         http = require("http");
