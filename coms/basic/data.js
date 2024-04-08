@@ -453,6 +453,9 @@ function createApiMap(data) {
         if (headers && !reg.test(headers)) {
             _headers = parseKV(headers);
         }
+        else {
+            _headers = undefined;
+        }
         if (!base) continue;
         href = /(https?\:)?|\.?\//i.test(base) ? base : '';
         var item1 = items1[key];
