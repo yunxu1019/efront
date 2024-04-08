@@ -137,7 +137,7 @@ var adapter = function (data, url, req, res) {
             msg.referer = referer;
             // 忽略杂种浏览器过长的userAgent
             var agent = getHeader(req.headers, "user-agent");
-            if (agent.length > 360) agent = agent.slice(0, 357) + "...";
+            if (agent?.length > 360) agent = agent.slice(0, 357) + "...";
             msg.agent = agent;
         }
         message.count(msg);
