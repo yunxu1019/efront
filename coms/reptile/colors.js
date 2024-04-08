@@ -40,6 +40,35 @@ var colors = module.exports = {
     BgCyan2: "\x1b[106m",
     BgWhite2: "\x1b[107m",
 };
+colors.label = colors.strap = colors.value = colors.FgBlue2;
+colors.comment = colors.FgGreen;
+colors.invoke = colors.method = colors.FgYellow;
+colors.express = colors.property = colors.FgCyan2;
+colors.predef = colors.FgGreen2;
+colors.outside = colors.FgCyan;
+colors.stamp = colors.FgGray;
+colors.regexp = colors.FgRed2;
+colors.text = colors.FgYellow;
+colors.flow = colors.FgPurple;
+colors.digit = colors.FgGreen2;
+colors.deep0 = colors.FgYellow;
+colors.deep1 = colors.FgPurple;
+colors.deep2 = colors.FgBlue2;
+colors.deep3 = colors.FgYellow;
+colors.deep4 = colors.FgPurple;
+colors.deep5 = colors.FgBlue2;
+colors.deep6 = colors.FgYellow;
+colors.deep7 = colors.FgPurple;
+colors.deep8 = colors.FgBlue2;
+colors.deep9 = colors.FgYellow;
+colors.deep10 = colors.FgPurple;
+colors.deep11 = colors.FgBlue2;
+colors.deep12 = colors.FgYellow;
+colors.deep13 = colors.FgPurple;
+colors.deep14 = colors.FgBlue2;
+colors.deep15 = colors.FgYellow;
+colors.deep16 = colors.FgPurple;
+colors.deep17 = colors.FgBlue2;
 class Color {
     constructor(name, value) {
         this.name = name;

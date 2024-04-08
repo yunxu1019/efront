@@ -308,15 +308,50 @@ var commands = {
     unpack(readfrom, writeto) {
         require("../build/unpack")(readfrom, writeto);
     },
-    async check(...args) {
+    async each(args, run) {
         await detectEnvironment();
         args = [].concat.apply([], args);
         for (var a of args) {
             await detect(a, false).then(
-                require("./checkVariable"),
+                run,
                 console.error
             );
         }
+    },
+    async check(...args) {
+        return this.each(args, (a) => require("./checkVariable")(a))
+    },
+    async audit(...args) {
+        var collected = 0, total = 0;
+        await this.each(args, async function (a) {
+            total += await eachPath(a, function (data, fullpath) {
+                if (!/\.js$/.test(fullpath)) return;
+                var scanner2 = require("../compile/scanner2");
+                var c = scanner2(data);
+                var suggests = require("../compile/audit")(c);
+                if (!suggests.length) {
+                    console.info(i18n`文件${`<green>${fullpath}</green>`}中暂未发现已记录的问题`);
+                }
+                else {
+                    collected += suggests.length;
+                    var createString = require("../compile/common").createString;
+                    var codecolor = require('../docs/codecolor');
+                    suggests.map(s => {
+                        if (s.suggest) {
+                            console.log(console.format(`<yellow>${fullpath}:${s[0].row}:${s[0].col}</yellow>`));
+                            s.envs = c.envs;
+                            codecolor(s, a => a);
+                            console.log(" ", i18n`建议`, console.format(createString(s)));
+                            var suggest = scanner2(s.suggest);
+                            codecolor(suggest, a => a);
+                            console.log(" ", i18n`改为`, console.format(createString(suggest)));
+                        }
+                    });
+                }
+            })
+        });
+        if (total > 1) console.info("检查完毕！");
+        if (collected > 1) return Promise.reject("文件待优化！");
     },
     async find() {
         await detectEnvironment();

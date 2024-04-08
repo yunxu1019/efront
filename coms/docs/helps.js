@@ -24,6 +24,7 @@ var helps = [
     ["a", i18n`用一个连接号登录本机的efront服务器，接收并打印消息`, "care ADDRESS", "care ADDRESS LINKID"],
     ["a", i18n`向一个连接号发送消息`, "cast ADDRESS LINKID MESSAGE"],
     ["z", i18n`检查文件或文件夹中的外部变量`, "check FILEPATH"],
+    ["z", i18n`检查文件或文件夹中的易错语法`, "audit FILEPATH"],
     ["q", i18n`执行按efront方式加载的代码`, "run CODEFILE", "CODEFILE"],
     ["z", i18n`查找含有指定的外部变量的文件`, "find VARIABLE", "find VARIABLE FILEPATH"],
     ["-", i18n`从指定路径创建压缩文件`, "pack PUBLIC_PATH PACKAGE_PATH"],

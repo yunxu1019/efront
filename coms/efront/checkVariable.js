@@ -25,29 +25,22 @@ var find = function (data) {
     return require("../compile/scanner2")(data).getUndecleared();
 };
 var globals = require("./globals");
-module.exports = function (root) {
+module.exports = async function (root) {
     var qindex = root.indexOf("?");
     if (qindex > 0) {
         query = root.slice(qindex + 1);
         root = root.slice(0, qindex);
     }
-    var rest = [root];
     var map = {
     }, needs = {};
     var undeclares;
     var founded = {};
-    var filesCount = 0;
-    var findx = comms_root.map(a => {
-        return new Promise(function (ok) {
-            fs.readdir(a, function (e, names) {
-                if (e) return;
-                names.forEach(function (c) {
-                    founded[c.replace(/\.\w+$/i, '').replace(/\-(\w)/g, (_, a) => a.toUpperCase())] = true;
-                });
-                ok();
-            });
-        })
-    });
+    for (var a of comms_root) try {
+        var names = await fsp.readdir(a);
+        names.forEach(function (c) {
+            founded[c.replace(/\.\w+$/i, '').replace(/\-(\w)/g, (_, a) => a.toUpperCase())] = true;
+        });
+    } catch { }
     var log = function (k) {
         var key = k;
         console.log();
@@ -126,60 +119,35 @@ module.exports = function (root) {
     }
     var query;
     var required = null;
-    var run = async function () {
-        var total = rest.length;
-        while (rest.length) {
-            var fullpath = rest.pop();
-            if (!fs.existsSync(fullpath)) {
-                console.error(i18n`路径不存在:`, fullpath);
-                continue;
-            }
-            try {
-                var stats = await fsp.stat(fullpath);
-                if (stats.isDirectory()) {
-                    var names = await fsp.readdir(fullpath);
-                    rest.push.apply(rest, names.map(n => path.join(fullpath, n)));
-                    total += names.length - 1;
-                    continue;
-                }
-                if (stats.isFile()) {
-                    var basename = path.relative(root, fullpath);
-                    basename = basename.replace(/[\\\/]/g, '$') || root;
-                    if (/\.json$/i.test(basename)) {
-                        map[basename.replace(/\.json$/i, "")] = true;
-                    }
-                    if (/\.(html?|xml)$/i.test(basename)) {
-                        map[path.basename(basename).replace(/\.(html?|xml)$/i, "")] = true;
-                    }
-                    if (!/\.[cm]?[jt]sx?$/i.test(fullpath)) return run();
-                    map[basename.replace(/\.[cm]?[jt]sx?$/i, "")] = true;
-                    var data = await fsp.readFile(fullpath);
-                    data = String(data).replace(/^\s*#!/, '//');
-                    undeclares = find(data);
-                    Object.keys(undeclares).map(k => k).forEach(k => {
-                        if (!needs[k]) needs[k] = [];
-                        needs[k].push(basename);
-                        if (total === 1) {
-                            if (k === 'require') {
-                                required = undeclares[k].map(a => {
-                                    if (a.text !== 'require') return;
-                                    a = a.next;
-                                    if (a.type !== SCOPED) return;
-                                    a = a.first;
-                                    if (a.type !== QUOTED) return;
-                                    if (a.first !== a.last) return;
-                                    return createString([a]);
-                                }).filter(a => !!a);
-                            }
-                        }
-                    });
-                }
-            } catch {
-                console.error(i18n`读取出错了，路径:`, fullpath);
-            }
-            filesCount = total;
+    var filesCount = 0;
+
+    await checkPath(root, function (data, fullpath) {
+        var basename = path.relative(root, fullpath);
+        basename = basename.replace(/[\\\/]/g, '$') || root;
+        if (/\.json$/i.test(basename)) {
+            map[basename.replace(/\.json$/i, "")] = true;
         }
-        return list();
-    }
-    return Promise.all(findx).then(run);
+        if (/\.(html?|xml)$/i.test(basename)) {
+            map[path.basename(basename).replace(/\.(html?|xml)$/i, "")] = true;
+        }
+        if (!/\.[cm]?[jt]sx?$/i.test(fullpath)) return;
+        map[basename.replace(/\.[cm]?[jt]sx?$/i, "")] = true;
+        undeclares = find(data);
+        Object.keys(undeclares).map(k => k).forEach(k => {
+            if (!needs[k]) needs[k] = [];
+
+            needs[k].push(basename);
+            if (total === 1) if (k === 'require') required = undeclares[k].map(a => {
+                if (a.text !== 'require') return;
+                a = a.next;
+                if (a.type !== SCOPED) return;
+                a = a.first;
+                if (a.type !== QUOTED) return;
+                if (a.first !== a.last) return;
+                return createString([a]);
+            }).filter(a => !!a);
+        });
+
+    });
+    list();
 }
