@@ -1,3 +1,9 @@
+- zh-CN: "If you are an English user, please switch to nodejs21.2 or above to display in English"
+  en:    "If you are an English user, please switch to nodejs21.2 or above to display in English"
+
+- zh-CN: 当前nodejs版本过低，请更换到nodejs12或以上版本使用
+  en:    The current nodejs version is too low. Please switch to nodejs12 or higher to use it
+
 - zh-CN: 共$1个不同的项
   en:    A total of $1 different items
 

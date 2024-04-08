@@ -2,7 +2,6 @@
 "use strict";
 if (!process || typeof process.version !== 'string' || +process.version.replace(/^v/, '').split(/\./)[0] < 12) {
     console.error(i18n`当前nodejs版本过低，请更换到nodejs12或以上版本使用`);
-    console.error(i18n`如果您是英文用户，请更换到nodejs21或以上将可以英文显示`);
     return;
 }
 process.title = 'efront';
@@ -493,6 +492,11 @@ var commands = {
     },
     help(value1) {
         // 帮肋信息
+        if (+process.version.replace(/^v/, '').split(".").slice(0, 2).join('.') < 21.2) {
+            setTimeout(function () {
+                console.help(i18n`If you are an English user, please switch to nodejs21.2 or above to display in English`);
+            });
+        }
         if (!value1) {
             helps.sort((a, b) => a.commands[0] > b.commands[0] ? 1 : a.commands[0] < b.commands[0] ? -1 : 0);
             var length = Math.max.apply(Math, helps.map(a => a.commands[0].length));
