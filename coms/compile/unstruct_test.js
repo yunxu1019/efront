@@ -35,7 +35,7 @@ test('return a = b', "a = b; return [b, 2]", true);
 test('a*a', "a * a", true);
 test('a * a && b * c * c ** d', "_ = a * a; if (!_) return [1, 0]; _ = b * c, _0 = c ** d, _ * _0", true);
 test('a * a || b * c * c ** d', "_ = a * a; if (_) return [1, 0]; _ = b * c, _0 = c ** d, _ * _0", true);
-test('a * a ?? b * c * c ** d', "_ = a * a; if (_ !== null && _ !== undefined) return [1, 0]; _ = b * c, _0 = c ** d, _ * _0", true);
+test('a * a ?? b * c * c ** d', "_ = a * a; if (_ != null) return [1, 0]; _ = b * c, _0 = c ** d, _ * _0", true);
 test('a * a && await b*c', "_ = a * a; if (!_) return [2, 0]; _ = b; return [_, 1];\r\n _ = @; _ * c", true);
 test("await a", "_ = a; return [_, 1]", true);
 test("yield a", "return [a, 3]", true);
@@ -54,7 +54,7 @@ test("await a, await b", "_ = a; return [_, 1];\r\n _ = @; _ = b; return [_, 1]"
 test("await a * b, await b", "_ = a; return [_, 1];\r\n _ = @; _ * b; _ = b; return [_, 1]", true);
 test("if(a);", "if (!a) return [1, 0]; return [1, 0]", true);
 test("if(a) return a;", "if (a) return [a, 2]", true);
-test("if(a) { if(b) return a;} else return d", "if (!a) return [2, 0]; if (b) return [a, 2]; return [1, 0];\r\n return [2, 0];\r\n return [d, 2]", true);
+test("if(a) { if(b) return a;} else return d", "if (!a) return [1, 0]; if (b) return [a, 2]; return [2, 0];\r\n return [d, 2]", true);
 test("if(a) return a; else return b", "if (a) return [a, 2]; return [b, 2]", true);
 test("if(a) await b", "if (!a) return [2, 0]; _ = b; return [_, 1];\r\n _ = @; return [1, 0]", true);
 test("if(a) await b; else await c", "if (!a) return [2, 0]; _ = b; return [_, 1];\r\n _ = @; return [3, 0];\r\n _ = c; return [_, 1];\r\n _ = @; return [1, 0]", true);
@@ -151,7 +151,11 @@ test(`c=b+ ++a`, "_ = ++a, c = b + _");
 test(`c=b+ +a`, "_ = +a, c = b + _");
 test(`c=b+ !a`, "_ = !a, c = b + _");
 test(`do {var loadcount = 0;} while (loadcount !== 0);`, `loadcount = 0; _ = loadcount !== 0; if (_) return [0, 0]`);
-unstruct.debug = true; r++;
 test("if(a)try{a}catch{};a;", 'if (!a) return [4, 0]; return [1, 7];\r\n a; return [0, 9];\r\n return [1, 9];\r\n return [1, 0];\r\n a');
 test("url = (o===void 0||o===null?void 0:o.url)", '_ = void 0, _ = o === _; if (_) return [1, 0]; _ = o === null;\r\n if (!_) return [1, 0]; _ = void 0; return [2, 0];\r\n _ = o.url; return [1, 0];\r\n url = _', true);
-test("p ? (ishttps ? `https` : `http`).toUpperCase() + i18n`端口` + (ishttps ? ': ' : ':  ') + p : ''","if (!p) return [1, 0]; if (!ishttps) return [1, 0]; _0 = `https`; return [2, 0];\r\n _0 = `http`; return [1, 0];\r\n _1 = _0.toUpperCase(); _ = _1 + i18n`端口`; if (!ishttps) return [1, 0]; _2 = ': '; return [2, 0];\r\n _2 = ':  '; return [1, 0];\r\n _ = _ + _2, _ = _ + p; return [2, 0];\r\n ''; return [1, 0]")
+test("p ? (ishttps ? `https` : `http`).toUpperCase() + i18n`端口` + (ishttps ? ': ' : ':  ') + p : ''", "if (!p) return [1, 0]; if (!ishttps) return [1, 0]; _0 = `https`; return [2, 0];\r\n _0 = `http`; return [1, 0];\r\n _1 = _0.toUpperCase(); _ = _1 + i18n`端口`; if (!ishttps) return [1, 0]; _2 = ': '; return [2, 0];\r\n _2 = ':  '; return [1, 0];\r\n _ = _ + _2, _ = _ + p; return [2, 0];\r\n ''; return [1, 0]")
+unstruct.debug = true; r++;
+r++// test("if(a)else {}",'')
+test("if(a){if(b){c}d}else{e}", `if (!a) return [2, 0]; if (!b) return [1, 0]; c; return [1, 0];\r\n d; return [2, 0];\r\n e; return [1, 0]`)
+test("if(a){if(b){c}else{d}}else{e}", `if (!a) return [3, 0]; if (!b) return [1, 0]; c; return [2, 0];\r\n d; return [1, 0];\r\n return [2, 0];\r\n e; return [1, 0]`)
+test("if(a)switch(b){case c:d;break;} else{h}", `if (!a) return [3, 0]; if (b === c) return [1, 0]; return [2, 0];\r\n d; return [1, 0];\r\n return [2, 0];\r\n h; return [1, 0]`)

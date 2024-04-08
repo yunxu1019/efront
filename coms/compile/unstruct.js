@@ -63,7 +63,7 @@ var _break = function (body, cx, result, iscontinue) {
 var _try = function (body, cx, unblock, result, getname) {
     var o = body[cx];
     o = o.next;
-    while (body[cx++] !== o);
+    while (cx < body.length && body[cx++] !== o);
     var trystart = stepReturn(0, 7);
     var tse = trystart[trystart.length - 1];
     pushstep(result, trystart);
@@ -109,7 +109,7 @@ var evals = [];
 var _with = function (body, cx, unblock, result, getname) {
     var o = body[cx];
     var c = o.next;
-    while (body[cx] !== c) cx++;
+    while (cx < body.length && body[cx] !== c) cx++;
     var qs = ternary(c, getname, true);
     for (var q of qs) if (q.length) pushstep(result, q);
     evals.push(q.name);
@@ -152,12 +152,12 @@ var _switch = function (body, cx, unblock, result, getname) {
     var q = qt[qt.length - 1];
     var qn = q.name;
     o = o.next;
-    while (body[cx++] !== o);
+    while (cx < body.length && body[cx++] !== o);
     if (!o) return;
     var cy = 0;
     var m = o.first;
     var tmp = [];
-    while (o[cy] !== m) cy++;
+    while (cy < o.length && o[cy] !== m) cy++;
     var default_ = null, case_ = null;
     var cbindex = 0, cblength = 0;
     while (cy < o.length) {
@@ -238,7 +238,7 @@ var _for = function (body, cx, unblock, result) {
         var dx = cx;
         var n = o.next;
         if (n && n.type === SCOPED && n.entry === '(') n = n.next;
-        while (body[dx] !== n) dx++;
+        while (dx < body.length && body[dx] !== n) dx++;
         var forin = body.slice(cx, dx);
         var block = getblock(body, dx);
         forin.push(...block);
@@ -246,7 +246,7 @@ var _for = function (body, cx, unblock, result) {
         return dx + block.length + 1;
     }
     var cy = 0;
-    while (o[cy] !== m) cy++;
+    while (cy < o.length && o[cy] !== m) cy++;
     var block = getblock(o, cy);// init
     cy += block.length + 1;
     unblock(block);
@@ -254,7 +254,7 @@ var _for = function (body, cx, unblock, result) {
     var block1 = getblock(o, cy);// condition
     cy += block1.length + 1;
     var block2 = getblock(o, cy);// next
-    while (body[cx] !== o) cx++;
+    while (cx < body.length && body[cx] !== o) cx++;
     var block_ = getblock(body, ++cx);// body
     cx += block_.length;
     var c = result.length;
@@ -322,7 +322,7 @@ var _while = function (body, cx, unblock, result) {
     ifpatch(result);
     o.contat = result.length;
     o = o.next;
-    while (body[cx] !== o) cx++;
+    while (cx < body.length && body[cx] !== o) cx++;
     var i = result.length;
     var b = rescan`if (${getCondition(o, unblock, true)}) return []`;
     var be = b[b.length - 1];
@@ -436,7 +436,7 @@ var _do = function (body, cx, unblock, result) {
     var b = rescan`if (${getCondition(o, unblock)}) return [${i - result.length}, 0]`;
     pushstep(result, b);
     b[b.length - 1][0].text = String(i - result.length + 1);
-    while (body[cx] !== o) cx++;
+    while (cx < body.length && body[cx] !== o) cx++;
     return cx + 1;
 };
 var stepReturn = function (value, type, q) {
@@ -1303,16 +1303,19 @@ function toqueue(body, getname, ret = false, result = []) {
             }
             var elseif = false, isbr = false;
             if (o.text === 'else') {
-                while (body[cx] !== o.next) cx++;
+                while (cx < body.length && body[cx] !== o.next) cx++;
                 o = o.next;
+                if (!iftop) {
+                    throw new Error(i18n`发现错误代码：${`${createString(o.queue)}`}`);
+                }
                 var ispbr = iftop[iftop.length - 3];
-                if (!ispbr) ifpatch(result, true);
+                if (!ispbr) ifpatch(result, iftop[0]);
                 isbr = isbreak(o);
                 iftop.push(result.length);
                 elseif = true;
             }
             if (o.text === 'if') {
-                while (body[cx] !== o.next) cx++;
+                while (cx < body.length && body[cx] !== o.next) cx++;
                 o = o.next;
                 var isbr = isbreak(o.next);
                 var i = result.length;
@@ -1335,22 +1338,20 @@ function toqueue(body, getname, ret = false, result = []) {
                 elseif = true;
             }
             if (elseif) {
-                while (body[cx] !== o) cx++;
+                while (cx < body.length && body[cx] !== o) cx++;
                 var block = getblock(body, cx);
                 cx += block.length;
                 o = body[cx];
                 while (o && o.type & (SPACE | COMMENT)) o = body[++cx];
-                unblock(block);
                 if (o && o.type === STAMP && o.text === ';') o = o.next;
                 while (cx < body.length && body[cx] !== o) cx++;
-                if (!o || o.type !== STRAP || o.text !== 'else') {
-                    var bn = body.next;
-                    if (bn && bn.type === STAMP && bn.text === ';') bn = bn.next;
-                    var inif = bn && bn.type === STRAP && bn.text === 'else';
-                    if (inif) ifpatch(result, true);
-                    else if (!isbr) ifpatch(result, true);
+                var nextelse = !!o && o.type === STRAP && o.text === 'else';
+                var blength = result.length;
+                unblock(block);
+                if (result.length > blength && nextelse) ifpatch(result, false);
+                if (!nextelse) {
+                    if (!isbr) ifpatch(result, iftop[0]);
                     uniftop();
-                    if (inif) ifpatch(result, false);
                     iftop = null;
                 }
             }
