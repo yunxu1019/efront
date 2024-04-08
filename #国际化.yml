@@ -1,3 +1,18 @@
+- zh-CN: 文件$1中暂未发现已记录的问题
+  en:    No recorded issues have been found in file $1 yet
+
+- zh-CN: 建议
+  en:    proposal
+
+- zh-CN: 改为
+  en:    Change to
+
+- zh-CN: 检查文件或文件夹中的易错语法
+  en:    Check for error prone syntax in files or folders
+
+- zh-CN: 发现错误代码：$1
+  en:    "Error code found: $1"
+
 - zh-CN: "If you are an English user, please switch to nodejs21.2 or above to display in English"
   en:    "If you are an English user, please switch to nodejs21.2 or above to display in English"
 
