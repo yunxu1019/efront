@@ -17,7 +17,7 @@ var helps = [
     ["a", i18n`在项目文件夹启动开发环境服务器`, "dev", "devs", "test", "dev|test HTTP_PORT", "dev|test HTTP_PORT HTTPS_PORT", "devs|tests HTTPS_PORT", "devs|tests HTTPS_PORT HTTP_PORT"],
     ["a", i18n`在当前文件夹启动服务器`, "server", "serve|serv|http HTTP_PORT HTTPS_PORT", "serve|serv|http HTTP_PORT", "https HTTPS_PORT HTTP_PORT", "https HTTPS_PORT", "HTTP_PORT HTTPS_PORT", "HTTP_PORT", ""],
     ["a", i18n`显示本机ip地址`, "ip", "-ip", "--ip"],
-    ["q", i18n`编译项目`, "public", "publish", "build", "release"],
+    ["q", i18n`编译项目`, "public", "publish", "build|release", "build|release APPNAME"],
     ["a", i18n`监测文件变化，自动编译更新的部分并输出到指定目录`, "watch"],
     ["a", i18n`关闭efront服务器`, "kill HTTP_PORT|HTTPS_PORT", "close HTTP_PORT|HTTPS_PORT"],
     ["a", i18n`连接一台efront服务器，取得连接号`, "link ADDRESS"],

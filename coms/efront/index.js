@@ -86,7 +86,7 @@ var setAppnameAndPorts = function (args) {
     });
 }
 
-var detectEnvironment = async function (comm) {
+var detectEnvironment = async function (comm, ignorePublicPath) {
     let fs = require("fs").promises;
     let currentpath = process.cwd(), config = {
         page_path: memery.PAGE_PATH,
@@ -121,7 +121,7 @@ var detectEnvironment = async function (comm) {
         else if (/env|conf|环境|配置|设置/i.test(name)) {
             env_path.push(name);
         }
-        else if (/d[ie]st|www|^pub|release|发布|目标|版本|输出|产品|^(?:out|output)$/i.test(name)) {
+        else if (!ignorePublicPath && /d[ie]st|www|^pub|release|发布|目标|版本|输出|产品|^(?:out|output)$/i.test(name)) {
             public_path.push(name);
         }
         else {
@@ -755,7 +755,7 @@ var commands = {
                 memery.EXPORT_AS = export_as;
             }
         }
-        if (!publicOnly) await detectEnvironment();
+        await detectEnvironment(null, publicOnly);
         var fullpath = process.cwd();
         var promise = detectWithExtension(memery.APP, ["", ".js", ".ts"], [fullpath]);
         await Promise.all([
@@ -943,9 +943,8 @@ var run = async function (type, value1, value2, value3) {
             case "release":
                 memery.RELEASE = 1;
             case "public":
-                var publicOnly = true;
             case "build":
-                await build(value1, value2, publicOnly);
+                await build(value1, value2, /^pub/.test(type));
                 break;
 
             case "run":

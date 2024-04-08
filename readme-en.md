@@ -70,7 +70,7 @@ set app=PROJECT_NAME
 set public_path=PUBLIC_PATH
 efront public
 ```
-`PUBLIC_PATH` is the publishing path
+`PUBLIC_PATH` is the publishing path,defaults to the folder named 'public' in current working directory.
 
 * If you want to publish on the server, it is not recommended to use a method that ends in `.html` and write the asynchronously loaded code to a separate file
 
@@ -89,7 +89,7 @@ set app=PROJECT_NAME.js
 * The current version of efront provides incomplete support for the `require` syntax in commonjs and the `import` syntax in es6 (asynchronous ring calls are not supported). For relevant projects that meet the requirements, they can be compiled and published.
 * If you want to publish a component with the require syntax and want to merge the component and all dependencies for output, you can replace the `efront public` above with `efront publish`
 
-* If automatic path recognition is required, directories such as `public` / `dist` / `output` / `release` may be recognized as target paths, and files in these paths may be overwritten. If it is confirmed to be feasible, use `efront build`
+* If automatic path recognition is required, directories such as `public` / `dist` / `output` / `release` may be recognized as target paths, and files in these paths may be overwritten. If it is confirmed to be feasible, use `efront build` or `efront release`
 
 ## 5. Watch mode
 
