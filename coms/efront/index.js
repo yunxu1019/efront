@@ -1,8 +1,14 @@
 #!/usr/bin/env node
 "use strict";
+if (!process || typeof process.version !== 'string' || +process.version.replace(/^v/, '').split(/\./)[0] < 12) {
+    console.error(i18n`当前nodejs版本过低，请更换到nodejs12或以上版本使用`);
+    console.error(i18n`如果您是英文用户，请更换到nodejs21或以上将可以英文显示`);
+    return;
+}
 process.title = 'efront';
 var path = require('path');
 var fs = require("fs");
+var fsp = fs.promises;
 require("./console");
 var loadenv = require("./loadenv");
 var memery = require("./memery");
@@ -537,9 +543,9 @@ var commands = {
         require("../server/main");
         showHelpLine(i18n`可以通过浏览器访问已打开的端口以查看示例项目:${memery.APP}`);
     },
-    create(srcname, appname) {
-        var folders = fs.readdirSync(process.cwd());
-        var names = ["_envs", "coms", "apps", "pages"];
+    async create(srcname, appname) {
+        var folders = await fsp.readdir(process.cwd());
+        var names = ["_envs", "coms", "apps", "pages", 'public'];
         if (folders.length === 1) {
             if (!~names.indexOf(folders[0])) {
                 throw new Error(i18n`请在空目录或efront目录执行创建操作!`);
@@ -548,43 +554,45 @@ var commands = {
             var reg = new RegExp(names.join("|"));
             if (folders.indexOf("_envs") < 0) {
                 if (folders.filter(a => reg.test(a)).length < 2) {
+                    console.log(folders)
                     throw new Error(i18n`请在空目录或efront目录执行创建操作!`);
                 }
             }
         }
-        detectEnvironment().then(function () {
-            if (appname) {
-                setenv({ app: appname });
-            }
-            setenv({
-                envs_path: './_envs',
-                coms_path: './coms',
-                page_path: "./apps"
-            })
-            require("./setupenv");
-            require("../build/create")(srcname, appname);
-        });
+        await detectEnvironment();
+        if (appname) {
+            setenv({ app: appname });
+        }
+        setenv({
+            envs_path: './_envs',
+            coms_path: './coms',
+            page_path: "./apps"
+        })
+        require("./setupenv");
+        await require("../build/create")(srcname, appname);
     },
-    simple(srcname, appname) {
-        var create = function (distpath) {
+    async simple(srcname, appname) {
+        var create = async function (distpath) {
             setenv({
                 app: path.basename(distpath),
+            });
+            require("./setupenv");
+            setenv({
                 envs_path: path.join(distpath, '_envs'),
                 page_path: path.join(distpath, 'pages'),
                 public_path: path.join(distpath, 'public'),
                 coms_path: path.join(distpath, 'coms'),
             });
-            require("./setupenv");
-            require("../build/create")(srcname || 'blank', '');
+            await require("../build/create")(srcname || 'blank', '');
         };
         if (!appname) {
-            fs.readdir(process.cwd(), function (error, files) {
-                if (error) throw new Error(i18n`没有权限！`);
-                if (files.length > 0) {
-                    if (!memery.FORCE) throw new Error(i18n`当前文件夹不为空！`);
-                }
-                create(process.cwd());
-            });
+            var files = fsp.readdir(process.cwd());
+            files.catch(e => console.error(i18n`没有权限！`));
+            files = await files;
+            if (files.length > 0) {
+                if (!memery.FORCE) throw new Error(i18n`当前文件夹不为空！`);
+            }
+            await create(process.cwd());
             return;
         }
         var distpath = path.join(process.cwd(), appname);
@@ -592,14 +600,13 @@ var commands = {
         if (!exists) {
             fs.mkdirSync(distpath);
         }
-        fs.readdir(distpath, function (error, files) {
-            if (error) throw new Error(i18n`没有权限！`);
-            if (files.length > 0) {
-                throw new Error(i18n`项目文件夹已存在且不为空！`);
-            }
-            create(distpath);
-        });
-        return;
+        var files = fsp.readdir(distpath);
+        files.catch(_ => console.error(i18n`没有权限！`));
+        files = await files;
+        if (files.length > 0) {
+            throw new Error(i18n`项目文件夹已存在且不为空！`);
+        }
+        await create(distpath);
     },
     dev(appname, http_port, https_port) {
         startDevelopEnv(appname, http_port, https_port);
@@ -715,9 +722,9 @@ var commands = {
         var detectPromise = detectWithExtension(appname, ["", ".js", ".ts", "/index.js", "/index.ts"], ['']);
         memery.islive = memery.LIVEMODE !== false;
         detectPromise.catch(function () {
-            detectEnvironment("reptile").then(function () {
+            return detectEnvironment("reptile").then(function () {
                 require("./setupenv");
-                require("./run")(appname, args);
+                return require("./run")(appname, args);
             });
         });
         detectPromise.then(function (f) {
@@ -726,7 +733,7 @@ var commands = {
                 coms_path: './,' + path.join(__dirname, '..'),
             }, false);
             require("./setupenv");
-            require('./run')(path.relative(fullpath, f), args);
+            return require('./run')(path.relative(fullpath, f), args);
         }, function () { });
     },
     async public(app_Name, module_Name, publicOnly) {
@@ -751,27 +758,29 @@ var commands = {
         if (!publicOnly) await detectEnvironment();
         var fullpath = process.cwd();
         var promise = detectWithExtension(memery.APP, ["", ".js", ".ts"], [fullpath]);
-        promise.catch(function () {
-            require('../build');
-        });
-        promise.then(function (f) {
-            var isdir = fs.statSync(f).isDirectory();
-            var app = path.relative(fullpath, f);
-            if (isdir) {
-                setenv({
-                    app: memery.APP,
-                    comm: (app && !/[^\.\\\/]+/.test(app) ? app + ',zimoli,' : `zimoli,`)
-                });
-                require("../build");
-            } else {
-                setenv({
-                    app,
-                    public_name: path.basename(f).replace(/\.(\w+)$/, ''),
-                }, false);
-                require("./setupenv");
-                require('../build');
-            }
-        }, function () { });
+        await Promise.all([
+            promise.catch(function () {
+                return require('../build');
+            }),
+            promise.then(function (f) {
+                var isdir = fs.statSync(f).isDirectory();
+                var app = path.relative(fullpath, f);
+                if (isdir) {
+                    setenv({
+                        app: memery.APP,
+                        comm: (app && !/[^\.\\\/]+/.test(app) ? app + ',zimoli,' : `zimoli,`)
+                    });
+                    return require("../build");
+                } else {
+                    setenv({
+                        app,
+                        public_name: path.basename(f).replace(/\.(\w+)$/, ''),
+                    }, false);
+                    require("./setupenv");
+                    return require('../build');
+                }
+            }, function () { })
+        ]);
     },
     watch() {
         setAppnameAndPorts(arguments);
@@ -830,7 +839,7 @@ helps.forEach(function (help) {
     });
 });
 topics.COMMAND.push(Object.keys(helps).filter(k => /^[a-z]+$/.test(k)));
-var run = function (type, value1, value2, value3) {
+var run = async function (type, value1, value2, value3) {
     if (type) type = type.toLowerCase();
     if (!type) {
         commands.serv(80);
@@ -843,7 +852,7 @@ var run = function (type, value1, value2, value3) {
             case "setenv":
             case "set":
                 if (!isEmpty(value1)) commands.set(value1, value2);
-                require("../server/userdata").setItem("memery", require("../basic/serialize")(memery.all()));
+                await require("../server/userdata").setItem("memery", require("../basic/serialize")(memery.all()));
                 break;
             case "env":
             case "listenv":
@@ -894,7 +903,7 @@ var run = function (type, value1, value2, value3) {
                     help('from');
                     break;
                 }
-                create(value1, value3);
+                await create(value1, value3);
                 break;
             case "init":
                 if (value2 && value2.toLowerCase() !== "from") {
@@ -905,10 +914,10 @@ var run = function (type, value1, value2, value3) {
                     help('init');
                     break;
                 }
-                create(value3 || 'blank', value1);
+                await create(value3 || 'blank', value1);
                 break;
             case "blank":
-                create("blank", value1);
+                await create("blank", value1);
                 break;
             case "create":
             case "simple":
@@ -917,7 +926,7 @@ var run = function (type, value1, value2, value3) {
                         help("simple");
                         break;
                     }
-                    simple(value3, value1);
+                    await simple(value3, value1);
                     break;
                 }
                 if (value2) {
@@ -925,10 +934,10 @@ var run = function (type, value1, value2, value3) {
                         help("simple");
                         break;
                     }
-                    simple(value2, '');
+                    await simple(value2, '');
                     break;
                 }
-                simple('blank', value1);
+                await simple('blank', value1);
                 break;
             case "publish":
             case "release":
@@ -936,11 +945,11 @@ var run = function (type, value1, value2, value3) {
             case "public":
                 var publicOnly = true;
             case "build":
-                build(value1, value2, publicOnly);
+                await build(value1, value2, publicOnly);
                 break;
 
             case "run":
-                run.apply(null, argv.slice(1));
+                await run.apply(null, argv.slice(1));
                 break;
             case "cooks":
             case "https":
@@ -966,7 +975,7 @@ var run = function (type, value1, value2, value3) {
                     if (/^(live|cook)$/.test(type)) {
                         if (!argv[1] && !argv[2]) argv[1] = memery.HTTP_PORT, argv[2] = 0;
                     }
-                    commands[type].apply(commands, argv.slice(1));
+                    await commands[type].apply(commands, argv.slice(1));
                 }
         }
 
@@ -1074,5 +1083,5 @@ userdata.getItem("memery").then(async function (mm) {
         commands.set(key, value);
     }).slice(1);
     var [type, value1, value2, value3] = argv;
-    run(type, value1, value2, value3);
-});
+    return run(type, value1, value2, value3);
+}, quit);

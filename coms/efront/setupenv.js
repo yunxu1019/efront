@@ -93,14 +93,18 @@ var pollyfill = function (dst, src = dst) {
         }
         if (/_PATH$/i.test(k)) {
             var exists = Object.create(null);
-            bootfull = bootfull.split(',').map(a => a || '.').filter(fs.existsSync).map(a => fs.realpathSync(a)).filter(a => exists[a] ? false : exists[a] = true).join(',');
+            bootfull = bootfull.split(',').map(a => a || '.').filter(fs.existsSync).map(a => fs.realpathSync(a)).filter(a => exists[a] ? false : exists[a] = true);
+            if (!bootfull.length) bootfull = null;
+            else bootfull = bootfull.join(',');
         }
-        var envma = Object.create(null);
-        dst[k] = String(bootfull).split(",").map(a => formatPath(a, bootConfig[k])).map(
-            k => k.replace(/\\/g, '/').replace(/^\.\//, '')
-        ).filter(
-            k => envma[k] ? false : envma[k] = true
-        ).join(",");
+        if (bootfull != null) {
+            var envma = Object.create(null);
+            dst[k] = String(bootfull).split(",").map(a => formatPath(a, bootConfig[k])).map(
+                k => k.replace(/\\/g, '/').replace(/^\.\//, '')
+            ).filter(
+                k => envma[k] ? false : envma[k] = true
+            ).join(",");
+        }
     }
 };
 var normalize = function (o) {
@@ -136,6 +140,7 @@ envpath.forEach(function (p) {
         }
     });
 });
+
 pollyfill(rootEnvs);
 normalize(rootEnvs);
 pollyfill(memery, rootEnvs);
