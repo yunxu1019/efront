@@ -29,6 +29,7 @@ const {
     replace,
     skipAssignment,
     insertAfter,
+    pickSentence,
     unshort,
 } = require("./common");
 var straps = `if,in,do,as,of

@@ -16,6 +16,7 @@ const [
 // --------------//1//2/////////////////////////22/////////////2//2//3//4/////4////////3/////3//////3//3//////3///////211/////////////2//////2//////1///
 var number_reg = /^(?:(?:0x[0-9a-f]+|0b\d+|0o\d+)(?:_[0-9a-f]+)*|(?:(?:(?:\d+_)*\d+|\d*)\.\d+(?:_\d+)*|(?:\d+_)*\d+\.?))(?:e[\+\-]?\d+(?:_\d+)*|[mniul]|ll)?$/i;
 var equal_reg = /^(?:[\+\-\*\/~\^&\|%]|\*\*|>>>?|<<)?\=$|^(?:\+\+|\-\-)$/;
+var needhead_reg = /^\?\.|^\.[^\.]|^\[/;
 var skipAssignment = function (o, cx) {
     if (!o) return;
     var next = arguments.length === 1 ? function () {
@@ -100,7 +101,7 @@ var skipAssignment = function (o, cx) {
             next();
             break;
         case EXPRESS:
-            if (/^\.[^\.]/.test(o.text)) {
+            if (needhead_reg.test(o.text)) {
                 next();
                 break;
             }
@@ -344,7 +345,7 @@ var snapExpressHead = function (o) {
             if (h) return h;
         }
         if (o.type === SCOPED && o.entry !== '{'
-            || o.type === EXPRESS && /^(\??\.[^\.]|\[)/.test(o.text)
+            || o.type === EXPRESS && needhead_reg.test(o.text)
             || /\.$/.test(p.text) && !p.isdigit
             || o.type === QUOTED && (o.length || /^\`/.test(o.text))
         ) {
@@ -416,7 +417,7 @@ var snapExpressFoot = function (o) {
         if (!n) break;
         if (n.type === SCOPED && (o.entry !== '{' || isExpress)
             || /\.$/.test(o.text) && !o.isdigit
-            || n.type === EXPRESS && /^\??\.[^\.]/.test(n.text)
+            || n.type === EXPRESS && needhead_reg.test(n.text)
             || n.type === QUOTED && (n.length || /^\`/.test(n.text))
         ) {
             o = n;
@@ -1063,7 +1064,7 @@ var createString = function (parsed) {
                 || prev.type === STAMP && !prev.unary
             ) {
                 if (intag || prev.type === ELEMENT && o.type === ELEMENT) break a;
-                if (o.type !== EXPRESS || !/^(\.[^\.]|\[)/.test(o.text) && !prev.tag && !o.tag) {
+                if (o.type !== EXPRESS || !needhead_reg.test(o.text) && !prev.tag && !o.tag) {
                     result.push(" ");
                     lasttype = SPACE
                 }
@@ -1192,7 +1193,7 @@ var createString = function (parsed) {
                 break;
             default:
                 if (o && typeof o === "object") {
-                    if (intag || o.prev && o.prev.type === EXPRESS && o.type === EXPRESS && (/^[\.\[]/.test(o.text) || /\.$/.test(o.prev.text)));
+                    if (intag || o.type === EXPRESS && (needhead_reg.test(o.text) || o.prev?.type === EXPRESS && /\.$/.test(o.prev.text)));
                     else if ((STRAP | EXPRESS | PROPERTY | COMMENT | VALUE) & lasttype && (STRAP | EXPRESS | PROPERTY | VALUE | LABEL) & o.type) {
                         if (autospace) result.push(" ");
                     }
@@ -1484,7 +1485,7 @@ var unshort = function (o, text) {
     o.type = EXPRESS;
     delete o.short;
 };
-var getScopeWith = function (o, k) {
+var getBodyWith = function (o, k) {
     var q = o.queue;
     while (q && (!q.scoped || !q.scoped.used[k])) q = q.queue;
     return q;
@@ -1493,13 +1494,13 @@ var getScopeWith = function (o, k) {
 var patchArrawScope = function (arraw, origin) {
     var s1 = createScoped(arraw);
     if (s1.used.this) {
-        var s = getScopeWith(origin, 'this').scoped;
+        var s = getBodyWith(origin, 'this').scoped;
         s.used.this.push(...s1.used.this);
         s.insett = true;
     }
     if (s1.used.arguments) {
         s.inseta = true;
-        var s = getScopeWith(origin, 'arguments').scoped;
+        var s = getBodyWith(origin, 'arguments').scoped;
         s.used.arguments.push(...s1.used.arguments);
     };
 };
@@ -1522,7 +1523,7 @@ module.exports = {
     unshort,
     skipAssignment,
     getDeclared,
-    getScopeWith,
+    getBodyWith,
     patchArrawScope,
     remove,
     createString,
