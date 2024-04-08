@@ -121,7 +121,8 @@ module.exports = async function (root) {
     var required = null;
     var filesCount = 0;
 
-    await checkPath(root, function (data, fullpath) {
+    var total = await eachPath(root, function (data, fullpath) {
+        filesCount++;
         var basename = path.relative(root, fullpath);
         basename = basename.replace(/[\\\/]/g, '$') || root;
         if (/\.json$/i.test(basename)) {
@@ -137,7 +138,7 @@ module.exports = async function (root) {
             if (!needs[k]) needs[k] = [];
 
             needs[k].push(basename);
-            if (total === 1) if (k === 'require') required = undeclares[k].map(a => {
+            if (filesCount === 1) if (k === 'require') required = undeclares[k].map(a => {
                 if (a.text !== 'require') return;
                 a = a.next;
                 if (a.type !== SCOPED) return;
@@ -147,7 +148,7 @@ module.exports = async function (root) {
                 return createString([a]);
             }).filter(a => !!a);
         });
-
     });
+    if (total !== 1) required = null;
     list();
 }
