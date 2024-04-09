@@ -44,10 +44,24 @@ var d = async function () {
     }
     finally {
         console.log(11);
+        return 12;
+    }
+}
+var e = async function () {
+    try {
+        throw new Error("不该出现此错误");
+    }
+    catch (e) {
+        console.log(13, 'catched');
+        throw e;
+    }
+    finally {
+        console.log(14);
         throw new Error("这是最后的报错");
     }
 }
 console.log(0, process.uptime())
 await a();
 console.log(await c());
-await d();
+console.log(await d());
+await e();
