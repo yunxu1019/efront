@@ -1,3 +1,12 @@
+- zh-CN: 检查完毕！
+  en:    Check completed!
+
+- zh-CN: 在$1个文件中找到$2处易错代码！
+  en:    Found $2 error prone codes in $1 files!
+
+- zh-CN: 后续代码
+  en:    Subsequent code
+
 - zh-CN: 文件$1中暂未发现已记录的问题
   en:    No recorded issues have been found in file $1 yet
 
