@@ -14,7 +14,7 @@ module.exports = async function (root, find) {
             var stats = await fsp.stat(fullpath);
             if (stats.isDirectory()) {
                 var names = await fsp.readdir(fullpath);
-                names = names.filter(a => !/\_(test|temp)\.w+$/.test(a));
+                names = names.filter(a => !/\_(?:test|temp)\.\w+$/.test(a));
                 rest.push.apply(rest, names.map(n => path.join(fullpath, n)));
                 total += names.length - 1;
                 continue;
