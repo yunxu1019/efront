@@ -1,4 +1,4 @@
-var { STAMP, EXPRESS, snapSentenceHead, createString, getBodyWith } = require("./common");
+var { STAMP, EXPRESS, snapSentenceHead, pickSentence, createString, getBodyWith } = require("./common");
 var suggest = {
     "while($2[$1++]!==$3)": "while($1<$2.length&&$2[$1++]!==$3)",
     "while($2[$1]!==$3)$1++": "while($1<$2.length&&$2[$1]!==$3)$1++",
@@ -6,12 +6,12 @@ var suggest = {
         var m = matched[0];
         var body = getBodyWith(m, 'arguments');
         var head = body.prev;
-        if (!head || body.checked) return;
+        if (!head?.length || body.checked) return;
         body.checked = true;
-        var { args, used } = body.scoped;
+        var { used, args } = body.scoped;
         if (!args?.length) return;
         var broken = false;
-        a: for (var [a] of args) {
+        a: for (var a of args) {
             if (!used[a]) {
                 continue;
             }
