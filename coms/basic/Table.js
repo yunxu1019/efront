@@ -78,6 +78,9 @@ class Table extends Array {
                         if (s.length === 1) return s[0];
                         return i18n`共${this.$summary[i].length}个不同的项`;
                     },
+                    set(v) {
+                        this.$summary[i] = [v];
+                    }
                 })
                 return [];
             });
