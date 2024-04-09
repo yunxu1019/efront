@@ -38,6 +38,7 @@ var exec_ = function (args, ok, oh, int) {
     var fina = function () {
         // 仅在try或catch未结束时使用
         if (!catch_) catch_ = catches.pop();
+        if (!catch_) return thro(e);
         [index, p] = catch_;
         catch_ = null;
         index += (p >>> 16) + (p & 0xffff);
