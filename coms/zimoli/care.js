@@ -5,7 +5,7 @@
  * @param {Function|string} type 
  * @param {Function} listener 
  */
-function care(target, type, listener) {
+function care() {
     var [target, type, listener, allowMultiHandle] = parse.apply(this, arguments);
     if (!target[type]) {
         target[type] = [];
@@ -17,7 +17,8 @@ function care(target, type, listener) {
         listeners.push(listener);
     }
 }
-function parse(target, type, listener) {
+function parse() {
+    var [target, type, listener] = arguments;
     var allowMultiHandle = arguments[arguments.length - 1];
     if (typeof allowMultiHandle !== "boolean") {
         allowMultiHandle = true;
@@ -48,7 +49,7 @@ function parse(target, type, listener) {
     type = `care(${type})`;
     return [target, type, listener, allowMultiHandle];
 }
-function clean(target, type, listener) {
+function clean() {
     var [target, type, listener] = parse.apply(this, arguments);
     var listeners = target[type];
     if (listener instanceof Function) {

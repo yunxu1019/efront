@@ -1447,7 +1447,8 @@ var pickSentence = function (o) {
     } while (h !== e);
     return res;
 };
-var insertBefore = function (o) {
+var insertBefore = function () {
+    var [o] = arguments;
     var queue = this || o.queue;
     var index = queue.indexOf(o);
     var os = [].slice.call(arguments, 1);
@@ -1465,7 +1466,8 @@ var insertBefore = function (o) {
     if (next) next.prev = o;
     else queue.last = o;
 }
-var insertAfter = function (o) {
+var insertAfter = function () {
+    var [o] = arguments;
     var queue = this || o.queue;
     var index = queue.indexOf(o) + 1;
     var os = [].slice.call(arguments, 1);

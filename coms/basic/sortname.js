@@ -114,7 +114,8 @@ var compare = function (a, b) {
     if (delta) return delta;
     return 0;
 }
-function sortname(list = this) {
+function sortname() {
+    var [list = this] = arguments;
     if (this !== arguments[1] && arguments.length === 2) {
         return compare(arguments[0], arguments[1]);
     }

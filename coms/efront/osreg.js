@@ -14,7 +14,8 @@ class OSReg {
     set(key, value) {
         return this.run('set', key, value);
     }
-    run(cmd, key, value) {
+    run() {
+        var [cmd, key, value] = arguments;
         if (!this.cmdmap || !this.pathmap) throw new Error(i18n`注册表操作暂不支持当前操作系统！`);
         if (!this.cmdmap.hasOwnProperty(cmd)) {
             throw new Error(i18n`注册表操作不支持${cmd}`);

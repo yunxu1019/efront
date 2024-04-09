@@ -540,7 +540,7 @@ function table(elem) {
             rowClick(d, i, event) {
                 active(table, i, d, event.target);
             },
-            tbody(e) {
+            tbody() {
                 var e = list.apply(null, arguments);
                 css(e, tbodyHeight(e, this.hasFoot));
                 css(e, { width: this.adapter.offsetWidth, display: 'block' });

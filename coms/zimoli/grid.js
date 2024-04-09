@@ -330,7 +330,8 @@ class Point extends Array {
         return this.value;
     }
 }
-var createPoints = function (values, direction = "x", result = new Point(0)) {
+var createPoints = function () {
+    var [values, direction = "x", result = new Point(0)] = arguments;
     if (!(values instanceof Array)) values = arguments;
     for (var cx = 0, dx = values.length; cx < dx; cx++) {
         var value = values[cx];

@@ -1,5 +1,5 @@
-function main(elem) {
-    elem = optionbar.apply(null, arguments);
+function main() {
+    var elem = optionbar.apply(null, arguments);
     var scope = {};
     if (!elem.childNodes.length) care(elem, function (p) {
         var [f, data] = p;

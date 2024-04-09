@@ -1,7 +1,8 @@
 "use strict";
 var languageMap = {};
 var languageIndex = 0;
-function i18n(arg) {
+function i18n() {
+    var [arg] = arguments;
     if (typeof arg === 'string' || !isArrayLike(arg)) arg = arguments;
     return arg[isFinite(this) ? this : languageIndex];
 };

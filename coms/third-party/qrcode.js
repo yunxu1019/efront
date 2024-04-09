@@ -491,8 +491,8 @@ var qrcode = function (typeNumber, errorCorrectionLevel) {
         return qrHtml;
     };
 
-    _this.createSvgTag = function (cellSize, margin, alt, title) {
-
+    _this.createSvgTag = function () {
+        var [cellSize, margin, alt, title] = arguments;
         var opts = {};
         if (typeof arguments[0] == 'object') {
             // Called by options.

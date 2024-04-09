@@ -300,7 +300,8 @@ function prepare(pgpath, ok) {
         }
         return url;
     };
-    state.init = function (a) {
+    state.init = function () {
+        var [a] = arguments;
         a = state.path(a);
         return init.apply(this, [a].concat([].slice.call(arguments, 1)));
     };

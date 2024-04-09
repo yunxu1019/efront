@@ -114,7 +114,8 @@ function wait(args) {
     });
 }
 
-async function compile(buildInfo, lastBuildTime, destroot) {
+async function compile() {
+    var [buildInfo, lastBuildTime, destroot] = arguments;
     if (!linesEnabled) return wait(arguments);
     linesEnabled--;
     var { searchpath, searchname, fullpath, realpath, name, url, builder, extt, destpath } = buildInfo;

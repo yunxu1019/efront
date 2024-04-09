@@ -5,7 +5,8 @@ var execute = function (commName, then, logpad) {
     window[commName] = null;
     delete modules[commName];
     var logs = [];
-    var log = function (color, type, text, ...extra) {
+    var log = function () {
+        var [color, type, text, ...extra] = arguments;
         if (text instanceof Error) text = text.message;
         window.console.log.apply(window.console, [].slice.call(arguments, 1));
         logs.push([color, type, text, ...extra]);
