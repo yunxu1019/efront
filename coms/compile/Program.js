@@ -144,6 +144,7 @@ class Program {
     exec(text) {
         if (!this.entry_reg) this.commit();
         var index = this.lastIndex;
+        this.lastIndex = text.length;
         var parents = [];
         var lasttype;
         var Code = this.Code;
@@ -423,7 +424,7 @@ class Program {
             var match = reg.exec(text);
             if (!match) return null;
             var end = match[0].length + match.index;
-            this.lastIndex = index = end;
+            index = end;
             var m = match[0];
             test: if (this.quote_map.hasOwnProperty(m)) {
                 var last = queue.last;
@@ -467,7 +468,7 @@ class Program {
                         break;
                     }
                     var m = match[0];
-                    index = this.lastIndex = match.index + m.length;
+                    index = match.index + m.length;
                     if (quote.length === 2) {
                         break;
                     }
@@ -532,7 +533,12 @@ class Program {
                 save(STRAP);
                 continue;
             }
-            var isdigit = this.number_reg.test(m);
+            var isdigit = number_reg.exec(m);
+            if (isdigit) {
+                m = isdigit[0];
+                index = match.index + m.length;
+                isdigit = true;
+            }
             if (this.value_reg.test(m) || isdigit) {
                 queue.inExpress = true;
                 if (isdigit && lasttype === STAMP) {
@@ -633,6 +639,7 @@ class Program {
                 queue_push(p);
             }
         };
+        this.lastIndex = index;
         if (queue !== origin) {
             throw console.log(createString(origin), `\r\n------ deep: ${parents.length}\r\n  --- enrty: ${queue.entry}\r\n  -- length: ${queue.length}\r\n  ---- last: ${createString([queue.last])}\r\n------- end\r\n --parents: ${parents.map(p => p.tag || p.entry || p.text).join('->')}`, createString([queue]).slice(-200)), "代码异常结束";
         }
@@ -713,7 +720,7 @@ class Program {
         this.space_reg = new RegExp(`^[${spaces}]+$`, flagUnicode);
         this.space_exp = new RegExp(`[${spaces}]+`, flagUnicode);
         var quotes = this.createRegExp(quoteslike.map(q => q[0]), true).source;
-        this.entry_reg = new RegExp([`[${spaces}]+|${quotes}|[${scopes}]|${this.number_reg.source.replace(/^\^|\$$/g, "")}[^${tokens}]*|${express}|[${stamps}]`], "gi" + flagUnicode);
+        this.entry_reg = new RegExp([`[${spaces}]+|${quotes}|[${scopes}]|${number_reg.source.replace(/^\^|\$$/g, "")}[^${tokens}]*|${express}|[${stamps}]`], "gi" + flagUnicode);
     }
 }
 module.exports = Program;

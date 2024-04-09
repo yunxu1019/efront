@@ -519,6 +519,15 @@ function detour(o, ie) {
                 if (hasdot) text = "..." + text;
                 o.text = text;
                 break;
+            case VALUE:
+                o.text = String(o.text).replace(/_/g, '')
+                    .replace(/\.e/, 'e')
+                    .replace(/\.$/, '')
+                    .replace(/^\./, '0.');
+                if (/^0[0-7]+$/.test(o.text)) {
+                    o.text = '0o' + o.text.slice(1);
+                }
+                break;
             case QUOTED:
                 if (o.length) {
                     if (!o.prev || o.prev.type & (STAMP | STRAP)) {

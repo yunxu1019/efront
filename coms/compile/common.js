@@ -14,7 +14,7 @@ const [
     /*2048 */ELEMENT,
 ] = new Array(20).fill(0).map((_, a) => 1 << a);
 // --------------//1//2/////////////////////////22/////////////2//2//3//4/////4////////3/////3//////3//3//////3///////211/////////////2//////2//////1///
-var number_reg = /^(?:(?:0x[0-9a-f]+|0b\d+|0o\d+)(?:_[0-9a-f]+)*|(?:(?:(?:\d+_)*\d+|\d*)\.\d+(?:_\d+)*|(?:\d+_)*\d+\.?))(?:e[\+\-]?\d+(?:_\d+)*|[mniul]|ll)?$/i;
+var number_reg = /^(?:(?:0x[0-9a-f]+|0b\d+|0o\d+|0[0-7]+)(?:_[0-9a-f]+)*|(?:(?:(?:\d+_)*\d+|\d*)\.\d+(?:_\d+)*|(?:\d+_)*\d+\.?))(?:e[\+\-]?\d+(?:_\d+)*|[ijklmnu]+)?/i;
 var equal_reg = /^(?:[\+\-\*\/~\^&\|%]|\*\*|>>>?|<<)?\=$|^(?:\+\+|\-\-)$/;
 var needhead_reg = /^\?\.|^\.[^\.]|^\[/;
 var skipAssignment = function (o, cx) {
@@ -1222,10 +1222,7 @@ var createString = function (parsed) {
                             if (patchspace && lasttype !== SPACE) result.push(" ");
                         }
                     }
-                    if (o.type === VALUE) {
-                        if (/^0[0-7]+$/.test(o.text)) {
-                            o.text = '0o' + o.text.slice(1);
-                        }
+                    if (o.isdigit) {
                         if (+o.text < 0 && /\-$/.test(result[result.length - 1])) {
                             result.push(" ");
                         }
