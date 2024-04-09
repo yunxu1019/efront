@@ -41,6 +41,10 @@ jobs:
         shell: cmd
       - run: call node public/efront.js basic/parseURL_test & if errorlevel 1 (echo 目标代码无法执行&exit 1)
         shell: cmd
+      - run: call node public/efront.js audit coms/ --force & if errorlevel 1 (echo 目标代码无法执行&exit 1)
+        shell: cmd
+      - run: call node public/efront.js audit apps/ --force & if errorlevel 1 (echo 目标代码无法执行&exit 1)
+        shell: cmd
       - name: 检查版本号
         run: |
           for /f "usebackq delims==" %%v in (`npm view . version`) do set published=%%v
