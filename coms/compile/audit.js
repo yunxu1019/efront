@@ -28,7 +28,6 @@ var suggest = {
             matched.push(h);
             h = h.next;
         }
-        console.log(createString(body),matched.length)
         matched.suggest = `${createString(matched.slice(0, matched.length - 1))}(){\r\n      var[${createString(head)}]=arguments;\r\n      // ${i18n`后续代码`}..\r\n  }`;
         return matched;
     }
