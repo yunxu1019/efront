@@ -48,7 +48,7 @@ assert(downLevel(`var {1:a}`), 'var a');
 assert(downLevel(`var {c:a}`), 'var a');
 assert(downLevel(`var {a}=b`), 'var a = b.a');
 assert(downLevel(`var {a}=1`), 'var a = 1 .a');
-assert(downLevel(`var {a}=1.1`), 'var a = 1.1 .a');
+assert(downLevel(`var {a}=1.1`), 'var a = 1.1.a');
 assert(downLevel(`var {c:a}=b`), 'var a = b.c');
 assert(downLevel(`[...[a]]=[1]`), 'a = [1][0]');
 assert(downLevel(`[...[a]]=[...[1]]`), 'a = [1][0]');

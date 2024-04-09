@@ -1193,7 +1193,9 @@ var createString = function (parsed) {
                 break;
             default:
                 if (o && typeof o === "object") {
-                    if (intag || o.type === EXPRESS && (needhead_reg.test(o.text) || o.prev?.type === EXPRESS && /\.$/.test(o.prev.text)));
+                    if (intag || o.type === EXPRESS && (needhead_reg.test(o.text) || o.prev?.type === EXPRESS && /\.$/.test(o.prev.text))) {
+                        if (o.prev?.isdigit && /^\./.test(o.text) && !/^0[\dxbo]|[mni]$|[e\.]/.test(o.prev.text)) result.push(" ");
+                    }
                     else if ((STRAP | EXPRESS | PROPERTY | COMMENT | VALUE) & lasttype && (STRAP | EXPRESS | PROPERTY | VALUE | LABEL) & o.type) {
                         if (autospace) result.push(" ");
                     }
