@@ -21,7 +21,6 @@ var exec_ = function (args, ok, oh, int) {
                 next(err);
             }
             else {
-                catches.pop();
                 fina();
             }
         }
@@ -32,20 +31,18 @@ var exec_ = function (args, ok, oh, int) {
     var retn = function (p) {
         r = p;
         finished = true;
-        if (catches.length) fina();
+        if (catch_ || catches.length) fina();
         else ok(r);
     };
     var fina = function () {
         // 仅在try或catch未结束时使用
         if (!catch_) catch_ = catches.pop();
-        if (!catch_) return thro(e);
         [index, p] = catch_;
         catch_ = null;
         index += (p >>> 16) + (p & 0xffff);
         next();
     };
     var fine = function () {
-        catches.pop();
         if (throwed) thro(e);
         else if (finished) retn(r);
         else {
@@ -58,11 +55,9 @@ var exec_ = function (args, ok, oh, int) {
         while (index < args_length) {
             try {
                 var a = args[index](p) || [1, 0];
-                catch_ = null;
                 p = a[0];
                 i = a[1];
             } catch (e) {
-                p = null;
                 thro(e);
                 return;
             }
@@ -74,17 +69,19 @@ var exec_ = function (args, ok, oh, int) {
                         try {
                             return p.then(next, thro);
                         } catch (e) {
-                            return Promise.reject(e).then(next, thro);
+                            return Promise.reject(e).then(null, thro);
                         }
                     }
                     else return next(p);
                 case 2: return finished = true, retn(p); // return p;
                 case 3: return index++, int(p, next); // yield p;
+                case 4: return thro(p); // throw p; 目前无此返回值
                 case 7: index++; catches.push([index, p]); break; // try catch finally?
                 case 8: index++; catches.push([index, p, 1]); break; // try finally
                 case 9: return p ? fine() : fina(); // finally
                 default: throw console.log(a), i18n`代码异常！`;
             }
+            catch_ = null;
         }
         retn();
     };

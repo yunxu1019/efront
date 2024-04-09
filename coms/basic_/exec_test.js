@@ -27,19 +27,24 @@ var c = async function () {
 
         await b();
     } catch (e) {
-        console.log(e)
+        console.log(e, 'catched')
         return 9;
     }
     finally {
-        console.log(8)
+        console.log(8, 'finally')
     }
 };
 var d = async function () {
     try {
-        throw new Error(10);
+        throw new Error("不该出现此错误");
     }
     catch (e) {
+        console.log(10, 'catched');
         throw e;
+    }
+    finally {
+        console.log(11);
+        throw new Error("这是最后的报错");
     }
 }
 console.log(0, process.uptime())
