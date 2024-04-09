@@ -6,7 +6,8 @@ var suggest = {
         var m = matched[0];
         var body = getBodyWith(m, 'arguments');
         var head = body.prev;
-        if (!head) return;
+        if (!head || body.checked) return;
+        body.checked = true;
         var { args, used } = body.scoped;
         if (!args?.length) return;
         var broken = false;
