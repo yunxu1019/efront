@@ -261,6 +261,11 @@ function snapSentenceHead(o) {
                     pp = pp.prev;
                     continue;
                 }
+                while (pp?.isprop) {
+                    o = pp;
+                    pp = pp.prev;
+                    if (pp?.isend) break;
+                }
             }
             break;
         }

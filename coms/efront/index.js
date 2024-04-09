@@ -322,7 +322,7 @@ var commands = {
         return this.each(args, (a) => require("./checkVariable")(a))
     },
     async audit(...args) {
-        var collected = 0, total = 0;
+        var collected = 0, total = 0, error_files_count = 0;
         await this.each(args, async function (a) {
             total += await eachPath(a, function (data, fullpath) {
                 if (!/\.js$/.test(fullpath)) return;
@@ -333,6 +333,7 @@ var commands = {
                     console.info(i18n`文件${`<green>${fullpath}</green>`}中暂未发现已记录的问题`);
                 }
                 else {
+                    error_files_count++;
                     collected += suggests.length;
                     var createString = require("../compile/common").createString;
                     var codecolor = require('../docs/codecolor');
@@ -350,8 +351,12 @@ var commands = {
                 }
             })
         });
-        if (total > 1) console.info("检查完毕！");
-        if (collected > 1) return Promise.reject("文件待优化！");
+        if (total > 1) console.info(i18n`检查完毕！`);
+        if (collected > 0) {
+            var msg = i18n`在${error_files_count}个文件中找到${collected}处易错代码！`;
+            if (memery.FORCE) throw new Error(msg);
+            console.warn(msg);
+        }
     },
     async find() {
         await detectEnvironment();

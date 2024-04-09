@@ -381,6 +381,7 @@ Javascript.prototype.setType = function (o) {
             if (last && last.type === PROPERTY && propresolve_reg.test(last.text)) {
                 last.type = STRAP;
             }
+            if (queue.isClass) o.isend = false;
         }
     }
     if (o.type === PROPERTY || o.isprop);
@@ -595,7 +596,7 @@ function detour(o, ie) {
                 }
                 if (!o.isprop) break;
             case PROPERTY:
-                if (/^(get|set|async|static)$/.test(o.text) && o.next && (o.next.type === PROPERTY || o.next.isprop)) break;
+                if (!o.isend && /^(get|set|async|static)$/.test(o.text) && o.next && (o.next.type === PROPERTY || o.next.isprop)) break;
                 if (o.text === 'static' && o.next && o.next.type === SCOPED && o.next.entry === '{') break;
                 if (/^\[/.test(o.text)) break;
                 if (o.queue.isObject) {
@@ -618,7 +619,7 @@ function detour(o, ie) {
                     var text = strings.recode(o.text);
                     if (o.prev) {
                         var prev = o.prev;
-                        if (prev && prev.isprop && /^(get|set|static|async)$/.test(prev.text)) {
+                        if (prev && prev.isprop && !prev.isend && /^(get|set|static|async)$/.test(prev.text)) {
                             prev = prev.prev;
                         }
                         if (prev && prev.type === STAMP && prev.isprop) prev = prev.prev;

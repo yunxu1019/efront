@@ -297,7 +297,7 @@ var memery = module.exports = {
     IMAG: getdirpath("IMAG, IMGS"),
     LIBS: getdirpath("LIBS, LIB"),
     EMIT: get("EMIT,DEEP,LINK", true),
-    FORCE: false,
+    FORCE: get("AUDIT,FORCE_AUDIT,AUDIT_FORCE,FORCE", false),
     BREAK: get("BREAK,DETOUR"),
     UPLEVEL: get("UPLEVEL", false),
     REPORT: get("REPORT"),
