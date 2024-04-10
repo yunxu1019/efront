@@ -54,7 +54,7 @@ var codecolor = function (c, encode) {
                 break;
             case PROPERTY:
                 var next = o.next;
-                if (next && next.type === c.SCOPED && next.entry === '(') {
+                if (next && next.type === SCOPED && next.entry === '(') {
                     o.text = `<method>${o.text}</method>`;
                 }
                 else o.text = `<property>${o.text}</property>`;
@@ -63,7 +63,7 @@ var codecolor = function (c, encode) {
             case EXPRESS:
                 var keys = o.text.split(".");
                 var next = o.next;
-                if (next && next.type === c.SCOPED && next.entry === '(') {
+                if (next && next.type === SCOPED && next.entry === '(') {
                     keys[keys.length - 1] = `<invoke>${keys[keys.length - 1]}</invoke>`;
                 }
                 var [name0] = text.split(".");
@@ -80,7 +80,7 @@ var codecolor = function (c, encode) {
                 else o.text = `<strap>${o.text}</strap>`;
                 break;
             case STAMP:
-                if (/^(=>)$/.test(o.text) || o.text === "*" && o.prev && o.prev.type === c.STRAP) o.text = `<strap>${encode(o.text)}</strap>`;
+                if (/^(=>)$/.test(o.text) || o.text === "*" && o.prev && o.prev.type === STRAP) o.text = `<strap>${encode(o.text)}</strap>`;
                 // else if (!/^[<\/>]+$/.test(o.text));
                 // else o.text = `<stamp>${encode(o.text)}</stamp>`;
                 break;

@@ -42,13 +42,13 @@ var colors = module.exports = {
 };
 colors.label = colors.strap = colors.value = colors.FgBlue2;
 colors.comment = colors.FgGreen;
-colors.invoke = colors.method = colors.FgYellow;
+colors.invoke = colors.method = colors.FgYellow2;
 colors.express = colors.property = colors.FgCyan2;
 colors.predef = colors.FgGreen2;
 colors.outside = colors.FgCyan;
 colors.stamp = colors.FgGray;
 colors.regexp = colors.FgRed2;
-colors.text = colors.FgYellow;
+colors.text = colors.FgRed;
 colors.flow = colors.FgPurple;
 colors.digit = colors.FgGreen2;
 colors.deep0 = colors.FgYellow;
