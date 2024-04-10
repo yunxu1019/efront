@@ -16,7 +16,7 @@ const [
 // --------------//1//2/////////////////////////22/////////////2//2//3//4/////4////////3/////3//////3//3//////3///////211/////////////2//////2//////1///
 var number_reg = /^(?:(?:0x[0-9a-f]+|0b\d+|0o\d+|0[0-7]+)(?:_[0-9a-f]+)*|(?:(?:(?:\d+_)*\d+|\d*)\.\d+(?:_\d+)*|(?:\d+_)*\d+\.?))(?:e[\+\-]?\d+(?:_\d+)*|[ijklmnu]+)?/i;
 var equal_reg = /^(?:[\+\-\*\/~\^&\|%]|\*\*|>>>?|<<)?\=$|^(?:\+\+|\-\-)$/;
-var needhead_reg = /^\?\.|^\.[^\.]|^\[/;
+var needhead_reg = /^\?\.|^\.(?:[^\.]|$)|^\[/;
 var skipAssignment = function (o, cx) {
     if (!o) return;
     var next = arguments.length === 1 ? function () {
@@ -827,6 +827,7 @@ var createScoped = function (parsed, wash) {
                 }
                 if (keepscope) {
                     var envs = Object.create(null);
+                    var caps = Object.create(null);
                     for (var k in used) {
                         if (!(k in map)) {
                             envs[k] = true;
@@ -834,7 +835,11 @@ var createScoped = function (parsed, wash) {
                                 saveTo(_used, k, u);
                             }
                         }
+                        else {
+                            caps[k] = used[k];
+                        }
                     }
+                    scoped.caps = caps;
                     scoped.envs = envs;
                     _scoped.push(scoped);
                 }
@@ -870,6 +875,7 @@ var createScoped = function (parsed, wash) {
     run(parsed.first);
     scoped.used = used;
     scoped.vars = vars;
+    scoped.caps = used;
     var envs = Object.create(null);
     for (var u in used) {
         if (!(u in vars)) {
@@ -1556,21 +1562,21 @@ var unshort = function (o, text) {
 };
 var getBodyWith = function (o, k) {
     var q = o.queue;
-    while (q && (!q.scoped || !q.scoped.used[k])) q = q.queue;
+    while (q && (!q.scoped || !q.scoped.caps[k])) q = q.queue;
     return q;
 };
 
 var patchArrawScope = function (arraw, origin) {
     var s1 = createScoped(arraw);
-    if (s1.used.this) {
+    if (s1.caps.this) {
         var s = getBodyWith(origin, 'this').scoped;
-        s.used.this.push(...s1.used.this);
+        s.caps.this.push(...s1.caps.this);
         s.insett = true;
     }
-    if (s1.used.arguments) {
+    if (s1.caps.arguments) {
         s.inseta = true;
         var s = getBodyWith(origin, 'arguments').scoped;
-        s.used.arguments.push(...s1.used.arguments);
+        s.caps.arguments.push(...s1.caps.arguments);
     };
 };
 

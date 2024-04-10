@@ -666,13 +666,13 @@ var killcls = function (body, i, letname_, getname_) {
             relink(constructor[1]);
             var cs = createScoped(constructor[1]);
             var newt = getname(cs.vars, cs.envs, 'this_');
-            if (cs.used.this) rename(cs.used, 'this', newt);
+            if (cs.caps.this) rename(cs.caps, 'this', newt);
             var inited = false;
             assign.forEach(o => {
                 if (o.type === EXPRESS) o.text = o.text.replace(/^this([\[\.]|$)/g, newt + "$1");
             });
-            if (cs.used.super) {
-                cs.used.super.forEach(o => {
+            if (cs.caps.super) {
+                cs.caps.super.forEach(o => {
                     if (o.text !== 'super') return;
                     var n = o.next;
                     if (!n || n.type !== SCOPED || n.entry !== "(") return;
@@ -687,8 +687,8 @@ var killcls = function (body, i, letname_, getname_) {
                     insert1(o.queue, n.next, ...scanner2(`||this;`));
                 })
             }
-            if (scoped.used.super) {
-                scoped.used.super.forEach(o => {
+            if (scoped.caps.super) {
+                scoped.caps.super.forEach(o => {
                     if (!/^super(\.|\[|$)/.test(o.text)) return;
                     o.text = `${base}["prototype"]` + o.text.replace(/^super/, '');
                     insert1(o.queue, o.next, ...scanner2('["bind"](this)'));
@@ -1674,16 +1674,16 @@ var down = function (scoped) {
     };
 
     var markcodes = [];
-    if (scoped.isfunc && scoped.used.this && (funcMark && !scoped.isArrow || scoped.insett)) {
+    if (scoped.isfunc && scoped.caps.this && (funcMark && !scoped.isArrow || scoped.insett)) {
         let tn = _getname("this_");
-        rename(scoped.used, "this", tn);
-        scoped.used.this.forEach(o => o.origin = 'this');
+        rename(scoped.caps, "this", tn);
+        scoped.caps.this.forEach(o => o.origin = 'this');
         markcodes.push(`${tn}=this`);
     }
-    if (scoped.isfunc && scoped.used.arguments && (funcMark && !scoped.isArrow || scoped.inseta)) {
+    if (scoped.isfunc && scoped.caps.arguments && (funcMark && !scoped.isArrow || scoped.inseta)) {
         let an = _getname("arguments_");
-        scoped.used.arguments.forEach(o => o.origin = 'arguments');
-        rename(scoped.used, "arguments", an);
+        scoped.caps.arguments.forEach(o => o.origin = 'arguments');
+        rename(scoped.caps, "arguments", an);
         markcodes.push(`${an}=arguments`);
     }
     var fordeep = 0;
