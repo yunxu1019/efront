@@ -109,7 +109,8 @@ var audit = function (code) {
         while (rest.length) {
             var c = rest.pop();
             if (c.length) {
-                rest.push.apply(rest, c);
+                var a = c.slice().reverse();
+                rest.push.apply(rest, a);
             }
             var m = match(r, c);
             if (!m) continue;
