@@ -219,14 +219,84 @@ function skipFunction(o) {
     }
     return o;
 }
+var getDoBeforeWhile = function (while_) {
+    var p = while_.prev;
+    if (!p || p.type !== SCOPED || p.entry !== '{') return;
+    p = p.prev;
+    if (p.type === STRAP && p.text === "do") return p;
+};
+var getIfElseHead = function (if_) {
+    var p = if_;
+    do {
+        if_ = p;
+        p = if_.prev;
+        if (p.type !== STRAP || p.text !== 'else') {
+            return if_;
+        }
+        while (p && (p.type !== STRAP || p.text !== 'if')) p = p.prev;
+    } while (p);
+    return
+};
+var getContitionHeadBeforeScoped = function (p, nodo) {
+    var pp = p.prev;
+    if (pp && pp.type === STRAP && pp.text === 'await') {
+        pp = pp.prev;
+        if (pp.type === STRAP && pp.text === "for") {
+            return pp;
+        };
+    }
+    if (pp && pp.type === STRAP) {
+        switch (pp.text) {
+            case "with":
+            case "for":
+                return pp;
+            case "while":
+                p = getDoBeforeWhile(pp);
+                if (p) {
+                    if (nodo) return;
+                    return p;
+                }
+                return pp;
+            case "if":
+                return getIfElseHead(pp);
+        }
+    }
+};
+var getFunctionHeadBeforeScoped = function (p) {
+    var pp = p.prev;
+    if (pp && pp.type === EXPRESS) pp = pp.prev;
+    if (pp && pp.text === '*') pp = pp.prev;
+    if (pp && pp.type === STRAP && pp.text === 'function') {
+        p = pp;
+        pp = pp.prev;
+        if (pp && pp.type === STRAP && pp.text === 'async') {
+            p = pp;
+        }
+        return p;
+    }
+    while (pp?.isprop) {
+        p = pp;
+        pp = pp.prev;
+        if (pp?.isend) break;
+    }
+    if (p.isprop) return p;
+}
 function snapSentenceHead(o) {
     // 只检查一级
     while (o && o.prev) {
         var p = o.prev;
-        if (o.entry === '(' && !(p.type & (STAMP | STRAP))) {
-            o = p;
-            p = o.prev;
-            if (!p) break;
+        if (o.entry === '(') {
+            if (!(p.type & (STAMP | STRAP))) {
+                o = p;
+                p = o.prev;
+                if (!p) break;
+            }
+            else if (p.type === STRAP) {
+                var pp = getContitionHeadBeforeScoped(o, false);
+                if (pp) { o = pp; break; }
+                pp = getFunctionHeadBeforeScoped(o);
+                if (pp) { o = pp; continue };
+            }
         }
         var maybeprop = o.type === SCOPED && o.entry !== "{" || o.type === EXPRESS && /^[\.\[]/.test(o.text);
         if (p.type === EXPRESS) {
@@ -254,18 +324,10 @@ function snapSentenceHead(o) {
                 continue;
             }
             if (p.entry === "(" && o.type === SCOPED) {
-                var pp = p.prev;
-                if (pp && pp.type === EXPRESS) pp = pp.prev;
-                if (pp && pp.type === STRAP && pp.text === 'function') {
-                    o = pp;
-                    pp = pp.prev;
-                    continue;
-                }
-                while (pp?.isprop) {
-                    o = pp;
-                    pp = pp.prev;
-                    if (pp?.isend) break;
-                }
+                var pp = getContitionHeadBeforeScoped(p, true);
+                if (pp) { o = pp; break; }
+                var pp = getFunctionHeadBeforeScoped(p);
+                if (pp) { o = pp; continue; }
             }
             break;
         }
@@ -521,6 +583,7 @@ var createScoped = function (parsed, wash) {
                             funcbody.return.push(o);
                             break;
                         case "await":
+                            funcbody.async = funcbody.await = true;
                             break;
                         case "as":
                         case "from":
@@ -645,7 +708,7 @@ var createScoped = function (parsed, wash) {
                         thisscope = scoped;
                         argscope = scoped;
                     }
-                    scoped.await = scoped.async = isAsync;
+                    scoped.async = isAsync;
                     scoped.isfunc = true;
                     isFunction = true;
                     if (function_obj) function_obj.scoped = scoped;

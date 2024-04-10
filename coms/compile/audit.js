@@ -1,4 +1,4 @@
-var { STAMP, EXPRESS, snapSentenceHead, pickSentence, createString, getBodyWith } = require("./common");
+var { STAMP, getDeclared, STRAP, SCOPED, QUOTED, snapSentenceHead, pickSentence, createString, getBodyWith } = require("./common");
 var suggest = {
     "while($2[$1++]!==$3)": "while($1<$2.length&&$2[$1++]!==$3)",
     "while($2[$1]!==$3)$1++": "while($1<$2.length&&$2[$1]!==$3)$1++",
@@ -33,6 +33,24 @@ var suggest = {
         return matched;
     }
 };
+
+var regSuggest = function (c) {
+    if (c.type !== QUOTED) return;
+    var flag = /\/(\w+)$/.exec(c.text)?.[1];
+    if (!flag || !/g\w*$/.test(flag)) return;
+    var h = snapSentenceHead(c);
+    if (h.type === STRAP || /^(var|let|const)$/.test(h)) {
+        h = h.next;
+    }
+    if (!h.equal) return;
+    var [args] = getDeclared(h);
+    var scoped = getBodyWith(c, args[0]).scoped;
+    if (!scoped?.await) return;
+    var matched = [c];
+    matched.suggest = `new RegExp(${c.text.slice(0, c.text.length - flag.length)}.source,"${flag}")`;
+    return matched;
+};
+
 var roles = Object.keys(suggest).map(s => {
     var r = scanner2(s);
     var { used, envs } = r;
@@ -45,10 +63,13 @@ var roles = Object.keys(suggest).map(s => {
     if (typeof s === 'string') r.suggest = scanner2(s);
     else r.suggest = s;
     return r;
-});
+}).concat(regSuggest);
 var match = function (role, c, nameMap = {}) {
     var temp = role.first;
     var matched = [];
+    if (typeof role === 'function') {
+        return role(c);
+    }
     while (temp) {
         if (!c || c.type !== temp.type) return;
         if (temp.sname) {

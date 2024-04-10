@@ -7,10 +7,20 @@ function a(a) {
     console.log(arguments);
 }
 
-class a{
+class a {
     a
-    b(c){
-        c=2;
+    b(c) {
+        c = 2;
         arguments;
+    }
+}
+
+
+// 正则表达式在异步函数中无法并发执行，是efront提取正则所致，目前要由用户手动处理
+async function c() {
+    var reg = /a/g;
+    while (true) {
+        await wait(20);
+        reg.exec("aaa");
     }
 }
