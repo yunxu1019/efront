@@ -1089,7 +1089,8 @@ var CryptoJS = CryptoJS || (function (Math, undefined) {
 	var superInit = WordArray.init;
 
 	// Augment WordArray.init to handle typed arrays
-	var subInit = WordArray.init = function (typedArray) {
+	var subInit = WordArray.init = function () {
+		var [typedArray] = arguments;
 		// Convert buffers to uint8
 		if (typedArray instanceof ArrayBuffer) {
 			typedArray = new Uint8Array(typedArray);

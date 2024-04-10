@@ -41,7 +41,8 @@ on('touchend')(window, function (event) {
     }
     activeElement.blur();
 })
-function select(target, list, removeOnSelect, direction) {
+function select() {
+    var [target, list, removeOnSelect, direction] = arguments;
     if (/^[yvxh]/i.test(removeOnSelect)) {
         direction = removeOnSelect;
         removeOnSelect = arguments[3];

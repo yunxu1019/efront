@@ -90,7 +90,8 @@ var getTreeNodes = function (elem) {
     return nodes;
 };
 
-function main(elem, mode) {
+function main() {
+    var [elem, mode] = arguments;
     if (isElement(elem)) {
         // var os = /Samsung|Firefox|Chrome|MSIE|Safari/i.exec(navigator.userAgent);
         // if (os) {

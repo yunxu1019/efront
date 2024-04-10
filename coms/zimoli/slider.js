@@ -10,7 +10,8 @@ var abs = Math.abs;
  * 
  * @param {Boolean|Array|Function} autoplay 
  */
-function slider(autoplay, circle = true) {
+function slider() {
+    var [autoplay, circle = true] = arguments;
     var outter = container.cloneNode();
     {
         for (let cx = 0, dx = arguments.length; cx < dx; cx++) {
