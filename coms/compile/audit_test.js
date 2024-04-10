@@ -24,3 +24,8 @@ async function c() {
         reg.exec("aaa");
     }
 }
+
+// 正则表达式在步进函数中无法并发执行，是efront提取正则所致，目前要由用户手动处理
+async function *c() {
+    var reg = /a/g;
+}

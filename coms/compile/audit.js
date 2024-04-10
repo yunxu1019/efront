@@ -45,7 +45,7 @@ var regSuggest = function (c) {
     if (!h.equal) return;
     var [args] = getDeclared(h);
     var scoped = getBodyWith(c, args[0]).scoped;
-    if (!scoped?.await) return;
+    if (!scoped?.await && !scoped.yield) return;
     var matched = [c];
     matched.suggest = `new RegExp(${c.text.slice(0, c.text.length - flag.length)}.source,"${flag}")`;
     return matched;
