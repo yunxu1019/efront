@@ -109,7 +109,7 @@ tip {
       </div>
     </div>
     <div2 class="main" ref="content">
-      <tip>内容区</tip>
+      <tip>这个项目是我以前在某些公司上班时为了兼容vue开的，以后不会再维护了，也不准备增加对vue3及后续版本的支持，望知悉。</tip>
     </div2>
   </div1>
 </template>

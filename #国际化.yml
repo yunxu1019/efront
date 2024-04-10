@@ -1,3 +1,6 @@
+- zh-CN: 以后不会再测试是否兼容vue了，也不准备增加对vue3及后续版本的支持，望知悉。
+  en:    "We will no longer test whether it is compatible with Vue in the future, and we are not planning to add support for Vue3 and subsequent versions. Please be informed."
+
 - zh-CN: 检查完毕！
   en:    Check completed!
 
@@ -227,7 +230,7 @@
   en:    !
 
 - zh-CN: https://letsencrypt.org/zh-cn/
-  en:    
+  en:    https://letsencrypt.org/
 
 - zh-CN: 没有发现上传函数
   en:    No upload function found

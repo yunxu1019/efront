@@ -1,3 +1,4 @@
+console.error(i18n`以后不会再测试是否兼容vue了，也不准备增加对vue3及后续版本的支持，望知悉。`);
 function main(efrontComponent, events) {
     var tagName = '';
     if (typeof efrontComponent === 'string') {
