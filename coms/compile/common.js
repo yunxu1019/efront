@@ -230,36 +230,34 @@ var getIfElseHead = function (if_) {
     do {
         if_ = p;
         p = if_.prev;
-        if (p.type !== STRAP || p.text !== 'else') {
+        if (!p || p.type !== STRAP || p.text !== 'else') {
             return if_;
         }
         while (p && (p.type !== STRAP || p.text !== 'if')) p = p.prev;
     } while (p);
-    return
 };
 var getContitionHeadBeforeScoped = function (p, nodo) {
     var pp = p.prev;
-    if (pp && pp.type === STRAP && pp.text === 'await') {
+    if (pp.type !== STRAP) return;
+    if (pp.text === 'await') {
         pp = pp.prev;
-        if (pp.type === STRAP && pp.text === "for") {
+        if (pp?.type === STRAP && pp.text === "for") {
             return pp;
         };
     }
-    if (pp && pp.type === STRAP) {
-        switch (pp.text) {
-            case "with":
-            case "for":
-                return pp;
-            case "while":
-                p = getDoBeforeWhile(pp);
-                if (p) {
-                    if (nodo) return;
-                    return p;
-                }
-                return pp;
-            case "if":
-                return getIfElseHead(pp);
-        }
+    else switch (pp.text) {
+        case "with":
+        case "for":
+            return pp;
+        case "while":
+            p = getDoBeforeWhile(pp);
+            if (p) {
+                if (nodo) return;
+                return p;
+            }
+            return pp;
+        case "if":
+            return getIfElseHead(pp);
     }
 };
 var getFunctionHeadBeforeScoped = function (p) {
