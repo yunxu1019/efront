@@ -81,7 +81,6 @@ var exec_ = function (args, ok, oh, int) {
                 case 9: return p ? fine() : fina(); // finally
                 default: throw console.log(a), i18n`代码异常！`;
             }
-            catch_ = null;
         }
         retn();
     };

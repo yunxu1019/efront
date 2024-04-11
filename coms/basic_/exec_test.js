@@ -11,7 +11,14 @@ var b = async function () {
     console.log(3, process.uptime())
     try {
         console.log(4, 'try');
-        throw 5
+        try {
+            throw "这个错误不该出现";
+        } catch {
+            await Promise.reject('这个错误不该出现');
+        }
+        finally {
+            throw await Promise.resolve(5)
+        }
     } catch (e) {
         console.log(e, 'catched')
         throw 7;
