@@ -494,7 +494,7 @@ var snapExpressFoot = function (o) {
 };
 var createScoped = function (parsed, wash) {
     var used = Object.create(null); var vars = Object.create(null), lets = vars;
-    var scoped = [], funcbody = scoped, argscope = scoped, thisscope = scoped;
+    var scoped = [], funcbody = scoped, argscope = scoped, thisscope = scoped, labelused = used;
     funcbody.isroot = true;
     scoped.body = parsed;
     scoped.isfunc = true;
@@ -552,7 +552,7 @@ var createScoped = function (parsed, wash) {
                     else {
                         var u = o.text;
                         if (/^\.\.\./.test(u)) u = u.slice(3);
-                        var u = u.replace(/^([^\.\[\?]*)[\s\S]*$/, '$1');
+                        var u = u.replace(/^([^\.\[\?\s]*)[\s\S]*$/, '$1');
                         if (!u) break;
                         var prev = o.prev;
                         if (prev && prev.type === STAMP && /^(?:\+\+|\-\-)$/.test(prev.text)) {
@@ -566,7 +566,7 @@ var createScoped = function (parsed, wash) {
                     break;
                 case LABEL:
                     var name = o.text;
-                    name = name.slice(0, name.length - 1);
+                    name = name.replace(/\s*\:$/, '');
                     vars[name] = true;
                     o.kind = "label";
                     saveTo(used, name, o);
@@ -576,6 +576,14 @@ var createScoped = function (parsed, wash) {
                     var s = o.text;
                     var m = null;
                     switch (s) {
+                        case "break":
+                        case "continue":
+                            if (o.isend) break;
+                            o = o.next;
+                            if (o?.type === EXPRESS) {
+                                saveTo(labelused, o.text, o);
+                            }
+                            break;
                         case "return":
                             if (!funcbody.return) funcbody.return = [];
                             funcbody.return.push(o);
@@ -690,6 +698,7 @@ var createScoped = function (parsed, wash) {
                 var _funcbody = funcbody;
                 var _argscope = argscope;
                 var _thisscope = thisscope;
+                var _labelused = labelused;
                 used = Object.create(null);
                 lets = Object.create(null);
                 vars = Object.create(null);
@@ -706,6 +715,7 @@ var createScoped = function (parsed, wash) {
                         thisscope = scoped;
                         argscope = scoped;
                     }
+                    labelused = used;
                     scoped.async = isAsync;
                     scoped.isfunc = true;
                     isFunction = true;
@@ -853,6 +863,7 @@ var createScoped = function (parsed, wash) {
                 if (isClass) delete lets.super, delete lets.this, thisscope = _thisscope;
                 if (isFunction) {
                     funcbody = _funcbody;
+                    labelused = _labelused;
                     if (!isArrow) {
                         delete vars.this;
                         delete vars.arguments;
@@ -1324,12 +1335,8 @@ var rename = function (used, from, to) {
         if (doted) text = "..." + text;
         if (u.type === PROPERTY) {
             if (u.short) {
-                var q = u.queue;
-                q.splice(q.indexOf(u), 0, { type: PROPERTY, text: u.text }, { type: STAMP, text: ":" });
-                u.short = false;
-                u.type = EXPRESS;
+                unshort(u);
                 u.text = text;
-                relink(q);
             }
             continue;
         }
