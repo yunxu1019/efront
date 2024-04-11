@@ -16,7 +16,7 @@ var referers_cache_limit = 1024 + referers_cache_drop;
 var updateReferer = function (referer) {
     // 按每个请求最大记录2k数据算，最多用8M内存
     if (referers.length >= referers_cache_limit) {
-        referers = referers.splice(0, referers_cache_drop);
+        referers.splice(0, referers_cache_drop);
     }
     referers.push(referer);
 };
