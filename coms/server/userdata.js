@@ -185,7 +185,7 @@ module.exports = {
     },
     async patchOptionObj(type, key, obj) {
         var opt = await this.getOptionObj(type, key);
-        Object.assign(opt, obj);
+        opt = Object.assign({}, opt, obj);
         return this.setOptionObj(type, key, opt);
     },
     patchOptionStr(type, key, str) {
