@@ -113,8 +113,15 @@
             async openOrder(o) {
                 o = this.order = shallowClone(o);
                 if (!o || !o.oid) return;
-                var order = await acme2.getOrder(o);
-                extend(o, order);
+                try {
+                    var order = await acme2.getOrder(o);
+                    extend(o, order);
+                } catch (e) {
+                    if (e.status === 404) {
+                        o.removable = true;
+                    }
+                    return;
+                }
                 if (o !== this.order) return;
                 if (o.certificate && !o.shouldupload) {
                     var identifiers = o.identifiers;
