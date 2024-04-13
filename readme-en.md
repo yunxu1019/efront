@@ -167,5 +167,7 @@ You can also click on [github](https://github.com/yunxu1019/efront/issues). The 
 &nbsp;&nbsp;[Version Introduction](docs/version-desc.md)
 &nbsp;&nbsp;[Compared to the front-end framework](docs/compare-en.md)
 
+[efront server manager](https://efront.cc/pivot/)
+
 [白前看图](https://efront.cc/baiplay)
 &nbsp;&nbsp;[酷酷千百易云音乐](https://efront.cc/kugou/)

@@ -164,5 +164,7 @@ efront 默认读取当前路径下的`_envs/`和用户目录的`.efront/_envs/`�
 &nbsp;&nbsp;[版本简介](docs/%E7%89%88%E6%9C%AC%E8%AF%B4%E6%98%8E.md)
 &nbsp;&nbsp;[与前端框架对比](docs/compare.md)
 
+[efront服务器管理工具](https://efront.cc/pivot/)
+
 [白前看图](https://efront.cc/baiplay)
 &nbsp;&nbsp;[酷酷千百易云音乐](https://efront.cc/kugou/)
