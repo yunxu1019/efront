@@ -382,7 +382,7 @@ var doOptions = async function (req, res, type) {
                             return;
                         }
                     }
-                    if (type[3] && act === '*') {
+                    if (key && act === '*') {
                         await userdata.patchOptionStr(type[1], key, encode62.timedecode(type[3]));
                         res.end();
                         return;

@@ -177,8 +177,8 @@ module.exports = {
     getOptionObj(type, key) {
         return this.option(type, key, 0);
     },
-    getOptionsList(type) {
-        return this.option(type, false);
+    getOptionsList(type, idkey) {
+        return this.option(type, false, idkey);
     },
     hasOption(type, key) {
         return this.option(type, key, null);
@@ -214,7 +214,10 @@ module.exports = {
             options = await Promise.all(options);
             options = options.map((o, i) => {
                 try {
-                    if (o) return JSON.parse(o);
+                    if (!o) return o;
+                    o = JSON.parse(o);
+                    if (o && value) o[value] = keys[i];
+                    return o;
                 } catch { };
                 return { key: keys[i], value: o };
             });

@@ -5,7 +5,7 @@
   folder: options ::file-:opt:::path?:to
   cluster: options ::cluster-list
   clients: options ::cluster-list?:id
-  list: options :::type
+  list: options :::type*:idkey
   edit: options :::type-:key?:value
   add: options :::type-:key+:value
   patch: options :::type-:key*:value

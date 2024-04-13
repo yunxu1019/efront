@@ -1,5 +1,5 @@
-function load(type) {
-    return data.from("list", { type }, a => JSAM.parse(encode62.timedecode(a || '')));
+function load(type, idkey) {
+    return data.from("list", { type, idkey: encode62.timeencode(idkey) }, a => JSAM.parse(encode62.timedecode(a || '')));
 }
 function remove(type, key) {
     return data.from("edit", { type, key: encode62.timeencode(key), value: encode62.timeencode("") }).loading_promise;
@@ -38,7 +38,7 @@ function plist() {
     if (!idkey) idkey = fields[0].key;
     return frame$list(title, {
         load() {
-            return load(type);
+            return load(type, idkey);
         },
         remove(o) {
             return remove(type, o[idkey]);
