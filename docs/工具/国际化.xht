@@ -468,14 +468,7 @@
             detailWindow.initialStyle = "margin-left:-100px;opacity:0";
             render(detailWindow, detailScope);
             on("remove")(detailWindow, function () {
-                var count = 0;
-                var fanyi = detailScope.fanyi;
-                for (var s of supports) {
-                    if (fanyi[s.id] && fanyi[s.id].trim()) count++;
-                }
-                if (detailScope.item) {
-                    detailScope.item.liang = count;
-                }
+                更新翻译数();
                 if (activedRow) {
                     removeClass(activedRow, "actived");
                     activedRow = null;
@@ -485,8 +478,19 @@
 
         }
     }
+    var 更新翻译数 = function () {
+        var count = 0;
+        var fanyi = detailScope.fanyi;
+        if (fanyi) for (var s of supports) {
+            if (fanyi[s.id] && fanyi[s.id].trim()) count++;
+        }
+        if (detailScope.item) {
+            detailScope.item.liang = count;
+        }
+    };
     var showDetail = function (event) {
         initDetailWindow();
+        更新翻译数();
         var tr = getTargetIn(tableElement.children[1], event.active, false);
         var item = detailScope.item = event.item;
         if (activedRow !== tr) {
