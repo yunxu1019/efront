@@ -31,6 +31,7 @@ function remove(node, transition) {
             if (node.with) {
                 remove(node.with, transition);
             }
+            dispatch(node, createEvent('removed'));
         }
     }
 }
