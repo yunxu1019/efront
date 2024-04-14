@@ -110,7 +110,7 @@ function translate([imap, supports], code) {
 
         var imp = imap[tt];
         if (!imp) {
-            if (warn !== false && !/^\s+$/.test(tt) && !warningMap[tt]) warningMap[tt] = true, console.warn(`<yellow>${i18n`翻译缺失：`}</yellow>${tt}`);
+            if (warn !== false && !/^\s*$/.test(tt) && !warningMap[tt]) warningMap[tt] = true, console.warn(`<yellow>${i18n`翻译缺失：`}</yellow>${tt}`);
             imp = imap[tt] = supports.map(_ => tt);
         }
         if (nodup && imp.length <= 1) nodup = false;
