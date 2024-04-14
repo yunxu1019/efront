@@ -28,8 +28,11 @@ loadAsync(data_file).then(c => {
             else referers = c["#"];
             counts["#"] = referers;
         }
-        else if (k in counts) counts[k] += c[k];
-        else counts[k] = c[k];
+        else {
+            k = k.replace(/[\?\:#\*][\s\S]*$/, '');
+            if (k in counts) counts[k] += c[k];
+            else counts[k] = c[k];
+        }
     }
     data_file_loaded = true;
 });
@@ -47,6 +50,7 @@ module.exports = function count(msg) {
     var { path, indexed, update } = msg;
     if (path === null) return counts;
     if (update) {
+        path = path.replace(/[\?\:#\*][\s\S]*$/, '')
         if (!counts[path]) {
             counts[path] = 0;
         }
