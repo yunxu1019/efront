@@ -83,6 +83,9 @@ function alert() {
         }
         if (close_timer) clearTimeout(close_timer);
     });
+    on('removed')(elem, function () {
+        if (!container.children.length) remove(container);
+    });
     onremove(elem, _onclose);
     var close_timer;
     elem.setText = function () {
