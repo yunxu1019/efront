@@ -324,6 +324,7 @@ var acme2 = new class {
     }
     async auditOrder(o, setauth) {
         if (o.status !== 'pending') return o;
+        var bs = [];
         a: for (var a of o.authorizations) {
             var b = await data.fromURL(a);
             if (b.challenges) {
@@ -335,9 +336,12 @@ var acme2 = new class {
                         continue a;
                     }
                 }
+                bs.push(c);
             }
         }
-        o = await this.waitStatus(o);
+        if (bs.length === 0) {
+            o = await this.waitStatus(o);
+        }
         return o;
     }
     async finalizeOrder(o, upload) {

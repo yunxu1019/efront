@@ -146,6 +146,12 @@
             async auditOrder(o) {
                 await acme2.auditOrder(o, setauth);
                 if (this.order === o) await this.openOrder(this.order);
+                if (this.order.status !== 'pendding') {
+                    alert(i18n`订单状态已更新`);
+                }
+                else {
+                    alert(i18n`无法通过http服务完成审核`, "warn");
+                }
             },
 
             async finalize(o) {

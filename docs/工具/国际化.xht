@@ -46,6 +46,7 @@
             width: 100%;
             height: 36px;
         }
+
         &:last-child {
             float: left;
         }
@@ -558,6 +559,7 @@
         var textMap = Object.create(null);
         已找到的字符串.is_loading = true;
         var addTranslate = function (translate) {
+            if (!isHandled(translate)) return;
             var tmap = textMap[translate];
             if (!tmap) tmap = textMap[translate] = Object.create(null), tmap["#count"] = 0;
             if (!tmap[e.path]) tmap[e.path] = [];
@@ -573,7 +575,11 @@
                     addTranslate(t.translate);
                 }
                 else if (t.transtype === compile$translate.字段名) {
-                    t.fields.forEach(f => addTranslate(f.name));
+                    t.fields.forEach(f => {
+                        addTranslate(f.name);
+                        addTranslate(f.holder);
+                        addTranslate(f.comment);
+                    });
                 }
             }
         }

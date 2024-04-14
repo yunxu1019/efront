@@ -1,3 +1,24 @@
+- zh-CN: 查看
+  en:    check
+
+- zh-CN: 单击生成
+  en:    Click to generate
+
+- zh-CN: 同意
+  en:    agree
+
+- zh-CN: 每行一个，不支持泛域名
+  en:    "One per line, does not support generic domain names"
+
+- zh-CN: 订单状态已更新
+  en:    Order status updated
+
+- zh-CN: 无法通过http服务完成审核
+  en:    Unable to complete audit through HTTP service
+
+- zh-CN: 下载
+  en:    download
+
 - zh-CN: 以后不会再测试是否兼容vue了，也不准备增加对vue3及后续版本的支持，望知悉。
   en:    "We will no longer test whether it is compatible with Vue in the future, and we are not planning to add support for Vue3 and subsequent versions. Please be informed."
 

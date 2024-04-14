@@ -110,7 +110,7 @@ function translate([imap, supports], code) {
 
         var imp = imap[tt];
         if (!imp) {
-            if (warn !== false && !warningMap[tt]) warningMap[tt] = true, console.warn(`<yellow>${i18n`翻译缺失：`}</yellow>${tt}`);
+            if (warn !== false && !/^\s+$/.test(tt) && !warningMap[tt]) warningMap[tt] = true, console.warn(`<yellow>${i18n`翻译缺失：`}</yellow>${tt}`);
             imp = imap[tt] = supports.map(_ => tt);
         }
         if (nodup && imp.length <= 1) nodup = false;
@@ -158,7 +158,7 @@ function translate([imap, supports], code) {
                         if (a in t) v = t[a];
                         else v = scanner2(JSON.stringify(v));
                     }
-                    else if (k === 'name') v = ctn('i18n' + getm(v, t.nodup, t.warn), t);
+                    else if (/^(name|holder|comment)$/.test(k)) v = ctn('i18n' + getm(v, t.nodup, t.warn), t);
                     else v = scanner2(JSON.stringify(v));
                     o.push({ type: PROPERTY, isprop: true, text: JSON.stringify(k) }, { type: STAMP, text: ':' }, ...v, { type: STAMP, text: ',' });
                 })
