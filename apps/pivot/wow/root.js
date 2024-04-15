@@ -73,40 +73,12 @@ class File {
         p.abort();
     }
 }
-function main() {
+function main(path) {
+    var loaded = false;
     var page = explorer$main();
-    var backtime = 0;
-    page.onback = function () {
-        var $scope = this.$scope;
-        if (!$scope.pathlist.length) {
-            if (Date.now() - backtime < 2022) alert("已是根目录！");
-            backtime = Date.now();
-            return false;
-        }
-        if ($scope.pathlist) {
-            var name = $scope.pathlist.pop();
-            var base = data.getInstance("base").base;
-            var p = $scope.pathlist.join("/").replace(/^\/+|\/+$/g, '');
-            var bp = p ? base + p + '/' : base;
-            p = p + '/';
-            data.setInstance("pathlist", $scope.pathlist);
-            name = name.replace(/^\/+|\/+$/g, '');
-            $scope.selected = [{
-                name,
-                isfolder: true,
-                where: p,
-                host: base,
-                url: bp + name + "/",
-                fullpath: p + name + "/",
-                type: 'folder'
-            }];
-        }
-        $scope.open();
-        return false;
-    }
 
     extend(page.$scope, {
-        pathlist: data.getInstance("pathlist"),
+        pathlist: path ? path.split('/') : [],
         read(from, start, size) {
             var authorization = data.getSource(data.getInstance("base").base);
             var xhr = cross("get", from.url, { authorization: authorization });
@@ -116,7 +88,11 @@ function main() {
             return xhr;
         },
         load(p) {
-            data.setInstance("pathlist", this.pathlist);
+            if (loaded) {
+                location.href = "#/wow/root" + p;
+                return { then() { } };
+            }
+            loaded = true;
             var base = data.getInstance("base").base;
             var p = p.replace(/^\/+|\/+$/g, '');
             var bp = p ? base + p + "/" : base;

@@ -83,6 +83,7 @@ on("drop")(document, function (event) {
     event.preventDefault();
 });
 remove(document.body.childNodes);
+zimoli.register('/wow/root');
 function main() {
     return layer;
 }

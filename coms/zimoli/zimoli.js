@@ -12,7 +12,6 @@ var sessionInitHash = sessionStorage.getItem(sessionSavedHashKey);
 var hostoryStorage = sessionStorage;
 var pagehash_reg = /#([\/\w\:@\.\_\(\)\+\-\*\$@!~_'\?,&~%]+)$/;
 var locationInitHash = location.hash;
-var hashchangecount = 0;
 var isFirstTimeLoad = sessionInitHash === null;
 var isSimpleRefresh = sessionInitHash === locationInitHash;
 var isWithHashLoad = !!location.hash;
@@ -25,10 +24,8 @@ if (isWithHashLoad && !isSimpleRefresh) {
 
 if (/MSIE\s*[2-7]/.test(navigator.userAgent)) {
     window.onhistorychange = function (url) {
-        hashchangecount++;
         // 如果是返回事件，一定不是第一次改变hash
         // 这里刚好可以屏蔽首次手动改变url可能产生的hashchange事件
-        if (hashchangecount < 2) return;
         if (preventNextHashChange) return preventNextHashChange = false, window_history.go(-1);
         if (preventNextHashChange === void 0 ? onback && onback() === true : preventNextHashChange = void 0) { }
     };
@@ -48,7 +45,6 @@ if (/MSIE\s*[2-7]/.test(navigator.userAgent)) {
     backman();
 } else {
     onhashchange(window, function (event) {
-        hashchangecount++;
         // 如果是返回事件，一定不是第一次改变hash
         // 这里刚好可以屏蔽首次手动改变url可能产生的hashchange事件
         var targetHash = location.hash;
@@ -550,6 +546,7 @@ var checkonback = function (elements) {
         var onback = element && element.onback;
         if (isFunction(onback)) {
             onback = element.onback();
+            if (onback === false) console.info(i18n`onback中阻止跳转的功能在新老版本的chrome上及其他不同浏览器上的表现均不一致，建议更换实现方式！`);
         }
         if (onback === false || isString(onback)) {
             break;
