@@ -100,6 +100,9 @@ var maplist = function (u) {
                 }
                 else if (enumtype & REFMOVE) m.wcount++;
             }
+            else {
+                if (o.equal) m.wcount++;
+            }
         }
         else if (enumtype & REFSTRC) {
             if (o.enumref && o.enumref !== m.enumref) m.wcount++, m.enumref = o.enumref;
