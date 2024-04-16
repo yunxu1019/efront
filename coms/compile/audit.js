@@ -1,4 +1,4 @@
-var { STAMP, EXPRESS, STRAP, isHalfSentence, skipFunction, getDeclared, VALUE, STRAP, SCOPED, QUOTED, snapSentenceHead, pickSentence, createString, getBodyWith, getFuncBody } = require("./common");
+var { STAMP, EXPRESS, STRAP, isHalfSentence, skipAssignment, skipFunction, getDeclared, VALUE, STRAP, SCOPED, QUOTED, snapSentenceHead, pickSentence, createString, getBodyWith, getFuncBody } = require("./common");
 var addAccessedStart = function (matched, namedMap) {
     var start = +namedMap["#1"];
     var body = getBodyWith(matched[0], 'arguments');
@@ -73,7 +73,7 @@ var hasRuptBetween = function (a1, a2) {
     if (!qc.length) return false;
     var qce = qc.pop();
     var q2 = qp2[cx];
-    for (var cx = qce.indexOf(q1), dx = qce.indexOf(q2); cx < dx; cx++) {
+    for (var cx = qce.indexOf(q1), dx = qce.indexOf(q2) + 1 || qce.length; cx < dx; cx++) {
         var q = qce[cx];
         if (hasRupt(q)) return true;
     }
