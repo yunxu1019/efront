@@ -2,6 +2,7 @@
 var scanner2 = require("../compile/scanner2");
 var breakcode = require("../compile/breakcode");
 var strings = require("../basic/strings");
+var getEntryName = require("./getEntryName");
 var inCom = require("./inCom");
 var inPage = require("./inPage");
 var fs = require("fs");
@@ -277,16 +278,16 @@ var loadJsBody = function (data, filename, lessdata, commName, className, htmlDa
         }
     }
     commName = getEntryName(declares, commName);
+    var cless_var = 'cless';
     var hasless = typeof lessdata === "string";
     if (hasless) {
-        if (!declares.cless) {
-            globalsmap.cless = "cless";
+        if (!declares[cless_var]) {
+            globalsmap.cless = cless_var;
         } else {
-            var random_variable;
             do {
-                random_variable = "cless_" + Math.random().toString(36);
-            } while (declares[random_variable]);
-            globalsmap.cless = random_variable;
+                cless_var = "cless_" + Math.random().toString(36).slice(2);
+            } while (declares[cless_var]);
+            globalsmap.cless = cless_var;
         }
     }
     var prepareCodeBody = [];
@@ -320,7 +321,7 @@ var loadJsBody = function (data, filename, lessdata, commName, className, htmlDa
         }
         code.forEach(c => c.isExpress = true);
         if (hasless) code_body.unshift(
-            { type: code_body.EXPRESS, text: 'cless' },
+            { type: code_body.EXPRESS, text: cless_var },
             code.relink(Object.assign(
                 code_body.splice(0, code_body.length).concat(
                     { type: code_body.STAMP, text: ',' },
@@ -355,7 +356,7 @@ var loadJsBody = function (data, filename, lessdata, commName, className, htmlDa
             )
             if (hasless) {
                 code_body.push(
-                    { type: code_body.EXPRESS, text: "cless" },
+                    { type: code_body.EXPRESS, text: cless_var },
                     code.relink(Object.assign([
                         { type: code_body.EXPRESS, text: commName },
                         { type: code_body.STAMP, text: ',' },
@@ -568,12 +569,12 @@ var buildResponse = function ({ imported, prequoted, params, data, required, occ
 };
 var getFileData = function (fullpath) {
     return new Promise(function (ok, oh) {
-        if (!fs.existsSync(fullpath)) return ok(false);
+        if (!fs.existsSync(fullpath)) return ok(null);
         fs.stat(fullpath, function (error, stat) {
-            if (error) return ok(error);
-            if (!stat.isFile()) return ok(false);
+            if (error) return oh(error);
+            if (!stat.isFile()) return ok(null);
             fs.readFile(fullpath, function (error, buffer) {
-                if (error) return ok(error);
+                if (error) return oh(error);
                 ok(buffer);
             });
         });
@@ -682,36 +683,49 @@ var getValidName = function (prefix, used) {
     }
     return prefix;
 }
-var getEntryName = function (vars, commName) {
-    if (!commName) return null;
-    for (var entry of memery.ENTRY_NAME.split(",")) {
-        entry = entry.replace(/<(文件名|自动|auto|filename)>/ig, commName);
-        if (entry in vars) return entry;
-    }
-    if (commName in vars) return commName;
-    commName = commName[0].toUpperCase() + commName.slice(1);
-    if (commName in vars) return commName;
-    return null;
-}
+
 async function getXhtPromise(data, filename, fullpath, watchurls) {
+}
+
+async function getXhtPromise(xhtdata, filename, fullpath, watchurls, extraJs, extraCss) {
     var [commName, lessName, className] = prepare(filename, fullpath);
-    var xht = scanner2(data.toString(), 'html');
-    var scoped = xht.scoped;
-    var { scripts, innerHTML: htmltext, attributes = '', tagName, styles } = scoped;
-    var jsData = scripts.join("\r\n");
-    var used = Object.create(null);
-    var jscode = scanner2(jsData);
+    var allnames = Object.create(null);
+    var time = 0;
+    if (xhtdata) {
+        var time_saved = Date.now();
+        var xht = scanner2(xhtdata.toString(), 'html');
+        var scoped = xht.scoped;
+        var { scripts, innerHTML: htmltext, attributes, tagName, styles } = scoped;
+        if (extraJs) scripts = scripts.concat(extraJs);
+        if (extraCss) styles = styles.concat(extraCss);
+        styles = styles.join('\r\n');
+        scripts = scripts.join("\r\n");
+        time += Date.now() - time_saved;
+        for (var k in scoped.used) allnames[k] = true;
+    }
+    else {
+        var scripts = '';
+        var htmltext = '';
+        var styles = extraCss || '';
+        var scripts = extraJs || '';
+    }
+
+    if (scripts) scripts = await loadUseBody.call(this, scripts, fullpath, watchurls);
+    var jscode = scanner2(scripts);
     jscode.fix();
     var jscope = jscode.scoped
-    extend(used, scoped.used, jscope.envs);
-    var xhtmain = getValidName(`xht`, used);
-    htmltext = await renderImageUrl.call(this, htmltext, fullpath);
-    styles = await renderLessData.call(this, styles.join("\r\n"), fullpath, commName, watchurls, lessName);
+    Object.assign(allnames, jscope.envs);
+    var xhtmain = getValidName(`xht`, allnames);
+    if (htmltext) htmltext = await renderImageUrl.call(this, htmltext, fullpath);
+    if (styles) styles = await renderLessData.call(this, styles, fullpath, commName, watchurls, lessName);
     var jsvars = jscope.vars;
-    var entryName = getEntryName(jsvars, commName);
-    if (entryName && !(entryName in scoped.used)) {
-        htmltext = `{toString:()=>${compile$wraphtml(scoped.outerHTML || scoped.innerHTML)}}`;
-        return loadJsBody.call(this, jsData, filename, styles, commName, className, htmltext);
+    var jsenvs = jscope.envs;
+    var entryTack = getEntryName(jsvars, commName);
+    if (jsenvs.module) entryTack = 'module';
+    else if (jsenvs.exports) entryTack = 'exports';
+    if (entryTack && !(entryTack in allnames)) {
+        if (htmltext) htmltext = `{toString:()=>${compile$wraphtml(scoped.outerHTML || scoped.innerHTML)}}`;
+        return loadJsBody.call(this, scripts, filename, styles, commName, className, htmltext);
     }
     htmltext = compile$wraphtml(htmltext);
     var jsused = jscope.used;
@@ -773,9 +787,10 @@ async function getXhtPromise(data, filename, fullpath, watchurls) {
         });
         if (htmlchanged) htmltext = htcode.toString();
         scope = `var ${Object.keys(jsvars).concat(xhtmain).join(',')}={${scope.join(",")}};`;
-        jsData = jscode.toString();
+        scripts = jscode.toString();
     }
     if (attributes) attributes = attributes.map(a => `elem.setAttribute("${a.name}",${a.value ? strings.recode(a.value) : '""'})`).join("\r\n");
+    else attributes = '';
     var creator = 'document.createElement(';
     switch ((tagName || commName).toLowerCase()) {
         case "svg":
@@ -798,27 +813,27 @@ async function getXhtPromise(data, filename, fullpath, watchurls) {
         ? `var elem = ${creator}"${tagName}");`
         : `var elem =isElement(arguments[0])?arguments[0]:${creator}"${commName}");`;
     var xht = scope ? `
-var ${xhtmain}=${async}function(){
+    var ${xhtmain}=${async}function(){
     ${scope}
-    ${jsData}
+    ${scripts}
     return [${htmltext},${xhtmain}];
-};
-function ${commName}(){
+    };
+    function ${commName}(){
     ${createElement}
     ${attributes}
     ${xhtrender}
     return elem;
-}`: `
-var ${xhtmain}=${async}function(){
-    ${jsData}
+    }`: `
+    var ${xhtmain}=${async}function(){
+    ${scripts}
     return ${htmltext};
-}
-function ${commName}(){
+    }
+    function ${commName}(){
     ${createElement}
     ${attributes}
     ${xhtrender}
     return elem;
-}`;
+    }`;
     return loadJsBody.call(this, xht, filename, styles, commName, className)
 }
 
@@ -909,45 +924,19 @@ function getHtmlPromise(data, filename, fullpath, watchurls) {
 }
 
 function getScriptPromise(data, filename, fullpath, watchurls) {
-    var [commName, lessName, className] = prepare(filename, fullpath);
-    let htmlpath = fullpath.replace(/\.[cm]?[jt]sx?$/i, ".html");
-    let lesspath = fullpath.replace(/\.[cm]?[jt]sx?$/i, ".less");
-    let replace = loadUseBody(data, fullpath, watchurls);
-    var htmlpromise = getFileData(htmlpath)
-        .then((htmldata) => {
-            if (htmldata && !htmldata.length) htmldata = "<!-- efront template -->";
-            return renderImageUrl.call(this, htmldata, htmlpath);
-        });
-    var jsData, lessData, htmlData;
-    var time = 0;
-    var promise = Promise.all([lesspath].map(getFileData).concat(htmlpromise, replace)).then(([lessdata, htmldata, data]) => {
-        var timeStart = new Date;
-        if (htmldata && !/^\s*(<!--[\s\S]*?-->\s*)*(<!doctype\b|<script\b)/i.test(htmldata)) {
-            htmldata = "{toString:()=>" + compile$wraphtml(htmldata) + "}";
-            htmldata = htmldata.replace(/\>\s+/g, ">").replace(/\s+</g, "<").replace(/<\!\-\-.*?\-\-\>/g, "");
-            htmlData = htmldata;
-            watchurls.push(htmlpath);
-        }
-        jsData = String(data);
-        if (lessdata instanceof Buffer) {
-            var lessPromise = renderLessData.call(this, lessdata, lesspath, commName, watchurls, lessName);
-            lessPromise.then(data => {
-                lessData = data;
-                time += lessPromise.time || 0;
-            });
-            return lessPromise;
-        }
-        time += new Date - timeStart;
-    }).then(() => {
-        var timeStart = new Date;
-        var data = loadJsBody.call(this, jsData, fullpath, lessData, commName, className, htmlData);
-        time += new Date - timeStart;
-        promise.time = time;
-        console.drop();
+    var htmlpath = fullpath.replace(/\.\w+$/i, ".html");
+    var lesspath = fullpath.replace(/\.\w+$/i, ".less");
+    var that = this;
+    var p = Promise.all([lesspath, htmlpath].map(getFileData)).then(async ([lessdata, htmldata]) => {
+        if (lessdata || htmldata) return getXhtPromise.call(that, htmldata, filename, fullpath, watchurls, data, lessdata)
+        data = await loadUseBody.call(that, data, fullpath, watchurls);
+        var time = Date.now();
+        var [commName] = prepare(filename, fullpath);
+        data = loadJsBody.call(that, data, fullpath, null, commName);
+        p.time = Date.now() - time;
         return data;
     });
-    return promise;
-
+    return p;
 }
 function commbuilder(buffer, filename, fullpath, watchurls) {
     filename = String(filename || '');

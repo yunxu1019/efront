@@ -181,7 +181,7 @@ Html.prototype.createScoped = function (code) {
     scoped.scripts = scripts;
     scoped.styles = styles;
     var rootNodes = code.filter(a => !/^(script|style)$/i.test(a.tagName) && !(a.type & (SPACE | COMMENT)));
-    if (rootNodes.length === 1) {
+    if (rootNodes.length === 1 && rootNodes[0].type === ELEMENT) {
         scoped.outerHTML = this.createString(rootNodes);
         var root = rootNodes[0];
         scoped.tagName = root.tagName;
