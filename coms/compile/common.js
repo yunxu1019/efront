@@ -289,12 +289,15 @@ function snapSentenceHead(o) {
                 p = o.prev;
                 if (!p) break;
             }
-            else if (p.type === STRAP) {
-                var pp = getContitionHeadBeforeScoped(o, false);
-                if (pp) { o = pp; break; }
-                pp = getFunctionHeadBeforeScoped(o);
-                if (pp) { o = pp; continue };
-            }
+            var pp = getContitionHeadBeforeScoped(o, false);
+            if (pp) { o = pp; break; }
+            pp = getFunctionHeadBeforeScoped(o);
+            if (pp) {
+                o = pp;
+                p = o.prev;
+                if (!p || p.type === STAMP && /^[,;]$/.test(p.text)) break;
+                continue
+            };
         }
         var maybeprop = o.type === SCOPED && o.entry !== "{" || o.type === EXPRESS && /^[\.\[]/.test(o.text);
         if (p.type === EXPRESS) {
@@ -325,7 +328,12 @@ function snapSentenceHead(o) {
                 var pp = getContitionHeadBeforeScoped(p, true);
                 if (pp) { o = pp; break; }
                 var pp = getFunctionHeadBeforeScoped(p);
-                if (pp) { o = pp; continue; }
+                if (pp) {
+                    o = pp;
+                    p = o.prev;
+                    if (!p || p.type === STAMP && /^[,;]$/.test(p.text)) break;
+                    continue;
+                }
             }
             break;
         }
@@ -361,7 +369,7 @@ function snapSentenceHead(o) {
             if (/^[\?\:]$/.test(p.text)) {
                 if (o) {
                     var e = snapExpressFoot(o).next;
-                    if (e.type === STAMP && equal_reg.test(e.text)) break;
+                    if (!e || e.type === STAMP && equal_reg.test(e.text)) break;
                 }
             }
             if (/^(?:[!~]|\+\+|\-\-)$/.test(p.text)) {
@@ -373,11 +381,6 @@ function snapSentenceHead(o) {
                     break;
                 }
                 o = p;
-                continue;
-            }
-            var pp = p.prev;
-            if (pp.type === STAMP && /^(\+\+|\-\-)$/.test(pp.text) && pp.prev) {
-                o = pp.prev;
                 continue;
             }
             o = p.prev;
@@ -541,6 +544,7 @@ var createScoped = function (parsed, wash) {
                 case VALUE:
                     if (o.isdigit || /^(null|false|true)$/.test(o.text)) break;
                 case EXPRESS:
+                    if (needhead_reg.test(o.text)) break;
                     // if (o.text === 'readFileAsync') console.log(o)
                     if (o.prev && o.prev.type === EXPRESS) {
                         if (/\.$/.test(o.prev.text)) break;
@@ -548,6 +552,7 @@ var createScoped = function (parsed, wash) {
                     if (o.next && o.next.type === STAMP && o.next.text === "=>") {
                         isScope = true;
                         isArrow = true;
+                        isAsync = o.prev?.type === STRAP && o.prev.text === 'async';
                     }
                     else {
                         var u = o.text;
@@ -569,7 +574,7 @@ var createScoped = function (parsed, wash) {
                     name = name.replace(/\s*\:$/, '');
                     vars[name] = true;
                     o.kind = "label";
-                    saveTo(used, name, o);
+                    saveTo(labelused, name, o);
                     break;
 
                 case STRAP:
@@ -663,7 +668,7 @@ var createScoped = function (parsed, wash) {
                         if (o.next && o.next.type === STAMP && o.next.text === "=>") {
                             isArrow = true;
                             isScope = true;
-                            if (o.prev && o.prev.text === 'async') {
+                            if (o.prev?.type === STRAP && o.prev.text === 'async') {
                                 isAsync = true;
                             }
                         }
@@ -801,6 +806,7 @@ var createScoped = function (parsed, wash) {
                 }
                 else if (isArrow) {
                     var next = skipAssignment(o);
+                    scoped.arraw = o;
                     var u = o;
                     while (o !== next) {
                         var n = run(o, 0);
@@ -1047,6 +1053,7 @@ var saveTo = function (used, k, o) {
     k = uncode(k);
     if (!(used[k] instanceof Array)) used[k] = [];
     used[k].push(o);
+    o.tack = k;
 };
 
 var mergeTo = function (used, used0) {
@@ -1114,6 +1121,27 @@ var relink = function (list) {
     list.last = p;
     return list;
 };
+var rehead = function (list) {
+    for (var cx = 0, dx = list.length; cx < dx; cx++) {
+        var o = list[cx];
+        if (o.type & (COMMENT | SPACE)) {
+            o.prev = null;
+            continue;
+        }
+        list.first = o;
+        break;
+    }
+    for (var cx = list.length - 1; cx >= 0; cx--) {
+        var o = list[cx];
+        if (o.type & (COMMENT | SPACE)) {
+            o.last = null;
+            continue;
+        }
+        list.last = o;
+        break;
+    }
+    return list;
+}
 var setqueue = function (list, queue = list) {
     /**
      * @type {PropertyDescriptor}
@@ -1521,6 +1549,25 @@ var pickSentence = function (o) {
     } while (h !== e);
     return res;
 };
+var pickExpress = function (o) {
+    o = snapExpressFoot(o);
+    var e = snapExpressFoot(o);
+    var os = [];
+    do {
+        os.push(o);
+    }
+    while (o && o !== e);
+    return os;
+};
+var pickAssignment = function (n) {
+    var e = skipAssignment(n);
+    var values = [];
+    while (n && n !== e) {
+        values.push(n);
+        n = n.next;
+    }
+    return values;
+}
 var insertBefore = function () {
     var [o] = arguments;
     var queue = this || o.queue;
@@ -1565,10 +1612,55 @@ var unshort = function (o, text) {
     o.type = EXPRESS;
     delete o.short;
 };
+var getFuncBody = function (o) {
+    var q = o.queue;
+    while (q && !(q.scoped?.isfunc)) q = q.queue;
+    return q;
+};
 var getBodyWith = function (o, k) {
     var q = o.queue;
     while (q && (!q.scoped || !q.scoped.caps[k])) q = q.queue;
     return q;
+};
+
+
+var createSeeker = function (o) {
+    var os = pickExpress(o);
+    var ids = [];
+    for (var o of os) {
+        if (o.type === SCOPED) {
+            if (o.entry !== '[') break;
+            var t = o.last;
+            if (!t) throw new Error(i18n`格式错误`);
+            if (t.type === QUOTED) {
+                if (!t.length) {
+                    if (/\.|^#/.test(t.text)) {
+                        ids.push(`[${t.text}]`);
+                    }
+                    else {
+                        ids.push(strings.decode(t.text));
+                    }
+                }
+                else {
+                    ids.push("...");
+                    break;
+                }
+            }
+        }
+        else if (o.type === EXPRESS) {
+            var t = o.text.replace(/^\.\.\./, "").replace(/^[^\.\[]+/, '');
+            t.replace(/[^\.\[]+|\[[\s\S]*?\]/g, function (m) {
+                if (/^\[/.test(m)) {
+                    ids.push(strings.decode(m.slice(1, -1)));
+                }
+                else {
+                    ids.push(m);
+                }
+            })
+        }
+
+    }
+    return ids;
 };
 
 var patchArrawScope = function (arraw, origin) {
@@ -1604,6 +1696,7 @@ module.exports = {
     skipAssignment,
     getDeclared,
     getBodyWith,
+    getFuncBody,
     patchArrawScope,
     remove,
     createString,
@@ -1612,6 +1705,8 @@ module.exports = {
     snapSentenceHead,
     pickArgument,
     pickSentence,
+    pickExpress,
+    pickAssignment,
     snapExpressHead,
     snapExpressFoot,
     skipSentenceQueue,
@@ -1620,6 +1715,8 @@ module.exports = {
     isEval,
     rename,
     relink,
+    rehead,
+    createSeeker,
     setqueue,
     replace,
     canbeTemp,

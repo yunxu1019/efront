@@ -85,7 +85,7 @@ assert(downLevel(`class a { static{ a.a=1}}`), "function a() {}; (function () { 
 assert(downLevel(`if(a) a = 1; class a {}`), "if (a) a = 1; function a() {}")
 assert(downLevel(`async function(){if(a) a = 1; class a {}}`), `function () { return async_(
 function () {
-a = function a() {}; if (!a) return [1, 0]; a = 1; return [1, 0]
+a = function () {}; if (!a) return [1, 0]; a = 1; return [1, 0]
 })
 var a, _0 }`)
 assert(downLevel(`if(a) class b{ c(){}};`), `if (a) var b = function (b) { b["prototype"].c = function () {}\r\nreturn b }(function b() {});`)
@@ -424,3 +424,9 @@ function (_) {
 _0 = _; _0 = _0.a; a = _0
 })
 var a, _0`)
+
+assert(downLevel(`async a=>await a`), `function (a) { return return async_(
+function () {
+_0 = a; return [_0, 1]
+})
+var a, _0 }`)

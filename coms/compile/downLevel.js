@@ -1,7 +1,7 @@
 var scanner2 = require("./scanner2");
 var strings = require("../basic/strings");
 var Program = scanner2.Program;
-var { STAMP, SCOPED, STRAP, EXPRESS, COMMENT, SPACE, PROPERTY, VALUE, LABEL, QUOTED, snapExpressFoot, isEval, canbeTemp, rename, isHalfSentence, skipFunction, getDeclared, skipAssignment, skipSentenceQueue, createScoped, createString, splice, relink, snapExpressHead, needBreakBetween } = require("./common");
+var { STAMP, SCOPED, STRAP, EXPRESS, pickAssignment, COMMENT, SPACE, PROPERTY, VALUE, LABEL, QUOTED, snapExpressFoot, isEval, canbeTemp, rename, isHalfSentence, skipFunction, getDeclared, skipAssignment, skipSentenceQueue, createScoped, createString, splice, relink, snapExpressHead, needBreakBetween } = require("./common");
 var splice2 = function (q, from, to, ...a) {
     var cx = q.indexOf(from);
     if (cx < 0) throw console.log(splice2.caller, console.format(`\r\n<red2>${i18n`自`}</red2>`), from && createString([from]), console.format(`\r\n<yellow>${i18n`至`}</yellow>`), to && createString([to]), console.format(`\r\n<cyan>${i18n`码列`}</cyan>`), createString(q)), i18n`结构异常`;
@@ -1728,6 +1728,13 @@ var down = function (scoped) {
         if (scoped.body) scoped.body.keeplet = false, _killobj(_getname, scoped.body);
 
         scoped.forEach(kill);
+        var requeue = null, requeuei = 0, requeuee = 0;
+        if (!scoped.body && scoped.arraw) {
+            requeue = scoped.arraw.queue;
+            requeuei = requeue.indexOf(scoped.arraw);
+            scoped.body = pickAssignment(scoped.arraw);
+            requeuee = requeue.indexOf(scoped.body[scoped.body.length - 1], requeuei) + 1;
+        }
         if (funcMark) {
             var argname = _letname("_");
             unstruct.debug = downLevel.debug;
@@ -1761,6 +1768,7 @@ var down = function (scoped) {
         if (argsmap) vars1 = vars1.filter(k => !(k in argsmap));
         if (vars1.length && scoped.body) scoped.body.push(...scanner2(`\r\nvar ${vars1}`));
         if (scoped.body) relink(scoped.body);
+        if (requeue) splice(requeue, requeuei, requeuee - requeuei, ...scoped.body);
     }
     else {
         kill(scoped);

@@ -81,25 +81,45 @@ Javascript.prototype.isProperty = function (o) {
     return false;
 };
 var setStrapExpress = function (mark_type, mark_text, prop, o, default_type) {
-    var temp = o.queue;
-    var type = o.type;
     var prev = o.prev;
     if (prev && prev.type === STRAP && /^(?:function|class|let|const|var)$/.test(prev.text)) {
         o.type = EXPRESS;
         return;
     }
-    if (type === STRAP) while (temp) {
-        if (temp.entry === '(') var pp = temp.prev;
-        else if (temp.entry === "{") {
-            if (!temp.prev || temp.prev.type !== SCOPED || temp.prev.entry !== '(') {
-                temp = temp.queue;
-                continue;
+    var type = o.type;
+    if (type !== STRAP) return;
+    var h = snapExpressHead(o);
+    var isfunc = h?.prev?.type === STAMP && h.prev.text === '=>';
+    var q = o.queue;
+    if (isfunc) var pp = h.prev.prev;
+    else while (q) {
+        h = snapExpressHead(q);
+        isfunc = h?.prev?.type === STAMP && h.prev.text === '=>';
+        if (isfunc) {
+            pp = h.prev.prev;
+            break;
+        }
+        if (q.entry === '(') {
+            var pp = q.prev;
+        }
+        else if (q.entry === "{") a: {
+            var p = q.prev;
+            if (p) {
+                if (p.type === STAMP && p.text === "=>") {
+                    isfunc = true;
+                    pp = p.prev;
+                    break;
+                }
+                if (p.type === SCOPED && p.entry === "(") {
+                    pp = p.prev;
+                    break a;
+                }
             }
-            temp = temp.prev;
-            pp = temp.prev;
+            q = q.queue;
+            continue;
         }
         else {
-            temp = temp.queue;
+            q = q.queue;
             continue;
         }
         if (pp && pp.isprop) {
@@ -112,27 +132,24 @@ var setStrapExpress = function (mark_type, mark_text, prop, o, default_type) {
             type = pp && pp.type === mark_type && pp.text === mark_text ? STRAP : EXPRESS;
             break;
         }
-        var tn = temp.next;
-        var isfunc = false;
-        if (tn && tn.type === STAMP && tn.text === '=>') isfunc = true;
-        if (!isfunc) {
-            if (pp && pp.type === EXPRESS) pp = pp.prev;
-            if (pp && pp.prev && pp.prev.type === STRAP && pp.prev.text === "function") {
-                pp = pp.prev;
-                isfunc = true;
-            }
-            else {
-                isfunc = pp && pp.type === STRAP && pp.text === 'function';
-            }
-        }
-        if (isfunc) {
-            var chk = pp[prop];
-            type = (chk && chk.type === mark_type && chk.text === mark_text) ? STRAP : EXPRESS;
+        var tn = q.next;
+        if (tn && tn.type === STAMP && tn.text === '=>') {
+            pp = q;
+            isfunc = true;
             break;
         }
-        temp = temp.queue;
+        if (pp && pp.type === EXPRESS) pp = pp.prev;
+        if (pp && pp.type === STAMP && pp.text === "*") pp = pp.prev;
+        isfunc = pp && pp.type === STRAP && pp.text === 'function';
+        if (isfunc) break;
+
+        q = q.queue;
     }
-    if (!temp) type = default_type;
+    if (isfunc) {
+        var chk = pp[prop];
+        type = (chk && chk.type === mark_type && chk.text === mark_text) ? STRAP : EXPRESS;
+    }
+    if (!q) type = default_type;
     o.type = type;
 }
 var setYieldExpress = setStrapExpress.bind(null, STAMP, "*", 'next');
@@ -338,7 +355,6 @@ Javascript.prototype.detectLabel = function (o) {
     }
     if (inExpress !== queue.inExpress) {
         o.isExpress = queue.inExpress = inExpress;
-        if (o.text === 'async') console.log(o.isExpress, queue.isExpress, 'label');
     }
 }
 
@@ -347,6 +363,8 @@ Javascript.prototype.setType = function (o) {
     var last = o.prev;
     if (o.type === EXPRESS && /^\.[^\.]|^\.$/.test(o.text) && last && last.type === STAMP && last.text === "?") {
         last.type = EXPRESS;
+        var q = o.queue;
+        q.question--;
         return false;
     }
     if (last) {
