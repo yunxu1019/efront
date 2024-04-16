@@ -722,31 +722,40 @@ async function getXhtPromise(data, filename, fullpath, watchurls) {
         var jsvars = Object.assign({}, jscope.vars, scoped.vars);
         var jsenvs = jscope.envs;
         for (var k in jsvars) if (k in jsenvs) delete jsenvs[k];
-        var { COMMENT, SCOPED, STAMP } = jscode;
-        jscode.forEach(o => {
-            if (o.type === jscode.STRAP && /^(var|const|let)$/.test(o.text)) {
-                var n = o.next;
-                if (n && n.type === SCOPED) {
-                    if (n.entry === '{') {
-                        o.text = "0,";
-                        o.type = COMMENT;
-                    }
-                    else {
-                        var p = o.prev;
-                        if (p && p.type === STAMP && p.text === ';') {
-                            o.text = `/*${o.text}*/`;
-                            o.type = COMMENT
-                        }
-                        else {
-                            o.text = ';';
-                            o.type = STAMP;
-                        }
-                    }
-                }
-                else {
-                    o.text = `/*${o.text}*/`;
+        var { COMMENT, SCOPED, STAMP, STRAP, scoped } = jscode;
+        var prefunc = require('../compile/prefunc');
+        var unvar = function (o) {
+            if (o.type !== STRAP || !/^(var|const|let)$/.test(o.text)) return;
+            var n = o.next;
+            if (n && n.type === SCOPED) {
+                if (n.entry === '{') {
+                    o.text = "0,";
                     o.type = COMMENT;
                 }
+                else {
+                    var p = o.prev;
+                    if (p && p.type === STAMP && p.text === ';') {
+                        o.text = `/*${o.text}*/`;
+                        o.type = COMMENT
+                    }
+                    else {
+                        o.text = ';';
+                        o.type = STAMP;
+                    }
+                }
+            }
+            else {
+                o.text = `/*${o.text}*/`;
+                o.type = COMMENT;
+            }
+        };
+        prefunc(jscode);
+        jscode.forEach(unvar);
+        scoped.forEach(s => {
+            if (s.isfunc) return;
+            if (s.body) {
+                prefunc(s.body);
+                s.body.forEach(unvar)
             }
         });
         var htmlchanged = false;

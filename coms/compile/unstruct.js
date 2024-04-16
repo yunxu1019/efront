@@ -1,4 +1,4 @@
-var { SPACE, COMMENT, EXPRESS, STRAP, QUOTED, STAMP, SCOPED, VALUE, LABEL, canbeTemp: _canbeTemp, isEval, createString, skipAssignment, pickSentence, skipSentenceQueue, isHalfSentence, splice, relink, createExpressList, snapExpressHead, snapExpressFoot } = require("./common");
+var { SPACE, COMMENT, EXPRESS, STRAP, QUOTED, STAMP, SCOPED, VALUE, LABEL, canbeTemp: _canbeTemp, isEval, createString, skipAssignment, pickSentence, skipSentenceQueue, splice, relink, createExpressList, snapExpressHead, snapExpressFoot } = require("./common");
 var scanner2 = require("./scanner2");
 var returnText = function () { return this.text };
 var NodeNotClone = o => Object.assign(Object.create(null), o, { toString: returnText });
@@ -888,38 +888,6 @@ var ternary = function (body, getname, ret) {
         n = an;
     }
     return explist;
-};
-var prefunc = function (sbody) {
-    var fx = 0;
-    for (var cx = 0, dx = sbody.length; cx < dx; cx++) {
-        var o = sbody[cx];
-        var bx = cx;
-        while (o && o.type & (SPACE | COMMENT)) o = sbody[++cx];
-        if (!o) break;
-        if (o.type === STRAP && /^(async|function|class)$/.test(o.text)) {
-            if (!o.isExpress) {
-                var ex = skipAssignment(sbody, cx);
-                var fname = '';
-                o = o.next;
-                while (o.type & (STRAP | STAMP)) o = o.next;
-                if (o.type === EXPRESS) fname = o.text;
-                if (fname) {
-                    if (isHalfSentence(sbody, cx - 1)) {
-                        splice(sbody, cx, 0, { type: EXPRESS, text: fname }, { type: STAMP, text: "=" });
-                    }
-                    else {
-                        var sb = splice(sbody, bx, ex - bx);
-                        splice(sbody, fx, 0, { type: EXPRESS, text: fname }, { type: STAMP, text: "=" }, ...sb);
-                        fx += ex - bx + 2;
-                    }
-                    ex += 2;
-                    dx += 2;
-                }
-                cx = ex;
-                continue;
-            }
-        }
-    }
 };
 
 var isFunctionOnly = function (body) {
