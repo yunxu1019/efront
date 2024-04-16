@@ -919,11 +919,10 @@ var getCertList = async function () {
     var certlist = await userdata.getOptionsList("cert");
     certlist = certlist.filter(c => c.private && c.cert && c.hostname);
     if (memery.PFX_PATH) cert = await import('./cert');
-    if (HTTPS_PORT) {
-        if (!certlist.length && !memery.PFX_PATH) {
+    else if (HTTPS_PORT) {
+        if (!certlist.length) {
             console.warn(`<yellow2>${i18n`HTTPS端口正在使用默认证书，请不要在生产环境使用此功能！`}</yellow2>`);
-            if (!cert) cert = await import('./cert');
-            certlist.push(cert);
+            certlist.push(await import('./cert'));
         }
     }
     return certlist;
