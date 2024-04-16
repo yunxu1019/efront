@@ -149,6 +149,7 @@ class Program {
         var lasttype;
         var Code = this.Code;
         var queue = new Code();
+        queue.type = this.type;
         var origin = queue;
         var forceend_reg = this.forceend_reg;
         var program = this;
@@ -441,7 +442,14 @@ class Program {
                     }
                 }
                 if (this.stamp_reg.test(m) && last) {
-                    if ((VALUE | EXPRESS) & last.type) break test;
+                    if ((VALUE | EXPRESS) & last.type) {
+                        if (queue.type !== ELEMENT) break test;
+                        var lp = last.prev;
+                        if (lp) {
+                            if (lp.type === STAMP && lp.text !== ';') break test;
+                            if (lp.type === STRAP && lp.transive) break test;
+                        }
+                    }
                     if (last.type === QUOTED && !last.tag) break test;
                     if (last.type === SCOPED && queue.inExpress) break test;
                     if (lasttype === STAMP && m === last.text) break test;

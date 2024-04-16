@@ -723,7 +723,7 @@ async function getXhtPromise(xhtdata, filename, fullpath, watchurls, extraJs, ex
     var entryTack = getEntryName(jsvars, commName);
     if (jsenvs.module) entryTack = 'module';
     else if (jsenvs.exports) entryTack = 'exports';
-    if (entryTack && !(entryTack in allnames)) {
+    if (!xhtdata || entryTack && !(entryTack in allnames)) {
         if (htmltext) htmltext = `{toString:()=>${compile$wraphtml(scoped.outerHTML || scoped.innerHTML)}}`;
         return loadJsBody.call(this, scripts, filename, styles, commName, className, htmltext);
     }

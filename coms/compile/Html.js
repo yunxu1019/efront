@@ -46,9 +46,22 @@ var fixElement = function (o) {
     }
     o.attributes.forEach(a => {
         if (a.type === PIECE) {
-            for (var p of parseProperty(a.text)) {
-                push(p);
-            }
+            a.text.split(/\s+/).forEach(text => {
+                var ps = parseProperty(text);
+                for (var cx = 0, dx = ps.length; cx < dx; cx++) {
+                    if (needValue) break;
+                    push(ps[cx]);
+                }
+                ps = ps.slice(cx);
+                if (!ps.length);
+                else if (ps.length === 1) push(ps[0]);
+                else {
+                    ps.type = QUOTED;
+                    ps.entry = '"';
+                    ps.leave = '"';
+                    push(ps);
+                }
+            })
         }
         else {
             push(a);
@@ -66,6 +79,7 @@ class Html extends Javascript {
     // inTag = false;
     scriptTags = [];
     ignoreTags = ["SCRIPT", "STYLE"];
+    type = ELEMENT;
 }
 var property = new Program;
 property.stamps = "=".split('');
