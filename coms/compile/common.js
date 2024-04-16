@@ -39,7 +39,10 @@ var skipAssignment = function (o, cx) {
     var condition = false;
     var ifdeep = 0;
     var labeled = o && (o.type === LABEL || o.type === STRAP && /^(var|const|let)$/i.test(o.text));
-    while (o && o.type === LABEL) next();
+    var skipLabel = function () {
+        while (o?.type === LABEL) next();
+    };
+    skipLabel();
     loop: while (o) switch (o.type) {
         case LABEL:
             if (!ifdeep) break loop;
@@ -133,6 +136,7 @@ var skipAssignment = function (o, cx) {
                 if (o.text === 'catch') {
                     next();
                     if (o && o.entry === '(') next();
+                    skipLabel();
                     needpunc = false;
                     break;
                 }
@@ -148,20 +152,23 @@ var skipAssignment = function (o, cx) {
                 if (ifdeep <= 0) break loop;
                 ifdeep--;
                 needpunc = false;
+                skipLabel();
                 next();
             }
             else if (/^(if|while|with|switch|try)$/.test(o.text)) {
                 if (o.text === 'if') ifdeep++;
+                skipLabel();
                 next();
-                while (o?.type === LABEL) next();
+                skipLabel();
                 if (o?.entry === "(") next();
-                while (o?.type === LABEL) next();
+                skipLabel();
                 if (o?.type === SCOPED && o.entry === '{') {
                     condition = false;
                 }
                 else condition = true;
             }
             else if (o.text === 'do') {
+                skipLabel();
                 next();
                 next();
                 next();
@@ -169,6 +176,7 @@ var skipAssignment = function (o, cx) {
             else if (o.text === 'for') {
                 next();
                 if (o.type === STRAP && o.text === 'await') next();
+                skipLabel();
                 next();
             }
             else if (o.text === "class") {
