@@ -1,4 +1,4 @@
-var { STAMP, getDeclared, VALUE, STRAP, SCOPED, QUOTED, snapSentenceHead, pickSentence, createString, getBodyWith } = require("./common");
+var { STAMP, EXPRESS, STRAP, isHalfSentence, skipFunction, getDeclared, VALUE, STRAP, SCOPED, QUOTED, snapSentenceHead, pickSentence, createString, getBodyWith, getFuncBody } = require("./common");
 var addAccessedStart = function (matched, namedMap) {
     var start = +namedMap["#1"];
     var body = getBodyWith(matched[0], 'arguments');
@@ -24,18 +24,120 @@ var getLoop = function (c, root) {
         c = h.queue;
     } while (c?.type === SCOPED && c !== root)
     return loop;
+};
+var hasRupt = function (a) {
+    if (a.type === STRAP && /^(await|yield)$/.test(a.text)) return true;
+    if (a.length) {
+        var a = a.first;
+        while (a) {
+            if (a.type === STRAP && /^(class|function|async)$/.test(a.text)) {
+                a = skipFunction(a);
+            }
+            else if (a.type === STAMP && a.text === '=>') {
+                a = skipAssignment(a);
+            }
+            else if (a.type === SCOPED) {
+                if (a.entry === "{") {
+                    if (!a.isObject) {
+                        if (hasRupt(a)) return true;
+                    }
+                }
+                else {
+                    if (hasRupt(a)) return true;
+                }
+                a = a.next;
+            }
+            else a = a.next;
+        }
+    }
+    return false;
+};
+var getNodePath = function (a, body) {
+    var q = a;
+    var qs = [];
+    while (q && q !== body) {
+        qs.push(q);
+        q = q.queue;
+    }
+    return qs.reverse();
+};
+var hasRuptBetween = function (a1, a2) {
+    var qp1 = getNodePath(a1);
+    var qp2 = getNodePath(a2);
+    var qc = [];
+    for (var cx = 0, dx = Math.min(qp1.length, qp2.length); cx < dx; cx++) {
+        var q1 = qp1[cx];
+        if (q1 !== qp2[cx]) break;
+        qc.push(q1);
+    }
+    if (!qc.length) return false;
+    var qce = qc.pop();
+    var q2 = qp2[cx];
+    for (var cx = qce.indexOf(q1), dx = qce.indexOf(q2); cx < dx; cx++) {
+        var q = qce[cx];
+        if (hasRupt(q)) return true;
+    }
+    return false;
+}
+var unMultiple = function (matched) {
+    var body = getFuncBody(matched[0]);
+    if (!body?.prev || body.checked & 0b10) return;
+    body.checked |= 0b10;
+    var { envs, used } = body.scoped;
+    var undec = [];
+    for (var k in envs) {
+        var w = [];
+        for (var o of used[k]) {
+            if (o.text !== k) continue;
+            if (o.equal && o.next === o.equal) {
+                w.push(o);
+            }
+        }
+        if (!w.length) continue;
+        for (var cx = 0, dx = w.length; cx < dx; cx++) {
+            var loop = getLoop(w[cx]);
+            if (loop && hasRupt(loop)) {
+                undec.push(k);
+                break;
+            }
+            if (cx > 0 && hasRuptBetween(w[cx - 1], w[cx])) {
+                undec.push(k)
+                break;
+            }
+        }
+    }
+    if (!undec.length) return;
+    var h = snapSentenceHead(body.prev);
+    matched = [];
+    var declared = null;
+    while (h && h !== body) {
+        if (h.kind) {
+            declared = h.text;
+        }
+        matched.push(h);
+        h = h.next;
+    }
+    if (!declared) {
+        declared = h.type & (STRAP | EXPRESS) && /^(module|exports|return)$/.test(h.tack);
+        if (!declared) return;
+    }
+
+    matched.suggest = `${createString(matched)}{\r\n      // 不建议在可并行执行的函数中更改外部变量，以防并发调用时出现异常\r\n      // 建议在可并行函数内声明如下变量，并修改用到这些变量的代码\r\n      var ${undec.join(',')};\r\n  }`;
+    return matched;
 }
 var suggest = {
     "while($2[$1++]!==$3)": "while($1<$2.length&&$2[$1++]!==$3)",
     "while($2[$1]!==$3)$1++": "while($1<$2.length&&$2[$1]!==$3)$1++",
     "for(var $1=#1,$2=arguments.length;$1<$2;$1++)": addAccessedStart,
     "for(var $1=#1;$1<arguments.length;$1++)": addAccessedStart,
+    "await": unMultiple,
+    "yield": unMultiple,
     "arguments"(matched) {
         var m = matched[0];
         var body = getBodyWith(m, 'arguments');
         var head = body.prev;
-        if (!head?.length || body.checked) return;
-        body.checked = true;
+        if (!head?.length || body.checked & 1) return;
+        body.checked |= 1;
         var { used, args } = body.scoped;
         if (!args?.length) return;
         var access_start = body.reststart ?? args?.length;
@@ -93,7 +195,7 @@ var suggest = {
         }
         matched.suggest = `${createString(matched.slice(0, matched.length - 1))}(){\r\n      var[${createString(head)}]=arguments;\r\n      // ${i18n`后续代码`}..\r\n  }`;
         return matched;
-    }
+    },
 };
 
 var regSuggest = function (c) {

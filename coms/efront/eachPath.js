@@ -24,7 +24,8 @@ module.exports = async function (root, find) {
                 data = String(data).replace(/^\s*#!/, '//');
                 await find(data, fullpath);
             }
-        } catch {
+        } catch (e) {
+            //<!--console.log(e)-->
             console.error(i18n`读取出错了，路径:`, fullpath);
         }
     }
