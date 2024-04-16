@@ -22,9 +22,8 @@ var loadData = async function (fullpath, i18nMap) {
         });
     }
 };
-var loaded = null;
 var __efrontpath = path.join(__dirname, '../..');
-var loadParents = async function (fullpath, i18nMap, name) {
+var loadParents = async function (fullpath, i18nMap, name, loaded) {
     var cwds = [process.cwd(), __efrontpath];
     for (var cwd of cwds) {
         if (/^\.\./.test(path.relative(fullpath, cwd))) {
@@ -44,8 +43,8 @@ var loadParents = async function (fullpath, i18nMap, name) {
 };
 module.exports = async function (pathlist, name) {
     var i18nMap = Object.create(null);
-    loaded = Object.create(null);
-    for (var p of pathlist) await loadParents(p, i18nMap, name);
+    var loaded = Object.create(null);
+    for (var p of pathlist) await loadParents(p, i18nMap, name, loaded);
     loaded = null;
     var supports = Object.keys(i18nMap);
     if (supports.length) return [i18nMap[supports[0]], supports, i18nMap];
