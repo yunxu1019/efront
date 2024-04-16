@@ -36,8 +36,9 @@ var skipAssignment = function (o, cx) {
     else if (o.type & (SPACE | COMMENT)) o = o.next;
     var needpunc = false;
     var qcount = 0;
+    var condition = false;
     var ifdeep = 0;
-    var labeled = o && o.type === LABEL;
+    var labeled = o && (o.type === LABEL || o.type === STRAP && /^(var|const|let)$/i.test(o.text));
     while (o && o.type === LABEL) next();
     loop: while (o) switch (o.type) {
         case LABEL:
@@ -51,7 +52,7 @@ var skipAssignment = function (o, cx) {
                     next();
                     break;
                 case ",":
-                    if (!ifdeep && !labeled) break loop;
+                    if (!ifdeep && !labeled && !condition) break loop;
                     needpunc = false;
                     next();
                     break;
@@ -152,7 +153,13 @@ var skipAssignment = function (o, cx) {
             else if (/^(if|while|with|switch|try)$/.test(o.text)) {
                 if (o.text === 'if') ifdeep++;
                 next();
-                if (o.entry === "(") next();
+                while (o?.type === LABEL) next();
+                if (o?.entry === "(") next();
+                while (o?.type === LABEL) next();
+                if (o?.type === SCOPED && o.entry === '{') {
+                    condition = false;
+                }
+                else condition = true;
             }
             else if (o.text === 'do') {
                 next();
