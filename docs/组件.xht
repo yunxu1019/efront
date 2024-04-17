@@ -199,7 +199,7 @@
         if (doc.test) {
             var jstext = [], lessdata = [], htmldata = [];
             for (var f of doc.test) {
-                var xhr = await cross("get", "/components:" + name.replace(/[^\\\/]+$/, '') + f);
+                var xhr = await cross("get", "./components:" + name.replace(/[^\\\/]+$/, '') + f);
                 if (/\.js$/i.test(f)) {
                     jstext.push(xhr.response);
                 }
