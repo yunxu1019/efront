@@ -1262,6 +1262,9 @@ var createString = function (parsed) {
                         }
                     }
                     intag = 0;
+                    if (o.short && attributes.length > 0 && !(lasttype & (SPACE | QUOTED))) {
+                        if (!/[\s'"]$/.test(result[result.length - 1])) result.push(' ');
+                    }
                 }
                 if (o.closed) {
                     if (!o.short) {
