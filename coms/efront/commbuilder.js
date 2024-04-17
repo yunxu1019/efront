@@ -138,6 +138,7 @@ var replaceIncludes = function (data) {
 };
 var loadUseBody = async function (source, fullpath, watchurls) {
     var replacer = function (data, realPath) {
+        var timer = new Timer;
         watchurls.push(realPath);
         var realName = path.basename(realPath).replace(/\..*$/, "") || "main";
         realName = realName.replace(/\-(\w)/g, (_, a) => a.toUpperCase());
@@ -164,9 +165,11 @@ var loadUseBody = async function (source, fullpath, watchurls) {
             var module_reg = /\bmodule(.exports|\[(['"`])exports\1\])\s*=/g;
             if (module_reg.test(data)) {
                 data = data.replace(module_reg, commName ? "var " + commName + " =" : "return ");
+                watchurls.time += +timer;
                 return data;
             }
         }
+        watchurls.time += +timer;
         return data;
     };
     source = await bindLoadings(useInternalReg, source, fullpath, replacer);
@@ -580,7 +583,7 @@ var getFileData = function (fullpath) {
         });
     });
 };
-var renderImageUrl = function (data, filepath) {
+var renderImageUrl = function (data, filepath, watchurls) {
     var urlReg = [
         /\b(?:efront\-|data\-)?(?:src|ur[il])\s*\(\s*(['"`]|)([^,;\('"`\r\n\u2028\u2029]*?)\1\s*\)/ig,
         /\b(?:efront\-|data\-)?(?:src|ur[il])\s*\=\s*(['"`]|)([^,;\('"`\r\n\u2028\u2029\s]*?)\1/ig,
@@ -591,6 +594,7 @@ var renderImageUrl = function (data, filepath) {
         var compath = inCom(realpath, comsroot);
         var pagepath = inPage(realpath);
         if (!mime || !compath && !pagepath) return match;
+        var timer = new Timer;
         if (pagepath) {
             data = pagepath.replace(/\\/g, '/');
         } else {
@@ -604,6 +608,7 @@ var renderImageUrl = function (data, filepath) {
             }
         }
         var quote = match[match.length - 1];
+        watchurls.time += +timer;
         if (quote === ')') {
             return `url(${data})`;
         }
@@ -620,9 +625,9 @@ var renderLessData = function (data, lesspath, commName, watchurls, className) {
         if (watchurls.indexOf(realpath) < 0) {
             watchurls.push(realpath);
         }
-        return renderImageUrl.call(that, data, realpath);
+        return renderImageUrl.call(that, data, realpath, watchurls);
     };
-    data = renderImageUrl.call(that, data, lesspath);
+    data = renderImageUrl.call(that, data, lesspath, watchurls);
     var lessresult = Promise.resolve(data).then(data => bindLoadings(importLessReg, data, lesspath, replacer, 0));
     if (watchurls.indexOf(lesspath) < 0) watchurls.push(lesspath);
     if (/\.less$/i.test(this[commName]) && this[commName] !== lesspath) {
@@ -635,11 +640,11 @@ var renderLessData = function (data, lesspath, commName, watchurls, className) {
             })
     }
 
-    var promise = Promise.resolve(lessresult)
+    return Promise.resolve(lessresult)
         .then(function (lessdata) {
             var timeStart = new Date;
             var lessData = compile$素馨(lessdata, "." + className);
-            promise.time = new Date - timeStart;
+            watchurls.time += new Date - timeStart;
             return lessData;
         }).then(function (lessData) {
             var timeStart = new Date;
@@ -658,10 +663,9 @@ var renderLessData = function (data, lesspath, commName, watchurls, className) {
                 }
                 return `{${serialize(o, ';', ':')}}`;
             })
-            promise.time += new Date - timeStart;
+            watchurls.time += new Date - timeStart;
             return lessData;
         });
-    return promise;
 };
 
 function prepare(filename, fullpath) {
@@ -683,11 +687,9 @@ var getValidName = function (prefix, used) {
     }
     return prefix;
 }
-
-async function getXhtPromise(data, filename, fullpath, watchurls) {
-}
-
+var Timer = require("../basic/Timer");
 async function getXhtPromise(xhtdata, filename, fullpath, watchurls, extraJs, extraCss) {
+    var timer = new Timer;
     var [commName, lessName, className] = prepare(filename, fullpath);
     var allnames = Object.create(null);
     xhtdata = xhtdata ? String(xhtdata) : '';
@@ -707,24 +709,30 @@ async function getXhtPromise(xhtdata, filename, fullpath, watchurls, extraJs, ex
         var styles = extraCss || '';
         var scripts = extraJs || '';
     }
-
+    timer.pause();
     if (scripts) scripts = await loadUseBody.call(this, scripts, fullpath, watchurls);
+    timer.resume();
     var jscode = scanner2(scripts);
     jscode.fix();
     var jscope = jscode.scoped
+    timer.pause();
     if (styles) styles = await renderLessData.call(this, styles, fullpath, commName, watchurls, lessName);
-    if (/me[\\\/]home/.test(fullpath)) console.log(styles)
+    timer.resume();
     var jsvars = jscope.vars;
     var jsenvs = jscope.envs;
     var entryTack = getEntryName(jsenvs, commName);
     if (jsenvs.template) entryTack = 'template';
     if (!xhtdata || entryTack || !htmltext && !scoped.outerHTML) {
-        if (xhtdata) htmltext = `{toString:()=>${compile$wraphtml(await renderImageUrl.call(this, scoped.outerHTML || scoped.innerHTML, fullpath))}}`;
-        return loadJsBody.call(this, scripts, fullpath, styles, commName, className, htmltext);
+        if (xhtdata) htmltext = `{toString:()=>${compile$wraphtml(await renderImageUrl.call(this, scoped.outerHTML || scoped.innerHTML, fullpath, watchurls))}}`;
+        var res = loadJsBody.call(this, scripts, fullpath, styles, commName, className, htmltext);
+        watchurls.time += +timer;
+        return res;
     }
     Object.assign(allnames, jscope.envs);
     var xhtmain = getValidName(`xht`, allnames);
-    htmltext = await renderImageUrl.call(this, htmltext, fullpath);
+    timer.pause();
+    htmltext = await renderImageUrl.call(this, htmltext, fullpath, watchurls);
+    timer.resume();
     htmltext = compile$wraphtml(htmltext);
     var jsused = jscope.used;
     var async = jscope.async ? 'async ' : '';
@@ -832,7 +840,9 @@ async function getXhtPromise(xhtdata, filename, fullpath, watchurls, extraJs, ex
     ${xhtrender}
     return elem;
     }`;
-    return loadJsBody.call(this, xht, filename, styles, commName, className)
+    var res = loadJsBody.call(this, xht, filename, styles, commName, className)
+    watchurls.time += +timer;
+    return res;
 }
 
 function getMouePromise(data, filename, fullpath, watchurls) {
@@ -881,7 +891,7 @@ function getMouePromise(data, filename, fullpath, watchurls) {
             ok(data);
         }
         if (htmlData) {
-            var htmlpromise = renderImageUrl.call(this, htmlData, fullpath).then(function (a) {
+            var htmlpromise = renderImageUrl.call(this, htmlData, fullpath, watchurls).then(function (a) {
                 htmlData = a;
             });
         }
@@ -941,6 +951,7 @@ function commbuilder(buffer, filename, fullpath, watchurls) {
     fullpath = String(fullpath || "");
     var compress = commbuilder.compress;
     var data = String(buffer), promise;
+    watchurls.time = 0;
     if (/\.xht$/i.test(fullpath)) {
         promise = getXhtPromise.call(this, buffer, filename, fullpath, watchurls);
     }
@@ -996,7 +1007,7 @@ function commbuilder(buffer, filename, fullpath, watchurls) {
             }
             data = buildResponse(data, compress);
             data.path = fullpath;
-            data.time = new Date - timeStart + promise.time;
+            data.time = new Date - timeStart + (watchurls.time || 0) + (promise.time || 0);
             return data;
         });
     }
