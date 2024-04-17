@@ -25,6 +25,7 @@ var createQuotedMap = function (entry) {
     var map = {};
     var end = {};
     entry.forEach(k => {
+        // if (k.length < 4) return;
         var [a, b] = k.slice(-2);
         if (a instanceof RegExp) a = stringsFromRegExp(a);
         if (b instanceof RegExp) b = stringsFromRegExp(b);
@@ -91,7 +92,7 @@ class Program {
         ["`", "`", /\\[\s\S]/, ["${", "}"]],
     ]
     tags = [
-        [["<", "</"], /\/?>/, null, ["'", '"', "{", "}"], [/<!--/, /--!?>/]]
+        [["<", "</"], /\/?>/, null, ["'", '"', "<!--", "{", "}"]]
     ];
     scriptTags = [];
     ignoreTags = ["STYLE", "SCRIPT"];
@@ -344,6 +345,7 @@ class Program {
                         break loop;
                     }
                     var m = match[0];
+
                     index = match.index + m.length;
                     if (quote.tag && queue.inTag === 0) {
                         if (openTag()) {
@@ -407,6 +409,19 @@ class Program {
                         continue loop;
                     }
                     if (m in this.quote_map) {
+                        if (this.comment_entry.test(m)) {
+                            push_piece();
+                            var start = match.index;
+                            var comment = this.quote_map[m];
+                            comment.lastIndex = index;
+                            do {
+                                var match = comment.reg.exec(text);
+                            } while (match && !comment.end.test(match[0]));
+                            if (match) end = index = match.index + match[0].length;
+                            m = text.slice(start, index);
+                            save(COMMENT);
+                            continue loop;
+                        }
                         if (queue.tag && !queue.inTag) continue;
                         push_piece();
                         var scope = [];
@@ -694,8 +709,8 @@ class Program {
                 }
                 return this.compile(q);
             });
-            if (q.tag) r = r.concat(q.tag.slice().sort(sortRegExpSource));
-            r = r.concat(ts.map(this.compile)).join("|");
+            if (q.tag) r = r.concat(q.tag);
+            r = r.concat(ts.map(this.compile)).sort(sortRegExpSource).join("|");
             q.reg = new RegExp(r, 'g');
             q.end = this.createRegExp([q[1]]);
             if (q.length >= 4) {
