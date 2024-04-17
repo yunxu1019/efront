@@ -582,8 +582,8 @@ var getFileData = function (fullpath) {
 };
 var renderImageUrl = function (data, filepath) {
     var urlReg = [
-        /\b(?:efront\-|data\-)?(?:src|ur[il])\s*\(\s*(['"`])([^,;\('"`\r\n\u2028\u2029]*?)\1\s*\)/ig,
-        /\b(?:efront\-|data\-)?(?:src|ur[il])\s*\=\s*(['"`])([^,;\('"`\r\n\u2028\u2029\s]*?)\1/ig,
+        /\b(?:efront\-|data\-)?(?:src|ur[il])\s*\(\s*(['"`]|)([^,;\('"`\r\n\u2028\u2029]*?)\1\s*\)/ig,
+        /\b(?:efront\-|data\-)?(?:src|ur[il])\s*\=\s*(['"`]|)([^,;\('"`\r\n\u2028\u2029\s]*?)\1/ig,
     ];
     var comsroot = this && this["/"] || [];
     var replacer = function (data, realpath, match) {
@@ -713,6 +713,7 @@ async function getXhtPromise(xhtdata, filename, fullpath, watchurls, extraJs, ex
     jscode.fix();
     var jscope = jscode.scoped
     if (styles) styles = await renderLessData.call(this, styles, fullpath, commName, watchurls, lessName);
+    if (/me[\\\/]home/.test(fullpath)) console.log(styles)
     var jsvars = jscope.vars;
     var jsenvs = jscope.envs;
     var entryTack = getEntryName(jsenvs, commName);
