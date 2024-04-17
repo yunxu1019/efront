@@ -1,3 +1,6 @@
+- zh-CN: 这个文件内的测试代码暂不支持
+  en:    The test code in this file is currently not supported
+
 - zh-CN: onback中阻止跳转的功能在新老版本的chrome上及其他不同浏览器上的表现均不一致，建议更换实现方式！
   en:    "The function of preventing redirection in onback performs differently on both new and old versions of Chrome, as well as on different browsers. It is recommended to change the implementation method!"
 

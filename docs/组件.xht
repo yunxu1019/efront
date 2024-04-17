@@ -195,21 +195,48 @@
     });
     var loadcode = async function () {
         jschanged = false;
-        var modName = name.replace(/\.js$/, '_test');
+        var modName = name.replace(/\.js$/i, '_test');
         if (doc.test) {
-            var xhr = await cross('get', "./components:" + modName + '.js');
-            jstext = xhr.responseText;
+            var jstext = [], lessdata = [], htmldata = [];
+            for (var f of doc.test) {
+                var xhr = await cross("get", "/components:" + name.replace(/[^\\\/]+$/, '') + f);
+                if (/\.js$/i.test(f)) {
+                    jstext.push(xhr.response);
+                }
+                else if (/\.less$/i.test(f)) {
+                    lessdata.push(xhr.response);
+                }
+                else if (/\.html$/i.test(f)) {
+                    htmldata.push(xhr.response);
+                }
+                else if (/\.xht$/i.test(f)) {
+                    alert(i18n`这个文件内的测试代码暂不支持`, 'error');
+                    break;
+                    htmldata.push(xhr.response
+                        .replace(/\<script\>([\s\S]*?)\<\/script\>/ig, function (_, s) {
+                            jstext.push(s);
+                            return '';
+                        })
+                        .replace(/\<style\>([\s\S]*?)\<\/style\>/ig, function (_, s) {
+                            lessdata.push(s);
+                            return '';
+                        }));
+
+                }
+            }
+            jstext = jstext.join("\r\n");
+            lessdata = lessdata.join("\r\n");
+            htmldata = htmldata.join("\r\n");
             var code = compile$scanner2(jstext);
             var envs = code.envs;
             var vars = code.vars;
             var commName = modName.replace(/^[\s\S]*\//, '');
-            var lessName = commName + ".less", lessData;
+            var lessName = commName + ".less", lessdata;
             var cssWrap = `css-` + +new Date;
-            if (doc.test.indexOf(lessName) >= 0) {
-                lessData = await cross("get", "./components:" + modName + ".less");
-                lessData = compile$素馨(lessData.responseText, "." + cssWrap);
+            if (lessdata) {
+                lessdata = compile$素馨(lessdata, "." + cssWrap);
                 if (code.isExpressQueue()) {
-                    jstext = `return cless(${jstext},\`${lessData}\`,"${cssWrap}")`;
+                    jstext = `return cless(${jstext},\`${lessdata}\`,"${cssWrap}")`;
                 }
                 else {
                     var entryName;
@@ -217,7 +244,7 @@
                     else if (vars.Main) entryName = 'Main';
                     else if (vars.MAIN) entryName = "MAIN";
                     else if (vars[commName]) entryName = commName;
-                    if (entryName) jstext += `\r\nreturn cless(${entryName},\`${lessData}\`,"${cssWrap}")`;
+                    if (entryName) jstext += `\r\nreturn cless(${entryName},\`${lessdata}\`,"${cssWrap}")`;
                 }
             }
             else {
@@ -229,10 +256,9 @@
             }
             var templateName = commName;
             if (envs.template) templateName = 'template';
-            if (envs[templateName]) {
+            if (htmldata) {
                 delete envs[templateName];
-                var template = await cross("get", './components:' + modName + ".html");
-                jstext = `var ${templateName}={toString(){return \`${template.responseText.replace(/>\s+</g, '><')}\`}};\r\n` + jstext;
+                jstext = `var ${templateName}={toString(){return \`${htmldata.replace(/>\s+</g, '><')}\`}};\r\n` + jstext;
             }
             initcode(jstext);
         }
