@@ -1,10 +1,14 @@
 var memery = require("./memery");
 var getEntryName = function (vars, commName) {
-    if (!commName) return null;
-    for (var entry of memery.ENTRY_NAME.split(",")) {
-        entry = entry.replace(/<(文件名|自动|auto|filename)>/ig, commName);
+    var { ENTRY_NAME } = memery;
+    if (ENTRY_NAME) for (var entry of ENTRY_NAME.trim().split(/\s*,\s*/)) {
+        if (/\</.test(entry)) {
+            if (!commName) continue;
+            entry = entry.replace(/<(文件名|自动|auto|filename)>/ig, commName);
+        }
         if (entry in vars) return entry;
     }
+    if (!commName) return null;
     if (commName in vars) return commName;
     commName = commName.replace(/\-([a-z])/g, (_, a) => a.toUpperCase());
     if (commName in vars) return commName;

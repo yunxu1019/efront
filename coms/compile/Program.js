@@ -374,6 +374,7 @@ class Program {
                         }
                         break;
                     }
+                    if (!quote.entry) continue;
                     a: if (quote.tag) {
                         var mi = quote.tag.indexOf(m);
                         if (mi < 0) {

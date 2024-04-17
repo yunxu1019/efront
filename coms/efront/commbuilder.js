@@ -690,17 +690,15 @@ async function getXhtPromise(data, filename, fullpath, watchurls) {
 async function getXhtPromise(xhtdata, filename, fullpath, watchurls, extraJs, extraCss) {
     var [commName, lessName, className] = prepare(filename, fullpath);
     var allnames = Object.create(null);
-    var time = 0;
+    xhtdata = xhtdata ? String(xhtdata) : '';
     if (xhtdata) {
-        var time_saved = Date.now();
-        var xht = scanner2(xhtdata.toString(), 'html');
+        var xht = scanner2(xhtdata, 'html');
         var scoped = xht.scoped;
         var { scripts, innerHTML: htmltext, attributes, tagName, styles } = scoped;
         if (extraJs) scripts = scripts.concat(extraJs);
         if (extraCss) styles = styles.concat(extraCss);
         styles = styles.join('\r\n');
         scripts = scripts.join("\r\n");
-        time += Date.now() - time_saved;
         for (var k in scoped.used) allnames[k] = true;
     }
     else {
@@ -714,19 +712,18 @@ async function getXhtPromise(xhtdata, filename, fullpath, watchurls, extraJs, ex
     var jscode = scanner2(scripts);
     jscode.fix();
     var jscope = jscode.scoped
-    Object.assign(allnames, jscope.envs);
-    var xhtmain = getValidName(`xht`, allnames);
-    if (htmltext) htmltext = await renderImageUrl.call(this, htmltext, fullpath);
     if (styles) styles = await renderLessData.call(this, styles, fullpath, commName, watchurls, lessName);
     var jsvars = jscope.vars;
     var jsenvs = jscope.envs;
-    var entryTack = getEntryName(jsvars, commName);
-    if (jsenvs.module) entryTack = 'module';
-    else if (jsenvs.exports) entryTack = 'exports';
-    if (!xhtdata || entryTack && !(entryTack in allnames)) {
-        if (htmltext) htmltext = `{toString:()=>${compile$wraphtml(scoped.outerHTML || scoped.innerHTML)}}`;
-        return loadJsBody.call(this, scripts, filename, styles, commName, className, htmltext);
+    var entryTack = getEntryName(jsenvs, commName);
+    if (jsenvs.template) entryTack = 'template';
+    if (!xhtdata || entryTack || !htmltext && !scoped.outerHTML) {
+        if (xhtdata) htmltext = `{toString:()=>${compile$wraphtml(await renderImageUrl.call(this, scoped.outerHTML || scoped.innerHTML, fullpath))}}`;
+        return loadJsBody.call(this, scripts, fullpath, styles, commName, className, htmltext);
     }
+    Object.assign(allnames, jscope.envs);
+    var xhtmain = getValidName(`xht`, allnames);
+    htmltext = await renderImageUrl.call(this, htmltext, fullpath);
     htmltext = compile$wraphtml(htmltext);
     var jsused = jscope.used;
     var async = jscope.async ? 'async ' : '';

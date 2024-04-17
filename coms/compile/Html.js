@@ -107,6 +107,7 @@ Html.prototype.createScoped = function (code) {
     var vars = Object.create(null);
     var scriptNodes = [], styleNodes = [], tempNodes = [];
     var inScript = false;
+    var noTag = true;
     var run = function (c) {
         switch (c.type) {
             case ELEMENT:
@@ -114,7 +115,9 @@ Html.prototype.createScoped = function (code) {
                 c.tagName = c.tag.toUpperCase();
                 if (!/^(script|style|template)$/i.test(c.tagName)) {
                     fixElement(c);
+                    noTag = false;
                     if (c.attributes) c.attributes.forEach(run);
+                    noTag = true;
                     if (!used[v]) used[v] = [];
                     used[v].push(c);
                     c.forEach(run);
@@ -156,7 +159,7 @@ Html.prototype.createScoped = function (code) {
                     c.forEach(run);
                     break;
                 }
-                if (!c.text) break;
+                if (noTag || !c.text) break;
                 var t = strings.decode(c.text);
                 var p = t.prev;
                 var pp = p && p.prev;
@@ -168,7 +171,7 @@ Html.prototype.createScoped = function (code) {
                 }
                 break;
             case EXPRESS:
-                if (inScript) return;
+                if (inScript || noTag) break;
                 var t = c.text;
                 t = parseExpress(t);
                 var envs = createScoped(t).envs;
