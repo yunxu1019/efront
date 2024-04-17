@@ -200,7 +200,7 @@ module.exports = async function (mainpath, args) {
     pathname = path.join(fullpath, pathname);
     pathname = pathname.replace(/\\/g, '/').replace(/[^\/]+$/, '');
     var env = setupenv(appname);
-    env.root = process.cwd();
+    env.root = pathname;
     resolve_config.paths = env.COMS_PATH.split(',');
     var location = Object.freeze({
         pathname,

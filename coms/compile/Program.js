@@ -15,7 +15,6 @@ const {
     number_reg,
 } = require("./common");
 var combine = require("../basic/combine");
-
 var sortRegExpSource = function (a, b) {
     if (a.indexOf(b) >= 0) return -1;
     if (b.indexOf(a) >= 0) return 1;

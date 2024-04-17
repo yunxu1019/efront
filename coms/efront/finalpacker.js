@@ -11,12 +11,35 @@ var mixin = require("./mixin");
 var fs = require("fs");
 var globals = require("./globals");
 var FILE_BUFFER_SIZE = memery.FILE_BUFFER_SIZE;
+var sortPath = function (a, b) {
+    a = a.split(/[\\\/]/);
+    b = b.split(/[\\\/]/);
+    for (var cx = 0, dx = Math.min(a.length, b.length); cx < dx; cx++) {
+        if (a[cx] !== b[cx]) return 0;
+    }
+    return b.length - a.length;
+}
+var formatdir = a => a.replace(/\\/g, '/').replace(/\/$/, '') + "/";
 var createManagersWithEnv = async function (env) {
     var commap = await getCommap(env.APP);
     if (env.root) commap[""] = env.root;
     var Cache = require("../server/cache");
     var cbuilder = commbuilder.bind(commap);
-    var mixpath = (a, b) => mixin(a, b || '').map(a => path.join.apply(path, a)).filter(fs.existsSync).join(',');
+    var root = env.root;
+    if (root) root = formatdir(root);
+    var mixpath = (a, b) => {
+        var map = Object.create(null);
+        var ps = mixin(a, b || '').map(a => path.join.apply(path, a)).filter(m => map[m] ? false : map[m] = true).filter(fs.existsSync).map(formatdir);
+        if (root) {
+            ps.sort((a, b) => {
+                var ai = a.indexOf(root);
+                var bi = b.indexOf(root);
+                return bi - ai;
+            });
+        }
+        ps.sort(sortPath);
+        return ps.join(',');
+    };
     var coms_path = mixpath(env.COMS_PATH, env.COMM);
     var page_path = mixpath(env.PAGE_PATH, env.PAGE);
     var comscache = new Cache(coms_path, cbuilder);
