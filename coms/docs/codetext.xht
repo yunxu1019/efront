@@ -91,7 +91,9 @@
     };
     var typescript = new compile$Javascript;
     typescript.straps = typescript.straps.concat("interface", "implements", "declare", "module", "readonly", "enum");
+    typescript.tags[0].push(["{", "}"]);
     var js = new compile$Javascript;
+    js.tags[0].push(["{", "}"]);
     js.keepspace = true;
     var codesupports = {
         javascript(a, blink) {

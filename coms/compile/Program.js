@@ -23,9 +23,9 @@ var sortRegExpSource = function (a, b) {
 var createQuotedMap = function (entry) {
     var map = {};
     var end = {};
-    entry.forEach(k => {
-        // if (k.length < 4) return;
-        var [a, b] = k.slice(-2);
+    entry.forEach(e => {
+        if (!(e instanceof Array)) return;
+        var [a, b] = e.slice(-2);
         if (a instanceof RegExp) a = stringsFromRegExp(a);
         if (b instanceof RegExp) b = stringsFromRegExp(b);
         combine([].concat(a), [].concat(b)).forEach(([a, b]) => {
@@ -91,7 +91,7 @@ class Program {
         ["`", "`", /\\[\s\S]/, ["${", "}"]],
     ]
     tags = [
-        [["<", "</"], /\/?>/, null, ["'", '"', "<!--", "{", "}"]]
+        [["<", "</"], /\/?>/, null, "'", '"', "<!--", ["${", "}"]]
     ];
     scriptTags = [];
     ignoreTags = ["STYLE", "SCRIPT"];

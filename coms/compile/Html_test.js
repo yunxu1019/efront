@@ -18,3 +18,5 @@ test('<input ng-model=data.name />');
 test('<input ng-model=data.name/>', '<input ng-model=data.name />');
 test('<!--<input ng-model=data.name/>-->');
 test('<div><!--<input ng-model=data.name/>--></div>');
+test('<div><div>{</div><div>}</div></div>');
+test('<div>${`<div></div>`}</div>');
