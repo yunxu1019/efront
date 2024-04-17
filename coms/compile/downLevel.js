@@ -1721,14 +1721,13 @@ var down = function (scoped) {
         fordeep = saveddeep;
     };
     if (scoped.isfunc) {
-        if (!scoped.body && scoped.head) scoped.body = scoped.head.next;
+        if (!scoped.body && scoped.head?.next?.type === SCOPED && scoped.head.next.entry === "{") scoped.body = scoped.head.next;
         if (scoped.head) var [argsmap, argcodes] = killarg(scoped.head, scoped.body, _letname, false);
         else argcodes = [];
         if ((markcodes.length || argcodes.length) && !funcMark) precode(markcodes.concat(argcodes).join(";") + ";");
         if (scoped.body) scoped.body.keeplet = false, _killobj(_getname, scoped.body);
-
         scoped.forEach(kill);
-        var requeue = null, requeuei = 0, requeuee = 0;
+        var requeue = null, requeuei = -1, requeuee = -1;
         if (!scoped.body && scoped.arraw) {
             requeue = scoped.arraw.queue;
             requeuei = requeue.indexOf(scoped.arraw);
@@ -1768,7 +1767,8 @@ var down = function (scoped) {
         if (argsmap) vars1 = vars1.filter(k => !(k in argsmap));
         if (vars1.length && scoped.body) scoped.body.push(...scanner2(`\r\nvar ${vars1}`));
         if (scoped.body) relink(scoped.body);
-        if (requeue) splice(requeue, requeuei, requeuee - requeuei, ...scoped.body);
+
+        if (requeuei >= 0) splice(requeue, requeuei, requeuee - requeuei, ...scoped.body);
     }
     else {
         kill(scoped);
