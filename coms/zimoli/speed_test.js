@@ -1,12 +1,12 @@
 var s = speed();
 var id = 0;
-var passed = Date.now();
+var passed = +new Date;
 var test = async function (wait, write = '') {
     var _id = ++id;
     await new Promise(ok => setTimeout(ok, wait));
     if (write) var read = s(write);
     else var read = s();
-    var now = Date.now();
+    var now = +new Date;
     if (passed) var waited = now - passed;
     else waited = 0;
     passed = now;

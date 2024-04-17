@@ -166,10 +166,10 @@ function main() {
     }
     var enterMenuEnabled = 0;
     onmousemove(page, function () {
-        enterMenuEnabled = Date.now();
+        enterMenuEnabled = +new Date;
     });
     var enterMenu = lazy(function (menu) {
-        if (enterMenuEnabled + 200 < Date.now()) return;
+        if (enterMenuEnabled + 200 < +new Date) return;
         enterMenuEnabled = false;
         if (page.ispop) {
             page.setFocus(menu);

@@ -1,5 +1,5 @@
 var Timer = class {
-    startTime = Date.now();
+    startTime = +new Date;
     timeout = 600;
     timer = 0;
     target = null;

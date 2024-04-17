@@ -4,7 +4,7 @@ function main() {
     renderWithDefaults(page, {
         status: [],
         version: data.from("version"),
-        hrtime: data.from("uptime", a => Date.now() - a * 1000),
+        hrtime: data.from("uptime", a => new Date - a * 1000),
         filterTime,
         async run(id) {
             await new Promise(ok => setTimeout(ok, 2000));

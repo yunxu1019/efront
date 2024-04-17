@@ -9,7 +9,7 @@ var clear = function () {
         if (key.slice(0, session_storage_prefix.length) === session_storage_prefix)
             localStorage.removeItem(key);
     }
-    document.cookie = Date.now();
+    document.cookie = +new Date;
 };
 var read = function () {
     for (var cx = 0, dx = localStorage.length; cx < dx; cx++) {

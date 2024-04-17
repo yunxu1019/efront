@@ -185,8 +185,8 @@ var acme2 = new class {
     }
     async updateTime(update) {
         if (!acme2.nextUpdateTime || update) {
-            if (!acme2.lastUpdateTime || new Date(acme2.lastUpdateTime) + 86400000 + acme2.schadulePeriod * 86400000 < Date.now()) {
-                acme2.nextUpdateTime = parseDate(Date.now() + +acme2.schadulePeriod * 86400000);
+            if (!acme2.lastUpdateTime || new Date(acme2.lastUpdateTime) + 86400000 + acme2.schadulePeriod * 86400000 < +new Date) {
+                acme2.nextUpdateTime = parseDate(+new Date + +acme2.schadulePeriod * 86400000);
             }
             else {
                 acme2.nextUpdateTime = parseDate(new Date(acme2.lastUpdateTime) + +acme2.schadulePeriod * 86400000);
@@ -357,7 +357,7 @@ var acme2 = new class {
     async autoUpdate(saveUnique, domain, setauth, upload) {
         if (!domain.length) return;
         if (acme2.orders.length >= 20) acme2.orders.pop();
-        this.lastUpdateTime = filterTime(Date.now(), 'y-MM-dd hh:mm');
+        this.lastUpdateTime = filterTime(+new Date, 'y-MM-dd hh:mm');
         this.updateTime();
         var o = await acme2.newOrder({ domain });
         await saveUnique();// 及时保存订单信息以便后续查看

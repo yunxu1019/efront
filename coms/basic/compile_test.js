@@ -69,13 +69,13 @@ var assert = require("./assert");
 
 
 function test(test, count) {
-    var time = Date.now();
+    var time = +new Date;
     if (test instanceof Function) {
         while (count-- > 0) {
             test();
         }
     }
-    return Date.now() - time;
+    return new Date - time;
 }
 
 

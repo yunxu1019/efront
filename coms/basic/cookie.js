@@ -12,7 +12,7 @@ var parseCookieFromText = function (cookie) {
                 break;
             case "max-age":
                 k = "expires";
-                v = Date.now() + v * 1000;
+                v = +new Date + v * 1000;
                 break;
         }
         info[k] = v;
@@ -67,7 +67,7 @@ CookieProto.getCookies = function getCookies(domainPath) {
     var cookieObject = {};
     var splited = domainPath.split("/");
     var domain = splited[0];
-    var now = Date.now();
+    var now = +new Date;
     do {
         var copy = splited.slice(0);
         do {

@@ -160,7 +160,7 @@ module.exports = {
     checkPasswordB,
     setUniqueKeyPair,
     getUniqueKeyPair,
-    loadtime: Date.now(),
+    loadtime: +new Date,
     update(func) {
         if (!func.time || func.time < this.loadtime) {
             func.time = this.loadtime;
@@ -169,7 +169,7 @@ module.exports = {
     },
     reload() {
         profile_promise = null;
-        this.loadtime = Date.now();
+        this.loadtime = +new Date;
     },
     getOptionStr(type, key) {
         return this.option(type, key, false);

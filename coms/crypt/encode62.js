@@ -104,7 +104,7 @@ Object.assign(encode62, {
         return encode62(string);
     },
     genb() {
-        return encode62(Date.now() * Math.random() + "" + Math.random().toString(36) + Math.random().toString(36).toUpperCase());
+        return encode62(new Date * Math.random() + "" + Math.random().toString(36) + Math.random().toString(36).toUpperCase());
     },
     huan(x, y) {
         return x.split("").map(s => y[map[s]]).join("");

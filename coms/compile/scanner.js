@@ -1,12 +1,12 @@
 "use strict";
 function test(test, count) {
-    var time = Date.now();
+    var time = +new Date;
     if (test instanceof Function) {
         while (count-- > 0) {
             test();
         }
     }
-    return Date.now() - time;
+    return new Date - time;
 }
 // -   function () {
 //         single_comment_scanner.call("'", 0) === 1;
@@ -622,11 +622,11 @@ function lookback_scanner(blockIndex, blocks) {
 var scanner = module.exports = function (s, keepdeep) {
     var blocks = [];
     var s = String(s);
-    // var time = Date.now();
+    // var time = +new Date;
     // for (var i = 0; i < 1000; i++) {
     //     block_code_scanner.call(s, 0, blocks);
     // }//angular 1.5.3 x1000 7.0s
-    // console.log(Date.now() - time);
+    // console.log(+new Date - time);
     block_code_scanner.call(s, 0, blocks, keepdeep);
     // console.log(blocks.map(a => s.slice(a.start, a.end)).join())
     return blocks;

@@ -189,7 +189,7 @@ var doOptions = async function (req, res, type) {
     switch (type[1]) {
         case "efront":
             if (type[3]) {
-                message.send("logsimilar", JSON.stringify({ ip: remoteAddress(req), ppid: type[2], port: type[3], time: Date.now() }));
+                message.send("logsimilar", JSON.stringify({ ip: remoteAddress(req), ppid: type[2], port: type[3], time: +new Date }));
             }
             break;
         case "version":
@@ -743,7 +743,7 @@ var showServerInfo = async function () {
             }
         }
     }
-    message.send("logsimilar", JSON.stringify({ ip: "selflog", ppid: version, port: ported.join(','), time: Date.now() }));
+    message.send("logsimilar", JSON.stringify({ ip: "selflog", ppid: version, port: ported.join(','), time: +new Date }));
     if (memery.REPORT) try {
         await checkServerState(memery.REPORT, version, ported);
     } catch { }
@@ -953,7 +953,7 @@ if (acme2.enabled) {
     var checker_interval = setInterval(async function () {
         if (!acme2.schaduleEnabled) return;
         var time = +acme2.updateTime();
-        if (time > Date.now() + checkTime) return;
+        if (time > +new Date + checkTime) return;
         var lock = await new Promise(ok => message.send('lock', key, ok));
         if (!lock) return;
         var key = Math.random();

@@ -1,15 +1,15 @@
 class Timer {
-    capture = Date.now();
+    capture = +new Date;
     value = 0;
     pause() {
-        this.value += Date.now() - this.capture;
+        this.value += new Date - this.capture;
         this.capture = null;
     }
     resume() {
-        this.capture = Date.now();
+        this.capture = +new Date;
     }
     valueOf() {
-        return this.capture !== null ? this.value + Date.now() - this.capture : this.value;
+        return this.capture !== null ? this.value + +new Date - this.capture : this.value;
     }
 }
 module.exports = Timer;

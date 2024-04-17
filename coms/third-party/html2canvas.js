@@ -2356,7 +2356,7 @@ var Logger = /** @class */ (function () {
         var id = _a.id, enabled = _a.enabled;
         this.id = id;
         this.enabled = enabled;
-        this.start = Date.now();
+        this.start = +new Date;
     }
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     Logger.prototype.debug = function () {
@@ -2376,7 +2376,7 @@ var Logger = /** @class */ (function () {
         }
     };
     Logger.prototype.getTime = function () {
-        return Date.now() - this.start;
+        return new Date - this.start;
     };
     Logger.create = function (options) {
         Logger.instances[options.id] = new Logger(options);
@@ -6937,7 +6937,7 @@ var renderElement = function (element, opts) {
                     if (!defaultView) {
                         throw new Error("Document is not attached to a Window");
                     }
-                    instanceName = (Math.round(Math.random() * 1000) + Date.now()).toString(16);
+                    instanceName = (Math.round(Math.random() * 1000) + +new Date).toString(16);
                     _a = isBodyElement(element) || isHTMLElement(element) ? parseDocumentSize(ownerDocument) : parseBounds(element), width = _a.width, height = _a.height, left = _a.left, top = _a.top;
                     defaultResourceOptions = {
                         allowTaint: false,

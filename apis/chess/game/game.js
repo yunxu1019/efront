@@ -33,7 +33,7 @@ Game.prototype = {
         }
         games_count++;
         this.autoComplete();
-        var id = Date.now();
+        var id = +new Date;
         if (id in games) {
             throw new Error(i18n`当前并发量大，请重试！`);
         }
@@ -277,7 +277,7 @@ module.exports = function ({ type, game_id, user_id, link_id, step }) {
                 if (game.extraUsers_count >= 500) {
                     throw new Error(i18n`房间观战人数已满！`);
                 }
-                link_id = Date.now() + ":" + ++game.extraUsers_count;
+                link_id = +new Date + ":" + ++game.extraUsers_count;
                 extraPromise[link_id] = null;
                 game.broadcast("update", game.getInfo());
                 return { game_id, link_id };

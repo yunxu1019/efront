@@ -938,10 +938,10 @@ function getScriptPromise(data, filename, fullpath, watchurls) {
     var p = Promise.all([lesspath, htmlpath].map(getFileData)).then(async ([lessdata, htmldata]) => {
         if (lessdata || htmldata) return getXhtPromise.call(that, htmldata, filename, fullpath, watchurls, data, lessdata)
         data = await loadUseBody.call(that, data, fullpath, watchurls);
-        var time = Date.now();
+        var timer = new Timer;
         var [commName] = prepare(filename, fullpath);
         data = loadJsBody.call(that, data, fullpath, null, commName);
-        p.time = Date.now() - time;
+        p.time = +timer;
         return data;
     });
     return p;

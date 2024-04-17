@@ -153,7 +153,7 @@ var secret = "0b50b02fd0d73a9c4c8c3a781c30845f";
 function createSign(e) {
     if ("[object Object]" !== Object.prototype.toString.call(e))
         throw new Error("The parameter of query must be a Object.");
-    var t = Math.floor(Date.now() / 1e3);
+    var t = Math.floor(new Date / 1e3);
     extend(e, {
         timestamp: t,
         appid: 16073360

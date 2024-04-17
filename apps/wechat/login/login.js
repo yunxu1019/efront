@@ -41,7 +41,7 @@ function onloginResponse(c) {
             $scope.isScan = !0;
             reportService.report(reportService.ReportType.timing, {
                 timing: {
-                    scan: Date.now()
+                    scan: +new Date
                 }
             });
             loginFactory.checkLogin($scope.uuid).then(onloginResponse, function (t) {
@@ -87,7 +87,7 @@ function refreshQRCode() {
         var r = !1;
         reportService.report(reportService.ReportType.timing, {
             timing: {
-                qrcodeStart: Date.now()
+                qrcodeStart: +new Date
             }
         });
         setTimeout(function () {
@@ -100,7 +100,7 @@ function refreshQRCode() {
             r = !0;
             reportService.report(reportService.ReportType.timing, {
                 timing: {
-                    qrcodeEnd: Date.now()
+                    qrcodeEnd: +new Date
                 }
             });
         };

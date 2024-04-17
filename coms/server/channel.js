@@ -18,7 +18,7 @@ class Channel {
     constructor(size) {
         this.size = size;
     }
-    optime = Date.now();
+    optime = +new Date;
     flush() {
         if (this.socketCount !== 2) return;
         this[1].write(`HTTP/1.1 200 OK${this.type ? '\r\nContent-Type:' + this.type : ''}\r\nContent-Length: ${this.size}\r\nContent-Disposition: attachment\r\nConnection: close\r\n\r\n`);

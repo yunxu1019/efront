@@ -36,11 +36,11 @@ var trim5 = function (data) {
 var test = function (call, time) {
     var testdata = test.toString();
     if (typeof performance !== 'undefined') Date = performance; // node deno
-    var timestart = Date.now(); //quickjs
+    var timestart = +new Date; //quickjs
     for (var cx = 0, dx = time; cx < dx; cx++) {
         call(testdata);
     }
-    var timespend = Date.now() - timestart;
+    var timespend = new Date - timestart;
     console.log(`执行${call.name} ${time}次，耗时${timespend} 毫秒`)
 };
 test(trim0, 1000000);  // node 执行trim0 1000000次，耗时307.44369983673096 毫秒		deno	执行trim0 1000000次，耗时292 毫秒	quickjs	执行trim0 1000000次，耗时27287 毫秒

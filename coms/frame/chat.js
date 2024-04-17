@@ -106,7 +106,7 @@ function chat(title = '会话窗口') {
     page.innerHTML = template;
     drag.on(page.firstElementChild, page);
     resize.on(page);
-    var localid = title.id || (Date.now() / 1000 | 0) + Math.sin(Math.random());
+    var localid = title.id || (new Date / 1000 | 0) + Math.sin(Math.random());
     var users = [];
     var addToMsgList = function (list, msgs) {
         list.push.apply(list, msgs);

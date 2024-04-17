@@ -96,11 +96,11 @@ it.skip("table生成时要用到无符号右移?", function () {
         return true;
     }
     var test = function (f, count) {
-        var time = Date.now();
+        var time = +new Date;
         while (count--) {
             f()
         }
-        return Date.now() - time;
+        return new Date - time;
     }
 
     console.log(is_equal(table_1(), table_2()))

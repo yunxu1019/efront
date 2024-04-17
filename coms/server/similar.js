@@ -73,7 +73,7 @@ var load = function () {
     if (!fs.existsSync(tmppath)) return;
     var stream = fs.createReadStream(tmppath);
     var rl = readline.createInterface(stream);
-    var now = Date.now();
+    var now = +new Date;
     rl.on("line", async function (data) {
         data = decodeURI(data);
         data = await userdata.decode(data);

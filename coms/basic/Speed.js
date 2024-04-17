@@ -105,7 +105,6 @@ inertia.REBOUNDING = 回弹;
 inertia.DOCKING = 停靠;
 var performance = this.performance;
 if (!performance || !performance.now) performance = Date;
-var now = performance.now;
 if (!performance.now) performance.now = function () {
     return +new Date;
 }

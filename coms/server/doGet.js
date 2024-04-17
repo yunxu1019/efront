@@ -126,7 +126,7 @@ var adapter = function (data, url, req, res) {
         if (req.indexed || /package\.json$/i.test(msg.path)) {
             msg.indexed = true;
             msg.remote = remoteAddress(req);
-            msg.time = Date.now();
+            msg.time = +new Date;
             var headers = req.headers;
             var referer = getHeader(headers, 'referer');
             if (referer?.length > 300) {

@@ -14,7 +14,7 @@ function generateUploadUrl(uri, base = _base_url, env) {
     }
     var putPolicy = Buffer.from(JSON.stringify({
         "scope": `${base}:${uri}`,
-        "deadline": Date.now() + 1200,
+        "deadline": +new Date + 1200,
         "returnBody": `{"name":$(fname),"size":$(fsize),"w":$(imageInfo.width),"h":$(imageInfo.height),"hash":$(etag)}`
     })).toString("base64").replace(/[\+\/]/g, e => e === "+" ? "-" : "_");
     var token = access_key + ":" + crypto.createHmac("sha1", secret_key).update(putPolicy).digest("base64").replace(/[\+\/]/g, e => e === "+" ? "-" : "_");

@@ -137,7 +137,7 @@
                     o.removable = true;
                 }
                 else {
-                    if (o.certificate && +o.expires < Date.now()) {
+                    if (o.certificate && +o.expires < +new Date) {
                         o.removable = true;
                     }
                 }

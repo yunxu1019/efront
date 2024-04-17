@@ -75,7 +75,7 @@ var prefix = function (source) {
 // }([11, 15, 21, 23, 31, 37, 41, 46, 50, 54, 61, 65, 71, 71, 81, 82]);
 var birth = function (q) {
     var d = new Date(1000, q % 12, 1 + q % 31);
-    d = new Date(+d + (Date.now() - d) * (1 - Math.pow(.5, q % 9 + 2)));
+    d = new Date(+d + (+new Date - d) * (1 - Math.pow(.5, q % 9 + 2)));
     return d;
 }
 /**

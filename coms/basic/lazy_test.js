@@ -5,10 +5,10 @@ async function test(sch, pending, callsch) {
     var wait = t => new Promise(a => setTimeout(a, t));
     var waits = t => wait(t * Math.abs(sch));
     var waite = async (t) => (await waits(t), await wait(pending));
-    var count = 0, start = Date.now(), time = start;
+    var count = 0, start = +new Date, time = start;
     var f = lazy(function () {
         count++;
-        var now = Date.now();
+        var now = +new Date;
         var delta = now - time;
         time = now;
         if (count > 1) assert(delta >= Math.abs(sch), true, '触发间隔' + delta);

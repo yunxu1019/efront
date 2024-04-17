@@ -4,7 +4,7 @@ var lazy = require("../basic/lazy");
 var cached = [];//500 000;
 var multiCount = Object.create(null);
 var clearCache = lazy(function () {
-    var pass = Date.now() - 600 * 1000;
+    var pass = new Date - 600 * 1000;
     cached = cached.filter(c => c.time > pass);
 }, 80);
 var preventCached = function (interval = 60000, id, count = 0) {
@@ -20,7 +20,7 @@ var preventCached = function (interval = 60000, id, count = 0) {
     if (!(interval > 2000)) interval = 2000;
     var index = getIndexFromOrderedArray(cached, id);
     var c = cached[index];
-    var now = Date.now();
+    var now = +new Date;
     if (c && c.value === id) {
         var increase = 2000 - interval;
         if (c.count >= count) increase = interval * Math.pow(2, c.count - count) - interval;

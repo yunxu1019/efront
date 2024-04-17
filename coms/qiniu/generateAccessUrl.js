@@ -12,7 +12,7 @@ function generateAccessUrl(uri, base = _base_url, env) {
         var secret_key = _secret_key;
         var access_key = _access_key;
     }
-    var downloadUrl = base + url + "?e=" + (120 + Date.now() / 1000 | 0);
+    var downloadUrl = base + url + "?e=" + (120 + new Date / 1000 | 0);
     var token = access_key + ":" + crypto.createHmac("sha1", secret_key).update(downloadUrl).digest("base64").replace(/[\+\/]/g,e=>e==="+"?"-":"_");
     return downloadUrl + "&token=" + token;
 }

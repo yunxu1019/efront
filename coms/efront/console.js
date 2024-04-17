@@ -12,7 +12,7 @@ var logTime = function (str = '') {
     colored.time(lastLogTime, ` ${colors.FgGreen2 + version + colors.Reset} ` + str);
 };
 var logStamp = function () {
-    if (Date.now() - lastLogTime > 600) logTime();
+    if (new Date - lastLogTime > 600) logTime();
 };
 colored.stamp = logStamp;
 var setLogger = message.isPrimary ? function (name, logger) {

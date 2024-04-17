@@ -104,7 +104,7 @@ module.exports = async function aapibuilder(buffer, filename, fullpath) {
     await request(fullpath);
     return function ApiManager(req, res) {
         var i18k = getHeader(req.headers, "accept-language");
-        var request_accept_time = Date.now();
+        var request_accept_time = +new Date;
         return getParameters(req, i18n).then(function (data) {
             try {
                 var info = {
@@ -119,7 +119,7 @@ module.exports = async function aapibuilder(buffer, filename, fullpath) {
                         res.end(JSON.stringify({
                             result: result,
                             accept_time: request_accept_time,
-                            response_time: Date.now()
+                            response_time: +new Date
                         }));
                         delete data.req;
                         delete data.res;

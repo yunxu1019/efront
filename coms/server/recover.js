@@ -1,6 +1,6 @@
 var objects = [];
 function recover() {
-    var now = Date.now();
+    var now = +new Date;
     for (var c of objects) c.recover(now);
 }
 function destroy() {
