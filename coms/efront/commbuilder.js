@@ -227,6 +227,7 @@ var removePrequoted = function (code) {
 };
 if (typeof i18n === 'undefined') var show_building = console.info.bind(console, '编译');
 else show_building = console.info.bind(console, i18n`编译`);
+var clear_console = require("../basic/lazy")(console.type, 60);
 var loadJsBody = function (data, filename, lessdata, commName, className, htmlData) {
     if (data.length > 0x200) show_building(filename);
     data = trimNodeEnvHead(data);
@@ -1008,6 +1009,7 @@ function commbuilder(buffer, filename, fullpath, watchurls) {
             data = buildResponse(data, compress);
             data.path = fullpath;
             data.time = new Date - timeStart + (watchurls.time || 0) + (promise.time || 0);
+            clear_console();
             return data;
         });
     }
