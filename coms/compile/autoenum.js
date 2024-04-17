@@ -175,6 +175,18 @@ function inCondition(o) {
 }
 
 function enumref(refitem, scoped) {
+    if (enumtype === REFMOVE) {
+        var c = 0;
+        for (var rk in refitem) {
+            c++;
+            var a = refitem[rk];
+            if (a.ccount > 0) return;
+        }
+        var a = refitem[""];
+        if (a && c > 1) {
+            if (a.wcount < a.length) return;
+        }
+    }
     for (var rk in refitem) {
         var os = refitem[rk];
         if (os.wcount !== 1 || os.length < 2) continue;
