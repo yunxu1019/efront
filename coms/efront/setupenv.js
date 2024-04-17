@@ -11,7 +11,7 @@ if (typeof envpath !== "string") envpath = "./_envs," + path.join(require("os").
 envpath = envpath.split(",").filter(fs.existsSync);
 var cache = Object.create(null);
 module.exports = function (app) {
-    var appname = String(app || '').replace(/^[\/\\]*(.*?)[\/\\]*$/g, "$1");
+    var appname = String(app || memery.APP || '').replace(/^[\/\\]*(.*?)[\/\\]*$/g, "$1");
     appname = appname.replace(/\.(\w+)$/i, "");
     if (cache[appname]) return cache[appname];
     else env = {};

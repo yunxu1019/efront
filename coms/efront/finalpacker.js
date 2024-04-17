@@ -12,8 +12,8 @@ var fs = require("fs");
 var globals = require("./globals");
 var FILE_BUFFER_SIZE = memery.FILE_BUFFER_SIZE;
 var sortPath = function (a, b) {
-    a = a.split(/[\\\/]/);
-    b = b.split(/[\\\/]/);
+    a = a.replace(/[\\\/]$/, '').split(/[\\\/]/);
+    b = b.replace(/[\\\/]$/, '').split(/[\\\/]/);
     for (var cx = 0, dx = Math.min(a.length, b.length); cx < dx; cx++) {
         if (a[cx] !== b[cx]) return 0;
     }
@@ -25,15 +25,16 @@ var createManagersWithEnv = async function (env) {
     if (env.root) commap[""] = env.root;
     var Cache = require("../server/cache");
     var cbuilder = commbuilder.bind(commap);
-    var root = env.root;
-    if (root) root = formatdir(root);
     var mixpath = (a, b) => {
         var map = Object.create(null);
-        var ps = mixin(a, b || '').map(a => path.join.apply(path, a)).filter(m => map[m] ? false : map[m] = true).filter(fs.existsSync).map(formatdir);
+        var root = env.root;
+        if (root && b) b = b.split(/\s*,\s*/).filter(a => a !== 'zimoli');
+        var ps = mixin(a, b || '').map(a => path.join.apply(path, a)).filter(m => map[m] ? false : map[m] = true).filter(fs.existsSync);
         if (root) {
+            root = formatdir(root);
             ps.sort((a, b) => {
-                var ai = a.indexOf(root);
-                var bi = b.indexOf(root);
+                var ai = formatdir(a).indexOf(root);
+                var bi = formatdir(b).indexOf(root);
                 return bi - ai;
             });
         }
