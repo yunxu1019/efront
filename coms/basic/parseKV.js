@@ -8,7 +8,7 @@ function parseKV(string) {
             if (!spliter) spliter = a;
             else if (!equals) equals = a;
         }
-        else if (typeof decode === 'function') {
+        else {
             decode = a;
         }
     }
