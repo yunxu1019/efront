@@ -86,9 +86,53 @@
     var baiduFanyiConfig = data.getInstance("fanyi-config");
     var a = button;
     var salt = `efront${Math.random().toString(36).slice(6, 16)}`;
-    var requestBaiduFanyi = async function (str, to, from = 'auto') {
+    var requestBaiduFanyi = async function (str, to, from = 'auto', nbr) {
         var appid = baiduFanyiConfig.appid || "20210218000700622";
         var sign = baiduFanyiConfig.sign || "xJf0dfXeJdzudCTBn3QS";
+        var limit = 6000;
+        if (str.length > limit || /[\r\n\u2028\u2029]/.test(str) && nbr !== false) {
+            var strs = [];
+            str.replace(/([^\r\n\u2028\u2029]*)([\r\n\u2028\u2029]*)/g, function (_, a, b) {
+                strs.push([a, b]);
+            });
+            var reqstr = [];
+            var reqbr = [];
+            var res = [];
+            var reqlength = 0;
+            var req = async function () {
+                var res = await requestBaiduFanyi(reqstr.join('\r\n'), to, from, false);
+                res = res.split("\r\n").map((a, i) => {
+                    return a + reqbr[i];
+                }).join("");
+                return res;
+            };
+            for (var s of strs) {
+                var [a, b] = s;
+                if (a.length > limit) {
+                    throw `i18n文本过长无法翻译！`;
+                }
+
+                reqlength += a.length + 2;
+                if (reqlength > limit || !a && reqstr.length) {
+                    res.push(await req());
+                    await wait(200);
+                    reqstr = [];
+                    reqbr = [];
+                    reqlength = a.length;
+                }
+                if (a) {
+                    reqstr.push(a);
+                    reqbr.push(b);
+                }
+                else {
+                    res.push(b);
+                }
+            }
+            if (reqlength) {
+                res.push(await req());
+            }
+            return res.join('');
+        }
         var xhr = await cross("get", "https://fanyi-api.baidu.com/api/trans/vip/translate").send({
             q: str,
             from,
@@ -98,7 +142,10 @@
             sign: md5(`${appid}${str}${salt}${sign}`),
         });
         var data = JSON.parse(xhr.response);
-        return data.trans_result[0].dst;
+        if (+data.error_code > 54000) {
+            throw data.error_msg;
+        }
+        return data.trans_result.map(a => a.dst).join('\r\n');
     };
     var editCode = function () {
         supports.forEach(s => s.checked = false);
@@ -438,16 +485,21 @@
                 var liang = item.liang;
                 var text = item.text;
             }
+            var from = 'auto';
             if (!text) for (var k in fanyi) {
-                if (fanyi[k]) text = fanyi[k];
+                if (fanyi[k]) text = fanyi[k], from = k;
             }
-            for (var s of this.supports) {
-                if (fanyi[s.id] && fanyi[s.id].trim()) continue;
-                fanyi[s.id] = await requestBaiduFanyi(text, s.id);
-                liang++;
-                render.digest();
+            try {
+                for (var s of this.supports) {
+                    if (fanyi[s.id] && fanyi[s.id].trim()) continue;
+                    fanyi[s.id] = await requestBaiduFanyi(text, s.id, from);
+                    liang++;
+                    render.digest();
+                }
+                if (item) item.liang = liang;
+            } catch (e) {
+                alert(e, 'error');
             }
-            if (item) item.liang = liang;
         },
         save() {
 
