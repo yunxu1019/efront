@@ -6,7 +6,7 @@ var assert = function (a, b) {
     else return console.info(i18n`验证通过`), 1;
 }
 var getElement = function (left, top, width, height) {
-    var element1 = createElement(sample)
+    var element1 = sample.cloneNode();
     var cssText = `left:${left}px;top:${top}px;width:${width}px;height:${height}px;background:${color.random()};opacity:.6`;
     text(element1, cssText);
     css(element1, cssText);

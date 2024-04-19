@@ -1,4 +1,5 @@
-function remove(node, transition) {
+function remove() {
+    var [node, transition] = arguments;
     if (!node) return;
     if (isNode(node)) {
         if (transition !== false) {
