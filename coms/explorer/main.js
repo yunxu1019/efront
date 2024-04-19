@@ -58,8 +58,8 @@ var touch = {
                         if (!drag.tip) {
                             var t = document.createElement('dragtip');
                             drag.tip = t;
-                            drag.target.appendChild(t);
-                            drag.target.style.zIndex = zIndex(0) + 2;
+                            drag.shadow.appendChild(t);
+                            drag.shadow.style.zIndex = zIndex(0) + 2;
                             css(t, {
                                 display: "bock",
                                 padding: "6px 10px",

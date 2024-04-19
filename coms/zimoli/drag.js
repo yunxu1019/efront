@@ -87,7 +87,6 @@ function drag(target, initialEvent, preventOverflow, isMovingSource) {
             dispatch("dragstart", target);
         }
         event.moveLocked = true;
-        drag.target = clone;
         var offsetLeft = saved_delta.x + event.screenX;
         var offsetTop = saved_delta.y + event.screenY;
         var [c_left, c_top] = getOffset(clone);

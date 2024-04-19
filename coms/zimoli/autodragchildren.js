@@ -14,7 +14,7 @@ var moveMarginX = function moveMarginX(element, movePixels) {
     }
 };
 var moveChildrenX = function (targetBox, previousElements, followedElements, moveMargin, recover) {
-    var dragTarget = drag.target;
+    var dragTarget = drag.shadow;
     if (dragTarget) {
         var area = overlap(dragTarget, targetBox);
         if (area > 0) {
@@ -55,7 +55,7 @@ var moveChildrenX = function (targetBox, previousElements, followedElements, mov
     }
 };
 var scrollX = function (targetBox, moveChildren) {
-    var dragTarget = drag.target;
+    var dragTarget = drag.shadow;
     if (!dragTarget || !targetBox) return;
     targetBox = getTargetIn(function (a) {
         var computed = getComputedStyle(a);
@@ -203,8 +203,14 @@ var hooka = function (matcher, move, event, targetChild, isMovingSource) {
         var dst, appendSibling, delta;
         var k0 = -1;
         for (var k0 in previousElements) break;
-        if (previousElements.length) var src = previousElements.length - k0;
-        else var src = 0;
+        var target = drag.target;
+        if (isMounted(target)) {
+            if (previousElements.length) var src = previousElements.length - k0;
+            else var src = 0;
+        }
+        else {
+            var src = target.index;
+        }
         if (k0 >= 0 && previousElements[k0].moved) for (var k in previousElements) {
             var cx = +k + 1;
             if (!previousElements[cx]) {
@@ -235,7 +241,7 @@ var hooka = function (matcher, move, event, targetChild, isMovingSource) {
         }
         if (appendSibling) {
             var children = targetBox.children;
-            var srcElement = children[src];
+            var srcElement = target;
             var dstElement = children[dst + delta];
             if (srcElement) {
                 src = bindTarget(src, isMovingSource ? targetChild : srcElement);
