@@ -187,6 +187,10 @@ class Program {
         };
         var row = 1, colstart = -1;
         var save = (type) => {
+            if (type & (SPACE | COMMENT | PIECE | QUOTED)) {
+                row += m.replace(/[^\r\n\u2028\u2029]+/g, '').replace(/\r\n|\r|\n|\u2028|\u2029/g, ' ').length;
+                colstart = match.index + m.replace(/[^\r\n\u2028\u2029]+$/, '').length - 1;
+            }
             if (lasttype === STAMP && type === STAMP && !/[,;\:]/.test(m)) {
                 var scope = queue[queue.length - 1];
                 if (/=>$/i.test(scope.text) ||
@@ -511,7 +515,6 @@ class Program {
                 queue.inExpress = true;
                 queue.end = index;
                 queue.text = text.slice(queue.start, index);
-                row += queue.text.replace(/[^\r\n\u2028\u2029]+/g, '').replace(/\r\n|\r|\n|\u2028\u2029/g, ',').length;
                 pop_parents();
                 continue;
             }
@@ -525,8 +528,6 @@ class Program {
             }
             if (this.space_reg.test(m)) {
                 if (/[\r\n\u2028\u2029]/.test(m)) {
-                    row += m.replace(/[^\r\n\u2028\u2029]+/g, '').replace(/\r\n|\r|\n|\u2028|\u2029/g, ' ').length;
-                    colstart = match.index + m.replace(/[^\r\n\u2028\u2029]+$/, '').length - 1;
                     var last = queue.last;
                     if (last && last.isend === false) {
                         last.isend = true;
