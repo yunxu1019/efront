@@ -53,6 +53,7 @@ var cloneChildren = function (td, copy, clone) {
             break;
         case "img":
             copy.src = td.src;
+        case "canvas":
             break;
         case "svg":
         case "math":
@@ -213,6 +214,9 @@ var cloneVisible = function (td) {
 var createElementFromNode = function (node) {
     if (node.namespaceURI && !/html$/i.test(node.namespaceURI)) {
         return document.createElementNS(node.namespaceURI, node.tagName);
+    }
+    if (/^canvas$/i.test(node.tagName)) {
+        return cloneCanvas(node);
     }
     return document.createElement(node.tagName);
 }
