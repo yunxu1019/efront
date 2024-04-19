@@ -189,7 +189,7 @@ class Program {
         var save = (type) => {
             if (type & (SPACE | COMMENT | PIECE | QUOTED)) {
                 row += m.replace(/[^\r\n\u2028\u2029]+/g, '').replace(/\r\n|\r|\n|\u2028|\u2029/g, ' ').length;
-                colstart = match.index + m.replace(/[^\r\n\u2028\u2029]+$/, '').length - 1;
+                colstart = start + m.length - m.replace(/^[\s\S]*?([^\r\n\u2028\u2029]*)$/, '$1').length - 1;
             }
             if (lasttype === STAMP && type === STAMP && !/[,;\:]/.test(m)) {
                 var scope = queue[queue.length - 1];
