@@ -197,7 +197,8 @@
         jschanged = false;
         var modName = name.replace(/\.js$/i, '_test');
         if (doc.test) {
-            var jstext = [], lessdata = [], htmldata = [];
+            jstext = [];
+            var lessdata = [], htmldata = [];
             for (var f of doc.test) {
                 var xhr = await cross("get", "./components:" + name.replace(/[^\\\/]+$/, '') + f);
                 if (/\.js$/i.test(f)) {
