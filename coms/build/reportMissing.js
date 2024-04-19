@@ -55,7 +55,7 @@ function reportMissing(responseTree) {
             if (!map[p]) map[p] = [];
             if (c) var k2 = `${c}${k}${colors.Reset}`;
             else k2 = `<red2>${k}</red2>`;
-            map[p].push(k2);
+            if (map[p].indexOf(k2) < 0) map[p].push(k2);
         }
     }
     var fileNameColor = console.format(' <green>;</green> ').split(';');
