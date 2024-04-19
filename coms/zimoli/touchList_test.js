@@ -8,6 +8,7 @@ onappend(listY, function () {
     listY.go(0);
 });
 touchList(listY);
+css(listY, "max-height", '360px');
 function touchList_test() {
     return listY;
 }
