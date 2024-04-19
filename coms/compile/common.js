@@ -1089,8 +1089,8 @@ var breakSpace = function (o) {
 };
 var hasBreakBetween = function (prev, next) {
     if (!prev || !next) return true;
-    if (prev.type === STAMP && /^[,;]$/.test(prev.text)) return true;
-    if (next.type === STAMP && /^[,;]$/.test(next.text)) return true;
+    if (prev.type === STAMP && /^[,;]/.test(prev.text)) return true;
+    if (next.type === STAMP && /^[,;]/.test(next.text)) return true;
     if (prev.type === EXPRESS && /\.$/.test(prev.text)) return true;
     if (next.type === EXPRESS && /^[\.\[]/.test(next.text)) return true;
 };
@@ -1328,7 +1328,7 @@ var createString = function (parsed) {
                     else if ((STRAP | EXPRESS | PROPERTY | COMMENT | VALUE) & lasttype && (STRAP | EXPRESS | PROPERTY | VALUE | LABEL) & o.type) {
                         if (autospace) result.push(" ");
                     }
-                    else if (o.prev && o.type === STAMP && !/^([,;])$/.test(o.text)) {
+                    else if (o.prev && o.type === STAMP && !/^[,;]/.test(o.text)) {
                         if (result[result.length - 1] === " " || (lasttype === PROPERTY || !o.isExpress && o.prev && o.prev.type !== LABEL) && o.text === ':') { }
                         else if (lasttype === STAMP) {
                             var prev = o.prev;

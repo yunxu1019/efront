@@ -94,13 +94,12 @@
     typescript.tags[0].push(["{", "}"]);
     var js = new compile$Javascript;
     js.tags[0].push(["{", "}"]);
-    js.keepspace = true;
     var codesupports = {
         javascript(a, blink) {
             if (blink) var index = a.indexOf(blink);
             if (index >= 0) a = a.slice(0, index) + a.slice(index + 1);
-            js.keepspace = !!blink;
             var c = compile$scanner2(a, js);
+            c.scoped;
             if (index >= 0) {
                 var patched = patchBlink(c, index, blink);
             }
@@ -137,7 +136,7 @@
     codesupports.jsx = codesupports.js = codesupports.javascript;
     codesupports.tsx = codesupports.ts = codesupports.typescript;
     codesupports.xml = codesupports.html;
-    var { SCOPED, QUOTED } = compile$common;
+    var { SCOPED, QUOTED, SPACE, EXPRESS } = compile$common;
     var patchBlink = function (code, index, blink) {
         for (var cx = 0, dx = code.length; cx < dx; cx++) {
             var c = code[cx];
@@ -195,6 +194,7 @@
             code.leave = blink + code.leave;
             return true;
         }
+        if (c) return c.text += blink, true;
         return false;
     };
     function codetext(type, text, blink) {

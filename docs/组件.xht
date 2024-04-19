@@ -369,13 +369,13 @@
         c.scrollLeft = scrollLeft;
         c.contentEditable = true;
     };
+    var trimspace = (_, a) => a ? "" : " ";
     var updatecode = lazy(function () {
         var trimreg = /[\s\u00a0\u2002\u0080]+([\}\{\;\[\]\(\)\,\>\<\+\-\*\&\^\/%!~:?])*/g;
         var innerText = coder.innerText;
         if (jstext.replace(trimreg, trimspace).trim() === innerText.replace(trimreg, trimspace).trim()) return;
         markAnchorOffset();
         var innerText = coder.innerText;
-        var trimspace = (_, a) => a ? "" : " ";
         unmarkAnchorOffset();
         initcode(innerText);
         unmarkAnchorOffset();

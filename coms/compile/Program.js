@@ -511,7 +511,7 @@ class Program {
                 queue.inExpress = true;
                 queue.end = index;
                 queue.text = text.slice(queue.start, index);
-                row += queue.text.replace(/[^\r\n\u2028\u2029]+/g, ':').replace(/\r\n/g, ',').replace(/:/g, '').length;
+                row += queue.text.replace(/[^\r\n\u2028\u2029]+/g, '').replace(/\r\n|\r|\n|\u2028\u2029/g, ',').length;
                 pop_parents();
                 continue;
             }
@@ -525,9 +525,8 @@ class Program {
             }
             if (this.space_reg.test(m)) {
                 if (/[\r\n\u2028\u2029]/.test(m)) {
-                    m = m.replace(/^[^\r\n\u2028\u2029]+/, '').replace(/\r\n|\r|\n|\u2028|\u2029/g, "\r\n");
-                    row += m.replace(/[^\r\n]+/g, '').length >> 1;
-                    colstart = match.index + m.replace(/[^\r\n]+$/, '').length - 1;
+                    row += m.replace(/[^\r\n\u2028\u2029]+/g, '').replace(/\r\n|\r|\n|\u2028|\u2029/g, ' ').length;
+                    colstart = match.index + m.replace(/[^\r\n\u2028\u2029]+$/, '').length - 1;
                     var last = queue.last;
                     if (last && last.isend === false) {
                         last.isend = true;

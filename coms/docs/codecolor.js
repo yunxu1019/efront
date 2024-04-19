@@ -9,6 +9,27 @@ predefs.Promise = true;
 var codecolor = function (c, encode) {
     var envs = c.envs;
     var deep = 0;
+    var used = c.used;
+    var setExpress = function (o, label) {
+        var text = o.text;
+        var keys = o.text.split(".");
+        var next = o.next;
+        if (next && next.type === SCOPED && next.entry === '(') {
+            keys[keys.length - 1] = `<invoke>${keys[keys.length - 1]}</invoke>`;
+        }
+        var [name0] = text.split(".");
+        var [name] = keys;
+        if (/^</.test(name0));
+        else if (/^(arguments|this|super|Infinity|NaN)$/.test(name0)) name = `<strap>${name}</strap>`;
+        keys[0] = name;
+        o.text = keys.map(k => /^\</.test(k) || !k ? k : `<${label}>${k}</${label}>`).join(".");
+    }
+    var setPredef = o => setExpress(o, 'predef');
+    var setOutside = o => setExpress(o, 'outside');
+    for (var k in envs) {
+        used[k].forEach(k in predefs ? setPredef : setOutside);
+    }
+
     var setcolor = function (o) {
         var text = o.text;
         switch (o.type) {
@@ -61,18 +82,7 @@ var codecolor = function (c, encode) {
 
                 break;
             case EXPRESS:
-                var keys = o.text.split(".");
-                var next = o.next;
-                if (next && next.type === SCOPED && next.entry === '(') {
-                    keys[keys.length - 1] = `<invoke>${keys[keys.length - 1]}</invoke>`;
-                }
-                var [name0] = text.split(".");
-                var [name] = keys;
-                if (/^</.test(name0));
-                else if (/^(arguments|this|super|Infinity|NaN)$/.test(name0)) name = `<strap>${name}</strap>`;
-                else if (name0 in envs) name = name0 in predefs ? `<predef>${name}</predef>` : `<outside>${name}</outside>`;
-                keys[0] = name;
-                o.text = keys.map(k => /^\</.test(k) || !k ? k : `<express>${k}</express>`).join(".");
+                setExpress(o, 'express');
                 break;
             case STRAP:
                 if (/^(if|else|switch|case|do|while|for|break|continue|default|import|from|as|export|try|catch|finally|throw|await|yield|return)$/.test(text))
