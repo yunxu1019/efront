@@ -26,7 +26,7 @@ var codecolor = function (c, encode) {
     }
     var setPredef = o => setExpress(o, 'predef');
     var setOutside = o => setExpress(o, 'outside');
-    for (var k in envs) {
+    if (used) for (var k in envs) {
         used[k].forEach(k in predefs ? setPredef : setOutside);
     }
 

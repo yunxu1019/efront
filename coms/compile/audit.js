@@ -141,13 +141,22 @@ var suggest = {
         var { used, args } = body.scoped;
         if (!args?.length) return;
         var access_start = body.reststart ?? args?.length;
+        var checkNames = ["arguments"];
         a: if (access_start > 0) {
             for (var a of used.arguments) {
                 if (a.text !== 'arguments') continue;
                 var n = a.next;
                 if (!n || n.type !== SCOPED || n.entry !== '[') {
                     access_start = 0;
-                    break a;
+                    var p = a.prev;
+                    while (p && p.type === STAMP && p.text === '=') {
+                        var pp = p.prev;
+                        if (pp?.type === EXPRESS) {
+                            checkNames.push(pp.text);
+                        }
+                        p = pp.prev;
+                    }
+                    continue;
                 }
                 if (n.last && n.last === n.first) {
                     if (n.last.isdigit) {
@@ -159,7 +168,6 @@ var suggest = {
         }
         if (access_start >= args.length) return;
         var broken = false;
-        var arguments = used.arguments;
         var arg_start = Infinity;
         a: for (var a of args) {
             if (access_start > 0) {
@@ -185,8 +193,14 @@ var suggest = {
             }
         }
         if (!broken) return;
-        arguments = arguments.filter(a => a.start >= arg_start);
-        if (!arguments.length) return;
+        a: {
+            for (var a of checkNames) {
+                var args = used[a];
+                args = args.filter(a => a.start >= arg_start);
+                if (args.length) break a;
+            }
+            return;
+        }
         var h = snapSentenceHead(body);
         var matched = [];
         while (h && h !== body) {
