@@ -197,32 +197,24 @@
         jschanged = false;
         var modName = name.replace(/\.js$/i, '_test');
         if (doc.test) {
-            jstext = [];
             var lessdata = [], htmldata = [];
+            jstext = [];
             for (var f of doc.test) {
-                var xhr = await cross("get", "./components:" + name.replace(/[^\\\/]+$/, '') + f);
-                if (/\.js$/i.test(f)) {
-                    jstext.push(xhr.response);
+                if (/\.xht$/i.test(f)) {
+                    if (isProduction) alert(i18n`这个文件内的测试代码暂不支持在线查看`, 'error');
+                    else jstext.push(`return ${modName.replace(/\//g, '$')}`);
                 }
-                else if (/\.less$/i.test(f)) {
-                    lessdata.push(xhr.response);
-                }
-                else if (/\.html$/i.test(f)) {
-                    htmldata.push(xhr.response);
-                }
-                else if (/\.xht$/i.test(f)) {
-                    alert(i18n`这个文件内的测试代码暂不支持`, 'error');
-                    break;
-                    htmldata.push(xhr.response
-                        .replace(/\<script\>([\s\S]*?)\<\/script\>/ig, function (_, s) {
-                            jstext.push(s);
-                            return '';
-                        })
-                        .replace(/\<style\>([\s\S]*?)\<\/style\>/ig, function (_, s) {
-                            lessdata.push(s);
-                            return '';
-                        }));
-
+                else {
+                    var xhr = await cross("get", "./components:" + name.replace(/[^\\\/]+$/, '') + f);
+                    if (/\.js$/i.test(f)) {
+                        jstext.push(xhr.response);
+                    }
+                    else if (/\.less$/i.test(f)) {
+                        lessdata.push(xhr.response);
+                    }
+                    else if (/\.html$/i.test(f)) {
+                        htmldata.push(xhr.response);
+                    }
                 }
             }
             jstext = jstext.join("\r\n");
