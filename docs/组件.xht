@@ -253,7 +253,7 @@
                 else if (vars.main) jstext += '\r\nreturn main';
                 else if (vars.Main) jstext += '\r\nreturn Main';
                 else if (vars.MAIN) jstext += "\r\nreturn MAIN";
-                else if (vars[modName]) jstext += "\r\nreturn " + modName;
+                else if (vars[commName]) jstext += "\r\nreturn " + commName;
             }
             var templateName = commName;
             if (envs.template) templateName = 'template';
