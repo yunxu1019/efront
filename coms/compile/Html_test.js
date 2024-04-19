@@ -20,3 +20,7 @@ test('<!--<input ng-model=data.name/>-->');
 test('<div><!--<input ng-model=data.name/>--></div>');
 test('<div><div>{</div><div>}</div></div>');
 test('<div>${`<div></div>`}</div>');
+test('<div>\\${${`<div></div>`}</div>');
+test('<div>$\\{${`<div></div>`}</div>');
+test('<div>$\\{${typeof `<div></div>`}</div>');
+test('<div>$\\{${\\a+typeof`<div></div>`}</div>','<div>$\\{${\\a + typeof `<div></div>`}</div>');
