@@ -297,6 +297,7 @@ function grid(breakpoints) {
         }
     } else {
         grid.setData(breakpoints);
+        grid.forEachCell(e => e.target = document.createElement('cell'));
         grid.reshape();
     }
     grid.setAttribute("grid", "");
@@ -448,7 +449,7 @@ var grid_prototype = {
             if (points instanceof Array) {
                 points.forEach(run);
             }
-            if (points.target) {
+            if (!points.length) {
                 call.call(thisObj, points);
             }
         };
@@ -547,9 +548,6 @@ var grid_prototype = {
                 current_b = temp_b;
             } else {
                 var _div = point.target;
-                if (!_div) {
-                    // point.target = _div = document.createElement('cell');
-                }
                 if (_div && _div.parentNode !== grid) appendChild(grid, _div);
                 var current_value;
                 if (current_d === "x") {
