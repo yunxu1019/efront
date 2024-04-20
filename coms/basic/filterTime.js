@@ -87,7 +87,8 @@ function filterTime(time, formater) {
     var [year1, month1, date1, hour1, minute1, second1, milli1, day1] = getSplitedDate(now);
     var today = new Date(year1, month1 - 1, date1);
     var thatday = new Date(year, month - 1, date);
-    var delta = (today - thatday) / 24 / 3600000;
+    var delta = (today - thatday) / 24 / 3600000 | 0;
+    var deltaSeconds = (new Date(year1, month1 - 1, date1, hour1, minute1, second1) - new Date(year, month - 1, date, hour, minute, second)) / 1000;
     if (minute === 0 && second === 0) var time = hour + "点整";
     else if (minute === 30 && second === 0) time = hour + "点半";
     else time = `${hour}:${fixLength(minute)}`;
@@ -103,18 +104,25 @@ function filterTime(time, formater) {
         }
         return `星期` + days[day] + time;
     }
+    if (deltaSeconds >= 0 && deltaSeconds > 60) {
+        return `刚刚`;
+    }
+    if (deltaSeconds < 0) {
+        if (deltaSeconds > -120) {
+            return `${-deltaSeconds | 0}秒后`;
+        }
+        if (deltaSeconds >= -3600) {
+            return `还有${-deltaSeconds / 60 | 0}分钟`;
+        }
+        if (deltaSeconds > -86400) {
+            var a = -deltaSeconds / 3600 | 0;
+            var b = (-deltaSeconds - (deltaSeconds / 3600 | 0) * 3600) / 60 | 0;
+            if (b === 0) return `还有${a}小时`;
+            return `还有${a}小时${b}分钟`;
+        }
+    }
     switch (delta) {
         case 0:
-            if (minute === minute1 && hour === hour1) {
-                if (second <= second1) return `刚刚`;
-                return `${second - second1}秒后`;
-            }
-            else if (value > now) {
-                if (hour === hour1) {
-                    return `${minute - minute1}分钟后`;
-                }
-                return `还有${hour - hour1}小时${minute - minute1}分钟`;
-            }
             return time;
         case -1:
             return "明天" + time;
