@@ -104,11 +104,11 @@ function filterTime(time, formater) {
         }
         return `星期` + days[day] + time;
     }
-    if (deltaSeconds >= 0 && deltaSeconds > 60) {
+    if (deltaSeconds >= 0 && deltaSeconds < 60) {
         return `刚刚`;
     }
     if (deltaSeconds < 0) {
-        if (deltaSeconds > -120) {
+        if (deltaSeconds > -60) {
             return `${-deltaSeconds | 0}秒后`;
         }
         if (deltaSeconds >= -3600) {
@@ -116,7 +116,7 @@ function filterTime(time, formater) {
         }
         if (deltaSeconds > -86400) {
             var a = -deltaSeconds / 3600 | 0;
-            var b = (-deltaSeconds - (deltaSeconds / 3600 | 0) * 3600) / 60 | 0;
+            var b = (-deltaSeconds + (deltaSeconds / 3600 | 0) * 3600) / 60 | 0;
             if (b === 0) return `还有${a}小时`;
             return `还有${a}小时${b}分钟`;
         }
