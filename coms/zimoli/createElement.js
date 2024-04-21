@@ -27,7 +27,10 @@ var prototype = {
         return child;
     },
     appendChild(child) {
+        var _appendChild = this.appendChild
+        delete this.appendChild;
         appendChild(this, child, false);
+        if (_appendChild) this.appendChild = _appendChild;
         return child;
     },
     appendTo(target) {
