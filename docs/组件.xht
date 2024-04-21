@@ -99,7 +99,7 @@
         z-index: 1;
     }
 </style>
-<form onclick="event.preventDefault()">
+<form onsubmit="event.preventDefault()">
     <xmenu -src="(t,i) in tags" @active="saveTagIndex(i)"></xmenu>
     <h2 head>
         <span -bind="name"></span>
@@ -123,7 +123,6 @@
             <span -else>
                 ${i18n`无导入项`}
             </span>
-            a
         </p4>
     </div>
     <div body onkeyup="!event.isComposing&&updatecode(event)" onkeydown.tab="keytab(event)" onkeyup.enter="ontab(false)"
