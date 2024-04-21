@@ -12,7 +12,7 @@ var abs = Math.abs;
  */
 function slider() {
     var [autoplay, circle = true] = arguments;
-    var outter = container.cloneNode();
+    var outter = null;
     {
         for (let cx = 0, dx = arguments.length; cx < dx; cx++) {
             let arg = arguments[cx];
@@ -25,6 +25,7 @@ function slider() {
             }
         }
     }
+    if (!outter) outter = container.cloneNode();
     var _imageMain = _slider.cloneNode();
     var _imageHelp = _slider.cloneNode();
     outter.src = function (index) {

@@ -5,7 +5,7 @@ render(page, {
     btn: button,
     slider(element) {
         var images = [1, 2, 3].map(function (i) {
-            var ele = createElement(div);
+            var ele = document.createElement("div");
             text(ele, i);
             return ele;
         });
