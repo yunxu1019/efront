@@ -374,7 +374,6 @@
     var getEnspBefore = function (node) {
         if (!node) return 0;
         while (node && (node.nodeType !== 1 || !/^br$/i.test(node.tagName))) {
-            console.log(node)
             node = node.previousSibling;
         }
         if (node) {
