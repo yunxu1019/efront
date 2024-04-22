@@ -18,7 +18,7 @@ var codecolor = function (c, encode) {
             if (!/^\</.test(keys[keys.length - 1])) keys[keys.length - 1] = `<invoke>${keys[keys.length - 1]}</invoke>`;
         }
         var [name] = keys;
-        if (/^\</.test(name));
+        if (/^[\<\?]/.test(name) || !name);
         else if (c.program?.strap_reg.test(name) || c.program?.value_reg.test(name) || /^(this|arguments)$/.test(name)) name = `<strap>${name}</strap>`;
         else name = `<${label}>${name}</${label}>`;
         keys[0] = name;
