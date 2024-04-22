@@ -1,3 +1,9 @@
+- zh-CN: 这个文件的内容不能在非nodejs环境中运行
+  en:    The content of this file cannot be run in a non nodejs environment
+
+- zh-CN: 这个文件的内容不能在线运行
+  en:    The content of this file cannot be run online
+
 - zh-CN: 这个文件内的测试代码暂不支持在线查看
   en:    The test code in this file does not currently support online viewing
 

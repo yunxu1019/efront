@@ -193,9 +193,10 @@
         render.refresh();
         if (tags[1].actived) loadcode();
     });
+    var modName = '';
     var loadcode = async function () {
         jschanged = false;
-        var modName = name.replace(/\.js$/i, '_test');
+        modName = name.replace(/\.js$/i, '_test');
         if (doc.test) {
             var lessdata = [], htmldata = [];
             jstext = [];
@@ -427,6 +428,14 @@
             data.patchInstance("docscode", { codetext: jstext })
             var code = compile$scanner2(jstext);
             var envs = code.envs;
+            if (envs.require && !window.require) {
+                throw i18n`这个文件的内容不能在非nodejs环境中运行`;
+            }
+            for (var k in envs) {
+                if (/\_test/i.test(k) && k !== modName) {
+                    if (isProduction) throw i18n`这个文件的内容不能在线运行`;
+                }
+            }
             var argNames = Object.keys(envs);
             var args = await Promise.all(argNames.map(a => init(a + "*" + live, null, { ["init*" + live]: init, ["put*" + live]: put, ["zimoli*" + live]: zimoli, ["appendChild*" + live]: appendChild, ["remove*" + live]: remove, ["render*" + live]: render })));
             var func = createFunction("", jstext, argNames, code.async, code.yield);
