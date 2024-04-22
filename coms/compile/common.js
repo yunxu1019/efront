@@ -320,7 +320,7 @@ function snapSentenceHead(o) {
                 o = p;
                 continue;
             }
-            if (o.type === STRAP && /^(in|instanceof|of|as|from)$/.test(o.text)) {
+            if (o.type === STRAP && /^(in|instanceof|of|as|from)$/.test(o.text) || o.type === STAMP && !o.unary) {
                 o = p;
                 continue;
             }
