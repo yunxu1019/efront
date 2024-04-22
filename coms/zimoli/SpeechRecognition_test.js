@@ -1,6 +1,6 @@
 function main() {
     var page = div();
-    page.innerHTML = SpeechReconigition_test;
+    page.innerHTML = SpeechRecognition_test;
     var rec = new SpeechRecognition;
     rec.onresult = function (event) {
         console.log('result', event);
