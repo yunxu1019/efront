@@ -11,18 +11,18 @@ var codecolor = function (c, encode) {
     var deep = 0;
     var used = c.used;
     var setExpress = function (o, label) {
-        var text = o.text;
+        if (!o.text) return;
         var keys = o.text.split(".");
         var next = o.next;
         if (next && next.type === SCOPED && next.entry === '(') {
-            keys[keys.length - 1] = `<invoke>${keys[keys.length - 1]}</invoke>`;
+            if (!/^\</.test(keys[keys.length - 1])) keys[keys.length - 1] = `<invoke>${keys[keys.length - 1]}</invoke>`;
         }
-        var [name0] = text.split(".");
         var [name] = keys;
-        if (/^</.test(name0));
-        else if (/^(arguments|this|super|Infinity|NaN)$/.test(name0)) name = `<strap>${name}</strap>`;
+        if (/^\</.test(name));
+        else if (c.program?.strap_reg.test(name) || c.program?.value_reg.test(name) || /^(this|arguments)$/.test(name)) name = `<strap>${name}</strap>`;
+        else name = `<${label}>${name}</${label}>`;
         keys[0] = name;
-        o.text = keys.map(k => /^\</.test(k) || !k ? k : `<${label}>${k}</${label}>`).join(".");
+        o.text = keys.map(k => /^\</.test(k) || !k ? k : `<express>${k}</express>`).join(".");
     }
     var setPredef = o => setExpress(o, 'predef');
     var setOutside = o => setExpress(o, 'outside');
