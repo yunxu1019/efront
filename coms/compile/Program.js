@@ -558,8 +558,13 @@ class Program {
             }
             var isdigit = number_reg.exec(m);
             if (isdigit) {
-                m = isdigit[0];
-                index = match.index + m.length;
+                var m1 = isdigit[0];
+                if (m1.length < m.length) {
+                    if (m.charAt(m1.length) === ".") {
+                        m = m1;
+                        index = match.index + m.length;
+                    }
+                }
                 isdigit = true;
             }
             if (this.value_reg.test(m) || isdigit) {
