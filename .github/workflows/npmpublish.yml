@@ -112,7 +112,7 @@ jobs:
     steps:
       - uses: actions/setup-node@v1
         with:
-          node-version: 12
+          node-version: 21
           registry-url: https://registry.npmjs.org/
       - run: npm install -g efront
       - run: efront version
