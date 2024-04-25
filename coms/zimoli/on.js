@@ -416,7 +416,7 @@ var on = document.efronton = function (k) {
 var invoke = function (event, type, pointerType) {
     var target = event.target;
     var touch = event.changedTouches ? event.changedTouches[0] : event;
-    var clickEvent = document.createEvent("MouseEvents");
+    var clickEvent = createEvent("MouseEvents");
     clickEvent.touchend = true;
     clickEvent.pointerType = pointerType
     clickEvent.initMouseEvent(type, true, true, window, 1, touch.screenX, touch.screenY, touch.clientX, touch.clientY, false, false, false, false, 0, null);
@@ -426,6 +426,7 @@ var invoke = function (event, type, pointerType) {
 (function () {
     var pointeractive = null;
     if ("onpointerdown" in document) return;
+    document.onpointerdown = null;
     var getPointerType = function (event) {
         return event.type.replace(/(start|move|end|cancel|down|up|leave|out|over|enter)$/i, '');
     };

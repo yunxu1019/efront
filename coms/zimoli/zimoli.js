@@ -603,7 +603,7 @@ function addGlobal(element, name = null, isDestroy) {
         }
         if (isFunction(body.layer)) {
             body.layer(element, oldElement, history);
-        } else {
+        } else if (body !== element) {
             if (isDestroy || !oldElement) appendChild.insert(body, element);
             else appendChild.after(oldElement, element);
             remove(oldElement);

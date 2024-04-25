@@ -71,8 +71,8 @@ function alert() {
         } else {
             elem = _text(elem, styles.log, [text]);
         }
-        if (!container.parentNode) popup(container);
-        if (!elem.parentNode) appendChild(container, elem);
+        if (!isMounted(container)) popup(container);
+        if (!isMounted(elem)) appendChild(container, elem);
         waitclose(autoclose, 400);
         return elem;
     };

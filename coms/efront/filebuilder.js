@@ -4,7 +4,18 @@ var require2 = require("./require2");
 var builder;
 var path = require("path");
 var memery = require("./memery");
+var fs = require("fs");
+var xmlhttprequest_codetext = '';
+var getXMLHttpRequest = function () {
+    if (!xmlhttprequest_codetext) {
+        xmlhttprequest_codetext = fs.readFileSync(path.join(__dirname, "../zimoli/XMLHttpRequest.js")).toString();
+    }
+    return xmlhttprequest_codetext;
+}
 var liveload = () => `function () {
+    if(!location.reload)location.reload=function(){
+        Window.this.load(location.href);
+    };
     var reloadCount = 0;
     var reload = function () {
         if (reloadCount > 72) return;
@@ -27,7 +38,9 @@ var liveload = () => `function () {
     reload();
 }`;
 var efronthook = `function (body, window) {
-    var xhr = new (window.XMLHttpRequest || ActiveXObject)('Microsoft.XMLHTTP');
+    var XMLHttpRequest = function () {${getXMLHttpRequest()}}.call(window);
+    if(!window.XMLHttpRequest) window.XMLHttpRequest = XMLHttpRequest;
+    var xhr = new XMLHttpRequest;
     xhr.onreadystatechange = function () {
         if (xhr.readyState === 4) {
             new Function(xhr.responseText).call(window);

@@ -141,7 +141,7 @@ function confirm() {
     element.tabIndex = -1;
 
     Promise.resolve().then(function () {
-        if (element.parentNode) return;
+        if (isMounted(element)) return;
         element.mask = true;
         popup(element, target || [.5, .5], target ? 'rhomb' : true);
         element.focus();

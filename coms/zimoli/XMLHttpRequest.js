@@ -14,14 +14,11 @@ return class XMLHttpRequest {
         this.url = url;
     }
     send(data) {
-        var u = new URL(this.url);
-        if (!u.host) u.host = location.host || 'localhost'
-        this.fetch(this.url, { method: this.method }).then(d => {
-            
+        this.fetch(this.url, { method: this.method, headers: { referer: document.location.href.replace(/^#[\s\S]*$/g, '') } }).then(async d => {
             this.fetched = d;
             this.readyState = 4;
             this.status = d.status;
-            this.responseText = d.text();
+            this.responseText = await d.text();
             if (this.onreadystatechange) this.onreadystatechange({ target: this });
             if (this.onload) this.onload({ target: this });
         }, e => {

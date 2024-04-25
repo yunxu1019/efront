@@ -13,7 +13,7 @@ async function getRequestEnv(req) {
         referer = unescape(referer);
     }
     referer = await proxy(req, referer);
-    var appname = parseURL(referer).pathname;
+    var appname = parseURL(referer).pathname || '/';
     appname = appname.replace(/^\/|\/[^\/]*$/g, '');
     var env = setupenv(appname);
     if (!env.reload) env.reload = onreload;
