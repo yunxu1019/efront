@@ -485,28 +485,27 @@ var grid_prototype = {
             if (rest_height < 1) {
                 return (height - rest_height) / (grid_height - bounds_bottom - bounds_top) * 100 + "%";
             }
-            var rest_offset = fromOffset(rest_height / (bounds_top + bounds_bottom) * (parseFloat(grid_padding_top) + parseFloat(grid_padding_bottom)));
+            var rest_offset = rest_height / (bounds_top + bounds_bottom) * (grid_padding_top + grid_padding_bottom);
             if (rest_height < height) {
-                return `calc(${(height - rest_height) / (grid_height - bounds_bottom - bounds_top) * 100}% + ${rest_offset})`;
+                return `calc(${(height - rest_height) / (grid_height - bounds_bottom - bounds_top) * 100}% + ${fromOffset(rest_offset)})`;
             }
-            return rest_offset;
+            return height / rest_height * rest_offset;
         }
         var setRelativeDiv = function (_div, width, height, left, top) {
             var [bounds_top, bounds_right, bounds_bottom, bounds_left] = bounds;
-            var computed = getComputedStyle(grid);
             css(_div, {
-                width: getDivSize(left, width, bounds_left, bounds_right, grid.width, computed.paddingLeft, computed.paddingRight),
-                height: getDivSize(top, height, bounds_top, bounds_bottom, grid.height, computed.paddingTop, computed.paddingBottom)
+                width: getDivSize(left, width, bounds_left, bounds_right, grid.width, grid_left, grid_right),
+                height: getDivSize(top, height, bounds_top, bounds_bottom, grid.height, grid_top, grid_bottom)
             });
             if (top <= 0) {
-                css(_div, { marginTop: fromOffset(- parseFloat(computed.paddingTop)) });
+                css(_div, { marginTop: fromOffset(- grid_top) });
             } else if (top + height >= grid.height) {
-                css(_div, { marginBottom: fromOffset(-parseFloat(computed.paddingBottom)) });
+                css(_div, { marginBottom: fromOffset(-grid_bottom) });
             }
             if (left <= 0) {
-                css(_div, { marginLeft: fromOffset(-parseFloat(computed.paddingLeft)) });
+                css(_div, { marginLeft: fromOffset(-grid_left) });
             } else if (left + width >= grid.width) {
-                css(_div, { marginRight: fromOffset(-parseFloat(computed.paddingRight)) });
+                css(_div, { marginRight: fromOffset(-grid_right) });
             }
         }
         var append = function (point, index, points) {
@@ -607,6 +606,11 @@ var grid_prototype = {
                 }
             }
         };
+        var computed = getComputedStyle(grid);
+        var grid_top = parseFloat(computed.paddingTop);
+        var grid_bottom = parseFloat(computed.paddingBottom);
+        var grid_left = parseFloat(computed.paddingLeft);
+        var grid_right = parseFloat(computed.paddingRight);
         append(this.breakpoints);
         var reshapecount = 0;
         var store = function (point) {
