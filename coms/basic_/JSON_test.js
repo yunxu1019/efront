@@ -155,7 +155,13 @@ var test2 = function (JSON) {
         "ratio": 1,
         "readonly": true
     }];
-    assert(JSON.stringify(data, null, 4), JSON0.stringify(data, null, 4))
+    var unicode = a => a.replace(/\\u([a-f\d]{4})/g, (_, a) => String.fromCharCode(parseInt(a, 16)));
+    assert(unicode(JSON.stringify(data, null, 4)), JSON0.stringify(data, null, 4))
+    var filter = function (k, o) {
+        if (typeof o !== 'object' || o.length) return o;
+        return { name: o.name };
+    }
+    assert(unicode(JSON.stringify(data, filter, 4)), JSON0.stringify(data, filter, 4));
 }
 function JSON_test() {
     window.JSON0 = JSON0;

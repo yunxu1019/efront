@@ -145,11 +145,7 @@ var getString = function (object, filter, space) {
             object = object.toISOString();
         }
         if (hasFilter) {
-            var object1 = filter(key, object);
-            if (isObject(object1) && object !== object1) {
-                object1 = getString(object1, filter, space);
-            }
-            object = object1;
+            object = filter(key, object);
         }
         switch (typeof object) {
             case "object":
