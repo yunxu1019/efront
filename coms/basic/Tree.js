@@ -110,10 +110,13 @@ class Tree extends Array {
         }
         return root;
     }
-    static toArray(root, skipClosed = true) {
+    static toArray(root, skipClosed = 1) {
+        var autoJoin = typeof skipClosed === 'number' && skipClosed === skipClosed;
+        if (autoJoin) autoJoin = skipClosed < 0 ? -skipClosed : skipClosed;
         var path = [root], pathcx = [0];
         var result = [];
         var max_deep = 1;
+        var joined = 0;
         loop: while (pathcx.length) {
             var pathindex = pathcx.length - 1;
             var cx = pathcx[pathindex];
@@ -127,6 +130,16 @@ class Tree extends Array {
             elem.parent = item;
             result.push(elem);
             pathcx[pathindex] = ++cx;
+            if (autoJoin && elem.length === 1) {
+                joined = 1;
+                while (joined < autoJoin && elem.length === 1) {
+                    if (!elem[0].children) break;
+                    item = elem;
+                    elem = elem[0];
+                    item.joined = true;
+                    joined++;
+                }
+            }
             if (!skipClosed || !elem.isClosed()) {
                 if (elem.length) {
                     path.push(elem);

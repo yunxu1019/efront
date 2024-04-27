@@ -1,8 +1,10 @@
 var getTreeFromArray = Tree.fromArray;
 function buildCrack(com, set) {
-    var count = com.length;
-    for (var cx = 0, dx = com.length; cx < dx; cx++) {
-        var c = com[cx];
+    var coms = com;
+    while (coms.joined) coms = coms[0];
+    var count = coms.length;
+    for (var cx = 0, dx = coms.length; cx < dx; cx++) {
+        var c = coms[cx];
         if (!c.isClosed() && c.length) {
             count += buildCrack(c, false);
         }
@@ -13,11 +15,12 @@ function buildCrack(com, set) {
     return count;
 }
 
-function getCrackTarget(com) {
+function getChildrenBottom(com) {
+    while (com.joined) com = com[0];
     for (var cx = com.length - 1; cx >= 0; cx--) {
         var c = com[cx];
         if (!c.isClosed() && c.length) {
-            var t = getCrackTarget(c);
+            var t = getChildrenBottom(c);
             if (t) {
                 return t;
             }
@@ -68,14 +71,27 @@ function tree() {
         if (isFunction(generator)) {
             var elem = generator(index, com.constructor === Item ? com.value : com, com);
             if (!elem) return;
+            var c = com;
+            while (c.joined) {
+                c = c[0];
+                var e = generator(index, c.constructor === Item ? c.value : c, c);
+                appendChild(elem, e.childNodes);
+            }
             span = document.createElement('span');
             span.innerHTML = tabs;
             span.setAttribute("tabs", '');
             elem.insertBefore(span, elem.firstChild);
             span = elem;
         } else {
+            var name = c => `<c>${c.name}</c>${c.test ? "<i>_test</i>" : ""}`;
+            var c = com;
+            var names = [name(c)];
+            while (c.joined) {
+                c = c[0];
+                names.push(name(c));
+            }
             span = document.createElement("node");
-            html(span, `<span tabs>${tabs}</span><c>${com.name}</c>${com.test ? "<i>_test</i>" : ""}<a class=count>${com.count}</a>`);
+            html(span, `<span tabs>${tabs}</span>${names.join('/')}<a class=count>${com.count}</a>`);
             span.count = span.lastElementChild;
         }
         var _div = button(span);
@@ -159,6 +175,10 @@ function tree() {
         };
         com.target = _div;
         _div.refresh();
+        var getChildrenTop = function (com) {
+            while (com.joined) com = com[0];
+            return com[0]?.target;
+        }
         onclick(_div, function (event) {
             var isClosed = com.isClosed();
             if (!active(banner, com.value, com, banner.$src ? createItemTarget.call(banner, com.value) : _div)) {
@@ -195,8 +215,8 @@ function tree() {
             if (com.isClosed() && com.length) {
                 z0();
                 setState(true);
-                var bottom = getCrackTarget(com);
-                var top = com[0].target;
+                var bottom = getChildrenBottom(com);
+                var top = getChildrenTop(com);
                 if (!top) return refresh();
                 var marginTop;
                 if (!bottom || !bottom.offsetTop) {
@@ -242,10 +262,14 @@ function tree() {
         appendTo(parent, data);
         refresh();
     };
+    if (!('joined' in banner)) {
+        var joined = banner.hasAttribute("join") && !/^(false|0|null|nill?)/i.test(banner.getAttribute('join')) || banner.join;
+        banner.joined = joined != undefined ? joined : 7;
+    }
     var refresh = function () {
         var index = banner.index();
         var needremoves = dom.map(d => d.target).filter(d => !!d);
-        dom = getArrayFromTree(root, true);
+        dom = getArrayFromTree(root, banner.joined);
         remove(needremoves, false);
         banner.go(index || 0);
         css(banner, { paddingBottom: '' });

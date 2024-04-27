@@ -15,7 +15,6 @@ class Item extends Array {
     extended = false;
     constructor(value) {
         super();
-        this.children = this;
         this.count = 0;//子项中的叶子节点数
         this.total = 0;//子项中的节点数
         this.crack = 0;
@@ -29,6 +28,7 @@ class Item extends Array {
         if (value && value.children instanceof Array) {
             var children = value.children.map(item => new Item(item));
             children.forEach(item => item.parent = item);
+            this.children = this;
             this.push.apply(this, children);
         }
         if (isObject(value)) {
@@ -82,6 +82,11 @@ class Item extends Array {
     setClosed(value) {
         if (isObject(this.value)) this.value.closed = value;
         else this.closed = value;
+        var c = this;
+        while (c.joined) {
+            c = c[0];
+            c.setClosed(value);
+        }
     }
     isActive() {
         if (isObject(this.value)) {
