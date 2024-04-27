@@ -72,6 +72,18 @@ function ylist(container, generator, $Y) {
         }
         return null;
     };
+    var getRelativeElement = function (element, delta) {
+        delta = +delta;
+        if (!delta || !isFinite(element.index)) return;
+        var target = element.index + delta;
+        if (!target) return;
+        if (delta < 0) var key = "previousElementSibling";
+        else key = "nextElementSibling";
+        while (element) {
+            if (element.index === target) return element;
+            element = element[key];
+        }
+    }
     var hasCover = function (child) {
         var scrollTop = list.scrollTop;
         if (child.offsetTop + child.offsetHeight < scrollTop || child.offsetTop >= scrollTop + list.clientHeight) return false;
@@ -581,6 +593,7 @@ function ylist(container, generator, $Y) {
         else if (emit) list.setFocus(e, true), dispatch(list, 'focused');
         else list.setFocus(e);
     };
+    list.getRelativeElement = getRelativeElement;
     return list;
 }
 var allArgumentsNames = arguments[arguments.length - 1];
@@ -667,6 +680,5 @@ function list() {
         if (src && old) children = Array.prototype.filter.call(children, c => src[c.index] !== old[c.index]);
         remove(children);
     };
-
     return list;
 }

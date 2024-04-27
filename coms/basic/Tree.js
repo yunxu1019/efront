@@ -136,6 +136,7 @@ class Tree extends Array {
                     if (!elem[0].children) break;
                     item = elem;
                     elem = elem[0];
+                    elem.parent = item;
                     item.joined = true;
                     joined++;
                 }

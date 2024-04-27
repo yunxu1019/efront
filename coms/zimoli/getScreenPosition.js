@@ -1,4 +1,4 @@
-function getScreenPosition(target) {
+function getScreenPosition(target, bounding = true) {
     if (!target) {
         target = {
             offsetTop: 0,
@@ -12,7 +12,7 @@ function getScreenPosition(target) {
             top = target.offsetTop,
             width = target.offsetWidth,
             height = target.offsetHeight;
-        while (target.offsetParent) {
+        if (bounding) while (target.offsetParent) {
             target = target.offsetParent;
             left += target.offsetLeft - target.scrollLeft + target.clientLeft;
             top += target.offsetTop - target.scrollTop + target.clientTop;
@@ -30,10 +30,10 @@ function getScreenPosition(target) {
     }
     var rect = target.getBoundingClientRect();
     var { left, top, width, height, right, bottom } = rect;
-    rect = { left, top, width, height, right, bottom };
-    if (rect.width === undefined) {
-        rect.width = rect.right - rect.left;
-        rect.height = rect.bottom - rect.top;
+    if (width === undefined) {
+        width = right - left;
+        height = bottom - top;
     }
+    rect = { left, top, width, height, right, bottom };
     return rect;
 }

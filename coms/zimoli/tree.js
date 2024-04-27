@@ -32,7 +32,7 @@ function getChildrenBottom(com) {
 
 var getArrayFromTree = Tree.toArray;
 var appendTo = Tree.appendTo;
-
+var getOffset = e => getScreenPosition(e, false);
 function tree() {
     var element, generator;
     [].forEach.call(arguments, function (arg) {
@@ -55,18 +55,8 @@ function tree() {
         banner.setData(this.src);
         this.src = root;
     });
-
-    var banner = list(element, function (index) {
-        var coms = dom;
-        if (index >= coms.length) return;
-        var com = coms[index];
+    var createChild = function (com, index) {
         var span;
-        if (!com) return;
-        if (com.target) {
-            com.target.index = index;
-            com.target.refresh();
-            return com.target;
-        }
         var tabs = new Array(com.tab + 1).join("<t></t>");
         if (isFunction(generator)) {
             var elem = generator(index, com.constructor === Item ? com.value : com, com);
@@ -96,7 +86,6 @@ function tree() {
         }
         var _div = button(span);
         _div.setAttribute("node", '');
-        _div.index = index;
 
         if (!com.saved) {
             com.saved = {};
@@ -132,13 +121,13 @@ function tree() {
             }
             _div.style.zIndex = 1;
             _div.itemid = com.id;
-            if (_div.index === changed_index) {
+            if (_div._index === changed_index) {
                 saved_top = _div;
                 setState(true);
             } else {
                 setState();
             }
-            if (_div.index === changed_offset) {
+            if (_div._index === changed_offset) {
                 saved_offset = _div;
             }
             com.closed = com.isClosed();
@@ -148,33 +137,32 @@ function tree() {
         var setState = function (closed = com.isClosed()) {
             var saved = com.saved;
             if (com.length) {
-                if (saved.closed !== closed) {
+
+                if (saved.closed !== closed || _div !== com.target) {
                     saved.closed = closed;
                     if (closed) {
-                        addClass(com.target, 'closed');
-                        removeClass(com.target, 'open empty');
+                        addClass(_div, 'closed');
+                        removeClass(_div, 'open empty');
                     } else {
-                        addClass(com.target, 'open');
-                        removeClass(com.target, 'closed empty');
+                        addClass(_div, 'open');
+                        removeClass(_div, 'closed empty');
                     }
                 }
                 if (saved.empty) {
-                    removeClass(com.target, 'empty');
+                    removeClass(_div, 'empty');
                     saved.empty = false;
                 }
             } else {
                 if (!saved.empty) {
                     saved.empty = true;
-                    addClass(com.target, 'empty');
+                    addClass(_div, 'empty');
                 }
                 if (saved.closed === true || saved.closed === false) {
-                    removeClass(com.target, 'closed open');
+                    removeClass(_div, 'closed open');
                     saved.closed = null;
                 }
             }
         };
-        com.target = _div;
-        _div.refresh();
         var getChildrenTop = function (com) {
             while (com.joined) com = com[0];
             return com[0]?.target;
@@ -187,7 +175,7 @@ function tree() {
             if (isClosed === com.isClosed() && com.length) {
                 com.setClosed(!isClosed);
             }
-            var index = this.index;
+            var index = this._index;
             changed_index = index;
             buildCrack(com);
             changed_offset = com.crack + index;
@@ -249,10 +237,24 @@ function tree() {
                 timeout(z1, res + 60);
             }
         });
-
+        return _div;
+    };
+    var banner = list(element, function (index) {
+        var coms = dom;
+        if (index >= coms.length) return;
+        var com = coms[index];
+        if (!com) return;
+        if (com.target) {
+            com.target._index = index;
+            com.target.refresh();
+            return com.target;
+        }
+        var _div = createChild(com, index);
+        com.target = _div;
+        _div._index = index;
+        _div.refresh();
         return _div;
     });
-
 
     banner.setData = function (src) {
         root = new Tree(src);
@@ -266,6 +268,66 @@ function tree() {
         var joined = banner.hasAttribute("join") && !/^(false|0|null|nill?)/i.test(banner.getAttribute('join')) || banner.join;
         banner.joined = joined != undefined ? joined : 7;
     }
+    var stickys = [];
+    var setSticky = function () {
+        var p = stickys[stickys.length - 1];
+        var f = banner.getFirstVisibleElement(stickys.top + 1);
+        if (!f) return;
+        var limitHeight = f.offsetTop - banner.scrollTop;
+        var c = dom[f._index];
+        var useLimit = false;
+        if (p) {
+            var d = dom[p._index];
+            if (d.tab == c.tab) {
+                var { top, height } = getOffset(p);
+                if (top + height >= limitHeight) {
+                    var ic = c.parent.indexOf(c);
+                    useLimit = c.parent[ic - 1] === d;
+                    if (useLimit) c = d;
+                }
+            }
+            else {
+                useLimit = true;
+                limitHeight += getOffset(f).height;
+            }
+        }
+        var parents = [];
+        if (c.isClosed() || !c.length) c = c.parent;
+        while (c.parent) {
+            var p = c.parent;
+            if (!p?.joined) {
+                parents.push(c);
+            }
+            c = p;
+        }
+        stickys.forEach(s => s.sticky = false);
+        parents = parents.map(p => {
+            p.sticky = true;
+            return p.target;
+        });
+        parents.reverse();
+        stickys.forEach(s => {
+            if (!s.sticky) {
+                css(s, {
+                    position: "",
+                    top: '',
+                    zIndex: 1
+                })
+            }
+        })
+        stickys = parents;
+        var top = 0;
+        stickys.forEach(p => {
+            var h = getOffset(p).height;
+            var limit = useLimit && top + h > limitHeight;
+            css(p, {
+                position: 'sticky',
+                top: limit ? limitHeight - h : top, zIndex: 3 - limit
+            });
+            top += h;
+        });
+        stickys.top = top;
+    }
     var refresh = function () {
         var index = banner.index();
         var needremoves = dom.map(d => d.target).filter(d => !!d);
@@ -273,7 +335,10 @@ function tree() {
         remove(needremoves, false);
         banner.go(index || 0);
         css(banner, { paddingBottom: '' });
+        setSticky();
     };
+    on("mounted")(banner, setSticky);
+    on('scroll')(banner, setSticky);
     banner.refresh = refresh;
 
     return banner;
