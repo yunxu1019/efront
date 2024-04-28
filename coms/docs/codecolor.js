@@ -29,6 +29,13 @@ var codecolor = function (c, encode) {
     if (used) for (var k in envs) {
         used[k].forEach(k in predefs ? setPredef : setOutside);
     }
+    var wraptext = function (t, l) {
+        t = t.replace(/[^\r\n\u2028\u2029]+/g, a => {
+            a = encode(a);
+            return `<${l}>${a}</${l}>`
+        });
+        return t;
+    }
 
     var setcolor = function (o) {
         var text = o.text;
@@ -43,14 +50,23 @@ var codecolor = function (c, encode) {
                     o.leave = "<text>" + o.leave + "</text>";
                     break;
                 }
+                if (/^\//.test(o.text)) {
+                    var source = o.text;
+                    var flags = /[^\/]+$/.exec(source);
+                    if (flags) {
+                        flags = flags[0];
+                        source = source.slice(0, source.length - flags.length);
+                    }
+                    source = wraptext(source, 'regexp');
+                    if (flags) source = source + wraptext(flags, 'strap');
+                    o.text = source;
+                    break;
+                }
             case PIECE:
                 if (o.queue && o.queue.tag) {
                     o.text = encode(o.text);
                 }
-                else if (/^\//.test(o.text)) {
-                    o.text = `<regexp>${encode(o.text)}</regexp>`;
-                }
-                else o.text = `<text>${encode(o.text)}</text>`;
+                else o.text = wraptext(o.text, 'text');
                 break;
                 break;
             case ELEMENT:
@@ -95,7 +111,7 @@ var codecolor = function (c, encode) {
                 // else o.text = `<stamp>${encode(o.text)}</stamp>`;
                 break;
             case COMMENT:
-                o.text = `<comment>${encode(o.text)}</comment>`;
+                o.text = wraptext(o.text, 'comment');
                 break;
         }
     };

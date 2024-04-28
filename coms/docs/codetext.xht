@@ -198,7 +198,7 @@
         if (c) return c.text += blink, true;
         return false;
     };
-    function codetext(type, text, blink) {
+    var rows = function (type, text, blink) {
         type = type.toLowerCase();
         if (type in codesupports) {
             text = codesupports[type](text, blink);
@@ -213,7 +213,12 @@
             }
         }
         if (minSpace > 0) codes = codes.map(c => /^\s+/.test(c) ? c.slice(minSpace) : c);
-        return `<code type=${type}>${codes.join("<br/>").replace(/\t/g, Array(5).join('&ensp;')).replace(/\s/g, '&ensp;')}</code>`;
+        return codes.map(a => a.replace(/\t/g, Array(5).join('&ensp;')).replace(/\s/g, '&ensp;'));
     }
+    function codetext(type, text, blink) {
+        var ws = rows(type, text, blink);
+        return `<code type=${type}>${ws.join("<br/>")}</code>`;
+    }
+    codetext.rows = rows;
     codetext.encode = encode;
 </script>
