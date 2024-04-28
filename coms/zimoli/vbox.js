@@ -78,12 +78,12 @@ function ybox(generator) {
             }
             height = height * Math.pow(.92, t / 6);
             increaser.height = height
-            increaser.style.height = fromOffset(height);
+            increaser.style.marginBottom = fromOffset(height);
             return height;
         }
         if (increaser.height) {
             increaser.height = 0;
-            increaser.style.height = 0;
+            increaser.style.marginBottom = 0;
             return 1;
         }
         remove(increaser);
@@ -121,7 +121,7 @@ function ybox(generator) {
                 increaser_b.style.marginTop = 0;
                 increaser_b.style.marginBottom = 0;
                 increaser_b.height = 0;
-                increaser_b.style.height = 0;
+                increaser_b.style.marginBottom = 0;
                 appendChild(_box, increaser_b);
                 var deltaMargin = _box.scrollHeight - increaser_b.offsetTop - parseFloat(getComputedStyle(_box).paddingBottom);
                 if (deltaMargin > 0) {
@@ -133,8 +133,8 @@ function ybox(generator) {
         if (t_height > increase_height) t_height = increase_height;
         if (b_height < 0) b_height = 0;
         if (t_height < 0) t_height = 0;
-        if (!minusOnly || b_height < increaser_b.height) increaser_b.height = b_height, increaser_b.style.height = fromOffset(b_height);
-        if (!minusOnly || t_height < increaser_t.height) increaser_t.height = t_height, increaser_t.style.height = fromOffset(t_height);
+        if (!minusOnly || b_height < increaser_b.height) increaser_b.height = b_height, increaser_b.style.marginBottom = fromOffset(b_height);
+        if (!minusOnly || t_height < increaser_t.height) increaser_t.height = t_height, increaser_t.style.marginBottom = fromOffset(t_height);
         return t_height < increase_height && b_height < increase_height;
     };
     if (/Edge|Trident/i.test(navigator.userAgent)) {
