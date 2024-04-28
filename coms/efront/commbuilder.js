@@ -505,12 +505,11 @@ var buildPress2 = function (imported, params, data, args, strs) {
 
 var rethink = function (mmap, imported, refname) {
     var rmap = mmap["?"];
+    var nmap = mmap[":"];
+    var refpath = mmap[refname];
+    if (refname) refname = nmap[mmap[refname]];
     var refpath = refname ? $split(refname) : [];
     var realimport = imported.map(m => {
-        if (m in mmap) {
-            var r = rmap[mmap[m]];
-            return r;
-        }
         var refs = refpath.slice();
         refs.pop();
         while (refs.length) {
@@ -522,6 +521,10 @@ var rethink = function (mmap, imported, refname) {
             }
             refs.pop();
             refs.pop();
+        }
+        if (m in mmap) {
+            var r = rmap[mmap[m]];
+            return r;
         }
         return m;
     });

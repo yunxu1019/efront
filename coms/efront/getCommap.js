@@ -61,8 +61,16 @@ async function getCommap(appname, deep = 6) {
         if (v in ser && ser[v].length <= k.length) continue;
         ser[v] = k;
     }
+    // mer fullpath:maxname
+    var mer = Object.create(null);
+    for (var k in res) {
+        var v = res[k];
+        if (v in mer && mer[v].length >= k.length) continue;
+        mer[v] = k;
+    }
     res["?"] = ser;
     res["/"] = coms;
+    res[":"] = mer;
     if (loadernames.length) res[";"] = loadermain;
     res["#"] = await 国际化(coms.concat(mixin(env.PAGE_PATH, env.PAGE).map(a => path.join.apply(path, a)).filter(a => fs.existsSync(a))), memery.I18NNAME);
     return res;
