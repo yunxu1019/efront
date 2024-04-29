@@ -25,9 +25,9 @@ function getChildrenBottom(com) {
                 return t;
             }
         }
-        if (c.target) return c.target;
+        if (c.$target) return c.$target;
     }
-    return com.target;
+    return com.$target;
 }
 
 var getArrayFromTree = Tree.toArray;
@@ -121,13 +121,13 @@ function tree() {
             }
             _div.style.zIndex = 1;
             _div.itemid = com.id;
-            if (_div._index === changed_index) {
+            if (_div.$index === changed_index) {
                 saved_top = _div;
                 setState(true);
             } else {
                 setState();
             }
-            if (_div._index === changed_offset) {
+            if (_div.$index === changed_offset) {
                 saved_offset = _div;
             }
             com.closed = com.isClosed();
@@ -138,7 +138,7 @@ function tree() {
             var saved = com.saved;
             if (com.length) {
 
-                if (saved.closed !== closed || _div !== com.target) {
+                if (saved.closed !== closed || _div !== com.$target) {
                     saved.closed = closed;
                     if (closed) {
                         addClass(_div, 'closed');
@@ -165,7 +165,7 @@ function tree() {
         };
         var getChildrenTop = function (com) {
             while (com.joined) com = com[0];
-            return com[0]?.target;
+            return com[0]?.$target;
         }
         onclick(_div, function (event) {
             var isClosed = com.isClosed();
@@ -175,24 +175,24 @@ function tree() {
             if (isClosed === com.isClosed() && com.length) {
                 com.setClosed(!isClosed);
             }
-            var index = this._index;
+            var index = this.$index;
             changed_index = index;
             buildCrack(com);
             changed_offset = com.crack + index;
             if (!com.length) {
-                dom.forEach(d => d.target && d.target.refresh());
+                dom.forEach(d => d.$target && d.$target.refresh());
                 return;
             }
             var z0 = function () {
                 var z = function (e) {
-                    if (e.target) e.target.style.zIndex = 0;
+                    if (e.$target) e.$target.style.zIndex = 0;
                     if (e instanceof Array) e.forEach(z);
                 };
                 com.forEach(z);
             };
             var z1 = function () {
                 var z = function (e) {
-                    if (e.target) e.target.style.zIndex = 1;
+                    if (e.$target) e.$target.style.zIndex = 1;
                     if (e instanceof Array) e.forEach(z);
                 };
                 com.forEach(z);
@@ -244,14 +244,14 @@ function tree() {
         if (index >= coms.length) return;
         var com = coms[index];
         if (!com) return;
-        if (com.target) {
-            com.target._index = index;
-            com.target.refresh();
-            return com.target;
+        if (com.$target) {
+            com.$target.$index = index;
+            com.$target.refresh();
+            return com.$target;
         }
         var _div = createChild(com, index);
-        com.target = _div;
-        _div._index = index;
+        com.$target = _div;
+        _div.$index = index;
         _div.refresh();
         return _div;
     });
@@ -274,10 +274,10 @@ function tree() {
         var f = banner.getFirstVisibleElement(stickys.top + 1);
         if (!f) return;
         var limitHeight = f.offsetTop - banner.scrollTop;
-        var c = dom[f._index];
+        var c = dom[f.$index];
         var useLimit = false;
         if (p) {
-            var d = dom[p._index];
+            var d = dom[p.$index];
             if (d.tab == c.tab) {
                 var { top, height } = getOffset(p);
                 if (top + height >= limitHeight) {
@@ -296,6 +296,7 @@ function tree() {
         while (c.parent) {
             var p = c.parent;
             if (!p?.joined) {
+                if (!c.$target) return;
                 parents.push(c);
             }
             c = p;
@@ -303,7 +304,7 @@ function tree() {
         stickys.forEach(s => s.sticky = false);
         parents = parents.map(p => {
             p.sticky = true;
-            return p.target;
+            return p.$target;
         });
         parents.reverse();
         stickys.forEach(s => {
@@ -330,7 +331,7 @@ function tree() {
     }
     var refresh = function () {
         var index = banner.index();
-        var needremoves = dom.map(d => d.target).filter(d => !!d);
+        var needremoves = dom.map(d => d.$target).filter(d => !!d);
         dom = getArrayFromTree(root, banner.joined);
         remove(needremoves, false);
         banner.go(index || 0);

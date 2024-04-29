@@ -141,19 +141,19 @@
                     }
                     mmap[menu.id] = menu;
                 }
-                if (menu.id === opened.active) actived = menu, actived_value = historys.length;
+                if (menu.id === opened.$active) actived = menu, actived_value = historys.length;
             }
             return res;
         };
         result.push.apply(result, items.filter(a));
         result.opened = opened.map(a => mmap[a]).filter(a => !!a);
-        var active = result.active;
+        var active = result.$active;
         if (!active || result.indexOf(active) < 0) {
-            actived = mmap[opened.active] || actived;
+            actived = mmap[opened.$active] || actived;
             if (actived) {
                 if (actived_value === historys.length) {
                     setActive(actived, true);
-                    result.active = actived;
+                    result.$active = actived;
                 };
             }
         }
@@ -176,38 +176,38 @@
         data.setInstance("option-buttons", zimoli.options || [], false);
         var menu = getChild(zimoli);
         if (!menu) return;
-        if (menu !== result.active) {
-            setActive(result.active, false);
+        if (menu !== result.$active) {
+            setActive(result.$active, false);
             setActive(menu, true);
-            result.active = menu;
+            result.$active = menu;
         }
         if (menu.id) {
             var opened = result.opened || [];
             var oped = opened.map(a => a.id);
-            oped.active = menu.id;
+            oped.$active = menu.id;
             data.setInstance('menu-opened', oped);
         }
     });
     result.open = function (menu) {
         if (!menu) {
-            menu = result.active || result[0];
-            delete result.active;
+            menu = result.$active || result[0];
+            delete result.$active;
         }
         if (!menu.path) {
             menu.closed = !menu.closed;
             return;
         }
-        if (menu === result.active) return;
+        if (menu === result.$active) return;
         var opened = result.opened || [];
         if (!~opened.indexOf(menu) && !getChild(menu).id) {
             opened.push(menu);
         }
-        if (result.active && result.active.id !== menu.id) {
-            setActive(result.active, false);
+        if (result.$active && result.$active.id !== menu.id) {
+            setActive(result.$active, false);
         }
         setActive(menu, true);
         result.load(menu);
-        result.active = menu;
+        result.$active = menu;
     };
     result.close = function (menu) {
         if (menu === result[0]) return;
@@ -228,7 +228,7 @@
         }
     };
     result.reload = function () {
-        result.load(result.active);
+        result.load(result.$active);
         return result;
     };
     result.from = result.fetch = function (url) {
