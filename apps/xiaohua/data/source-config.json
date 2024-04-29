@@ -1,9 +1,0 @@
-{
-    "http://efront.cc:5989/": {
-        "menus": "get:docs ./data/menus.json#name=F_Name&icon=F_Icon 菜单列表 ",
-        "photo-list": "post:docs photos/_find",
-        "photo-add": "put photos/:_id",
-        "photo-delete": "delete photos/:_id?rev=:_rev",
-        "photo-update": "put photos/:_id?rev=:_rev"
-    }
-}
