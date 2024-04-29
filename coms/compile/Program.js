@@ -415,11 +415,11 @@ class Program {
                         if (this.comment_entry.test(m)) {
                             push_piece();
                             var start = match.index;
-                            var comment = this.quote_map[m];
-                            comment.lastIndex = index;
+                            var { reg: comment_reg,end:comment_end } = this.quote_map[m];
+                            comment_reg.lastIndex = index;
                             do {
-                                var match = comment.reg.exec(text);
-                            } while (match && !comment.end.test(match[0]));
+                                var match = comment_reg.exec(text);
+                            } while (match && !comment_end.test(match[0]));
                             if (match) end = index = match.index + match[0].length;
                             m = text.slice(start, index);
                             save(COMMENT);

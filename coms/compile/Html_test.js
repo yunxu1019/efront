@@ -1,4 +1,6 @@
 var Html = require("./Html");
+var fs = require("fs");
+var path = require("path");
 var test = function (source, pick, value) {
     var h = new Html;
     var b = h.exec(source);
@@ -8,6 +10,10 @@ var test = function (source, pick, value) {
         assert(seek(b, pick), value);
     }
 };
+var test2 = function (source) {
+    var s = scanner2(source, 'html');
+    assert(s.toString(), source);
+}
 test("<h><a #c>b</a><c b=x>d</c><d/><e>2px</e></h>");
 test("<a>Let's Encrypt</a>");
 test("<style>{a-b:2}</style>");
@@ -23,4 +29,4 @@ test('<div>${`<div></div>`}</div>');
 test('<div>\\${${`<div></div>`}</div>');
 test('<div>$\\{${`<div></div>`}</div>');
 test('<div>$\\{${typeof `<div></div>`}</div>');
-test('<div>$\\{${\\a+typeof`<div></div>`}</div>','<div>$\\{${\\a + typeof `<div></div>`}</div>');
+test('<div>$\\{${\\a+typeof`<div></div>`}</div>', '<div>$\\{${\\a + typeof `<div></div>`}</div>');
