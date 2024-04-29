@@ -68,6 +68,8 @@ function slider() {
         direction,
         _speed = speed(1);
     var reshape = function (index, ising, emit) {
+        if (!isFinite(index)) return;
+        index = +index;
         outter.index = current_index = index;
         var width = outter.clientWidth || +innerWidth;
         var indexLeft = floor(index);
@@ -272,6 +274,8 @@ function slider() {
     })
 
     outter.go = lazy(function (index, cache) {
+        if (!isFinite(index)) return;
+        index = +index;
         if (outter.index === index && cache !== false) return;
         negative_index = -index;
         var _removingMain = _imageMain;

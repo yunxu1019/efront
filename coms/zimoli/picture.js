@@ -163,7 +163,7 @@ function picture(url, to = 0, key) {
         var urls = [].concat(url);
         var p = slider(gen, false);
     }
-    p.go(to);
+    if (isFinite(to)) p.go(to);
     p.getScale = function () {
         if (p.current) return p.current.getScale();
         return 1;
