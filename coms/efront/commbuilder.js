@@ -938,6 +938,8 @@ function getHtmlPromise(data, filename, fullpath, watchurls) {
 function getScriptPromise(data, filename, fullpath, watchurls) {
     var htmlpath = fullpath.replace(/\.\w+$/i, ".html");
     var lesspath = fullpath.replace(/\.\w+$/i, ".less");
+    watchurls.push(htmlpath);
+    watchurls.push(lesspath);
     var that = this;
     var p = Promise.all([lesspath, htmlpath].map(getFileData)).then(async ([lessdata, htmldata]) => {
         if (lessdata || htmldata) return getXhtPromise.call(that, htmldata, filename, fullpath, watchurls, data, lessdata)
