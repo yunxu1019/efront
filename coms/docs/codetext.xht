@@ -211,7 +211,7 @@
         var minSpace = 0;
         for (var c of codes) {
             var m = /^\s*/.exec(c);
-            if (m && m[0].length < c.length) {
+            if (m && m[0].length < minSpace) {
                 minSpace = m[0].length;
             }
         }
