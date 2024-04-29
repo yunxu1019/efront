@@ -269,9 +269,8 @@ copy proc srcstart,srcleng,dststart
     mov ebx,dststart
     mov eax,0
     .while ecx<edx
-        mov ah,BYTE ptr [ecx]
+        mov ax,WORD ptr [ecx]
         inc ecx
-        mov al,BYTE ptr [ecx]
         inc ecx
         mov WORD ptr[ebx],ax
         add ebx,2
@@ -757,7 +756,7 @@ folderinit proc
     mov bufferat,ebx
     invoke folderfind,addr findmark
     .if eax
-        invoke folderfind,addr assocname
+        invoke folderfind,addr uninstallName
         mov ebx,bufferat
         .if !eax
             mov ecx, offset szText
