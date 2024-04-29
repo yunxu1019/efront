@@ -70,13 +70,12 @@
         height: 100%;
     }
 
-    [codearea]>code {
+    [codearea]>.codetext {
         overflow: auto;
         display: block;
         height: auto;
         min-height: 100%;
-        padding: 10px 20px 40px 20px;
-        white-space: nowrap;
+        border-width: 10px 20px 40px 20px;
         outline: none;
     }
 
@@ -380,7 +379,7 @@
         if (node) {
             var next = node.nextSibling;
             if (next) {
-                next = /^\u2002+/.exec(next.nodeValue);
+                next = /^[\u2002\u0020\u00a0]+/.exec(next.nodeValue);
                 if (next) return next[0].length;
             }
         }

@@ -1,5 +1,6 @@
 <style>
     :scope {
+        white-space: pre;
         padding: 10px 20px;
         border-radius: 3px;
         display: inline-block;
@@ -88,7 +89,7 @@
 </style>
 <script>
     var encode = function (text) {
-        return text.replace(/[\<\>\|]/g, a => `&#${a.charCodeAt()};`)
+        return text.replace(/[\<\>\|]/g, a => `&#${a.charCodeAt()};`);
     };
     var typescript = new compile$Javascript;
     typescript.straps = typescript.straps.concat("interface", "implements", "declare", "module", "readonly", "enum");
@@ -213,7 +214,7 @@
             }
         }
         if (minSpace > 0) codes = codes.map(c => /^\s+/.test(c) ? c.slice(minSpace) : c);
-        return codes.map(a => a.replace(/\t/g, Array(5).join('&ensp;')).replace(/\s/g, '&ensp;'));
+        return codes;
     }
     function codetext(type, text, blink) {
         var ws = rows(type, text, blink);

@@ -29,8 +29,10 @@ var codecolor = function (c, encode) {
     if (used) for (var k in envs) {
         used[k].forEach(k in predefs ? setPredef : setOutside);
     }
+    var spaceReg = c.program.space_exp;
+    var unspaceReg = new RegExp(spaceReg.source.replace(/^\[/, "[^"), spaceReg.flags + 'g');
     var wraptext = function (t, l) {
-        t = t.replace(/[^\r\n\u2028\u2029]+/g, a => {
+        t = t.replace(unspaceReg, a => {
             a = encode(a);
             return `<${l}>${a}</${l}>`
         });
