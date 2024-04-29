@@ -415,7 +415,7 @@ class Program {
                         if (this.comment_entry.test(m)) {
                             push_piece();
                             var start = match.index;
-                            var { reg: comment_reg,end:comment_end } = this.quote_map[m];
+                            var { reg: comment_reg, end: comment_end } = this.quote_map[m];
                             comment_reg.lastIndex = index;
                             do {
                                 var match = comment_reg.exec(text);
@@ -562,6 +562,10 @@ class Program {
                 if (m1.length < m.length) {
                     if (m.charAt(m1.length) === ".") {
                         m = m1;
+                        index = match.index + m.length;
+                    }
+                    else if (/\.$/.test(m1)) {
+                        m = m1.slice(0, m1.length - 1);
                         index = match.index + m.length;
                     }
                 }
