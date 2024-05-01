@@ -43,14 +43,16 @@ var codecolor = function (c, encode) {
     if (c.program) var { space_exp: spaceReg, control_reg } = c.program;
     var unspaceReg = new RegExp(spaceReg.source.replace(/^\[/, "[^"), spaceReg.flags + 'g');
     var wraptext = function (t, l) {
-        t = t.replace(unspaceReg, a => {
+        if (unspaceReg) t = t.replace(unspaceReg, a => {
             a = encode(a);
             return `<${l}>${a}</${l}>`
         });
         return t;
     }
-
+    c.colored = true;
     var setcolor = function (o) {
+        if (o.colored) return;
+        o.colored = true;
         var text = o.text;
         switch (o.type) {
             case LABEL:

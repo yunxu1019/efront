@@ -101,6 +101,8 @@
     typescript.tags[0].push("{");
     var js = new compile$Javascript;
     js.tags[0].push("{");
+    var json = new compile$Javascript;
+    json.inExpress = true;
     var gl = new compile$Javascript;
     gl.straps = gl.straps.concat(
         "in", "out", "inout", "uniform", "buffer", "shared",
@@ -153,6 +155,11 @@
             codecolor(c, encode);
             return c.toString();
         },
+        json(a) {
+            var c = compile$scanner2(a, json);
+            codecolor(c, encode);
+            return c.toString();
+        },
         glsl(a) {
             var c = compile$scanner2(a, gl);
             codecolor(c, encode);
@@ -161,14 +168,28 @@
         html(a) {
             var code = compile$scanner2(a, 'html');
             var scoped = code.scoped;
-            codecolor(code, encode);
             backEach(scoped.richNodes, n => {
                 if (n.isScript) {
-                    var js = compile$scanner2(compile$common.createString(n));
-                    codecolor(js, encode);
+                    var js = [];
+                    compile$common.createString(n).replace(/^(\s*\<\!--)([\s\S]*)(--\!?\>\s*)$|^[\s\S]*$/, (m, p, a, f) => {
+                        if (!a) {
+                            js = compile$scanner2(m);
+                        }
+                        else {
+                            js = compile$scanner2(a);
+                            js.unshift(
+                                { type: compile$common.COMMENT, text: p },
+                            );
+                            js.push(
+                                { type: compile$common.COMMENT, text: f }
+                            );
+                        }
+                        codecolor(js, encode);
+                    });
                     n.splice(0, n.length, ...js);
                 }
             })
+            codecolor(code, encode);
             return code.toString();
         },
         css(a) {
@@ -181,7 +202,7 @@
     codesupports.cmd = codesupports.bat;
     codesupports.jsx = codesupports.js = codesupports.javascript;
     codesupports.tsx = codesupports.ts = codesupports.typescript;
-    codesupports.xml = codesupports.html;
+    codesupports.jsp = codesupports.asp = codesupports.php = codesupports.xml = codesupports.html;
     var { SCOPED, QUOTED, SPACE, STRAP, EXPRESS, PROPERTY } = compile$common;
     var patchBlink = function (code, index, blink) {
         for (var cx = 0, dx = code.length; cx < dx; cx++) {

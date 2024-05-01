@@ -151,6 +151,7 @@ class Program {
         var Code = this.Code;
         var queue = new Code();
         queue.type = this.type;
+        queue.inExpress = this.inExpress;
         if (this.type === ELEMENT) {
             queue.entry = this.tags[0].tag[0];
         }
