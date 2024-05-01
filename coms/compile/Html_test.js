@@ -30,3 +30,8 @@ test('<div>\\${${`<div></div>`}</div>');
 test('<div>$\\{${`<div></div>`}</div>');
 test('<div>$\\{${typeof `<div></div>`}</div>');
 test('<div>$\\{${\\a+typeof`<div></div>`}</div>', '<div>$\\{${\\a + typeof `<div></div>`}</div>');
+test('${i18n`加载中..`}<div class="loader"></div>');
+test('${a +typeof i18n`加载中..`}<div class="loader"></div>','${a + typeof i18n`加载中..`}<div class="loader"></div>');
+test('${a > 1}');
+test('a>1','a > 1');
+test('a><a></a>','a > <a></a>');

@@ -151,6 +151,9 @@ class Program {
         var Code = this.Code;
         var queue = new Code();
         queue.type = this.type;
+        if (this.type === ELEMENT) {
+            queue.entry = this.tags[0].tag[0];
+        }
         var origin = queue;
         var forceend_reg = this.forceend_reg;
         var program = this;
@@ -351,6 +354,28 @@ class Program {
             lasttype = null;
         }
         var pop_parents = function () {
+            if (!parents.length) {
+                delete queue.end;
+                var last = queue.last;
+                if (last) {
+                    while (queue[queue.length - 1] !== last) {
+                        queue.pop();
+                    }
+                    queue.pop();
+                    index = queue.last.start;
+                    queue.last = last.prev;
+                }
+                else {
+                    var m = queue.leave;
+                    index = queue.end - m.length;
+                }
+                delete queue.start;
+                delete queue.end;
+                delete queue.leave;
+                delete queue.type;
+                delete queue.entry;
+                return;
+            }
             var scope = queue;
             queue = parents.pop();
             queue_push(scope);
@@ -367,13 +392,13 @@ class Program {
                 }
                 else {
                     m = text.slice(start, index);
-                    save(PIECE);
+                    save(space_reg.test(m) ? SPACE : PIECE);
                 }
             }
             m = match[0];
         }
         loop: while (index < text.length) {
-            if (queue.type === QUOTED) {
+            if (queue.type & (QUOTED | ELEMENT)) {
                 var quote = quote_map[queue.entry];
                 var reg = quote.reg;
                 start = index;

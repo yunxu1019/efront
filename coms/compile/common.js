@@ -1218,7 +1218,7 @@ var createString = function (parsed) {
                 || prev.type === STAMP && !prev.unary
             ) {
                 if (intag || prev.type === ELEMENT && o.type === ELEMENT) break a;
-                if ((o.type & ~(EXPRESS | PROPERTY) || !needhead_reg.test(o.text)) && !prev.tag && !o.tag) {
+                if ((o.type & ~(EXPRESS | PROPERTY) || !needhead_reg.test(o.text)) && (!prev.tag && !o.tag || prev.type === STAMP || o.type === STAMP)) {
                     result.push(" ");
                     lasttype = SPACE
                 }
