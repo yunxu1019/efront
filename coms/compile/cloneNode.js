@@ -6,6 +6,8 @@ var cloneNode = function (o) {
         c.entry = o.entry;
         c.leave = o.leave;
         c.type = o.type;
+        c.istype = o.istype;
+        c.brace = o.brace;
         c.isExpress = o.isExpress;
         relink(c);
     }

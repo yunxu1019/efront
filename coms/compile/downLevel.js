@@ -510,7 +510,7 @@ var getprop = function (o, m) {
         prop[m.text] = true;
         m = m.next;
     }
-    if (m && (m.type === PROPERTY || m.isprop)) {
+    if (m && (m.isprop)) {
         prop.name = createString([m]);
         if (m.short) {
             prop.short = true;

@@ -432,3 +432,7 @@ _0 = a; return [_0, 1]
 var a, _0 }`)
 
 assert(downLevel(`function(a=b=>b,c){c}`), 'function (a, c) { if (a === undefined) a = function (b) { return b }; c }')
+assert(downLevel(`Object.defineProperty(dis, f.key, {get() {}, set(v) {}})`), `Object.defineProperty(dis, f.key, (_ = {},
+_.get = function () {},
+_.set = function (v) {}, _))
+var _`)

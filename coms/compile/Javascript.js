@@ -50,7 +50,7 @@ class Javascript extends Program {
     type_reg = /^(var|let|const|function|class|interface|type)$/;
     defaultType = EXPRESS;
 }
-var propresolve_reg = /^(static|get|set|async|readonly)$/;
+var propresolve_reg = /^(static|get|set|async|readonly|private)$/;
 
 var isProperty = function (o) {
     var queue = o.queue;
@@ -66,7 +66,7 @@ var isProperty = function (o) {
         }
         if (prev.type === STAMP) {
             if (prev.isprop) return true;
-            return /^(\+\+|\-\-|[,;])$/.test(prev.text) && !/^[,;\=\:]$/.test(o.text);
+            return /^(\+\+|\-\-|[,;])$/.test(prev.text) && (o.type !== STAMP || !/^[,;\=\:]$/.test(o.text));
         }
         if (prev.type === EXPRESS && !/\.$/.test(prev.text)) {
             return prev.text !== 'async' || o.text !== 'function';
@@ -430,7 +430,7 @@ Javascript.prototype.setType = function (o) {
             o.isprop = true;
         }
         if (o.isprop) {
-            if (last && last.type === PROPERTY && propresolve_reg.test(last.text)) {
+            if (last && last.type === PROPERTY && propresolve_reg.test(last.text) && (o.type !== SCOPED || o.entry === "[")) {
                 last.type = STRAP;
             }
             if (queue.isClass) o.isend = false;
@@ -672,7 +672,7 @@ function detour(o, ie) {
                     var text = strings.recode(o.text);
                     if (o.prev) {
                         var prev = o.prev;
-                        if (prev && prev.isprop && !prev.isend && /^(get|set|static|async)$/.test(prev.text)) {
+                        if (prev && prev.isprop && !prev.isend && propresolve_reg.test(prev.text)) {
                             prev = prev.prev;
                         }
                         if (prev && prev.type === STAMP && prev.isprop) prev = prev.prev;

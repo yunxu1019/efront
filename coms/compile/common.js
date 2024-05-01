@@ -1026,7 +1026,7 @@ var getDeclared = function (o, kind, queue) {
                     }
                     else prop = declared["..."] ? declared["..."][1] - index : `[${index}]`;
                 }
-                var f = o.isprop ? snapExpressFoot(o) : o;
+                var f = o.isprop || prop ? snapExpressFoot(o) : o;
                 if (k) saveTo(used, k, o);
                 var s = [o];
                 while (o !== f) o = o.next, s.push(o);
@@ -1321,6 +1321,7 @@ var createString = function (parsed) {
                 var prev = o.prev;
                 if (patchspace && o.type !== QUOTED && (lasttype === STAMP && !prev.unary
                     || lasttype & ~(SPACE | STAMP | COMMENT) && o.brace
+                    || lasttype === STRAP && !/^(this|arguments|import)$/.test(prev.text)
                 )) result.push(" ");
                 result.push(o.entry);
                 if (o.length > 0) {
