@@ -539,7 +539,7 @@ var getprop = function (o, m) {
     var s = m;
     if (m && prop.sfunc !== false && m.type === SCOPED && m.entry === '(') {
         m = m.next;
-        if (m && m.type === SCOPED && m.entry === "{") m = m.next;
+        if (m && m.type === SCOPED && m.brace) m = m.next;
     }
     else m = skipAssignment(m);
     if (m && !m.isprop) m = m.next;
@@ -1058,7 +1058,7 @@ var hasbreak = function (body) {
     return false;
 };
 var ises3 = function (o, killobj) {
-    if (o && o.type === SCOPED && o.entry === "{") {
+    if (o && o.type === SCOPED && o.brace) {
         killobj(o);
         if (o.await_) return false;
         if (hasbreak(o)) return false;
@@ -1210,7 +1210,7 @@ var unarrow = function (body, i, killobj, letname_) {
         h = scanner2("()")[0];
         splice(h, 0, 0, ...splice(body, i, 1, h));
     }
-    if (n.type !== SCOPED || n.entry !== "{") {
+    if (n.type !== SCOPED || !n.brace) {
         var nni = skipAssignment(body, ni);
         b = scanner2('{}')[0];
         splice(b, 0, 0, { type: STRAP, transive: true, text: "return" }, ...splice(body, ni, nni - ni, b));
@@ -1376,7 +1376,7 @@ var killret = function (body, labels = Object.create(null), gettmpname) {
                 lbls.push(lbl);
             }
         }
-        else if (o.type === SCOPED && o.entry === "{") {
+        else if (o.type === SCOPED && o.brace) {
             if (o.isClass || o.isObject);
             else killret(o, labels, gettmpname);
             unlabel = true;
@@ -1721,7 +1721,7 @@ var down = function (scoped) {
         fordeep = saveddeep;
     };
     if (scoped.isfunc) {
-        if (!scoped.body && scoped.head?.next?.type === SCOPED && scoped.head.next.entry === "{") scoped.body = scoped.head.next;
+        if (!scoped.body && scoped.head?.next?.brace) scoped.body = scoped.head.next;
         if (scoped.head) var [argsmap, argcodes] = killarg(scoped.head, scoped.body, _letname, false);
         else argcodes = [];
         if ((markcodes.length || argcodes.length) && !funcMark) precode(markcodes.concat(argcodes).join(";") + ";");

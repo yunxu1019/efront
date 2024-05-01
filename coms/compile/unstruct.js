@@ -529,7 +529,7 @@ var _invoke = function (t, getname) {
     for (var cx = 0; cx < t.length; cx++) {
         var o = t[cx];
         a: if (o.type === STRAP) {
-            if (/^(async|function)/.test(o.text)) while (o && o.entry !== "{") o = o.next;
+            if (/^(async|function)/.test(o.text)) while (o && !o.brace) o = o.next;
             else if (o.text === 'class') {
                 while (o && !o.isClass) o = o.next;
                 var n = o.next;
@@ -898,7 +898,7 @@ var isFunctionOnly = function (body) {
     var o = body[cx];
     if (!o) return false;
     if (o.type === STRAP) {
-        if (/^(async|function)$/.test(o.text)) while (o && o.entry !== "{") o = body[cx++];
+        if (/^(async|function)$/.test(o.text)) while (o && !o.brace) o = body[cx++];
         else if (o.text === 'class') {
             while (o && !o.isClass) o = body[cx++];
             while (o && (o.type & (SPACE | COMMENT) || o.isClass)) o = body[cx++];

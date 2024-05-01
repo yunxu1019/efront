@@ -91,7 +91,7 @@ class Program {
         ["`", "`", /\\[\s\S]/, ["${", "}"]],
     ]
     tags = [
-        [["<", "</"], /\/?>/, /\\[\s\S]/, "'", '"', "<!--", ["${", "}"]]
+        [["<", "</"], /\/?>/, /\\[\s\S]|\=\>/, "'", '"', "<!--", ["${", "}"]]
     ];
     scriptTags = [];
     ignoreTags = ["STYLE", "SCRIPT"];
@@ -112,8 +112,9 @@ class Program {
     transive_reg = /^(new|void|case|break|continue|return|throw|extends|import)$/
     straps = "if,for".split(',');
     forceend_reg = /^(return|break|continue)$/;
-    classstrap_reg = /^(class)$/;
-    extends_reg = /^(extends)$/;
+    classstrap_reg = /^(class|function|async|interface)$/;
+    extends_reg = /^(extends|implements)$/;
+    control_reg = /^(if|else|switch|case|do|while|for|break|continue|default|import|from|as|export|try|catch|finally|throw|await|yield|return)$/;
     spaces = spaceDefined;
     nocase = false
     keepspace = false;
@@ -153,7 +154,26 @@ class Program {
         var origin = queue;
         var forceend_reg = this.forceend_reg;
         var program = this;
+        var quote_map = this.quote_map;
+        var space_reg = this.space_reg;
+        var strap_reg = this.strap_reg;
+        var stamp_reg = this.stamp_reg;
+        var scope_entry = this.scope_entry;
+        var express_reg = this.express_reg;
+        var value_reg = this.value_reg;
+        var extends_reg = this.extends_reg;
+        var classstrap_reg = this.classstrap_reg;
+        var entry_reg = this.entry_reg;
+        var comment_entry = this.comment_entry;
+        var rowsOf = m => m.replace(/[^\r\n\u2028\u2029]+/g, ';').replace(/\r\n|\r|\n|\u2028|\u2029/g, ' ').replace(/;/g, '').length;
+        var setRows = m => {
+            row += rowsOf(m);
+            colstart = start + m.length - m.replace(/^[\s\S]*?([^\r\n\u2028\u2029]*)$/, '$1').length - 1;
+        };
         var queue_push = function (scope) {
+            if (scope.type & (SPACE | COMMENT | PIECE | QUOTED)) {
+                if (scope.text) setRows(scope.text);
+            }
             var last = queue.last;
             Object.defineProperty(scope, 'queue', { value: queue, enumerable: false, configurable: true });
             scope.prev = last;
@@ -181,16 +201,10 @@ class Program {
                 }
                 if (!queue.first) queue.first = scope;
             }
-            scope.row = row;
-            scope.col = scope.start - colstart;
             queue.push(scope);
         };
         var row = 1, colstart = -1;
         var save = (type) => {
-            if (type & (SPACE | COMMENT | PIECE | QUOTED)) {
-                row += m.replace(/[^\r\n\u2028\u2029]+/g, '').replace(/\r\n|\r|\n|\u2028|\u2029/g, ' ').length;
-                colstart = start + m.length - m.replace(/^[\s\S]*?([^\r\n\u2028\u2029]*)$/, '$1').length - 1;
-            }
             if (lasttype === STAMP && type === STAMP && !/[,;\:]/.test(m)) {
                 var scope = queue[queue.length - 1];
                 if (/=>$/i.test(scope.text) ||
@@ -210,6 +224,8 @@ class Program {
                 type,
                 start,
                 end,
+                row,
+                col: start - colstart,
                 isExpress: queue.inExpress,
                 text: m
             }
@@ -253,6 +269,9 @@ class Program {
                     scope.entry = queue.tag_entry;
                     scope.tag_leave = queue.tag_leave;
                     scope.tag = tag;
+                    scope.row = row;
+                    scope.col = scope.start - colstart;
+
                     scope.inTag = true;
                     scope.type = ELEMENT;
                 }
@@ -290,11 +309,25 @@ class Program {
             queue.last = null;
             return true;
         };
+        var isTypedColon = function (qp) {
+            var istype = false;
+            if (qp?.type === STAMP && qp.text === ':' && !qp.isExpress) {
+                if (qp.istype) return true;
+                var qpp = qp.prev;
+                if (qpp.type === SCOPED && qpp.entry === '(') {
+                    var qppp = qpp.prev;
+                    if (qppp && (qppp.isprop)) {
+                        istype = true;
+                    }
+                }
+            }
+            return istype;
+        }
         var closeTag = function () {
             queue.inTag = false;
             if (queue.closed) return;
             if (queue.length) queue.attributes = queue.splice(0, queue.length);
-            if (/^\//.test(m)) return queue.short = true, queue.closed = true;
+            if (/^\//.test(m) || queue.istype) return queue.short = true, queue.closed = true;
             return false;
         };
         var push_quote = function () {
@@ -311,6 +344,8 @@ class Program {
         var push_parents = function (scope) {
             scope.queue = queue;
             scope.prev = queue.last;
+            scope.row = row;
+            scope.col = match.index - colstart;
             parents.push(queue);
             queue = scope;
             lasttype = null;
@@ -325,8 +360,10 @@ class Program {
             if (index > start) {
                 var piece = queue[queue.length - 1];
                 if (piece && piece.type === PIECE) {
+                    row -= rowsOf(piece.text);
                     piece.text = text.slice(piece.start, index);
-                    piece.end = match.index;
+                    setRows(piece.text);
+                    piece.end = index;
                 }
                 else {
                     m = text.slice(start, index);
@@ -337,7 +374,7 @@ class Program {
         }
         loop: while (index < text.length) {
             if (queue.type === QUOTED) {
-                var quote = this.quote_map[queue.entry];
+                var quote = quote_map[queue.entry];
                 var reg = quote.reg;
                 start = index;
                 while (index < text.length) {
@@ -359,12 +396,12 @@ class Program {
 
                         continue;
                     }
+
                     if (quote.end.test(m)) {
                         end = match.index;
                         if (queue.tag) {
                             push_piece();
                             if (!queue.inTag) continue;
-
                             if (closeTag() === false) {
                                 start = index;
                                 queue.tag_leave = m;
@@ -391,6 +428,7 @@ class Program {
                             var scope = [];
                             scope.entry = m;
                             scope.type = QUOTED;
+                            if (queue.istype) scope.istype = queue.istype;
                             scope.start = index;
                             scope.isExpress = queue.inExpress;
                             push_parents(scope);
@@ -411,11 +449,11 @@ class Program {
                         push_quote();
                         continue loop;
                     }
-                    if (m in this.quote_map) {
-                        if (this.comment_entry.test(m)) {
+                    if (m in quote_map) {
+                        if (comment_entry.test(m)) {
                             push_piece();
                             var start = match.index;
-                            var { reg: comment_reg, end: comment_end } = this.quote_map[m];
+                            var { reg: comment_reg, end: comment_end } = quote_map[m];
                             comment_reg.lastIndex = index;
                             do {
                                 var match = comment_reg.exec(text);
@@ -439,16 +477,15 @@ class Program {
                 continue;
             }
 
-            var reg = this.entry_reg;
-            var start = reg.lastIndex = index;
-            var match = reg.exec(text);
+            var start = entry_reg.lastIndex = index;
+            var match = entry_reg.exec(text);
             if (!match) return null;
             var end = match[0].length + match.index;
             index = end;
             var m = match[0];
-            test: if (this.quote_map.hasOwnProperty(m)) {
+            test: if (quote_map.hasOwnProperty(m)) {
                 var last = queue.last;
-                var quote = this.quote_map[m];
+                var quote = quote_map[m];
                 if (queue.tag && quote.tag) {
                     var tagend = end + queue.tag.length
                     var leavem = quote.entry[m];
@@ -460,22 +497,63 @@ class Program {
                         break test;
                     }
                 }
-                if (this.stamp_reg.test(m) && last) {
-                    if ((VALUE | EXPRESS) & last.type) {
-                        if (queue.type !== ELEMENT) break test;
+
+                var isTypeTag = false;
+                if (queue.istype) {
+                    isTypeTag = true;
+                }
+                else if (!last) {
+                    if (!queue.brace) {
+                        isTypeTag = isTypedColon(queue.prev);
+                    }
+                }
+                else if (stamp_reg.test(m) && last) {
+                    if (lasttype === STAMP && m === last.text) break test;
+                    if (last.istype || last.isprop) {
+                        isTypeTag = true;
+                    }
+                    else if ((VALUE | EXPRESS | PROPERTY) & last.type) a: {
+                        if (queue.classed) {
+                            isTypeTag = true;
+                            break a;
+                        }
                         var lp = last.prev;
                         if (lp) {
-                            if (lp.type === STAMP && lp.text !== ';') break test;
-                            if (lp.type === STRAP && lp.transive) break test;
+                            if (lp.type === STAMP) {
+                                if (lp.text === ':') {
+                                    if (isTypedColon(lp)) {
+                                        last.istype = true;
+                                        isTypeTag = true;
+                                        break a;
+                                    }
+                                }
+                                break test;
+                            }
+                            if (lp.type === STRAP) {
+                                if (lp.istype) {
+                                    isTypeTag = true;
+                                    break a;
+                                }
+                                if (lp.transive) break test;
+                            }
                         }
+                        if (queue.type !== ELEMENT) break test;
                     }
-                    if (last.type === QUOTED && !last.tag) break test;
-                    if (last.type === SCOPED && queue.inExpress) break test;
-                    if (lasttype === STAMP && m === last.text) break test;
-                    if (last.type === STAMP && /^(\+\+|\-\-)$/.test(last.text)) break test;
+                    else switch (last.type) {
+                        case QUOTED:
+                            if (!last.tag) break test;
+                            break;
+                        case SCOPED:
+                            if (queue.inExpress) break test;
+                            break;
+                        case STAMP:
+                            if (/^(\+\+|\-\-)$/.test(last.text)) break test;
+                            break;
+                    }
                 }
                 var scope = [];
-                scope.type = this.comment_entry.test(m) ? COMMENT : QUOTED;
+                scope.type = comment_entry.test(m) ? COMMENT : QUOTED;
+                if (isTypeTag && scope.type === QUOTED) scope.istype = isTypeTag;
                 scope.isExpress = queue.inExpress;
                 scope.start = start;
                 push_parents(scope);
@@ -519,14 +597,14 @@ class Program {
                 continue;
             }
             var parent = parents[parents.length - 1];
-            if (parent && this.quote_map[parent.entry] && queue.leave_map?.[m] === queue.entry) {
+            if (parent && quote_map[parent.entry] && queue.leave_map?.[m] === queue.entry) {
                 delete queue.leave_map;
                 queue.end = end;
                 queue.leave = m;
                 pop_parents();
                 continue;
             }
-            if (this.space_reg.test(m)) {
+            if (space_reg.test(m)) {
                 if (/[\r\n\u2028\u2029]/.test(m)) {
                     var last = queue.last;
                     if (last && last.isend === false) {
@@ -541,8 +619,8 @@ class Program {
                 lasttype = SPACE;
                 continue;
             }
-            if (this.strap_reg.test(m)) {
-                if (!this.classstrap_reg.test(m)) queue.inExpress = this.transive_reg.test(m);
+            if (strap_reg.test(m)) {
+                if (!classstrap_reg.test(m)) queue.inExpress = this.transive_reg.test(m);
                 else {
                     var last = queue.last;
                     if (!last);
@@ -571,7 +649,7 @@ class Program {
                 }
                 isdigit = true;
             }
-            if (this.value_reg.test(m) || isdigit) {
+            if (value_reg.test(m) || isdigit) {
                 queue.inExpress = true;
                 if (isdigit && lasttype === STAMP) {
                     var last = queue.last;
@@ -588,15 +666,15 @@ class Program {
                 save(VALUE);
                 continue;
             }
-            if (this.express_reg.test(m)) {
+            if (express_reg.test(m)) {
                 var last = queue.last;
-                if (last && last.type === STRAP && this.classstrap_reg.test(last.text));
+                if (last && last.type === STRAP && classstrap_reg.test(last.text));
                 else queue.inExpress = true;
                 save(EXPRESS);
                 continue;
             }
 
-            if (this.scope_entry[m]) {
+            if (scope_entry[m]) {
                 var scope = [];
                 scope.entry = m;
                 scope.type = SCOPED;
@@ -606,18 +684,25 @@ class Program {
                 var last = queue.last;
                 if (m === "{") {
                     if (!last) {
-                        scope.isObject = queue.inExpress;
+                        if (queue.istype) scope.isClass = true;
+                        else scope.isObject = queue.inExpress;
                     }
-                    else if (queue.classed > 0) {
+                    else if (queue.classed) {
                         if (last.type !== STAMP || last.text !== "=>") {
-                            queue.classed--;
+                            var classed = queue.classed;
+                            var clsd = classed.pop();
                             scope.isClass = true;
-                            scope.extend += this.extends_reg.test(last.text);
+                            if (!classed.length) queue.classed = null;
+                            scope.istype = clsd === 'interface';
+                            scope.extend += extends_reg.test(last.text);
                             scope.inExpress = false;
                         }
                     }
                     else if (last.type === STAMP) {
-                        if (last.text === ':') {
+                        if (last.istype) {
+                            scope.isClass = true;
+                        }
+                        else if (last.text === ':') {
                             scope.isObject = queue.inExpress;
                         }
                         else queue.inExpress = scope.isObject = !/^(;|\+\+|\-\-|=>)$/.test(last.text);
@@ -629,11 +714,16 @@ class Program {
                         if (last.isend);
                         else scope.isObject = queue.inExpress;
                     }
+                    scope.brace = true;
+                    scope.isExpress = queue.inExpress;
                 }
                 else {
                     if (!last || (last.type & (SCOPED | STAMP))) queue.inExpress = true;
                     scope.isExpress = queue.inExpress;
                     scope.inExpress = true;
+                    if (last?.istype && last.type === STAMP) {
+                        scope.istype = true;
+                    }
                 }
                 push_parents(scope);
                 continue;
@@ -653,7 +743,7 @@ class Program {
                 continue;
             }
             if (this.scope_leave[m]) console.warn(i18n`标记不匹配`, queue.entry, m, "queue-start:", queue.start, "position:", `${row}:${index - colstart}\r\n`, index - queue.start < 200 ? text.slice(queue.start, index) : text.slice(queue.start, queue.start + 100) + "..." + text.slice(index - 97, index));
-            if (this.stamp_reg.test(m)) {
+            if (stamp_reg.test(m)) {
                 save(STAMP);
             }
 
@@ -673,7 +763,16 @@ class Program {
         };
         this.lastIndex = index;
         if (queue !== origin) {
-            throw console.log(createString(origin), `\r\n------ deep: ${parents.length}\r\n  --- enrty: ${queue.entry}\r\n  -- length: ${queue.length}\r\n  ---- last: ${createString([queue.last])}\r\n------- end\r\n --parents: ${parents.map(p => p.tag || p.entry || p.text).join('->')}`, createString([queue]).slice(-200)), "代码异常结束";
+            throw console.log(
+                createString(origin),
+                `\r\n ----- deep: ${parents.length}`,
+                `\r\n ---- enrty: ${queue.entry}`,
+                `\r\n --- length: ${queue.length}`,
+                `\r\n ----- last: ${queue.last ? createString([queue.last]) : createString(queue)}`,
+                `\r\n -- parents: ${parents.map(p => `${p.row}:${p.col}-${p.tag || p.text || p.entry} `).join('-)> ')}`,
+                `\r\n ----- snap: ${createString([queue]).slice(-200)}`,
+                `\r\n ------ end. `
+            ), "代码异常结束";
         }
         return queue;
     }

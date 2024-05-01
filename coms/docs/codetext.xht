@@ -94,10 +94,46 @@
         return text.replace(/[\<\>\|]/g, a => `&#${a.charCodeAt()};`);
     };
     var typescript = new compile$Javascript;
-    typescript.straps = typescript.straps.concat("interface", "implements", "declare", "module", "readonly", "enum");
-    typescript.tags[0].push(["{", "}"]);
+    typescript.straps = typescript.straps.concat(
+        "interface", "implements", "declare", "module", "namespace",
+        "readonly", "private", "asserts", "is",
+        "enum", "type");
+    typescript.tags[0].push("{");
     var js = new compile$Javascript;
-    js.tags[0].push(["{", "}"]);
+    js.tags[0].push("{");
+    var gl = new compile$Javascript;
+    gl.straps = gl.straps.concat(
+        "in", "out", "inout", "uniform", "buffer", "shared",
+        "highp", "mediump", "lowp",
+        "invariant", "const", "varying", "attribute",
+        "sampler2D", "texture2D",
+        "sampler3D", "texture3D",
+        "coherent", "volatile", "restrict", "readonly", "writeonly",
+        "flat", "noperspective", "smooth",
+        "packed", "shared", "std140", "std340", "row_major", "colum_major",
+        "location", "set", "binding", "offset", "index", "xfb_buffer", "xfb_offset", "local_size",
+        "void",
+        'require', 'enable', 'disable', 'warn',
+        'struct',
+        'float', 'int',
+        'vec4', 'vec3', 'vec2',
+        'mat4', 'mat3', 'mat2',
+        'bool', 'const', 'precision',
+        "step", "smoothstep",
+        "mix", "clamp"
+    );
+    var struct_reg = /^(while|do|for|with|switch|case|default|if|else|try|catch|finally)$/;
+
+    gl.setType = function (o) {
+        var { type } = o;
+        var queue = o.queue;
+        var last = o.prev;
+        if (type & (SCOPED | EXPRESS | PROPERTY)) {
+            if (last && last === queue[queue.length - 1] && last.type & (EXPRESS | STRAP | PROPERTY)) {
+                last.istype = !struct_reg.test(last.text);
+            }
+        }
+    }
     var codesupports = {
         javascript(a, blink) {
             if (blink) var index = a.indexOf(blink);
@@ -114,6 +150,11 @@
         },
         typescript(a) {
             var c = compile$scanner2(a, typescript);
+            codecolor(c, encode);
+            return c.toString();
+        },
+        glsl(a) {
+            var c = compile$scanner2(a, gl);
             codecolor(c, encode);
             return c.toString();
         },
@@ -136,11 +177,12 @@
             return c.toString();
         }
     };
+    codesupports.gl = codesupports.glsl;
     codesupports.cmd = codesupports.bat;
     codesupports.jsx = codesupports.js = codesupports.javascript;
     codesupports.tsx = codesupports.ts = codesupports.typescript;
     codesupports.xml = codesupports.html;
-    var { SCOPED, QUOTED, SPACE, EXPRESS } = compile$common;
+    var { SCOPED, QUOTED, SPACE, STRAP, EXPRESS, PROPERTY } = compile$common;
     var patchBlink = function (code, index, blink) {
         for (var cx = 0, dx = code.length; cx < dx; cx++) {
             var c = code[cx];

@@ -1,5 +1,5 @@
 
-var { STRAP, SCOPED, ELEMENT, QUOTED, LABEL, COMMENT, STAMP, VALUE, EXPRESS, PROPERTY, PIECE } = compile$common;
+var { STRAP, SCOPED, ELEMENT, QUOTED, LABEL, COMMENT, STAMP, VALUE, EXPRESS, PROPERTY, PIECE, needhead_reg } = compile$common;
 var predefs = Object.create(null);
 predefs.module = true;
 predefs.exports = true;
@@ -10,26 +10,37 @@ var codecolor = function (c, encode) {
     var envs = c.envs;
     var deep = 0;
     var used = c.used;
+    var isConstValue = () => false;
+    if (c.program) {
+        var { strap_reg, value_reg } = c.program;
+        isConstValue = a => strap_reg.test(a) || value_reg.test(a);
+    };
+    var isInvoke = function (o) {
+        var o = o.next;
+        if (o?.type === EXPRESS && needhead_reg.test(o.text)) o = o.next;
+        if (o?.type === ELEMENT && o.istype) o = o.next;
+        if (o?.type === SCOPED && o.entry === "(") return true;
+        return false;
+    }
     var setExpress = function (o, label) {
         if (!o.text) return;
         var keys = o.text.split(".");
-        var next = o.next;
-        if (next && next.type === SCOPED && next.entry === '(') {
-            if (!/^\</.test(keys[keys.length - 1])) keys[keys.length - 1] = `<invoke>${keys[keys.length - 1]}</invoke>`;
+        if (isInvoke(o)) {
+            if (!/^[\<\?]/.test(keys[keys.length - 1])) keys[keys.length - 1] = `<invoke>${keys[keys.length - 1]}</invoke>`;
         }
         var [name] = keys;
         if (/^[\<\?]/.test(name) || !name);
-        else if (c.program?.strap_reg.test(name) || c.program?.value_reg.test(name) || /^(this|arguments)$/.test(name)) name = `<strap>${name}</strap>`;
+        else if (!o.isprop && isConstValue(name)) name = `<strap>${name}</strap>`;
         else name = `<${label}>${name}</${label}>`;
         keys[0] = name;
-        o.text = keys.map(k => /^\</.test(k) || !k ? k : `<express>${k}</express>`).join(".");
+        o.text = keys.map(k => /^[\<\?]/.test(k) || !k ? k : `<express>${k}</express>`).join(".");
     }
     var setPredef = o => setExpress(o, 'predef');
     var setOutside = o => setExpress(o, 'outside');
     if (used) for (var k in envs) {
         used[k].forEach(k in predefs ? setPredef : setOutside);
     }
-    var spaceReg = c.program.space_exp;
+    if (c.program) var { space_exp: spaceReg, control_reg } = c.program;
     var unspaceReg = new RegExp(spaceReg.source.replace(/^\[/, "[^"), spaceReg.flags + 'g');
     var wraptext = function (t, l) {
         t = t.replace(unspaceReg, a => {
@@ -94,17 +105,16 @@ var codecolor = function (c, encode) {
             case PROPERTY:
                 var next = o.next;
                 if (next && next.type === SCOPED && next.entry === '(') {
-                    o.text = `<method>${o.text}</method>`;
+                    setExpress(o, 'method');
                 }
-                else o.text = `<property>${o.text}</property>`;
+                else setExpress(o, 'property');
 
                 break;
             case EXPRESS:
-                setExpress(o, 'express');
+                setExpress(o, o.istype ? 'predef' : 'express');
                 break;
             case STRAP:
-                if (/^(if|else|switch|case|do|while|for|break|continue|default|import|from|as|export|try|catch|finally|throw|await|yield|return)$/.test(text))
-                    o.text = `<flow>${o.text}</flow>`;
+                if (control_reg?.test(text)) o.text = `<flow>${o.text}</flow>`;
                 else o.text = `<strap>${o.text}</strap>`;
                 break;
             case STAMP:

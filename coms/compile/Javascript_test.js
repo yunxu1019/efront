@@ -42,3 +42,71 @@ testDetour('0o1j.a', '0o1j["a"]')
 testDetour('0o1k.a', '0o1k["a"]')
 testDetour('0o1l.a', '0o1l["a"]')
 testDetour('0o1ll.a', '0o1ll["a"]')
+var ts = new Javascript;
+ts.straps.push('interface', 'implements', "declare", "module", "readonly", "enum", 'type');
+ts.tags[0].push("{")
+var testTypescript = function (text) {
+    var s = scanner2(text, ts);
+    return assert(s.toString(), text);
+}
+testTypescript(`const strict: Omit<typeof assert, 'equal' | 'notEqual' | 'deepEqual' | 'notDeepEqual' | 'ok' | 'strictEqual' | 'deepStrictEqual' | 'ifError' | 'strict'> & {
+    (value: unknown, message?: string | Error): asserts value;
+    equal: typeof strictEqual;
+    notEqual: typeof notStrictEqual;
+    deepEqual: typeof deepStrictEqual;
+    notDeepEqual: typeof notDeepStrictEqual;
+    // Mapped types and assertion functions are incompatible?
+    // TS2775: Assertions require every name in the call target
+    // to be declared with an explicit type annotation.
+    ok: typeof ok;
+    strictEqual: typeof strictEqual;
+    deepStrictEqual: typeof deepStrictEqual;
+    ifError: typeof ifError;
+    strict: typeof strict;
+};`);
+testTypescript(`
+type ExecFileException =
+& Omit<ExecException, 'code'>
+& Omit<NodeJS.ErrnoException, 'code'>
+& { code?: string | number | undefined | null };
+function rejects(block: (() => Promise<unknown>) | Promise<unknown>, message?: string | Error): Promise<void>;
+const exit<R, TArgs extends any[]>(callback: (...args: TArgs) => R, ...args: TArgs): R;
+`)
+testTypescript(`class AsyncLocalStorage<T> {
+    static snapshot(): (<R, TArgs extends any[]>(fn: (...args: TArgs) => R, ...args: TArgs) => R) & {
+        asyncResource: AsyncResource;
+    };
+}`);
+
+testTypescript(`interface AsyncResourceOptions {
+    triggerAsyncId?: number | undefined;
+    requireManualDestroy?: boolean | undefined;
+    arrayBuffer(): Promise<ArrayBuffer>;
+    from(data: WithImplicitCoercion<Uint8Array | ReadonlyArray<number> | string>): Buffer;
+    getRandomValues<T extends Exclude<NodeJS.TypedArray, Float32Array | Float64Array>>(typedArray: T): T;
+    preopens?: NodeJS.Dict<string> | undefined;
+    function rejects(block: (() => Promise<unknown>) | Promise<unknown>, message?: string | Error): Promise<void>;
+}`);
+
+testTypescript(`
+interface WritableOptions extends StreamOptions<Writable> {
+    decodeStrings?: boolean | undefined;
+    defaultEncoding?: BufferEncoding | undefined;
+    write?(this: Writable, chunk: any, encoding: BufferEncoding, callback: (error?: Error | null) => void): void;
+    writev?(
+        this: Writable,
+        chunks: Array<{
+            chunk: any;
+            encoding: BufferEncoding;
+        }>,
+        callback: (error?: Error | null) => void
+    ): void;
+    final?(this: Writable, callback: (error?: Error | null) => void): void;
+}`);
+common.debug=true;
+testTypescript(`
+while(++i < 2) {}
+a ? function() {} : function() {}
+declare module 'buffer' {}
+
+`)

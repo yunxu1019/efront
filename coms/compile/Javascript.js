@@ -40,31 +40,33 @@ return,typeof,delete,switch,export,import,static
 default,finally,extends
 function,continue,debugger
 instanceof`.trim().split(/[,\s]+/);
+var colonstrap_reg = /^(case|default)$/;
 class Javascript extends Program {
     straps = straps;
     value_reg = /^(false|true|null|Infinity|NaN|undefined|eval)$/
     transive_reg = /^(new|var|let|const|yield|void|in|of|typeof|delete|case|return|await|default|instanceof|throw|extends|import|from)$/
     strapexp_reg = /^(new|void|typeof|delete|class|function|await)/;
     forceend_reg = /^(return|yield|break|continue|debugger|async)$/;
-    classstrap_reg = /^(class|function|async)$/;
-    colonstrap_reg = /^(case|default)$/;
-
+    type_reg = /^(var|let|const|function|class|interface|type)$/;
     defaultType = EXPRESS;
 }
-var propresolve_reg = /^(static|get|set|async)$/;
+var propresolve_reg = /^(static|get|set|async|readonly)$/;
 
-Javascript.prototype.isProperty = function (o) {
+var isProperty = function (o) {
     var queue = o.queue;
     var prev = o.prev;
     if (queue.isObject) {
-        if (!prev || prev.type === STAMP && prev.text === ",") return true;
+        if (!prev || prev.type === STAMP && /^[,;]$/.test(prev.text)) return true;
         if (prev.type === STAMP && prev.isprop) return true;
     }
     if (queue.isClass) {
         if (!prev) return true;
+        if (o.type === SCOPED && o.entry !== '{') {
+            return prev.isprop || prev.type === STAMP && prev.text === ';' || isShortMethodEnd(prev);
+        }
         if (prev.type === STAMP) {
             if (prev.isprop) return true;
-            return /^(\+\+|\-\-|;)$/.test(prev.text);
+            return /^(\+\+|\-\-|[,;])$/.test(prev.text) && !/^[,;\=\:]$/.test(o.text);
         }
         if (prev.type === EXPRESS && !/\.$/.test(prev.text)) {
             return prev.text !== 'async' || o.text !== 'function';
@@ -102,7 +104,7 @@ var setStrapExpress = function (mark_type, mark_text, prop, o, default_type) {
         if (q.entry === '(') {
             var pp = q.prev;
         }
-        else if (q.entry === "{") a: {
+        else if (q.brace) a: {
             var p = q.prev;
             if (p) {
                 if (p.type === STAMP && p.text === "=>") {
@@ -154,16 +156,14 @@ var setStrapExpress = function (mark_type, mark_text, prop, o, default_type) {
 }
 var setYieldExpress = setStrapExpress.bind(null, STAMP, "*", 'next');
 var setAwaitExpress = setStrapExpress.bind(null, STRAP, "async", 'prev');
-Javascript.prototype.fixType = function (o) {
+var fixType = function (o) {
     var m = o.text;
-    if (m === 'yield') setYieldExpress(o, this.defaultType);
-    else if (m === 'await') setAwaitExpress(o, this.defaultType);
     var last = o.prev;
     var type = o.type;
     var queue = o.queue;
     switch (type) {
         case QUOTED:
-            if (this.isProperty(o)) type = PROPERTY;
+            if (isProperty(o)) o.isprop = true;
             break;
         case SCOPED:
             if (o.entry === '(') {
@@ -173,14 +173,14 @@ Javascript.prototype.fixType = function (o) {
             }
             break;
         case EXPRESS:
-            if ((!/^\./.test(m)) && this.isProperty(o)) type = PROPERTY;
+            if ((!/^\./.test(m)) && isProperty(o)) type = PROPERTY;
             break;
         case STRAP:
         case VALUE:
             if (last && last.type === EXPRESS && /[^\.]\.$/.test(last.text)) {
                 type = EXPRESS;
             }
-            else if (this.isProperty(o)) type = PROPERTY;
+            else if (isProperty(o)) type = PROPERTY;
             else if (m === 'from') {
                 if (!last || last.type === STRAP && !/^(im|ex)port$/.test(last.text)) {
                     type = EXPRESS;
@@ -218,12 +218,13 @@ Javascript.prototype.fixType = function (o) {
             }
             break;
     }
-    if (type === STRAP && m === "class" && !queue.classed) {
-        queue.classed = 1;
+    if (type === STRAP && /^(class|interface)$/.test(m) && !queue.classed) {
+        queue.classed = [m];
     }
-    else if (queue.classed > 0) {
-        if (type === STRAP && /^(class|function)$/.test(m)) queue.classed++;
+    else if (queue.classed) {
+        if (type === STRAP && /^(class|function|interface)$/.test(m)) queue.classed.push(m);
     }
+    if (type === PROPERTY) o.isprop = true;
     o.type = type;
 
 };
@@ -278,12 +279,11 @@ var setObject = function (o) {
         }
     }
 };
-Javascript.prototype.detectLabel = function (o) {
+var detectLabel = function (o) {
     var queue = o.queue;
     var last = queue.last;
     var m = o.text;
     var type = o.type;
-    var colonstrap_reg = this.colonstrap_reg;
     var end = o.end;
     var inExpress = queue.inExpress;
     if (type === SPACE);
@@ -294,16 +294,24 @@ Javascript.prototype.detectLabel = function (o) {
     }
     else if (last) check: switch (m) {
         case "?":
+            if (last.isprop) {
+                o.type = EXPRESS;
+                o.isprop = true;
+                break;
+            }
             inExpress = true;
             if (!queue.question) queue.question = 1;
             else queue.question++;
             break;
         case "=":
-            inExpress = true;
-            if (last.type === SCOPED && last.entry === "{") {
+            if (last.type === SCOPED && last.brace) {
                 if (!last.isObject) {
                     setObject(last);
                 }
+            }
+            var lp = last.prev;
+            if (lp?.type === STRAP && lp.text === 'type') {
+                o.istype = true;
             }
         case ",":
             if (queue.isObject) {
@@ -316,36 +324,47 @@ Javascript.prototype.detectLabel = function (o) {
         case ":":
             if (queue.question) {
                 queue.question--;
-                inExpress = true;
+                if (last.type === STAMP && last.text === '?') {
+                    inExpress = false;
+                    o.istype = true;
+                    last.type = EXPRESS;
+                }
+                else {
+                    inExpress = true;
+                }
                 break;
             }
             if (queue.isObject) {
-                if (last.type === PROPERTY || last.isprop) {
-                    inExpress = true;
-                    break;
+                if (last.isprop) {
+                    o.isExpress = false;
+                    queue.inExpress = true;
+                    return;
                 }
-                if (last.type === SCOPED && (!last.prev || !last.prev.type === STAMP && last.prev.text === ",")) {
-                    inExpress = true;
-                }
+            }
+            inExpress = false;
+            if (queue.entry && (!queue.brace || queue.isClass)) {
+                o.istype = true;
                 break;
             }
             var temp = last;
             while (temp) {
                 if (temp.type === STRAP && colonstrap_reg.test(temp.text)) {
-                    inExpress = false;
                     break check;
                 }
                 if (!temp.isExpress) break;
                 temp = temp.prev;
             }
-            inExpress = false;
             if (last.type & (EXPRESS | STRAP | VALUE | QUOTED)) {
                 // label
-                last.type = LABEL;
-                last.text += ":";
-                last.end = end;
-                return o;
+                var lp = last.prev;
+                if (!lp || lp.type !== STRAP || lp.isend) {
+                    last.type = LABEL;
+                    last.text += ":";
+                    last.end = end;
+                    return o;
+                }
             }
+            o.istype = true;
             break;
         default:
             inExpress = true;
@@ -359,31 +378,46 @@ Javascript.prototype.detectLabel = function (o) {
 }
 
 Javascript.prototype.setType = function (o) {
-    if (this.detectLabel(o)) return false;
-    var last = o.prev;
-    if (o.type === EXPRESS && /^\.[^\.]|^\.$/.test(o.text) && last && last.type === STAMP && last.text === "?") {
-        last.type = EXPRESS;
-        var q = o.queue;
-        q.question--;
-        return false;
+    if (detectLabel(o)) return false;
+    switch (o.text) {
+        case "yield": setYieldExpress(o, this.defaultType); break;
+        case "await": setAwaitExpress(o, this.defaultType); break;
     }
+    var last = o.prev;
+    var queue = o.queue;
+
     if (last) {
+        if (last.type === STAMP && last.text === "?") {
+            if (o.type === EXPRESS && /^\.[^\.]|^\.$/.test(o.text)) {
+                last.type = EXPRESS;
+                var q = o.queue;
+                q.question--;
+                return false;
+            }
+        }
         if (o.type === STRAP && o.text === "function") {
             if (last.text === 'async' && !last.isend) last.type = STRAP;
         }
+        if ((o.type & (EXPRESS | STRAP) && last.type === STAMP || o.type === STAMP && /^([\|\&]|\=\>)$/.test(o.text)) && (last.istype || queue.istype)) {
+            o.istype = true;
+        }
     }
-    this.fixType(o);
-    var queue = o.queue;
+    else {
+        if (queue.istype) {
+            o.istype = true;
+        }
+    }
+
+    fixType(o);
     if (queue.isObject || queue.isClass) {
-        if (o.type & (VALUE | QUOTED | STRAP)) {
-            o.isprop = this.isProperty(o);
+        if (o.type & (VALUE | QUOTED | STRAP | ELEMENT)) {
+            o.isprop = isProperty(o);
         }
         else if (o.type === SCOPED) {
-            if (o.entry === '[') {
-                if (queue.isObject) o.isprop = this.isProperty(o);
-                if (queue.isClass) o.isprop = !last || last.isprop || last.type === STAMP && last.text === ';' || isShortMethodEnd(last);
+            if (o.entry === '[' || o.entry === '(') {
+                o.isprop = isProperty(o);
             }
-            else if (o.entry === "{") {
+            else if (o.brace) {
                 if (last && last.type === PROPERTY && last.text === 'static') {
                     last.type = STRAP;
                 }
@@ -402,20 +436,21 @@ Javascript.prototype.setType = function (o) {
             if (queue.isClass) o.isend = false;
         }
     }
-    if (o.type === PROPERTY || o.isprop);
-    else if (o.type === STRAP && /^(get|set|static|async)$/.test(o.text)) {
-        o.type = EXPRESS;
+    if (o.isprop);
+    else if (o.type === STRAP) {
+        if (this.type_reg.test(o.text)) o.istype = true;
+        if (propresolve_reg.test(o.text)) o.type = EXPRESS;
     }
     if (last) {
         if (o.type === STAMP && o.text === "=>") {
             var pp = last.prev;
-            if (pp && pp.type === EXPRESS && pp.text === 'async') {
+            if (pp?.type === EXPRESS && pp.text === 'async') {
                 if (!pp.isend) pp.type = STRAP;
             }
         }
     }
     if (o.type === STAMP) {
-        if (!last || last.type & (STAMP | STRAP) && !/^(\+\+|\-\-)$/.test(last.text) || last.type === SCOPED && /^[\{\[]$/.test(last.entry) && !last.isExpress) {
+        if (!last || last.type & (STAMP | STRAP) && !/^(\+\+|\-\-)$/.test(last.text) && !last.istype || last.type === SCOPED && /^[\{\[]$/.test(last.entry) && !last.isExpress) {
             o.unary = /^[^=;,\*]$|.[^\=\>\<\|\&\^]$/.test(o.text);
             if (o.unary && /^(\+|\-)$/.test(o.text) && last && last.type === STAMP && /^(\+\+|\-\-)$/.test(last.text)) o.unary = !!last.unary;
         }
@@ -614,7 +649,7 @@ function detour(o, ie) {
                 }
                 if (!o.isprop) break;
             case PROPERTY:
-                if (!o.isend && /^(get|set|async|static)$/.test(o.text) && o.next && (o.next.type === PROPERTY || o.next.isprop)) break;
+                if (!o.isend && propresolve_reg.test(o.text) && o.next && (o.next.type === PROPERTY || o.next.isprop)) break;
                 if (o.text === 'static' && o.next && o.next.type === SCOPED && o.next.entry === '{') break;
                 if (/^\[/.test(o.text)) break;
                 if (o.queue.isObject) {

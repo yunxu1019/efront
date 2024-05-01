@@ -37,7 +37,7 @@ var hasRupt = function (a) {
                 a = skipAssignment(a);
             }
             else if (a.type === SCOPED) {
-                if (a.entry === "{") {
+                if (a.brace) {
                     if (!a.isObject) {
                         if (hasRupt(a)) return true;
                     }

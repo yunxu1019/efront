@@ -20,7 +20,7 @@ function format(code, step) {
         var space = lowspace + step;
         if (code.length === 0) continue;
         var explist = createExpressList(code);
-        var breakline = explist.length > 1 && (code.isObject || !code.entry || code.entry === "{");
+        var breakline = explist.length > 1 && (code.isObject || !code.entry || code.brace);
         code.splice(0, code.length);
         if (breakline) code.push({ type: SPACE, text: space });
         if (breakline) var deepspace = space + step;
