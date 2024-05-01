@@ -199,7 +199,7 @@ function enumref(refitem, scoped) {
                 if (q !== scoped.body) {
                     if (q.entry === '(' && q.queue === scoped.body) {
                         var qp = q.prev;
-                        if (qp.type === EXPRESS) qp = qp.prev;
+                        if (qp?.type === EXPRESS) qp = qp.prev;
                         if (qp && qp.type === STRAP && qp.text === "await") qp = qp.prev;
                         if (qp && qp.type === STRAP && qp.text === 'for') {
                             var f = q.first;
