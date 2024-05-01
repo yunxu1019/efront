@@ -1132,7 +1132,7 @@ var getSemicolonBetween = function (prev, next) {
     ) {
         if ((EXPRESS | VALUE | QUOTED | LABEL) & next.type) return ";";
         if (next.type === STRAP) {
-            if (!/^(in|of|extends|implements|instanceof|as)$/.test(next.text)) return ";";
+            if (!/^(in|of|extends|implements|instanceof|as|is|from)$/.test(next.text)) return ";";
             return " ";
         }
         if (next.type === SCOPED && next.entry === '{') {

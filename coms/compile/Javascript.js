@@ -361,6 +361,7 @@ var detectLabel = function (o) {
                     last.type = LABEL;
                     last.text += ":";
                     last.end = end;
+                    queue.inExpress = false;
                     return o;
                 }
             }
