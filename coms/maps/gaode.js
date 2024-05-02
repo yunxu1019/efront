@@ -1,3 +1,3 @@
 return {
-    url:'http://webst04.is.autonavi.com/appmaptile?style=6&x={x}&y={y}&z={z}'
+    url:'http://webst0{1-4}.is.autonavi.com/appmaptile?style=6&x={x}&y={y}&z={z}'
 };
