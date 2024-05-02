@@ -560,22 +560,25 @@ var commands = {
         showHelpLine(i18n`目前没有与 ${value1} 相关的帮助信息！`);
     },
     async docs() {
+        memery.WAITER_NUMBER = 1;
+        memery.islive = !memery.COOKMODE;
         setAppnameAndPorts(arguments);
         // 文档
-        memery.islive = true;
         setenv({
             page_path: path.join(__dirname, '../../docs'),
             coms: 'docs,zimoli,basic,third-party',
             page: './',
             apis: 'docs,zimoli'
         });
+        memery.PUBLIC_PATH = memery.PAGE_PATH;
         require("./setupenv");
         require("../server/main");
         var ported = await wait(function () { return memery.proted }, 200);
         if (ported) showHelpLine(i18n`可以通过浏览器访问打开的端口以查看文档`);
     },
     demo() {
-        memery.islive = true;
+        memery.WAITER_NUMBER = 1;
+        memery.islive = !memery.COOKMODE;
         setenv({
             public_path: path.join(__dirname, "../../apps"),
             page_path: path.join(__dirname, "../../apps"),

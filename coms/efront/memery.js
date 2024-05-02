@@ -223,6 +223,7 @@ var memery = module.exports = {
         return noproxy;
     },
     LIVEMODE: get("LIVEMODE,LIVE"),
+    COOKMODE: get("COOKMODE,COOK", false),
     HELPCODE: get("HELPCODE"),
     RESTCOMS: get("RESTCOMS,REST_COMS"),
     DIRECT: geturlpath("DIRECT,DIRECT_PAGE,DIRECT_PATH,SINGLE,SINGLE_PAGE,SINGLE_PATH"),
