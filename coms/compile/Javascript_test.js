@@ -1,9 +1,11 @@
 // 导入
+var js = new Javascript;
 var testFix = function (a, e) {
-    var c = scanner2(a);
+    var c = scanner2(a, js);
     c.fix();
     assert(c.toString(), e);
 }
+js.debug = true;
 testFix(`import a from "a";console.log(a)`, 'var a = require("a"); console.log(a.default)');
 testFix(`import {a} from "a";console.log(a)`, 'var a1 = require("a"); console.log(a1.a)');
 testFix(`import a,{a as b} from "a";console.log(a,b)`, 'var a = require("a"); console.log(a.default, a.a)');
@@ -103,10 +105,10 @@ interface WritableOptions extends StreamOptions<Writable> {
     ): void;
     final?(this: Writable, callback: (error?: Error | null) => void): void;
 }`);
-common.debug=true;
+common.debug = true;
 testTypescript(`
-while(++i < 2) {}
-a ? function() {} : function() {}
+while (++i < 2) {}
+a ? function () {} : function () {}
 declare module 'buffer' {}
-
+a <= 1;
 `)

@@ -160,7 +160,7 @@ textSpan: highlightSpan.textSpan,
 isWriteAccess: highlightSpan.kind === "writtenReference" /* writtenReference */ }, highlightSpan.isInString && { isInString: true }, highlightSpan.contextSpan && { contextSpan: highlightSpan.contextSpan })) }`);
 assert(downLevel(`async()=>({ [argitem.sort ? argitem.sort : 'date']: "desc" })`), `function () { return async_(
 function () {
-_ = {}; if (!argitem.sort) return [1, 0]; _1 = argitem.sort; return [2, 0]
+_ = {}; _1 = argitem.sort; if (!_1) return [1, 0]; _1 = argitem.sort; return [2, 0]
 },
 function () {
 _1 = 'date'; return [1, 0]

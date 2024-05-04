@@ -47,7 +47,6 @@ class Javascript extends Program {
     transive_reg = /^(new|var|let|const|yield|void|in|of|typeof|delete|case|return|await|default|instanceof|throw|extends|import|from)$/
     strapexp_reg = /^(new|void|typeof|delete|class|function|await)/;
     forceend_reg = /^(return|yield|break|continue|debugger|async)$/;
-    type_reg = /^(var|let|const|function|class|interface|type)$/;
     defaultType = EXPRESS;
 }
 var propresolve_reg = /^(static|get|set|async|readonly|private)$/;
@@ -218,7 +217,7 @@ var fixType = function (o) {
             }
             break;
     }
-    if (type === STRAP && /^(class|interface)$/.test(m) && !queue.classed) {
+    if (type === STRAP && /^(class|interface|struct)$/.test(m) && !queue.classed) {
         queue.classed = [m];
     }
     else if (queue.classed) {
@@ -322,11 +321,13 @@ var detectLabel = function (o) {
             inExpress = true;
             break;
         case ":":
+
             if (queue.question) {
                 queue.question--;
                 if (last.type === STAMP && last.text === '?') {
                     inExpress = false;
                     o.istype = true;
+                    last.istype = true;
                     last.type = EXPRESS;
                 }
                 else {
@@ -354,7 +355,7 @@ var detectLabel = function (o) {
                 if (!temp.isExpress) break;
                 temp = temp.prev;
             }
-            if (last.type & (EXPRESS | STRAP | VALUE | QUOTED)) {
+            if (!queue.isargl && last.type & (EXPRESS | STRAP | VALUE | QUOTED)) {
                 // label
                 var lp = last.prev;
                 if (!lp || lp.type !== STRAP || lp.isend) {
@@ -388,23 +389,21 @@ Javascript.prototype.setType = function (o) {
     var queue = o.queue;
 
     if (last) {
-        if (last.type === STAMP && last.text === "?") {
-            if (o.type === EXPRESS && /^\.[^\.]|^\.$/.test(o.text)) {
-                last.type = EXPRESS;
-                var q = o.queue;
-                q.question--;
-                return false;
-            }
-        }
         if (o.type === STRAP && o.text === "function") {
             if (last.text === 'async' && !last.isend) last.type = STRAP;
         }
-        if ((o.type & (EXPRESS | STRAP) && last.type === STAMP || o.type === STAMP && /^([\|\&]|\=\>)$/.test(o.text)) && (last.istype || queue.istype)) {
-            o.istype = true;
+        if ((o.type & (EXPRESS | STRAP) && last.type === STAMP || o.type === STAMP && /^([\|\&]|\=\>)$/.test(o.text)) && (last.istype)) {
+            // o.istype = true;
+        }
+        if (o.type === STAMP && o.pesudo) {
+            // o.type = EXPRESS;
         }
     }
     else {
-        if (queue.istype) {
+        if (queue.isargl) {
+            o.isarg = !last || last.type === STAMP && /^[,;]$/.test(last.text);
+        }
+        else if (queue.istype) {
             o.istype = true;
         }
     }
@@ -434,12 +433,17 @@ Javascript.prototype.setType = function (o) {
             if (last && last.type === PROPERTY && propresolve_reg.test(last.text) && (o.type !== SCOPED || o.entry === "[")) {
                 last.type = STRAP;
             }
-            if (queue.isClass) o.isend = false;
         }
     }
     if (o.isprop);
     else if (o.type === STRAP) {
-        if (this.type_reg.test(o.text)) o.istype = true;
+        if (this.type_reg.test(o.text) && !this.funcstrap_reg.test(o.text)) {
+            if (last) {
+                if (last.type === STRAP && last.transive && !last.isend || last.type === STAMP && queue.inExpress) {
+                    o.type = EXPRESS;
+                }
+            }
+        }
         if (propresolve_reg.test(o.text)) o.type = EXPRESS;
     }
     if (last) {
@@ -448,22 +452,6 @@ Javascript.prototype.setType = function (o) {
             if (pp?.type === EXPRESS && pp.text === 'async') {
                 if (!pp.isend) pp.type = STRAP;
             }
-        }
-    }
-    if (o.type === STAMP) {
-        if (!last || last.type & (STAMP | STRAP) && !/^(\+\+|\-\-)$/.test(last.text) && !last.istype || last.type === SCOPED && /^[\{\[]$/.test(last.entry) && !last.isExpress) {
-            o.unary = /^[^=;,\*]$|.[^\=\>\<\|\&\^]$/.test(o.text);
-            if (o.unary && /^(\+|\-)$/.test(o.text) && last && last.type === STAMP && /^(\+\+|\-\-)$/.test(last.text)) o.unary = !!last.unary;
-        }
-        if (last && /^(\+\+|\-\-)$/.test(o.text)) {
-            var i = 1;
-            var p = queue[queue.length - i];
-            if (p === o) p = queue[queue.length - ++i];
-            while (p && p.type & (SPACE | COMMENT)) {
-                if (p.type === SPACE && /[\r\n\u2028\u2029]/.test(p.text)) break;
-                p = queue[queue.length - ++i];
-            }
-            o.unary = !p || p.type & (SPACE | STAMP | STRAP) || p.type === EXPRESS && p.prev && p.prev.type === STAMP && /^(\+\+|\-\-)$/.test(p.prev.text) && p.prev.unary;
         }
     }
 };
@@ -544,14 +532,8 @@ function detour(o, ie) {
             case SCOPED:
                 detour(o.first, ie);
                 break;
-            case EXPRESS:
-                var text = o.text.replace(/^\.\.\./, '');
-                var hasdot = o.text.length !== text.length;
-                if (context.avoidMap) {
-                    var m = /^[^\.\[\]]+/.exec(o.text);
-                    if (m) { context.avoidMap[m[0]] = true; }
-                }
-                if (/\?\.|\?\?/.test(text)) {
+            case STAMP:
+                if (o.text === "?.") {
                     o = snapExpressHead(o);
                     var f = snapExpressFoot(o);
                     var rest = [o];
@@ -569,6 +551,22 @@ function detour(o, ie) {
                     replace(o, ...o1);
                     o = o1.last;
                     continue;
+                }
+                else if (o.text === '.') {
+                    remove(o);
+                    o = o.next;
+                    if (o.type === EXPRESS) {
+                        o.text = '.' + o.text;
+                    }
+                    continue;
+                }
+                break;
+            case EXPRESS:
+                var text = o.text.replace(/^\.\.\./, '');
+                var hasdot = o.text.length !== text.length;
+                if (context.avoidMap) {
+                    var m = /^[^\.\[\]]+/.exec(o.text);
+                    if (m) { context.avoidMap[m[0]] = true; }
                 }
                 text = text.replace(/\.([^\.\[\!\=\:]+)/g, (_, a) => ie === undefined || context.strap_reg.test(a) || /#/.test(a) ? `[${strings.recode(a)}]` : _);
                 if (hasdot) text = "..." + text;
@@ -906,6 +904,17 @@ Javascript.prototype.fix = function (code) {
         }
         var requires = code.used.require;
         imports = imports.filter(m => {
+            if (m.next?.text === '.') {
+                var o = m;
+                var s = snapExpressFoot(o);
+                var a = [o];
+                while (o !== s) {
+                    o = o.next;
+                    a.push(o);
+                }
+                m.text = createString(a);
+                remove(m.next, s);
+            }
             if (/^import\.meta($|\.)/.test(m.text)) {
                 m.text = m.text.replace(/\./, '_');
                 return true;

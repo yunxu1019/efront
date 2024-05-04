@@ -96,9 +96,9 @@ test("if(1) function a(){}", 'if (false) return [1, 0]; a = function () {}; retu
 test("if(1) {function a(){}}", 'if (false) return [1, 0]; a = function () {}; return [1, 0]', true);
 test("if(a) a = 1;function a(){}", "a = function () {}; if (!a) return [1, 0]; a = 1; return [1, 0]", true);
 test("if(a) a = 1;async function a(){}", "a = async function () {}; if (!a) return [1, 0]; a = 1; return [1, 0]", true);
-test("if(a) a = 1;async function* a(){}", "a = async function* () {}; if (!a) return [1, 0]; a = 1; return [1, 0]", true);
+test("if(a) a = 1;async function* a(){}", "a = async function *() {}; if (!a) return [1, 0]; a = 1; return [1, 0]", true);
 test("if(a) a = 1;class a{}", "a = class {}; if (!a) return [1, 0]; a = 1; return [1, 0]", true);
-test("if(a) a = 1;function* a(){}", "a = function* () {}; if (!a) return [1, 0]; a = 1; return [1, 0]", true);
+test("if(a) a = 1;function* a(){}", "a = function *() {}; if (!a) return [1, 0]; a = 1; return [1, 0]", true);
 test("await new Promise(function(){})", '_ = function () {}; _ = new Promise(_); return [_, 1]', true);
 test(`onerror({ status: xhr.status, response: "Cookie解析异常!", toString: toResponse })`, '_ = { status: xhr.status, response: "Cookie解析异常!", toString: toResponse }; onerror(_)', true);
 test(`if (!/^https\\:\\/\\/|^s\\/\\//.test(url)) console.warn("请使用https访问如下路径:" + url)`, '_ = /^https\\:\\/\\/|^s\\/\\//.test(url); if (_) return [1, 0]; _ = "请使用https访问如下路径:" + url; _ = console.warn(_); return [1, 0]', true);
@@ -126,7 +126,7 @@ test(`switch(a){default: a;case 1:b;}`, 'if (a === 1) return [2, 0]; return [1, 
 test("loop:{a=b;if(a) continue loop}", "a = b; if (a) return [0, 0]", true);
 test("if(a)try{}finally{}else a;", 'if (!a) return [4, 0]; return [1, 8];\r\n return [0, 9];\r\n return [1, 9];\r\n return [2, 0];\r\n a; return [1, 0]')
 test("b:while(t){switch(a){case c:break b;}}", 'if (!t) return [1, 0]; if (a === c) return [1, 0]; return [0, 0]');
-test("predef[key[1]](r.slice(key[0].length).trim())", '_ = key[1]; _0 = key[0].length; _0 = r.slice(_0); _0 = _0.trim(); predef[_](_0)');
+test("predef[key[1]](r.slice(key[0].length).trim())", '_ = key[1]; _0 = key[0]; _0 = _0.length; _0 = r.slice(_0); _0 = _0.trim(); predef[_](_0)');
 test("predef[key[1]](r.slice())(r.slice())", '_ = key[1]; _0 = r.slice(); _ = predef[_](_0); _0 = r.slice(); _(_0)');
 test("predef[key[1]][key[2]][key[3]]", '_ = key[1]; _ = predef[_]; _0 = key[2]; _ = _[_0]; _0 = key[3]; _[_0]');
 test("[key[1]][key[2]][key[3]]", '_ = key[1]; _ = [_]; _0 = key[2]; _ = _[_0]; _0 = key[3]; _[_0]');

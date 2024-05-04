@@ -30,7 +30,7 @@ var unslice = function (arr) {
                     continue;
                 }
                 var p = o.prev;
-                if (p && p.type === EXPRESS && p.text === '...') {
+                if (p && is3dots(p)) {
                     var px = arr.lastIndexOf(p, cx);
                     splice(arr, px, cx - px + 1, ...o);
                     cx += o.length - 1;
@@ -370,13 +370,13 @@ var killdec = function (queue, i, getobjname, _var = 'var', killobj, islet) {
 // 键值对重组
 var killmap = function (body, i, _getobjname, _getnewname, killobj) {
     var o = body[i];
-    if (!o.length) return indexof(body, o.next, i);
+    if (!o.length) return i + 1;
     var m = o.first;
     var s = m, p;
 
     loop: while (m) {
         s = m, p = m.prev;
-        if (m.type === EXPRESS) break;
+        if (m.type === STAMP && m.text === '...' || m.type === EXPRESS) break;
         while (m && (m.type === STRAP || m.type === STAMP)) m = m.next;
         if (!m || m.type & (PROPERTY | QUOTED | EXPRESS) && /^\[/.test(m.text) || m.isprop && (m.type === SCOPED || m.short || m.next && m.next.type === SCOPED)) {
             break;
@@ -425,7 +425,7 @@ var killmap = function (body, i, _getobjname, _getnewname, killobj) {
         }
         if (m && m.type === STAMP && /^[,;]$/.test(m.text)) m = m.next;
     }
-    if (!m) return indexof(body, o.next, i);
+    if (!m) return i + 1;
     m = s;
     if (p && p.type === STAMP && p.text === ',') {
         var mi = o.indexOf(m);
@@ -433,7 +433,6 @@ var killmap = function (body, i, _getobjname, _getnewname, killobj) {
         if (pi > 0) splice(o, pi, mi - pi);
     }
     var q;
-    var next = o.next;
     var l = 1;
     var initq = function () {
         q = scanner2(`(${_getobjname()} =)`)[0];
@@ -445,7 +444,7 @@ var killmap = function (body, i, _getobjname, _getnewname, killobj) {
     var tempname = null;
     var t;
     while (m) {
-        if (m.type === EXPRESS) {
+        if (m.type === EXPRESS || m.type === STAMP && m.text === '...') {
             var s = m;
             m = skipAssignment(m);
             if (/^\.\.\./.test(s.text)) {
@@ -501,7 +500,7 @@ var killmap = function (body, i, _getobjname, _getnewname, killobj) {
         q.push(...scanner2(_getobjname()));
         relink(q);
     }
-    return indexof(body, next, i);
+    return i + 1;
 };
 var getprop = function (o, m) {
     var prop = {};
@@ -733,6 +732,9 @@ var indexof = function (list, o, i) {
     else i = list.length;
     return i;
 };
+var is3dots = function (m) {
+    return m.type === STAMP && m.text === '...' || m.type === EXPRESS && /^\.\.\./.test(m.text);
+};
 // 数组或参数展开
 var killspr = function (body, i, _getobjname, killobj) {
     var o = body[i];
@@ -747,6 +749,7 @@ var killspr = function (body, i, _getobjname, killobj) {
         m = skipAssignment(m);
         s.text = s.text.replace(/^\.\.\./, '');
         var v = splice2(o, s, m);
+        if (!s.text) v.shift();
         if (m) splice2(o, m, m = m.next);
         killobj(v);
         var q = scanner2(`slice_["call"]()`);
@@ -761,14 +764,13 @@ var killspr = function (body, i, _getobjname, killobj) {
         return m;
     }
     while (m) {
-        if (m.type === EXPRESS && /^\.\.\./.test(m.text)) break;
+        if (is3dots(m)) break;
         m = killnext(m);
         if (m) m = m.next;
         index++;
     }
     if (!m) return i + 1;
     var c = scanner2('["concat"]()');
-    var next = o.next;
     if (o.entry === '(') {
         var r = snapExpressHead(o);
         if (r.type === STRAP && r.text === "new") {
@@ -788,20 +790,37 @@ var killspr = function (body, i, _getobjname, killobj) {
             relink(qt)
             return b;
         }
-        var rt = r.type === EXPRESS && r.text.replace(/^\.\.\./, '');
+        var rt = (r.type & (EXPRESS | STAMP)) && r.text.replace(/^\.\.\./, '');
         var p = o.prev;
-        if (r === o);
-        else if (
-            r === o.prev && r.type === EXPRESS && !/\.[\s\S]*\./.test(rt) && !/\[[^\]]*\]\[[^\]]*\]/.test(rt)) {
-            var p = r;
-            var n = /\.|\[/.test(rt) ? rt.replace(/\.[^\.]*|\[[^\]]*\]$/, '') : "null";
-            splice(o, 0, 0, ...scanner2(n + ","));
+        var pp = p?.prev;
+        var done = false;
+        var hasdot = false;
+        if (r === o) done = true;
+        else if (r === p) {
+            if (r.type === EXPRESS && !/\.[\s\S]*\./.test(rt) && !/\[[^\]]*\]\[[^\]]*\]/.test(rt)) {
+                var p = r;
+                hasdot = r.text.length !== rt.length;
+                var n = /\.|\[/.test(rt) ? rt.replace(/\.[^\.]*|\[[^\]]*\]$/, '') : "null";
+                splice(o, 0, 0, ...scanner2(n + ","));
+                done = true;
+            }
         }
-        else if (p && r === p.prev && p.type === SCOPED && p.entry === "[" && !/[\.\[]/.test(rt)) {
-            splice(o, 0, 0, ...scanner2(rt + ","));
-            p = r;
+        else if (r === pp) {
+            if (p.type === SCOPED && p.entry === "[" && !/[\.\[]/.test(rt)) {
+                splice(o, 0, 0, ...scanner2(rt + ","));
+                p = r;
+                done = true;
+            }
         }
-        else {
+        else if (r === pp.prev) {
+            var ppp = pp.prev;
+            if (pp.text === '.' && p.type === EXPRESS && !/[\.\[]/.test(p.text) && ppp.type === EXPRESS && !/[\.\[]]/.test(ppp.text)) {
+                splice(o, 0, 0, ...scanner2(ppp.text + ','));
+                p = pp.prev;
+                done = true;
+            }
+        }
+        if (!done) {
             var n = null, hasdot = false;
             var pt = p.type === EXPRESS && p.text.replace(/^\.\.\./, '');
             if (p.type === EXPRESS && (n = /^(?:[\s\S]*[^\.])?(\.[^\.]*|\[[^\]]*\])$/.exec(pt))) {
@@ -809,6 +828,9 @@ var killspr = function (body, i, _getobjname, killobj) {
                 var n = n[1];
                 p.text = pt.slice(0, pt.length - n.length);
                 splice(body, i++, 0, { type: EXPRESS, text: n });
+            }
+            else if (pp && /\.$/.test(pp.text) && !/[\.\[]/.test(p.text)) {
+                p = pp.prev;
             }
             else if (p.type === SCOPED && p.entry === '[') {
                 p = p.prev;
@@ -827,7 +849,7 @@ var killspr = function (body, i, _getobjname, killobj) {
             }
             splice(h1, h1.length, 0, ...splice(body, cx, dx - cx, ...h));
             i += cx - dx + h.length;
-            if (p.type === EXPRESS && !p.text) {
+            if (p.type & (EXPRESS | STAMP) && !p.text) {
                 var cx = h0.lastIndexOf(p);
                 if (cx >= 0) splice(h1, cx, 1);
             }
@@ -840,11 +862,11 @@ var killspr = function (body, i, _getobjname, killobj) {
             splice(c[0], 0, 0, ...h);
             killobj(c);
             splice(o, o.length, 0, ...c);
-            return indexof(body, next, i);
+            return i + 1;
         };
-        killnext(m);
         m.text = m.text.replace(/^\.\.\./, '');
-        return indexof(body, next, i);
+        if (!m.text) splice2(o, m, m.next);
+        return i + 1;
     }
     if (index > 0) {
         if (m) splice2(o, m.prev, m);
@@ -856,7 +878,7 @@ var killspr = function (body, i, _getobjname, killobj) {
     }
     var d;
     while (m) {
-        if (m.type === EXPRESS && /^\.\.\./.test(m.text)) {
+        if (is3dots(m)) {
             if (c[1].length) insert1(c[1], null, { type: STAMP, text: "," });
             insert1(c[1], null, ...spr());
             d = null;
@@ -873,7 +895,7 @@ var killspr = function (body, i, _getobjname, killobj) {
         insert1(d[0], null, ...splice2(o, s, m));
         if (m) splice2(o, m, m = m.next);
     }
-    return indexof(body, next, i);
+    return i + 1;
 };
 
 var killobj = function (body, getobjname, getletname, getname_, letname_, deep = 0) {
@@ -963,6 +985,14 @@ var killobj = function (body, getobjname, getletname, getname_, letname_, deep =
                 case "async":
                     splice(body, i, 1);
                     break;
+                case "new":
+                    if (o.next?.pesudo) {
+                        o.text = 'undefined';
+                        o = o.next;
+                        var e = snapExpressFoot(o).next;
+                        splice2(o.queue, o, e);
+                        break;
+                    }
                 default:
                     i++;
             }
@@ -982,6 +1012,7 @@ var killobj = function (body, getobjname, getletname, getname_, letname_, deep =
             }
             else if (o.entry === '[') {
                 var a = snapExpressHead(o);
+
                 if (a === o && o.next && o.next.type === STAMP && o.next.text === '=' || o.next && o.next.type === STRAP && /^(in|of)$/.test(o.next.type) && body.entry === '(' && body.prev && body.prev.type === STRAP && body.prev.text === 'for') {
                     i = killdec(body, i, _getdeepname, '', deepkill);
                 }
@@ -1258,6 +1289,12 @@ var killarg = function (head, body, _getname, setarg = true) {
     var namemap = Object.create(null);
     while (o) {
         var aname = null;
+        var is3darg = false;
+        var a = o;
+        if (o.type === STAMP && o.text === '...') {
+            o = o.next;
+            is3darg = true;
+        }
         if (o.type === SCOPED) {
             aname = _getname(head.length > 1 ? 'arg' + index : 'arg');
             var dec = splice2(head, o, o = o.next, { type: EXPRESS, text: aname });
@@ -1266,10 +1303,11 @@ var killarg = function (head, body, _getname, setarg = true) {
             else argcodes.push(`var ` + dec);
         }
         else if (o.type & (EXPRESS | VALUE)) {
+            if (!is3darg) is3darg = is3dots(o);
             aname = o.text;
-            if (/^\.\.\./.test(aname)) {
+            if (is3darg) {
                 cname = aname.replace(/^\.\.\./, '');
-                splice2(head, o.prev ? o.prev : o, o = o.next);
+                splice2(head, a.prev || a, o = skipAssignment(o));
                 collect = index + 1;
             }
             else {
@@ -1280,7 +1318,13 @@ var killarg = function (head, body, _getname, setarg = true) {
                 index++;
             }
         }
-        else throw i18n`参数声明异常！`
+        else if (is3darg) {
+            splice2(head, a.prev || a, o = skipAssignment(o));
+            aname = '...';
+            cname = '';
+            collect = index + 1;
+        }
+        else throw i18n`参数声明异常！`;
         if (o && o.type === STAMP) {
             if (o.text === ',') {
                 o = o.next; continue;
@@ -1443,6 +1487,27 @@ var killret = function (body, labels = Object.create(null), gettmpname) {
     }
     return breakmap;
 }
+var puncLeft = function (o) {
+    var s = snapExpressHead(o.prev);
+    var p = Infinity;
+    while (o && o.prev) {
+        if (o.type !== STAMP || !(o.text in powermap) || powermap[o.text] < p) return s;
+        s = snapExpressHead(o.prev);
+        o = s.prev;
+    }
+    return s;
+}
+var puncRight = function (o) {
+    var s = snapExpressFoot(o.next);
+    var p = 0;
+    while (o && o.next) {
+        if (o.type !== STAMP || !(o.text in powermap) || powermap[o.text] <= p) return s;
+        s = snapExpressFoot(o.next);
+        o = s.next;
+    }
+    return s;
+}
+
 
 var newpunc = function (body, i, newname) {
     var o = body[i];
@@ -1465,29 +1530,44 @@ var newpunc = function (body, i, newname) {
         if (!h) return;
         var rt = h.type === EXPRESS && h.text;
         var p = o.prev;
+        var done = false;
         var hi = body.lastIndexOf(h, i);
-        if (
-            h === p && h.type === EXPRESS && !/\.[\s\S]*\./.test(rt) && !/\[[^\]]*\]\[[^\]]*\]/.test(rt)) {
-            splice(sentence, 0, 0, ...scanner2(rt + punc));
-            hi = i;
-        }
-        else if (p && h === p.prev && p.type === SCOPED && p.entry === "[" && !/[\.\[]/.test(rt)) {
-            if (canbeTemp(p)) {
-                var name = p.first.text;
+        var pp = p?.prev;
+        if (h === p) {
+            if (h.type === EXPRESS && !/\.[\s\S]*\./.test(rt) && !/\[[^\]]*\]\[[^\]]*\]/.test(rt)) {
+                splice(sentence, 0, 0, ...scanner2(rt + punc));
+                hi = i;
+                done = true;
             }
-            else {
-                var name = newname();
-                splice(p, 0, 0, ...scanner2(`${name}=`));
-            }
-            splice(sentence, 0, 0, ...scanner2(`${rt}[${name}]` + punc));
-            hi = i;
         }
-        else {
+        else if (h === pp) {
+            if (p.type === SCOPED && p.entry === "[" && !/[\.\[]/.test(rt)) {
+                if (canbeTemp(p)) {
+                    var name = p.first.text;
+                }
+                else {
+                    var name = newname();
+                    splice(p, 0, 0, ...scanner2(`${name}=`));
+                }
+                splice(sentence, 0, 0, ...scanner2(`${rt}[${name}]` + punc));
+                hi = i;
+                done = true;
+            }
+        }
+        else if (h === pp.prev) {
+            var ppp = pp.prev;
+            if (pp.text === '.' && p.type === EXPRESS && ppp.type === EXPRESS && !/[\.\[]/.test(p.text) && !/[\.\[]/.test(ppp.text)) {
+                splice(sentence, 0, 0, ...scanner2(`${ppp.text}.${pp.text}+${punc}`));
+                hi = i;
+                done = true;
+            }
+        }
+        if (!done) {
             var n = null;
             var name = newname();
             var pt = p.type === EXPRESS && p.text;
             var hp = h.prev;
-            splice(body, i - 1, 1);
+            splice(body, i -= 1, 1);
             if (p.type === EXPRESS && (n = /^(?:[\s\S]*[^\.])?(\.[^\.]*|\[[^\]]*\])$/.exec(pt))) {
                 var n = n[1];
                 p.text = pt.slice(0, pt.length - n.length);
@@ -1501,14 +1581,17 @@ var newpunc = function (body, i, newname) {
                     var name2 = newname();
                     splice(p, 0, 0, ...scanner2(`${name2}=`));
                 }
-                splice(body, i - 2, 1);
+                splice(body, i -= 1, 1);
                 splice(sentence, 0, 0, ...scanner2(`,${name}`), p, ...scanner2(`=${name}[${name2}]${punc}`));
                 p = p.prev;
             }
             else {
                 var n = p.text.replace(/^\./, '');
                 var pp = p.prev;
-                if (pp.type === EXPRESS) pp.text = pp.text.replace(/\.$/, '');
+                if (n === p.text) {
+                    if (pp.text === '.') pp = pp.prev, splice(body, i -= 2, 2);
+                    else if (pp.type & EXPRESS) pp.text = pp.text.replace(/\.$/, ''), splice(body, i -= 1, 1);
+                }
                 splice(sentence, 0, 0, ...scanner2(`,${name}.${n}=${name}.${n}${punc}`));
             }
             splice(sentence, 0, 0, ...scanner2(`${name}=`), ...splice(body, hi, i));
@@ -1524,8 +1607,8 @@ var newpunc = function (body, i, newname) {
     else {
         hi = i;
         if (/^(\?\?|\*\*)$/.test(t)) {
-            var l = powermap.puncLeft(o);
-            var r = powermap.puncRight(o);
+            var l = puncLeft(o);
+            var r = puncRight(o);
             var li = body.lastIndexOf(l, i);
             var ri = body.indexOf(r, i);
             var name = t === '??' ? 'nullish_' : "power_";

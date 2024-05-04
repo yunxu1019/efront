@@ -37,6 +37,11 @@ var createRefId = function (o) {
             })
         }
         else {
+            if (o.pesudo) {
+                ids.push(o.text);
+                o = o.next;
+                continue;
+            }
             break;
         }
         var n = o.next;

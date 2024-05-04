@@ -541,7 +541,6 @@ var _invoke = function (t, getname) {
             continue;
         }
         if (needbreak(o)) {
-
             var s = splice(t, bx, cx + 1 - bx);
             if (cx > 0) s.name = [cloneNode(s[0])];
             else s.name = qname;
@@ -642,8 +641,8 @@ var _invoke = function (t, getname) {
     else if (t.length) {
         if (!isAequalA(t)) {
             var t0 = t[0];
-            if (t0.type === EXPRESS && /^[\.\[]/.test(t0.text) || t0.type & (STAMP | STRAP) && powermap[t0.text] < powermap.new) {
-                t.unshift(...rescan(`${qname}=${qname}`));
+            if ((t0.type === EXPRESS && /^[\.\[]/.test(t0.text) || t0.type & (STAMP | STRAP) && powermap[t0.text] < powermap.new) && result.length) {
+                t.unshift(...rescan`${qname}=${qname}`);
                 relink(t);
             }
             t = uncurve(t);
@@ -784,8 +783,7 @@ var ternary = function (body, getname, ret) {
                     b = ternary(b, getnextname, true);
                     for (var b of b) pushstep(explist, b);
                     return b;
-                }, true)
-                    }) return [1, 0]`);
+                }, true)}) return [1, 0]`);
                 var q = explist[explist.length - 1];
                 var qi = explist.length - 1;
                 var qe = q[q.length - 1];
@@ -872,6 +870,7 @@ var ternary = function (body, getname, ret) {
                 an = q2.name;
                 asn = cloneNode(an);
             }
+
             for (var e of explist2) pushstep(explist, e);
             eq.text = "=";
         }
@@ -970,6 +969,10 @@ var _express = function (body, getname, ret) {
             continue;
         }
         if (o.type & (STRAP | STAMP)) {
+            if (o.pesudo) {
+                exps.push(o);
+                continue;
+            }
             var p = 0;
             if (o.unary) p = powermap["!"];
             else p = powermap[o.text];

@@ -1,3 +1,3 @@
 function nullish_(a, b) {
-    return a === null || a === undefined ? b : a;
+    return a == null ? b : a;
 }

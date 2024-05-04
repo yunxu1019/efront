@@ -83,7 +83,7 @@ class Html extends Javascript {
 }
 var property = new Program;
 property.stamps = "=".split('');
-var p = new Program;
+var p = new Javascript;
 var replaceISO8859 = function (data) {
     return String(data).replace(/<\!--([\s\S]*)--\>$/g, '$1').replace(/&\w+;/g, a => iso8859[a] || a).replace(/&#(\d+);/g, (_, a) => String.fromCodePoint(a))
 };
@@ -109,6 +109,7 @@ Html.prototype.createScoped = function (code) {
     var inScript = false;
     var noTag = true;
     var run = function (c) {
+
         switch (c.type) {
             case ELEMENT:
                 var v = toCamelCase(c.tag);
@@ -155,6 +156,7 @@ Html.prototype.createScoped = function (code) {
                 break;
             case QUOTED:
             case PIECE:
+
                 if (c.length) {
                     c.forEach(run);
                     break;
@@ -181,6 +183,7 @@ Html.prototype.createScoped = function (code) {
                 break;
         }
     };
+
     code.forEach(run);
     var envs = Object.create(null);
     for (var k in used) {
@@ -227,6 +230,7 @@ Html.prototype.createScoped = function (code) {
     scoped.envs = envs;
     scoped.vars = vars;
     scoped.used = used;
+
     return scoped;
 };
 Html.prototype.createString = common.createString;

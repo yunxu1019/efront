@@ -10,6 +10,26 @@ var codecolor = function (c, encode) {
     var envs = c.envs;
     var deep = 0;
     var used = c.used;
+    var scoped = c.scoped;
+    var setdefs = function (scoped) {
+        var { used } = scoped;
+        for (var k in used) {
+            var isdef = false;
+            for (var o of used[k]) {
+                if (o.next?.pesudo) {
+                    isdef = true;
+                    break;
+                }
+            }
+            if (isdef) {
+                for (var o of used[k]) {
+                    o.isdef = true;
+                }
+            }
+        }
+        scoped.forEach(setdefs);
+    };
+    setdefs(scoped);
     var isConstValue = () => false;
     if (c.program) {
         var { strap_reg, value_reg } = c.program;
@@ -19,6 +39,7 @@ var codecolor = function (c, encode) {
         var o = o.next;
         if (o?.type === EXPRESS && needhead_reg.test(o.text)) o = o.next;
         if (o?.type === ELEMENT && o.istype) o = o.next;
+        if (o?.type === STAMP && o.pesudo) o = o.next;
         if (o?.type === SCOPED && o.entry === "(") return true;
         return false;
     }
@@ -30,7 +51,7 @@ var codecolor = function (c, encode) {
         }
         var [name] = keys;
         if (/^[\<\?]/.test(name) || !name);
-        else if (!o.isprop && isConstValue(name)) name = `<strap>${name}</strap>`;
+        else if (!o.isprop && o.text !== name && isConstValue(name)) name = `<strap>${name}</strap>`;
         else name = `<${label}>${name}</${label}>`;
         keys[0] = name;
         o.text = keys.map(k => /^[\<\?]/.test(k) || !k ? k : `<express>${k}</express>`).join(".");
@@ -113,7 +134,7 @@ var codecolor = function (c, encode) {
 
                 break;
             case EXPRESS:
-                setExpress(o, o.istype ? 'predef' : 'express');
+                setExpress(o, o.istype || o.isdef || o.next?.pesudo ? 'predef' : 'express');
                 break;
             case STRAP:
                 if (control_reg?.test(text)) o.text = `<flow>${o.text}</flow>`;
