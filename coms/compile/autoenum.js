@@ -37,7 +37,7 @@ var createRefId = function (o) {
             })
         }
         else {
-            if (o.pesudo) {
+            if (o.needle) {
                 ids.push(o.text);
                 o = o.next;
                 continue;

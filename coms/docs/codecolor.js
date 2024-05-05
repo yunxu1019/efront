@@ -16,7 +16,7 @@ var codecolor = function (c, encode) {
         for (var k in used) {
             var isdef = false;
             for (var o of used[k]) {
-                if (o.next?.pesudo) {
+                if (o.next?.needle) {
                     isdef = true;
                     break;
                 }
@@ -39,7 +39,7 @@ var codecolor = function (c, encode) {
         var o = o.next;
         if (o?.type === EXPRESS && needhead_reg.test(o.text)) o = o.next;
         if (o?.type === ELEMENT && o.istype) o = o.next;
-        if (o?.type === STAMP && o.pesudo) o = o.next;
+        if (o?.type === STAMP && o.needle) o = o.next;
         if (o?.type === SCOPED && o.entry === "(") return true;
         return false;
     }
@@ -134,7 +134,7 @@ var codecolor = function (c, encode) {
 
                 break;
             case EXPRESS:
-                setExpress(o, o.istype || o.isdef || o.next?.pesudo ? 'predef' : 'express');
+                setExpress(o, o.istype || o.isdef || o.next?.needle ? 'predef' : 'express');
                 break;
             case STRAP:
                 if (control_reg?.test(text)) o.text = `<flow>${o.text}</flow>`;

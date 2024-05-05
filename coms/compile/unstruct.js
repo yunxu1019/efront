@@ -969,7 +969,7 @@ var _express = function (body, getname, ret) {
             continue;
         }
         if (o.type & (STRAP | STAMP)) {
-            if (o.pesudo) {
+            if (o.needle) {
                 exps.push(o);
                 continue;
             }

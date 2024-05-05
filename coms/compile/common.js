@@ -317,7 +317,7 @@ function snapSentenceHead(o) {
         }
         var maybeprop = o.type === SCOPED && !o.brace || o.type === EXPRESS && /^[\.\[]/.test(o.text);
         if (p.type === EXPRESS) {
-            if (maybeprop || p.pesudo || needfoot_reg.test(p.text)) {
+            if (maybeprop || p.needle || needfoot_reg.test(p.text)) {
                 o = p;
                 continue;
             }
@@ -423,7 +423,7 @@ var snapExpressHead = function (o) {
     var a = o;
     while (o && o.prev) {
         var p = o.prev;
-        if (p.type === STAMP && p.pesudo || o.type === STAMP && o.pesudo) {
+        if (p.type === STAMP && p.needle || o.type === STAMP && o.needle) {
             o = p;
             continue;
         }
@@ -482,7 +482,7 @@ var snapExpressHead = function (o) {
 
 var snapExpressFoot = function (o) {
     while (o && o.next) {
-        if (o.pesudo) {
+        if (o.needle) {
             o = o.next;
             continue;
         }
@@ -509,7 +509,7 @@ var snapExpressFoot = function (o) {
         if (!n) break;
         if (n.type === SCOPED && (o.entry !== '{' || isExpress)
             || needfoot_reg.test(o.text) && !o.isdigit
-            || n.pesudo || n.type === EXPRESS && needhead_reg.test(n.text)
+            || n.needle || n.type === EXPRESS && needhead_reg.test(n.text)
             || n.type === QUOTED && (n.length || /^\`/.test(n.text))
         ) {
             o = n;
@@ -587,7 +587,7 @@ var createScoped = function (parsed, wash) {
 
                     var prev = o.prev;
                     if (prev) {
-                        if (prev.pesudo || prev.type === EXPRESS && needfoot_reg.test(prev.text)) break;
+                        if (prev.needle || prev.type === EXPRESS && needfoot_reg.test(prev.text)) break;
                         if (prev.istype) {
                             var o0 = dec(lets, prev);
                             if (o0 && o0.type === SCOPED && o0.entry === "(") {
@@ -660,7 +660,7 @@ var createScoped = function (parsed, wash) {
                         case "import":
                         case "use":
                             if (!o.next || o.next.type === QUOTED) break;
-                            if (o.next.pesudo) {
+                            if (o.next.needle) {
                                 o.type = EXPRESS;
                                 continue;
                             }
@@ -982,7 +982,7 @@ var getDeclared = function (o, kind, queue) {
             break;
         }
         var next = o.next;
-        if (next?.pesudo) {
+        if (next?.needle) {
             o = next.next;
             continue;
         }
@@ -1250,7 +1250,7 @@ var createString = function (parsed) {
         var prev = o.prev;
         a: if (prev && lasttype !== SPACE && patchspace && ~(SPACE | COMMENT | STAMP | PIECE | SCOPED) & o.type) {
             if ((QUOTED | SCOPED | STRAP | LABEL | COMMENT | ELEMENT | PROPERTY) & lasttype
-                || prev.type === STAMP && !prev.unary && !prev.pesudo && !prev.isprop
+                || prev.type === STAMP && !prev.unary && !prev.needle && !prev.isprop
             ) {
                 if (intag || prev.type === ELEMENT && o.type === ELEMENT) break a;
                 if ((o.type & ~(EXPRESS | PROPERTY) || !needhead_reg.test(o.text)) && (!prev.tag && !o.tag || prev.type === STAMP || o.type === STAMP)) {
@@ -1342,7 +1342,7 @@ var createString = function (parsed) {
                     result.push(o.leave);
                 }
                 else {
-                    result.push(o.tag_leave);
+                    if (o.tag_leave) result.push(o.tag_leave);
                     if (o.length) o.forEach(run);
                 }
                 break;
@@ -1354,7 +1354,7 @@ var createString = function (parsed) {
                 }
             case SCOPED:
                 var prev = o.prev;
-                if (patchspace && prev && o.type !== QUOTED && (lasttype === STAMP && !prev.unary && !prev.pesudo
+                if (patchspace && prev && o.type !== QUOTED && (lasttype === STAMP && !prev.unary && !prev.needle
                     || lasttype & ~(SPACE | STAMP | COMMENT) && o.brace
                     || lasttype === STRAP && !/^(this|arguments|import)$/.test(prev.text)
                 )) result.push(" ");
@@ -1387,7 +1387,7 @@ var createString = function (parsed) {
                 break;
             default:
                 if (o && typeof o === "object") {
-                    if (intag || o.pesudo || o.type & (EXPRESS | PROPERTY) && (needhead_reg.test(o.text) || lasttype & EXPRESS && needfoot_reg.test(o.prev?.text))) {
+                    if (intag || o.needle || o.type & (EXPRESS | PROPERTY) && (needhead_reg.test(o.text) || lasttype & EXPRESS && needfoot_reg.test(o.prev?.text))) {
                         if (o.prev?.isdigit && !/^0[\dxbo]|[mni]$|[e\.]/.test(o.prev.text) && lasttype & ~(SPACE | COMMENT)) result.push(" ");
                     }
                     else if ((STRAP | EXPRESS | PROPERTY | COMMENT | VALUE) & lasttype && (STRAP | EXPRESS | PROPERTY | VALUE | LABEL) & o.type) {
@@ -1410,7 +1410,7 @@ var createString = function (parsed) {
                         }
 
                         else if (!/^(\+\+|\-\-)$/.test(o.text) || o.prev && o.prev.type & (STAMP | STRAP)) {
-                            if (patchspace && lasttype !== SPACE && !o.pesudo) result.push(" ");
+                            if (patchspace && lasttype !== SPACE && !o.needle) result.push(" ");
                         }
                     }
                     if (o.isdigit) {

@@ -107,19 +107,20 @@ class Program {
     number_reg = number_reg;
     Code = Array;
     powermap = powermap;
-    transive_reg = /^(new|void|case|break|continue|return|throw|extends|import)$/
+    transive_reg = /^(new|var|let|const|yield|void|in|of|typeof|delete|case|return|await|default|instanceof|throw|extends|import|from)$/;
     straps = "if,for".split(',');
     forceend_reg = /^(return|break|continue)$/;
-    funcstrap_reg = /^(class|function|fn|func|async|interface|struct)$/;
+    funcstrap_reg = /^(class|function|fn|func|async|interface|struct|enum|impl|pub)$/;
     extends_reg = /^(extends|implements)$/;
+    structstrap_reg = /^(class|interface|struct|enum)$/;
     control_reg = /^(if|else|switch|case|do|while|for|loop|break|continue|default|import|from|as|export|try|catch|finally|throw|await|yield|return)$/;
-    type_reg = /^(var|let|const|function|fn|func|class|interface|type|struct|enum)$/;
+    type_reg = /^(var|let|const|function|fn|func|class|interface|type|struct|enum|impl)$/;
     spaces = spaceDefined;
     nocase = false
     keepspace = false;
     lastIndex = 0
     twain(o1, o2) {
-        if (o1.istype || o1.pesudo || o2.pesudo) return;
+        if (o1.istype || o1.needle || o2.needle) return;
         o2.istype = true;
     }
     compile2(s) {
@@ -213,10 +214,8 @@ class Program {
                 if (queue.isClass && scope.isprop) scope.isend = false;
                 if (last) {
                     last.next = scope;
-                    if (last.type === EXPRESS) {
-                        if (scope.type === EXPRESS) {
-                            this.twain(last, scope);
-                        }
+                    if (queue[queue.length - 1] === last && last.type === scope.type && last.type & (EXPRESS | PROPERTY)) {
+                        this.twain(last, scope);
                     }
                     if (last.type === STAMP && last.text === "*") {
                         if (scope.type === STRAP) last.unary = false;
@@ -238,8 +237,11 @@ class Program {
         var push_stamp = function () {
             var last = queue.last;
             var o = cache_stamp;
-            if (!last || last.type === STAMP && (!(last.text in powermap)) && !last.istype) {
-                if (!queue.istype || powermap[o.text] >= powermap.new) o.unary = true;
+            if (last?.istype && last.prev?.isarg) {
+                o.unary = true;
+            }
+            else if (!last || last.type === STAMP && (!(last.text in powermap)) && !last.istype) {
+                if (!queue.istype && powermap[o.text] > powermap["="]) o.unary = true;
             }
             else if (last.type === STRAP && !last.isend || last.type === STAMP && !last.istype && !/^(\+\+|\-\-)$/.test(last.text) || last.type === SCOPED && /^[\{\[]$/.test(last.entry) && !last.isExpress) {
                 o.unary = /^[^=;,\:]$/.test(o.text);
@@ -256,20 +258,28 @@ class Program {
                 o.unary = !p || p.type & (SPACE | STAMP | STRAP) || p.type === EXPRESS && p.prev && p.prev.type === STAMP && /^(\+\+|\-\-)$/.test(p.prev.text) && p.prev.unary;
             }
 
-            if (o.text === '*') {
-                if (queue.istype || o.isprop) o.unary = true;
+            if (!o.unary && /^(\.\.\.|\*)$/.test(o.text)) {
+                if (powermap[o.text] === powermap.new) o.unary = true;
+                if (last?.isarg || last?.isargl || last?.isprop) {
+                    o.unary = true;
+                    o.istype = true;
+                }
+                else if (queue.istype || o.isprop) o.unary = true;
                 else {
                     if (last?.isprop && !last.isend) o.unary = true;
                 }
             }
             else if (powermap[cache_stamp.text] >= powermap["."]) {
-                cache_stamp.pesudo = true;
+                cache_stamp.needle = true;
+            }
+            if (o.needle);
+            else if (powermap[o.text] > powermap.new && !o.unary) {
+                o.needle = true;
             }
             queue_push(cache_stamp);
             if (cache_stamp.istype && cache_stamp.unary && powermap[cache_stamp.text] == powermap[":"]) cache_stamp.unary = false;
-            if (cache_stamp === queue.last && cache_stamp.isExpress && cache_stamp.text in powermap && !cache_stamp.pesudo) queue.inExpress = true;
+            if (cache_stamp === queue.last && cache_stamp.isExpress && cache_stamp.text in powermap && !cache_stamp.needle) queue.inExpress = true;
             lasttype = cache_stamp.type;
-            if (o.isprop && o.text === '*') console.log(o.unary, o.type)
             cache_stamp = null;
         }
         var save = (type) => {
@@ -313,6 +323,7 @@ class Program {
         var space_exp = this.space_exp;
         var scriptTags = this.scriptTags;
         var ignoreTags = this.ignoreTags;
+        var structstrap_reg = this.structstrap_reg;
         var openTag = function () {
             var m1 = text.slice(start, match.index);
             var s = space_exp.exec(m1);
@@ -611,7 +622,7 @@ class Program {
                 }
                 else if (stamp_reg.test(m) && last) {
                     if (last.type === STAMP && m === last.text) break test;
-                    if (last.istype || last.isprop) {
+                    if (last.istype || last.isprop || last.isargl) {
                         isTypeTag = true;
                     }
                     else if ((VALUE | EXPRESS | PROPERTY) & last.type) a: {
@@ -631,11 +642,11 @@ class Program {
                                 }
                                 break test;
                             }
+                            if (lp.istype || lp.isargl) {
+                                isTypeTag = true;
+                                break a;
+                            }
                             if (lp.type === STRAP) {
-                                if (lp.istype) {
-                                    isTypeTag = true;
-                                    break a;
-                                }
                                 if (lp.transive) break test;
                             }
                         }
@@ -721,7 +732,7 @@ class Program {
                 lasttype = SPACE;
                 continue;
             }
-            if (!last?.pesudo && strap_reg.test(m)) {
+            if (!last?.needle && strap_reg.test(m)) {
                 if (funcstrap_reg.test(m)) {
                     if (!last);
                     else if (last.type === STAMP) {
@@ -733,6 +744,12 @@ class Program {
                 }
                 save(STRAP);
                 var last = queue.last;
+                if (last.type === STRAP && structstrap_reg.test(last.text) && !queue.classed) {
+                    queue.classed = [last.text];
+                }
+                else if (queue.classed) {
+                    if (last.type === STRAP && funcstrap_reg.test(last.text)) queue.classed.push(last.text);
+                }
                 if (funcstrap_reg.test(m)) {
                     last.isargl = true;
                 }
@@ -836,11 +853,12 @@ class Program {
                 }
                 else {
                     var prev = last;
+                    if (prev?.type === ELEMENT) prev = prev.prev;
                     if (prev?.type === EXPRESS) {
                         prev = prev.prev;
                     }
                     if (prev) {
-                        if (prev.isargl || queue.istype) {
+                        if (prev.isargl || prev.isprop || queue.istype) {
                             scope.isargl = true;
                         }
                         else if (prev.istype) {
@@ -884,18 +902,24 @@ class Program {
         if (cache_stamp) push_stamp();
         this.lastIndex = index;
         if (queue !== origin) {
-            throw console.log(
-                createString(origin.slice(0, 100)),
+            console.log(
+                "代码异常结束",
+                createString(origin.slice(0, 30)),
                 `\r\n ----- deep: ${parents.length}`,
                 `\r\n ---- enrty: ${queue.entry}`,
                 `\r\n --- length: ${queue.length}`,
-                `\r\n ----- last: ${queue.last ? createString([queue.last]).slice(0, 100) : createString(queue).slice(0, 100)}`,
+                `\r\n ----- last: ${queue.last ? createString([queue.last]).slice(0, 30) : createString(queue).slice(0, 30)}`,
                 `\r\n -- parents: ${parents.map(p => `${p.row}:${p.col}-${p.tag || p.text || p.entry} `).join('-)> ')}`,
                 `\r\n ----- snap: ${createString([queue]).slice(-200)}`,
                 `\r\n ------ end. `
-            ), "代码异常结束";
+            );
+            while (queue !== origin) {
+                queue.error = "代码异常结束";
+                queue.leave = '';
+                pop_parents();
+            }
         }
-        return queue;
+        return origin;
     }
     commit() {
         this.strap_reg = this.createRegExp(this.straps);

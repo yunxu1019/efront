@@ -986,7 +986,7 @@ var killobj = function (body, getobjname, getletname, getname_, letname_, deep =
                     splice(body, i, 1);
                     break;
                 case "new":
-                    if (o.next?.pesudo) {
+                    if (o.next?.needle) {
                         o.text = 'undefined';
                         o = o.next;
                         var e = snapExpressFoot(o).next;
