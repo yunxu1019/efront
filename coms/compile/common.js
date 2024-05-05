@@ -419,7 +419,7 @@ var getStrapHead = function (o) {
     return null;
 }
 var snapExpressHead = function (o) {
-    if (!o || o.type & ~(EXPRESS | SCOPED | QUOTED)) return o;
+    if (!o || o.type & ~(EXPRESS | SCOPED | QUOTED) && !o.needle) return o;
     var a = o;
     while (o && o.prev) {
         var p = o.prev;
@@ -433,7 +433,7 @@ var snapExpressHead = function (o) {
             if (h) return h;
         }
         if (o.type === SCOPED && o.entry !== '{'
-            || o.type === EXPRESS && needhead_reg.test(o.text)
+            || needhead_reg.test(o.text) && !o.isdigit
             || needfoot_reg.test(p.text) && !p.isdigit
             || o.type === QUOTED && (o.length || /^\`/.test(o.text))
         ) {
@@ -1389,8 +1389,8 @@ var createString = function (parsed) {
                 break;
             default:
                 if (o && typeof o === "object") {
-                    if (intag || o.needle || o.type & (EXPRESS | PROPERTY) && (needhead_reg.test(o.text) || lasttype & EXPRESS && needfoot_reg.test(o.prev?.text))) {
-                        if (o.prev?.isdigit && !/^0[\dxbo]|[mni]$|[e\.]/.test(o.prev.text) && lasttype & ~(SPACE | COMMENT)) result.push(" ");
+                    if (intag || o.needle || o.type & (EXPRESS | PROPERTY) && (needhead_reg.test(o.text) || lasttype & EXPRESS && needfoot_reg.test(prev?.text))) {
+                        if (prev?.isdigit && !/^0[\dxbo]|[mni]$|[e\.]/.test(prev.text) && lasttype & ~(SPACE | COMMENT)) result.push(" ");
                     }
                     else if ((STRAP | EXPRESS | PROPERTY | COMMENT | VALUE) & lasttype && (STRAP | EXPRESS | PROPERTY | VALUE | LABEL) & o.type) {
                         if (autospace || o.prev?.isdigit) result.push(" ");

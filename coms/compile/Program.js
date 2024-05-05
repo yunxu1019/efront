@@ -269,8 +269,8 @@ class Program {
                     if (last?.isprop && !last.isend) o.unary = true;
                 }
             }
-            else if (powermap[cache_stamp.text] >= powermap["."]) {
-                cache_stamp.needle = true;
+            if (powermap[o.text] >= powermap["."]) {
+                o.needle = true;
             }
             if (o.needle);
             else if (powermap[o.text] > powermap.new && !o.unary) {
@@ -718,7 +718,6 @@ class Program {
                 continue;
             }
             if (space_reg.test(m)) {
-                if (cache_stamp) push_stamp();
                 if (/[\r\n\u2028\u2029]/.test(m)) {
                     if (last && last.isend === false) {
                         last.isend = true;
@@ -776,7 +775,7 @@ class Program {
                 }
                 isdigit = true;
             }
-            if (value_reg.test(m) || isdigit) {
+            if (!last?.needle && value_reg.test(m) || isdigit) {
                 queue.inExpress = true;
                 if (isdigit && lasttype === STAMP) {
                     var prev = last.prev;

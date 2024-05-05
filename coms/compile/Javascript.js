@@ -536,15 +536,16 @@ function detour(o, ie) {
                 break;
             case STAMP:
                 if (o.text === "?.") {
-                    o = snapExpressHead(o);
+                    var h = snapExpressHead(o);
                     var f = snapExpressFoot(o);
+                    o = h;
                     var rest = [o];
-                    remove(o, f.prev);
                     while (o !== f) {
                         o = o.next;
                         rest.push(o);
                     }
                     text = createString(rest);
+                    remove(h, f.prev);
                     text = renderExpress(text, false);
                     if (hasdot) text = "..." + text;
                     var o1 = scan(text);
@@ -555,11 +556,12 @@ function detour(o, ie) {
                     continue;
                 }
                 else if (o.text === '.') {
+                    var n = o.next;
                     remove(o);
-                    o = o.next;
-                    if (o.type === EXPRESS) {
-                        o.text = '.' + o.text;
+                    if (n.type === EXPRESS) {
+                        n.text = `[${strings.recode(n.text)}]`;
                     }
+                    o = n;
                     continue;
                 }
                 break;
