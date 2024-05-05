@@ -125,7 +125,11 @@
         "step", "smoothstep",
         "mix", "clamp"
     );
-    var struct_reg = /^(while|do|for|with|switch|case|default|if|else|try|catch|finally)$/;
+    var rust = new compile$Javascript;
+    rust.powermap = Object.assign({}, rust.powermap);
+    rust.powermap["->"] = 0;
+    rust.straps = ["let", 'use', 'mut', 'fn', 'if', 'else', 'loop', 'while', 'for', 'in', 'break', 'true', 'false', 'struct', 'enum', 'impl', 'self', 'match', 'pub', 'mod', 'trait'];
+    var struct_reg = /^(while|do|for|with|switch|case|default|if|else|try|catch|finally|loop|import|export)$/;
 
     gl.setType = function (o) {
         var { type } = o;
@@ -158,6 +162,11 @@
         },
         json(a) {
             var c = compile$scanner2(a, json);
+            codecolor(c, encode);
+            return c.toString();
+        },
+        rs(a) {
+            var c = compile$scanner2(a, rust);
             codecolor(c, encode);
             return c.toString();
         },
