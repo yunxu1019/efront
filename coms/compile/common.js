@@ -530,14 +530,16 @@ var createScoped = function (parsed, wash) {
         o = o.next;
         while (o && o.type === STRAP) o = o.next;
         var [declared, used0, o0, skiped] = getDeclared(o, kind);
-        mergeTo(used, used0);
-        while (skiped.length) {
-            var o1 = run(skiped[0], 0);
-            let sindex = skiped.indexOf(o1);
-            if (sindex < 0) break;
-            skiped.splice(0, sindex + 1);
+        if (o0 !== o) {
+            mergeTo(used, used0);
+            while (skiped.length) {
+                var o1 = run(skiped[0], 0);
+                let sindex = skiped.indexOf(o1);
+                if (sindex < 0) break;
+                skiped.splice(0, sindex + 1);
+            }
+            mapDeclared(map, declared);
         }
-        mapDeclared(map, declared);
         return o0;
     };
     var run = function (o, id, body) {
@@ -588,7 +590,7 @@ var createScoped = function (parsed, wash) {
                     var prev = o.prev;
                     if (prev) {
                         if (prev.needle || prev.type === EXPRESS && needfoot_reg.test(prev.text)) break;
-                        if (prev.istype) {
+                        if (prev.type === STRAP && prev.istype) {
                             var o0 = dec(lets, prev);
                             if (o0 && o0.type === SCOPED && o0.entry === "(") {
                                 isFunction = true;
