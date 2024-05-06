@@ -999,8 +999,10 @@ class Program {
         this.space_reg = new RegExp(`^[${spaces}]+$`, flagUnicode);
         this.space_exp = new RegExp(`[${spaces}]+`, flagUnicode);
         var quotes_entries = this.createRegExp(this.comments.concat(this.quotes).map(q => q[0]), true).source;
-        var powers = Object.keys(this.powermap).filter(k => this.stamp_reg.test(k));
+        var powers = Object.keys(this.powermap).filter(k => k.length > 1 && this.stamp_reg.test(k));
         var powers_entries = this.createRegExp(this.tags.map(t => t[0]).concat(powers), true).source;
+        var entries_reg = new RegExp(`^(${powers_entries}|${quotes_entries}|${scopes})$`, this.nocase ? 'iu' : '');
+        stamps = this.compile(this.stamps.filter(s => !entries_reg.test(s)).join(''));
         this.entry_reg = new RegExp([`[${spaces}]+|${quotes_entries}|[${scopes}]|${number_reg.source.replace(/^\^|\$$/g, "")}[^${tokens}]*|${express}|${powers_entries}|[${stamps}]`], "gi" + flagUnicode);
     }
 }
