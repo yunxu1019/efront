@@ -435,4 +435,10 @@ assert(downLevel(`function(a=b=>b,c){c}`), 'function (a, c) { if (a === undefine
 assert(downLevel(`Object.defineProperty(dis, f.key, {get() {}, set(v) {}})`), `Object.defineProperty(dis, f.key, (_ = {},
 _.get = function () {},
 _.set = function (v) {}, _))
-var _`)
+var _`);
+common.debug = true;
+var c = scanner2(`\r\n    if (search.length) return null;\r\n    return path.join(...pathlist);\r\n`);
+c.fix();
+c.break();
+assert(c.toString(), `\r\n    if (search["length"]) return null;\r\n    return path["join"](...pathlist);\r\n`)
+assert(downLevel.code(c).toString(), `\r\n    if (search["length"]) return null;\r\n    return (_ = path)["join"]["apply"](_, pathlist);\r\n\r\nvar _`);

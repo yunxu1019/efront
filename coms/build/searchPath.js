@@ -34,8 +34,7 @@ async function seek(fullpath, search) {
         }
         else {
             cache[p] = readdir(p);
-            map = await readdir(p);
-            cache[p] = map;
+            cache[p] = map = await cache[p];
         }
         if (s in map) {
             pathlist.push(map[s].name);

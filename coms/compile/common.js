@@ -1185,7 +1185,7 @@ var getSemicolonBetween = function (prev, next) {
 }
 var needBreakBetween = function (prev, next) {
     if (hasBreakBetween(prev, next)) return;
-    return getSemicolonBetween(prev, next);
+    return getSemicolonBetween(prev, next) === ';' ? ';' : '';
 };
 var relink = function (list) {
     var pi = 0, p = null;
