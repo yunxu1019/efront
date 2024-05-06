@@ -112,3 +112,13 @@ a ? function () {} : function () {}
 declare module 'buffer' {}
 a <= 1;
 `)
+
+var testPress = function (text, expect) {
+    var code = scanner2(text);
+    code.press(false);
+    assert(code.toString(), expect);
+};
+testPress(`if(){}\r\nelse {}`, `if(){}else{}`)
+testPress(`if(a)a={}\r\nelse{}`, `if(a)a={};else{}`)
+testPress(`if()a=function(){}\r\nelse {}`,`if()a=function(){};else{}`)
+testPress(`if()function a(){}\r\nelse {}`,`if()function a(){}else{}`)
