@@ -726,7 +726,7 @@ class Program {
                     save(SPACE);
                 }
                 else {
-                    if (this.keepspace) save(SPACE);
+                    if (this.keepspace || start === 0) save(SPACE);
                 }
                 lasttype = SPACE;
                 continue;

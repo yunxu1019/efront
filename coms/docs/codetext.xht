@@ -281,14 +281,14 @@
         }
         else text = encode(text);
         var codes = text.split(/\r\n|\r|\n/);
-        var minSpace = 0;
+        var minSpace = Infinity;
         for (var c of codes) {
-            var m = /^\s*/.exec(c);
+            var m = /^\s+/.exec(c);
             if (m && m[0].length < minSpace) {
                 minSpace = m[0].length;
             }
         }
-        if (minSpace > 0) codes = codes.map(c => /^\s+/.test(c) ? c.slice(minSpace) : c);
+        if (minSpace > 0 && minSpace < Infinity) codes = codes.map(c => /^\s+/.test(c) ? c.slice(minSpace) : c);
         return codes;
     }
     function codetext(type, text, blink) {

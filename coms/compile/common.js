@@ -1356,7 +1356,7 @@ var createString = function (parsed) {
                 }
             case SCOPED:
                 var prev = o.prev;
-                if (patchspace && prev && o.type !== QUOTED && (lasttype === STAMP && !prev.unary && !prev.needle
+                if (patchspace && !intag && prev && o.type !== QUOTED && (lasttype === STAMP && !prev.unary && !prev.needle
                     || lasttype & ~(SPACE | STAMP | COMMENT) && o.brace
                     || lasttype === STRAP && !/^(this|arguments|import)$/.test(prev.text)
                 )) result.push(" ");
