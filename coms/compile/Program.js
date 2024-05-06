@@ -758,6 +758,9 @@ class Program {
                 if (this.transive_reg.test(m)) {
                     last.transive = queue.inExpress = true;
                 }
+                else {
+                    queue.inExpress = false;
+                }
                 continue;
             }
             var isdigit = number_reg.exec(m);
