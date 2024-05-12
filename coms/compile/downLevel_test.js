@@ -160,7 +160,7 @@ textSpan: highlightSpan.textSpan,
 isWriteAccess: highlightSpan.kind === "writtenReference" /* writtenReference */ }, highlightSpan.isInString && { isInString: true }, highlightSpan.contextSpan && { contextSpan: highlightSpan.contextSpan })) }`);
 assert(downLevel(`async()=>({ [argitem.sort ? argitem.sort : 'date']: "desc" })`), `function () { return async_(
 function () {
-_ = {}; _1 = argitem.sort; if (!_1) return [1, 0]; _1 = argitem.sort; return [2, 0]
+_ = {}; if (!argitem.sort) return [1, 0]; _1 = argitem.sort; return [2, 0]
 },
 function () {
 _1 = 'date'; return [1, 0]
@@ -416,6 +416,7 @@ function () {
 _1 = getRequestProtocol(url); _0 = _1 + "//", location = _0 + location; return [1, 0]
 })
 var _0, _1 }`);
+common.debug = true;
 assert(downLevel("var{a}=await b"), `return async_(
 function () {
 _0 = b; return [_0, 1]
@@ -436,9 +437,8 @@ assert(downLevel(`Object.defineProperty(dis, f.key, {get() {}, set(v) {}})`), `O
 _.get = function () {},
 _.set = function (v) {}, _))
 var _`);
-common.debug = true;
 var c = scanner2(`\r\n    if (search.length) return null;\r\n    return path.join(...pathlist);\r\n`);
 c.fix();
 c.break();
 assert(c.toString(), `\r\n    if (search["length"]) return null;\r\n    return path["join"](...pathlist);\r\n`)
-assert(downLevel.code(c).toString(), `\r\n    if (search["length"]) return null;\r\n    return (_ = path)["join"]["apply"](_, pathlist);\r\n\r\nvar _`);
+assert(downLevel.code(c).toString(), `\r\n    if (search["length"]) return null;\r\n    return path["join"]["apply"](path, pathlist);\r\n`);

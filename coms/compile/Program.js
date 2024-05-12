@@ -102,7 +102,7 @@ class Program {
         ["[", "]"],
         ["{", "}"],
     ]
-    stamps = "/=+;|:?<>-!~%^&*,.".split("")
+    stamps = "/=+;|:?<>-!~%^&*,".split("")
     value_reg = /^(false|true|null)$/
     number_reg = number_reg;
     Code = Array;

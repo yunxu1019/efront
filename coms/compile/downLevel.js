@@ -857,7 +857,7 @@ var killspr = function (body, i, _getobjname, killobj) {
         splice(body, i++, 0, ...scanner2('["apply"]'));
         var m1 = skipAssignment(m);
         if (index > 0 || m1 && m1.next) {
-            var h = splice(o, 2, o.length);
+            var h = splice(o, 2, o.length - 2);
             var c = scanner2(`[]`);
             splice(c[0], 0, 0, ...h);
             killobj(c);
@@ -940,9 +940,7 @@ var killobj = function (body, getobjname, getletname, getname_, letname_, deep =
                         var name = getname_("_");
                         var y = scanner2(`for await(var ${name} of)yield ${name}`, innerJs);
                         splice(y[2], y[2].length, 0, ...splice(body, i, n - i));
-                        splice.debug = true;
                         splice(body, i - 1, 1, ...y);
-                        splice.debug = false;
                         innerJs.setType(y[1]);
                         if (y[1].type === EXPRESS) splice(body, i, 1);
                         unforof(y[0], getname_.bind(null, '_'), y.used, deepkill);

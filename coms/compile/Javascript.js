@@ -383,6 +383,14 @@ Javascript.prototype.setType = function (o) {
     var queue = o.queue;
 
     if (last) {
+        if (last.type === STAMP && last.text === "?") {
+            if (o.type === EXPRESS && /^\.[^\.]|^\.$/.test(o.text)) {
+                last.type = EXPRESS;
+                var q = o.queue;
+                q.question--;
+                return false;
+            }
+        }
         if (o.type === STRAP && o.text === "function") {
             if (last.text === 'async' && !last.isend) last.type = STRAP;
         }
@@ -528,6 +536,28 @@ Javascript.prototype.detour = function (body, ie) {
     return envs;
 }
 var context = null, rootenvs = null;
+var detourNullishSeek = function (o, ie) {
+    var h = snapExpressHead(o);
+    var f = snapExpressFoot(o);
+    o = h;
+    var rest = [o];
+    while (o !== f) {
+        o = o.next;
+        rest.push(o);
+    }
+    var text = createString(rest);
+    var text = o.text.replace(/^\.\.\./, '');
+    var hasdot = o.text.length !== text.length;
+    remove(h, f.prev);
+    text = renderExpress(text, false);
+    if (hasdot) text = "..." + text;
+    var o1 = scan(text);
+    detour(o1.first, ie);
+    patchArrawScope(o1, o);
+    replace(o, ...o1);
+    o = o1.last;
+    return o;
+}
 function detour(o, ie) {
     while (o) {
         switch (o.type) {
@@ -536,23 +566,7 @@ function detour(o, ie) {
                 break;
             case STAMP:
                 if (o.text === "?.") {
-                    var h = snapExpressHead(o);
-                    var f = snapExpressFoot(o);
-                    o = h;
-                    var rest = [o];
-                    while (o !== f) {
-                        o = o.next;
-                        rest.push(o);
-                    }
-                    text = createString(rest);
-                    remove(h, f.prev);
-                    text = renderExpress(text, false);
-                    if (hasdot) text = "..." + text;
-                    var o1 = scan(text);
-                    detour(o1.first, ie);
-                    patchArrawScope(o1, o);
-                    replace(o, ...o1);
-                    o = o1.last;
+                    o = detourNullishSeek(o, ie);
                     continue;
                 }
                 else if (o.text === '.') {
@@ -566,6 +580,10 @@ function detour(o, ie) {
                 }
                 break;
             case EXPRESS:
+                if (/^\?\./.test(o.text)) {
+                    o = detourNullishSeek(o, ie);
+                    continue;
+                }
                 var text = o.text.replace(/^\.\.\./, '');
                 var hasdot = o.text.length !== text.length;
                 if (context.avoidMap) {
@@ -721,14 +739,21 @@ var removeImport = function (c, i, code) {
     var t = null;
     if (n && n.type === EXPRESS) {
         t = Object.create(null);
-        var ts = n.text.split(".")
-        for (var e of ts) {
-            t[e] = true;
+        removeFromList(used[n.tack], n);
+        while (n?.type === EXPRESS) {
+            var ts = n.text.split(".")
+            for (var e of ts) {
+                t[e] = true;
+            }
+            var ni = code.indexOf(n, i);
+            n = n.next;
+            if (n?.needle) {
+                n = n.next;
+                var ne = code.indexOf(n, ni);
+                splice(code, ni, ne - ni);
+            }
+            else splice(code, ni, 1);
         }
-        var ni = code.indexOf(n, i);
-        removeFromList(used[ts[0]], n);
-        splice(code, ni, 1);
-        n = n.next;
     }
     if (!n || n.type !== QUOTED) throw new Error(i18n`缺少导入路径！`);
     var ns = skipAssignment(n);

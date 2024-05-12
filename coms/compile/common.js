@@ -17,7 +17,7 @@ const [
 var number_reg = /^(?:(?:0x[0-9a-f]+|0b[01]+|0o?[0-7]+)(?:_[0-9a-f]+)*|(?:(?:(?:\d+_)*\d+|\d*)\.\d+(?:_\d+)*|(?:\d+_)*\d+\.?))(?:e[\+\-]?\d+(?:_\d+)*|[hijklmnu]+)?/i;
 var equal_reg = /^(?:[\+\-\*\/~\^&\|%]|\*\*|>>>?|<<)?\=$|^(?:\+\+|\-\-)$/;
 var needhead_reg = /^\?|^\.(?:[^\.]|$)|^\[/;
-var needfoot_reg = /(\:\:|([^\.]|^)\.)$/;
+var needfoot_reg = /(\:\:|\.)$/;
 var skipAssignment = function (o, cx) {
     if (!o) return;
     var next = arguments.length === 1 ? function () {
@@ -112,6 +112,10 @@ var skipAssignment = function (o, cx) {
             }
         case EXPRESS:
             if (needhead_reg.test(o.text)) {
+                next();
+                break;
+            }
+            if (needfoot_reg.test(o.text)) {
                 next();
                 break;
             }
