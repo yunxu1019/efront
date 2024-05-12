@@ -24,10 +24,12 @@ function rescan(strs, ...args) {
     var dist = [];
     var i = 0;
     for (var s of strs) {
-        dist.push(s, '#\\' + i++);
+        if (s) dist.push(s, ' ');
+        dist.push('#\\' + i++, " ");
     }
+    dist.pop();
     if (i > args.length) dist.pop();
-    dist = scanner2(dist.join(' '));
+    dist = scanner2(dist.join(''));
     patchObject(dist, args);
     return dist;
 }
