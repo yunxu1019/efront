@@ -546,10 +546,10 @@ var detourNullishSeek = function (o, ie) {
         rest.push(o);
     }
     var text = createString(rest);
-    var text = o.text.replace(/^\.\.\./, '');
-    var hasdot = o.text.length !== text.length;
+    var text1 = text.replace(/^\.\.\./, '');
+    var hasdot = text1.length !== text.length;
     remove(h, f.prev);
-    text = renderExpress(text, false);
+    text = renderExpress(text1, false);
     if (hasdot) text = "..." + text;
     var o1 = scan(text);
     detour(o1.first, ie);
