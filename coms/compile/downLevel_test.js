@@ -416,7 +416,6 @@ function () {
 _1 = getRequestProtocol(url); _0 = _1 + "//", location = _0 + location; return [1, 0]
 })
 var _0, _1 }`);
-common.debug = true;
 assert(downLevel("var{a}=await b"), `return async_(
 function () {
 _0 = b; return [_0, 1]
@@ -431,12 +430,14 @@ function () {
 _0 = a; return [_0, 1]
 })
 var a, _0 }`)
-
 assert(downLevel(`function(a=b=>b,c){c}`), 'function (a, c) { if (a === undefined) a = function (b) { return b }; c }')
 assert(downLevel(`Object.defineProperty(dis, f.key, {get() {}, set(v) {}})`), `Object.defineProperty(dis, f.key, (_ = {},
 _.get = function () {},
 _.set = function (v) {}, _))
 var _`);
+downLevel.debug = true; i++;
+assert(downLevel(`var restq = splice(queue, i, i2 - i, ...a[1], { type: STAMP, text: "=" });`), `var slice_ = Array["prototype"]["slice"];
+var restq = splice["apply"](null, [queue, i, i2 - i]["concat"](slice_["call"](a[1]), [{ type: STAMP, text: "=" }]));`)
 var c = scanner2(`\r\n    if (search.length) return null;\r\n    return path.join(...pathlist);\r\n`);
 c.fix();
 c.break();

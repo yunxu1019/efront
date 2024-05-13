@@ -30,7 +30,7 @@ var unslice = function (arr) {
                     continue;
                 }
                 var p = o.prev;
-                if (p && is3dots(p)) {
+                if (p?.type && (STAMP | EXPRESS) && p.text === '...') {
                     var px = arr.lastIndexOf(p, cx);
                     splice(arr, px, cx - px + 1, ...o);
                     cx += o.length - 1;
