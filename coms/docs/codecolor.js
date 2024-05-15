@@ -29,7 +29,7 @@ var codecolor = function (c, encode) {
         }
         scoped.forEach(setdefs);
     };
-    setdefs(scoped);
+    if (scoped) setdefs(scoped);
     var isConstValue = () => false;
     if (c.program) {
         var { strap_reg, value_reg } = c.program;
@@ -62,7 +62,7 @@ var codecolor = function (c, encode) {
         used[k].forEach(k in predefs ? setPredef : setOutside);
     }
     if (c.program) var { space_exp: spaceReg, control_reg } = c.program;
-    var unspaceReg = new RegExp(spaceReg.source.replace(/^\[/, "[^"), spaceReg.flags + 'g');
+    if (spaceReg) var unspaceReg = new RegExp(spaceReg.source.replace(/^\[/, "[^"), spaceReg.flags + 'g');
     var wraptext = function (t, l) {
         if (unspaceReg) t = t.replace(unspaceReg, a => {
             a = encode(a);
@@ -151,5 +151,5 @@ var codecolor = function (c, encode) {
         }
     };
     c.forEach(setcolor);
-
+    return c;
 }
