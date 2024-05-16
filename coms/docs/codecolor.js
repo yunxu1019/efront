@@ -13,6 +13,7 @@ var codecolor = function (c, encode) {
     var scoped = c.scoped;
     var setdefs = function (scoped) {
         var { used } = scoped;
+        if (!isObject(used) || isArray(used)) return;
         for (var k in used) {
             var isdef = false;
             for (var o of used[k]) {
@@ -34,7 +35,7 @@ var codecolor = function (c, encode) {
     if (c.program) {
         var { strap_reg, value_reg } = c.program;
         isConstValue = a => strap_reg.test(a) || value_reg.test(a);
-    };
+    }
     var isInvoke = function (o) {
         var o = o.next;
         if (o?.type === EXPRESS && needhead_reg.test(o.text)) o = o.next;
@@ -42,9 +43,9 @@ var codecolor = function (c, encode) {
         if (o?.type === STAMP && o.needle) o = o.next;
         if (o?.type === SCOPED && o.entry === "(") return true;
         return false;
-    }
+    };
     var setExpress = function (o, label) {
-        if (!o.text) return;
+        if (!o.text || /^</.test(o.text)) return;
         var keys = o.text.split(".");
         if (isInvoke(o)) {
             if (!/^[\<\?]/.test(keys[keys.length - 1])) keys[keys.length - 1] = `<invoke>${keys[keys.length - 1]}</invoke>`;
@@ -55,7 +56,7 @@ var codecolor = function (c, encode) {
         else name = `<${label}>${name}</${label}>`;
         keys[0] = name;
         o.text = keys.map(k => /^[\<\?]/.test(k) || !k ? k : `<express>${k}</express>`).join(".");
-    }
+    };
     var setPredef = o => setExpress(o, 'predef');
     var setOutside = o => setExpress(o, 'outside');
     if (used) for (var k in envs) {
@@ -69,7 +70,7 @@ var codecolor = function (c, encode) {
             return `<${l}>${a}</${l}>`
         });
         return t;
-    }
+    };
     c.colored = true;
     var setcolor = function (o) {
         if (o.colored) return;

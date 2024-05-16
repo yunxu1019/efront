@@ -1,4 +1,4 @@
-var { STAMP, PROPERTY, SCOPED, VALUE, EXPRESS, QUOTED, SPACE, COMMENT, createString: _createString, splice } = require("./common");
+var { STAMP, PROPERTY, SCOPED, VALUE, STRAP, EXPRESS, QUOTED, SPACE, COMMENT, createString: _createString, splice } = require("./common");
 var createString = function (a) {
     a.autospace = false;
     return _createString(a);
@@ -274,25 +274,28 @@ macros.each = function (list, body) {
 };
 
 
+var presets = /^@(media|keyframes|layer|import|namespace|page|property|suppports|font-face|document|counter-style|charset|color-profile|container|font-feature-values|font-palette-values|scope|starting-style)(\s|\(|$)/i;
 class 素心 extends Program {
-    straps = ["and"];
+    straps = ["and", ...presets.source.replace(/^[\s\S]*?\(([\s\S]*?)\)[\s\S]*$/, '$1').split('|').map(a => "@" + a)];
     stamps = `;:,>+~&!/`.split("");
     quotes = rarg.quotes;
     keepspace = true;
+    control_reg = presets;
     scopes = [["{", "}"], ["(", ")"]]
 }
 
-var presets = /^@(media|keyframes|layer|import|namespace|page|property|suppports|font-face|document|counter-style|charset|color-profile|container|font-feature-values|font-palette-values)(\s|\(|$)/i;
 
 素心.prototype.setType = function (o) {
     var p = o.prev;
     if (o.type !== SCOPED) {
         if (!p || p.type === STAMP && p.text === ";" || p.type === SCOPED && p.entry === '{') {
-            o.type = PROPERTY;
+            if (o.type === EXPRESS) o.type = PROPERTY;
+            o.isprop = true;
             return;
         }
-        if (p.type === PROPERTY && o.type !== STAMP && o.type !== SCOPED) {
-            o.type = PROPERTY;
+        if (p.isprop && o.type & ~(STAMP | SCOPED)) {
+            if (o.type === EXPRESS) o.type = PROPERTY;
+            o.isprop = true;
             return;
         }
     }
@@ -303,7 +306,7 @@ var presets = /^@(media|keyframes|layer|import|namespace|page|property|suppports
         }
         while (p && (p.type !== SCOPED || p.entry !== "{") && (p.type !== STAMP || p.text !== ';')) {
             p.isprop = true;
-            if (p.type !== SCOPED) p.type = PROPERTY;
+            if (p.type === EXPRESS) p.type = PROPERTY;
             p = p.prev;
         }
     }
@@ -334,13 +337,13 @@ var presets = /^@(media|keyframes|layer|import|namespace|page|property|suppports
         for (var cx = 0, dx = code.length; cx < dx; cx++) {
             var o = code[cx];
             if (o && (o.type & (SPACE | COMMENT) || o.type === STAMP && o.text === ';')) continue;
-            if (o.type !== PROPERTY) {
+            if (!o.isprop) {
                 console.log(createString([o]), o.type, createString(code))
                 throw new Error(i18n`结构异常`);
             }
             var p = [], v = [];
             while (o && (o.type !== SCOPED || o.entry !== "{")) {
-                if (o.type === STAMP) break;
+                if (o.type === STAMP && !o.isprop) break;
                 p.push(o);
                 o = code[++cx];
             }
@@ -610,3 +613,4 @@ function 素馨(text, scopeName, compress) {
         return a;
     }).filter(a => !!a).join(compress ? "" : "\r\n") + getquried();
 }
+素馨.素心 = 素心;

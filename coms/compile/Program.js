@@ -13,6 +13,7 @@ const {
     /*2048 */ELEMENT,
     createString,
     number_reg,
+    digit_reg,
 } = require("./common");
 var combine = require("../basic/combine");
 var sortRegster = require("../basic/sortRegister");
@@ -105,6 +106,7 @@ class Program {
     stamps = "/=+;|:?<>-!~%^&*,".split("")
     value_reg = /^(false|true|null)$/
     number_reg = number_reg;
+    digit_reg = digit_reg;
     Code = Array;
     powermap = powermap;
     transive_reg = /^(new|var|let|const|yield|void|in|of|typeof|delete|case|return|await|default|instanceof|throw|extends|import|from)$/;
@@ -183,6 +185,7 @@ class Program {
         var funcstrap_reg = this.funcstrap_reg;
         var entry_reg = this.entry_reg;
         var type_reg = this.type_reg;
+        var digit_reg = this.digit_reg;
         var comment_entry = this.comment_entry;
         var rowsOf = m => m.replace(/[^\r\n\u2028\u2029]+/g, ';').replace(/\r\n|\r|\n|\u2028|\u2029/g, ' ').replace(/;/g, '').length;
         var setRows = m => {
@@ -763,7 +766,7 @@ class Program {
                 }
                 continue;
             }
-            var isdigit = number_reg.exec(m);
+            var isdigit = digit_reg.exec(m);
             if (isdigit) {
                 var m1 = isdigit[0];
                 if (m1.length < m.length) {
@@ -1003,7 +1006,10 @@ class Program {
         var powers_entries = this.createRegExp(this.tags.map(t => t[0]).concat(powers), true).source;
         var entries_reg = new RegExp(`^(${powers_entries}|${quotes_entries}|${scopes})$`, this.nocase ? 'iu' : '');
         stamps = this.compile(this.stamps.filter(s => !entries_reg.test(s)).join(''));
-        this.entry_reg = new RegExp([`[${spaces}]+|${quotes_entries}|[${scopes}]|${number_reg.source.replace(/^\^|\$$/g, "")}[^${tokens}]*|${express}|${powers_entries}|[${stamps}]`], "gi" + flagUnicode);
+        var number_reg = this.number_reg;
+        var numbers = number_reg.source.replace(/^\^|\$$/g, "");
+        this.digit_reg = new RegExp(/^[+\-]?/.source + numbers, number_reg.flags);
+        this.entry_reg = new RegExp([`[${spaces}]+|${quotes_entries}|[${scopes}]|${numbers}[^${tokens}]*|${express}|${powers_entries}|[${stamps}]`], "gi" + flagUnicode);
     }
 }
 module.exports = Program;

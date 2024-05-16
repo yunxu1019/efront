@@ -132,6 +132,7 @@ Html.prototype.createScoped = function (code) {
                     else if (c.tagName === 'STYLE') {
                         styleNodes.push(c);
                         tempNodes.push(c);
+                        c.isStyle = true;
                     }
                 }
 
