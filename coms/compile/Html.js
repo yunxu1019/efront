@@ -88,7 +88,7 @@ var replaceISO8859 = function (data) {
     return String(data).replace(/<\!--([\s\S]*)--\>$/g, '$1').replace(/&\w+;/g, a => iso8859[a] || a).replace(/&#(\d+);/g, (_, a) => String.fromCodePoint(a))
 };
 var parseExpress = function (data, mayberepeat) {
-    data = replaceISO8859(data);
+    data = "=" + replaceISO8859(data);
     if (mayberepeat && /\s+(in|of)\s+/.test(data)) {
         data = data.split(/\s+(in|of)\s+/).pop();
     }

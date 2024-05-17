@@ -7,6 +7,7 @@ var test = function (source, pick, value) {
     if (arguments.length === 2) source = pick;
     assert(h.createString(b), source);
     if (arguments.length === 3) {
+        b.scoped = h.createScoped(b);
         assert(seek(b, pick), value);
     }
 };
@@ -36,3 +37,4 @@ test('${a > 1}');
 test('a>1', 'a > 1');
 test('a><a></a>', 'a > <a></a>');
 test('X', 'X');
+test('<input -class="{actived:actived===f}"/>', 'scoped.envs.actived', true);
