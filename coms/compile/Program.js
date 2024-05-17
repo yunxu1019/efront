@@ -482,7 +482,7 @@ class Program {
                     save(space_reg.test(m) ? SPACE : PIECE);
                 }
             }
-            m = match[0];
+            m = match?.[0];
         }
         loop: while (index < text.length) {
 
@@ -495,6 +495,7 @@ class Program {
                     var match = reg.exec(text);
                     if (!match) {
                         index = text.length;
+                        if (queue === origin) push_piece(index);
                         break loop;
                     }
                     var m = match[0];
