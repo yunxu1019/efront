@@ -111,6 +111,7 @@ var variableReg = /([^\:\,\+\=\-\!%\^\|\/\&\*\!\;\?\>\<~\{\}\s\[\]\(\)]|\?\s*\.(
 var variableOnlyReg = new RegExp(`^${variableReg.source}$`);
 var createGetter = function (target, search, isprop = true) {
     if (!search) return function () { };
+    if (/^\{/.test(search)) search = `(${search})`;
     search = renderExpress(search);
     if (isprop) return $$eval.bind(target, search, null);
     if (variableOnlyReg.test(search)) return $$eval.bind(target, search + "(event)", null);
@@ -558,7 +559,7 @@ var directives = {
     },
 
     "class"(search) {
-        var getter = createGetter(this, `(${search})`);
+        var getter = createGetter(this, search);
         var generatedClassNames = {};
         var oldValue;
         this.$renders.push(function () {
