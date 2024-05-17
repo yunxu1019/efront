@@ -11,6 +11,18 @@ var cloneChildNodes = function (template) {
     }
     return cNodes;
 }
+var merge = function (dst, src) {
+    if (!src) return dst;
+    if (!dst) return src;
+    if (dst instanceof Array) {
+        return dst.concat(src);
+    }
+    if (isObject(dst)) return Object.assign(dst, src);
+    return src;
+};
+var mergeStruct = function (struct1, struct2) {
+    for (var k in struct2) struct1[k] = merge(struct1[k], struct2[k]);
+}
 /**
  * @param {Element} container
  * @param {Element|string} tagName;
@@ -22,6 +34,7 @@ var getGenerator = function (container, tagName = 'item') {
     container.$generatorScopes = scopes;
     if (container.$generator) return container.$generator;
     var template = document.createElement(container.tagName);
+    var tagTemplate = isElement(tagName);
     var templates = [];
     var hasAfter = false;
     for (let a of container.childNodes) {
@@ -42,8 +55,22 @@ var getGenerator = function (container, tagName = 'item') {
         var paddingCount = [].indexOf.call(container.childNodes, c);
         container.paddingCount = paddingCount;
     }
+    if (tagTemplate) {
+        if (!templates.length) {
+            templates = [tagName];
+            tagTemplate = false;
+        }
+    }
+
     appendChild(template, templates);
     render.struct(templates);
+    if (tagTemplate) {
+        render.struct(tagName);
+        var template0 = templates[0];
+        mergeStruct(tagName.$struct, template0.$struct);
+        template0.$struct = tagName.$struct;
+        template0.$renderid = tagName.$renderid;
+    }
     if (templates.length) container.$template = template;
     /**
      * @param {number} index;
@@ -56,28 +83,19 @@ var getGenerator = function (container, tagName = 'item') {
             com = container.src[index];
         }
         if (com === undefined) return;
-        var needSetAttr = isElement(tagName);
         if (isNode(element));
         else if (!template.childNodes.length) {
-            element = needSetAttr ? tagName.cloneNode(true) : document.createElement(tagName);
-            needSetAttr = false;
+            element = document.createElement(tagName);
         }
         else {
             var childNodes = cloneChildNodes(template);
             element = childNodes[0];
             if (childNodes.length > 1) element.with = Array.prototype.slice.call(childNodes, 1);
         }
-        if (needSetAttr) {
-            for (var a of tagName.attributes) {
-                element.setAttribute(a.name, a.value);
-            }
-        }
         var scopes = container.$generatorScopes;
         var parsedSrc = container.$src;
         if (parsedSrc) {
             var newScope = parsedSrc.createScope(com, index, index);
-            var newItem = render(element, newScope, scopes, false);
-            if (element.with) newItem.with = render(element.with, newScope, scopes, false);
         } else {
             var newScope = container.src[index];
             if (!isObject(newScope)) newScope = {
@@ -97,9 +115,11 @@ var getGenerator = function (container, tagName = 'item') {
                     return this.$item;
                 }
             }
-            var newItem = render(element, newScope, scopes, false);
-            if (element.with) newItem.with = render(element.with, newScope, scopes, false);
         }
+        element.$scope = newScope;
+        element.$parentScopes = scopes;
+        var newItem = render(element, newScope, scopes, false);
+        if (element.with) newItem.with = render(element.with, newScope, scopes, false);
         return newItem;
     };
 };
