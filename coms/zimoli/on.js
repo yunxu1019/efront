@@ -118,6 +118,14 @@ var keyCodeMap = {
     num: 144,
     numlock: 144,
     scrolllock: 145,
+    mute: 173,// 静音
+    volumedown: 174,// 音量减
+    quiet: 174,// 音量减
+    volumeup: 175,// 音量加
+    loud: 175,// 音量加
+    next: 176,// 下一首
+    prev: 177,// 上一首
+    pause: 179,// 暂停/播放
     semicolon: 186,
     ";": 186,
     ":": 186,

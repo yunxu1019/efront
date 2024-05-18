@@ -67,15 +67,18 @@ on("keydown")(window, function (event) {
     if (!$scope.audio && !kugou$musicList.getActived()) return;
     switch (event.keyCode || event.which) {
         case 32:
+        case 179:
             if (event.repeat) break;
             if ($scope.playing) $scope.pause();
             else $scope.play();
             break;
         case 37:
+        case 177:
             // left
             $scope.play($scope.index - 1);
             break;
         case 39:
+        case 176:
             $scope.play($scope.index + 1);
             // right
             break;
