@@ -190,7 +190,14 @@ class Program {
         var rowsOf = m => m.replace(/[^\r\n\u2028\u2029]+/g, ';').replace(/\r\n|\r|\n|\u2028|\u2029/g, ' ').replace(/;/g, '').length;
         var setRows = m => {
             row += rowsOf(m);
-            colstart = start + m.length - m.replace(/^[\s\S]*?([^\r\n\u2028\u2029]*)$/, '$1').length - 1;
+            var reg = /[\r\n\u2028\u2029]/g;
+            reg.lastIndex = 0;
+            var index = 0;
+            do {
+                index = reg.lastIndex;
+                var match = reg.exec(m);
+            } while (match);
+            colstart = start + index;
         };
         var queue_push = (scope) => {
             if (scope.type & (SPACE | COMMENT | PIECE | QUOTED)) {
@@ -904,7 +911,7 @@ class Program {
                 if (p.tag) p.type = ELEMENT;
                 queue_push(p);
             }
-        };
+        }
         if (cache_stamp) push_stamp();
         this.lastIndex = index;
         if (queue !== origin) {
