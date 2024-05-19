@@ -148,8 +148,9 @@ function ybox(generator) {
                 wheelTime = event.timeStamp;
                 return;
             }
-            var deltay = -event.deltaY;
             if (event.moveLocked) return;
+            var deltay = -event.deltaY;
+            if (!deltay && _box.bindX) deltay = -event.deltaX;
             event.moveLocked = true;
             var box;
             if (deltay > 0) {
