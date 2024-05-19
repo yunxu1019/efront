@@ -182,7 +182,7 @@ function chat(title = '会话窗口') {
     var fid = 0;
     var filesMap = Object.create(null);
     renderWithDefaults(page, {
-        chat: list,
+        chat: zimoli$list,
         title,
         msglist: [],
         showList: 0,
