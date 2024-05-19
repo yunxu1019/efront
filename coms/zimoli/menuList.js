@@ -123,7 +123,8 @@ function main() {
     var main = this;
     if (direction == 'y') page.ispop = true;
     var istoolbar = direction === 't';
-    function popMenu(item, target) {
+    function popMenu(target) {
+        var item = getMenu(target);
         if (page.actived) {
             clear();
             page.focus();
@@ -173,7 +174,7 @@ function main() {
         enterMenuEnabled = false;
         if (page.ispop) {
             page.setFocus(menu);
-            popMenu(menu.menu, menu);
+            popMenu(menu);
         }
     }, 60);
     on('pointerdown')(page, unblur);
@@ -181,34 +182,36 @@ function main() {
         document.activeElement.blur();
     };
     var activeMenu = function () {
-        if (this.menu.line) return;
+        const thismenu = getMenu(this);
+        if (thismenu.line) return;
         if (this.hasAttribute("disabled") || this.hasAttribute('line')) return;
-        var pop = active(this.menu.value, this);
+        var pop = active(thismenu.value, this);
         if (pop === false) return;
         var root = page.root || page;
-        var istool = root.direction === 't' || root.selected
+        var istool = root.direction === 't' || root.$selected
         if (root.ispop === 1) root.ispop = false;
         if (istool) {
-            var menu = this.menu;
-            if (root.selected) root.selected.setActive(false);
+            var menu = thismenu;
+            if (root.$selected) root.$selected.setActive(false);
             if (root !== page) {
                 var target = root.actived.target;
                 if (isObject(menu.value)) delete menu.value.children;
-                target.menu.extends(menu.value);
-                menu = target.menu;
+                var targetmenu = getMenu(target);
+                targetmenu.extends(menu.value);
+                menu = targetmenu;
             }
             else {
                 target = this;
             }
             menu.setActive(true);
-            root.selected = target.menu;
+            root.$selected = getMenu(target);
             autoremove();
             return;
         }
         if (page.actived && page.actived.target === this) {
             if (mounted_menus.indexOf(page.actived) >= 0) while (mounted_menus.length && mounted_menus[mounted_menus.length - 1] !== page.actived) remove(mounted_menus.pop());
             if (!mounted_menus.length || page === mounted_menus[mounted_menus.length - 1]) {
-                popMenu(this.menu, this, false);
+                popMenu(this, false);
             }
             else {
                 remove(mounted_menus.pop());
@@ -218,7 +221,7 @@ function main() {
         else {
             while (mounted_menus.length && mounted_menus[mounted_menus.length - 1] !== page) remove(mounted_menus.pop());
             page.actived = null;
-            popMenu(this.menu, this, false);
+            popMenu(this, false);
             if (!page.actived) {
                 autoremove();
             }
@@ -226,7 +229,7 @@ function main() {
     };
     var pressMenu = function (event) {
         if (event.which === 3) {
-            popMenu(this.menu, this);
+            popMenu(this);
         }
         else {
             switchMenu.done = false;
@@ -241,7 +244,7 @@ function main() {
 
     var switchMenu = lazy(function (event) {
         if (onclick.preventClick) return;
-        popMenu(this.menu, this);
+        popMenu(this);
         switchMenu.done = true;
     }, 300);
     var hasIcon = function () {
@@ -255,11 +258,10 @@ function main() {
     };
     var $scope = {
         "menu-item"(e, s) {
-            if (e && s === e.$scope) s = itemName ? s[itemName] : s.menu;
+            if (e && s === e.$scope) s = itemName ? s[itemName] : s.$item.value;
             var a = button(
                 menuItem(e, s, this.hasIcon)
             );
-            a.menu = s;
             return a;
         },
         hasIcon: hasIcon(),
@@ -270,9 +272,9 @@ function main() {
     if (!page.$src) page.$src = render.parseRepeat("m in menus");
     var src = page.$src;
     var itemName = src.itemName;
-    var className = `{'has-children':${itemName}.children&&${itemName}.children.length,
-            'warn':${itemName}.warn,
-            actived:${itemName}.isActived()
+    var className = `{'has-children':$item.children&&$item.children.length,
+            warn:$item.warn,
+            actived:$item.isActived()
         }`;
     var notHidden = `!${itemName}.hidden`;
     var ItemTemplate = document.createElement('menu-item');
@@ -281,7 +283,6 @@ function main() {
     else ItemTemplate.setAttribute("on-mouseenter", `enterMenu(this)`);
     ItemTemplate.setAttribute("e-class", className);
     if (src.itemName) ItemTemplate.setAttribute("e-if", notHidden);
-    ItemTemplate.setAttribute("_menu", src.itemName);
     ItemTemplate.innerHTML = menuItem.template;
     var generator = getGenerator(page, ItemTemplate);
     page.$generatorScopes.push($scope);
@@ -299,11 +300,15 @@ function main() {
     page.$renders.unshift(function () {
         this.$scope.hasIcon = hasIcon();
     });
+    var getMenu = function (a) {
+        return a.$scope.$item;
+    }
     page.open = function (a) {
-        if (!a.menu || !a.menu.length) {
+        var amenu = getMenu(a);
+        if (!amenu || !amenu.length) {
             return;
         }
-        var m = popMenu(a.menu, a);
+        var m = popMenu(a);
         m.moveFocus("home");
     };
     page.active = function (a) {
@@ -311,22 +316,23 @@ function main() {
     };
     if (istoolbar) on("active")(page, function (event) {
         if (event.item !== 'global') return;
-        if (page.selected) page.selected.setActive(false);
+        if (page.$selected) page.$selected.setActive(false);
         var selected = null;
         for (var e of this.children) {
-            if (!e.menu) continue;
-            selected = e.menu.pathTo(event.value);
+            var emenu = getMenu(e);
+            if (!emenu) continue;
+            selected = emenu.pathTo(event.value);
             if (selected) break;
         }
         if (!selected) return;
         var menu = selected.pop();
-        page.selected = menu;
+        page.$selected = menu;
         if (selected[0]) selected[0].extends(menu.value);
         menu.setActive(true);
     });
     on("focused")(page, function () {
         var focused = page.focused;
-        if (page.ispop && !page.parent) popMenu(focused.menu, focused, false);
+        if (page.ispop && !page.parent) popMenu(focused, false);
     });
     page.openFocus = openFocus;
     page.closeFocus = closeFocus;

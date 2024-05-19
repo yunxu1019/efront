@@ -11,18 +11,7 @@ var cloneChildNodes = function (template) {
     }
     return cNodes;
 }
-var merge = function (dst, src) {
-    if (!src) return dst;
-    if (!dst) return src;
-    if (dst instanceof Array) {
-        return dst.concat(src);
-    }
-    if (isObject(dst)) return Object.assign(dst, src);
-    return src;
-};
-var mergeStruct = function (struct1, struct2) {
-    for (var k in struct2) struct1[k] = merge(struct1[k], struct2[k]);
-}
+
 /**
  * @param {Element} container
  * @param {Element|string} tagName;
@@ -67,8 +56,7 @@ var getGenerator = function (container, tagName = 'item') {
     if (tagTemplate) {
         render.struct(tagName);
         var template0 = templates[0];
-        mergeStruct(tagName.$struct, template0.$struct);
-        template0.$struct = tagName.$struct;
+        template0.$struct = render.mergeStruct(tagName.$struct, template0.$struct);
         template0.$renderid = tagName.$renderid;
     }
     if (templates.length) container.$template = template;
@@ -94,8 +82,13 @@ var getGenerator = function (container, tagName = 'item') {
         }
         var scopes = container.$generatorScopes;
         var parsedSrc = container.$src;
+        var wraped = undefined;
+        if (com instanceof Item) {
+            wraped = com;
+            com = com.value;
+        }
         if (parsedSrc) {
-            var newScope = parsedSrc.createScope(com, index, index);
+            var newScope = parsedSrc.createScope(com, index, index, wraped);
         } else {
             var newScope = container.src[index];
             if (!isObject(newScope)) newScope = {
@@ -115,6 +108,7 @@ var getGenerator = function (container, tagName = 'item') {
                     return this.$item;
                 }
             }
+            if (wraped) newScope.$wraped = wraped;
         }
         element.$scope = newScope;
         element.$parentScopes = scopes;

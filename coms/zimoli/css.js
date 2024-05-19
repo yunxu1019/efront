@@ -109,6 +109,16 @@ var cssTargetNode = function (targetNode, oStyle, oValue) {
         }
     }
 };
+var styleToMap = function (style) {
+    if (isString(style)) return parseKV(style, ';', ':');
+    if (isObject(style)) return style;
+    if (isArray(style)) {
+        var styleMap = Object.create(null);
+        for (var s of style) extend(styleMap, styleToMap(s));
+        return styleMap;
+    }
+    return Object.create(null);
+}
 /**
  * 将样式绑定到选择器
  * @param {string} targetSelector 
@@ -186,3 +196,4 @@ var css = function (target, oStyle, oValue) {
 css.transformCssKey = transformCssKey;
 css.transformNodeKey = transformNodeKey;
 css.transformValue = transformValue;
+css.styleToMap = styleToMap;

@@ -6,12 +6,10 @@ function removeClass(target, classNames) {
         var c = arr[cx];
         cls[c] = true;
     }
-    if (isString(classNames)) {
-        var clsNames = classNames.trim().split(/\s+/);
-        for (var cx = 0, dx = clsNames.length; cx < dx; cx++) {
-            var c = clsNames[cx];
-            delete cls[c];
-        }
+    if (isString(classNames)) classNames = classNames.trim().split(/\s+/);
+    if (isArray(classNames)) for (var cx = 0, dx = classNames.length; cx < dx; cx++) {
+        var c = classNames[cx];
+        delete cls[c];
     }
     var newarr = [];
     for (var k in cls) {

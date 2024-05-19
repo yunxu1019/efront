@@ -155,11 +155,11 @@ class Repeater {
         this.trackBy = trackBy;
         this.srcName = srcName;
     }
-    createScope(item, k, i) {
+    createScope(item, k, i, wraped) {
         var scope = {
             $key: k,
-            $item: item,
-            $index: i
+            $item: wraped || item,
+            $index: i,
         };
         if (this.keyName !== "$key") {
             scope[this.keyName] = k;
@@ -462,6 +462,37 @@ var createBinder = function (binder) {
 
     }
 }
+var createMapper = function (write, mapper) {
+    return function (search) {
+        var getter = isArray(search) ? search.map(s => createGetter(this, s)) : createGetter(this, search);
+        var oldValue = mapper();
+        this.$renders.push(function () {
+            var value = mapper(isArray(getter) ? getter.map(g => g(this)) : getter(this));
+            var changes = getChanges(value, oldValue);
+            if (!changes) return;
+            oldValue = value;
+            var targetValue = Object.create(null);
+            for (var k in changes) {
+                targetValue[k] = !isHandled(value[k]) ? "" : value[k];
+            }
+            write(this, targetValue);
+        });
+    }
+}
+var createBinder2 = function (write, read) {
+    return function (search) {
+        var getter = createGetter(this, search);
+        var oldValue = isFunction(read) ? read(this) : undefined;
+        this.$renders.push(function () {
+            var value = getter(this);
+            if (shallowEqual(value, oldValue)) return;
+            var oldv = oldValue;
+            oldValue = value;
+            if (!isHandled(value)) value = '';
+            write(this, value, oldv);
+        });
+    };
+}
 
 var src2 = function (search) {
     var getter = createGetter(this, search);
@@ -481,28 +512,41 @@ var src2 = function (search) {
         cast(this, origin);
     });
 }
+
 var directives = {
-    bind: createBinder(text),
-    html: createBinder(html),
-    hide: createBinder(function (elem, value) {
-        if (arguments.length === 1) return elem.style.display === 'none';
-        elem.style.display = value ? 'none' : '';
+    text: createBinder2(function (elem, value) {
+        elem.innerText = value;
     }),
-    show: createBinder(function (elem, value) {
-        if (arguments.length === 1) return elem.style.display !== 'none';
-        elem.style.display = value ? '' : 'none';
-    }),
-    style: createBinder(function (elem, value, oldValue) {
-        if (isString(value)) value = parseKV(value, ';', ':');
-        if (isString(oldValue)) oldValue = parseKV(oldValue, ";", ":");
-        var changed = getChanges(value, oldValue);
-        var targetValue = Object.create(null);
-        for (var k in changed) {
-            targetValue[k] = isEmpty(value[k]) ? "" : value[k];
+    bind: createBinder2(function (elem, value) {
+        if (isNode(value) || isArray(value)) {
+            if (value !== elem.firstChild) {
+                remove(elem.childNodes);
+                appendChild(elem, value);
+            }
         }
-        value = targetValue;
-        css(elem, value);
+        else {
+            elem.innerText = value;
+        }
     }),
+    html: createBinder2(function (elem, value) {
+        elem.innerHTML = value;
+    }),
+    hide: createBinder2(function (elem, value) {
+        var display = value ? 'none' : '';
+        var style = elem.style;
+        if (style.display !== display) style.display = display;
+    }, function (elem) {
+        return elem.style.display === 'none';
+    }),
+    show: createBinder2(function (elem, value) {
+        var display = value ? '' : 'none';
+        var style = elem.style;
+        if (style.display !== display) style.display = display;
+    }, function (elem) {
+        return elem.style.display === 'none';
+    }),
+    style: createMapper(css, css.styleToMap),
+    class: createMapper(addClass, addClass.classToMap),
     src(src) {
         var parsedSrc = this.$src;
         return src2.call(this, parsedSrc && /[\{\[\s]/.test(src) ? parsedSrc.srcName : src);
@@ -558,43 +602,7 @@ var directives = {
         eventsBinders.forEach(on => on(target, onchange, true));
     },
 
-    "class"(search) {
-        var getter = createGetter(this, search);
-        var generatedClassNames = {};
-        var oldValue;
-        this.$renders.push(function () {
-            var className = getter(this);
-            if (deepEqual(oldValue, className)) return;
-            oldValue = className;
-            var originalClassNames = [];
-            this.className.split(/\s+/).map(function (k) {
-                if (k && !hasOwnProperty.call(generatedClassNames, k) && !hasOwnProperty.call(originalClassNames, k)) {
-                    if (!/^\d+$/.test(k)) originalClassNames.push(originalClassNames[k] = k);
-                }
-            });
-            var deltaClassNames = [];
-            if (isString(className)) {
-                className.split(/\s+/).map(function (k) {
-                    if (!hasOwnProperty.call(originalClassNames, k)) {
-                        if (!/^\d+$/.test(k)) deltaClassNames.push(deltaClassNames[k] = k);
-                    }
-                });
-            } else if (isObject(className)) {
-                for (var k in className) {
-                    if (!hasOwnProperty.call(originalClassNames, k) && className[k]) {
-                        if (!/^\d+$/.test(k)) deltaClassNames.push(deltaClassNames[k] = k);
-                    }
-                }
-            }
-            var destClassName = originalClassNames.concat(deltaClassNames).join(" ");
-            generatedClassNames = deltaClassNames;
-            if (this.className !== destClassName) {
-                this.className = destClassName;
-            }
-        });
-    },
 };
-directives.text = directives.bind;
 // property binder
 var binders = {
     _(attr, search) {
@@ -795,6 +803,7 @@ function renderElement(element, scope = element.$scope, parentScopes = element.$
                 if (!replacer.$parentScopes) replacer.$parentScopes = parentScopes;
                 if (isElement(replacer) && !replacer.$renderid) {
                     createStructure(replacer);
+                    replacer.$struct = mergeStruct(element.$struct, replacer.$struct);
                     if (replacer.children && replacer.children.length) renderElement(replacer.children, replacer.$scope, replacer.$parentScopes, once);
                     renderRest(replacer, replacer.$struct);
                     replacer.$struct.ons.forEach(([on, key, value]) => on.call(replacer, replacer, key, value));
@@ -866,6 +875,44 @@ function $eval(search, scope, event) {
     return $$eval.call(this, search, scope, this, event);
 }
 
+var merge = function (dst, src) {
+    if (!src) return dst;
+    if (!dst) return src;
+    if (dst instanceof Array) {
+        return dst.concat(src);
+    }
+    if (isObject(dst)) return Object.assign(dst, src);
+    return src;
+};
+var pushb = function (dist, b) {
+    if (isArray(b)) dist.push(...b);
+    else if (isHandled(b)) dist.push(b);
+};
+var mergeStruct = function (struct1, struct2) {
+    if (!isObject(struct1)) return struct2;
+    if (!isObject(struct2)) return struct1;
+    for (var k in struct2) if (k !== 'binds') {
+        struct1[k] = merge(struct1[k], struct2[k]);
+    }
+    var binds1 = struct1.binds;
+    var binds2 = struct2.binds;
+    for (var k in binds2) {
+        if (/^(class|style)$/.test(k)) {
+            var dist = [];
+            pushb(dist, binds1[k]);
+            pushb(dist, binds2[k]);
+            if (dist.length) {
+                if (dist.length === 1) dist = dist[0];
+                binds1[k] = dist;
+            }
+        }
+        else {
+            binds1[k] = binds2[k];
+        }
+    }
+    return struct1;
+}
+
 class Struct {
     constructor(ons, types, copys, binds, attrs, props, ids, once) {
         this.ons = ons;
@@ -879,6 +926,7 @@ class Struct {
         this.once = once;
     }
 }
+
 
 
 function createStructure(element) {
@@ -1035,3 +1083,4 @@ render.register = function (key, name) {
 };
 render.getFromScopes = getFromScopes;
 render.struct = createStructure;
+render.mergeStruct = mergeStruct;
