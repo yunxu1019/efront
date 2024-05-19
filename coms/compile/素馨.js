@@ -198,29 +198,35 @@ macros.escape = function (a) {
 macros.e = function (a) {
     return strings.decode(a);
 };
-var wrapColor = function (f) {
-    return function (c) {
+var wrapColor = function (k) {
+    var f = color[k];
+    macros[k] = function (c) {
         if (color.isColor(c)) return f(...arguments);
-        return f;
-    }
-}
+        return `${k}(${Array.apply(null, arguments).join(',')})`;
+    };
+};
+
+[
+    "saturate",
+    "desaturate",
+    "lighten",
+    "darken",
+    "fadein",
+    "fadeout",
+    "fade",
+    "spin",
+    "mix",
+    "tint",
+    "shade",
+    "grayscale",
+    "grayluma",
+    "fade"
+].forEach(wrapColor);
+
 macros[""] = function (a) {
     return a;
 };
-macros.saturate = wrapColor(color.strurate);
-macros.desaturate = wrapColor(color.desaturate);
-macros.lighten = wrapColor(color.lighten);
-macros.darken = wrapColor(color.darken);
-macros.fadein = wrapColor(color.fadein);
-macros.fadeout = wrapColor(color.fadeout);
-macros.fade = wrapColor(color.fade);
-macros.spin = wrapColor(color.spin);
-macros.mix = wrapColor(color.mix);
-macros.tint = wrapColor(color.tint);
-macros.shade = wrapColor(color.shade);
-macros.grayscale = wrapColor(color.grayscale);
-macros.grayluma = wrapColor(color.grayluma);
-macros.fade = wrapColor(color.fade);
+
 macros.each = function (list, body) {
     var match = /^(?:\s*[#\.]?\(([\s\S]*?)\))?\s*\{([\s\S]*)\}$/.exec(body);
     if (!match) throw new Error(i18n`each参数异常!`);
