@@ -389,6 +389,13 @@ var parseIfWithRepeat = function (ifExpression, repeatExpression) {
     };
 };
 
+var mountElementIds = function (element) {
+    var scope = element.$scope;
+    for (var id of element.$struct.ids) {
+        if (scope[id] && scope[id] !== element) throw new Error(i18n`同一个id不能使用两次:` + id);
+        scope[id] = element;
+    }
+}
 var renderStructure = function (element) {
     var $struct = element.$struct;
     if ($struct.if) var { name: ifkey, key, value: ifexp } = $struct.if;
@@ -770,14 +777,11 @@ function renderElement(element, scope = element.$scope, parentScopes = element.$
         if (isEmpty(s.once)) s.once = once;
         element.$eval = $eval;
     }
+    mountElementIds(element);
     if (element.$renderid <= -1) element = renderStructure(element);
     if (!element) return;
     if (!element || element.$renderid < 0 || element.nodeType !== 1) {
         return element;
-    }
-    for (var id of element.$struct.ids) {
-        if (scope[id] && scope[id] !== element) throw new Error(i18n`同一个id不能使用两次:` + id);
-        scope[id] = element;
     }
     var isFirstRender = !element.$renderid;
 
@@ -876,9 +880,9 @@ function $eval(search, scope, event) {
 }
 
 var merge = function (dst, src) {
-    if (!src) return dst;
-    if (!dst) return src;
-    if (dst instanceof Array) {
+    if (!isHandled(src)) return dst;
+    if (!isHandled(dst)) return src;
+    if (isArray(dst)) {
         return dst.concat(src);
     }
     if (isObject(dst)) return Object.assign(dst, src);
@@ -928,6 +932,11 @@ class Struct {
 }
 
 
+var pushid = function (ids, name) {
+    ids.push(name);
+    var name1 = name.replace(/\-([a-z])/ig, (_, a) => a.toUpperCase());
+    if (name1 !== name) ids.push(name1);
+};
 
 function createStructure(element) {
     if (isArrayLike(element)) return Array.prototype.map.call(element, createStructure);
@@ -952,11 +961,11 @@ function createStructure(element) {
         var { name, value } = attr;
         if (/^\$/.test(name)) continue;
         if (name === 'elementid' || name === 'renderid' || name === 'id') {
-            ids.push(value);
+            pushid(ids, value);
             continue;
         }
         if (/^#/.test(name)) {
-            ids.push(name.slice(1), name.slice(1).replace(/\-([a-z])/ig, (_, a) => a.toUpperCase()));
+            pushid(ids, name.slice(1));
             element.removeAttribute(name);
             continue;
         };
