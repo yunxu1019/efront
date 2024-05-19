@@ -188,11 +188,11 @@ function main() {
         var pop = active(thismenu.value, this);
         if (pop === false) return;
         var root = page.root || page;
-        var istool = root.direction === 't' || root.$selected
+        var istool = root.direction === 't' || root.selected
         if (root.ispop === 1) root.ispop = false;
         if (istool) {
             var menu = thismenu;
-            if (root.$selected) root.$selected.setActive(false);
+            if (root.selected) root.selected.setActive(false);
             if (root !== page) {
                 var target = root.actived.target;
                 if (isObject(menu.value)) delete menu.value.children;
@@ -204,7 +204,7 @@ function main() {
                 target = this;
             }
             menu.setActive(true);
-            root.$selected = getMenu(target);
+            root.selected = getMenu(target);
             autoremove();
             return;
         }
@@ -316,7 +316,7 @@ function main() {
     };
     if (istoolbar) on("active")(page, function (event) {
         if (event.item !== 'global') return;
-        if (page.$selected) page.$selected.setActive(false);
+        if (page.selected) page.selected.setActive(false);
         var selected = null;
         for (var e of this.children) {
             var emenu = getMenu(e);
@@ -326,7 +326,7 @@ function main() {
         }
         if (!selected) return;
         var menu = selected.pop();
-        page.$selected = menu;
+        page.selected = menu;
         if (selected[0]) selected[0].extends(menu.value);
         menu.setActive(true);
     });
