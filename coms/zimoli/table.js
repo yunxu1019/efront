@@ -307,6 +307,7 @@ var setFixedColumn = function (remark) {
         markRowTds(tr, remark);
     });
     if (!isTableRow(thead)) thead = thead.querySelector('tr');
+    if (!thead) return;
     var children = Array.prototype.slice.call(thead.children);
     var lastChild = children[children.length - 1];
     var lastFieldChild = children[children.length - 2];
@@ -573,6 +574,7 @@ function table(elem) {
             pagination
         };
         render(this, $scope, this.$parentScopes.concat(this.$scope));
+        if (isMounted(table)) setFixedColumn.call(table);
         $scope.data = Table.from(fields, await data);
         $scope.data.callback = function () {
             render.digest();
