@@ -447,28 +447,6 @@ var structures = {
 };
 structures["else-if"] = structures.elseif = structures.else;
 structures["for-each"] = structures.foreach = structures.for = structures.each = structures.repeat;
-var createBinder = function (binder) {
-    return function (search) {
-        var getter = createGetter(this, `(${search})`);
-        var oldValue;
-        this.$renders.push(function () {
-            var value = getter(this);
-            if (shallowEqual(value, oldValue)) return;
-            var oldv = oldValue;
-            oldValue = value;
-            if (isNode(value) || isArray(value)) {
-                if (value !== this.firstChild) {
-                    remove(this.childNodes);
-                    appendChild(this, value);
-                }
-            } else {
-                if (isEmpty(value)) value = '';
-                if (binder(this) !== value) binder(this, value, oldv);
-            }
-        });
-
-    }
-}
 var createMapper = function (write, mapper) {
     return function (search) {
         var getter = isArray(search) ? search.map(s => createGetter(this, s)) : createGetter(this, search);
