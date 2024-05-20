@@ -197,7 +197,7 @@ class Program {
                 index = reg.lastIndex;
                 var match = reg.exec(m);
             } while (match);
-            colstart = start + index;
+            colstart = start + index - 1;
         };
         var queue_push = (scope) => {
             if (scope.type & (SPACE | COMMENT | PIECE | QUOTED)) {
