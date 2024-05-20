@@ -34,7 +34,7 @@ var gray = format('<gray>;</gray>').split(';');
 var green = format('<green>;</green>').split(';');
 var crack = format('<red2>;</red2>').split(';');
 var dump = function (a, msg) {
-    if (a instanceof Object) console.error(i18n`属性错误`), clog(msg ? msg + " " : "  {\r\n", Object.keys(a).map(k => `  ${k}${gray.join(':')}\r\n      ${a[k]}`).join('\r\n') + "\r\n }");
+    if (isObject(a)) console.error(i18n`属性错误`), clog(msg ? msg + " " : "  {\r\n", Object.keys(a).map(k => `  ${k}${gray.join(':')}\r\n      ${a[k]}`).join('\r\n') + "\r\n }");
     else if (msg) clog(msg + ":", a);
     else clog(a);
 };
@@ -66,12 +66,14 @@ var assert = function (result, expect, log = dump) {
             mark.setTag2(color2[1], color2[0]);
             var [r, e] = mark.pair(result, expect);
             var s = r;
+            if (typeof s === 'object') console.log(typeof s, s);
+
             r = colorString(r, color1, e, color2);
             e = colorString(e, color2, s, color1);
             errors = `${color3[0]}结果  ${color3[1]}${r}\r\n      ${color3[0]}应为  ${color3[1]}${e}\r\n`;
         };
         return function (error) {
-            if (error instanceof Object) {
+            if (isObject(error)) {
                 Object.keys(error).forEach(y => {
                     var e = y;
                     errors[`${gray.join('[')}${green.join(k)}${gray.join("]->")}` + e] = error[y];
@@ -101,7 +103,7 @@ var assert = function (result, expect, log = dump) {
         }
     } else if (expect instanceof Function) {
         res = expect(result, (...args) => (b) => assert(result.apply(null, args), b, collect(b, args)), collect(`()`)) !== false;
-    } else if (expect instanceof Object && result instanceof Object) {
+    } else if (isObject(expect) && isObject(result)) {
         var res = true;
         for (var k in expect) {
             res = res && assert(result[k], expect[k], collect(k));
