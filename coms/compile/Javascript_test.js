@@ -120,5 +120,16 @@ var testPress = function (text, expect) {
 };
 testPress(`if(){}\r\nelse {}`, `if(){}else{}`)
 testPress(`if(a)a={}\r\nelse{}`, `if(a)a={};else{}`)
-testPress(`if()a=function(){}\r\nelse {}`,`if()a=function(){};else{}`)
-testPress(`if()function a(){}\r\nelse {}`,`if()function a(){}else{}`)
+testPress(`if()a=function(){}\r\nelse {}`, `if()a=function(){};else{}`)
+testPress(`if()function a(){}\r\nelse {}`, `if()function a(){}else{}`)
+
+var testStar = function (text, envs) {
+    var code = scanner2(text);
+    return assert(code.envs, envs);
+};
+testStar(`var a=class {a=1\r\nasync * a(){
+    var names=[];
+    for(var n of names) {
+        yield n;
+    }
+}}`, {});

@@ -434,7 +434,11 @@ Javascript.prototype.setType = function (o) {
             }
         }
         else if (o.type === STAMP) {
-            o.isprop = o.text === "*" && (!last || /^[,;]$/.test(last.text) || queue.isClass && isShortMethodEnd(last));
+            if (!/^[,;:=]$/.test(o.text)) {
+                if (!last || last.type === STAMP && /^[,;]$/.test(last.text) || last.isprop || queue.isClass && isShortMethodEnd(last)) {
+                    o.isprop = true;
+                }
+            }
         }
         else if (o.type === PROPERTY) {
             o.isprop = true;
