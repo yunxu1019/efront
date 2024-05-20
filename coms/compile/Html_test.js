@@ -35,6 +35,7 @@ test('${i18n`加载中..`}<div class="loader"></div>');
 test('${a +typeof i18n`加载中..`}<div class="loader"></div>', '${a + typeof i18n`加载中..`}<div class="loader"></div>');
 test('${a > 1}');
 test('a>1', 'a > 1');
+test(`<meta charset="utf-8" />`);
 test('a><a></a>', 'a > <a></a>');
 test('X', 'X');
 test('<input -class="{actived:actived===f}"/>', 'scoped.envs.actived', true);

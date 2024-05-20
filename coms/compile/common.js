@@ -1326,7 +1326,7 @@ var createString = function (parsed) {
                         }
                         else {
                             if (a.type === PIECE && !a.text) continue;
-                            if (!needvalue && !/\s$/.test(result[result.length - 1]) && a.type !== ELEMENT && (a.type !== PIECE || !/^[\=\s]/.test(a.text))) result.push(" ");
+                            if (!needvalue && !/\s$/.test(result[result.length - 1]) && a.type !== ELEMENT && (a.type & ~(PIECE | SPACE) || !/^[\=\s]/.test(a.text))) result.push(" ");
                             run(a);
                             needvalue = a.type === PIECE && /[\=]$/.test(a.text);
                         }
