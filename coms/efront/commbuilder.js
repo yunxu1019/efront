@@ -812,7 +812,7 @@ async function getXhtPromise(xhtdata, filename, fullpath, watchurls, extraJs, ex
         default:
             creator = 'document.createElement(';
     }
-    if (htmltext !== '``' || tagName && jsvars[tagName] || commName && jsvars[commName]) {
+    if (htmltext !== '``' || attributes || tagName && jsvars[tagName] || commName && jsvars[commName]) {
         var xhtrender = `elem.innerHTML=template;render(elem,scope);`;
         xhtrender = async
             ? `${xhtmain}.apply(elem,arguments).then(function([template,scope]){${xhtrender}})`
