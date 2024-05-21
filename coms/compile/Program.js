@@ -459,8 +459,11 @@ class Program {
                     queue.last = last.prev;
                 }
                 else {
-                    var m = queue.leave;
-                    index = queue.end - m.length;
+                    var m = queue.leave || queue.tag_leave;
+                    index = queue.end
+                    if (m) {
+                        index - m.length;
+                    }
                 }
                 delete queue.start;
                 delete queue.end;
