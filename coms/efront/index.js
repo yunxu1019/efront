@@ -336,7 +336,7 @@ var commands = {
                     error_files_count++;
                     collected += suggests.length;
                     var createString = require("../compile/common").createString;
-                    var codecolor = require('../docs/codecolor');
+                    var codecolor = require('../茨菰/标签化');
                     suggests.map(s => {
                         if (s.suggest) {
                             console.log(console.format(`<yellow>${fullpath}:${s[0].row}:${s[0].col}</yellow>`));

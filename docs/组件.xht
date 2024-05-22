@@ -70,7 +70,7 @@
         height: 100%;
     }
 
-    [codearea]>.codetext {
+    [codearea]>cigu {
         overflow: auto;
         display: block;
         white-space: pre;
@@ -125,8 +125,8 @@
             </span>
         </p4>
     </div>
-    <div body onkeyup="!event.isComposing&&updatecode(event)" onkeydown.tab="keytab(event)" onkeyup.enter="ontab(false)"
-        #coder codearea -elseif="tags[1].actived">
+    <div body codearea -elseif="tags[1].actived">
+        <cigu contenteditable #coder></cigu>
     </div>
     <resultpad -if="tags[1].actived" .result #coderesult></resultpad>
     <div foot -if="tags[1].actived">
@@ -136,6 +136,7 @@
     </div>
 </form>
 <script>
+    var cigu = 茨菰$编辑框;
     var required, doc, envs;
     var commaps = Object.create(null);
     var form = view;
@@ -259,164 +260,12 @@
         else {
             initcode('');
         }
-        jstext = coder.innerText;
-        execute();
+        // execute();
     };
-    var blink = "\u0080";
-    var markAnchorOffset = function () {
-        var { anchorNode, anchorOffset } = document.getSelection();
-        if (!anchorNode || !coder) return;
-        var [c] = coder.children;
-        if (anchorNode.nodeType === 1) {
-            var node = document.createTextNode(blink);
-            anchorNode.insertBefore(node, anchorNode.childNodes[anchorOffset])
-        }
-        else if (anchorNode.nodeType === 3) {
-            anchorNode.nodeValue = anchorNode.nodeValue.slice(0, anchorOffset) + blink + anchorNode.nodeValue.slice(anchorOffset);
-        }
-    };
-    var unmarkAnchorOffset = function () {
-        var [c] = coder.children;
-        var node = c.firstChild;
-        while (node) {
-            if (node.nodeType === 1) {
-                if (node.innerText.indexOf(blink) >= 0) {
-                    node = node.firstChild;
-                    continue;
-                }
-            }
-            else if (node.nodeType === 3) {
-                if (node.nodeValue.indexOf(blink) >= 0) break;
-            }
-            node = node.nextSibling;
-        }
-        if (node) {
-            var offset = node.nodeValue.indexOf(blink);
-            node.nodeValue = node.nodeValue.slice(0, offset) + node.nodeValue.slice(offset + 1);
-            document.getSelection().setBaseAndExtent(node, offset, node, offset);
-            if (!node.nodeValue) {
-                remove(node);
-            }
-        }
-    }
-    var getAnchorOffset = function () {
-        var { anchorNode, anchorOffset } = document.getSelection();
-        var [c] = coder.children;
-        if (anchorNode === c || !anchorNode) return -anchorOffset;
-        var sibling = anchorNode.previousSibling ? anchorNode.previousSibling : anchorNode.parentNode.previousSibling;
-        while (sibling && sibling !== c) {
-            switch (sibling.nodeType) {
-                case 1:
-                    anchorOffset += sibling.innerText.length || 1;
-                    break;
-                case 3:
-                    anchorOffset += sibling.nodeValue.length;
-                    break;
-            }
-            sibling = sibling.previousSibling ? sibling.previousSibling : sibling.parentNode.previousSibling;
-        }
-        return anchorOffset;
-    };
-    var setAnchorOffset = function (anchorOffset) {
-        var [c] = coder.children;
-        if (anchorOffset < 0) {
-            anchorOffset = -anchorOffset;
-            if (anchorOffset > c.childNodes.length) anchorOffset = c.childNodes.length;
-            return document.getSelection().setBaseAndExtent(c, anchorOffset, c, anchorOffset);
-        }
-        var offset = anchorOffset;
-        var child = c.firstChild;
-        while (child) {
-            var delta = 0;
-            switch (child.nodeType) {
-                case 1:
-                    delta = child.innerText.length || 1;
-                    break;
-                case 3:
-                    delta = child.nodeValue.length;
-                    break;
-            }
-            if (delta >= offset) {
-                if (child.nodeType === 1) {
-                    if (child.firstChild) {
-                        child = child.firstChild;
-                        continue;
-                    }
-                    offset -= 1;
-                    break;
-                }
-                break;
-            }
-            offset -= delta;
-            if (offset <= 0) break;
-            child = child.nextSibling;
-        }
-        if (!child) child = c, offset = c.childNodes.length;
-        return document.getSelection().setBaseAndExtent(child, offset, child, offset);
-    }
     var initcode = function (innerText) {
-        try {
-            var colored = codetext("js", innerText, blink);
-        } catch { return; }
-        var innerHTML = coder.innerHTML.replace(/\s*contenteditable\=[^\s\>]+/i, '');
-        if (innerHTML === colored) return;
-        var [c0] = coder.children;
-        var contentLength = c0 ? innerText.length : 0;
-        var scrollTop = c0 ? c0.scrollTop : 0;
-        var scrollLeft = c0 ? c0.scrollLeft : 0;
-        coder.innerHTML = colored;
-        var [c] = coder.children;
-        c.scrollTop = scrollTop;
-        c.scrollLeft = scrollLeft;
-        c.contentEditable = true;
+        cast(coder, [innerText, 'js']);
     };
-    var trimspace = (_, a) => a ? "" : " ";
-    var ensp = s => Array(s + 1).join("\u2002"/*&ensp*/);
-    var getEnspBefore = function (node) {
-        if (!node) return 0;
-        while (node && (node.nodeType !== 1 || !/^br$/i.test(node.tagName))) {
-            node = node.previousSibling;
-        }
-        if (node) {
-            var next = node.nextSibling;
-            if (next) {
-                next = /^[\u2002\u0020\u00a0]+/.exec(next.nodeValue);
-                if (next) return next[0].length;
-            }
-        }
-    };
-    var ontab = function (forcetab) {
-        var selection = document.getSelection();
-        var { anchorNode, anchorOffset } = selection;
-        if (anchorNode.nodeType === 1) {
-            var child = anchorNode.childNodes[anchorOffset];
-            var spaceSize = 4;
-            if (child.nodeType === 1) spaceSize = getEnspBefore(child?.previousSibling?.previousSibling || anchorNode);
-            if (!spaceSize && forcetab !== false) spaceSize = 4;
-            if (!spaceSize) return;
-            var space = document.createTextNode(ensp(spaceSize));
-            anchorNode.insertBefore(space, child);
-            selection.setBaseAndExtent(space, spaceSize, space, spaceSize);
-        }
-        else if (anchorNode.nodeType === 3) {
-            if (forcetab === 0) return;
-            anchorNode.nodeValue = anchorNode.nodeValue.slice(0, anchorOffset) + ensp(4) + anchorNode.nodeValue.slice(anchorOffset);
-            anchorOffset += 4;
-            selection.setBaseAndExtent(anchorNode, anchorOffset, anchorNode, anchorOffset);
-        }
-    };
-    var updatecode = lazy(function (event) {
-        var trimreg = /[\s\u00a0\u2002\u0080]+([\}\{\;\[\]\(\)\,\>\<\+\-\*\&\^\/%!~:?])*/g;
-        var innerText = coder.innerText;
-        if (jstext.replace(trimreg, trimspace).trim() === innerText.replace(trimreg, trimspace).trim()) return;
-        markAnchorOffset();
-        var innerText = coder.innerText;
-        unmarkAnchorOffset();
-        initcode(innerText);
-        unmarkAnchorOffset();
-        jstext = coder.innerText;
-        jschanged = true;
-    });
+
     var jschanged = false;
     var execute = async function () {
         try {
@@ -424,6 +273,7 @@
             if (live) live = live[1];
             var commap = initCommap(live);
             remove(coderesult.childNodes);
+            var jstext = coder.innerText;
             jstext = jstext.replace(/[\u2002\u00a0]/g, ' ');
             data.patchInstance("docscode", { codetext: jstext })
             var code = compile$scanner2(jstext);
@@ -464,10 +314,6 @@
     var xmenu = menu;
     var clearpad = function () {
         remove(this.coderesult.childNodes);
-    };
-    var keytab = function (event) {
-        event.preventDefault();
-        ontab();
     };
 
     var saveTagIndex = function (i) {

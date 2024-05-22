@@ -154,3 +154,4 @@ var codecolor = function (c, encode) {
     c.forEach(setcolor);
     return c;
 }
+return codecolor;

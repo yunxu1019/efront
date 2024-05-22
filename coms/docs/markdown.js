@@ -107,13 +107,15 @@ function markdown(text) {
             if (m & 2) c = `<b>${c}</b>`;
             return c;
         }
-        _ = codetext.encode(_.trim()).slice(1, -1);
         if (/[\*#\.]\s/.test(text.slice(i - 1, i + 1))) _ = " " + _;
-        if (q.length === 1) return `${s1}<m>${_}</m>${s2}`;
+        if (q.length === 1) {
+            _ = 茨菰$渲染.encode(_.trim()).slice(1, -1);
+            return `${s1}<m>${_}</m>${s2}`;
+        }
         var t = /^\S+/.exec(c);
         if (t) t = t[0]; c = c.slice(t.length).replace(/^(\r\n|\r|\n)|\s+$/g, '');
         try {
-            return s1 + codetext(t, c) + s2;
+            return s1 + 茨菰$上色(t, c) + s2;
         } catch (e) {
             console.error(e);
             return c;

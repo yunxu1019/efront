@@ -1,0 +1,132 @@
+<编辑框 e-class="上色.className" e-style="{whiteSpace:'pre'}" onkeyup="!event.isComposing&&updatecode(event)"
+    onkeydown.tab="keytab(event)" onkeyup.enter="tab(false)">
+</编辑框>
+<script>
+    var coder = this;
+    care(coder, function ([text, type]) {
+        try {
+            var colored = 上色.text(type, text);
+            coder.innerHTML = colored;
+            coder.type = type;
+        } catch {
+            if (typeof text === 'string') coder.innerHTML = 渲染.encode(text);
+        }
+    })
+    var markAnchorOffset = function () {
+        var { anchorNode, anchorOffset } = document.getSelection();
+        if (!anchorNode || !coder) return;
+        var [c] = coder.children;
+        if (anchorNode.nodeType === 1) {
+            var node = document.createTextNode(光标);
+            anchorNode.insertBefore(node, anchorNode.childNodes[anchorOffset])
+        }
+        else if (anchorNode.nodeType === 3) {
+            anchorNode.nodeValue = anchorNode.nodeValue.slice(0, anchorOffset) + 光标 + anchorNode.nodeValue.slice(anchorOffset);
+        }
+    };
+    var unmarkAnchorOffset = function () {
+        var c = coder;
+        var node = c.firstChild;
+        while (node) {
+            if (node.nodeType === 1) {
+                if (node.innerText.indexOf(光标) >= 0) {
+                    node = node.firstChild;
+                    continue;
+                }
+            }
+            else if (node.nodeType === 3) {
+                if (node.nodeValue.indexOf(光标) >= 0) break;
+            }
+            node = node.nextSibling;
+        }
+        if (node) {
+            var offset = node.nodeValue.indexOf(光标);
+            node.nodeValue = node.nodeValue.slice(0, offset) + node.nodeValue.slice(offset + 1);
+            document.getSelection().setBaseAndExtent(node, offset, node, offset);
+            if (!node.nodeValue) {
+                remove(node);
+            }
+        }
+    }
+    var getAnchorOffset = function () {
+        var { anchorNode, anchorOffset } = document.getSelection();
+        var [c] = coder.children;
+        if (anchorNode === c || !anchorNode) return -anchorOffset;
+        var sibling = anchorNode.previousSibling ? anchorNode.previousSibling : anchorNode.parentNode.previousSibling;
+        while (sibling && sibling !== c) {
+            switch (sibling.nodeType) {
+                case 1:
+                    anchorOffset += sibling.innerText.length || 1;
+                    break;
+                case 3:
+                    anchorOffset += sibling.nodeValue.length;
+                    break;
+            }
+            sibling = sibling.previousSibling ? sibling.previousSibling : sibling.parentNode.previousSibling;
+        }
+        return anchorOffset;
+    };
+    var setAnchorOffset = function (anchorOffset) {
+        var [c] = coder.children;
+        if (anchorOffset < 0) {
+            anchorOffset = -anchorOffset;
+            if (anchorOffset > c.childNodes.length) anchorOffset = c.childNodes.length;
+            return document.getSelection().setBaseAndExtent(c, anchorOffset, c, anchorOffset);
+        }
+        var offset = anchorOffset;
+        var child = c.firstChild;
+        while (child) {
+            var delta = 0;
+            switch (child.nodeType) {
+                case 1:
+                    delta = child.innerText.length || 1;
+                    break;
+                case 3:
+                    delta = child.nodeValue.length;
+                    break;
+            }
+            if (delta >= offset) {
+                if (child.nodeType === 1) {
+                    if (child.firstChild) {
+                        child = child.firstChild;
+                        continue;
+                    }
+                    offset -= 1;
+                    break;
+                }
+                break;
+            }
+            offset -= delta;
+            if (offset <= 0) break;
+            child = child.nextSibling;
+        }
+        if (!child) child = c, offset = c.childNodes.length;
+        return document.getSelection().setBaseAndExtent(child, offset, child, offset);
+    }
+    var trimspace = (_, a) => a ? "" : " ";
+    var jstext = "";
+    var 更新 = function (colored) {
+        var { scrollTop, scrollLeft } = coder;
+        coder.innerHTML = colored;
+        coder.scrollTop = scrollTop;
+        coder.scrollLeft = scrollLeft;
+    };
+    var updatecode = lazy(function (event) {
+        var trimreg = /[\s\u00a0\u2002\u0080]+([\}\{\;\[\]\(\)\,\>\<\+\-\*\&\^\/%!~:?])*/g;
+        var innerText = coder.innerText;
+        if (jstext.replace(trimreg, trimspace).trim() === innerText.replace(trimreg, trimspace).trim()) return;
+        jstext = innerText;
+        markAnchorOffset();
+        var innerText = coder.innerText;
+        unmarkAnchorOffset();
+        var text = 上色.text(coder.type, innerText);
+        更新(text);
+        unmarkAnchorOffset();
+        return;
+    });
+    var keytab = function (event) {
+        event.preventDefault();
+        tab();
+    };
+
+</script>
