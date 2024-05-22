@@ -42,7 +42,7 @@ presets.template = function (t) {
     comment.$scope = t.$scope;
     comment.$parentScopes = t.$parentScopes;
     if (t.$struct.binds.src) {
-        care(comment, createTemplateNodes.bind(comment))
+        care(comment, createTemplateNodes)
     }
     else {
         once("append")(comment, function () {
