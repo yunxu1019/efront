@@ -434,7 +434,7 @@ Javascript.prototype.setType = function (o) {
             }
         }
         else if (o.type === STAMP) {
-            if (!/^[,;:=]$/.test(o.text)) {
+            if (!/^[,;:=\|&]$/.test(o.text)) {
                 if (!last || last.type === STAMP && /^[,;]$/.test(last.text) || last.isprop || queue.isClass && isShortMethodEnd(last)) {
                     o.isprop = true;
                 }

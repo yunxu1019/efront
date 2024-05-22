@@ -6,6 +6,7 @@ var testFix = function (a, e) {
     assert(c.toString(), e);
 }
 js.debug = true;
+assert(scanner2("/a/g", js)[0].type, common.QUOTED);
 testFix(`import a from "a";console.log(a)`, 'var a = require("a"); console.log(a.default)');
 testFix(`import {a} from "a";console.log(a)`, 'var a1 = require("a"); console.log(a1.a)');
 testFix(`import a,{a as b} from "a";console.log(a,b)`, 'var a = require("a"); console.log(a.default, a.a)');
