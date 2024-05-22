@@ -42,7 +42,7 @@ presets.template = function (t) {
     comment.$scope = t.$scope;
     comment.$parentScopes = t.$parentScopes;
     if (t.$struct.binds.src) {
-        care(comment, createTemplateNodes)
+        care(comment, createTemplateNodes.bind(comment))
     }
     else {
         once("append")(comment, function () {
@@ -790,18 +790,19 @@ function renderElement(element, scope = element.$scope, parentScopes = element.$
         if (isFunction(constructor)) {
             var replacer = constructor.call(scope, element, scope, parentScopes);
             if (element === replacer) {
-                var struct = createStructure(element, false);
-                renderRest(element, struct);
+                var struct1 = createStructure(element, false);
+                renderRest(element, struct1);
+                element.$scope = scope;
             }
             else if (isNode(replacer)) {
-                if (!replacer.$scope) replacer.$scope = scope;
-                if (!replacer.$parentScopes) replacer.$parentScopes = parentScopes;
                 if (isElement(replacer) && !replacer.$renderid) {
+                    if (!replacer.$scope) replacer.$scope = scope;
+                    if (!replacer.$parentScopes) replacer.$parentScopes = parentScopes;
                     createStructure(replacer);
-                    replacer.$struct = mergeStruct(element.$struct, replacer.$struct);
                     if (replacer.children && replacer.children.length) renderElement(replacer.children, replacer.$scope, replacer.$parentScopes, once);
                     renderRest(replacer, replacer.$struct);
                 }
+
                 copyAttribute(replacer, copys);
                 if (nextSibling) appendChild.before(nextSibling, replacer);
                 else if (parentNode) appendChild(parentNode, replacer);
@@ -818,6 +819,14 @@ function renderElement(element, scope = element.$scope, parentScopes = element.$
     }
     if (!isFirstRender) return element;
     renderRest(element, $struct, replacer);
+    if (isNode(replacer) && replacer !== element) {
+        if (!replacer.$renders) replacer.$renders = [];
+        replacer.$renders.push.apply(replacer.$renders, element.$renders);
+        if (replacer.$struct && replacer.$struct !== element.$struct) {
+            element.$struct.ons.forEach(([on, key, value]) => on.call(element, replacer, key, value));
+        }
+        element = replacer;
+    }
     if (element.$renders.length) {
         if (element.$renderid !== 9) {
             onmounted(element, addRenderElement);
