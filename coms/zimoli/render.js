@@ -109,13 +109,19 @@ function rebuild(element) {
 }
 var variableReg = /([^\:\,\+\=\-\!%\^\|\/\&\*\!\;\?\>\<~\{\}\s\[\]\(\)]|\?\s*\.(?=[^\d])|\s*\.\s*)+/g;
 var variableOnlyReg = new RegExp(`^${variableReg.source}$`);
+var getScopeList = function (element) {
+    return element.$parentScopes.concat([element.$scope]);
+};
 var createGetter = function (target, search, isprop = true) {
     if (!search) return function () { };
     if (/^\{/.test(search)) search = `(${search})`;
     search = renderExpress(search);
-    if (isprop) return $$eval.bind(target, search, null);
-    if (variableOnlyReg.test(search)) return $$eval.bind(target, search + "(event)", null);
-    else return $$eval.bind(target, search, null);
+    var scopes = getScopeList(target);
+    if (isprop) var getter = $$eval.bind(target, search, scopes);
+    else if (variableOnlyReg.test(search)) getter = $$eval.bind(target, search + "(event)", scopes);
+    else getter = $$eval.bind(target, search, scopes);
+    getter.scopes = scopes;
+    return getter;
 };
 var createComment = function (renders, type, expression) {
     var comment = document.createComment(`${type} ${expression}`);
@@ -389,10 +395,11 @@ var parseIfWithRepeat = function (ifExpression, repeatExpression) {
     };
 };
 
-var mountElementIds = function (element) {
+var mountElementIds = function (element, ids) {
     var scope = element.$scope;
-    for (var id of element.$struct.ids) {
-        if (scope[id] && scope[id] !== element) throw new Error(i18n`同一个id不能使用两次:` + id);
+    if (!scope) return;
+    for (var id of ids) {
+        if (isHandled(scope[id]) && scope[id] !== element) throw new Error(i18n`同一个id不能使用两次:` + id);
         scope[id] = element;
     }
 }
@@ -574,7 +581,7 @@ var directives = {
             var change = getstr || "'value' in this?this.value:this.innerHTML";
         }
         setter2 = null;
-        var changeme = $$eval.bind(this, search + "=" + change, null);
+        var changeme = $$eval.bind(this, search + "=" + change, getScopeList(this));
         var onchange = function () {
             changeme(this);
             var value = getter(this);
@@ -665,12 +672,9 @@ var createEmiter = function (on) {
             }
             var res;
             if (scope) {
-                var temp = this.$scope;
-                this.$parentScopes.push(temp);
-                this.$scope = scope;
+                getter.scopes.push(scope);
                 res = getter(this, e);
-                this.$parentScopes.pop();
-                this.$scope = temp;
+                getter.scopes.pop();
             }
             else {
                 res = getter(this, e);
@@ -728,6 +732,8 @@ function renderRest(element, struct, replacer = element) {
     }
     if (binds.src) directives.src.call(element, binds.src);
     if (renders && renders.length) element.$renders.push.apply(element.$renders, renders);
+    if (!isElement(replacer)) replacer = element;
+    struct.ons.forEach(([on, key, value]) => on.call(element, replacer, key, value));
 }
 
 function renderElement(element, scope = element.$scope, parentScopes = element.$parentScopes, once) {
@@ -752,10 +758,12 @@ function renderElement(element, scope = element.$scope, parentScopes = element.$
         }
         element.$parentScopes = parentScopes || [];
         var s = createStructure(element);
+        element.$struct = s;
+        mountElementIds(element, s.ids);
         if (isEmpty(s.once)) s.once = once;
         element.$eval = $eval;
     }
-    mountElementIds(element);
+    element.$scope = scope;
     if (element.$renderid <= -1) element = renderStructure(element);
     if (!element) return;
     if (!element || element.$renderid < 0 || element.nodeType !== 1) {
@@ -769,8 +777,9 @@ function renderElement(element, scope = element.$scope, parentScopes = element.$
         if (parentNode) {
             if (parentNode.$renderid > 1 || isMounted(parentNode)) element.$renderid = 2;
         }
+        var $struct = element.$struct;
         element.$renders = element.$renders || element.renders ? [].concat(element.$renders || [], element.renders || []) : [];
-        var { copys, binds, once } = element.$struct;
+        var { copys, binds, once } = $struct;
         if (once) element.$renderid = 9;
         if (binds.src) {
             element.$src = parseRepeat(binds.src);
@@ -780,7 +789,11 @@ function renderElement(element, scope = element.$scope, parentScopes = element.$
         var constructor = getFromScopes(tagName, scope, parentScopes);
         if (isFunction(constructor)) {
             var replacer = constructor.call(scope, element, scope, parentScopes);
-            if (isNode(replacer) && element !== replacer) {
+            if (element === replacer) {
+                var struct = createStructure(element, false);
+                renderRest(element, struct);
+            }
+            else if (isNode(replacer)) {
                 if (!replacer.$scope) replacer.$scope = scope;
                 if (!replacer.$parentScopes) replacer.$parentScopes = parentScopes;
                 if (isElement(replacer) && !replacer.$renderid) {
@@ -788,7 +801,6 @@ function renderElement(element, scope = element.$scope, parentScopes = element.$
                     replacer.$struct = mergeStruct(element.$struct, replacer.$struct);
                     if (replacer.children && replacer.children.length) renderElement(replacer.children, replacer.$scope, replacer.$parentScopes, once);
                     renderRest(replacer, replacer.$struct);
-                    replacer.$struct.ons.forEach(([on, key, value]) => on.call(replacer, replacer, key, value));
                 }
                 copyAttribute(replacer, copys);
                 if (nextSibling) appendChild.before(nextSibling, replacer);
@@ -805,18 +817,7 @@ function renderElement(element, scope = element.$scope, parentScopes = element.$
         if (element.children && element.children.length) renderElement(element.children, scope, parentScopes, once);
     }
     if (!isFirstRender) return element;
-    renderRest(element, element.$struct, replacer);
-    if (isNode(replacer) && replacer !== element) {
-        if (!replacer.$renders) replacer.$renders = [];
-        replacer.$renders.push.apply(replacer.$renders, element.$renders);
-        if (replacer.$struct && replacer.$struct !== element.$struct) {
-            element.$struct.ons.forEach(([on, key, value]) => on.call(element, replacer, key, value));
-        }
-        element = replacer;
-    }
-    else {
-        element.$struct.ons.forEach(([on, key, value]) => on.call(element, element, key, value));
-    }
+    renderRest(element, $struct, replacer);
     if (element.$renders.length) {
         if (element.$renderid !== 9) {
             onmounted(element, addRenderElement);
@@ -835,26 +836,22 @@ var createEval = function (deep) {
     while (deep-- > 0) {
         context[deep] = `with($parentScopes[${deep}])`;
     }
-    return new Function("$parentScopes", "$scope", "code", "event", `${context.join('')}with($scope)return eval(code)`);
+    return new Function("$parentScopes", "code", "event", `${context.join('')}return eval(code)`);
 };
 var evalcontexts = [createEval(0)];
 
-function $$eval(search, scope, target = this, event) {
-    var needpop = scope && scope !== this.$scope;
-    if (needpop) {
-        this.$parentScopes.push(this.$scope);
-        this.$scope = scope;
-    }
-    var length = this.$parentScopes ? this.$parentScopes.length : 0;
+function $$eval(search, scopes, target = this, event) {
+    var length = scopes.length;
     if (!evalcontexts[length]) evalcontexts[length] = createEval(length);
     var eval2 = evalcontexts[length];
-    var res = eval2.call(target, this.$parentScopes, this.$scope, search, event);
-    if (needpop) this.$scope = this.$parentScopes.pop();
+    var res = eval2.call(target, scopes, search, event);
     return res;
 }
 
 function $eval(search, scope, event) {
-    return $$eval.call(this, search, scope, this, event);
+    var scopes = getScopeList(this);
+    if (isHandled(scope) && scope !== this.$scope) scopes.push(scope);
+    return $$eval.call(this, search, scopes, this, event);
 }
 
 var merge = function (dst, src) {
@@ -916,9 +913,9 @@ var pushid = function (ids, name) {
     if (name1 !== name) ids.push(name1);
 };
 
-function createStructure(element) {
+function createStructure(element, useExists) {
     if (isArrayLike(element)) return Array.prototype.map.call(element, createStructure);
-    if (element.$struct) return element.$struct;
+    if (useExists !== false && element.$struct) return element.$struct;
     if (element.nodeType !== 1) return;
     // 处理结构流
     var attributes = element.attributes;
@@ -987,7 +984,7 @@ function createStructure(element) {
         // ng-html,ng-src,ng-text,ng-model,ng-style,ng-class,...
         var key = name.replace(/^(ng|v|[^\_\:\.]*?)\-|^[\:\_\.]|^v\-bind\:/i, "").toLowerCase();
         if (directives.hasOwnProperty(key) || /^([\_\:\.]|v\-bind\:)/.test(name)) {
-            binds[key] = value;
+            if (value) binds[key] = value;
             element.removeAttribute(name);
         }
         // ng-click on-click v-click @click @mousedown ...
@@ -995,11 +992,11 @@ function createStructure(element) {
             var match = emiter_reg.exec(name);
             var ngon = (match[1] || match[0]).toLowerCase() === 'once' ? 'once' : 'on';
             element.removeAttribute(name);
-            ons.push([emiters[ngon], name.replace(emiter_reg, ''), value]);
+            if (value) ons.push([emiters[ngon], name.replace(emiter_reg, ''), value]);
         }
         // placeholder_ href_ checked_ ...
         else if (/[_@\:\.]$/.test(name)) {
-            attr1[name.replace(/[_@\:\.]$/, "")] = value;
+            if (value) attr1[name.replace(/[_@\:\.]$/, "")] = value;
             element.removeAttribute(name);
         }
         // title alt name type placeholder href checked ...

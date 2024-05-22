@@ -819,9 +819,8 @@ async function getXhtPromise(xhtdata, filename, fullpath, watchurls, extraJs, ex
             : `var [template,scope]=${xhtmain}.apply(elem,arguments);${xhtrender}`;
     }
     else xhtrender = `${xhtmain}.apply(elem,arguments)`;
-    var createElement = tagName
-        ? `var elem = ${creator}"${tagName}");`
-        : `var elem =isElement(arguments[0])?arguments[0]:${creator}"${commName}");`;
+    var createElement = `var elem = arguments[0];
+    if(!isElement(elem)) elem = ${creator}"${tagName || commName}");`;
     var xht = scope ? `
     var ${xhtmain}=${async}function(){
     ${scope}
