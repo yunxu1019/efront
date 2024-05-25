@@ -1655,7 +1655,7 @@
   en:    "The commands that can be used are:"
 
 - zh-CN: 如要显示更具体的信息，请使用:$1
-  en:    "To show more messages, used"
+  en:    "To show more messages, use $1"
 
 - zh-CN: 是
   en:    is
