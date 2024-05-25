@@ -27,8 +27,9 @@ return function (forcetab) {
     }
     else if (anchorNode.nodeType === 3) {
         if (forcetab === 0) return;
-        anchorNode.nodeValue = anchorNode.nodeValue.slice(0, anchorOffset) + ensp(4) + anchorNode.nodeValue.slice(anchorOffset);
-        anchorOffset += 4;
+        var spaceSize = (4 - anchorOffset % 4);
+        anchorNode.nodeValue = anchorNode.nodeValue.slice(0, anchorOffset) + ensp(spaceSize) + anchorNode.nodeValue.slice(anchorOffset);
+        anchorOffset += spaceSize;
         selection.setBaseAndExtent(anchorNode, anchorOffset, anchorNode, anchorOffset);
     }
 };
