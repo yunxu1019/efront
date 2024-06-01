@@ -96,9 +96,9 @@ var readFile = function (names, then) {
             }
         };
         if (!names.length) return then();
-        names.forEach(function (name) {
+        for (var name of names) {
             readFile(name, callback);
-        });
+        }
         return;
     }
     var name = names;
@@ -155,7 +155,7 @@ var readFile = function (names, then) {
         }
         if (loadingTree[key]) {
             loadingTree[key].error = e;
-            loadingTree[key].forEach(a => a(e));
+            for (var a of loadingTree[key]) a(e);
         }
     };
     var tryload = function () {
@@ -183,7 +183,7 @@ var killCircle = function () {
             if (!(loadedModules[k] instanceof Array)) continue;
             var args = loadedModules[k].args;
             if (!(args instanceof Array)) continue;
-            args.forEach(arg => {
+            for (var arg of args) {
                 if (!penddings[arg]) {
                     penddings[arg] = [];
                 }
@@ -191,7 +191,7 @@ var killCircle = function () {
                     penddings[arg][k] = true;
                     penddings[arg].push(key);
                 }
-            })
+            }
             circle.push(key);
             module_keys.push(k);
         }
@@ -212,10 +212,10 @@ var killCircle = function () {
         if (savedLength === circle.length) {
             break;
         }
-        circle.forEach(function (c) {
+        for (var c of circle) {
             var args = penddings[c];
             penddings[c] = args.filter(a => !deleted[a]);
-        });
+        }
     }
     if (circle.length > 0) {
         circle = circle.sort((a, b) => {
@@ -235,13 +235,11 @@ var killCircle = function () {
         ));
     } else {
         var tree = {};
-        module_keys.forEach(function (k) {
+        for (var k of module_keys) {
             var loading = tree[k] = loadedModules[k];
             loadedModules[k] = loading.mod;
-        });
-        module_keys.forEach(function (k) {
-            flushTree(tree, k);
-        });
+        }
+        for (var k of module_keys) flushTree(tree, k);
     }
 };
 // -->
@@ -331,9 +329,9 @@ var loadModule = function (url, then, prebuilds = {}) {
             } else {
                 loadedModules[key].args = mod.args;
                 loadedModules[key].mod = mod;
-                args.forEach(function (moduleName) {
+                for(var moduleName of args){
                     loadModule(moduleName, response, prebuilds);
-                });
+                }
             }
         };
         readFile(url, saveModule);
