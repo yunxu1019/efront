@@ -164,3 +164,6 @@ You can also click on [github](https://github.com/yunxu1019/efront/issues). The 
 [efront Compatibility Description](coms/basic_/readme-en.md)
 &nbsp;&nbsp;[Version Introduction](docs/version-desc.md)
 &nbsp;&nbsp;[Compared to the front-end framework](docs/compare-en.md)
+
+If you would like to help me to improve this project, please follow the following link to join the metting in skype.
+https://join.skype.com/v8a630zaeGks 
