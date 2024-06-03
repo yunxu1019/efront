@@ -118,7 +118,7 @@ CookieProto.linkCookie = function linkCookie(from, to) {
 }
 CookieProto.copyCookie = function copyCookie(from, to) {
     var { cookiesMap } = this;
-    from = getDomainPath(from).replace(/\/$,'/, '');
+    from = getDomainPath(from).replace(/\/$/, '');
     to = getDomainPath(to).replace(/\/$/, '');
     if (from in cookiesMap) {
         cookiesMap[to] = JSON.parse(JSON.stringify(cookiesMap[from]));
