@@ -1,4 +1,5 @@
 "use strict";
+var hasOwnProperty = Object.prototype.hasOwnProperty;
 var _create = function (commFactory, className, _invoke) {
     if (!className) return commFactory;
     if (commFactory instanceof Promise) {
@@ -23,7 +24,7 @@ var _create = function (commFactory, className, _invoke) {
             if (release) release = _invoke(release, className, _invoke);
             return release;
         };
-        if ({}.hasOwnProperty.call(commFactory, 'toString')) {
+        if (hasOwnProperty.call(commFactory, 'toString')) {
             result.toString = function () {
                 return _invoke(commFactory.toString(), className, _invoke);
             };

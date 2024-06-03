@@ -443,7 +443,7 @@ function createApiMap(data) {
     var items1 = data;
     for (var key in items1) {
         var keeys = key.split(/\s+/);
-        var [base] = keeys.filter(a => reg.test(a));
+        var base = keeys.filter(a => reg.test(a))[0];
         if (!base) {
             var headersIndex = 0;
         } else {

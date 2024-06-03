@@ -1,4 +1,7 @@
-var hasOwnProperty = Object.prototype.hasOwnProperty;
+var hasOwnProperty = {}.__proto__ === Object ? function (k) {
+    var proto = this.__proto__;
+    return k in this && (!proto || !(k in proto));
+} : Object.prototype.hasOwnProperty;
 var setPrototypeOf = Object.setPrototypeOf;
 a: if (!setPrototypeOf) {
     var getOwnPropertyDescriptor = Object.getOwnPropertyDescriptor;

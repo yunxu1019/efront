@@ -155,7 +155,8 @@ var readFile = function (names, then) {
         }
         if (loadingTree[key]) {
             loadingTree[key].error = e;
-            for (var a of loadingTree[key]) a(e);
+            var loading = loadingTree[key];
+            for (var a of loading) a(e);
         }
     };
     var tryload = function () {
@@ -329,7 +330,7 @@ var loadModule = function (url, then, prebuilds = {}) {
             } else {
                 loadedModules[key].args = mod.args;
                 loadedModules[key].mod = mod;
-                for(var moduleName of args){
+                for (var moduleName of args) {
                     loadModule(moduleName, response, prebuilds);
                 }
             }

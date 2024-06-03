@@ -21,10 +21,10 @@ var parseCookieFromText = function (cookie) {
     return [pair, info];
 };
 
-class Cookie {
-    cookiesMap = {};
+function Cookie() {
+    this.cookiesMap = {};
 }
-var CookieProto = Cookie.prototype;
+var CookieProto = Cookie.prototype = new Cookie;
 CookieProto.addCookie = function addCookie(cookie_text, originDomain = "") {
     var { cookiesMap } = this;
     originDomain = getDomainPath(originDomain);
@@ -59,7 +59,7 @@ CookieProto.addCookie = function addCookie(cookie_text, originDomain = "") {
             }
         }
     }
-}
+};
 
 CookieProto.getCookies = function getCookies(domainPath) {
     var { cookiesMap } = this;
@@ -91,7 +91,7 @@ CookieProto.getCookies = function getCookies(domainPath) {
         splited[0] = domain;
     } while (domain.length);
     return serialize(cookieObject, ";");
-}
+};
 
 CookieProto.delCookies = function delCookies(domainPath) {
     var { cookiesMap } = this;
@@ -99,7 +99,7 @@ CookieProto.delCookies = function delCookies(domainPath) {
     var splited = domainPath.split("/");
     var domain = splited[0];
     delete cookiesMap[domain];
-}
+};
 function getDomainPath(url) {
     var { host, pathname } = parseURL(url);
     if (pathname) return host + pathname;
@@ -115,7 +115,7 @@ CookieProto.linkCookie = function linkCookie(from, to) {
     }
     cookiesMap[to] = cookiesMap[from] = extend({}, cookiesMap[to], cookiesMap[from]);
     return to;
-}
+};
 CookieProto.copyCookie = function copyCookie(from, to) {
     var { cookiesMap } = this;
     from = getDomainPath(from).replace(/\/$/, '');
@@ -126,7 +126,7 @@ CookieProto.copyCookie = function copyCookie(from, to) {
     else {
         delete cookiesMap[to];
     }
-}
+};
 var defaultCookie = new Cookie;
 defaultCookie.new = () => new Cookie;
 return defaultCookie;

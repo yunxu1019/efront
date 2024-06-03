@@ -132,7 +132,8 @@ var create = function (a, dst) {
     var arr = a.split(',');
     var rest = [];
     for (var cx = 0, dx = arr.length; cx < dx; cx++) {
-        var [k, v] = arr[cx].split(':');
+        var s = arr[cx].split(":");
+        var k = s[0], v = s[1];
         if (v === undefined) {
             rest.push(k);
         } else {
