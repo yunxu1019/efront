@@ -165,5 +165,8 @@ You can also click on [github](https://github.com/yunxu1019/efront/issues). The 
 &nbsp;&nbsp;[Version Introduction](docs/version-desc.md)
 &nbsp;&nbsp;[Compared to the front-end framework](docs/compare-en.md)
 
-If you would like to help me to improve this project, please follow the following link to join the metting in skype.
+> If you would like to help me to improve this project, please follow the following link to join the metting in skype.
 https://join.skype.com/v8a630zaeGks 
+
+
+> If you are willing to offer me a job or only let me try ... try, please drop a letter to yunxu1019@live.cn
