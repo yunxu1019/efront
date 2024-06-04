@@ -1,3 +1,25 @@
-&{
+& {
     position: absolute;
+
+    .model {
+        font-family: 仿宋, 宋体, Consolas, "Courier New", monospace;
+
+        &[type=gen],
+        &[type=text] {
+            display: block;
+            font-size: 12px;
+            line-height: 12px;
+        }
+
+        textarea {
+            font-family: Consolas, 仿宋, sans-serif;
+        }
+    }
+
+    white-space: pre-wrap;
+
+    [body],
+    .body {
+        font-family: 宋体;
+    }
 }
