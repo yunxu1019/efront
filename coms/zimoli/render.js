@@ -802,7 +802,6 @@ function renderElement(element, scope = element.$scope, parentScopes = element.$
                     if (replacer.children && replacer.children.length) renderElement(replacer.children, replacer.$scope, replacer.$parentScopes, once);
                     renderRest(replacer, replacer.$struct);
                 }
-
                 copyAttribute(replacer, copys);
                 if (nextSibling) appendChild.before(nextSibling, replacer);
                 else if (parentNode) appendChild(parentNode, replacer);
@@ -822,9 +821,6 @@ function renderElement(element, scope = element.$scope, parentScopes = element.$
     if (isNode(replacer) && replacer !== element) {
         if (!replacer.$renders) replacer.$renders = [];
         replacer.$renders.push.apply(replacer.$renders, element.$renders);
-        if (replacer.$struct && replacer.$struct !== element.$struct) {
-            element.$struct.ons.forEach(([on, key, value]) => on.call(element, replacer, key, value));
-        }
         element = replacer;
     }
     if (element.$renders.length) {
