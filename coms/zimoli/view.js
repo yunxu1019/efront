@@ -121,7 +121,7 @@ var resize2 = function () {
         })
     }
     if (body) {
-        if (body.scrollHeight + body.offsetTop > this.clientHeight) {
+        if (body.scrollHeight + body.offsetTop > this.clientHeight + 1) {
             css(body, { height: fromOffset(this.clientHeight) });
         }
         else {

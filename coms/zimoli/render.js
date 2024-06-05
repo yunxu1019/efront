@@ -711,6 +711,11 @@ function getFromScopes(key, scope, parentScopes) {
 
 function renderRest(element, struct, replacer = element) {
     var renders = element.$renders;
+    if (element.renders) {
+        if (!renders) renders = [];
+        renders.push.apply(renders, element.renders);
+        delete element.renders;
+    }
     element.$renders = [];
     var { binds, attrs, props } = struct;
     for (var k in binds) {
