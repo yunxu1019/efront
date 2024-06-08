@@ -809,7 +809,7 @@ class Program {
                 save(VALUE);
                 continue;
             }
-            if (express_reg.test(m)) {
+            if (!stamp_reg.test(m) && express_reg.test(m)) {
                 if (last && last.type === STRAP && funcstrap_reg.test(last.text));
                 else queue.inExpress = true;
                 save(EXPRESS);
@@ -943,7 +943,7 @@ class Program {
         this.comment_entry = this.createRegExp(this.comments.map(m => m[0]));
         var stamps = this.stamps.join("");
         stamps = this.compile(stamps);
-        this.stamp_reg = new RegExp(`^[${stamps}]+$`);
+        var stamp_reg = new RegExp(`^[${stamps}]+$`);
         var tokens = {};
         var quote_map = {};
         this.quote_map = quote_map;
@@ -1014,7 +1014,7 @@ class Program {
         this.space_reg = new RegExp(`^[${spaces}]+$`, flagUnicode);
         this.space_exp = new RegExp(`[${spaces}]+`, flagUnicode);
         var quotes_entries = this.createRegExp(this.comments.concat(this.quotes).map(q => q[0]), true).source;
-        var powers = Object.keys(this.powermap).filter(k => k.length > 1 && this.stamp_reg.test(k));
+        var powers = Object.keys(this.powermap).filter(k => k.length > 1 && stamp_reg.test(k));
         var powers_entries = this.createRegExp(this.tags.map(t => t[0]).concat(powers), true).source;
         var entries_reg = new RegExp(`^(${powers_entries}|${quotes_entries}|${scopes})$`, this.nocase ? 'iu' : '');
         stamps = this.compile(this.stamps.filter(s => !entries_reg.test(s)).join(''));
@@ -1022,6 +1022,10 @@ class Program {
         var numbers = number_reg.source.replace(/^\^|\$$/g, "");
         this.digit_reg = new RegExp(/^[+\-]?/.source + numbers, number_reg.flags);
         this.entry_reg = new RegExp([`[${spaces}]+|${quotes_entries}|[${scopes}]|${numbers}[^${tokens}]*|${express}|${powers_entries}|[${stamps}]`], "gi" + flagUnicode);
+        var stamps = this.stamps.slice();
+        for (var k in this.powermap) if (k.length === 1 && stamps.indexOf(k) < 0) stamps.push(k);
+        stamps.push.apply(stamps, powers);
+        this.stamp_reg = new RegExp(`^(${stamps.map(this.compile).join('|')})$`);
     }
 }
 module.exports = Program;

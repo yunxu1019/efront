@@ -134,3 +134,5 @@ testStar(`var a=class {a=1\r\nasync * a(){
         yield n;
     }
 }}`, {});
+
+assert(scanner2(`#`)[0].type, common.STAMP)
