@@ -13,7 +13,7 @@ var patchBlink = function (code, index, blink) {
             }
             return true;
         }
-        else if (c.start < index && c.end > index) {
+        else if (c.start < index && (c.end > index || c.end === undefined)) {
             if (haschildren(c)) {
                 return patchBlink(c, index, blink);
             }
