@@ -46,6 +46,11 @@
         border: none;
     }
 
+    [foot]>a.button {
+        float: left;
+    }
+
+
     loading {
         z-index: 3;
     }
@@ -64,6 +69,7 @@
     </div>
     <scrollbar y #bar></scrollbar>
     <div foot>
+        <a -repeat="(f,k) in actived.options" -click="f(actived)" -bind="k"></a>
         <span -bind="actived.message"></span>
         <button -repeat="(f,k) in actived.actions" -click="f(actived)"><span -bind="k"></span></button>
     </div>
@@ -166,6 +172,12 @@
             $账户/kid input
             *当前服务器的域名/domain/每行一个，不支持泛域名 text
             `,
+            options: {
+                async 从证书列表同步() {
+                    var a = await plist.load('cert', 'hostname');
+                    formdata.domain = a.map(a => a.hostname).join('\r\n');
+                }
+            },
             actions: {
                 async 创建订单(actived) {
                     var params = submit(actived.fields, formdata);
