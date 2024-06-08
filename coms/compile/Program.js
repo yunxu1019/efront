@@ -94,6 +94,7 @@ class Program {
     scriptTags = [];
     ignoreTags = ["STYLE", "SCRIPT"];
     comments = [
+        ["#!", /(?=[\r\n\u2028\u2029])/],
         ["//", /(?=[\r\n\u2028\u2029])/],
         ["/*", "*/"],
         [/<!--/, /--!?>/],
