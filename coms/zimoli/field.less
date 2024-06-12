@@ -1,43 +1,60 @@
 & {
     height: auto;
     box-shadow: none !important;
+    display: block;
+    line-height: 22px;
+    border-bottom: 1px;
+}
 
-    >model:first-child {
-        padding: 6px 10px;
-        display: block;
-    }
+>.head,
+>.foot {
+    padding: 10px 16px;
+    vertical-align: top;
+    display: inline-block;
+    position: absolute;
+}
 
-    model {
-        display: inline;
-    }
+>model:first-child {
+    padding: 6px 10px;
+    display: block;
+}
 
-    >.head {
-        vertical-align: top;
+model {
+    display: inline;
+}
 
-        .image {
-            margin: 10px 0;
-        }
-    }
+>.head {
 
-    >.body {
-        .image {
-            margin: 10px 0;
-        }
-
-        text-align: left;
-    }
-
-    >.track {
-        display: none;
-        box-shadow: none;
-    }
-
-    >.foot {
-        span {
-            vertical-align: middle;
-        }
+    .image {
+        margin: 10px 0;
     }
 }
+
+>.body {
+    .image {
+        margin: 10px 0;
+    }
+
+    vertical-align: top;
+    padding: 10px 20px;
+    height: 100%;
+    border-bottom: 1px solid #0001;
+    display: inline-block;
+    width: 100%;
+    text-align: left;
+}
+
+>.track {
+    display: none;
+    box-shadow: none;
+}
+
+>.foot {
+    span {
+        vertical-align: middle;
+    }
+}
+
 
 .input {
     width: 100%;
