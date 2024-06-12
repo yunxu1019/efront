@@ -3,7 +3,7 @@ var reshape = function () {
     var isInlineBlock = body && /^inline/i.test(getComputedStyle(body).display);
     if (head && body) {
         var left = head.offsetWidth + 1;
-        if (isInlineBlock && body && left < body.offsetWidth >> 2) {
+        if (isInlineBlock && left < body.offsetWidth >> 2) {
             css(head, {
                 marginRight: fromOffset(-left),
                 marginBottom: ''

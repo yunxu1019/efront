@@ -17,9 +17,8 @@ return function (element, types) {
     if (!marked && isArray(types)) {
         var children = element.children;
         if (children.length) {
-            for (var cx = 0, dx = children.length; cx < dx; cx++) {
-                var c = children[cx];
-                types[cx] = c;
+            for (var cx = 0, dx = types.length; cx < dx; cx++) {
+                types[cx] = children[cx];
             }
         }
     }
