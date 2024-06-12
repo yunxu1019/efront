@@ -1,17 +1,36 @@
+<style>
+    & {
+        overflow: auto;
+        border: 6px solid transparent;
+        border-top: 0;
+        border-bottom: 0;
+        display: block;
+        padding: 6px 0;
+    }
+</style>
 <编辑框 e-class="上色.className" e-style="{whiteSpace:'pre'}" onkeyup="!event.isComposing&&updatecode(event)"
     onkeydown.tab="keytab(event)" onkeyup.enter="tab(false)">
 </编辑框>
 <script>
     var coder = this;
-    care(coder, function ([text, type]) {
+    var coderid = 0;
+    care(coder, async function ([text, type]) {
         try {
-            var colored = 上色.text(type, text);
-            coder.innerHTML = colored;
             coder.type = type;
+            await coder.setValue(text);
         } catch {
             if (typeof text === 'string') coder.innerHTML = 渲染.encode(text);
         }
-    })
+    });
+    coder.setValue = async function (text) {
+        var id = ++coderid;
+        var colored = await 上色.text(this.type, text);
+        if (id !== coderid) return;
+        coder.innerHTML = colored;
+    };
+    coder.getValue = function () {
+        return coder.innerText;
+    };
     var markAnchorOffset = function () {
         var { anchorNode, anchorOffset } = document.getSelection();
         if (!anchorNode || !coder) return;
@@ -111,7 +130,8 @@
         coder.scrollTop = scrollTop;
         coder.scrollLeft = scrollLeft;
     };
-    var updatecode = lazy(function (event) {
+    var updatecode = lazy(async function (event) {
+        var id = ++coderid;
         var trimreg = /[\s\u00a0\u2002\u0080]+([\}\{\;\[\]\(\)\,\>\<\+\-\*\&\^\/%!~:?])*/g;
         var innerText = coder.innerText;
         if (jstext.replace(trimreg, trimspace).trim() === innerText.replace(trimreg, trimspace).trim()) return;
@@ -119,9 +139,11 @@
         markAnchorOffset();
         var innerText = coder.innerText;
         unmarkAnchorOffset();
-        var text = 上色.text(coder.type, innerText);
+        var text = await 上色.text(coder.type, innerText);
+        if (coderid !== id) return;
         更新(text);
         unmarkAnchorOffset();
+        dispatch(coder, 'change');
         return;
     });
     var keytab = function (event) {

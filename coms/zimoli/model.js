@@ -409,6 +409,14 @@ function main(elem) {
 }
 markEditer(constructors);
 markReader(readonly_types);
+var pick = function (constructors, f) {
+    var path = [];
+    while (typeof f === 'string' && path.indexOf(f) < 0) {
+        path.push(f);
+        f = constructors[f];
+    }
+    return f;
+};
 extend(main, {
     setEditors(map) {
         extend(constructors, map);
@@ -423,12 +431,14 @@ extend(main, {
         this.setReadors(map);
     },
     setEditor(key, func) {
+        if (typeof func === 'function') func.isediter = true;
+        else func = pick(constructors, func);
         constructors[key] = func;
-        func.isediter = true;
     },
     setReador(key, func) {
+        if (typeof func === 'function') func.isreader = true;
+        else func = pick(readonly_types, func);
         readonly_types[key] = func;
-        func.isreader = true;
     },
     setModel(key, func) {
         this.setEditor(key, func);
