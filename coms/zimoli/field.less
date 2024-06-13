@@ -3,12 +3,13 @@
     box-shadow: none !important;
     display: block;
     line-height: 22px;
-    border-bottom: 1px;
+    padding: 8px 0;
+    border-bottom: 1px solid #0001;
 }
 
 >.head,
 >.foot {
-    padding: 10px 16px;
+    padding: 2px 16px;
     vertical-align: top;
     display: inline-block;
     position: absolute;
@@ -24,6 +25,12 @@ model {
 }
 
 >.head {
+    font-weight: 600;
+    font-family: "宋体";
+
+    &:after {
+        content: ":";
+    }
 
     .image {
         margin: 10px 0;
@@ -35,10 +42,10 @@ model {
         margin: 10px 0;
     }
 
+    min-height: 30px;
     vertical-align: top;
-    padding: 10px 20px;
+    padding: 2px 16px;
     height: 100%;
-    border-bottom: 1px solid #0001;
     display: inline-block;
     width: 100%;
     text-align: left;

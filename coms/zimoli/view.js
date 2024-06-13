@@ -92,8 +92,12 @@ var init = function () {
 };
 var resize2 = function () {
     var [head, body, foot] = getTypedChildren(this, ["head", "body", "foot"]);
-    if (head && body) {
+    var changed = false;
+    a: if (head && body) {
         var height = head.offsetHeight + head.offsetTop;
+        if (head.$height === height) break a;
+        head.$height = height;
+        changed = true;
         css(head, {
             marginBottom: fromOffset(-height),
         })
@@ -101,8 +105,11 @@ var resize2 = function () {
             paddingTop: fromOffset(height - body.clientTop)
         });
     }
-    if (foot && body) {
+    a: if (foot && body) {
         var height = foot.offsetHeight;
+        if (foot.$height === height) break a;
+        foot.$height = height;
+        changed = true;
         css(body, {
             paddingBottom: fromOffset(height)
         });
@@ -110,12 +117,10 @@ var resize2 = function () {
             marginTop: fromOffset(-height)
         })
     }
-    if (body) {
+    if (changed) {
+        css(body, { height: '' });
         if (body.scrollHeight + body.offsetTop > this.clientHeight + 1) {
             css(body, { height: fromOffset(this.clientHeight) });
-        }
-        else {
-            css(body, { height: '' });
         }
     }
 };
