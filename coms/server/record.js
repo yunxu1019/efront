@@ -85,6 +85,7 @@ function record($url, request, response, req, res) {
         }
         data = Buffer.from(data);
         if (compress === false) {
+            delete headers["content-encoding"];
             headers["content-length"] = data.length;
             res.writeHead(response.statusCode || 200, headers);
             res.end(data);
