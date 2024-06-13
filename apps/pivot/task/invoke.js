@@ -16,6 +16,7 @@ function main(a) {
         task: a,
         output: '',
         error: false,
+        jscode: 茨菰$编辑框,
         async run() {
             var id = ++taskid;
             this.output = "正在执行..";

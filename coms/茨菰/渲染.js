@@ -9,7 +9,7 @@ var rows = function (type, text) {
         console.log(text)
         return [];
     }
-    type = type.toLowerCase();
+    type = String(type).toLowerCase();
     if (type in 语言) {
         var c = 语言[type](text);
         标签化(c, encode);

@@ -2,15 +2,18 @@
     position: absolute;
     width: 800px;
 }
->[body]{
-    border-top: 50px solid transparent;
-    border-bottom: 50px solid transparent;
-}
+
+
 >[body]>div {
     display: inline-block;
     vertical-align: top;
     overflow: auto;
     font-size: 12px;
+
+    >jscode,
+    >pre {
+        height: 100%;
+    }
 
     &.top {
         left: 0;

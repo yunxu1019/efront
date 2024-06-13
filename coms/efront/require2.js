@@ -164,6 +164,7 @@ require2.createFunction = createFunction;
 require2.invokeFunction = invokeFunction;
 require2.getTaskParams = async function (taskid) {
     var task = await getLoadedTask(taskid);
+    if (!task) return;
     var params = JSON.stringify(task.params);
     return require("../crypt/encode62").timeencode(params || null);
 };

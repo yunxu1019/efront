@@ -543,7 +543,7 @@ var directives = {
         var parsedSrc = this.$src;
         return src2.call(this, parsedSrc && /[\{\[\s]/.test(src) ? parsedSrc.srcName : src);
     },
-    model(search, target) {
+    model(search, target, change) {
         var getter = createGetter(this, search);
         var oldValue;
         var getstr = target.getValue instanceof Function ? "this.getValue()" : "";
@@ -561,12 +561,12 @@ var directives = {
             oldValue = value;
             this[key] = value;
         };
-        if (/^input$/i.test(target.tagName) && /^checkbox$/i.test(target.type) || /^checkbox$/i.test(target.tagName)) {
-            this.$renders.push(setter || setter2.bind(target, 'checked'));
-            var change = getstr || "this.checked";
-        } else if (("value" in target || target.getValue instanceof Function) && target.setValue instanceof Function) {
+        if (("value" in target || target.getValue instanceof Function) && target.setValue instanceof Function) {
             this.$renders.push(setter);
             var change = getstr || "this.value";
+        } else if (/^input$/i.test(target.tagName) && /^checkbox$/i.test(target.type) || /^checkbox$/i.test(target.tagName)) {
+            this.$renders.push(setter || setter2.bind(target, 'checked'));
+            var change = getstr || "this.checked";
         } else if (/^(select|input|textarea)$/i.test(target.tagName) || "value" in target) {
             this.$renders.push(setter || setter2.bind(target, 'value'));
             var change = getstr || "this.value";
@@ -580,6 +580,7 @@ var directives = {
             });
             var change = getstr || "'value' in this?this.value:this.innerHTML";
         }
+        if (change === false) return;
         setter2 = null;
         var changeme = $$eval.bind(this, search + "=" + change, getScopeList(this));
         var onchange = function () {
@@ -592,6 +593,9 @@ var directives = {
             userChanged = true;
         };
         eventsBinders.forEach(on => on(target, onchange, true));
+    },
+    value(search, target) {
+        directives.model.call(this, search, target, false);
     },
 
 };
