@@ -158,9 +158,16 @@ efront 默认读取当前路径下的`_envs/`和用户目录的`.efront/_envs/`�
 * 从 efront3.29 开始`.xht`文件将被识别为组件文件，如果文件内未提供入口，入口函数将由 efront 自动生成并填充
 # 相关链接
 
+[efront 在线文档](https://efront.cc/docs/)
+
 [efront 兼容性说明](coms/basic_/readme.md)
 &nbsp;&nbsp;[版本简介](docs/%E7%89%88%E6%9C%AC%E8%AF%B4%E6%98%8E.md)
 &nbsp;&nbsp;[与前端框架对比](docs/compare.md)
+
+[efront服务器管理工具](https://efront.cc/pivot/)
+
+[白前看图](https://efront.cc/baiplay)
+&nbsp;&nbsp;[酷酷千百易云音乐](https://efront.cc/kugou/)
 
 > 如果您要提供修改建议或报告问题，可加入QQ群 710029752 反馈。
 
