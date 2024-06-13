@@ -158,4 +158,5 @@ unstruct.debug = true; r++;
 r++// test("if(a)else {}",'')
 test("if(a){if(b){c}d}else{e}", `if (!a) return [2, 0]; if (!b) return [1, 0]; c; return [1, 0];\r\n d; return [2, 0];\r\n e; return [1, 0]`)
 test("if(a){if(b){c}else{d}}else{e}", `if (!a) return [3, 0]; if (!b) return [1, 0]; c; return [2, 0];\r\n d; return [1, 0];\r\n return [2, 0];\r\n e; return [1, 0]`)
+test("if(a&&b||c){d}", `_ = a; if (!_) return [1, 0]; _ = b;\r\n if (_) return [1, 0]; _ = c;\r\n if (!_) return [1, 0]; d; return [1, 0]`, true);
 test("if(a)switch(b){case c:d;break;} else{h}", `if (!a) return [3, 0]; if (b === c) return [1, 0]; return [2, 0];\r\n d; return [1, 0];\r\n return [2, 0];\r\n h; return [1, 0]`)

@@ -403,7 +403,7 @@ var patchstep = function (r, nextindex, h) {
             x = rescan`if (${name}) return [${nextindex}, 0]`;
         }
         else if (o === RD) {
-            x = rescan`if (${name}!= null) return [${nextindex}, 0]`;
+            x = rescan`if (${name}!=null) return [${nextindex}, 0]`;
         }
         else continue;
         changed = true;
@@ -941,6 +941,13 @@ var _express = function (body, getname, ret) {
         q.name = cloneNode(body);
         return [q];
     }
+    if (isFunctionOnly(body)) {
+        result = [body];
+        return result;
+    }
+    else {
+        result = [];
+    }
     var result = [];
     var q = [];
     var bx = 0;
@@ -949,6 +956,7 @@ var _express = function (body, getname, ret) {
     var nameindex = 0;
     var maxindex = 0;
     var hasor = false;
+    var xorcount = 0;
     var getdeepname = function (deep = 0) {
         return getname(maxindex + deep);
     };
@@ -1007,12 +1015,20 @@ var _express = function (body, getname, ret) {
             q.name = cloneNode(name);
             if (isor) {
                 if (o.text === '||') {
+                    if (xorcount) {
+                        result.push(..._invoke(q, getdeepname));
+                        result[result.length - 1].ret_ = true;
+                        q = [];
+                        q.name = cloneNode(name);
+                    }
                     q.push(RE);
                 }
                 else if (o.text === '&&') {
                     q.push(RZ);
+                    xorcount++;
                 }
                 else if (o.text === '??') {
+                    xorcount++;
                     q.push(RD);
                 }
                 hasor = true;
@@ -1065,12 +1081,9 @@ var _express = function (body, getname, ret) {
         }
     }
     if (needname) q.name = [{ text: getname(nameindex), type: EXPRESS }];
-    relink(q);
-    if (isFunctionOnly(q, 2)) {
-        result = [q];
-    }
-    else {
-        result = _invoke(q, getdeepname);
+    if (q.length) {
+        relink(q);
+        result.push(..._invoke(q, getdeepname));
     }
     if (hasor) result[result.length - 1].ret_ = true;
     return result;
