@@ -997,7 +997,7 @@ function createStructure(element, useExists) {
         }
         // ng-html,ng-src,ng-text,ng-model,ng-style,ng-class,...
         var key = name.replace(/^(ng|v|[^\_\:\.]*?)\-|^[\:\_\.]|^v\-bind\:/i, "").toLowerCase();
-        if (directives.hasOwnProperty(key) || /^([\_\:\.]|v\-bind\:)/.test(name)) {
+        if (key.length !== name.length && directives.hasOwnProperty(key) || /^([\_\:\.]|v\-bind\:)/.test(name)) {
             if (value) binds[key] = value;
             element.removeAttribute(name);
         }
