@@ -148,6 +148,11 @@ var loadUseBody = async function (source, fullpath, watchurls) {
         if (/\.json$/i.test(realPath)) {
             return `var ${realName}=${data};`;
         }
+        if (/\.ya?ml$/i.test(realPath)) {
+            data = parseYML(data);
+            data = JSON.stringify(data);
+            return `var ${realName}=${data};`;
+        }
         if (/\.h$/i.test(realPath)) {
             return data;
         }
@@ -965,7 +970,14 @@ function commbuilder(buffer, filename, fullpath, watchurls) {
         var data = loadJsBody("(" + String(buffer) + ")", fullpath);
         data.time = new Date - timeStart;
         promise = Promise.resolve(data);
-    } else if (/\.html?$/i.test(fullpath)) {
+    }
+    else if (/\.ya?ml$/i.test(fullpath)) {
+        var timeStart = new Date;
+        var data = loadJsBody(`return ${JSON.stringify(parseYML(String(buffer)))}`, fullpath);
+        data.time = new Date - timeStart;
+        promise = Promise.resolve(data);
+    }
+    else if (/\.html?$/i.test(fullpath)) {
         if (/^(\s*<!--[\s\S]*?--!?>)*\s*<!Doctype\b/i.test(data)) {
             return data;
         }

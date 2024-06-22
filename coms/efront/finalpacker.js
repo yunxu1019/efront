@@ -91,7 +91,7 @@ var createManagersWithEnv = async function (env) {
     filecache.onreload = fireload;
     var managers = {
         comm(name, ext) {
-            var exts = fixExtentions([".js", '.mjs', '.xht', ".ts", ".json", ".html", '.vue', ''], ext);
+            var exts = fixExtentions([".js", '.mjs', '.xht', ".ts", ".json", ".yml", ".html", '.vue', ''], ext);
             name = require("../basic/$split")(name).join("/");
             var res = comscache.seek(name, exts);
             return responseFromCache(res);

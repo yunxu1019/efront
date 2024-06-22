@@ -115,7 +115,7 @@ var filterHtmlImportedJs = function (roots) {
 };
 function paddExtension(file) {
     var parents = [""].concat(/^\.*[\/\\]/.test(file) ? pages_root.concat(comms_root) : comms_root.concat(pages_root));
-    return detectWithExtension(file, ['', '.js', '.xht', '.ts', '.html', '.json', '.jsx', '.tsx', '.vue', '.vuex'], parents);
+    return detectWithExtension(file, ['', '.js', '.xht', '.ts', '.html', '.json', '.yml', '.jsx', '.tsx', '.vue', '.vuex'], parents);
 }
 var toString = function () { return this.url };
 var commap = getBuildInfo.commap["?"];
