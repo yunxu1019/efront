@@ -361,6 +361,17 @@ class 素心 extends Program {
             while (o && (o.type !== SCOPED || o.entry !== "{")) {
                 if (o.type === STAMP && !o.isprop) break;
                 p.push(o);
+                a: if (o.type === SCOPED && o.entry === '(') {
+                    var n = o.next;
+                    if (n) {
+                        if (n.type === STAMP && n.text === ';') break a;
+                        if (n.type === SCOPED && n.entry === "{") break a;
+                        if (p[0].type === PROPERTY && !/^@/.test(p[0].text)) {
+                            o = n;
+                            break;
+                        }
+                    }
+                }
                 o = code[++cx];
             }
             if (o && o.type === STAMP && o.text === ':') {
@@ -383,7 +394,7 @@ class 素心 extends Program {
                 }
                 o = n;
             }
-            else if (o && o.type === SCOPED) {
+            else if (o && o.type === SCOPED && o.entry === "{") {
                 v = run(o);
             }
             var pj = createString(p).trim();
@@ -550,7 +561,6 @@ function evalscoped(scoped, base = '') {
         }
         for (var { p: k, v: p } of props) {
             if (p.isMethod) continue;
-            console.log(k,p)
             if (p.used) {
                 k = calcvars(k);
                 k = removeSelectorSpace(k);
@@ -604,7 +614,7 @@ function 素馨(text, scopeName, compress) {
         queried = [];
         return b;
     }
-    return result.rest.map(a => a.join("")).concat(result).map(a => {
+    return result.concat(result.rest.map(a => a.join(""))).map(a => {
         var ats = [];
         a = a.replace(/\s*@\{(@[^\}]*)\}/g, function (_, q) {
             q = q.replace(/((?:\s|\))(?:and|or))\(/g, '$1 (');
