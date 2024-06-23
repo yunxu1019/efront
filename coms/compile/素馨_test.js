@@ -77,6 +77,7 @@ assert(素馨(`@a(@b){a@b{@w:@b/2;c:@w;}} @a(1); @a(2); @a(3)`), `a1{c:0.5;}\r\n
 assert(素馨(`a{filter:grayscale(.9)}`), `a{filter:grayscale(.9);}`);
 assert(素馨(`a{each(1,2,3,4,5,(@a){a:@a})}`), `a{a:1;a:2;a:3;a:4;a:5;}`);
 assert(素馨(`each(1,(@a){a{a:@a}})a>b{b:2}`), `a{a:1;}\r\na>b{b:2;}`);
+assert(素馨(`each(2,(@a){@b:1/@a;a{a:@b}})`), `a{a:0.5;}`);
 assert(scanner2(`-0.2em .3em -0.2em 0`, new 素馨.素心)[0].text, '-0.2em');
 assert(scanner2(`-0.2em .3em -0.2em 0`, new 素馨.素心)[0].isdigit, true);
 assert(scanner2(`-0.2em .3em -0.2em 0`, new 素馨.素心)[2].text, ".3em");

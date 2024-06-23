@@ -239,7 +239,6 @@ macros.each = function () {
     if (!match) throw new Error(i18n`each参数异常!`);
     var [_, args, content] = match;
     if (!content) return;
-    content = content.replace(/^(\s*)([\S\s]*?)(\s*)$/, (_, a, c, f) => a + 素馨(c, '', true) + f);
     if (args) args = args.split(",").map(a => a.trim());
     else args = [];
     if (args.length < 1) args.push("@value");
@@ -252,17 +251,12 @@ macros.each = function () {
     if (args.indexOf("@value") < 0) args.push("@value");
     if (args.indexOf("@key") < 0) args.push("@key");
     if (args.indexOf("@index") < 0) args.push("@index");
-    var reg = new RegExp(args.join("|") + /|@\{[^@\{]+\}/.source, 'g');
     var defaults = list.defaults;
     var argsMap = null;
-    var replace = a => {
-        if (/^@\{/.test(a)) {
-            var k = "@" + a.slice(2, -1).trim();
-            if (k in argsMap) return strings.decode(argsMap[k]);
-            return a;
-        }
-        if (a in argsMap) return argsMap[a];
-        return a;
+    var match = /^(\s*)([\S\s]*?)(\s*)$/.exec(content);
+    if (match) var [, b, c, f] = match;
+    var replace = _ => {
+        return b + 素馨(args.map(a => a + ":" + argsMap[a] + ';').join('') + c, base, true) + f;
     };
     if (defaults) list = list.map(function (a, i) {
         argsMap = {
@@ -273,7 +267,7 @@ macros.each = function () {
             [args[1]]: a,
             [args[2]]: i + 1,
         };
-        return content.replace(reg, replace);
+        return replace();
     });
     else list = list.map(function (a, i) {
         argsMap = {
@@ -284,7 +278,7 @@ macros.each = function () {
             [args[1]]: i,
             [args[2]]: i + 1,
         };
-        return content.replace(reg, replace);
+        return replace();
     });
     return list;
 };
@@ -328,91 +322,89 @@ class 素心 extends Program {
     }
 };
 
-素心.prototype.createScoped = function (code) {
-    var setVarsUsed = function (s) {
-        var vars = null, used = null;
-        for (var cx = s.length - 1; cx >= 0; cx--) {
-            var { p: k, v } = s[cx];
-            if (/^\-\-|^@[^\{]/.test(k) && !("used" in v) && v.length) {
-                if (!vars) vars = Object.create(null);
-                vars[k] = v.join(" ");
-                s.splice(cx, 1);
-            }
-            else {
-                if (!used) used = [];
-                used.push({ p: k, v });
-            }
+var setVarsUsed = function (s) {
+    var vars = null, used = null;
+    for (var cx = s.length - 1; cx >= 0; cx--) {
+        var { p: k, v } = s[cx];
+        if (/^\-\-|^@[^\{]/.test(k) && !("used" in v) && v.length) {
+            if (!vars) vars = Object.create(null);
+            vars[k] = v.join(" ");
+            s.splice(cx, 1);
         }
-        if (used) used.reverse();
-        s.used = used;
-        s.vars = vars;
-    };
-    var run = function (code) {
-        var props = [];
-        var propmap = Object.create(null);
-        for (var cx = 0, dx = code.length; cx < dx; cx++) {
-            var o = code[cx];
-            if (o && (o.type & (SPACE | COMMENT) || o.type === STAMP && o.text === ';')) continue;
-            if (!o.isprop) {
-                console.log(createString([o]), o.type, createString(code))
-                throw new Error(i18n`结构异常`);
-            }
-            var p = [], v = [];
-            while (o && (o.type !== SCOPED || o.entry !== "{")) {
-                if (o.type === STAMP && !o.isprop) break;
-                p.push(o);
-                a: if (o.type === SCOPED && o.entry === '(') {
-                    var n = o.next;
-                    if (n) {
-                        if (n.type === STAMP && n.text === ';') break a;
-                        if (n.type === SCOPED && n.entry === "{") break a;
-                        if (p[0].type === PROPERTY && !/^@/.test(p[0].text)) {
-                            o = n;
-                            break;
-                        }
-                    }
-                }
-                o = code[++cx];
-            }
-            if (o && o.type === STAMP && o.text === ':') {
-                var n = code[++cx];
-                var tmp = [];
-                while (n && (n.type !== STAMP || n.text !== ";")) {
-                    if (n.type === SCOPED && n.entry === '{') {
+        else {
+            if (!used) used = [];
+            used.push({ p: k, v });
+        }
+    }
+    if (used) used.reverse();
+    s.used = used;
+    s.vars = vars;
+};
+var createScoped = function (code) {
+    var props = [];
+    var propmap = Object.create(null);
+    for (var cx = 0, dx = code.length; cx < dx; cx++) {
+        var o = code[cx];
+        if (o && (o.type & (SPACE | COMMENT) || o.type === STAMP && o.text === ';')) continue;
+        if (!o.isprop) {
+            console.log(createString([o]), o.type, createString(code))
+            throw new Error(i18n`结构异常`);
+        }
+        var p = [], v = [];
+        while (o && (o.type !== SCOPED || o.entry !== "{")) {
+            if (o.type === STAMP && !o.isprop) break;
+            p.push(o);
+            a: if (o.type === SCOPED && o.entry === '(') {
+                var n = o.next;
+                if (n) {
+                    if (n.type === STAMP && n.text === ';') break a;
+                    if (n.type === SCOPED && n.entry === "{") break a;
+                    if (p[0].type === PROPERTY && !/^@/.test(p[0].text)) {
+                        o = n;
                         break;
                     }
-                    tmp.push(n);
-                    n = code[++cx];
                 }
-                if (n && n.type === SCOPED) {
-                    o.unary = true;
-                    p.push(o, ...tmp);
-                    v = run(n);
-                }
-                else {
-                    v = tmp;
-                }
-                o = n;
             }
-            else if (o && o.type === SCOPED && o.entry === "{") {
-                v = run(o);
-            }
-            var pj = createString(p).trim();
-            if (!propmap[pj]) propmap[pj] = [];
-            var vs = [];
-            if (v.used === undefined) {
-                if (v.length) vs.push(createString(v).trim());
-            }
-            else vs.used = v.used, vs.vars = v.vars;
-            props.push({ p: pj, v: vs })
-            propmap[pj].push(vs);
+            o = code[++cx];
         }
-        props.maps = propmap;
-        setVarsUsed(props);
-        return props;
-    };
-    return run(code);
+        if (o && o.type === STAMP && o.text === ':') {
+            var n = code[++cx];
+            var tmp = [];
+            while (n && (n.type !== STAMP || n.text !== ";")) {
+                if (n.type === SCOPED && n.entry === '{') {
+                    break;
+                }
+                tmp.push(n);
+                n = code[++cx];
+            }
+            if (n && n.type === SCOPED) {
+                o.unary = true;
+                p.push(o, ...tmp);
+                v = createScoped(n);
+            }
+            else {
+                v = tmp;
+            }
+            o = n;
+        }
+        else if (o && o.type === SCOPED && o.entry === "{") {
+            v = createScoped(o);
+        }
+        var pj = createString(p).trim();
+        if (!propmap[pj]) propmap[pj] = [];
+        var vs = [];
+        if (v.used === undefined) {
+            if (v.length) vs.push(createString(v).trim());
+        }
+        else vs.used = v.used, vs.vars = v.vars;
+        props.push({ p: pj, v: vs })
+        propmap[pj].push(vs);
+    }
+    props.maps = propmap;
+    setVarsUsed(props);
+    return props;
 };
+素心.prototype.createScoped = createScoped;
 素心.prototype.createString = createString;
 var getFromScopeList = function (name, varsList, value = name) {
     name = name.replace(/^@\{\s*(\S*)\s*\}$/g, '@$1');
@@ -422,7 +414,9 @@ var getFromScopeList = function (name, varsList, value = name) {
         if (name in o) queue = [];
         while (name in o) {
             name = o[name];
-            if (typeof name !== "string" || !/^\-\-|^@[^\{]/.test(name)) return name;
+            if (typeof name !== 'string') return name;
+            name = strings.decode(name);
+            if (!/^\-\-|^@[^\{]/.test(name)) return name;
             if (queue.indexOf(name) >= 0) throw `变量环形引用，无法初始化：${queue}`;
             queue.push(name);
         }
@@ -451,8 +445,141 @@ var fixBase = function (b, a) {
         }).join(",");
     }).join(",");
 }
-function evalscoped(scoped, base = '') {
-    base = removeSelectorSpace(base);
+var Method = function () {
+    var valueMap = Object.create(null);
+    if (!this.base) this.base = base;
+    vlist.push(valueMap);
+    var argDefaults = this.args.defaults;
+    this.args.forEach((k, i) => {
+        var a = arguments[i];
+        if (a === undefined || a === null) a = seprateFunc(calcvars(argDefaults[k])).map(evalproc).join('');
+        valueMap[k] = a;
+    });
+    var replace = text => text.replace(this.reg, function (name) {
+        if (/^\@\{/.test(name)) {
+            var key = "@" + name.slice(2, -1);
+            if (key in valueMap) return strings.decode(valueMap[key]);
+        }
+        else if (name in valueMap) return valueMap[name];
+        return name;
+    });
+    var vars = this.vars;
+    if (vars) Object.keys(vars).forEach(k => {
+        valueMap[k] = seprateFunc(replace(calcvars(vars[k]))).map(evalproc).join('');
+    });
+    var body = evalthis(this);
+    var rest = body.rest.map(a => a.map(replace));
+    var body = body.map(replace);
+    body.rest = rest;
+    vlist.pop();
+    return body;
+}
+var vlist = [], mlist = [macros], clist = [], base = '';
+var calcvars = function (v) {
+    return v.replace(/@[^\s\{\}\(\)\[\]\:\+\*\/,;\!\>\$\=\&\%\#\@'"`\?\.\/\|~#]+|@\{[^\}@]*\}/g, function (m) {
+        return getFromScopeList(m, vlist, m);
+    }).replace(/(^|\s|[\]\)\(\[\-\+\*\/,;])(?:var\s*\(([\s\S]*?)\)|(--\S+))/g, function (m, q, a, b) {
+        return q + getFromScopeList(b || a.trim(), vlist, m.slice(q.length));
+    });
+};
+var initvars = function (vars) {
+    for (var k in vars) {
+        var v = vars[k];
+        vars[k] = replace_punc(calcvars(v));
+    }
+};
+var evalthis = function (p) {
+    var temp = base;
+    base = p.base;
+    var res = eval2(p.used);
+    base = temp;
+    return res;
+};
+var evalproc = function (k, retnoparam) {
+    var match = (retnoparam !== false ? /^([^\(\)\s,;:]*)(?:\s*\(([\s\S]*)\))$/ : /^([^\(\)\s,;:]+)(?:\s*\(([\s\S]*)\))?$/).exec(k);
+    if (!match) return calcvars(k);
+    var [, name, params] = match;
+    var method = getFromScopeList(name, mlist);
+    if (!isFunction(method)) {
+        if (/^@/.test(name)) return calcvars(k);
+        var block = getFromScopeList(name, clist, null);
+        if (block) {
+            var res = [];
+            var rest = [];
+            block.map(eval2).forEach(e => {
+                res = res.concat(e);
+                rest = rest.concat(e.rest);
+            });
+            return res.concat(rest).join('');
+        }
+        else return k;
+    };
+    params = splitParams(params);
+    params = params.map(evalproc).map(replace_punc);
+    return method.apply(null, params);
+};
+var eval2 = function (props) {
+    var rest = [];
+    var result = [];
+    var methods = Object.create(null);
+    mlist.push(methods);
+    if (props.maps) clist.push(props.maps);
+
+    for (var { p: k, v: p } of props) {
+        if (p.used) {
+            var match = /^([@\.#][^\s,]+)\s*\(([\s\S]*?)\)\s*$/.exec(k);
+            if (!match) continue;
+            if (presets.test(match[1])) continue;
+            var [, name, args] = match;
+            args = createArgMap(args);
+            p.args = args;
+            p.reg = new RegExp(args.join("|") + /|@\{[^\}@]+\}/.source, 'g');
+            if (!methods[name]) methods[name] = [];
+            var argDefaults = args.defaults;
+            Object.keys(argDefaults).forEach(k => {
+                argDefaults[k] = calcvars(argDefaults[k]);
+            });
+            methods[name] = Method.bind(p);
+            p.isMethod = true;
+        }
+    }
+    for (var { p: k, v: p } of props) {
+        if (p.isMethod) continue;
+        if (p.used) {
+            k = calcvars(k);
+            k = removeSelectorSpace(k);
+            if (base && !p.rooted) p.base = fixBase(base, k);
+            else p.base = presets.test(k) ? `@{${k}}` : k;
+            var vars = shallowClone(p.vars);
+            if (vars) vlist.push(vars);
+            initvars(vars);
+            var value = evalthis(p);
+            if (vars) vlist.pop();
+            if (value.rest.length) rest = rest.concat(value.rest);
+            if (value.length) rest.push([p.base, '{', value.join(""), "}"]);
+        }
+        else if (p.length) {
+            k = calcvars(k);
+            p = calcvars(p.join(" "));
+            p = replace_punc(seprateFunc(p).map(evalproc).join(''));
+            result.push(k, ":", p, ';');
+        }
+        else {
+            var res = evalproc(k, false);
+            if (res instanceof Array) {
+                if (res.rest && res.rest.length) rest = rest.concat(res.rest);
+                if (res.length) result = result.concat(res);
+            }
+        }
+    }
+    mlist.pop();
+    if (props.maps) clist.pop();
+    result.rest = rest;
+    return result;
+};
+function evalscoped(scoped, scopeName = '') {
+    var _base = base;
+    base = removeSelectorSpace(scopeName);
     var smaps = scoped.maps;
     var root = smaps[":root"], scope = smaps[":scope"];
     var and = smaps["&"];
@@ -460,140 +587,13 @@ function evalscoped(scoped, base = '') {
     if (root) root.forEach(r => extend(vars, r.vars));
     if (scope) scope.forEach(s => extend(vars, s.vars));
     if (and) and.forEach(a => extend(vars, a.vars));
-    var vlist = [vars];
-    var mlist = [macros];
-    var clist = [smaps];
-    var calcvars = function (v) {
-        return v.replace(/(^|\s|[\]\)\(\[\-\+\*\/,;])(?:var\s*\(([\s\S]*?)\)|(--\S+|@[^\s\{\}\(\)\[\]\:\+\*\/,;\!\>\$\=\&\%\#\@'"`\?\.\/\|~#]+|@\{[^\}@]*\}))/g, function (m, q, a, b) {
-            return q + getFromScopeList(b || a.trim(), vlist, m.slice(q.length));
-        });
-    };
-    var initvars = function (vars) {
-        for (var k in vars) {
-            var v = vars[k];
-            vars[k] = replace_punc(calcvars(v));
-        }
-    };
+    vlist.push(vars);
+    clist.push(smaps);
     initvars(vars);
-
-    var eval2 = function (props) {
-        var rest = [];
-        var result = [];
-        var methods = Object.create(null);
-        mlist.push(methods);
-        if (props.maps) clist.push(props.maps);
-        var evalthis = function (p) {
-            var temp = base;
-            base = p.base;
-            var res = eval2(p.used);
-            base = temp;
-            return res;
-        };
-        var evalproc = function (k, retnoparam) {
-            var match = (retnoparam !== false ? /^([^\(\)\s,;:]*)(?:\s*\(([\s\S]*)\))$/ : /^([^\(\)\s,;:]+)(?:\s*\(([\s\S]*)\))?$/).exec(k);
-            if (!match) return calcvars(k);
-            var [, name, params] = match;
-            var method = getFromScopeList(name, mlist);
-            if (!isFunction(method)) {
-                if (/^@/.test(name)) return calcvars(k);
-                var block = getFromScopeList(name, clist, null);
-                if (block) {
-                    var res = [];
-                    var rest = [];
-                    block.map(eval2).forEach(e => {
-                        res = res.concat(e);
-                        rest = rest.concat(e.rest);
-                    });
-                    return res.concat(rest).join('');
-                }
-                else return k;
-            };
-            params = splitParams(params);
-            params = params.map(evalproc).map(replace_punc);
-            return method.apply(null, params);
-        };
-
-        for (var { p: k, v: p } of props) {
-            if (p.used) {
-                var match = /^([@\.#][^\s,]+)\s*\(([\s\S]*?)\)\s*$/.exec(k);
-                if (!match) continue;
-                if (presets.test(match[1])) continue;
-                var [, name, args] = match;
-                args = createArgMap(args);
-                p.args = args;
-                p.reg = new RegExp(args.join("|") + /|@\{[^\}@]+\}/.source, 'g');
-                if (!methods[name]) methods[name] = [];
-                var argDefaults = args.defaults;
-                Object.keys(argDefaults).forEach(k => {
-                    argDefaults[k] = calcvars(argDefaults[k]);
-                });
-                methods[name] = function () {
-                    var valueMap = Object.create(null);
-                    this.base = p.base || base;
-                    vlist.push(valueMap);
-                    var argDefaults = this.args.defaults;
-                    this.args.forEach((k, i) => {
-                        var a = arguments[i];
-                        if (a === undefined || a === null) a = seprateFunc(calcvars(argDefaults[k])).map(evalproc).join('');
-                        valueMap[k] = a;
-                    });
-                    var replace = text => text.replace(this.reg, function (name) {
-                        if (/^\@\{/.test(name)) {
-                            var key = "@" + name.slice(2, -1);
-                            if (key in valueMap) return strings.decode(valueMap[key]);
-                        }
-                        else if (name in valueMap) return valueMap[name];
-                        return name;
-                    });
-                    var vars = this.vars;
-                    if (vars) Object.keys(vars).forEach(k => {
-                        valueMap[k] = seprateFunc(replace(calcvars(vars[k]))).map(evalproc).join('');
-                    });
-                    var body = evalthis(this);
-                    var rest = body.rest.map(a => a.map(replace));
-                    var body = body.map(replace);
-                    body.rest = rest;
-                    vlist.pop();
-                    return body;
-                }.bind(p);
-                p.isMethod = true;
-            }
-        }
-        for (var { p: k, v: p } of props) {
-            if (p.isMethod) continue;
-            if (p.used) {
-                k = calcvars(k);
-                k = removeSelectorSpace(k);
-                if (base && !p.rooted) p.base = fixBase(base, k);
-                else p.base = presets.test(k) ? `@{${k}}` : k;
-                var vars = shallowClone(p.vars);
-                if (vars) vlist.push(vars);
-                initvars(vars);
-                var value = evalthis(p);
-                if (vars) vlist.pop();
-                if (value.rest.length) rest = rest.concat(value.rest);
-                if (value.length) rest.push([p.base, '{', value.join(""), "}"]);
-            }
-            else if (p.length) {
-                k = calcvars(k);
-                p = calcvars(p.join(" "));
-                p = replace_punc(seprateFunc(p).map(evalproc).join(''));
-                result.push(k, ":", p, ';');
-            }
-            else {
-                var res = evalproc(k, false);
-                if (res instanceof Array) {
-                    if (res.rest && res.rest.length) rest = rest.concat(res.rest);
-                    if (res.length) result = result.concat(res);
-                }
-            }
-        }
-        mlist.pop();
-        if (props.maps) clist.pop();
-        result.rest = rest;
-        return result;
-    }
     var result = eval2(scoped, [vars]);
+    vlist.pop();
+    clist.pop();
+    base = _base;
     return result;
 }
 var rcss = null;
