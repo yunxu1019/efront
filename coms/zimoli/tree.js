@@ -323,13 +323,24 @@ function tree() {
             var limit = useLimit && top + h > limitHeight;
             css(p, {
                 position: 'sticky',
+                zIndex: 2,
                 top: limit ? limitHeight - h : top, zIndex: 3 - limit
             });
             top += h;
         });
         stickys.top = top;
     }
+    var unSticky = function () {
+        stickys.forEach(s => {
+            css(s, {
+                position: '',
+                top: '',
+                zIndex: 1
+            })
+        })
+    }
     var refresh = function () {
+        unSticky();
         var index = banner.index();
         var needremoves = dom.map(d => d.$target).filter(d => !!d);
         dom = getArrayFromTree(root, banner.joined);
