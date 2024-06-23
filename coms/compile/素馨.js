@@ -18,6 +18,10 @@ var replaceHReg = new RegExp(numberReg.source + /\s*([\/\*])\s*/.source + number
 var replaceLReg = new RegExp(numberReg.source + /(\s*[\+\-]\s+|[\+\-])/.source + numberReg.source, 'gi');
 var replaceTReg = new RegExp(numberReg.source + /\s*[\/\*\+\-]\s*/.source + numberReg.source, 'i');
 var remove_quote = a => a.replace(/~\s*(['"`])((?:\\[\s\S]|[^'"`\\])*?)\1/g, '$2');
+var keepdot = function (a) {
+    var g = Math.pow(10, Math.log10(a) | 0) * 1000;
+    return (a * g | 0) / g;
+}
 var replace_punc = function (a) {
     if (typeof a !== "string") return a;
     a = remove_quote(a);
@@ -31,11 +35,11 @@ var replace_punc = function (a) {
                 d2 = eval(d2);
                 if (c === '*') {
                     replaced = true;
-                    return d1 * d2 + p1;
+                    return keepdot(d1 * d2) + p1;
                 }
                 if (c === '/') {
                     replaced = true;
-                    return d1 / d2 + p1;
+                    return keepdot(d1 / d2) + p1;
                 }
             }
             return _;
@@ -50,11 +54,11 @@ var replace_punc = function (a) {
                 c = c.trim();
                 if (c === "+") {
                     replaced = true;
-                    return (+d1 + +d2) + p1;
+                    return keepdot(+d1 + +d2) + p1;
                 }
                 if (c === '-') {
                     replaced = true;
-                    return (d1 - d2) + p1;
+                    return keepdot(d1 - d2) + p1;
                 }
             }
             return _;
