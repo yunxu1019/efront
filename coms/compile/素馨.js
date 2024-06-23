@@ -124,7 +124,7 @@ var createArgMap = function (args, split = ',', equal = ':') {
     var o = args.first;
     var args = [];
     while (o) {
-        if (!(o.type & (PROPERTY | EXPRESS))) {
+        if (!(o.type & (VALUE | STRAP | QUOTED | PROPERTY | EXPRESS))) {
             throw new Error(i18n`参数异常！`);
         }
         var k = o.text;
@@ -227,12 +227,19 @@ macros[""] = function (a) {
     return a;
 };
 
-macros.each = function (list, body) {
+macros.each = function () {
+    if (arguments.length !== 2) {
+        body = arguments[arguments.length - 1];
+        list = Array.prototype.slice.call(arguments, 0, arguments.length - 1).join(',');
+    }
+    else {
+        var [list, body] = arguments;
+    }
     var match = /^(?:\s*[#\.]?\(([\s\S]*?)\))?\s*\{([\s\S]*)\}$/.exec(body);
     if (!match) throw new Error(i18n`each参数异常!`);
     var [_, args, content] = match;
     if (!content) return;
-    content = 素馨(content);
+    content = content.replace(/^(\s*)([\S\s]*?)(\s*)$/, (_, a, c, f) => a + 素馨(c, '', true) + f);
     if (args) args = args.split(",").map(a => a.trim());
     else args = [];
     if (args.length < 1) args.push("@value");
@@ -273,6 +280,9 @@ macros.each = function (list, body) {
             "@value": a,
             "@key": i + 1,
             "@index": i + 1,
+            [args[0]]: a,
+            [args[1]]: i,
+            [args[2]]: i + 1,
         };
         return content.replace(reg, replace);
     });
@@ -540,6 +550,7 @@ function evalscoped(scoped, base = '') {
         }
         for (var { p: k, v: p } of props) {
             if (p.isMethod) continue;
+            console.log(k,p)
             if (p.used) {
                 k = calcvars(k);
                 k = removeSelectorSpace(k);
