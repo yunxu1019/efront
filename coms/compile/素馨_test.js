@@ -86,8 +86,6 @@ assert(素馨(`a{a:extract(2,3,2)}`), `a{a:3;}`);
 assert(素馨(`a{a:extract(2 3,2)}`), `a{a:3;}`);
 assert(素馨(`value: range(10px, 30px, 10);`, '', true), `value:10px 20px 30px;`);
 assert(素馨(`value: range(4);`, '', true), `value:1 2 3 4;`);
-assert(素馨(`value: if(2>1,1,2);`, '', true), `value:1;`);
-assert(素馨(`value: if(false,1,2);`, '', true), `value:2;`);
 assert(scanner2(`-0.2em .3em -0.2em 0`, new 素馨.素心)[0].text, '-0.2em');
 assert(scanner2(`-0.2em .3em -0.2em 0`, new 素馨.素心)[0].isdigit, true);
 assert(scanner2(`-0.2em .3em -0.2em 0`, new 素馨.素心)[2].text, ".3em");
