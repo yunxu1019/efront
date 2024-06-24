@@ -156,7 +156,7 @@ macros.calc = function (a) {
 };
 macros.range = function () {
     if (arguments.length === 1) {
-        return ArrayFill(arguments[0], 0).map((a, i) => i + 1);
+        return ArrayFill(arguments[0], 0).map((a, i) => i + 1).join(' ');
     }
     if (arguments.length === 3) {
         var [start, end, step] = arguments;
@@ -173,22 +173,26 @@ macros.range = function () {
         end = parseFloat(end);
         step = parseFloat(step) || 1;
         var result = [];
-        for (var temp = start; temp < end; temp += step) {
-            result.push(temp.toFixed(fixed) + unit);
+        for (var temp = start; temp <= end; temp += step) {
+            result.push(+temp.toFixed(fixed) + unit);
         }
-        return result;
+        return result.join(' ');
     }
     throw new Error(i18n`range参数错误:` + arguments);
 };
-macros.extract = function (list, index) {
-    if (typeof list === 'string') list = list.split(',');
+macros.extract = function () {
+    if (arguments.length === 2) var [list, index] = arguments;
+    else var index = arguments[arguments.length - 1], list = Array.prototype.slice.call(arguments, 0, arguments.length - 1);
+    index -= 1;
+    if (typeof list === 'string') list = getList(list);
     else if (list instanceof Array) {
-        list = createArgMap(list.concat(list.rest).join(''), ';');
+        list = list.concat(list.rest);
     }
     return list[index];
 };
 macros.length = function (list) {
-    if (typeof list === 'string') return list.split(',').length;
+    if (arguments.length !== 1) return arguments.length;
+    if (typeof list === 'string') return getList(list).length;
     else if (list instanceof Array) {
         return createArgMap(list.concat(list.rest).join(''), ';').length;
     }
@@ -202,6 +206,7 @@ macros.escape = function (a) {
 macros.e = function (a) {
     return strings.decode(a);
 };
+
 var wrapColor = function (k) {
     var f = color[k];
     macros[k] = function (c) {
@@ -231,6 +236,11 @@ macros[""] = function (a) {
     return a;
 };
 
+var getList = function (list) {
+    list = splitParams(list);
+    if (list.length === 1) list = list[0].split(/\s+/);
+    return list;
+};
 macros.each = function () {
     if (arguments.length !== 2) {
         body = arguments[arguments.length - 1];
@@ -248,7 +258,7 @@ macros.each = function () {
     if (args.length < 1) args.push("@value");
     if (args.length < 2) args.push("@key");
     if (args.length < 3) args.push("@index");
-    if (typeof list === "string") list = splitParams(list);
+    if (typeof list === "string") list = getList(list);
     else if (list instanceof Array) {
         list = createArgMap(list.concat(list.rest).join(""), ';');
     }
