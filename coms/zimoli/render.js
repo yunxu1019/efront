@@ -41,6 +41,7 @@ presets.template = function (t) {
     var comment = document.createComment('template');
     comment.$scope = t.$scope;
     comment.$parentScopes = t.$parentScopes;
+    t.$comment = comment;
     if (t.$struct.binds.src) {
         care(comment, createTemplateNodes)
     }
@@ -274,7 +275,9 @@ var createRepeat = function (search, id = 0) {
         for (var k in clonedElements) {
             if (clonedElements1[k] !== clonedElements[k]) {
                 var selected = clonedElements[k].selected;
-                remove(clonedElements[k]);
+                var c = clonedElements[k];
+                if (!c.parentNode && c.$comment) remove(c.$comment);
+                else remove(clonedElements[k]);
                 if (selected) { clonedElements1[k].selected = true; }
             }
         }
