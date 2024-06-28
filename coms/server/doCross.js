@@ -184,7 +184,7 @@ async function cross(req, res, referer) {
             if (/get/i.test(req.method) && (record.enabled || /^[\.&~]/.test(jsonlike)) && response.statusCode === 200) {
                 record($url, request, response, req, res);
             } else {
-                if (!res.destroyed) {
+                if (!res.destroyed && !res.writableEnded) {
                     if (!res.headersSent) res.writeHead(response.statusCode === 301 && getHeader(req.headers, "authorization") ? 302 : response.statusCode || 200, headers);
                     response.pipe(res);
                 }
@@ -214,7 +214,7 @@ async function cross(req, res, referer) {
             default:
                 code = 500;
         }
-        if (!res.destroyed) {
+        if (!res.destroyed && !res.writableEnded) {
             if (!res.headersSent) res.writeHead(code, {});
             res.end(String(e));
         }

@@ -92,7 +92,6 @@ var doPost = require("./doPost");
 var doCross = require("./doCross");
 var { referer: crossReferer, prefix: crossPrefix } = doCross;
 var doFile = require("./doFile");
-var doProxy = require("./doProxy");
 var doFolder = require("./doFolder");
 var doChannel = require("./doChannel");
 var getRequestEnv = require('./getRequestEnv');
@@ -696,7 +695,7 @@ var ipLoged = false;
  */
 var loading = 0;
 var isHttpsServer = function (server) {
-    return server !== server0 && server !== server1;
+    return server !== server1;
 };
 var showServerInfo = async function () {
     if (--loading > 0) return;
@@ -772,6 +771,24 @@ var showServerError = function (error) {
     showServerInfo.call(s);
 };
 var portedServersList = [];
+var onConnect = function (req, clientSocket, head) {
+    var { hostname, port } = parseURL(req.url);
+    var serverSocket = net.connect(+port || 80, hostname, () => {
+        clientSocket.write('HTTP/1.1 200 Connection Established\r\n\r\n');
+        serverSocket.write(head);
+        serverSocket.pipe(clientSocket);
+        clientSocket.pipe(serverSocket);
+    });
+    
+    clientSocket.once("error", function () {
+        serverSocket.destroy();
+        clientSocket.destroy();
+    })
+    serverSocket.once("error", function () {
+        clientSocket.destroy();
+        serverSocket.destroy();
+    });
+};
 /**
  * @this http.Server
  */
@@ -779,7 +796,7 @@ function initServer(port, hostname, hostnames) {
     loading++;
     var server = this.once("error", showServerError)
         .on('clientError', function (err, socket) {
-            if (err.code === 'ECONNRESET' || !socket.writable) {
+            if (err.code === 'ECONNRESET' || !socket.writable || socket.writableEnded) {
                 return;
             }
             socket.end('HTTP/1.1 400 Bad Request\r\n\r\n');
@@ -788,6 +805,7 @@ function initServer(port, hostname, hostnames) {
     if (!hostname) server.listen(+port);
     else server.listen(+port, hostname);
     portedServersList.push(server);
+    if (!memery.noproxy) server.on('connect', onConnect);
     var wraphost = function (hostname) {
         if (!hostname) hostname = 'localhost';
         if (isHttpsServer(server)) {
@@ -813,37 +831,8 @@ function initServer(port, hostname, hostnames) {
     server.port = port;
     return server;
 }
-function netOnceDataAdapter(buf) {
-    var socket_type = [0x1603, 0x434f].indexOf((buf[0] << 8) + buf[1]);
-    if (memery.loghead) {
-        console.clear();
-        console.log(String(buf));
-    }
-    var socket = this;
-    socket.on('error', function () { })
-    socket.unshift(buf);
-    if (socket_type === 0) {
-        var server = socket.server;
-        if (server !== server0 && server !== server1) server.emit("connection", socket);
-        else socket.destroy();
-    } else if (socket_type > 0) {
-        doProxy(socket);
-    } else {
-        if (server1) server1.emit("connection", socket);
-        else socket.destroy();
-    }
-}
 
-function netListener(socket) {
-    socket.on('error', socket.destroy);
-    socket.once("data", netOnceDataAdapter);
-}
-var getIntVersion = function (version) {
-    version = String(version).replace(/[^\.\d]+/, '');
-    var [a, b, c] = version.split('.');
-    return (+a << 16) + (+b << 8) + +c;
-};
-var server0, server1;
+var server1;
 /**
  * @type {http2.SecureServerOptions}
  */
@@ -900,12 +889,7 @@ var createCertedServer = function (certlist) {
 
 var createHttpServer = function () {
     server1 = http.createServer(requestListener);
-    if (getIntVersion(process.version) >= getIntVersion('12.19.0')) {
-        server0 = net.createServer(netListener);
-        initServer.call(server0, HTTP_PORT);
-    } else {
-        initServer.call(server1, HTTP_PORT);
-    }
+    initServer.call(server1, HTTP_PORT);
 };
 
 process.on('exit', function () {
