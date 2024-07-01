@@ -635,7 +635,7 @@ var requestListener = async function (req, res) {
         return doCross(req, res, referer);
     }
     var authorization = getHeader(headers, "authorization");
-    if (/^\/\*{1,2}$/.test(url) && !authorization || /^\/\*{3,}$/.test(url)) {
+    if (/^\/\*{1,2}($|[\?])/.test(url) && !authorization || /^\/\*{3,}$/.test(url)) {
         res.writeHead(401, {
             "WWW-Authenticate": "Basic",
         });
@@ -644,6 +644,13 @@ var requestListener = async function (req, res) {
     }
     else if (authorization) {
         var auth = Buffer.from(authorization.replace(/^Basic\s+/i, ''), 'base64').toString();
+        if (/^\/\*+$/.test(url)) {
+            res.writeHead(302, {
+                "location": "/"
+            });
+            res.end();
+            return;
+        }
         if (/^~~/.test(auth)) {
             auth = auth.replace(/\:$/, '');
             req.url = "/" + auth + url.replace(/^\/\*+/, '');
@@ -773,21 +780,43 @@ var showServerError = function (error) {
 var portedServersList = [];
 var onConnect = function (req, clientSocket, head) {
     var { hostname, port } = parseURL(req.url);
+    var ended = false;
     var serverSocket = net.connect(+port || 80, hostname, () => {
+        ended = true;
         clientSocket.write('HTTP/1.1 200 Connection Established\r\n\r\n');
         serverSocket.write(head);
         serverSocket.pipe(clientSocket);
         clientSocket.pipe(serverSocket);
     });
-    
-    clientSocket.once("error", function () {
-        serverSocket.destroy();
+    var end = function (e) {
+        if (!ended) {
+            var msg = '';
+            var code = 500;
+            switch (e?.code) {
+                case "ECONNRESET":
+                case "ECONNREFUSED":
+                    code = 502;
+                    msg = e.code;
+                    msg = "Bad GateWay";
+                    break;
+                case "ETIMEDOUT":
+                    code = 504;
+                    msg = "GateWay Timeout";
+                    break;
+                default:
+                    code = 500;
+                    msg = "GateWay Error";
+            }
+            if (!clientSocket.destroyed && !clientSocket.writableEnded) {
+                clientSocket.write(`HTTP/1.1 ${code} ${msg}\r\n\r\n`);
+            }
+        }
         clientSocket.destroy();
-    })
-    serverSocket.once("error", function () {
-        clientSocket.destroy();
         serverSocket.destroy();
-    });
+    };
+    serverSocket.on("end", end);
+    clientSocket.once("error", end);
+    serverSocket.once("error", end);
 };
 /**
  * @this http.Server
