@@ -64,6 +64,8 @@ function piperead(h, start, end, res, sign) {
  * @param {Http2ServerResponse} res
  */
 function doGetFile(req, res, filepath, code) {
+    req.setTimeout(allowSocketTime);
+    res.setTimeout(allowSocketTime);
     var [, start, end] = String(getHeader(req.headers, "range")).match(/bytes\s*=\s*(\d*)\s*\-\s*(\d*)/) || [];
     if (!fs.existsSync(filepath)) {
         res.writeHead(404, utf8);

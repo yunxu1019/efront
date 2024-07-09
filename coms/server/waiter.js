@@ -500,10 +500,18 @@ var requestListener = async function (req, res) {
         var remoteAddress = require("./remoteAddress")(req);
     } catch {
     }
-    if (!remoteAddress) {
+    var host = getHeaderHost(req.headers);
+    if (!remoteAddress || !host) {
         res.writeHead(403, utf8error);
-        res.end(i18n[getHeader(req.headers, 'accept-language')]`禁止访问`);
+        res.end(i18n[getHeader(req.headers, 'accept-language')]`您的请求信息异常！请更换浏览器重试！`);
         return;
+    }
+    req.protocol = this === server1 ? 'http:' : 'https:';
+    if (hosted_reg) {
+        if (!hosted_reg.test(host)) {
+            req.url = req.protocol + '//' + host + req.url;
+            return doCross(req, res, 0);
+        }
     }
     var method = req.method;
     var url = req.url;
@@ -583,7 +591,6 @@ var requestListener = async function (req, res) {
         if (/^\/\!\//.test(url)) url = req.url = url.slice(2);
     }
 
-    req.protocol = this === server1 ? 'http:' : 'https:';
     var req_access_origin = getHeader(headers, "origin");
     var req_access_headers = getHeader(headers, "access-control-request-headers");
     var req_access_method = getHeader(headers, "access-control-request-method");
@@ -625,7 +632,7 @@ var requestListener = async function (req, res) {
             res.destroy();
             return;
         }
-        return doCross(req, res);
+        return doCross(req, res, 0);
     }
     if (crossPrefix.test(url)) {
         return doCross(req, res, false);
@@ -789,7 +796,10 @@ var onConnect = function (req, clientSocket, head) {
         clientSocket.pipe(serverSocket);
     });
     var end = function (e) {
-        if (!ended) {
+        if (ended) return;
+        clearTimeout(interval);
+        ended = true;
+        if (!ended && e) {
             var msg = '';
             var code = 500;
             switch (e?.code) {
@@ -811,13 +821,23 @@ var onConnect = function (req, clientSocket, head) {
                 clientSocket.write(`HTTP/1.1 ${code} ${msg}\r\n\r\n`);
             }
         }
+        serverSocket.removeAllListeners();
+        clientSocket.removeAllListeners();
         clientSocket.destroy();
         serverSocket.destroy();
     };
-    serverSocket.on("end", end);
+    var interval = setTimeout(end, 120000);
+    serverSocket.once("end", end);
     clientSocket.once("error", end);
     serverSocket.once("error", end);
 };
+var serverh = null;
+var hosted = Object.create(null), hosted_reg = null;
+if (memery.LOCAL_HOSTS) {
+    memery.LOCAL_HOSTS.trim().split(/[,;\s]+/).map(a => {
+        hosted[a] = 1;
+    });
+}
 /**
  * @this http.Server
  */
@@ -831,12 +851,20 @@ function initServer(port, hostname, hostnames) {
             socket.end('HTTP/1.1 400 Bad Request\r\n\r\n');
         })
         .once("listening", showServerInfo);
+    server.timeout = 30000;
+    server.requestTimeout = 30000;
+    server.headersTimeout = 10000;
+    server.maxHeadersCount = 60;
+    if (!memery.istest) server.maxRequestsPerSocket = 60;
+    server.keepAliveTimeout = 30000;
     if (!hostname) server.listen(+port);
     else server.listen(+port, hostname);
     portedServersList.push(server);
     if (!memery.noproxy) server.on('connect', onConnect);
     var wraphost = function (hostname) {
         if (!hostname) hostname = 'localhost';
+        else if (!hosted[hostname]) hosted[hostname] = 0;
+        hosted[hostname]++;
         if (isHttpsServer(server)) {
             if (+port !== 443) {
                 hostname += ":" + port;
@@ -870,11 +898,25 @@ var httpsOptions = {
 };
 
 var createHttpsServer = function () {
-    if (httpsOptions.pfx || httpsOptions.cert && httpsOptions.key) {
-        HTTPS_PORT = +HTTPS_PORT || 443;
-        var server2 = http2.createSecureServer(httpsOptions, requestListener);
-        initServer.call(server2, HTTPS_PORT);
-    }
+    delete httpsOptions.key;
+    delete httpsOptions.cert;
+    Object.assign(httpsOptions, cert);
+    serverh = http2.createSecureServer(httpsOptions, requestListener);
+    initServer.call(serverh, HTTPS_PORT || 443);
+};
+
+var initHostedReg = function () {
+    var regSource = Object.keys(hosted).map(a => {
+        var r = a.replace(/\.\.?|\-/g, a => a.length === 1 ? "\\" + a : '.').replace(/([^\*]|^)(\*)([^\*]|$)/g, '$1.$2$3');
+        try {
+            r = new RegExp(r, 'i');
+            return r.source;
+        } catch {
+            throw new Error(i18n`配置的域名无法生成正则表达式:${a}`);
+        }
+    }).join("|");
+    if (regSource) hosted_reg = new RegExp(regSource, 'i');
+    else hosted_reg = null;
 };
 
 var createCertedServer = function (certlist) {
@@ -883,6 +925,8 @@ var createCertedServer = function (certlist) {
         removeFromList(portedServersList, servern);
         servern.close();
         servern.removeAllListeners();
+        if (hosted[servern.hostname] > 0) hosted[servern.hostname]--;
+        if (!hosted[servern.hostname]) delete hosted[servern.hostname];
         servern.unref();
     });
     if (!certlist.length) return;
@@ -907,6 +951,7 @@ var createCertedServer = function (certlist) {
         try {
             var serveri = http2.createSecureServer(httpsOptions, requestListener);
             initServer.call(serveri, +HTTPS_PORT || 443, c.hostname, c.hostnames);
+            if (isSingleCert) serverh = serveri;
             serveri.hostname = c.hostname;
             portedServersList[c.hostname] = serveri;
         } catch (e) {
@@ -943,16 +988,15 @@ var getCertList = async function () {
 message.reloadCert = async function () {
     var certlist = await getCertList();
     createCertedServer(certlist);
+    initHostedReg();
+    if (hosted_reg && certlist.length && !serverh) createHttpsServer();
 };
 getCertList().then(function (certlist) {
     if (HTTP_PORT) createHttpServer();
     if (certlist.length) createCertedServer(certlist);
-    if (memery.PFX_PATH) {
-        delete httpsOptions.key;
-        delete httpsOptions.cert;
-        Object.assign(httpsOptions, cert);
-        createHttpsServer();
-    }
+    initHostedReg();
+    if (memery.PFX_PATH) createHttpsServer();
+    if (hosted_reg && !serverh) createHttpsServer();
 });
 var acme2 = await require("../pivot/acme2");
 if (acme2.enabled) {

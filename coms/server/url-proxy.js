@@ -56,7 +56,7 @@ var wrapProxy = function (proxy, url, query) {
 }
 async function getProxyURL(req, url = req.url) {
     await userdata.update(updateMap);
-    var host = getHeader(req.headers, 'host') || getHeader(req.headers, ":authority");
+    var host = getHeaderHost(req.headers);
     var { pathname, query } = parseURL(url);
     if (host) {
         host = "/" + host;

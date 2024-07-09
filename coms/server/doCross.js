@@ -63,6 +63,10 @@ const headerCharRegex = /[^\t\x20-\x7e\x80-\xff]/;
 function checkIsHttpToken(val) {
     return tokenRegExp.test(val);
 }
+var isRing = function (req) {
+    var socket = req.socket;
+    return socket.localAddress === socket.remoteAddress;
+};
 var utf8error = { "content-type": "text/plain;charset=utf-8" };
 /**
  * 
@@ -72,8 +76,13 @@ var utf8error = { "content-type": "text/plain;charset=utf-8" };
  */
 async function cross(req, res, referer) {
     try {
+        if (referer === 0 && isRing(req)) {
+            res.writeHead(502, utf8error);
+            res.end(i18n[getHeader(req.headers, 'accept-language')]`发现递归请求！`);
+            return;
+        }
         if (referer) {
-            var { jsonlike, realpath, hostpath, headers } = await parseUrl(referer, req.url);
+            var { jsonlike , realpath, hostpath, headers } = await parseUrl(referer, req.url);
             req.url = "/" + unescape(jsonlike) + (crossmark.test(jsonlike[0]) ? "/" : "@") + realpath;
         }
         var { jsonlike, realpath, hostpath, headers } = await parseUrl(req.url);

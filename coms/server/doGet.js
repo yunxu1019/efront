@@ -133,7 +133,7 @@ var adapter = function (data, url, req, res) {
                 //过长的源路径视为攻击型请求
                 referer = referer.slice(0, 297) + "...";
             }
-            msg.host = headers.host || headers[":authority"];
+            msg.host = getHeaderHost(headers);
             msg.referer = referer;
             // 忽略杂种浏览器过长的userAgent
             var agent = getHeader(req.headers, "user-agent");
