@@ -139,7 +139,7 @@ var care = function (req, res, type) {
     if (id) {
         if (clients.length > 40000) {
             res.writeHead(503, utf8error);
-            res.end(i18n[req.headers['accept-language']]`服务器忙！`);
+            res.end(i18n[getHeader(req.headers, 'accept-language')]`服务器忙！`);
             return;
         }
         var ct = clients.getType(id);
@@ -225,7 +225,7 @@ var doOptions = async function (req, res, type) {
         case "login":
             var a = type[2] || '';
             return require("./login")(a, remoteAddress).then(b => {
-                if (!b) throw i18n[req.headers["accept-language"]]`密码不正确！`;
+                if (!b) throw i18n[getHeader(req.headers, "accept-language")]`密码不正确！`;
                 res.end(b);
             }).catch(e => {
                 res.writeHead(403, utf8error);
@@ -236,7 +236,7 @@ var doOptions = async function (req, res, type) {
                 try {
                     var roomid = encode62.timedecode(type[2]);
                     var room = await userdata.getOptionObj("room", roomid);
-                    if (!room) { throw i18n[req.headers["accept-language"]]`房间不存在！`; }
+                    if (!room) { throw i18n[getHeader(req.headers, "accept-language")]`房间不存在！`; }
                     if (!room.linkid || !clients.checkId(room.linkid)) {
                         room.linkid = clients.create().id;
                         await userdata.setOptionObj("room", roomid, room);
@@ -274,7 +274,7 @@ var doOptions = async function (req, res, type) {
     }
     if (needLogin && !await require("./checkAuth")(getHeader(req.headers, 'authorization'), remoteAddress)) {
         res.writeHead(401, utf8error);
-        res.write(i18n[req.headers["accept-language"]]`无权访问`);
+        res.write(i18n[getHeader(req.headers, "accept-language")]`无权访问`);
         needLogin = false;
     }
     if (needLogin) switch (type[1]) {
@@ -379,7 +379,7 @@ var doOptions = async function (req, res, type) {
                         if (!type[3]) return res.end(encode62.timeencode(String(exists)));
                         if (exists && type[3]) {
                             res.writeHead(403, utf8error);
-                            res.end(i18n[req.headers["accept-language"]]`已存在相同标识的数据`);
+                            res.end(i18n[getHeader(req.headers, "accept-language")]`已存在相同标识的数据`);
                             return;
                         }
                     }
@@ -424,7 +424,7 @@ var doOptions = async function (req, res, type) {
                         break;
                     default:
                         res.writeHead(400, utf8error);
-                        res.write(i18n[req.headers["accept-language"]]`非法操作！`);
+                        res.write(i18n[getHeader(req.headers, "accept-language")]`非法操作！`);
                 }
             }
             catch (e) {

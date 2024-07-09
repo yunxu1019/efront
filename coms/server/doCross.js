@@ -1,6 +1,5 @@
 "use strict";
 var parseURL = require("../basic/parseURL");
-var cert = server$cert;
 var { IncomingMessage } = require("http");
 var { Http2ServerResponse, Http2ServerRequest } = require("http2");
 var headersKeys = "Content-Type,Content-Length,User-Agent,Accept-Language,Accept-Encoding,Range,If-Range,Last-Modified".toLowerCase().split(",");
@@ -82,7 +81,7 @@ async function cross(req, res, referer) {
             return;
         }
         if (referer) {
-            var { jsonlike , realpath, hostpath, headers } = await parseUrl(referer, req.url);
+            var { jsonlike, realpath, hostpath, headers } = await parseUrl(referer, req.url);
             req.url = "/" + unescape(jsonlike) + (crossmark.test(jsonlike[0]) ? "/" : "@") + realpath;
         }
         var { jsonlike, realpath, hostpath, headers } = await parseUrl(req.url);
@@ -100,7 +99,7 @@ async function cross(req, res, referer) {
     }
     catch (e) {
         res.writeHead(403, utf8error);
-        return res.end(i18n[req.headers["accept-language"]]`请求无效!`);
+        return res.end(i18n[getHeader(req.headers, "accept-language")]`请求无效!`);
     }
     for (let key in headers) {
         let k = key.toLowerCase();

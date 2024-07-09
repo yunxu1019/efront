@@ -69,7 +69,7 @@ function doGetFile(req, res, filepath, code) {
     var [, start, end] = String(getHeader(req.headers, "range")).match(/bytes\s*=\s*(\d*)\s*\-\s*(\d*)/) || [];
     if (!fs.existsSync(filepath)) {
         res.writeHead(404, utf8);
-        res.end(i18n[req.headers["accept-language"]]`文件不存在`);
+        res.end(i18n[getHeader(req.headers, "accept-language")]`文件不存在`);
         return;
     }
     fs.stat(filepath, function (err, stats) {
@@ -80,7 +80,7 @@ function doGetFile(req, res, filepath, code) {
         }
         if (stats.isDirectory()) {
             res.writeHead(400, utf8);
-            res.end(i18n[req.headers["accept-language"]]`请求无效`);
+            res.end(i18n[getHeader(req.headers, "accept-language")]`请求无效`);
             return;
         }
         if (stats.mtime) {
@@ -97,7 +97,7 @@ function doGetFile(req, res, filepath, code) {
         }
         if (start > stats.size || end && end < start || start < 0) {
             res.writeHead(416, utf8);
-            res.end(i18n[req.headers["accept-language"]]`文件内容不足`);
+            res.end(i18n[getHeader(req.headers, "accept-language")]`文件内容不足`);
             return;
         }
         if (code) {
@@ -166,7 +166,7 @@ function doDeleteFile(req, res, filepath) {
 function doPutFile(req, res, filepath, code) {
     if (!fs.existsSync(path.dirname(filepath))) {
         res.writeHead(403, utf8);
-        res.end(i18n[req.headers["accept-language"]]`路径不存在`);
+        res.end(i18n[getHeader(req.headers, "accept-language")]`路径不存在`);
         return;
     }
     var range = getHeader(req.headers, "range");
@@ -176,12 +176,12 @@ function doPutFile(req, res, filepath, code) {
     }
     else if (fs.existsSync(filepath)) {
         res.writeHead(409, utf8);
-        res.end(i18n[req.headers["accept-language"]]`文件已存在`);
+        res.end(i18n[getHeader(req.headers, "accept-language")]`文件已存在`);
         return;
     }
     if (cacheCountLimit <= 1) {
         res.writeHead(403, utf8);
-        res.end(i18n[req.headers["accept-language"]]`服务繁忙`);
+        res.end(i18n[getHeader(req.headers, "accept-language")]`服务繁忙`);
         return;
     }
     if (code) {
@@ -229,7 +229,7 @@ async function doFile(req, res) {
         var filepath = req.url.slice(2);
         if (!checkAccess(filepath)) {
             res.writeHead(406, utf8);
-            res.end(i18n[req.headers["accept-language"]]`拒绝访问`);
+            res.end(i18n[getHeader(req.headers, "accept-language")]`拒绝访问`);
             return;
         }
     } else {
@@ -243,7 +243,7 @@ async function doFile(req, res) {
     if (!/get/i.test(req.method)) {
         if (!checkAccess(filepath) && !await checkAuth(getHeader(req.headers, "authorization"), remoteAddress(req))) {
             res.writeHead(406, utf8);
-            res.end(i18n[req.headers["accept-language"]]`拒绝访问`);
+            res.end(i18n[getHeader(req.headers, "accept-language")]`拒绝访问`);
             return;
         }
     }
@@ -264,7 +264,7 @@ async function doFile(req, res) {
             break;
         default:
             res.writeHead(405, utf8);
-            res.end(i18n[req.headers["accept-language"]]`${req.method} 请求方法无效`);
+            res.end(i18n[getHeader(req.headers, "accept-language")]`${req.method} 请求方法无效`);
     }
 }
 module.exports = doFile;
