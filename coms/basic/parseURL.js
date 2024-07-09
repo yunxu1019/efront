@@ -23,6 +23,9 @@ class URL {
     resolve(url) {
         var u = new URL;
         Object.assign(u, this);
+        if (!/^([^\:\/\\\?#\[]+\:|[\:\/\\\?#\[]+)/.test(url)) {
+            url = u.pathname.replace(/[^\/]+$/, '') + url;
+        }
         u.locate(url);
         return u;
     }
