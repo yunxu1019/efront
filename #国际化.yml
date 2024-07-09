@@ -1,3 +1,15 @@
+- zh-CN: 加载失败
+  en:    Loading failed
+
+- zh-CN: 发现递归请求！
+  en:    Found recursive request!
+
+- zh-CN: 您的请求信息异常！请更换浏览器重试！
+  en:    Your request information is abnormal! Please change your browser and try again!
+
+- zh-CN: 配置的域名无法生成正则表达式:$1
+  en:    "The configured domain name cannot generate a regular expression: $1"
+
 - zh-CN: 这个文件的内容不能在非nodejs环境中运行
   en:    The content of this file cannot be run in a non nodejs environment
 
