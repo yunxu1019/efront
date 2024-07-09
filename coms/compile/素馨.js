@@ -429,7 +429,6 @@ var getFromScopeList = function (name, varsList, value = name) {
         while (name in o) {
             name = o[name];
             if (typeof name !== 'string') return name;
-            name = strings.decode(name);
             if (!/^\-\-|^@[^\{]/.test(name)) return name;
             if (queue.indexOf(name) >= 0) throw `变量环形引用，无法初始化：${queue}`;
             queue.push(name);
@@ -490,8 +489,11 @@ var Method = function () {
 }
 var vlist = [], mlist = [macros], clist = [], base = '';
 var calcvars = function (v) {
+    var decode = /^['"`]/.test(v) ? strings.decode : a => a;
     return v.replace(/@[^\s\{\}\(\)\[\]\:\+\*\/,;\!\>\$\=\&\%\#\@'"`\?\.\/\|~#]+|@\{[^\}@]*\}/g, function (m) {
-        return getFromScopeList(m, vlist, m);
+        var value = getFromScopeList(m, vlist, m);
+        value = decode(value);
+        return value;
     }).replace(/(^|\s|[\]\)\(\[\-\+\*\/,;])(?:var\s*\(([\s\S]*?)\)|(--\S+))/g, function (m, q, a, b) {
         return q + getFromScopeList(b || a.trim(), vlist, m.slice(q.length));
     });
