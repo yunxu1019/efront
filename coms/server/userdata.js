@@ -141,8 +141,10 @@ var listmark = "-options";
 var optionmark = ":";
 module.exports = {
     getStream(filename) {
-        var fullpath = path.join(userpath, filename);
-        return fs.createReadStream(fullpath);
+        try {
+            var fullpath = path.join(userpath, filename);
+            return fs.createReadStream(fullpath);
+        } catch { }
     },
     getFullpath(filename) {
         return path.join(userpath, filename);

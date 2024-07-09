@@ -279,7 +279,9 @@ var doOptions = async function (req, res, type) {
     }
     if (needLogin) switch (type[1]) {
         case "count":
-            userdata.getStream('count.jsam').pipe(res);
+            var stream = userdata.getStream('count.jsam');
+            if (stream) stream.pipe(res);
+            else res.end('');
             return;
         case "setauth":
             setAuth(type[2], type[3]);
