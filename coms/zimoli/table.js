@@ -575,7 +575,8 @@ function table(elem) {
         };
         render(this, $scope, this.$parentScopes.concat(this.$scope));
         if (isMounted(table)) setFixedColumn.call(table);
-        $scope.data = Table.from(fields, await data);
+        await data;
+        if (!data.is_errored) $scope.data = Table.from(fields, data);
         $scope.data.callback = function () {
             render.digest();
         };
