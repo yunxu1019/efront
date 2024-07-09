@@ -974,7 +974,7 @@ process.on('exit', function () {
 var cert;
 message.count("boot");
 var getCertList = async function () {
-    var certlist = await userdata.getOptionsList("cert");
+    var certlist = await userdata.getOptionsList("cert", 'hostname');
     certlist = certlist.filter(c => c.private && c.cert && c.hostname);
     if (memery.PFX_PATH) cert = await import('./cert');
     else if (HTTPS_PORT) {
