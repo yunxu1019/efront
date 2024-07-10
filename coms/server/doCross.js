@@ -80,6 +80,8 @@ async function cross(req, res, referer) {
             res.end(i18n[getHeader(req.headers, 'accept-language')]`发现递归请求！`);
             return;
         }
+        req.setTimeout(120000);
+        res.setTimeout(120000);
         if (referer) {
             var { jsonlike, realpath, hostpath, headers } = await parseUrl(referer, req.url);
             req.url = "/" + unescape(jsonlike) + (crossmark.test(jsonlike[0]) ? "/" : "@") + realpath;

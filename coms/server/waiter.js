@@ -509,12 +509,6 @@ var requestListener = async function (req, res) {
         return;
     }
     req.protocol = this === server1 ? 'http:' : 'https:';
-    if (hosted_reg) {
-        if (!hosted_reg.test(host)) {
-            req.url = req.protocol + '//' + host + req.url;
-            return doCross(req, res, 0);
-        }
-    }
     var method = req.method;
     var url = req.url;
     var headers = req.headers;
@@ -635,6 +629,17 @@ var requestListener = async function (req, res) {
             return;
         }
         return doCross(req, res, 0);
+    }
+    if (hosted_reg) {
+        if (!hosted_reg.test(host)) {
+            if (memery.noproxy) {
+                req.destroy();
+                res.destroy();
+                return;
+            }
+            req.url = req.protocol + '//' + host + req.url;
+            return doCross(req, res, 0);
+        }
     }
     if (crossPrefix.test(url)) {
         return doCross(req, res, false);
@@ -828,7 +833,8 @@ var onConnect = function (req, clientSocket, head) {
         clientSocket.destroy();
         serverSocket.destroy();
     };
-    var interval = setTimeout(end, 120000);
+    clientSocket.setTimeout(120000);
+    serverSocket.setTimeout(120000);
     serverSocket.once("end", end);
     clientSocket.once("error", end);
     serverSocket.once("error", end);
