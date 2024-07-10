@@ -804,7 +804,6 @@ var onConnect = function (req, clientSocket, head) {
     });
     var end = function (e) {
         if (ended) return;
-        clearTimeout(interval);
         ended = true;
         if (!ended && e) {
             var msg = '';
