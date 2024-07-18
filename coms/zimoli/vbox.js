@@ -159,6 +159,10 @@ function ybox(generator) {
                 box = getTargetIn(e => e === _box || /^(?:auto|scroll)$/i.test(getComputedStyle(e).overflowY) && e.scrollHeight - e.scrollTop > e.clientHeight, event.target);
             }
             if (box === _box) {
+                var wheelDelta = event.wheelDelta;
+                if (wheelDelta && wheelDelta !== deltay) {
+                    deltay /= 6;
+                }
                 scrollY.call(_box, -deltay, false);
                 stop2();
             }
