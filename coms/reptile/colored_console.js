@@ -1,4 +1,5 @@
 "use strict";
+var EOL = require("os").EOL;
 var colored = Object.create(null);
 var lazy = require("../basic/lazy");
 var colors = require("./colors");
@@ -40,12 +41,17 @@ var renderColor = function (obj) {
 var write = function (hasNewLine, str) {
     process.stdout.cork();
     var hasNextLine = /[\r\n\u2028\u2029]$/.test(str);
+    var width = process.stdout.columns;
     if (process.stdout.isTTY) {
         if (lastLogLength) {
-            var width = process.stdout.columns;
-            var dx = lastLogLength % width;
-            var dy = (lastLogLength - 1) / width | 0;
-            process.stdout.moveCursor(-dx, -dy);
+            var loged = lastLogLength;
+            lastLogLength = 0;
+            loged.forEach(lastLogLength => {
+                var dx = lastLogLength % width;
+                var dy = (lastLogLength - 1) / width | 0;
+                process.stdout.moveCursor(- dx, -1 - dy);
+            });
+            process.stdout.moveCursor(0, 1);
             process.stdout.clearScreenDown();
         }
     }
@@ -67,8 +73,12 @@ var write = function (hasNewLine, str) {
     if (hasNewLine) {
         lastLogLength = 0;
     } else {
-        str = String(str).replace(/\x1b\[\d+m/g, '').replace(/\b/g, '');
-        lastLogLength = str.length + str.replace(/[\x20-\xff]/g, "").length;
+        var rs = str.split(/\r\n|\r|\n|\u2028|\u2029/);
+        var cr = r => {
+            r = String(r).replace(/\x1b\[\d+m/g, '').replace(/\b/g, '');
+            return r.length + r.replace(/[\x20-\xff]/g, "").length;
+        };
+        lastLogLength = rs.map(cr).reverse();
     }
     process.stdout.uncork();
 };
@@ -88,7 +98,10 @@ var write = function (hasNewLine, str) {
     var logger = function () {
         var label = logger.tip ? fgColor + bgColor + logger.tip + reset : '';
         var time_stamp = '';
-        var str = [time_stamp, label].filter(a => !!a).concat(Array.prototype.map.call(arguments, a => renderColor(a))).join(" ");
+        var mark = [time_stamp, label].filter(a => !!a)
+        var str = Array.prototype.map.call(arguments, a => renderColor(a)).join(" ").split(/\r\n|\r|\n/).map(a => {
+            return mark.concat(a).join(' ');
+        }).join(EOL);
         write1(hasNewLine, str);
     };
     logger.tip = info;
@@ -121,7 +134,7 @@ var formatRows = function (arg, rows, deep, entry, leave) {
     var hasNextLine = false;
     var isArray = arg instanceof Array;
     for (var r of rows) {
-        if (/[\r\n\u2028\u2029]/.test(r)) {
+        if (/[\r\n\u2028\u2029]$/.test(r)) {
             itemcount = 1;
             hasNextLine = true;
             break;
@@ -262,7 +275,7 @@ colored.line = function () {
 };
 var _log = console.log;
 colored.log = function () {
-    if (lastLogLength > 0) write1(false, '');
+    if (lastLogLength) write1(false, '');
     if (needNextLine) needNextLine = false;
     _log.apply(console, arguments);
 };
