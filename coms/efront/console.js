@@ -3,7 +3,6 @@ var message = require("../message");
 var colored = require("../reptile/colored_console");
 var colors = require("../reptile/colors");
 var console = module.exports = global.console;
-var path = require("path");
 if (console.type) return module.exports;
 var version = `efront/(${String(require("../../package.json").version).replace(/^(\w*(?:\.\w*)?)[\s\S]*$/, "$1")})`;
 var lastLogTime = -Infinity;
@@ -40,6 +39,7 @@ var setLogger = message.isPrimary ? function (name, logger) {
     "error",
     "drop",
     "log",
+    "wrap",
     "flush"
 ].forEach(function (log) {
     var logger = colored[log];

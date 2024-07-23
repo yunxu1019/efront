@@ -279,6 +279,11 @@ colored.log = function () {
     if (needNextLine) needNextLine = false;
     _log.apply(console, arguments);
 };
+colored.wrap = function (c, content) {
+    var c = getColor(c);
+    if (!c) throw new Error(i18n`${c}不是有效的色彩信息`);
+    return c + content + colors.Reset;
+}
 colored.begin = function (c) {
     return write1(false, getColor(c));
 };
