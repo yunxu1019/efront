@@ -1,3 +1,6 @@
+- zh-CN: $1不是有效的色彩信息
+  en: $1 is not a valid color
+
 - zh-CN: 加载失败
   en:    Loading failed
 
@@ -316,8 +319,8 @@
 - zh-CN: 检查到两个菜单项使用了相同的快捷键
   en:    Checked that two menu items used the same shortcut key
 
-- zh-CN: 如您需要使用参数--SCITER或--QUICKJS或--QJS，请购买炸毛授权
-  en:    "If you need to use the parameters --SCITER or --QUICKJS or --QJS, please purchase the authorization for explosion"
+- zh-CN: 如您需要使用参数--SCITER或--QUICKJS或--QJS，请联系作者购买授权（暂定50元人民币）
+  en:    "If you need to use the parameters --SCITER or --QUICKJS or --QJS, please concat the author and purchase the authorization, it costs 50 CNY now."
 
 - zh-CN: 检测到错误，无法建立代码关联：$1
   en:    "Error detected, unable to establish code association: $1"
