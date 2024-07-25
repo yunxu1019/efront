@@ -73,9 +73,10 @@ var write = function (hasNewLine, str) {
     if (hasNewLine) {
         lastLogLength = 0;
     } else {
-        var rs = str.split(/\r\n|\r|\n|\u2028|\u2029/);
+        var rs = String(str).split(/\r\n|\r|\n|\u2028|\u2029/);
         var cr = r => {
-            r = String(r).replace(/\x1b\[\d+m/g, '').replace(/\b/g, '');
+            if (!r) return r;
+            r = r.replace(/\x1b\[\d+m/g, '').replace(/\b/g, '');
             return r.length + r.replace(/[\x20-\xff]/g, "").length;
         };
         lastLogLength = rs.map(cr).reverse();
@@ -100,7 +101,8 @@ var write = function (hasNewLine, str) {
         var time_stamp = '';
         var mark = [time_stamp, label].filter(a => !!a)
         var str = Array.prototype.map.call(arguments, a => renderColor(a)).join(" ").split(/\r\n|\r|\n/).map(a => {
-            return mark.concat(a).join(' ');
+            if (a) return mark.concat(a).join(' ');
+            else return a;
         }).join(EOL);
         write1(hasNewLine, str);
     };
