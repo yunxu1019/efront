@@ -35,7 +35,7 @@ function main(params, from) {
         resultMap: null,
         addResult(info) {
             var resultMap = this.resultMap;
-            var singerName = sortname(String(info.singername || '').split(/[\&\,，、]/)).join('、');
+        var singerName = sortname(String(info.singername || '').split(/[\&\,，、]/)).join('、');
             var songName = info.songname;
             var id = `${singerName}:${info.songname}`;
             if (!resultMap[id]) resultMap[id] = Object.assign([], { singer: singerName, song: songName });

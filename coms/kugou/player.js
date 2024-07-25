@@ -37,14 +37,15 @@ var patchMusicInfo = async function (info) {
             info.songName = info.songname;
             break;
         case "kugo":
-        default:
-            res = await data.from("song-info", info);
-            krc = await data.from("search-krc", res);
-            krc = await data.from("download-krc", krc);
-            info.krc = fromBase64(krc);
-            if (res.fail_process === 12) res.priced = true;
-            if (res.imgUrl) {
-                res.avatar = res.imgUrl.replace(/\{size\}/ig, 200);
+            if (info.hash) {
+                res = await data.from("song-info", info);
+                krc = await data.from("search-krc", res);
+                krc = await data.from("download-krc", krc);
+                info.krc = fromBase64(krc);
+                if (res.fail_process === 12) res.priced = true;
+                if (res.imgUrl) {
+                    res.avatar = res.imgUrl.replace(/\{size\}/ig, 200);
+                }
             }
             break;
     }
@@ -140,10 +141,10 @@ var $scope = {
     activeList: playList,
     index: 0,
     getSongName() {
-        return this.info.singername || this.info.singerName;
+        return this.info.songname || this.info.songName;
     },
     getSingerName() {
-        return this.info.songname || this.info.songName;
+        return this.info.singername || this.info.singerName;
     },
     update() {
         if (touching) return;

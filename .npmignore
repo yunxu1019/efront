@@ -55,3 +55,7 @@ data/nasm-*
 data/qq_emoji
 apps/feedback
 report.*
+apps/kugou/singer/*.jpg
+apps/kugou/singer/*.jpeg
+apps/kugou/song/*.mp3
+apps/kugou/song/*.flac
