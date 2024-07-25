@@ -815,12 +815,20 @@ var data = {
             return createApiMap(o);
         }
     },
+    fromAll(refs, params, parse) {
+        return this.createResponse(Promise.all(refs.map(r => this.from(r, params, parse))).then(datas => {
+            return datas.concat.apply([], datas);
+        }));
+    },
     from(ref, params, parse) {
         if (params instanceof Function) {
             parse = params;
             params = {};
         }
-        if (isObject(ref)) {
+        if (isArray(ref)) {
+            return this.fromAll(ref, params, parse);
+        }
+        else if (isObject(ref)) {
             return this.fromApi(ref, params, parse);
         }
         else if (/^\.*\/|\.\w+$/.test(ref)) {
