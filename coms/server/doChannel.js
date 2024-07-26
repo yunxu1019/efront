@@ -9,7 +9,7 @@ message["channel-has"] = function (name) {
     return channel.hasChannel(name);
 };
 message["channel-size"] = function (name) {
-    return channel.getChannel(name).size;
+    return channel.getChannel(name)?.size;
 }
 message["channel-get"] = function (name, socket) {
     return channel.getChannel(name).addSocketGet(socket);
@@ -29,12 +29,7 @@ async function doChannel(req, res) {
     var id = getChannelId(req.url);
     var params = id;
     var dowith = async function (key, socket) {
-        if (channel.hasChannel(id)) {
-            return message[key](params, socket);
-        }
-        else {
-            return message.invoke("fend", ["channel-has", id, key, params], socket);
-        }
+        return message.invoke("fend", ["channel-has", id, key, params], socket);
     }
 
     switch (req.method.toLowerCase()) {
