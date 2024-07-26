@@ -131,6 +131,7 @@ else if (onmessage.isPrimary) {
         if (maxYoungSpace) opts.push(`--max-semi-space-size=${maxYoungSpace}`);
         var w = cluster.fork({
             "NODE_OPTIONS": opts.join(";"),
+            serialization: "advanced"
         });
         w.postMessage = processPostMessage;
         w.on("message", onmessage);
