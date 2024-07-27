@@ -1,5 +1,11 @@
+- zh-CN: 通道不存在！
+  en:    The channel does not exist!
+
+- zh-CN: 服务器忙!
+  en:    The server is busy!
+
 - zh-CN: $1不是有效的色彩信息
-  en: $1 is not a valid color
+  en:    $1 is not a valid color
 
 - zh-CN: 加载失败
   en:    Loading failed
