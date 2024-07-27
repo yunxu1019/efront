@@ -37,6 +37,7 @@ var patchMusicInfo = async function (info) {
             info.songName = info.songname;
             break;
         case "kugo":
+        default:
             if (info.hash) {
                 res = await data.from("song-info", info);
                 krc = await data.from("search-krc", res);
