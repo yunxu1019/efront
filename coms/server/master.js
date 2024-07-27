@@ -117,6 +117,29 @@ message.deliver = function (a) {
         }, null);
     });
 };
+var channel = require('./channel');
+message["set-waiter"] = function (channelId) {
+    var c = channel.getChannel(channelId);
+    if (!c) return false;
+    c.waiter = this;
+    c.flush(channelId);
+    return true;
+};
+message["set-sender"] = function (channelId) {
+    var c = channel.getChannel(channelId);
+    if (!c) return false;
+    c.sender = this;
+    c.flush(channelId);
+    return true;
+};
+message["channel-create"] = function (size) {
+    var cname = channel.createChannel(size);
+    return cname;
+};
+message["channel-delete"] = function (cname) {
+    channel.removeChannel(cname);
+};
+
 message.getmark = function () {
     return clients.getMark();
 };

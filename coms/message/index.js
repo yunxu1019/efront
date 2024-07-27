@@ -1,7 +1,8 @@
 "use strict";
+var cluster = require("cluster");
+if (cluster.message) return module.exports = cluster.message;
 //为了防止因message而形成环形引用，message文件夹中的内容不允许被外界调用
 var worker_threads = require("worker_threads");
-var cluster = require("cluster");
 var net = require("net");
 // message 文件夹中定义主进程的方法
 // 子进程可通过message的属性访问主进程中的方法
@@ -20,7 +21,7 @@ var onmessage = async function ([key, params, stamp], handle) {
         sended = true;
         var transferList;
         if (result instanceof Buffer || result instanceof Uint8Array) {
-            transferList = [result.buffer];
+            if (this.isWorker || !worker_threads.isMainThread) transferList = [result.buffer];
         }
         else if (result instanceof net.Socket) {
             transferList = result;
@@ -125,17 +126,20 @@ else if (onmessage.isPrimary) {
     onmessage["abpi"] = require("./abpi");
     onmessage["count"] = require("./count");
     onmessage["log"] = require("./log");
+    var settings = { serialization: 'advanced' };
+    if (cluster.setupPrimary) cluster.setupPrimary(settings);
+    else if (cluster.setupMaster) cluster.setupMaster(settings);
     onmessage.forkCluster = function (maxOldSpace, maxYoungSpace) {
         var opts = [];
         if (maxOldSpace) opts.push(`--max-old-space-size=${maxOldSpace}`);
         if (maxYoungSpace) opts.push(`--max-semi-space-size=${maxYoungSpace}`);
         var w = cluster.fork({
-            "NODE_OPTIONS": opts.join(";"),
-            serialization: "advanced"
+            "NODE_OPTIONS": opts.join(";")
         });
         w.postMessage = processPostMessage;
         w.on("message", onmessage);
         w.threadId = w.id;
+        w.isCluster = true;
         return w;
     };
     onmessage.forkThread = function (maxOldSpace, maxYoungSpace) {
@@ -150,6 +154,7 @@ else if (onmessage.isPrimary) {
         worker.disconnect = worker.unref;
         worker.on("message", onmessage);
         worker.id = worker.threadId;
+        worker.isWorker = true;
         return worker;
     };
     onmessage.fork = onmessage.forkCluster;
@@ -189,4 +194,4 @@ else {
         }
     };
 }
-module.exports = onmessage;
+return cluster.message = module.exports = onmessage;

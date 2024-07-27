@@ -66,7 +66,6 @@ var isRing = function (req) {
     var socket = req.socket;
     return socket.localAddress === socket.remoteAddress;
 };
-var utf8error = { "content-type": "text/plain;charset=utf-8" };
 /**
  * 
  * @param {Http2ServerRequest} req 

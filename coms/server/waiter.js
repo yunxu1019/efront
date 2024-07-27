@@ -438,9 +438,6 @@ var doOptions = async function (req, res, type) {
 var parseURL = require("../basic/parseURL");
 var ppid = process.ppid || process.pid;
 var version = `efront-${require("../../package.json").version}/` + ppid;
-var utf8error = {
-    "Content-Type": "text/plain;charset=UTF-8"
-};
 /**
  * @this {Http2ServerResponse}
  */
