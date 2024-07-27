@@ -1,4 +1,5 @@
 var activeDevice, ratio = 1;
+var strokeColor = '#096';
 function line(buffer, style, lineWidth = window.devicePixelRatio || 1) {
     var canvas = this;
     var context = canvas.getContext("2d");
@@ -27,7 +28,7 @@ function line(buffer, style, lineWidth = window.devicePixelRatio || 1) {
         var [x, y] = buffer[cx];
         context.lineTo(x * width, y * height);
     }
-    context.strokeStyle = style || "#00bd7bd4";
+    context.strokeStyle = style || strokeColor;
     context.lineWidth = lineWidth;
     context.stroke();
 }
@@ -69,7 +70,7 @@ function draw(buffer) {
     if (canvas.height !== canvas.offsetHeight * devicePixelRatio) canvas.height = canvas.offsetHeight * devicePixelRatio;
     context.clearRect(0, 0, canvas.width, canvas.height);
     context.beginPath();
-    context.strokeStyle = "#00bd7bd4";
+    context.strokeStyle = strokeColor;
     context.lineWidth = window.devicePixelRatio || 1;
     var max = 2;
     var v = (this.volume >= 0 ? this.volume : 1) * buffer.length - .5;
@@ -91,7 +92,7 @@ function draw(buffer) {
             }
         });
         context.lineWidth = 1;
-        context.strokeStyle = "#00bd7bd4";
+        context.strokeStyle = strokeColor;
         context.stroke();
         if (this === activeDevice) {
             context.beginPath();

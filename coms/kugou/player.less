@@ -1,19 +1,8 @@
-.song {
-    color: #fff;
-}
+@avatar-left: 36px;
+@avatar-top: -12px;
+@avatar-size: 72px;
 
-.singer {
-    color: #ccc;
-}
-
-.time {
-    position: absolute;
-    right: 8px;
-    bottom: 4px;
-    text-align: right;
-}
-
-@main-color: #2c7bb5;
+@main-color: #021c;
 
 &.pause .play:before {
     content: "";
@@ -26,20 +15,22 @@
     vertical-align: middle;
 }
 
+krc {
+    pointer-events: none;
+}
+
 &.play .play:before {
-    content: "";
-    display: inline-block;
+    display: none;
     border: .4em solid;
     vertical-align: middle;
 }
 
-.avatar,
-&:after {
+.avatar {
     border-radius: 50%;
-    width: 72px;
-    height: 72px;
-    top: -12px;
-    left: 8px;
+    width: @avatar-size;
+    height: @avatar-size;
+    top: @avatar-top;
+    left: @avatar-left;
     position: absolute;
     background-size: cover;
     border: 3px solid #000;
@@ -99,11 +90,25 @@
     overflow: hidden;
     z-index: -1;
 
+    &:before {
+        content: "";
+        left: @avatar-left+@border-width + 72px;
+        position: absolute;
+        min-width: 100px;
+        width: auto;
+        height: auto;
+        border-radius: 60px 0 0 0;
+        right: 0;
+        top: 0;
+        bottom: 0;
+        background-color: @main-color;
+    }
+
+    @blank-size : @avatar-size;
+    @border-width : 40px;
+    @border-size: @blank-size / 2 + @border-width;
+
     &:after {
-        @size : 10000px;
-        @blank-size : 70px;
-        @margin-y: @size + 35px;
-        @margin-x: @size + 35px;
         box-sizing: content-box;
         content: "";
         display: block;
@@ -111,19 +116,20 @@
         position: absolute;
         width: @blank-size;
         height: @blank-size;
-        border: @size solid #000;
-        margin: -@margin-x -@margin-y;
-        top: 24px;
-        left: 44px;
+        border: @border-width solid #000;
+        margin: -@border-size;
+        top: 12px-@avatar-top;
+        left: @avatar-left + @blank-size/2;
     }
 
     &:after {
-        border-radius: 50%;
+        border-radius: @border-size;
     }
 }
 
 &>div.progress {
     z-index: 1;
+    pointer-events: none;
 
     >.track:after,
     >.avatar {
@@ -132,13 +138,13 @@
     }
 
     >.track {
-        background: @main-color;
         opacity: .7;
         transition: height .3s, opacity .3s;
-        top: 12px;
+        top: -@avatar-top;
     }
 
     >.avatar {
+        border-color: lighten(@main-color, 100%);
         opacity: 1;
         top: 0;
     }
@@ -148,7 +154,7 @@
     overflow : hidden;
     padding : 0;
     height : 72px;
-    margin-top: -12px;
+    margin-top: @avatar-top;
 }
 
 & {
@@ -159,7 +165,7 @@
     user-select: none;
     position: fixed;
     bottom: 0;
-    color: #fff;
+    color: #ccc;
     left: 0;
     right: 0;
     padding: 0 0 0 78px;
@@ -169,47 +175,80 @@
 
     >btn,
     >sbtn {
+        @btn-width: 42px;
         text-align: center;
         line-height: 60px;
-        width: 50px;
+        width: @btn-width;
         height: 60px;
         vertical-align: top;
-        position: relative;
+        position: absolute;
         background: transparent;
-
-        &.info,
-        &.prev,
-        &.list,
-        &.next,
-        &.play {
-            z-index: 2;
-        }
-    }
-
-    >.info {
-        width: 100%;
-        margin-right: -200px;
-        line-height: 1;
-        text-align: left;
-        padding: 46px 5px 0 5px;
         z-index: 2;
-        position: relative;
-        font-size: 8px;
 
-        .spliter {
-            .singer;
+        &.play {
+            top: @avatar-top/2;
+            pointer-events: none;
+            left: @avatar-left+16px;
         }
 
-
-        >div {
-            text-overflow: ellipsis;
-            white-space: nowrap;
-            overflow: hidden;
+        &.next {
+            right: 0;
         }
+
+        &.prev {
+            top: 0;
+            left: @avatar-left - @btn-width+6px;
+        }
+
     }
+
+    .time {
+        left: 6px;
+        text-align: center;
+        top: 46px;
+        color: #fff9;
+        line-height: 1;
+        z-index: 2;
+        font-size: 12px;
+    }
+
+    .total {
+        z-index: 2;
+        right: 6px;
+        top: 46px;
+        color: #fff9;
+        line-height: 1;
+        font-size: 12px;
+    }
+
+    .singer {
+        color: #fffc;
+        font-size: 8px;
+        display: block;
+        top: 46px;
+        z-index: 2;
+        left: @avatar-left+@avatar-size;
+        right: 60px;
+    }
+
+
+    .song {
+        left: @avatar-left + @avatar-size + 6px;
+        line-height: 1;
+        top: 22px;
+        font-size: 16px;
+        right: 60px;
+        z-index: 2;
+    }
+
 
     >div {
-        display: inline-block;
+        text-align: left;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        position: absolute;
+        pointer-events: none;
         height: 60px;
     }
 }
@@ -218,10 +257,16 @@
     height: 100%;
     z-index: 10;
     opacity: 1;
+    @ptop: -@avatar-top;
 
     >div.progress>.track {
         height: 3px;
         opacity: 1;
+        top: @ptop;
+
+        &:after {
+            top: 24px - @avatar-top - @ptop;
+        }
     }
 
     >.track {
@@ -247,7 +292,7 @@
     font-size: 8px;
     text-align: left;
     line-height: 16px;
-    padding-left: 84px;
+    padding-left: @avatar-left+@avatar-size+4px;
 
     .active,
     .active+.after {
@@ -273,10 +318,6 @@
     font-size: 16px;
 }
 
-&:not(.play):not(.page)>.background {
-    opacity: 0;
-    transition: opacity .4s ease;
-}
 
 &>.background {
     background-color: #999;
@@ -399,32 +440,35 @@
     pointer-events: none;
 
     &+.avatar {
+        pointer-events: all;
         border-color: transparent;
-        z-index: 1;
+        z-index: 2;
     }
 }
 
-// & {
-//     >.track {
-//         height: 60px;
-//         margin-top: 0;
-//         border-top: 0 solid #666;
-//         transition: margin-top .2s ease-out, border-top .2s ease-out, height .2s ease-out;
-//     }
-// }
+& {
+    text-align: right;
 
-// &.effect {
-//     opacity: 1;
+    >.track {
+        height: 60px;
+        margin-top: 0;
+        border-top: 0 solid #666;
+        transition: margin-top .2s ease-out, border-top .2s ease-out, height .2s ease-out;
+    }
+}
 
-//     >.track {
-//         height: 420px;
-//         margin-top: -360px;
-//         border-top: 360px solid #666;
-//     }
-// }
+&.effect {
+    opacity: 1;
+
+    >.track {
+        height: 420px;
+        margin-top: -360px;
+        border-top: 360px solid #666;
+    }
+}
 
 &:not(.page)>canvas {
-    top: -12px;
+    top: @avatar-top;
 }
 
 &.dragging {

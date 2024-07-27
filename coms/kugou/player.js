@@ -209,8 +209,12 @@ var $scope = {
         var { sin, cos } = Math;
         var { currentTheta } = $scope;
         if (player.offsetHeight <= calcPixel(80)) {
-            var centerx = 44 / width, centery = .5;
-            var start = 11 * ratio | 0, end = 77 * ratio | 0;
+            var avatar = player.querySelector(".avatar");
+            var { clientTop, clientWidth, offsetLeft } = avatar;
+            var offsetWidth = clientWidth;
+            offsetLeft += clientTop;
+            var centerx = (offsetWidth / 2 + offsetLeft) / width, centery = .5;
+            var start = offsetLeft * ratio | 0, end = (offsetLeft + offsetWidth) * ratio | 0;
             var cost = cos(currentTheta);
             var sint = sin(currentTheta);
             for (var cx = start, dx = end; cx < dx; cx++) {
@@ -432,6 +436,13 @@ var createControls = function () {
 };
 
 var player = function (player) {
+    var savatar = player.querySelector('canvas');
+    var switchPlayList = function () {
+        if (onclick.preventClick) return;
+        onclick.preventClick = true;
+        if (playList.parentNode) remove(playList);
+        else popup(playList, savatar);
+    }
     render(player, $scope);
     player.play = function (hash) {
         $scope.play(hash);
@@ -440,5 +451,17 @@ var player = function (player) {
         $scope.pause();
     };
     appendChild.before(document.body, player);
+    on("contextmenu")(player, e => e.preventDefault());
+    on("click.self")(player, function (a) {
+        if ($scope.playing) $scope.pause();
+        else $scope.play();
+    });
+    var timeout = 0;
+    on("pointerdown")(player, function () {
+        timeout = setTimeout(switchPlayList, 600);
+    });
+    on("pointerup")(player, function () {
+        clearTimeout(timeout);
+    })
     return player;
 }(createControls());

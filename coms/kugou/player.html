@@ -5,21 +5,18 @@
 </div>
 <div class="track"></div>
 <div class="avatar" ng-style="{'background-image': info.avatarUrl,transform:currentRotate}"></div>
-<div class="info">
-    <div class="time">
-        <span ng-bind="currentTime"></span>&nbsp;/&nbsp;
-        <span ng-bind="totalTime"></span>
-    </div>
-    <div class="song">
-        <span class="name" ng-bind=getSongName()></span>
-        <span class="spliter" ng-if="getSongName()&&getSingerName()">&nbsp;-&nbsp;</span>
-        <span class="singer" ng-bind=getSingerName()></span>
-    </div>
+<btn class="play"></btn>
+<div class="time">
+    <span ng-bind="currentTime"></span>
 </div>
+<div class="total">
+    <span ng-bind="totalTime"></span>
+</div>
+<div class="song" ng-bind=getSongName()></div>
+<div class="singer" ng-bind=getSingerName()></div>
 <btn class="prev" ng-click=play(index-1)></btn>
-<btn class="play" ng-click="playing?pause():play()"></btn>
 <btn class="next" ng-click=play(index+1)></btn>
-<sbtn class="list"></sbtn>
+<!-- <sbtn class="list"></sbtn> -->
 <krc elementid=krcpad></krc>
 <canvas elementid="dance"></canvas>
-<div class="avatar" ng-click="effectPage()"></div>
+<div class="avatar" ng-click="playing?pause():play()" ng-click="effectPage()"></div>

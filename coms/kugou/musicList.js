@@ -9,7 +9,8 @@ var isSameSong = function (m1, m2) {
         m1.hash && m1.hash === m2.hash || // 酷狗
         m1.id && m1.id === m2.id || // 网易云 千千静听
         m1.rid && m1.rid === m2.rid || // 酷我
-        m1.mid && m1.mid === m2.mid; // 酷我
+        m1.mid && m1.mid === m2.mid ||// 酷我
+        m1.url && m1.url === m2.url;
 };
 
 function addMethod(name, func) {
