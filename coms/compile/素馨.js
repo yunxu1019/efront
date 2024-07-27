@@ -488,14 +488,28 @@ var Method = function () {
     return body;
 }
 var vlist = [], mlist = [macros], clist = [], base = '';
+var killneg = function (v, n) {
+    if (n === "-") {
+        if (/^\-/.test(v)) {
+            v = v.slice(1);
+        }
+        else {
+            v = n + v;
+        }
+    }
+    return v;
+};
 var calcvars = function (v) {
     var decode = /^['"`]/.test(v) ? strings.decode : a => a;
-    return v.replace(/@[^\s\{\}\(\)\[\]\:\+\*\/,;\!\>\$\=\&\%\#\@'"`\?\.\/\|~#]+|@\{[^\}@]*\}/g, function (m) {
+    return v.replace(/(^\-)?(@[^\s\{\}\(\)\[\]\:\+\*\/,;\!\>\$\=\&\%\#\@'"`\?\.\/\|~#]+|@\{[^\}@]*\})/g, function (_, n, m) {
         var value = getFromScopeList(m, vlist, m);
         value = decode(value);
+        value = killneg(value, n);
         return value;
-    }).replace(/(^|\s|[\]\)\(\[\-\+\*\/,;])(?:var\s*\(([\s\S]*?)\)|(--\S+))/g, function (m, q, a, b) {
-        return q + getFromScopeList(b || a.trim(), vlist, m.slice(q.length));
+    }).replace(/(^|\s|[\]\)\(\[\+\*\/,;]|^\-)(?:var\s*\(([\s\S]*?)\)|(--\S+))/g, function (m, q, a, b) {
+        var v = getFromScopeList(b || a.trim(), vlist, m.slice(q.length));
+        v = killneg(v, q);
+        return v;
     });
 };
 var initvars = function (vars) {
