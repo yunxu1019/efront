@@ -170,6 +170,11 @@ var isypop = function (target) {
     if (!target) return false;
     var { offsetParent, nextSibling, previousSibling } = target;
     if (
+        target.offsetWidth >= (innerWidth >> 1) &&
+        target.offsetHeight < (innerHeight >> 1) ||
+        offsetParent.offsetWidth >= (innerWidth >> 1) &&
+        offsetParent.offsetHeight < (innerHeight >> 1)) return true;
+    if (
         nextSibling
         && (
             nextSibling.offsetLeft - target.offsetLeft >= target.offsetWidth / 2
@@ -183,7 +188,6 @@ var isypop = function (target) {
     ) return true;
     var padding = offsetParent ? parseFloat(getComputedStyle(offsetParent).paddingTop) + parseFloat(getComputedStyle(offsetParent).paddingBottom) : 0;
     if (offsetParent && target.offsetTop / target.offsetHeight < .2 && (offsetParent.clientWidth - padding) / target.offsetWidth > 1.5) return true;
-
 };
 var isxpop = arriswise(isypop, arguments);
 var popup_as_extra = function (element, target, style) {
