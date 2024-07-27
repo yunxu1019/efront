@@ -66,7 +66,9 @@ function piperead(h, start, end, res, sign) {
 function doGetFile(req, res, filepath, code) {
     req.setTimeout(allowSocketTime);
     res.setTimeout(allowSocketTime);
-    var [, start, end] = String(getHeader(req.headers, "range")).match(/bytes\s*=\s*(\d*)\s*\-\s*(\d*)/) || [];
+    var range = getHeader(req.headers, "range");
+    if (range) range = range.match(/bytes\s*=\s*(\d*)\s*\-\s*(\d*)?/);
+    if (range) var [, start, end] = range;
     if (!fs.existsSync(filepath)) {
         res.writeHead(404, utf8);
         res.end(i18n[getHeader(req.headers, "accept-language")]`文件不存在`);
@@ -111,7 +113,11 @@ function doGetFile(req, res, filepath, code) {
         if (end) {
             end = +end + 1;
             if (end > stats.size) end = stats.size;
-        } else {
+        } else if (range) {
+            end = start + (cachePieceSize << 6);
+            if (end > stats.size) end = stats.size;
+        }
+        else {
             end = stats.size;
         }
         fs.open(filepath, "r", function (error, h) {
@@ -126,7 +132,7 @@ function doGetFile(req, res, filepath, code) {
                 "Content-Length": end ? end - start : stats.size - start,
                 "Last-Modified": stats.mtime.toUTCString()
             };
-            if (getHeader(req.headers, "range")) {
+            if (range) {
                 headers["Accept-Ranges"] = "bytes";
                 headers["Content-Range"] = `bytes ${start}-${end ? end - 1 : ''}/${stats.size}`;
                 headers["access-control-expose-headers"] = "Content-Range,Accept-Ranges";
@@ -137,7 +143,7 @@ function doGetFile(req, res, filepath, code) {
                     headers['Content-Type'] = mim1;
                 }
             }
-            res.writeHead(start === 0 && getHeader(req.headers, "range") ? 206 : 200, headers);
+            res.writeHead(range ? 206 : 200, headers);
             piperead(h, start, end ? end : stats.size, res, sign);
         });
     });
