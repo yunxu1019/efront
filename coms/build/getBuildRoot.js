@@ -1,5 +1,6 @@
 "use strict";
 var fs = require("fs");
+var fsp = fs.promises;
 var path = require("path");
 var isLib = require("../efront/isLib");
 var getPathIn = require("./getPathIn");
@@ -117,135 +118,125 @@ function paddExtension(file) {
     var parents = [""].concat(/^\.*[\/\\]/.test(file) ? pages_root.concat(comms_root) : comms_root.concat(pages_root));
     return detectWithExtension(file, ['', '.js', '.xht', '.ts', '.html', '.json', '.yml', '.jsx', '.tsx', '.vue', '.vuex'], parents);
 }
-var toString = function () { return this.url };
 var commap = getBuildInfo.commap["?"];
-var getBuildRoot = function (files, matchFileOnly) {
+var getBuildRoot = async function (files, matchFileOnly) {
     files = [].concat(files || []);
     if (!files.length) return Promise.resolve(files);
     var indexMap = Object.create(null);
     files.forEach((f, cx) => indexMap[f] = cx);
     var resolve;
     var result = [];
-    var run = function () {
-        if (!files.length) return resolve(result);
-        var file1 = files.shift();
-        if (!file1) return run();
-        var save = function (f) {
-            if (!(f in indexMap)) {
-                result.push(f);
-            }
-            indexMap[f] = indexMap[file1];
-        };
-        var saveComm = function (rel, file) {
-            if (!include_required && isLib(file)) {
-                saveLlib(rel);
-                return;
-            }
-            var name = String(rel)
-                .replace(/[\\\/]+/g, "$");
-            save(name);
-        };
-        var savePage = function (rel) {
-            var name = String(rel).replace(/[\\\/]+/g, "/");
-            save("/" + name);
-        };
-        var saveCopy = function (rel) {
-            var name = "@" + String(rel).replace(/[\\\/]+/g, "/");
-            save(name);
-        };
-        var saveLlib = function (rel) {
-            var name = "\\" + String(rel).replace(/[\\\/]+/g, "/");
-            save(name);
-        };
-        var saveFolder = function (folder) {
-            var rel = getPathIn(comms_root, folder);
-            if (rel) {
-                saveComm(rel, folder);
-                return true;
-            }
+    var save = function (f) {
+        if (!(f in indexMap)) {
+            result.push(f);
+        }
+        indexMap[f] = indexMap[file1];
+    };
+    var saveComm = function (rel, file) {
+        if (!include_required && isLib(file)) {
+            saveLlib(rel);
+            return;
+        }
+        var name = String(rel)
+            .replace(/[\\\/]+/g, "$");
+        save(name);
+    };
+    var savePage = function (rel) {
+        var name = String(rel).replace(/[\\\/]+/g, "/");
+        save("/" + name);
+    };
+    var saveCopy = function (rel) {
+        var name = "@" + String(rel).replace(/[\\\/]+/g, "/");
+        save(name);
+    };
+    var saveLlib = function (rel) {
+        var name = "\\" + String(rel).replace(/[\\\/]+/g, "/");
+        save(name);
+    };
+    var saveFolder = function (folder) {
+        var rel = getPathIn(comms_root, folder);
+        if (rel) {
+            saveComm(rel, folder);
+            return true;
+        }
 
-            var rel = getPathIn(pages_root, folder);
-            if (rel) {
-                savePage(rel);
-                return true;
+        var rel = getPathIn(pages_root, folder);
+        if (rel) {
+            savePage(rel);
+            return true;
+        }
+        return false;
+    };
+    var savePackageFolder = function (file) {
+        return paddExtension(f).then(function () {
+            saveFolder(file);
+        });
+    };
+    while (files.length) {
+        var file = files.shift();
+        if (!file) continue;
+        var file1 = file;
+        if (file in indexMap) {
+            file = await paddExtension(file);
+        }
+        if (getPathIn(ignore_path, file)) continue;
+        try {
+            var stat = await fsp.stat(file);
+            if (stat.isFile()) {
+                if (/\.less$/i.test(file)) continue;
+                if (file in commap) {
+                    saveComm(commap[file], file);
+                    continue;
+                }
+                var rel = getPathIn(comms_root, file);
+                if (rel) {
+                    saveComm(rel, file);
+                    continue;
+                }
+                var rel = getPathIn(pages_root, file);
+                if (rel) {
+                    savePage(rel);
+                    continue;
+                }
+                var rel = getPathIn(PAGE_PATH.split(","), file);
+                if (rel) {
+                    saveCopy(rel);
+                    continue;
+                }
+                if (/\.png$/i.test(file)) {
+                    var name = path.parse(file).base.replace(/[\\\/]+/g, "/");
+                    save("." + name);
+                    continue;
+                }
+                if (!erroredFiles[file]) console.warn(`<gray>${file}</gray>`, "已跳过");
+                erroredFiles[file] = true;
             }
-            return false;
-        };
-        paddExtension(file1).then(function (file) {
-            if (getPathIn(ignore_path, file)) return;
-            return new Promise(function (ok, oh) {
-                fs.stat(file, function (error, stat) {
-                    if (error) return oh(error);
-                    if (stat.isFile()) {
-                        if (/\.less$/i.test(file)) return ok();
-                        if (file in commap) {
-                            return saveComm(commap[file], file), ok();
-                        }
-                        var rel = getPathIn(comms_root, file);
-                        if (rel) {
-                            return saveComm(rel, file), ok();
-                        }
-                        var rel = getPathIn(pages_root, file);
-                        if (rel) {
-                            return savePage(rel), ok();
-                        }
-                        var rel = getPathIn(PAGE_PATH.split(","), file);
-                        if (rel) {
-                            console.log(rel, file)
-                            return saveCopy(rel), ok();
-                        }
-                        if (/\.png$/i.test(file)) {
-                            var name = path.parse(file).base.replace(/[\\\/]+/g, "/");
-                            return save("." + name), ok();
-                        }
-                        if (!erroredFiles[file]) console.warn(`<gray>${file}</gray>`, "已跳过");
-                        erroredFiles[file] = true;
-                        ok();
-                    } else if (matchFileOnly) {
-                        var f = path.join(file, 'package.json');
-                        var read = function (f) {
-                            return paddExtension(f).then(function () {
-                                saveFolder(file);
-                            });
-                        };
-                        if (fs.existsSync(f)) {
-                            fs.readFile(f, function (error, data) {
-                                if (error) {
-                                    oh(error);
-                                    return;
-                                }
-                                var d = JSON.parse(
-                                    String(data)
-                                );
-                                var f = path.join(file, d.main || 'index');
-                                read(f).then(ok).catch(function () {
-                                    oh(`<gray>${f}</gray>不存在！`);
-                                });
-                            });
-                        } else {
-                            f = path.join(file, 'index');
-                            read(f).then(ok).catch(run);
-                        }
+            else if (matchFileOnly) {
+                var f = path.join(file, 'package.json');
 
-                    } else {
-                        if (getPathIn(comms_root, file)) return ok();
-                        fs.readdir(file, { withFileTypes: true }, function (error, names) {
-                            if (error) return oh(error);
-                            // var indexfile, packagefile;
-                            names.forEach(function (name) {
-                                if (name.isDirectory()) name = name.name + path.sep;
-                                else name = name.name;
-                                files.push(path.join(file, name));
-                            });
-                            // if (indexfile || packagefile) {
-                            //     saveFolder(file);
-                            // }
-                            ok();
-                        });
-                    }
+                if (fs.existsSync(f)) {
+                    var data = await fsp.readFile(f);
+                    var d = JSON.parse(
+                        String(data)
+                    );
+                    var f = path.join(file, d.main || 'index');
+                    await paddExtension(f);
+                    saveFolder(file);
+                } else {
+                    f = path.join(file, 'index');
+                    await paddExtension(f);
+                }
+            }
+            else {
+                if (getPathIn(comms_root, file)) continue;
+                var names = await fsp.readdir(file, { withFileTypes: true });
+                names.forEach(function (name) {
+                    if (name.isDirectory()) name = name.name + path.sep;
+                    else name = name.name;
+                    files.push(path.join(file, name));
                 });
-            });
-        }).catch(function (e) {
+            }
+        } catch {
             if (erroredFiles[file1]) return;
             if (/^\w+$/.test(file1)) {
                 try {
@@ -257,22 +248,18 @@ var getBuildRoot = function (files, matchFileOnly) {
             erroredFiles[file1] = true;
             if (!matchFileOnly) console.error(e, "\r\n");
             else console.warn(e + ",", i18n`已跳过`, `<gray>${file1}</gray>`);
-        }).then(run);
-    };
-    return new Promise(function (ok) {
-        resolve = async function (result) {
-            var result = await filterHtmlImportedJs(result);
-            var res = [];
-            if (matchFileOnly) {
-                result.forEach(function (a) {
-                    return res[indexMap[a]] = a;
-                });
-            } else {
-                res = result;
-            }
-            ok(res);
-        };
-        run();
-    });
+
+        }
+    }
+    var result = await filterHtmlImportedJs(result);
+    var res = [];
+    if (matchFileOnly) {
+        result.forEach(function (a) {
+            return res[indexMap[a]] = a;
+        });
+    } else {
+        res = result;
+    }
+    return res;
 };
 module.exports = getBuildRoot;
