@@ -634,8 +634,10 @@ var requestListener = async function (req, res) {
                 res.destroy();
                 return;
             }
-            req.url = req.protocol + '//' + host + req.url;
-            return doCross(req, res, 0);
+            if (req.socket.localAddress !== req.socket.remoteAddress) {
+                req.url = req.protocol + '//' + host + req.url;
+                return doCross(req, res, 0);
+            }
         }
     }
     if (crossPrefix.test(url)) {
