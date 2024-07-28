@@ -143,16 +143,22 @@ function cross_(jsonp, digest = noop, method, url, headers) {
     var onerror1 = function (e) {
         if (!~requests.indexOf(_xhr)) return;
         removeFromList(requests, _xhr);
-        errored = e || "未知错误！";
+        errored = e || i18n`未知错误！`;
         if (typeof errored === 'string') {
             errored = createResponse(e, xhr.status);
         }
         flush();
         digest();
     };
+    var getErrorSystem = function () {
+        if (!/^(\w+\:|\/\/)/.test(url) && /^file\:/i.test(location.href) || /^file\:/i.test(url)) return i18n`文件系统`;
+        if (navigator.onLine) return i18n`网络`;
+        return i18n`服务器`;
+    };
+
     var onerror = async function (e) {
         if (e.type === 'error') {
-            e = createResponse("无法访问服务器！");
+            e = createResponse(i18n`无法访问${getErrorSystem()}`);
         }
         headers = extend({}, _headers);
         for (var r of reforms) {
@@ -212,7 +218,7 @@ function cross_(jsonp, digest = noop, method, url, headers) {
                             if (isencrypt) cookie = encode62.safedecode(cookie, xhr.encrypt);
                         }
                         catch (e) {
-                            onerror({ status: xhr.status, response: "Cookie解析异常!", toString: toResponse });
+                            onerror({ status: xhr.status, response: i18n`Cookie解析异常!`, toString: toResponse });
                             return;
                         }
                         cookie_.addCookie(cookie, originDomain);
@@ -233,13 +239,13 @@ function cross_(jsonp, digest = noop, method, url, headers) {
                     xhr.responseText = xhr.response;
                 }
                 catch (e) {
-                    return onerror("数据无法解析！")
+                    return onerror(i18n`数据无法解析！`);
                 }
             };
             switch (xhr.status) {
                 case 0:
                     if (!xhr.response) {
-                        onerror("无法访问服务器");
+                        onerror(i18n`无法访问${getErrorSystem()}`);
                         break;
                     }
                 case 200:
@@ -493,7 +499,7 @@ function addReform(r) {
 function getCode() {
     return new Promise((ok, oh) => {
         this('get', base + "!").then((xhr) => { return ok(encode62.timedecode(xhr.response || xhr.responseText)) }, () => {
-            return oh('无法连接可加密的服务器！');
+            return oh(i18n`无法连接可加密的服务器！`);
         });
     });
 }
