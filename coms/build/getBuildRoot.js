@@ -121,10 +121,9 @@ function paddExtension(file) {
 var commap = getBuildInfo.commap["?"];
 var getBuildRoot = async function (files, matchFileOnly) {
     files = [].concat(files || []);
-    if (!files.length) return Promise.resolve(files);
+    if (!files.length) return files;
     var indexMap = Object.create(null);
     files.forEach((f, cx) => indexMap[f] = cx);
-    var resolve;
     var result = [];
     var save = function (f) {
         if (!(f in indexMap)) {
@@ -166,11 +165,6 @@ var getBuildRoot = async function (files, matchFileOnly) {
             return true;
         }
         return false;
-    };
-    var savePackageFolder = function (file) {
-        return paddExtension(f).then(function () {
-            saveFolder(file);
-        });
     };
     while (files.length) {
         var file = files.shift();
@@ -225,6 +219,7 @@ var getBuildRoot = async function (files, matchFileOnly) {
                 } else {
                     f = path.join(file, 'index');
                     await paddExtension(f);
+                    saveFolder(file);
                 }
             }
             else {
@@ -236,19 +231,17 @@ var getBuildRoot = async function (files, matchFileOnly) {
                     files.push(path.join(file, name));
                 });
             }
-        } catch {
+        } catch (e) {
             if (erroredFiles[file1]) return;
             if (/^\w+$/.test(file1)) {
                 try {
                     require.resolve(file1);
                     return;
-                } catch (e) {
-                }
+                } catch { }
             }
             erroredFiles[file1] = true;
             if (!matchFileOnly) console.error(e, "\r\n");
             else console.warn(e + ",", i18n`已跳过`, `<gray>${file1}</gray>`);
-
         }
     }
     var result = await filterHtmlImportedJs(result);
