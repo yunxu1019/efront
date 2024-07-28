@@ -1,3 +1,27 @@
+- zh-CN: 未知错误！
+  en:    Unknown error!
+
+- zh-CN: 文件系统
+  en:    file system
+
+- zh-CN: 网络
+  en:    network
+
+- zh-CN: 无法访问$1
+  en:    Unable to access $1
+
+- zh-CN: Cookie解析异常!
+  en:    Cookie parsing exception!
+
+- zh-CN: 数据无法解析！
+  en:    Data cannot be parsed!
+
+- zh-CN: 无法连接可加密的服务器！
+  en:    Unable to connect to an encrypted server!
+
+- zh-CN: 无可用的数据源
+  en:    No available data source
+
 - zh-CN: 通道不存在！
   en:    The channel does not exist!
 
