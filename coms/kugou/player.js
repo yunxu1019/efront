@@ -457,11 +457,13 @@ var player = function (player) {
         else $scope.play();
     });
     var timeout = 0;
-    on("pointerdown")(player, function () {
-        timeout = setTimeout(switchPlayList, 600);
-    });
-    on("pointerup")(player, function () {
-        clearTimeout(timeout);
+    moveupon(player, {
+        start() {
+            timeout = setTimeout(switchPlayList, 560);
+        },
+        end() {
+            clearTimeout(timeout);
+        }
     })
     return player;
 }(createControls());

@@ -63,6 +63,7 @@ function moveupon(target, { start, move, end }, initialEvent) {
     var cancel = function (event) {
         if (event.touches && event.touches.length) return;
         if (event.touches) extendTouchEvent(event);
+        if (onclick.preventClick) event.preventDefault();
         removeAllListeners();
         if (isFunction(offmouseup)) offmouseup();
         if (isFunction(offtouchcancel)) offtouchcancel();
