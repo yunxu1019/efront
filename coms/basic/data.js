@@ -816,7 +816,9 @@ var data = {
         }
     },
     fromAll(refs, params, parse) {
-        return this.createResponse(Promise.all(refs.map(r => this.from(r, params, parse))).then(datas => {
+        return this.createResponse(Promise.all(refs.map(r => this.from(r, params, parse).loading_promise.catch(e => []))).then(datas => {
+            datas = datas.filter(a => !!a);
+            if (!datas.length) throw new Error(i18n`无可用的数据源`);
             return datas.concat.apply([], datas);
         }));
     },
