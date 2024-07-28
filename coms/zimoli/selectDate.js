@@ -162,7 +162,7 @@ var fixcent = function (count) {
  * @param {Date} date 
  */
 var buildYear = function (date) {
-    var year = ((+date.年() + 10) / 20).toFixed(0) * 20,
+    var year = ((+date.年() + 10) / 20 | 0) * 20,
         src = m2n(year + 10, year - 10),
         last_src = [year - 12, year - 11],
         next_src = [year + 10, year + 11],
