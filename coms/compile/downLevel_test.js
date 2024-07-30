@@ -435,7 +435,6 @@ assert(downLevel(`Object.defineProperty(dis, f.key, {get() {}, set(v) {}})`), `O
 _.get = function () {},
 _.set = function (v) {}, _))
 var _`);
-downLevel.debug = true; i++;
 assert(downLevel(`var restq = splice(queue, i, i2 - i, ...a[1], { type: STAMP, text: "=" });`), `var slice_ = Array["prototype"]["slice"];
 var restq = splice["apply"](null, [queue, i, i2 - i]["concat"](slice_["call"](a[1]), [{ type: STAMP, text: "=" }]));`)
 var c = scanner2(`\r\n    if (search.length) return null;\r\n    return path.join(...pathlist);\r\n`);
@@ -443,3 +442,5 @@ c.fix();
 c.break();
 assert(c.toString(), `\r\n    if (search["length"]) return null;\r\n    return path["join"](...pathlist);\r\n`)
 assert(downLevel.code(c).toString(), `\r\n    if (search["length"]) return null;\r\n    return path["join"]["apply"](path, pathlist);\r\n`);
+downLevel.debug = true; i++;
+assert(downLevel(`Symbol;var c = (a.data || (a.data = {})).transition = no(this);`), 'Symbol; var c = (a.data || (a.data = {})).transition = no(this);', true);

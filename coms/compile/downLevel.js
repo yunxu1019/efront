@@ -295,7 +295,7 @@ var killdec = function (queue, i, getobjname, _var = 'var', killobj, islet) {
                 }
                 break;
             }
-            if (o.type === SCOPED) {
+            if (o.type === SCOPED && o.entry !== '(') {
                 var n = indexof(queue, next.next, i);
                 var prev = o.prev;
                 if (prev && prev.type === STAMP && prev.text === ',') i = queue.lastIndexOf(prev, i), index = 1;
