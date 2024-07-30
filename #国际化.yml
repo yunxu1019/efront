@@ -1,3 +1,6 @@
+- zh-CN: 文件$1使用了不存在的模块$2
+  en:    File $1 used a non-existent module $2
+
 - zh-CN: 未知错误！
   en:    Unknown error!
 
