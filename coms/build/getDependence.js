@@ -1,6 +1,7 @@
 "use strict";
 var getRequired = require("../compile/required");
 var getArgs = require("./getArgs");
+var fs = require('fs');
 var path = require("path");
 var scanner2 = require("../compile/scanner2");
 var strings = require("../basic/strings");
@@ -58,6 +59,17 @@ var get_relatives = function (name, required, dependence) {
         return r;
     });
 };
+var checkRealpath = function (realpath, required) {
+    if (required.length) {
+        for (var r of required) {
+            if (/^\.+[\/\\]/.test(r)) {
+                if (!fs.existsSync(path.join(realpath, r))) {
+                    console.warn(i18n`文件${`<green>${realpath}</green>`}使用了不存在的模块${`<red2>${r}</red2>`}`);
+                }
+            }
+        }
+    }
+};
 function getDependence(response) {
     if (!response.realpath) return [];
     if (response.type !== "" && response.type !== "/" && response.type !== "\\") return [];
@@ -85,9 +97,11 @@ function getDependence(response) {
         dependence.offset = offset;
         if (required) {
             required = required.split(";");
+            required = required.filter(a => !/^\w+\:/i.test(a));
             required = get_relatives(response.url, required, dependence);
         }
         if (required1 && required1.length) {
+            required1 = required1.filter(a => !/^\w+\:/i.test(a));
             required1 = get_relatives(response.url, required1, dependence);
         }
         dependence.require = required1.concat(required || []);
@@ -98,6 +112,7 @@ function getDependence(response) {
         required = get_relatives(response.url.slice(1), required, dependence);
         dependence.require = required || [];
     }
+    checkRealpath(response.realpath, dependence.require);
     var reqdir = response.isPackaged ? response.realpath : path.dirname(response.realpath);
     dependence.dirname = reqdir;
     response.time += new Date - startTime;
