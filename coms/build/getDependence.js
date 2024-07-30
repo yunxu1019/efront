@@ -61,13 +61,19 @@ var get_relatives = function (name, required, dependence) {
 };
 var checkRealpath = function (realpath, required) {
     if (required.length) {
-        for (var r of required) {
+        var lacks = [];
+        var base = path.dirname(realpath);
+        loop: for (var r of required) {
             if (/^\.+[\/\\]/.test(r)) {
-                if (!fs.existsSync(path.join(realpath, r))) {
-                    console.warn(i18n`文件${`<green>${realpath}</green>`}使用了不存在的模块${`<red2>${r}</red2>`}`);
+                var p = path.join(base, r);
+                if (fs.existsSync(p)) continue;
+                for (var c of comexts) {
+                    if (fs.existsSync(p + c)) continue loop;
                 }
+                lacks.push(r);
             }
         }
+        if (lacks.length > 0) console.warn(i18n`文件${`<green>${realpath}</green>`}使用了不存在的模块${lacks.map(a => `<red2>${a}</red2>`).join(', ')}`);
     }
 };
 function getDependence(response) {

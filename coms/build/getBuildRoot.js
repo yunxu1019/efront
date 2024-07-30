@@ -13,6 +13,20 @@ var {
 } = require("./environment");
 var erroredFiles = Object.create(null);
 var getScriptsUrlInHtmlFile = function (fileinfo) {
+    var fbase = fileinfo.url.replace(/[^\\\/]+$/, '').split(/[\/\\]/);
+    fbase.pop();
+    var burl = function (url) {
+        if (/^\w+\:|^\//.test(url)) return url;
+        url = url.split(/[\/\\]/);
+        url.reverse();
+        var base = fbase.slice();
+        while (/^\.+$/.test(url[url.length - 1])) {
+            var u = url.pop();
+            if (u.length === 2) base.pop();
+        }
+        while (base.length) url.push(base.pop());
+        return url.reverse().join('/');
+    };
     return Promise.all(
         [].concat(fileinfo.fullpath).map(function (fullpath) {
             return new Promise(function (ok, oh) {
@@ -26,7 +40,7 @@ var getScriptsUrlInHtmlFile = function (fileinfo) {
                         }
                         result.push(url.replace(/^(['"])(.+?)\1$/g, "$2"));
                     });
-                    var res = result.map(url => url.replace(/\?[\s\S]*?$/, "").replace(/\\/g, "/"));
+                    var res = result.map(url => url.replace(/\?[\s\S]*?$/, "").replace(/\\/g, "/")).map(burl);
                     res.ignore = ignorelist;
                     var bodyTag = /<body\s[^\>]*?\>/i.exec(data);
                     if (bodyTag) {

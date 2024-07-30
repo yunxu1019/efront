@@ -1,0 +1,1 @@
+[".js", '.xht', ".ts", ".json", ".yml", ".html", '.vue', '']
