@@ -1,4 +1,5 @@
 function readCSV(data) {
+    data = String(data);
     var reg = /""?|,|\r\n|\r|\n|\u2028|\u2029/g;
     var str = [];
     var instr = false;
