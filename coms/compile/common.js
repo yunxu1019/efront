@@ -1103,6 +1103,10 @@ var getDeclared = function (o, kind, queue) {
                     o = o0;
                     break;
                 }
+                if (o.text === '*') {
+                    o = o.next;
+                    break;
+                }
                 break;
             case EXPRESS:
                 if (o.text === '?') o = o.next;

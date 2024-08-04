@@ -760,16 +760,8 @@ var removeImport = function (c, i, code) {
         }
     }
     if (!n || n.type !== QUOTED) throw new Error(i18n`缺少导入路径！`);
-    var ns = skipAssignment(n);
-    var nsi = ns ? code.indexOf(ns, i) : code.length;
-    var q = scan(`require()`);
-    if (!used.require) used.require = [], envs.require = true;
-    used.require.push(q[0]);
+    var q = wrapRequire(n, i, code);
     Object.assign(q[0], t);
-    var cs = code.splice(oi + 1, nsi - oi - 1, ...q);
-    q[1].push.apply(q[1], cs);
-    relink(q[1]);
-    setqueue(q[1]);
     if (!dec) return;
     var name = null;
     var na = dec.attributes[0];
@@ -795,16 +787,7 @@ var removeImport = function (c, i, code) {
         }
     })
     if (!name) {
-        name = strings.decode(q[1].last.text)
-            .replace(/\.[^\.\/\\]+$/, '')
-            .split(/[\/\\\:\{\}\[\]\.\+\-\*\/\!\~\|\:;,'"`\(\)\>\<\?\^%&\s]+/)
-            .filter(a => !!a).pop();
-        if (!this.express_reg.test(name)) name = "imported";
-        var id = 0;
-        while (this.strap_reg.test(name) || name in used) {
-            name = name.replace(/\d+$/, '') + ++id;
-        }
-        used[name] = [];
+        name = this.newVar(used, q[1].last.text);
     }
     dec.forEach(function (d) {
         if (d instanceof Array) d.forEach((dn, i) => {
@@ -834,10 +817,23 @@ var removeExport = function (c, i, code) {
         return;
     }
     if (n.type === SCOPED) {
+        var m = n.next;
+        var from = m?.type === STRAP && m.text === 'from';
+        if (from) {
+            var q = wrapRequire(m.next, i, code);
+            m.type = STAMP;
+            m.text = '=';
+            c.text = 'var';
+            from = this.newVar(used, q[1].last.text);
+        }
         var o = n.first;
         var allexports = [];
         while (o) {
             var name = o, prop = o.text;
+            if (from) {
+                removeFromList(used[o.tack], o);
+                name.text = from + '.' + name.text, used[from].push(o), o.tack = from;
+            }
             var n = o.next;
             if (n && n.type === STRAP && n.text === 'as') {
                 var nn = n.next;
@@ -853,7 +849,13 @@ var removeExport = function (c, i, code) {
             allexports.push(exp);
         }
         var ni = skipAssignment(code, i);
-        code.splice(i, ni - i);
+        if (from) {
+            replace(m.prev, { type: EXPRESS, text: from })
+            i = ni;
+        }
+        else {
+            code.splice(i, ni - i);
+        }
         for (var exp of allexports) {
             code.splice(i, 0, ...exp);
         }
@@ -914,6 +916,36 @@ var removeExport = function (c, i, code) {
     code.splice(i, oi - i);
 };
 
+var wrapRequire = function (n, i, code) {
+    var used = code.used;
+    var envs = code.envs;
+    var ni = code.indexOf(n, i);
+    var ns = skipAssignment(n);
+    var nsi = ns ? code.indexOf(ns, ni) : code.length;
+    var q = scan(`require()`);
+    if (!used.require) used.require = [], envs.require = true;
+    used.require.push(q[0]);
+    var cs = code.splice(ni, nsi - ni, ...q);
+    q[1].push.apply(q[1], cs);
+    relink(q[1]);
+    setqueue(q[1]);
+    return q;
+};
+
+Javascript.prototype.newVar = function (used, string_template) {
+    var name = strings.decode(string_template)
+        .replace(/\.[^\.\/\\]+$/, '')
+        .replace(/[\-\s]+([\s\S])/, (_, a) => a.toUpperCase())
+        .split(/[\/\\\:\{\}\[\]\.\+\-\*\/\!\~\|\:;,'"`\(\)\>\<\?\^%&\s]+/)
+        .filter(a => !!a).pop();
+    if (!this.express_reg.test(name)) name = "imported";
+    var id = 0;
+    while (this.strap_reg.test(name) || name in used) {
+        name = name.replace(/\d+$/, '') + ++id;
+    }
+    used[name] = [];
+    return name;
+}
 Javascript.prototype.fix = function (code) {
     backEach(code, function (o, i) {
         if (o.type !== STRAP) return;

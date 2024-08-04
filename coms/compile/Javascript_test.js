@@ -7,6 +7,8 @@ var testFix = function (a, e) {
 }
 js.debug = true;
 assert(scanner2("/a/g", js)[0].type, common.QUOTED);
+testFix(`export * from "a";`, 'var a = require("a");\r\nexports.default = undefined\r\nextendIfNeeded(exports, a)');
+testFix(`export {A} from "a";`, 'var a = require("a")\r\nexports.A = a.A;');
 testFix(`import a from "a";console.log(a)`, 'var a = require("a"); console.log(a.default)');
 testFix(`import {a} from "a";console.log(a)`, 'var a1 = require("a"); console.log(a1.a)');
 testFix(`import a,{a as b} from "a";console.log(a,b)`, 'var a = require("a"); console.log(a.default, a.a)');

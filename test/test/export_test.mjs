@@ -9,4 +9,6 @@ setTimeout(function () {
 }, 200);
 export { a as A }
 console.log(import.meta.url,b);
-import { c } from "./import_test.mjs";
+var c;
+// import { c } from "./import_test.mjs";
+export { c as C } from "./import_test.mjs";
