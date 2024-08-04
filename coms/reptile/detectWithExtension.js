@@ -29,7 +29,7 @@ async function detectWithExtension(filenames, extensions = [""], folders = [""])
                 f = await fs.realpath(f);
                 return f + params;
             }
-            if (!findedFolder) findedFolder = f + params;
+            if (!findedFolder) findedFolder = f + path.sep + params;
         } catch { }
     }
     if (!findedFolder) throw new Error(`路径${filenames.map(f => colors.FgYellow + f[0] + colors.Reset).join(', ')}不存在`);

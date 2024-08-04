@@ -172,7 +172,6 @@ var getBuildRoot = async function (files, matchFileOnly) {
             saveComm(rel, folder);
             return true;
         }
-
         var rel = getPathIn(pages_root, folder);
         if (rel) {
             savePage(rel);

@@ -228,6 +228,7 @@ async function compile() {
                         return;
                     }
                     if (isDirectory) {
+                        _filepath += path.sep;
                         var __filepath = path.join(_filepath, 'package.json');
                         if (fs.existsSync(__filepath)) {
                             fs.stat(__filepath, function (error, stat) {

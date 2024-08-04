@@ -62,7 +62,7 @@ var get_relatives = function (name, required, dependence) {
 var checkRealpath = function (realpath, required) {
     if (required.length) {
         var lacks = [];
-        var base = path.dirname(realpath);
+        var base = realpath.replace(/[^\\\/]+$/, '');
         loop: for (var r of required) {
             if (/^\.+[\/\\]/.test(r)) {
                 var p = path.join(base, r);
@@ -70,6 +70,7 @@ var checkRealpath = function (realpath, required) {
                 for (var c of comexts) {
                     if (fs.existsSync(p + c)) continue loop;
                 }
+                console.log(p, comexts)
                 lacks.push(r);
             }
         }
