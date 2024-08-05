@@ -95,6 +95,17 @@ var detectEnvironment = async function (comm, ignorePublicPath) {
         page: memery.PAGE,
     };
     var names = await fs.readdir(currentpath, { withFileTypes: true });
+    var libs = [];
+    var files = names.filter(n => n.isFile());
+    for (var f of files) {
+        if (/^package\.json$/i.test(f.name)) {
+            var package_data = await fs.readFile(f.name);
+            package_data = JSON.parse(package_data.toString());
+            if (typeof package_data.dependencies === 'object') {
+                libs = Object.keys(package_data.dependencies);
+            }
+        }
+    }
     names = names.filter(n => n.isDirectory());
     var env_path = [];
     var coms_path = [];
@@ -112,6 +123,7 @@ var detectEnvironment = async function (comm, ignorePublicPath) {
         else if (/(node_)?modules|lib|com|fun|depe|组件|模块|依赖|库|函数/i.test(name)) {
             if (/(node_)?modules|lib|模块|库/.test(name)) {
                 libs_path.push(name);
+                coms_path.push(name);
             }
             else {
                 coms_path.push(name);
@@ -165,7 +177,7 @@ var detectEnvironment = async function (comm, ignorePublicPath) {
     }
     if (libs_path.length) {
         setenv({
-            libs: memery.LIBS || '',
+            libs: memery.LIBS || libs.join(','),
             libs_path: libs_path.join(',')
         });
     }

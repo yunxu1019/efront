@@ -50,10 +50,8 @@ function getInitReferenced(dependence, args, argNames, data) {
     return required;
 }
 var get_relatives = function (name, required, dependence) {
-    var required_base = name.replace(/[^\/\$]+$/, "");
-    required_base = required_base.replace(/^\.?[\/\$]+/, "");
-    var map = dependence.requiredMap = Object.assign(Object.create(null), dependence.requiredMap);
-
+    var map = dependence.requiredMap;
+    if (!map) map = dependence.requiredMap = Object.create(null);
     return required.map(r => {
         map[r] = r;
         return r;

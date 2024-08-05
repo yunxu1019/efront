@@ -275,7 +275,8 @@ var memery = module.exports = {
     EXPORT_AS: get("EXPORT_AS, EXPORT"),
     DENO: get("DENO, DENO_TARGET", false),
     NODE: get("NODE, NODE_TARGET", false),
-    RELEASE: get("RELEASE,INCLUDE_REQUIRED", 0),
+    MODULES: get("MODULES", true),// 是否集成node_modules/路径下的代码
+    RELEASE: get("RELEASE,INCLUDE_REQUIRED"),
     PREFIX: get("PREFIX", ''),
     COMMENT: get("COMMENT", false),
     CHANNEL_ENABLED: get("CHANNEL_ENABLED,CHANNEL", true),

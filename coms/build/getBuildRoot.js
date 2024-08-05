@@ -5,12 +5,12 @@ var path = require("path");
 var isLib = require("../efront/isLib");
 var libs_root = isLib.libs_root;
 var getPathIn = require("./getPathIn");
+var memery = require("../efront/memery");
 var {
     comms_root,
     pages_root,
     PAGE_PATH,
     ignore_path,
-    include_required
 } = require("./environment");
 var erroredFiles = Object.create(null);
 var getScriptsUrlInHtmlFile = function (fileinfo) {
@@ -147,7 +147,7 @@ var getBuildRoot = async function (files, matchFileOnly) {
         indexMap[f] = indexMap[file1];
     };
     var saveComm = function (rel, file) {
-        if (!include_required && isLib(file)) {
+        if (!memery.MODULES && isLib(file)) {
             saveLlib(rel);
             return;
         }

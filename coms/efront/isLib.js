@@ -11,7 +11,7 @@ var {
 var joinpath = ([a, b, c]) => path.join(a === ":" ? path.join(__dirname, "../../") : a, b, c || '');
 var comms_root = mixin(COMS_PATH, COMM).map(joinpath).filter(fs.existsSync);
 
-var libs_root = (LIBS_PATH || LIBS) ? [].concat(
+var libs_root = LIBS ? [].concat(
     mixin(LIBS_PATH, LIBS).map(joinpath),
     mixin(comms_root, LIBS_PATH, LIBS).map(joinpath),
 ) : [];
@@ -30,6 +30,7 @@ function isLib(fullpath) {
     }
     return false;
 }
+
 isLib.dispose = function () {
     libs_root.splice(0, libs_root.length);
 };
