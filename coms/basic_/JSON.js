@@ -11,32 +11,46 @@ var scan_string = function (str, start) {
             return false;
         if (match[0] === "\"") break;
     }
+    data = strings.decode(str.slice(start, reg.lastIndex));
     return reg.lastIndex;
 };
 var scan_number = function (str, start) {
-    if (str.charAt(start) === "-")
-        start++;
-    var reg = /(?:0|[1-9]\d*)(?:\.\d*)?(e\-?\d+)?/g;
+    var reg = /[\+\-]?(?:0|[1-9]\d*)(?:\.\d*)?(e[\-\+]?\d+)?/g;
     reg.lastIndex = start;
     var match = reg.exec(str);
-    if (!match)
-        return false;
-    return reg.lastIndex;
+    if (match && match.index === start) {
+        data = +match[0];
+        return reg.lastIndex;
+    }
+    return false;
 };
 var scan_null = function (str, start) {
     var reg = /null|false|true/g;
     reg.lastIndex = start;
     var match = reg.exec(str);
-    if (match && match.index === start)
+    if (match && match.index === start) {
+        switch (match[0].charAt(0)) {
+            case "n":
+                data = null;
+                break;
+            case "f":
+                data = false;
+                break;
+            case "t":
+                data = true;
+        }
         return reg.lastIndex;
+    }
     return false;
 };
 var scan_blank = function (str, start) {
-    var reg = /[^\s]/g;
+    var reg = /\/\/[\s\S]*?([\r\n\u2028\u2029]|$)|\/\*[\s\S]*?\*\/|[^\s]/g;
     reg.lastIndex = start;
-    var match = reg.exec(str);
-    if (match)
-        return match.index;
+    while (reg.lastIndex < str.length) {
+        var match = reg.exec(str);
+        if (!match) return str.length;
+        if (match[0].length === 1) return match.index;
+    }
     return str.length;
 };
 var _safeparse = function (str, start) {
@@ -52,6 +66,8 @@ var _safeparse = function (str, start) {
             var end = str.length;
             start++;
             if (start >= end) return false;
+            var prop;
+            var data1 = {};
             while (start < end) {
                 start = _safeparse(str, start);
                 if (start === false)
@@ -61,10 +77,12 @@ var _safeparse = function (str, start) {
                 if (str.charAt(start) !== ":")
                     return false;
                 start++;
+                prop = data;
                 start = _safeparse(str, start);
                 if (start === false)
                     return start;
                 start = scan_blank(str, start);
+                data1[prop] = data;
                 if (str.charAt(start) === ",") {
                     start++;
                     continue;
@@ -75,16 +93,19 @@ var _safeparse = function (str, start) {
                 start++;
                 break;
             }
+            data = data1;
             break;
         case "[":
             var end = str.length;
             start++;
             if (start >= end) return false;
+            var data1 = [];
             while (start < end) {
                 start = _safeparse(str, start);
                 if (start === false)
                     return start;
                 start = scan_blank(str, start);
+                data1.push(data);
                 if (str.charAt(start) === ",") {
                     start++;
                     continue;
@@ -95,6 +116,7 @@ var _safeparse = function (str, start) {
                 start++;
                 break;
             }
+            data = data1;
             break;
         case "n":
         case "f":
@@ -108,11 +130,14 @@ var _safeparse = function (str, start) {
         return start;
     return scan_blank(str, start);
 };
+var data = null;
 var parse = function (string) {
     string = String(string);
     var parsed = _safeparse(string, 0);
     if (parsed === string.length) {
-        return new Function("return " + string)();
+        var result = data;
+        data = null;
+        return result;
     } else {
         throw parse_failed_error_message;
     }

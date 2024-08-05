@@ -162,6 +162,15 @@ var test2 = function (JSON) {
         return { name: o.name };
     }
     assert(unicode(JSON.stringify(data, filter, 4)), JSON0.stringify(data, filter, 4));
+    assert(unicode(JSON.stringify(JSON.parse(JSON.stringify(data)))), unicode(JSON0.stringify(data)))
+    assert(JSON.parse(`/**/1`), 1)
+    assert(JSON.parse(`/**/"1"`), "1")
+    assert(JSON.parse(`"1"//`), "1")
+    assert(JSON.parse(`["1"//\r\n,2]`), ["1", 2])
+    assert(JSON.parse(`{"1"/*a*/:\r\n2}`), { "1": 2 })
+    assert(JSON.parse(`{"1":\r\n/*a*/2}`), { "1": 2 })
+    assert(JSON.parse(`{/*a*/"1":\r\n2}`), { "1": 2 })
+    assert(JSON.parse(`{"1/*a*/":\r\n2}`), { "1/*a*/": 2 })
 }
 function JSON_test() {
     window.JSON0 = JSON0;
