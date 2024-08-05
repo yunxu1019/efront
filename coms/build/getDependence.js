@@ -70,7 +70,6 @@ var checkRealpath = function (realpath, required) {
                 for (var c of comexts) {
                     if (fs.existsSync(p + c)) continue loop;
                 }
-                console.log(p, comexts)
                 lacks.push(r);
             }
         }

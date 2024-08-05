@@ -428,7 +428,7 @@ function toComponent(responseTree, noVersionInfo) {
         if (!response.data && /^(number|function|string)$/.test(typeof response.builtin)) {
             response.data = response.builtin instanceof Function ? response.builtin.toString() : JSON.stringify(response.builtin);
         }
-        if (response.type === "@" || response.type === "\\") {
+        if (response.type === "*" || response.type === "\\") {
             var rel = response.destpath.replace(/\\/g, '/').replace(/^\.\//, "").replace(/\//g, '$').replace(/\.[cm]?[jt]sx?$/, '');
             libsTree[rel] = response;
             delete responseTree[k];

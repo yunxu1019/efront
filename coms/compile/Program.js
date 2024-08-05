@@ -891,7 +891,8 @@ class Program {
             }
             if (this.scope_leave[m] && queue.entry === this.scope_leave[m]) {
                 if (last?.type === PROPERTY) {
-                    last.short = true;
+                    var lp = last.prev;
+                    if (!lp || lp.type === STAMP && lp.text === ',') last.short = true;
                 }
 
                 queue.end = end;

@@ -720,8 +720,8 @@ var killcls = function (body, i, letname_, getname_) {
             splice(invokes, invokes.length, 0, { text: ';', type: STAMP }, ...defines);
         }
         splice(body, s, i - s, ...invokes);
-        if (o && o.type & ~(SPACE | STAMP) && invokes.length) insert1(body, o, { type: SPACE, text: '\r\n' });
     }
+    if (o && needBreakBetween(o.prev, o)) insert1(body, o, { type: SPACE, text: '\r\n' });
     return i;
 };
 var indexof = function (list, o, i) {
@@ -1184,7 +1184,7 @@ var unforof = function (o, getnewname, used, killobj) {
     var gname = getnewname();
     var oname;
     var useSimpleLoop = !(rootHyper || used.Symbol) && !hasawait;
-    if (!f.next && f.type === EXPRESS && !/\./.test(f.text) && used[f.origin || f.text.replace(/[\.\[][\s\S]*$/, '')].length === 1) {
+    if (!f.next && f.type === EXPRESS && !/\./.test(f.text) && used[f.origin || f.tack].length === 1) {
         splice2(o, m);
         oname = f.text;
     }

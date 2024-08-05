@@ -203,7 +203,7 @@ var buildHtml = function (html, code, outsideMain, responseTree) {
 var mixin = require("../efront/mixin")
 var indexnames = memory.webindex;
 var getTreeIndex = function (tree) {
-    var names = mixin(["/", "@"], indexnames).map(a => a.join(''));
+    var names = mixin(["/", "*"], indexnames).map(a => a.join(''));
     for (var n of names) {
         if (tree[n]) return tree[n];
     }
@@ -214,7 +214,7 @@ var findTreeKey = function (tree, k) {
     if (k in tree) return k;
     var k1 = "/" + k;
     if (k1 in tree) return k1;
-    var k2 = '@' + k;
+    var k2 = '*' + k;
     if (k2 in tree) return k2;
 };
 
@@ -323,7 +323,7 @@ var rebuildData = function (responseTree) {
                     var name = k + "-" + imageIndex + ext;
                 } while (name in responseTree);
                 var destpath = response.destpath.replace(/\.[\w]+$/, '') + '-' + imageIndex + ext;
-                responseTree[name] = { destpath, type: '@', data: Buffer.from(match[2], "base64"), realpath: true, url: name };
+                responseTree[name] = { destpath, type: '*', data: Buffer.from(match[2], "base64"), realpath: true, url: name };
                 return quote + destpath.replace(/\\/g, '/') + quote;
             }));
         };
@@ -367,8 +367,8 @@ var markIndex = function (key, r) {
 };
 var isEfrontCode = function (response) {
     if (!response) return;
-    if (/^[@\\]|^\/.*?\.[^\\\/]+$/.test(response.name) || !response.data) return;
-    if (response.type === "@") return;
+    if (/^[\*\\]|^\/.*?\.[^\\\/]+$/.test(response.name) || !response.data) return;
+    if (response.type === "*") return;
     if (response.isindex) return;
     return true;
 }

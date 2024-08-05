@@ -206,7 +206,7 @@ var fixType = function (o) {
                 if (last.type & (PROPERTY | EXPRESS | VALUE)
                     || last.type === STAMP && last.text === "*" && last.prev && (STRAP | STAMP) & last.prev.type) {
                 } else {
-                    type = EXPRESS;
+                    type = STRAP;
                 }
             }
             break;
@@ -303,7 +303,8 @@ var detectLabel = function (o) {
         case ",":
             if (queue.isObject) {
                 if (last.type === PROPERTY) {
-                    last.short = true;
+                    var lp = last.prev;
+                    if (!lp || lp.type === STAMP && lp.text === ',') last.short = true;
                 }
             }
             inExpress = true;
@@ -831,7 +832,11 @@ var removeExport = function (c, i, code) {
         while (o) {
             var name = o, prop = o.text;
             if (from) {
-                removeFromList(used[o.tack], o);
+                var tack = o.tack || o.text;
+                if (used[tack]) {
+                    removeFromList(used[tack], o);
+                    if (!used[tack].length) delete envs[tack];
+                }
                 name.text = from + '.' + name.text, used[from].push(o), o.tack = from;
             }
             var n = o.next;
@@ -859,6 +864,7 @@ var removeExport = function (c, i, code) {
         for (var exp of allexports) {
             code.splice(i, 0, ...exp);
         }
+        if (!allexports.length) code.exportEmpty = true;
         return;
     }
     if (n.type !== STRAP) throw new Error(i18n`代码结构异常！`);
@@ -873,6 +879,10 @@ var removeExport = function (c, i, code) {
     }
     var [dec, map, o] = getDeclared(n.next, 'export');
     if (/^(class|function)$/.test(n.text)) {
+        var exports = used.exports;
+        if (!exports) {
+            exports = used.exports = [];
+        }
         var e = skipAssignment(code, i + 1);
         if (code[e] && code[e].type !== STAMP) {
             code.splice(e, 0, { type: STAMP, text: ';' });
@@ -885,6 +895,8 @@ var removeExport = function (c, i, code) {
         var d = nn.text;
         if (used[d]) used[d].forEach(a => {
             if (!a.kind) {
+                a.tack = 'exports';
+                exports.push(a);
                 patchname('exports.', a);
             }
         });
@@ -994,8 +1006,22 @@ Javascript.prototype.fix = function (code) {
     if (code.exportDecs) {
         var exportDecs = code.exportDecs;
         delete code.exportDecs;
+        var exports = code.used.exports;
+        var used = code.used;
+        var envs = code.envs;
+        if (!exports) {
+            exports = code.used.exports = [];
+        }
         exportDecs.forEach(e => {
             e.text = 'exports.' + e.text;
+            exports.push(e);
+            removeFromList(used[e.tack], e);
+            if (!used[e.tack].length) {
+                delete used[e.tack];
+                delete envs[e.tack];
+            }
+            e.origin = e.tack;
+            e.tack = 'exports';
             if (e.needEqual) {
                 var n = e.next;
                 if (!n || n.type !== STAMP || n.text !== '=') {

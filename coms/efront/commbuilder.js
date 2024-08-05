@@ -325,8 +325,11 @@ var loadJsBody = function (data, filename, lessdata, commName, className, htmlDa
     var code_body = code;
     if (code.isExpressQueue()) {
         //如果整个函数只有一个表达式或一个变量，直接反回其本身
-        while (code_body[code_body.length - 1].type === code_body.SPACE || code_body[code_body.length - 1].type === code_body.STAMP && /[,;]/.test(code_body[code_body.length - 1].text)) {
+        while (code_body.length && (code_body[code_body.length - 1].type === code_body.SPACE || code_body[code_body.length - 1].type === code_body.STAMP && /[,;]/.test(code_body[code_body.length - 1].text))) {
             code_body.pop();
+        }
+        if (!code_body.length && code_body.exportEmpty) {
+            code_body = scanner2(`return {}`);
         }
         code.forEach(c => c.isExpress = true);
         if (hasless) code_body.unshift(

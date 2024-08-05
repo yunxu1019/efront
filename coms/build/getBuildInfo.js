@@ -28,7 +28,7 @@ BuildInfo.prototype = {
 };
 
 function getBuildInfo(url) {
-    var match = url.match(/^(.*?)(\/|\.|@|\:|\\|~|!|\^|\?|\||)(.+?)(\.[^\/\\.]+|\/|\\)?$/);
+    var match = url.match(/^(.*?)(\/|\.|\*|\:|\\|~|!|\^|\?|\||)(.+?)(\.[^\/\\.]+|\/|\\)?$/);
     var fullpath = url, destpath, builder, searchpath, searchname, realpath;
     if (match) {
         var {
@@ -77,7 +77,7 @@ function getBuildInfo(url) {
                         builder = asmbuilder
                     } else {
                         builder = noopbuilder;
-                        type = "@";
+                        type = "*";
                     }
                     destpath = path.join(name + extt);
                     name = "/" + name;
@@ -92,20 +92,20 @@ function getBuildInfo(url) {
                     break;
                 }
 
-            case "@":
+            case "*":
                 builder = noopbuilder;
                 for (var page of pages_root.concat(PAGE_PATH.split(","))) {
                     fullpath = path.join(page, name + extt);
                     if (/^[^\.]/i.test(path.relative(page, fullpath))) {
                         destpath = path.relative(pages_root[0], fullpath);
-                        name = '@' + name;
+                        name = '*' + name;
                         break bigloop;
                     }
                 }
                 if (!destpath) {
                     destpath = path.join("/", name + extt);
                 }
-                name = '@' + name;
+                name = '*' + name;
                 break;
             case "\\":
                 builder = noopbuilder;

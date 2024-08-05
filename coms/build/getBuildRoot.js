@@ -3,6 +3,7 @@ var fs = require("fs");
 var fsp = fs.promises;
 var path = require("path");
 var isLib = require("../efront/isLib");
+var libs_root = isLib.libs_root;
 var getPathIn = require("./getPathIn");
 var {
     comms_root,
@@ -97,7 +98,7 @@ var filterHtmlImportedJs = function (roots) {
             }
             var found = test(urlsReg, simpleJsMap, root);
             if (found) {
-                return "@" + root.slice(1);
+                return "*" + root.slice(1);
             }
             if (/^\/.*?\.js$/i.test(root)) {
                 var buildinfo = getBuildInfo(root);
@@ -107,7 +108,7 @@ var filterHtmlImportedJs = function (roots) {
                         break;
                     }
                 }
-                if (found) return "@" + path.relative(PAGE_PATH.split(",")[0], fpath).replace(/[\\\/]+/g, "/");
+                if (found) return "*" + path.relative(PAGE_PATH.split(",")[0], fpath).replace(/[\\\/]+/g, "/");
             }
             return root;
         }).filter(a => !!a);
@@ -121,7 +122,7 @@ var filterHtmlImportedJs = function (roots) {
         });
         for (let cx = roots.length; cx >= 0; cx--) {
             let url = roots[cx];
-            if (!/^@/.test(url) && /\.html?$/i.test(url) && url.replace(/\.html?$/i, ".js") in urlsMap) {
+            if (!/^\*/.test(url) && /\.html?$/i.test(url) && url.replace(/\.html?$/i, ".js") in urlsMap) {
                 roots.splice(cx, 1);
             }
         }
@@ -129,7 +130,7 @@ var filterHtmlImportedJs = function (roots) {
     });
 };
 function paddExtension(file) {
-    var parents = [""].concat(/^\.*[\/\\]/.test(file) ? pages_root.concat(comms_root) : comms_root.concat(pages_root));
+    var parents = [""].concat(/^\.*[\/\\]/.test(file) ? pages_root.concat(comms_root, libs_root) : comms_root.concat(pages_root, libs_root));
     return detectWithExtension(file, ['', '.js', '.xht', '.ts', '.html', '.json', '.yml', '.jsx', '.tsx', '.vue', '.vuex'], parents);
 }
 var commap = getBuildInfo.commap["?"];
@@ -159,7 +160,7 @@ var getBuildRoot = async function (files, matchFileOnly) {
         save("/" + name);
     };
     var saveCopy = function (rel) {
-        var name = "@" + String(rel).replace(/[\\\/]+/g, "/");
+        var name = "*" + String(rel).replace(/[\\\/]+/g, "/");
         save(name);
     };
     var saveLlib = function (rel) {

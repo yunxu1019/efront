@@ -15,12 +15,12 @@ var libs_root = (LIBS_PATH || LIBS) ? [].concat(
     mixin(LIBS_PATH, LIBS).map(joinpath),
     mixin(comms_root, LIBS_PATH, LIBS).map(joinpath),
 ) : [];
-libs_root = libs_root.filter(fs.existsSync);
-libs_root.forEach(k => {
-    var r = fs.realpathSync(k);
-    if (r !== k);
-    libs_root.push(r);
+var libs_Map = Object.create(null);
+libs_root = libs_root.filter(fs.existsSync).map(a => fs.realpathSync(a)).filter(a => {
+    if (libs_Map[a]) return false;
+    return libs_Map[a] = true;
 });
+libs_Map = null;
 function isLib(fullpath) {
     for (var cx = 0, dx = libs_root.length; cx < dx; cx++) {
         var rel = path.relative(libs_root[cx], fullpath);
@@ -33,4 +33,5 @@ function isLib(fullpath) {
 isLib.dispose = function () {
     libs_root.splice(0, libs_root.length);
 };
+isLib.libs_root = libs_root;
 module.exports = isLib;

@@ -1,4 +1,5 @@
 "use strict";
+var path = require('path');
 var getBuildRoot = require("./getBuildRoot");
 var getDependence = require("./getDependence");
 var memery = require("../efront/memery");
@@ -56,7 +57,7 @@ function build(pages_root, lastBuiltTime, dest_root) {
             });
             var required = (a.require || []).filter(filter);
             if (!include_required) return a.map(k => deps[k] = true);
-            var required2 = required.map(r => require("path").join(a.dirname, r));
+            var required2 = required.map(r => /^\./.test(r) ? path.join(a.dirname, r) : r);
             var required3 = await getBuildRoot(required2, true);
             var map = a.requiredMap;
             required3.forEach((r, cx) => {
