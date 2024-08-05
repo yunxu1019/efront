@@ -1,5 +1,4 @@
 var _pinyin = null;
-Promise.resolve(init("pinyin")).then(py => _pinyin = py);
 var isABC = a => /^[a-zA-Z]$/.test(a);
 var couple = function (source, marker, pinyin) {
     var isLike = function () {
@@ -213,6 +212,9 @@ mark.setTag1 = setTag1;
 mark.setTag2 = setTag2;
 mark.power = power;
 mark.power2 = power2;
+mark.setPinyin = function (py) {
+    _pinyin = py;
+};
 mark.compare = function (a, b) {
     var c = compare(a, b);
     c.power = c.pop();
