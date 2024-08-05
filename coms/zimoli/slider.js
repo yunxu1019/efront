@@ -67,6 +67,7 @@ function slider() {
         moving = 0,
         direction,
         _speed = speed(1);
+    var origin_index = null;
     var reshape = function (index, ising, emit) {
         if (!isFinite(index)) return;
         index = +index;
@@ -92,7 +93,10 @@ function slider() {
             generator(indexLeft + 2, 1);
             generator(indexLeft + 3, 1);
             generator(indexLeft + 4, 1);
-            if (emit !== false) dispatch(outter, 'changed');
+            if (origin_index !== index) {
+                origin_index = index;
+                if (emit !== false) dispatch(outter, 'changed');
+            }
         }
         var childNodes = outter.childNodes;
         for (var dx = childNodes.length - 1; dx >= 0; dx--) {
