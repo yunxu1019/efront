@@ -1,12 +1,12 @@
 var scanner2 = require("./scanner2");
 var strings = require("../basic/strings");
 var Program = scanner2.Program;
-var { STAMP, SCOPED, STRAP, EXPRESS, pickAssignment, COMMENT, SPACE, PROPERTY, VALUE, LABEL, QUOTED, snapExpressFoot, isEval, canbeTemp, rename, isHalfSentence, skipFunction, getDeclared, skipAssignment, skipSentenceQueue, createScoped, createString, splice, relink, snapExpressHead, needBreakBetween } = require("./common");
+var { STAMP, SCOPED, STRAP, EXPRESS, pickAssignment, COMMENT, SPACE, PROPERTY, VALUE, LABEL, QUOTED, snapExpressFoot, isEval, canbeTemp, rename, isHalfSentence, skipFunction, getDeclared, skipAssignment, skipSentenceQueue, createScoped, createString, splice, relink, pickSentence, snapExpressHead, needBreakBetween } = require("./common");
 var splice2 = function (q, from, to, ...a) {
     var cx = q.indexOf(from);
-    if (cx < 0) throw console.log(splice2.caller, console.format(`\r\n<red2>${i18n`自`}</red2>`), from && createString([from]), console.format(`\r\n<yellow>${i18n`至`}</yellow>`), to && createString([to]), console.format(`\r\n<cyan>${i18n`码列`}</cyan>`), createString(q)), i18n`结构异常`;
+    if (cx < 0) throw console.log(splice2.caller, console.format(`\r\n<red2>${i18n`自`}</red2>`), from && createString([from]), console.format(`\r\n<yellow>${i18n`至`}</yellow>`), to && createString([to]), console.format(`\r\n<cyan>${i18n`码列`}</cyan>`), createString(pickSentence(from))), i18n`结构异常`;
     var dx = to ? q.indexOf(to, cx) : q.length;
-    if (dx < 0) throw console.log(splice2.caller, console.format(`\r\n<yellow>${i18n`自`}</yellow>`), from && createString([from]), console.format(`\r\n<red2>${i18n`至`}</red2>`), to && createString([to]), console.format(`\r\n<cyan>${i18n`码列`}</cyan>`), createString(q)), i18n`结构异常`;
+    if (dx < 0) throw console.log(splice2.caller, console.format(`\r\n<yellow>${i18n`自`}</yellow>`), from && createString([from]), console.format(`\r\n<red2>${i18n`至`}</red2>`), to && createString([to]), console.format(`\r\n<cyan>${i18n`码列`}</cyan>`), createString(pickSentence(from))), i18n`结构异常`;
     return splice(q, cx, dx - cx, ...a);
 };
 var insert1 = function (q, r, ...a) {
@@ -721,7 +721,7 @@ var killcls = function (body, i, letname_, getname_) {
         }
         splice(body, s, i - s, ...invokes);
     }
-    if (o && needBreakBetween(o.prev, o)) insert1(body, o, { type: SPACE, text: '\r\n' });
+    if (o && needBreakBetween(o.prev, o)) insert1(o.queue, o, { type: SPACE, text: '\r\n' });
     return i;
 };
 var indexof = function (list, o, i) {
