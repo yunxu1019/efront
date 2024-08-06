@@ -157,7 +157,7 @@ function cross_(jsonp, digest = noop, method, url, headers) {
     };
 
     var onerror = async function (e) {
-        if (e.type === 'error') {
+        if (!e || e.type === 'error') {
             e = createResponse(i18n`无法访问${getErrorSystem()}`);
         }
         headers = extend({}, _headers);
