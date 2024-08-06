@@ -953,6 +953,7 @@ function getScriptPromise(data, filename, fullpath, watchurls) {
         data = await loadUseBody.call(that, data, fullpath, watchurls);
         var timer = new Timer;
         var [commName] = prepare(filename, fullpath);
+        if (!/\.[mc]?js$/i.test(fullpath)) data = await coffee(fullpath, data);
         data = loadJsBody.call(that, data, fullpath, null, commName);
         p.time = +timer;
         return data;

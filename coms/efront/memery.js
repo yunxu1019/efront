@@ -304,6 +304,7 @@ var memery = module.exports = {
     BREAK: get("BREAK,DETOUR"),
     UPLEVEL: get("UPLEVEL", false),
     REPORT: get("REPORT"),
+    JSX: get('JSX', 'react'),
     PACKAGE_NAME: get("PACKAGE_NAME", 'package.json'),
     PACKAGE_INDEXES: get("PACKAGE_INDEX", str2array('index.js|index.mjs')),
     EXTRACT: get("EXTRACT, EXTRACT_MAIN_SCRIPT, EXTRACT_MAIN, EXTRACT_SCRIPT"),
