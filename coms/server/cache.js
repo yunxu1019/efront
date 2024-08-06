@@ -416,7 +416,6 @@ var seekAsync = async function (directs, keeys, match, findPackage) {
         else if (typeof r === 'string') {
             if (result === undefined) result = r;
         }
-        else if (r instanceof PackageData) return Buffer.from(JSON.stringify(r));
         else if (r instanceof Directory) {
             if (!r.promise) r.promise = r.update();
             if (!r.isloaded) await r.promise;
@@ -425,9 +424,8 @@ var seekAsync = async function (directs, keeys, match, findPackage) {
                 var f = r.loaded[PACKAGE_NAME];
                 if (!f || !(f instanceof File)) continue;
                 if (!f.promise) f.promise = f.update();
-                if (!f.data) await f.promise;
-                if (f.data instanceof Buffer) f.data = new PackageData(f.data);
-                var package_main = getPackageMain(keeys.concat(r.name).join('/'), f.data, r.loaded);
+                if (!f.package) f.package = new PackageData(await getfileAsync(path.join(r.pathname, PACKAGE_NAME)));
+                var package_main = getPackageMain(keeys.concat(r.name).join('/'), f.package, r.loaded);
                 if (package_main) return package_main;
             }
             else {
@@ -515,7 +513,6 @@ class Cache {
             else if (typeof r === 'string') {
                 if (result === undefined) result = r;
             }
-            else if (r instanceof PackageData) return Buffer.from(JSON.stringify(r));
             else if (r instanceof Directory) {
                 if (!r.isloaded) return seekAsync(this.directs, keeys, match, findPackage);
                 if (!findPackage) return r.loaded;
@@ -523,8 +520,8 @@ class Cache {
                     var f = r.loaded[PACKAGE_NAME];
                     if (!f || !(f instanceof File)) continue;
                     if (!f.promise || !f.data) return seekAsync(this.directs, keeys, match, findPackage);
-                    if (f.data instanceof Buffer) f.data = new PackageData(f.data);
-                    var package_main = getPackageMain(keeys.concat(r.name).join('/'), f.data, r.loaded);
+                    if (!f.package) return seekAsync(this.directs, keeys, match, findPackage);
+                    var package_main = getPackageMain(keeys.concat(r.name).join('/'), f.package, r.loaded);
                     if (package_main) return package_main;
                 }
                 else {
