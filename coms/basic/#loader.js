@@ -243,6 +243,7 @@ var killCircle = function () {
         for (var k of module_keys) flushTree(tree, k);
     }
 };
+var multiModules = Object.create(null);
 // -->
 var hasOwnProperty = {}.hasOwnProperty;
 var loadModule = function (url, then, prebuilds = {}) {
@@ -509,7 +510,7 @@ var createModule = function (exec, originNames, compiledNames, prebuilds = {}) {
     });
 };
 
-var init = function (url, then, prebuilds) {
+var init = function (url, then, prebuilds, keeppage) {
     // then = bindthen(then);
     var key = keyprefix + url;
     if (prebuilds) {
@@ -626,19 +627,22 @@ var init = function (url, then, prebuilds) {
         }
         var filteredArgs = prebuilds ? args.filter(a => !hasOwnProperty.call(prebuilds, a)) : args;
 
-        var saveAsModule = filteredArgs.length === args.length;
+        var saveAsModule = keeppage || filteredArgs.length === args.length;
+        if (saveAsModule) {
+            if (penddings[key]) {
+                penddings[key].then(then);
+                return;
+            }
+        }
+        //<!-- 
+        else if (!multiModules[key]) multiModules[key] = args.filter(k => hasOwnProperty.call(prebuilds, k)).join("、"), console.info(`${key}%c引用了非单例的%c${multiModules[key]}%c，无法存储为单例`, 'color:gray', 'color:green', 'color:gray')
+        //-->
         if (!filteredArgs.length) {
             var argValues = args.map(a => prebuilds[a]).concat(module.strs);
             argValues.push(module.argNames || []);
             var created = module.apply(window, argValues);
             then(created);
             return;
-        }
-        if (saveAsModule) {
-            if (penddings[key]) {
-                penddings[key].then(then);
-                return;
-            }
         }
         var created = createModule(module, args, module.argNames, prebuilds);
         if (isThenable(created)) {

@@ -296,11 +296,7 @@ function prepare(pgpath, ok) {
         }
         return url;
     };
-    state.init = function () {
-        var [a] = arguments;
-        a = state.path(a);
-        return init.apply(this, [a].concat([].slice.call(arguments, 1)));
-    };
+
     state.go = function (url, args, _history_name) {
         // if (arguments.length === 1 && isFinite(url)) return window_history.go(url | 0);
         var to = function (_url, args, _history_name) {
@@ -382,7 +378,7 @@ function prepare(pgpath, ok) {
         extendIfNeeded(pg, state);
         if (roles) return prepare(user.loginPath, () => emit(pg));
         emit(pg);
-    }, state);
+    }, state, true);
 }
 function create(pagepath, args, from, needroles) {
     if (typeof pagepath === 'string') {
