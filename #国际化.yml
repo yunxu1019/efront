@@ -1,3 +1,15 @@
+- zh-CN: 无法找到可用的$1支持库
+  en:    Unable to find available $1 support library
+
+- zh-CN: 无扩展名的
+  en:    without an extension
+
+- zh-CN: 扩展名为$1的
+  en:    whose extension is $1
+
+- zh-CN: 不支持编译$1文件
+  en:    Does not support compiling files $1
+
 - zh-CN: 文件$1使用了不存在的模块$2
   en:    File $1 used a non-existent module $2
 

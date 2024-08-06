@@ -23,7 +23,7 @@ async function findlib(coffee) {
     if (loaded[coffee]) return loaded[coffee];
     var package = await detectWithExtension(coffee, findex[coffee] || ["/package.json", '/index.js', "/" + coffee + '.js'], dirs);
     if (!package) {
-        throw new Error(`无法找到可用的${coffee}`);
+        throw new Error(i18n`无法找到可用的${coffee}支持库`);
     }
     if (/\.json$/.test(package)) package = path.dirname(package);
     try {
@@ -49,7 +49,7 @@ async function coffee(filename, data) {
         return coffeescript(await findlib('coffeescript'), data);
     }
     var extname = path.extname(filename);
-    if (!extname) var info = `无扩展名的`;
-    else info = `扩展名为${extname}的`;
+    if (!extname) var info = i18n`无扩展名的`;
+    else info = i18n`扩展名为${extname}的`;
     throw new Error(i18n`不支持编译${info}文件`);
 }
