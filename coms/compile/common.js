@@ -567,7 +567,7 @@ var createScoped = function (parsed, wash) {
                 else if (p.type & (EXPRESS | VALUE)) {
                     p.equal = o;
                 }
-                else if (o.text === '=' && p.type === SCOPED) {
+                else if (o.text === '=' && p.type === SCOPED && !p.isprop) {
                     if (!p.kind) {
                         var pp = p.prev;
                         if (!pp || pp.type === STAMP || pp.type === STRAP) {
@@ -1078,7 +1078,7 @@ var getDeclared = function (o, kind, queue) {
                 o = f.next;
                 break;
             default:
-                console.log(createString(pickSentence(o)));
+                console.log(createString(pickSentence(queue)));
                 throw new Error(i18n`代码结构异常`);
         }
         if (!o) break;
