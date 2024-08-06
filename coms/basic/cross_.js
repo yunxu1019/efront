@@ -1,4 +1,4 @@
-var { File } = this;
+var { File, location } = this;
 function hasFile(o) {
     if (!File) return false;
     for (var k in o) {
@@ -151,7 +151,7 @@ function cross_(jsonp, digest = noop, method, url, headers) {
         digest();
     };
     var getErrorSystem = function () {
-        if (!/^(\w+\:|\/\/)/.test(url) && /^file\:/i.test(location.href) || /^file\:/i.test(url)) return i18n`文件系统`;
+        if (location && !/^(\w+\:|\/\/)/.test(url) && /^file\:/i.test(location.href) || /^file\:/i.test(url)) return i18n`文件系统`;
         if (navigator.onLine) return i18n`网络`;
         return i18n`服务器`;
     };
