@@ -204,9 +204,11 @@ var fixType = function (o) {
                     break;
                 }
                 if (last.type & (PROPERTY | EXPRESS | VALUE)
+                    || last.type === STRAP && last.text === 'default'
                     || last.type === STAMP && last.text === "*" && last.prev && (STRAP | STAMP) & last.prev.type) {
-                } else {
                     type = STRAP;
+                } else {
+                    type = EXPRESS;
                 }
             }
             break;
