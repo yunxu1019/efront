@@ -2245,4 +2245,7 @@ var createDataURL = function (width, height, getPixel) {
 
 // multibyte support
 
-qrcode.stringToBytesFuncs['UTF-8'] = /* 这一块已被efront作者修改 */ encodeUTF8;
+qrcode.stringToBytes =
+    qrcode.stringToBytesFuncs.default =
+    qrcode.stringToBytesFuncs['UTF-8'] =
+ /* 这一块已被efront作者修改 */ encodeUTF8;
