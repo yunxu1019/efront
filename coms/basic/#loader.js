@@ -836,13 +836,6 @@ var hook = function (requires_count) {
     modules.hook_time = +new Date;
     if (document) {
         initPixelDecoder();
-        if (modules.hook_time - efront_time < (isProduction ? 30 : 5) && document.querySelector && devicePixelRatio > 1 && /Linux/.test(navigator.platform) && navigator.maxTouchPoints > 0 && !/Chrome/.test(navigator.userAgent)) {
-            let ratio = +(1000000 / devicePixelRatio + .5 | 0) / 1000000;
-            document.querySelector("meta[name=viewport]").setAttribute("content", `width=device-width,target-densitydpi=device-dpi,user-scalable=no,initial-scale=1,maximum-scale=${ratio}`);
-            renderPixelRatio *= devicePixelRatio;
-            modules.renderPixelRatio = renderPixelRatio;
-            devicePixelRatio = modules.devicePixelRatio = 1;
-        }
         if (!efrontPath) efrontPath = document.body.getAttribute("main-path") || document.body.getAttribute("path") || document.body.getAttribute("main") || "zimoli";
     }
     init(efrontPath, function (zimoli) {
