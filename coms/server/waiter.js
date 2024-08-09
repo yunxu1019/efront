@@ -580,6 +580,7 @@ var requestListener = async function (req, res) {
         req1.url = url;
         req1.method = method;
         req1.socket = socket;
+        req1.protocol = req.protocol;
         req = req1;
         if (/^\/\!\//.test(url)) url = req.url = url.slice(2);
     }
@@ -634,7 +635,9 @@ var requestListener = async function (req, res) {
                 res.destroy();
                 return;
             }
-            if (req.socket.localAddress !== req.socket.remoteAddress) {
+            var ipv4 = req.socket.localAddress.replace(/^\:\:ffff\:/, '');
+            if (/^\d+(\.\d+){3}$/.test(ipv4) && ipv4 === host);
+            else if (req.socket.localAddress !== req.socket.remoteAddress) {
                 req.url = req.protocol + '//' + host + req.url;
                 return doCross(req, res, 0);
             }
@@ -870,7 +873,7 @@ function initServer(port, hostname, hostnames) {
     var wraphost = function (hostname) {
         if (!hostname) hostname = 'localhost';
         else if (!hosted[hostname]) hosted[hostname] = 0;
-        hosted[hostname]++;
+        else hosted[hostname]++;
         if (isHttpsServer(server)) {
             if (+port !== 443) {
                 hostname += ":" + port;
