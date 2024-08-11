@@ -959,13 +959,15 @@ var createScoped = function (parsed, wash) {
     }
     if (vars.yield) scoped.yield = false;
     if (vars.await) scoped.await = false;
-    if (scoped.yield !== false && envs.yield) {
+    y: if (scoped.yield !== false && envs.yield) {
+        for (var s of scoped) if (s.isfunc && s.envs.yield) break y;
         used.yield.forEach(o => o.type = STRAP);
         scoped.yield = scoped.aster = true;
         delete envs.yield;
         delete used.yield;
     }
-    if (scoped.await !== false && envs.await) {
+    a: if (scoped.await !== false && envs.await) {
+        for (var s of scoped) if (s.isfunc && s.envs.await) break a;
         used.await.forEach(o => o.type = STRAP);
         scoped.await = scoped.async = true;
         delete envs.await;
