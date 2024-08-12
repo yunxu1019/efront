@@ -27,6 +27,7 @@ var create = function (url, key, report_error) {
 
     var image = picture_();
     image.url = url;
+    var rotate = url.rotate | 0;
     if (广告 && !广告.parentNode) appendChild(image, 广告);
     if (isObject(url)) {
         if (key) {
@@ -69,6 +70,7 @@ var create = function (url, key, report_error) {
     };
     var imgpic;
     image.setImage = function (_imgpic) {
+        _imgpic.rotate = rotate;
         if (!isElement(_imgpic)) _imgpic = this;
         if (imgpic) {
             [].forEach.call(imgpic.attributes, a => {
@@ -109,6 +111,7 @@ var create = function (url, key, report_error) {
             marginTop
         };
     }
+    image.rotateTo(rotate);
     return image;
 };
 
