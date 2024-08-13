@@ -78,3 +78,28 @@ test(`"@"`, "@")
 test(`"\\"@\\""`, "\"@\"")
 test(`@""@""`, "@\"@\"")
 test(`""@""`, "\"@\"")
+test(`  qd:
+    - name: 京东超市
+      price: 1399.00
+      link: https://item.jd.com/100098881049.html
+    - name: 拼多多
+      price: 1298.99
+      link: "#小程序://拼多多/L2JQT2d8vpO0HWC"
+    - name: 阿里1688
+      price: 1203.25
+      link: https://detail.1688.com/offer/819427383878.html
+`, {
+    qd: [
+        {
+            name: '京东超市',
+            price: 1399,
+            link: 'https://item.jd.com/100098881049.html'
+        },
+        { name: '拼多多', price: 1298.99, link: '#小程序://拼多多/L2JQT2d8vpO0HWC' },
+        {
+            name: '阿里1688',
+            price: 1203.25,
+            link: 'https://detail.1688.com/offer/819427383878.html'
+        }
+    ]
+})
