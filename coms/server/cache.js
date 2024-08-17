@@ -462,7 +462,7 @@ class Cache {
     checkUpdate = async function (rootpath) {
         var updated = [];;
         for (var direct of this.directs) {
-            if (direct.pathname !== rootpath) continue;
+            // if (direct.pathname !== rootpath) continue;
             if (direct.isloaded) {
                 direct.promise = direct.update(true);
                 var _updated = await direct.promise;
