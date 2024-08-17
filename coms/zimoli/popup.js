@@ -172,7 +172,7 @@ var isypop = function (target) {
     if (
         target.offsetWidth >= (innerWidth >> 1) &&
         target.offsetHeight < (innerHeight >> 1) ||
-        offsetParent.offsetWidth >= (innerWidth >> 1) &&
+        offsetParent && offsetParent.offsetWidth >= (innerWidth >> 1) &&
         offsetParent.offsetHeight < (innerHeight >> 1)) return true;
     if (
         nextSibling
