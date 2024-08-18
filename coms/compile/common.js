@@ -32,7 +32,7 @@ var skipAssignment = function (o, cx) {
         var ox = cx;
         o = body[ox];
         while (o && o.type & (SPACE | COMMENT)) o = body[++ox];
-        cx = ox + 1;
+        cx = ox;
     }
     else if (o.type & (SPACE | COMMENT)) o = o.next;
     var needpunc = false;
