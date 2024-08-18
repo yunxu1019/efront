@@ -1206,7 +1206,6 @@ function toqueue(body, getname, ret = false, result = []) {
             else if (ei >= 0) break;
             _poplabel();
         }
-
         if (o.type === LABEL) {
             o.scope = scopes[scopes.length - 1];
             o.final = body.indexOf(skipSentenceQueue(o.next), cx);
@@ -1340,7 +1339,13 @@ function toqueue(body, getname, ret = false, result = []) {
                 }
             }
             else {
-                cx++;
+                cx = skipAssignment(body, cx);
+                if (cx > bx) {
+                    var b = body.slice(bx, cx);
+                    var bs = ternary(b, getname, ret);
+                    for (var b of bs) pushstep(result, b);
+                }
+                else cx++;
             }
             bx = cx;
             continue;
