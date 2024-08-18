@@ -797,7 +797,7 @@ var createScoped = function (parsed, wash) {
                     }
                 }
                 if (isArrow);
-                else while (o && o.isExpress && o.type !== SCOPED) {
+                else while (o && o.isExpress && (o.type !== SCOPED || o.entry === '[')) {
                     o = o.next;
                     if (o && o.type === EXPRESS) {
                         saveTo(used, o.text, o);
@@ -1080,7 +1080,7 @@ var getDeclared = function (o, kind, queue) {
                 o = f.next;
                 break;
             default:
-                console.log(createString(pickSentence(queue)));
+                console.log(createString(pickSentence(queue)), o.text, o.type);
                 throw new Error(i18n`代码结构异常`);
         }
         if (!o) break;
