@@ -9,11 +9,13 @@ class AsyncGenerator {
     };
     throw(e) {
         delete this.exec;
+        delete this.promise;
         this.state = "closed";
         this.reject(e);
     }
     return(v) {
         delete this.exec;
+        delete this.promise;
         this.state = "closed";
         this.value = v;
         this.resolve(v);
@@ -36,8 +38,10 @@ class AsyncGenerator {
             return this.promise;
         }
         else if (this.promise) {
+            var promise = this.promise;
+            delete this.promise;
             var next = () => this.next(a);
-            return this.promise.then(next, next);
+            return promise.then(next, next);
         }
         return Promise.resolve({ value: this.value, done: true });
     }
