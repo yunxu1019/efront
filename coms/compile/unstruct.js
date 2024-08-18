@@ -590,7 +590,7 @@ var _invoke = function (t, getname) {
                         if (q0f?.type === STRAP && !q0f.transive) remove_end_comma(queue[queue.length - 1]);
                     }
                     var qe = q[q.length - 1];
-                    splice(o, by, ey - by, ...qe ? cloneNode(qe.name) : []);
+                    splice(o, by, ey - by, ...qe?.name ? cloneNode(qe.name) : []);
                     cy = by + 1;
                 }
                 else {
