@@ -852,6 +852,10 @@ class Program {
                         else queue.inExpress = scope.isObject = !/^(;|\+\+|\-\-|=>)$/.test(last.text);
                     }
                     else if (last.type === EXPRESS) a: {
+                        if (last.text === '...') {
+                            scope.isObject = true;
+                            break a;
+                        }
                         var li = queue.length - 1;
                         var lp = queue[li];
                         while (lp !== last) {
