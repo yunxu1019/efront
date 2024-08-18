@@ -211,6 +211,16 @@ var fixType = function (o) {
                     type = EXPRESS;
                 }
             }
+            else if (m === 'of') {
+                if (!last) {
+                    type = EXPRESS;
+                    break;
+                }
+                var qp = queue.prev;
+                if (qp?.type === STRAP && qp.text === 'await') qp = qp.prev;
+                if (qp?.type === STRAP && qp.text === 'for') type = STRAP;
+                else type = EXPRESS;
+            }
             break;
     }
     if (type === PROPERTY) o.isprop = true;
@@ -259,11 +269,10 @@ var setObject = function (o) {
             continue;
         }
         m.isprop = true;
-        if (m.type === EXPRESS || m.type === QUOTED) {
+        if (m.type === EXPRESS || m.type === STRAP) {
             if (!/\./.test(m.text)) m.type = PROPERTY;
         }
         if (m.prev && m.prev.type === PROPERTY) {
-
             m.prev.type = STRAP;
         }
     }

@@ -586,6 +586,14 @@ var createScoped = function (parsed, wash) {
                     break;
                 case PROPERTY:
                     if (!o.short) break;
+                    switch (o.text) {
+                        case "yield":
+                            scoped.yield = false;
+                            break;
+                        case "await":
+                            scoped.await = false;
+                            break;
+                    }
                 case VALUE:
                     if (o.isdigit || /^(null|false|true)$/.test(o.text)) break;
                 case EXPRESS:
@@ -797,7 +805,7 @@ var createScoped = function (parsed, wash) {
                     }
                 }
                 if (isArrow);
-                else while (o && o.isExpress && (o.type !== SCOPED || o.entry === '[')) {
+                else while (o && (o.type !== SCOPED || o.entry === '[')) {
                     o = o.next;
                     if (o && o.type === EXPRESS) {
                         saveTo(used, o.text, o);
@@ -806,7 +814,6 @@ var createScoped = function (parsed, wash) {
                         o.kind = isFunction ? 'function' : 'class';
                         o = o.next;
                     }
-                    if (isFunction) break;
                 }
                 if (!isFunction) while (o.type !== SCOPED) {
                     // if (o.next && o.next.type === STAMP && o.next.text === "=>") break;
@@ -961,6 +968,7 @@ var createScoped = function (parsed, wash) {
     if (vars.await) scoped.await = false;
     y: if (scoped.yield !== false && envs.yield) {
         for (var s of scoped) if (s.isfunc && s.envs.yield) break y;
+        for (var s of used.yield) if (s.kind || s.isprop || hasEqual(s)) break y;
         used.yield.forEach(o => o.type = STRAP);
         scoped.yield = scoped.aster = true;
         delete envs.yield;
@@ -968,6 +976,7 @@ var createScoped = function (parsed, wash) {
     }
     a: if (scoped.await !== false && envs.await) {
         for (var s of scoped) if (s.isfunc && s.envs.await) break a;
+        for (var s of used.await) if (s.kind || s.isprop || hasEqual(s)) break a;
         used.await.forEach(o => o.type = STRAP);
         scoped.await = scoped.async = true;
         delete envs.await;
@@ -978,6 +987,28 @@ var createScoped = function (parsed, wash) {
     scoped.envs = envs;
     return scoped;
 };
+var hasEqual = function (s) {
+    while (s) {
+        if (s.equal) return true;
+        var sn = s.next;
+        if (sn?.type === STRAP) {
+            if (sn.text === 'of') return true;
+            if (sn.text === "in") {
+                var q = s.queue;
+                if (q.entry === '(') {
+                    var qp = q.prev;
+                    if (qp.type === STRAP && qp.text === 'await') qp = qp.text;
+                    if (qp.type === STRAP && qp.text === 'for') return true;
+                }
+            }
+        }
+        var sp = s.prev;
+        if (sp?.type === STRAP && sp.text === 'as') return true;
+        s = s.queue;
+    }
+    return false;
+};
+
 var getDeclared = function (o, kind, queue) {
     var declared = [], used = Object.create(null); var skiped = [];
     var prop = null;
@@ -1096,7 +1127,7 @@ var getDeclared = function (o, kind, queue) {
                     o.prev.equal = o;
                     o = o.next;
                     var o0 = skipAssignment(o);
-                    if (isrest) throw i18n`余集变量不能有默认值`;
+                    if (isrest) throw new Error(i18n`余集变量不能有默认值`);
                     attributes[attributes.length - 1].push(queue, o, o0);
                     while (o !== o0) {
                         skiped.push(o);
