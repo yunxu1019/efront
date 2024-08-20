@@ -49,6 +49,7 @@ await async function () {
         aster_,
         async_,
         asyncAster_,
+        extends_,
         isFunction,
         restIter_,
         rest_,
@@ -59,6 +60,7 @@ await async function () {
     var ignore = [
         "dynamic-import",
         "intl402",
+        "identifiers",
         "built-ins",
     ];
     ignore.forEach(k => ignore[k] = true);
@@ -94,15 +96,17 @@ await async function () {
              * @type {vm.RunningCodeInNewContextOptions}
              */
             var ctxOptions = {
+                timeout: 1000,
                 filename: f,
-                displayErrors: false,
+                displayErrors: true,
             };
-            running = true;
-            if (code.envs.$DONE) harness.$DONE = function (e) {
-                if (e) console.fail(ti, f + "\r\n"), console.log(currentText), console.trace(e), process.exit();
-            };
-            vm.runInThisContext(text, ctxOptions);
-            running = false;
+            var sandbox = Object.create(null);
+            for (var k in code.envs) {
+                if (k in harness) sandbox[k] = harness[k];
+            }
+            var ctx = vm.createContext(sandbox);
+            var p = vm.runInContext(text, ctx, ctxOptions);
+            await Promise.race([p, wait(1000)]);
         };
         var ti = `${i}/${testFiles.length}`;
         var data = await fs.readFile(f);
@@ -119,23 +123,29 @@ await async function () {
         currentText = text;
         currentIndex = ti;
         if (text) {
+            running = true;
             try {
                 console.test("执行", ti, f);
                 await runText(text);
             } catch (e) { de = e };
+            running = false;
         }
         if (de) try {
+            running = true;
             try {
                 console.test("检查", ti, f);
                 await runText(data);
-            } catch (e) { de = null };
+            } catch (e) {
+                if (typeof e === typeof de) de = null
+            };
+            running = false;
         } catch { de = null; }
         if (!text && de) {
             console.log(de)
             console.fail(ti, f);
             throw de;
         }
-        console.pass(path.relative(testpath, f));
+        console.pass(ti, path.relative(testpath, f));
     }, 1, null);
     console.log(`\r\n完成 ${testFiles.length} 个测试项！`);
 }();

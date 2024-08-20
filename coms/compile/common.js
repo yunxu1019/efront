@@ -558,7 +558,7 @@ var createScoped = function (parsed, wash) {
             var function_obj = null;
             if (o.type === STAMP && equal_reg.test(o.text)) {
                 var p = snapExpressHead(o.prev);
-                if (!p || p.type & (STRAP | STAMP) || !p.isExpress) {
+                if (!p || p.type & (STRAP | STAMP) || p.type !== EXPRESS && !p.isExpress) {
                     let n = o.next;
                     if (n && n.type & (EXPRESS | VALUE)) {
                         n.equal = o;
@@ -659,7 +659,12 @@ var createScoped = function (parsed, wash) {
                             funcbody.return.push(o);
                             break;
                         case "await":
-                            funcbody.async = funcbody.await = true;
+                            funcbody.await = true;
+                            if (!funcbody.async) saveTo(used, 'await', o);
+                            break;
+                        case "yield":
+                            funcbody.yield = true;
+                            if (!funcbody.aster) saveTo(used, 'yield', o);
                             break;
                         case "as":
                         case "from":
@@ -784,7 +789,7 @@ var createScoped = function (parsed, wash) {
                     lets = vars;
                     if (isFunction) {
                         vars.this = true, vars.arguments = true;
-                        scoped.yield = scoped.aster = isAster;
+                        scoped.aster = isAster;
                         thisscope = scoped;
                         argscope = scoped;
                     }
@@ -982,6 +987,12 @@ var createScoped = function (parsed, wash) {
         delete envs.await;
         delete used.await;
     }
+    if (used.yield) {
+        used.yield.forEach(o => { if (o.type === STRAP) o.type = EXPRESS });
+    }
+    if (used.await) {
+        used.await.forEach(o => { if (o.type === STRAP) o.type = EXPRESS });
+    }
     delete envs.eval;
     delete envs.new;
     scoped.envs = envs;
@@ -1040,16 +1051,29 @@ var getDeclared = function (o, kind, queue) {
         }
         switch (o.type) {
             case SCOPED:
-                if (snapExpressFoot(o) === o) {
+                var foot = snapExpressFoot(o);
+                if (!prop) prop = declared["..."] ? declared["..."][1] - index : `[${index}]`;
+                if (foot === o) {
                     var [d, u, _, s] = getDeclared(o.first, kind, o);
                     while (s.length) skiped.push.apply(skiped, s.splice(0, 1024));
                     mergeTo(used, u);
                     if (d.length || d.attributes.length) declared.push(d);
-                    if (!prop) prop = declared["..."] ? declared["..."][1] - index : `[${index}]`;
                     d.entry = o.entry;
                     o.kind = kind;
                     attributes.push([prop, d]);
                     o = o.next;
+                    break;
+                }
+                else {
+                    var s = [];
+                    while (foot !== o) {
+                        s.push(o);
+                        o = o.next;
+                    }
+                    s.push(foot);
+                    skiped.push(...s);
+                    o = o.next;
+                    attributes.push([prop, s]);
                     break;
                 }
             case STAMP:
@@ -1077,11 +1101,12 @@ var getDeclared = function (o, kind, queue) {
             case EXPRESS:
             case STRAP:
             case VALUE:
-                var isrest = /^\.\.\./.test(o.text);
                 var n = o;
                 var k = o.text;
-                if (isrest) declared.push(k = k.slice(3))
-                else if (o.text) declared.push(k);
+                var isrest = /^\.\.\./.test(k);
+                if (isrest) k = k.slice(3);
+                var isdec = !/[\.\[]/.test(k);
+                if (k && isdec) declared.push(k);
                 if (!isrest) {
                     var prev = o.prev;
                     if (prev?.type === STAMP && prev.text === '...') {

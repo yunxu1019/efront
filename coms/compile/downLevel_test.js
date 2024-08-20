@@ -338,18 +338,45 @@ var _0 };`);
 i++//异步或步进函数
 assert(downLevel(`function *(){yield *a}`), `function () { return aster_(
 function () {
-_; _0 = 0; return [1, 0]
+return [9, 8]
 },
 function () {
-_3 = _0 < a["length"]; if (!_3) return [1, 0]; _ = a[_0]; _3 = true
+_; _3 = Symbol["asyncIterator"]; _3 = a[_3]; if (_3) return [1, 0]; _3 = Symbol["iterator"]; _3 = a[_3]; if (_3) return [1, 0]; _3 = Array["prototype"]; _4 = Symbol["iterator"]; _3 = _3[_4]
 },
 function () {
-if (!_3) return [2, 0]; return [_, 3]
+_1 = _3; _1 = _1["call"](a); _3 = _1["next"](); return [_3, 1]
+},
+function (_2) {
+_3 = _2; _0 = _3; return [1, 0]
 },
 function () {
-_3 = _0++; return [-2, 0]
+_3 = !_0["done"]; if (!_3) return [2, 0]; _3 = _0["value"]; return [_3, 1]
+},
+function (_2) {
+_3 = _2; _ = _3; _3 = true
+},
+function () {
+if (!_3) return [3, 0]; return [_, 3]
+},
+function () {
+_3 = _1["next"](); return [_3, 1]
+},
+function (_2) {
+_3 = _2; _0 = _3; return [-4, 0]
+},
+function () {
+return [0, 9]
+},
+function () {
+_3 = _0; if (!_3) return [1, 0]; _3 = !_0["done"]; if (!_3) return [1, 0]; _3 = _1["return"]; _3 = isFunction(_3)
+},
+function () {
+if (!_3) return [1, 0]; _3 = _1["return"](); return [1, 0]
+},
+function () {
+return [1, 9]
 })
-var _, _0, _1, _3 }`)
+var _, _0, _1, _3, _4 }`)
 assert(downLevel(`async function(){}`), `function () { return async_() }`)
 assert(downLevel(`async function(){for(var a of b){Symbol}}`), `function () { return async_(
 function () {
@@ -424,7 +451,6 @@ function (_) {
 _0 = _; _0 = _0.a; a = _0
 })
 var a, _0`)
-
 assert(downLevel(`async a=>await a`), `function (a) { return return async_(
 function () {
 _0 = a; return [_0, 1]
@@ -437,10 +463,31 @@ _.set = function (v) {}, _))
 var _`);
 assert(downLevel(`var restq = splice(queue, i, i2 - i, ...a[1], { type: STAMP, text: "=" });`), `var slice_ = Array["prototype"]["slice"];
 var restq = splice["apply"](null, [queue, i, i2 - i]["concat"](slice_["call"](a[1]), [{ type: STAMP, text: "=" }]));`)
-var c = scanner2(`\r\n    if (search.length) return null;\r\n    return path.join(...pathlist);\r\n`);
-c.fix();
-c.break();
-assert(c.toString(), `\r\n    if (search["length"]) return null;\r\n    return path["join"](...pathlist);\r\n`)
+var c = scanner2(`\r\n    if (search.length) return null;\r\n    return path.join(...pathlist);\r\n`); i++
+c.fix(); i++
+c.break(); i++
+assert(c.toString(), `\r\n    if (search["length"]) return null;\r\n    return path["join"](...pathlist);\r\n`);
 assert(downLevel.code(c).toString(), `\r\n    if (search["length"]) return null;\r\n    return path["join"]["apply"](path, pathlist);\r\n`);
 downLevel.debug = true; i++;
 assert(downLevel(`Symbol;var c = (a.data || (a.data = {})).transition = no(this);`), 'Symbol; var c = (a.data || (a.data = {})).transition = no(this);', true);
+assert(downLevel(`[a.b]=[1]`), 'a.b = [1][0]')
+assert(downLevel(`[a[b]]=[1]`), 'a[b] = [1][0]')
+assert(downLevel(`[(a)[b]]=[1]`), '(a)[b] = [1][0]')
+assert(downLevel(`[[a][b]]=[1]`), '[a][b] = [1][0]')
+assert(downLevel(`[a,{}.b,c]=[1]`), '_ = [1], a = _[0], {}.b = _[1], c = _[2]\r\nvar _')
+assert(downLevel(`[{}.b,c]=[1]`), '_ = [1], {}.b = _[0], c = _[1]\r\nvar _')
+assert(downLevel(`[{}.b]=[1]`), '({}).b = [1][0]')
+assert(downLevel(`[[[a[b]]]]=[1]`), 'a[b] = [1][0][0][0]')
+assert(downLevel(`[[[{}[b]]]]=[1]`), '({})[b] = [1][0][0][0]')
+assert(downLevel(`[...a[b]]=[1]`), 'var slice_ = Array["prototype"]["slice"];\r\n_ = [1], a[b] = slice_["call"](_, 0)\r\nvar _')
+assert(downLevel(`[a,...{length}]=[1]`), 'var slice_ = Array["prototype"]["slice"];\r\n_ = [1], a = _[0], _0 = slice_["call"](_, 1), length = _0.length\r\nvar _, _0')
+assert(downLevel(`[...{length}]=[1]`), `var slice_ = Array["prototype"]["slice"];
+_ = [1], _0 = slice_["call"](_, 0), length = _0.length
+var _, _0`)
+assert(downLevel(`[...{}[a]]=[1]`), `var slice_ = Array["prototype"]["slice"];
+_ = [1], {}[a] = slice_["call"](_, 0)
+var _`)
+assert(downLevel(`,{...{}[a]}=[1]`), `_ = [1], {}[a] = rest_(_, [])
+var _`)
+assert(downLevel(`,{b,...{}[a]}=[1]`), `_ = [1], b = _.b, {}[a] = rest_(_, ["b"])
+var _`)

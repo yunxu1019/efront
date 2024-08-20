@@ -42,6 +42,16 @@ var unslice = function (arr) {
         }
     };
 };
+var patchCurve = function (b) {
+    if (b.length > 1) {
+        var b0 = b[0];
+        if (b0.brace) {
+            b[0] = scanner2(`()`)[0];
+            b[0].push(b0);
+            relink(b[0]);
+        }
+    }
+}
 // 解构赋值
 var killdec = function (queue, i, getobjname, _var = 'var', killobj, islet) {
     var tmpname = '';
@@ -52,11 +62,11 @@ var killdec = function (queue, i, getobjname, _var = 'var', killobj, islet) {
         var [k, v] = d;
         var dp = 0;
         if (typeof k === 'number' && k < 0) {
-            if (iter) throw i18n`暂不支持在当前语境读取尾部非剩余元素`;
+            if (iter) throw new Error(i18n`暂不支持在当前语境读取尾部非剩余元素`);
             dp = 1;
             k = `${tmpname}["length"]>${doged - k - 1}?${tmpname}[${tmpname}["length"] - ${-k}]:undefined`;
         } else {
-            if (rootenvs.Symbol && /\[\d+\]/.test(k)) {
+            if (rootenvs.Symbol && /\[\d+\]/.test(k) && iter) {
                 var inc = parseInt(k.slice(1, k.length - 1));
                 inc++;
                 while (iter.index < inc) iter.next();
@@ -317,6 +327,7 @@ var killdec = function (queue, i, getobjname, _var = 'var', killobj, islet) {
                 var a = single(d, '');
                 if (a) {
                     if (index > 0) splice(queue, i++, 0, { type: STAMP, text: ',' });
+                    patchCurve(a[1]);
                     var i2 = skipAssignment(queue, i);
                     var restq = splice(queue, i, i2 - i, ...a[1], { type: STAMP, text: "=" });
                     killobj(restq);
@@ -356,8 +367,10 @@ var killdec = function (queue, i, getobjname, _var = 'var', killobj, islet) {
         }
         for (var o0 of objs) {
             deep = 0;
-            var [[d]] = getDeclared(o0);
-            dog(d);
+            var dd = getDeclared(o0)[0];
+            var d = dd[0];
+            if (!d) dog(dd.attributes[0][1]);
+            else dog(d);
         }
         if (hasnext && index > index0) {
             splice(queue, i++, 0, { type: STAMP, text: ',' });
@@ -1322,7 +1335,7 @@ var killarg = function (head, body, _getname, setarg = true) {
             cname = '';
             collect = index + 1;
         }
-        else throw i18n`参数声明异常！`;
+        else throw new Error(i18n`参数声明异常！`);
         if (o && o.type === STAMP) {
             if (o.text === ',') {
                 o = o.next; continue;

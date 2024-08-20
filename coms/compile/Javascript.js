@@ -137,7 +137,6 @@ var setStrapExpress = function (mark_type, mark_text, prop, o, default_type) {
         if (pp && pp.type === STAMP && pp.text === "*") pp = pp.prev;
         isfunc = pp && pp.type === STRAP && pp.text === 'function';
         if (isfunc) break;
-
         q = q.queue;
     }
     if (isfunc) {
@@ -387,7 +386,11 @@ Javascript.prototype.setType = function (o) {
     }
     if (o.type === STRAP) switch (o.text) {
         case "yield": setYieldExpress(o, this.defaultType); break;
-        case "await": setAwaitExpress(o, this.defaultType); break;
+        case "await":
+            var p = o.prev;
+            if (p?.type === STRAP && p.text === 'for') break;
+            setAwaitExpress(o, this.defaultType);
+            break;
     }
     if (o.type === EXPRESS && last?.type === EXPRESS && !last.isend && /^(async|await|yield)$/.test(last.text)) {
         last.type = STRAP;
