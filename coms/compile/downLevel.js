@@ -245,8 +245,18 @@ var killdec = function (queue, i, getobjname, _var = 'var', killobj, islet) {
         return single(v, p);
     };
     if (_var && i < queue.length) splice(queue, i++, 0, { type: STRAP, text: _var });
+    var i0 = i;
     loop: while (i < queue.length) {
         var o = queue[i];
+        if (o.type === STAMP) {
+            switch (o.text) {
+                case ",":
+                    i++;
+                    continue;
+                case ";":
+                    return i;
+            }
+        }
         var next = snapExpressFoot(o).next;
         tmpname = '';
         var index0 = index;
@@ -352,12 +362,12 @@ var killdec = function (queue, i, getobjname, _var = 'var', killobj, islet) {
                     }
                     splice(queue, i = i2, 0, ...q);
                     i += q.length;
-                    index++;
                     continue;
                 }
             }
             tmpname = getobjname(0);
-            splice(queue, i, 0, { type: EXPRESS, text: tmpname }, { type: STAMP, text: "=" });
+            if (i > i0) splice(queue, i++, 0, { type: STAMP, text: ',' }, { type: EXPRESS, text: tmpname }, { type: STAMP, text: "=" });
+            else splice(queue, i, 0, { type: EXPRESS, text: tmpname }, { type: STAMP, text: "=" });
             i += 2;
             var i2 = skipAssignment(queue, i);
             var n = queue[i2];
