@@ -497,6 +497,7 @@ var killneg = function (v, n) {
             v = n + v;
         }
     }
+    else if (n) v = n + v;
     return v;
 };
 var calcvars = function (v) {
