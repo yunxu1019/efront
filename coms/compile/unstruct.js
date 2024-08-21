@@ -1230,6 +1230,10 @@ function toqueue(body, getname, ret = false, result = []) {
             if (/^(new|typeof|delete|await|void|debugger)$/.test(o.text)) {
                 break a;
             }
+            if (/^(var|let|const)$/i.test(o.text)) {
+                bx = ++cx;
+                continue;
+            }
             if (brk("yield", YIELD, skipAssignment)) break a;
             if (brk("return", RETURN, skipSentenceQueue)) break a;
             if (brk("throw", THROW, skipSentenceQueue)) break a;
