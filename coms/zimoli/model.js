@@ -154,15 +154,17 @@ var constructors = {
         cast(elem, field);
         return elem;
     },
-    radio({ field }) {
+    radio({ data, field }) {
         var elem = radio();
+        elem.value = data[field.key];
         cast(elem, field);
         return elem;
     },
     select(_, t) {
         if (!t) {
             var elem = select();
-            var { field } = _;
+            var { field, data } = _;
+            elem.value = data[field.key];
             var o = field.options?.[0];
             if (field.holder) _.innerHTML = `<span -if="isEmpty(data[field.key])" class="placeholder">${field.holder}</span>`;
             if (!isEmpty(o?.key)) {
@@ -171,7 +173,7 @@ var constructors = {
                     key: ''
                 })
             }
-            render(_, { field, elem, isEmpty });
+            render(_.children, { field, data, isEmpty });
             elem.innerHTML = `<option -repeat="(o,i) in field.options" ng-bind="o.name||o" _value="o.key!==undefined?o.key:o"></option>`;
         }
         else if (t === 'a') {

@@ -12,7 +12,6 @@ var _remove = function () {
                 }
                 remove(removing_list);
                 removing_list.target.focus();
-                console.log(removing_list.target, document.activeElement)
                 if (removing_list === saved_list) saved_list = null;
                 return;
             }
