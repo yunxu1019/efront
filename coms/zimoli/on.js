@@ -269,7 +269,7 @@ var remove = function (k, hk, [eventtypes, handler, context]) {
     if (hs) {
         for (var cx = hs.length - 1; cx >= 0; cx--) {
             var [e, h, c] = hs[cx];
-            if (h === handler && e === eventtypes && c === context) {
+            if (h === handler && shallowEqual(e, eventtypes, 2) && c === context) {
                 hs.splice(cx, 1);
                 if (k === changes_key) element.$needchanges--;
             }
@@ -333,8 +333,8 @@ var append = function (k, hk, listener2, firstmost) {
     var [eventtypes, handler, context] = listener2;
     var element = this;
     var handlers = element[hk];
-    for (var [h, e, c] of handlers) {
-        if (h === handler && eventtypes === e && c === context) return;
+    for (var [e, h, c] of handlers) {
+        if (h === handler && shallowEqual(eventtypes, e, 2) && c === context) return;
     }
     if (k === changes_key) {
         if (!element.$needchanges) element.$needchanges = 0;
