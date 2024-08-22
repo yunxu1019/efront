@@ -86,15 +86,7 @@ var power = function (source, search) {
     var match_text = matchers[0];
     var match_start = matchers[1];
     var match_length = matchers[3] - matchers[2];
-    if (search.length === 1) {
-        var p = 0;
-        var res = source.replace(new RegExp(search.replace(/[\\\*\?\+\(\)\[]/g, "\\$&"), "ig"), (m, i) => {
-            if (!p) p = .1 / (1 + i);
-            return MARK_PRE1 + m + MARK_AFT1;
-        });
-        return [p, res];
-    }
-    if (match_length > 1) {
+    if (match_length >= 1) {
         var match_text_pre = source.slice(0, match_start);
         var match_text_aft = source.slice(match_start + match_text.length);
         var pp = 0, ap = 0;
