@@ -7,11 +7,15 @@ function hasType(target, type) {
 return function (element, types) {
     var marked = 0;
     for (var k in types) {
+        var mark0 = marked;
         for (var c of element.children) {
             if (hasType(c, types[k])) {
                 types[k] = c;
                 marked++;
             }
+        }
+        if (marked === mark0) {
+            types[k] = null;
         }
     }
     if (!marked && isArray(types)) {
