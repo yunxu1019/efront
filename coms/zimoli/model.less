@@ -3,6 +3,28 @@
     display: inline-block;
 }
 
+&[type=select] {
+    position: relative;
+    color: #999;
+
+    .placeholder {
+        padding-left: 16px;
+        position: absolute;
+        top: 50%;
+        margin-top: -.5em;
+        line-height: 1;
+        margin-bottom: -1em;
+        z-index: 1;
+        pointer-events: none;
+        display: block;
+
+        &+select {
+            color: transparent;
+        }
+    }
+
+}
+
 &[type=date] {
     >input {
         width: 8em;

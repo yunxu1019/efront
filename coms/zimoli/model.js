@@ -100,7 +100,7 @@ var constructors = {
     text: textarea,
     number(e) {
         var { data, field } = e;
-        var content = `<input type=${field.type} -model=data[field.key] />` + (field.unit ? `<span>${field.unit}</span>` : '');
+        var content = `<input placeholder="${field.holder || i18n`输入${field.name}`}" type=${field.type} -model=data[field.key] />` + (field.unit ? `<span>${field.unit}</span>` : '');
         e.innerHTML = content;
         if (field.unit && field.unit.length <= 6) {
             e.setAttribute("u" + field.unit.replace(/[\u0080-\ud7ff\uf000-\uffff]/g, '11').length, '')
@@ -118,7 +118,7 @@ var constructors = {
     },
     date(m) {
         var { data, field } = m;
-        m.innerHTML = `<input placeholder=${field.holder || '选择日期'} readonly -model=data[field.key] />`;
+        m.innerHTML = `<input placeholder=${field.holder || i18n`选择日期`} readonly -model=data[field.key] />`;
         render(m, {
             data, field, input,
         });
@@ -126,7 +126,7 @@ var constructors = {
     },
     datetime(m) {
         var { data, field } = m;
-        m.innerHTML = `<input placeholder=${field.holder || '选择日期和时间'} readonly -model=data[field.key] />`;
+        m.innerHTML = `<input placeholder=${field.holder || i18n`选择日期和时间`} readonly -model=data[field.key] />`;
         render(m, {
             data, field, input,
         });
@@ -162,7 +162,17 @@ var constructors = {
     select(_, t) {
         if (!t) {
             var elem = select();
-            elem.innerHTML = `<option ng-repeat="(o,i) in field.options" ng-bind="o.name||o" _value="o.key!==undefined?o.key:o"></option>`;
+            var { field } = _;
+            var o = field.options?.[0];
+            if (field.holder) _.innerHTML = `<span -if="isEmpty(data[field.key])" class="placeholder">${field.holder}</span>`;
+            if (!isEmpty(o?.key)) {
+                field.options.unshift({
+                    name: i18n`选择${field.name}`,
+                    key: ''
+                })
+            }
+            render(_, { field, elem, isEmpty });
+            elem.innerHTML = `<option -repeat="(o,i) in field.options" ng-bind="o.name||o" _value="o.key!==undefined?o.key:o"></option>`;
         }
         else if (t === 'a') {
             var { field, data } = _;

@@ -40,7 +40,21 @@ on('touchend')(window, function (event) {
         if (getTargetIn(saved_list, event.target)) return;
     }
     activeElement.blur();
-})
+});
+var setEmpty = function () {
+    if (isEmpty(this.value)) {
+        if (!this.empty) {
+            this.empty = true;
+            this.setAttribute('empty', '')
+        }
+    }
+    else {
+        if (this.empty) {
+            this.empty = false;
+            this.removeAttribute('empty');
+        }
+    }
+};
 function select() {
     var [target, list, removeOnSelect, direction] = arguments;
     if (/^[yvxh]/i.test(removeOnSelect)) {
@@ -216,12 +230,15 @@ function select() {
             if (saved_list && saved_list !== list) _remove();
             if (document.activeElement !== target) target.focus();
             popup(list, target, direction);
+            if (getTargetIn(list, document.activeElement)) {
+                on('blur')(document.activeElement, removeByBlur);
+            }
             saved_list = list;
         }
-        else _remove();
+        else remove(list);
     };
     if (!target.$renders) {
-        target.$renders = [];
+        target.$renders = [setEmpty];
     }
     target.$renders.push(setIcon);
     onclick(target, mousedown);
