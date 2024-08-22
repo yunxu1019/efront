@@ -1,6 +1,9 @@
 var singleClick = function () {
     var node = this.parentNode;
-    if (node.activeNode === this) return;
+    if (node.activeNode === this) {
+        remove(node);
+        return;
+    }
     if (node.activeNode) {
         if (isObject(node.activeNode.origin)) node.activeNode.origin.selected = false;
         node.activeNode.removeAttribute("selected");
