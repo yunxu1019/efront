@@ -232,8 +232,11 @@ class Matrix extends Array {
         var A = this.slice().inverse();
         return resolve(A, s);
     }
+    getTransform() {
+        return [this[0], this[1], this[3], this[4], this[6], this[7]];
+    }
     toDOMString() {
-        if (this.size()[1] === 2) return `matrix(${[this[0], this[1], this[3], this[4], this[6], this[7]]})`;
+        if (this.size()[1] === 2) return `matrix(${this.getTransform()})`;
         return `matrix(${this})`;
     }
 }
