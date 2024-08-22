@@ -33,6 +33,9 @@ var multipleClick = function () {
 var searchinput = function () {
     var ipt = document.createElement("input");
     ipt.placeholder = '搜索';
+    on('append')(ipt, function () {
+        ipt.focus();
+    });
     return ipt;
 };
 
