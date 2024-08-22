@@ -9,6 +9,11 @@ select& {
     font-size: inherit;
     display: inline-block;
 
+    &:focus,
+    &[focus] {
+        border-color: #29c;
+    }
+
     &::-ms-expand {
         display: none;
     }

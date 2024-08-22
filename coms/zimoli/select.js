@@ -11,6 +11,8 @@ var _remove = function () {
                     if (getTargetIn(e, activeElement)) break a;
                 }
                 remove(removing_list);
+                removing_list.target.focus();
+                console.log(removing_list.target, document.activeElement)
                 if (removing_list === saved_list) saved_list = null;
                 return;
             }
@@ -55,6 +57,20 @@ var setEmpty = function () {
         }
     }
 };
+var setFocus = function () {
+    if (saved_list && saved_list.target === this) {
+        if (!this.focused) {
+            this.focused = true;
+            this.setAttribute('focus', '');
+        }
+    }
+    else {
+        if (this.focused) {
+            this.focused = false;
+            this.removeAttribute('focus');
+        }
+    }
+}
 function select() {
     var [target, list, removeOnSelect, direction] = arguments;
     if (/^[yvxh]/i.test(removeOnSelect)) {
@@ -235,10 +251,16 @@ function select() {
             }
             saved_list = list;
         }
-        else remove(list);
+        else {
+            remove(list);
+            if (saved_list === list) {
+                saved_list = null;
+                target.focus();
+            }
+        }
     };
     if (!target.$renders) {
-        target.$renders = [setEmpty];
+        target.$renders = [setEmpty, setFocus];
     }
     target.$renders.push(setIcon);
     onclick(target, mousedown);

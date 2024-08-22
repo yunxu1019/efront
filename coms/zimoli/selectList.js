@@ -2,6 +2,9 @@ var singleClick = function () {
     var node = this.parentNode;
     if (node.activeNode === this) {
         remove(node);
+        if (node.target) {
+            node.target.focus();
+        }
         return;
     }
     if (node.activeNode) {
