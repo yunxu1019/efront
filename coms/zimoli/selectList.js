@@ -119,7 +119,7 @@ function main() {
 
     var hasIcon = false, iconed = '';
 
-    if (children.length > 6) {
+    if (children.length > 12) {
         var ipt = searchinput()
         page.insertBefore(ipt, page.firstChild);
         var searchtext = function () {

@@ -128,6 +128,8 @@ function select() {
         if (removeOnSelect === null) {
             onmousedown(list, preventDefault);
         }
+        on("touchend")(target, preventDefault);// 兼容火狐 android
+        on("touchend")(list, preventDefault);// 兼容火狐 android
         on("keydown.up")(target, preventDefault);
         on("keydown.down")(target, preventDefault);
         on("keydown.enter")(target, preventDefault1);

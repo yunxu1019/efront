@@ -1,9 +1,13 @@
+& {
+    background: #fff;
+}
+
 select& {
     border: 1px solid #00000033;
     -webkit-appearance: none;
-    -moz-appearance: none;
-    height: 30px;
-    line-height: 30px;
+    appearance: none;
+    height: 28px;
+    line-height: 28px;
     padding: 0 16px;
     outline: none;
     font-size: inherit;
@@ -42,5 +46,10 @@ model>& {
 }
 
 &[empty] {
-    color: #999;
+    color: #0009;
+
+    &:hover,
+    &:active {
+        color: #fff9;
+    }
 }

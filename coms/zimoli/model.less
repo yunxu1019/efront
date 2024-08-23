@@ -5,9 +5,16 @@
 
 &[type=select] {
     position: relative;
-    color: #999;
+
+    >.select:hover,
+    >.select:active {
+        &+.placeholder {
+            color: #fff9;
+        }
+    }
 
     .placeholder {
+        color: #0009;
         padding-left: 16px;
         position: absolute;
         top: 50%;
@@ -17,10 +24,10 @@
         z-index: 1;
         pointer-events: none;
         display: block;
+    }
 
-        &+select {
-            color: transparent;
-        }
+    .select[empty] {
+        color: transparent;
     }
 
 }
@@ -43,7 +50,12 @@
     }
 }
 
-&[type=int] {
+&[type=int],
+&[type=number],
+&[type=digit],
+&[type=money],
+&[type=price],
+&[type=num] {
     >input {
         text-align: right;
         width: 8em;

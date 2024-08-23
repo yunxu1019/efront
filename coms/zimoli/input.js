@@ -134,6 +134,7 @@ function input(element) {
                 case "integer":
                 case "number":
                 case "num":
+                case "digit":
                     on("keydown")(element, number);
                     break;
                 default:

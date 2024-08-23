@@ -377,7 +377,7 @@ function main(elem) {
                     return input;
                 }()) : null;
                 if (ipt) {
-                    if (ipt !== elem) appendChild(elem, ipt);
+                    if (ipt !== elem) appendChild.insert(elem, ipt);
                     if (!ipt.$scope) {
                         renderModel.call(ipt, field, data);
                         var saved_sataus;
