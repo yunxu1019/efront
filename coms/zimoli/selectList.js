@@ -40,7 +40,9 @@ var searchinput = function () {
     var ipt = document.createElement("input");
     ipt.placeholder = '搜索';
     on('mounted')(ipt, function () {
-        ipt.focus();
+        requestAnimationFrame(function(){
+            ipt.focus();
+        });
     });
     return ipt;
 };
