@@ -22,7 +22,6 @@ var scroll = function () {
     var { max, min } = Math;
     var scrollOutside = function (deltay) {
         var _box = this;
-        if (_box.YScrollBoxId === 1) return deltay;
         var offsetParent = _box.offsetParent;
         if (!offsetParent) return deltay;
         var _boxPosition = getScreenPosition(_box);
