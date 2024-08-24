@@ -431,6 +431,7 @@ function ylist(container, generator, $Y) {
         var elem = getLastElement(2);
         var listRestHeight = elem ? elem.offsetHeight + elem.offsetTop - list.scrollTop : list.clientHeight;
         var paddingHeight = elem ? 0 : restHeight;
+        if (listRestHeight < list.clientHeight) listRestHeight = list.clientHeight;
         return currentY() + listRestHeight + paddingHeight;
     };
     list.$Top = function (y) {
