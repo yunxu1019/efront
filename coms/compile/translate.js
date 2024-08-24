@@ -2,11 +2,11 @@ var scanner2 = require("./scanner2");
 var { SCOPED, QUOTED, SCOPED, PROPERTY, STAMP, PIECE, setqueue, splice, relink, patchArrawScope, number_reg, replace, canbeDuplicate, createString } = require("./common");
 var strings = require("../basic/strings");
 var program = null;
-var patchTranslate = function (c) {
+var patchTranslate = function (c, raw) {
     if (c.length) {
         var canbeDup = true;
         c.translate = c.map((o, i) => {
-            if (o.type === PIECE) return strings.decode(`\`${o.text}\``);
+            if (o.type === PIECE) return raw ? o.text : strings.decode(`\`${o.text}\``);
             if (canbeDup && !canbeDuplicate(o)) canbeDup = false;
             return `$${i + 1 >> 1}`;
         }).join('').replace(/\r\n|\r|\n/g, '\r\n');
@@ -14,7 +14,7 @@ var patchTranslate = function (c) {
     }
     else {
         if (/^['"`]/.test(c.text) && c.text.length > 2) {
-            var text = strings.decode(c.text).replace(/\r\n|\r|\n/g, '\r\n');
+            var text = raw ? c.text.slice(1, c.text.length - 1) : strings.decode(c.text).replace(/\r\n|\r|\n/g, '\r\n');
             c.translate = text;
         }
     }
@@ -54,7 +54,7 @@ function getI18nPrefixedText(code, dist = []) {
             if (!n || n.type !== QUOTED || n.length && n.entry !== '`') continue;
             var c = n;
             c.transtype = t;
-            patchTranslate(c);
+            patchTranslate(c, t === 字段名);
             f(c);
         }
     };
