@@ -674,20 +674,23 @@ var requestListener = async function (req, res) {
         }
     }
     try {
-        url = req.url = decodeURI(url);
+        url = decodeURI(url);
     } catch {
-        url = req.url = unescape(url);
+        url = unescape(url);
     }
     if (/^\/@/i.test(url)) {
+        req.url = url;
         return doFile(req, res);
     }
     if (memery.CHANNEL_ENABLED && /^\/\([\s\S]*\)/.test(url)) {
+        req.url = url;
         return doChannel(req, res);
     };
     if (memery.islive && /\/\:(\w{3,4})\//.test(url)) {
+        req.url = url;
         return doPost.call(this, req, res);
     }
-    var url = await proxy(req);
+    var url = await proxy(req, url);
     if (req.jump || /^https?:|^\/\//i.test(url)) {
         res.writeHead(302, {
             Location: url
@@ -695,12 +698,12 @@ var requestListener = async function (req, res) {
         res.end();
         return;
     }
-    if (/^post/i.test(method) && !crypted) {
-        return doPost.call(this, req, res);
-    }
-    req.url = url;
     if (/^~~?|^&/.test(url)) {
         return doCross(req, res);
+    }
+    req.url = url;
+    if (/^post/i.test(method) && !crypted) {
+        return doPost.call(this, req, res);
     }
     if (getHeader(headers, "range")) {
         return doFile(req, res);

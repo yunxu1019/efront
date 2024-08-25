@@ -87,6 +87,7 @@ async function cross(req, res, referer) {
         var { jsonlike, realpath, hostpath, headers } = await parseUrl(req.url);
         if (/^&/.test(jsonlike)) hostpath = req.protocol + hostpath.replace(/^https?:/i, "");
         var $url = hostpath + realpath;
+        if (/[^\u0021-\u00ff]/.test($url)) throw new Error("路径异常！");
         // $data = $cross['data'],//不再接受数据参数，如果是get请直接写入$url，如果是post，请直接post
         var method = req.method;//$_SERVER['REQUEST_METHOD'];
         var _headers = req.headers;
@@ -98,7 +99,7 @@ async function cross(req, res, referer) {
         }
     }
     catch (e) {
-        console.log(e)
+        console.log(e, $url)
         res.writeHead(403, utf8error);
         return res.end(i18n[getHeader(req.headers, "accept-language")]`请求无效!`);
     }
