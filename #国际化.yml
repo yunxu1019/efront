@@ -1,3 +1,15 @@
+- zh-CN: 输入$1
+  en:    Enter $1
+
+- zh-CN: 选择日期
+  en:    Select date
+
+- zh-CN: 选择日期和时间
+  en:    Select date and time
+
+- zh-CN: 选择$1
+  en:    Select $1
+
 - zh-CN: 无法找到可用的$1支持库
   en:    Unable to find available $1 support library
 
