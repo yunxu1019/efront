@@ -31,7 +31,7 @@ var transformValue = function (value, k) {
         }
         return value;
     }
-    if (/^[\w\s\.]+$/.test(value)) return isFinite(value) ? transfromSimpleValue(value) : String(value).split(/\s+/).map(transfromSimpleValue).join(' ');
+    if (/^[\-\w\s\.]+$/.test(value)) return isFinite(value) ? transfromSimpleValue(value) : String(value).split(/\s+/).map(transfromSimpleValue).join(' ');
     return value;
 };
 var setValue = function (o, k, v) {
