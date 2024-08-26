@@ -245,7 +245,9 @@ function select() {
         initList();
         if (saved_list !== list || !isMounted(list)) {
             if (saved_list && saved_list !== list) _remove();
-            if (document.activeElement !== target) target.focus();
+            requestAnimationFrame(/*兼容safari*/function () {
+                if (document.activeElement !== target) target.focus();
+            })
             popup(list, target, direction);
             if (getTargetIn(list, document.activeElement)) {
                 on('blur')(document.activeElement, removeByBlur);
