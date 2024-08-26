@@ -86,8 +86,10 @@ function getScrollbarWidth() {
 }
 var init = function () {
     init = function () { };
-    css("." + view.className.split(/\s+/)[0] + ">.body", {
-        marginRight: -getScrollbarWidth() + "px"
+    var className = view.className.split(/\s+/)[0];
+    css(`.${className}>.body,.${className}>[body]`, {
+        borderRight: 20 - getScrollbarWidth() + "px solid transparent",
+        marginRight: -20 + "px"
     });
 };
 var resize2 = function () {
