@@ -2,10 +2,10 @@ var saved_list;
 var _remove = function () {
     var removing_list = saved_list;
     if (removing_list) {
-        setTimeout(function run() {
+        requestAnimationFrame(function run() {
             if (removing_list !== saved_list) return remove(removing_list);
             var { activeElement } = document;
-            a: if (!getTargetIn(removing_list, activeElement)) {
+            a: if (!getTargetIn(removing_list, activeElement) && !getTargetIn(removing_list.target, activeElement)) {
                 var extras = [].concat(removing_list.with);
                 for (var e of extras) {
                     if (getTargetIn(e, activeElement)) break a;
@@ -244,11 +244,11 @@ function select() {
     var mousedown = function () {
         initList();
         if (saved_list !== list || !isMounted(list)) {
-            if (saved_list && saved_list !== list) _remove();
+            if (saved_list && saved_list !== list) remove(saved_list);
+            popup(list, target, direction);
             requestAnimationFrame(/*兼容safari*/function () {
                 if (document.activeElement !== target) target.focus();
             })
-            popup(list, target, direction);
             if (getTargetIn(list, document.activeElement)) {
                 on('blur')(document.activeElement, removeByBlur);
             }

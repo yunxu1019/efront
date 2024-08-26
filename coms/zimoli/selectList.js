@@ -20,6 +20,7 @@ var singleClick = function () {
     if (isObject(this.origin)) this.origin.selected = true;
     dispatch(node, "change");
     if (getTargetIn(node, document.activeElement)) document.activeElement.blur();
+    remove(node);
 };
 var multipleClick = function () {
     var node = this.parentNode;
@@ -40,7 +41,7 @@ var searchinput = function () {
     var ipt = document.createElement("input");
     ipt.placeholder = '搜索';
     on('mounted')(ipt, function () {
-        requestAnimationFrame(function(){
+        requestAnimationFrame(function () {
             ipt.focus();
         });
     });
