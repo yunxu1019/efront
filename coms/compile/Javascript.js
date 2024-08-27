@@ -44,7 +44,7 @@ var colonstrap_reg = /^(case|default)$/;
 class Javascript extends Program {
     straps = straps;
     value_reg = /^(false|true|null|Infinity|NaN|undefined|eval)$/
-    transive_reg = /^(new|var|let|const|yield|void|in|of|typeof|delete|case|return|await|default|instanceof|throw|extends|import|from)$/
+    transive_reg = /^(new|var|let|const|yield|void|in|of|typeof|delete|case|return|await|instanceof|throw|extends|import|from)$/
     strapexp_reg = /^(new|void|typeof|delete|class|function|await)/;
     forceend_reg = /^(return|yield|break|continue|debugger|async)$/;
     defaultType = EXPRESS;
@@ -796,7 +796,7 @@ var removeImport = function (c, i, code) {
             else {
                 if (!name) name = name1;
                 used[name1].forEach(u => {
-                    compile$patchname(name, u, ".default");
+                    patchname(name, u, ".default");
                 });
             }
         }
@@ -889,6 +889,16 @@ var removeExport = function (c, i, code) {
         code.exportDefault = true;
         n.next.isExpress = true;
         c.type = EXPRESS;
+        var d = n.next;
+        if (d.type === STRAP && /^(class|function|var|let|const)$/.test(d.text)) {
+            d = d.next;
+            if (d.type === EXPRESS && !/[\.\[]/.test(d.text)) {
+                code.used[d.tack].forEach(o => {
+                    if (d === o) return;
+                    patchname('', o, "exports.default");
+                })
+            }
+        }
         return;
     }
     var [dec, map, o] = getDeclared(n.next, 'export');
@@ -1047,6 +1057,7 @@ Javascript.prototype.fix = function (code) {
     }
     relink(code);
     setqueue(code);
+    return code;
 }
 Javascript.prototype.createString = createString;
 Javascript.prototype.createScoped = createScoped;
