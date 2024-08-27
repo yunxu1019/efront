@@ -813,9 +813,10 @@ var createScoped = function (parsed, wash) {
                 else while (o && (o.type !== SCOPED || o.entry === '[')) {
                     o = o.next;
                     if (o && o.type === EXPRESS) {
-                        saveTo(used, o.text, o);
+                        var tack = o.text.replace(/[\.\[][\s\S]*$/, '');
+                        saveTo(used, tack, o);
                         if (o.prev && o.prev.type === STRAP && o.prev.text === 'extends') continue;
-                        lets[o.text] = true;
+                        lets[tack] = true;
                         o.kind = isFunction ? 'function' : 'class';
                         o = o.next;
                     }
@@ -1544,6 +1545,7 @@ var isHalfSentence = function (body, i) {
     while (a && a.type & (SPACE | COMMENT)) a = body[--i];
     if (!a) return false;
     if (a.type === STRAP && a.text === 'else') return true;
+    if (a.type === STAMP && (a.unary || !/^(;|\+\+|\-\-)$/.test(a.text))) return true;
     if (a.type !== SCOPED || a.entry !== "(") return false;
     a = a.prev;
     if (!a || a.type !== STRAP) return false;
