@@ -1,3 +1,6 @@
+- zh-CN: 目标文件存在外部引用项$1
+  en:    The target file has an external reference item of $1
+
 - zh-CN: 输入$1
   en:    Enter $1
 
