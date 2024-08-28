@@ -300,7 +300,7 @@ async function compile() {
         var findRealpath = function () {
             if (fullpath instanceof Array && !fullpath.length) {
                 if (window.modules[name]) console.info(i18n`${url} 将被内置模块替换！`), moduleValue = window.modules[name];
-                else if (!window.hasOwnProperty(name)) responseWithWarning = i18n`没有发现文件：${url}`;
+                else if (!window.hasOwnProperty(name)) responseWithWarning = i18n`没有发现文件：${`<red2>${url}</red2>`}`;
                 else console.info(i18n`${url} 将使用运行环境的全局变量`);
                 resolve();
                 return;
