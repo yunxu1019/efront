@@ -196,7 +196,7 @@ async function compile() {
                 var loadindex = function (index) {
                     // var split = /^\//.test(url) ? '/' : '$';
                     var _realpath = path.join(_filepath, index || 'index');
-                    detectWithExtension(_realpath, ["", ".js", "/index", "/index.js"]).then(function (realpath) {
+                    detectWithExtension(_realpath, ["", ".js", '.mjs', '.cjs', '.ts', "/index", "/index.js", '/index.ts']).then(function (realpath) {
                         var target = "./" + String(index || 'index').replace(/^\.?[\\\/]+/, '');
                         target = target.replace(/[\\]/g, "/");
                         response(`require("${target}")`, realpath);
