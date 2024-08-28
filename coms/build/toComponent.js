@@ -484,7 +484,7 @@ function toComponent(responseTree, noVersionInfo) {
             if (errored.length) {
                 console.warn(i18n`在 ${`<yellow>${k}</yellow>`} 中检测到可能不存在的外部变量：`, `<cyan2>${errored.join("<gray>,</gray> ")}</cyan2>`);
             }
-            if (!responseTree[k].data) {
+            if (responseTree[k].data == null) {
                 result.splice(cx, 1);
                 continue;
             }
