@@ -239,6 +239,7 @@ var loadJsBody = function (data, filename, lessdata, commName, className, htmlDa
     data = data.replace(/\bDate\(\s*(['"`])(.*?)\1\s*\)/g, (match, quote, dateString) => `Date(${+new Date(dateString)})`);
     var destpaths = commbuilder.prepare === false ? [] : getRequiredPaths(data);
     var code = scanner2(data);
+    var hasExport = code.export || !code.first;
     var prequoted = removePrequoted(code);
     code.fix();
     if (this && this["#"]) {
@@ -277,6 +278,7 @@ var loadJsBody = function (data, filename, lessdata, commName, className, htmlDa
         });
     }
     var globalsmap = {};
+    if (hasExport) globalsmap.exports = 'exports';
     var templateName;
     if (htmlData) {
         if (undeclares.template) {

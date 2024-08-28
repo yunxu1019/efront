@@ -983,10 +983,14 @@ Javascript.prototype.newVar = function (used, string_template) {
     return name;
 }
 Javascript.prototype.fix = function (code) {
+    var hasExport = false;
     backEach(code, function (o, i) {
         if (o.type !== STRAP) return;
         if (o.text === 'import') removeImport.call(this, o, i, code);
-        else if (o.text === 'export') removeExport.call(this, o, i, code);
+        else if (o.text === 'export') {
+            hasExport = true;
+            removeExport.call(this, o, i, code);
+        }
     }, this);
     if (code.exportStars) {
         var exportStars = code.exportStars;
@@ -1055,6 +1059,7 @@ Javascript.prototype.fix = function (code) {
             }
         });
     }
+    if (hasExport) code.export = true;
     relink(code);
     setqueue(code);
     return code;

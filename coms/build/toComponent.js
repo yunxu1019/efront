@@ -489,6 +489,7 @@ function toComponent(responseTree, noVersionInfo) {
                 result.splice(cx, 1);
                 continue;
             }
+            if (!responseTree[k].data) console.log(k, responseTree[k]);
             if (ok || circle_result) {
                 result.splice(cx, 1);
                 var startTime = new Date;
