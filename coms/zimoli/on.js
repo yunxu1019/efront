@@ -167,6 +167,7 @@ class EventNeed {
     stop = false;
     capture = false;
     self = false;
+    singly = false;
     prevent = false;
     passive = false;
     keyNeed = [];
@@ -250,15 +251,21 @@ function checkKeyNeed(eventtypes, e) {
 var pendingid = 0;
 function pending(h, event) {
     if (h instanceof Function) {
+        h.pending = true;
         var res = h.call(this, event);
         if (res && isFunction(res.then) && this.setAttribute) {
-            var id = ++pendingid & 0x1fffffffffffff;
+            var id = ++pendingid;
+            pendingid &= 0x7fffffff;
             this.setAttribute('pending', id);
             var removePending = () => {
+                if (h.pending) setTimeout(function () {
+                    h.pending = false;
+                }, 120)
                 if (+this.getAttribute('pending') === id) this.removeAttribute('pending');
             };
             res.then(removePending, removePending);
         }
+        else h.pending = false
         return res;
     }
     return h;
@@ -305,6 +312,7 @@ var broadcast = function (k, hk, event) {
         if (eventtypes.stop) event.stopPropagation();
         if (eventtypes.passive && !preventPassive) event.preventDefault = function () { };
         if (eventtypes.prevent) event.preventDefault();
+        if (eventtypes.singly && handler.pending) continue;
         if (handler instanceof Array) {
             for (var h of handler) {
                 h.call(context, event);
