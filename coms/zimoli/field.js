@@ -100,6 +100,10 @@ function main(elem) {
             error: null,
             field: f,
             container,
+            checkNeeds(needs, data) {
+                var res = check(data, needs);
+                return res;
+            },
             readonly: !!this.readonly
         });
         elem.oldValue = data[f.key];

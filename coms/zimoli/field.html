@@ -1,4 +1,5 @@
-<template v-if='field?.name'>
+<template a-if="!checkNeeds(field.needs,data)"></template>
+<template v-else-if='field?.name'>
     <div class="head">
         <span ng-bind=field.name></span>
         <span class="required" ng-if="field.required">*</span>
