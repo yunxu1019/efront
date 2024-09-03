@@ -241,11 +241,6 @@ var getComment = function (piece) {
 function spreadkey(name) {
     if (/^\([\s\S]*\)$/.test(name) && /,/.test(name)) {
         var [, name, rest_piece] = /^([\s\S]*?),([^\]]*)$/.exec(name.slice(1, name.length - 1));
-        if (rest_piece && !/=/.test(rest_piece)) {
-            var needs = { [name]: parseValue(rest_piece) };
-        } else {
-            var needs = scanNeeds(rest_piece);
-        }
     }
     if (/^\[[\s\S]*\]$/.test(name)) {
         repeat = true;
@@ -258,6 +253,13 @@ function spreadkey(name) {
         }
     }
     var [name, key, holder] = scanSlant(name, '/', 0, name.length + 1);
+    if (rest_piece) {
+        if (rest_piece && !/=/.test(rest_piece)) {
+            var needs = { [key || name]: parseValue(rest_piece) };
+        } else {
+            var needs = scanNeeds(rest_piece);
+        }
+    }
     return [name, key, needs, holder];
 }
 function parse(piece) {
