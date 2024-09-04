@@ -23,6 +23,10 @@ var doPost = module.exports = async function (req, res) {
         }
     }
     var env = await getRequestEnv(req);
+    var e404 = function () {
+        res.writeHead(404, utf8err);
+        res.end(i18n[getHeader(req.headers, "accept-language")]`未没找到匹配的资源：${url}`);
+    };
     finalpacker.call(env, url, async function (result, type) {
         if (!(result instanceof Buffer || result instanceof Function)) {
             try {
@@ -45,17 +49,20 @@ var doPost = module.exports = async function (req, res) {
             case "page":
                 res.end(result);
                 break;
-            case 404:
-                res.writeHead(404, utf8err);
-                res.end(i18n[getHeader(req.headers, "accept-language")]`未没找到匹配的资源：${url}`);
-                break;
+            case 404: e404(); break;
+            default:
+                try {
+                    if (result instanceof Function) res = res.end(await result(req, res));
+                    else if (result instanceof Buffer) res.end(result);
+                    else e404();
+                    break;
+                }
+                catch { }
             case 500:
                 res.writeHead(500, utf8err);
                 res.end(i18n[getHeader(req.headers, "accept-language")]`服务异常`);
                 break;
 
-            default:
-                res.end(result);
         }
     });
 };
