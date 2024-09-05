@@ -93,7 +93,7 @@ function select() {
             this.appendChild(o);
         });
         care(target, 'set-options', function (options) {
-            this.innerHTML = options.map(o => `<option value="${o.value}">${o.name}</option>`).join("");
+            this.innerHTML = options.map(o => `<option value="${o.key || o.value}">${o.name || o.innerHTML}</option>`).join("");
         });
         on('focus')(target, preventDefault);
     }

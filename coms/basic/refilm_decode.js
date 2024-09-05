@@ -292,6 +292,7 @@ function parse(piece) {
             size, unit, ratio,
             holder,
             do: action,
+            editable,
             needs, checks, repeat, endwith,
             required, inlist, hidden, readonly,
             delete_onempty, delete_onsubmit,
@@ -412,7 +413,11 @@ function parse(piece) {
             type = type.slice(1);
         }
         if (typeof options === "string" && !/^[\$#]+\d+$/.test(options)) {
-            options = is(options);
+            var editable = false;
+            if (/^[\+\-\*]|[\+\-\*]$/.test(options)) {
+                editable = true;
+                options = options.replace(/^[\+\-\*]|[\+\*\-]$/g, '');
+            }
             var needUnfold = /^\[|\]$/.test(options);
             options = options.replace(/^\[|\]$/g, '');
             if (needUnfold || /,/.test(options)) options = scanSlant(options, ',');
@@ -429,6 +434,7 @@ function parse(piece) {
     if (unit === type) unit = '';
     var field = {
         name, type, key, value, comment, options,
+        editable,
         size, unit, ratio, holder,
         needs, checks, repeat, endwith,
         required, inlist, hidden, readonly,

@@ -166,6 +166,7 @@ var constructors = {
             var { field, data } = _;
             elem.value = data[field.key];
             var o = field.options?.[0];
+            elem.editable = field.editable;
             if (field.holder) _.innerHTML = `<span -if="isEmpty(data[field.key])" class="placeholder">${field.holder}</span>`;
             if (!isEmpty(o?.key)) {
                 field.options.unshift({

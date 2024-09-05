@@ -5,7 +5,7 @@
             -if="search&&!filtered.hasFullmatch">添加</a>
     </div>
     <div class="item" -repeat="o in (search?filtered:options)">
-        <span -html=o.name></span>
+        <span -html=o.name||o.innerHTML></span>
         <a type="danger" @click="del(o)">删除</a>
     </div>
 </div>

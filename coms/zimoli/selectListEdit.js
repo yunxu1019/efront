@@ -42,6 +42,7 @@ function main(options) {
             remove(page);
         },
         save() {
+            cast(page, options);
             remove(page);
         },
         filtered: []

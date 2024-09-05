@@ -76,7 +76,7 @@ function main() {
     var clicker = multiple ? multipleClick : singleClick;
     var itemMap = Object.create(null);
     function createItem(option) {
-        var key = option.key || option.value;
+        var key = isEmpty(option.key) ? option.value : option.key;
         if (key in itemMap) return itemMap[key];
         var item = itemMap[key] = document.createElement('div');
         item.setAttribute("item", '');
@@ -89,7 +89,7 @@ function main() {
                 page.setAttribute('iconed', '');
             }
             hasIcon = true;
-            css(item, { backgroundImage: `url('${icon}')` });
+            css(item, { backgroundImage: icon });
         }
         item.value = key;
         if (item.value === page.value) {
@@ -201,14 +201,16 @@ function main() {
                     break;
                 case this.children[1]:
                     var options = Array.apply(null, children);
-                    var edit = selectListEdit(options.slice(0));
+                    var optholder = isEmpty(options[0].key) && isEmpty(options[0].value) ? options.shift() : null;
+                    var edit = selectListEdit(options);
                     page.with = edit;
-                    on("remove")(edit, function () {
+                    care(edit, function () {
                         itemMap = Object.create(null);
                         page.with = null;
                         children.splice(0, children.length);
-                        children.push.apply(children, edit.$scope.options.map(o => ({ key: o.key || o.value, name: o.name || o.innerHTML })))
-                        cast(page.target, 'set-options', edit.$scope.options);
+                        if (optholder) children.push(optholder);
+                        children.push.apply(children, edit.$scope.options.map(o => ({ value: o.key || o.value, name: o.name || o.innerHTML })))
+                        cast(page.target, 'set-options', children);
                         page.clean();
                         remove(adder);
                         page.go(0);
