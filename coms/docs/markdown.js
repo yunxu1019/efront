@@ -17,6 +17,10 @@ var h = function (text) {
     var level = text.length - t2.length;
     return new Element('h' + level, t2);
 };
+var block = function (text) {
+    text = text.replace(/^>\s*/, '');
+    if (text.length) return new Element("blockquote", text);
+};
 var p = function (text) {
     if (text.length) return new Element("p", text);
 };
@@ -82,6 +86,7 @@ function richtext(line) {
     });
     var a;
     if (/^#/.test(line)) content.push(h(line));
+    else if (/^>/.test(line)) content.push(block(line));
     else if (/^\*\s+/.test(line)) ul(line, tagIndent);
     else if (/^\d+\.\s+/.test(line)) ol(line, tagIndent);
     else if (/^\|/.test(line)) tr(line);
