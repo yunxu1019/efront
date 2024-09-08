@@ -1,13 +1,20 @@
-function submit(fields, data) {
+var trimname = function (a) {
+    return a.name.replace(/^请?(输入|选择|填写)/, '')
+};
+function submit_() {
     var params = {};
     var inputs = [];
     var select = [];
     var checks = [];
     var id = 0;
-    var trimname = function (a) {
-        return a.name.replace(/^请?(输入|选择|填写)/, '')
-    };
-    for (var f of fields) {
+    var data = Object.create(null);
+    var fieldsList = [];
+    for (var arg of arguments) {
+        if (Array.isArray(arg)) fieldsList.push(arg);
+        else Object.assign(data, arg);
+    }
+    for (var fields of fieldsList) for (var f of fields) {
+        if (!check(data, field.needs)) continue;
         var error = valid(f, data);
         if (error === "empty") {
             if (f.options instanceof Array || /date|time|range|switch|swap|radio/i.test(f.type)) {
