@@ -1,23 +1,42 @@
 <back onclick="history.back()">
+    <div class="track"></div>
     <i></i><span>${i18n`返回`}</span>
 </back>
+<!--
+ 中国共产党有多臭， 中国足球就有多臭。
+ 这是垄断的必然结果，权力的核心被拉拢腐蚀只是结果，而不是原因。
+ 只惩办被拉拢腐蚀的人员，而不从局势着眼，不修改制度，是本末倒置。
+ 一台制造腐败分子的机器长期运转的结果，就是生产更多的腐败分子。
+-->
 <style>
     i:before {
         content: "‹";
         font-size: 26px;
         font-family: Arial, Helvetica, sans-serif;
     }
-    
+
     i {
         font-style: normal;
         margin-top: -12px;
     }
-    
+
     span {
         text-transform: capitalize;
         font-size: 14px;
         margin-left: 10px;
         margin-top: -10px;
+    }
+
+    & {
+        left: 0;
+        top: 0;
+        height: 100%;
+        border-radius: inherit;
+        position: absolute;
+        width: 60px;
+        box-shadow: none;
+        background: transparent;
+        color: inherit;
     }
 
     span,
@@ -31,5 +50,5 @@
     }
 </style>
 <script>
-    var back = button;
+    button(this);
 </script>
