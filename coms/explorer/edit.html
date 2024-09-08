@@ -1,5 +1,6 @@
 <div head>
-    <span v-text="origin?${i18n`修改`}:${i18n`添加`}"></span>${i18n`文件夹`}
+    <span v-text="origin?'${i18n`修改`}':'${i18n`添加`}'"></span>
+    <span>${hasOrigin?isFolder?i18n`文件夹名`:i18n`文件名`:i18n`文件夹`}</span>
 </div>
 <div body>
     <field v-if="!f.readonly||!!data[f.key]" -repeat="f in fields" ng-src="[f,data]"></field>

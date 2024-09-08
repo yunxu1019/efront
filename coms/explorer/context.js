@@ -43,6 +43,8 @@ var popupEdit = function ($scope, active) {
         add: $scope.add,
         name: active ? active.name : '',
     };
+    if (active) params.isfolder = active.isfolder;
+    else params.isfolder = true;
 
     zimoli.prepare('explorer$edit', function () {
         var p = popup("#explorer$edit", params);

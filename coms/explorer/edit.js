@@ -1,6 +1,7 @@
+var isFolder = false;
+var hasOrigin = false;
 
-
-function main({ path: root, rename, add, name, hasName }) {
+function main({ path: root, rename, isfolder, add, name, hasName }) {
     var fields = refilm`
     &原始名称/origin read
     输入新名称/name input
@@ -11,16 +12,17 @@ function main({ path: root, rename, add, name, hasName }) {
         if (hasName(name)) return "命名冲突";
         return explorer$filetip(name);
     };
+    var origin = name.replace(/\/$/, '');
     var a = view();
+    isFolder = isfolder;
+    hasOrigin = !!origin;
     a.innerHTML = edit;
     drag.on(a.firstChild, a);
-    var origin = name.replace(/\/$/, '');
     renderWithDefaults(a, {
         fields,
         pathlist: root,
         origin,
         page: a,
-        isFolder: /\/$/.test(name),
         data: { name: origin, origin },
         remove() {
             remove(a);
