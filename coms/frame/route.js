@@ -228,7 +228,7 @@
         }
     };
     result.reload = function () {
-        result.load(result.active);
+        zimoli();
         return result;
     };
     result.from = result.fetch = function (url) {

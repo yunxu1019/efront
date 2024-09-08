@@ -74,7 +74,7 @@ var layer = layer$glance({
     top: frame$top
 });
 on("append")(layer, function () {
-    frame$route.open();
+    zimoli();
 });
 on("dragover")(document, function (event) {
     event.preventDefault();
