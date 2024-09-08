@@ -27,13 +27,14 @@ async function upload(f, dist, token) {
         /**
          * @type {XMLHttpRequest}
          */
-        var xhr = cross(api.method, dist + f.name, { authorization });
-        var p = { percent: 0, pending: true, name: f.name, folder: dist, abort: xhr.abort.bind(xhr) };
+        var p = { percent: 0, pending: true, name: f.name, folder: dist };
         dist = dist.replace(/^\/+|\/+$/g, '');
         if (dist) p.url = api.base + dist + "/" + f.name;
         else p.url = api.base + f.name;
         this.data.push(p);
         pending.push(p);
+        var xhr = cross(api.method, p.url, { authorization });
+        p.abort = xhr.abort.bind(xhr);
         xhr.upload.onprogress = function ({ loaded, total }) {
             p.percent = loaded / total;
             render.refresh();
@@ -45,7 +46,6 @@ async function upload(f, dist, token) {
             removeFromList(pending, p);
         });
         await xhr;
-        removeFromList(this.data, p);
         removeFromList(pending, p);
     }
     return xhr;
@@ -74,9 +74,7 @@ class File {
     }
 }
 function main(path) {
-    var loaded = false;
     var page = explorer$main();
-
     extend(page.$scope, {
         pathlist: path ? path.split('/') : [],
         read(from, start, size) {
@@ -87,14 +85,13 @@ function main(path) {
             xhr.send();
             return xhr;
         },
-        load(p) {
-            if (loaded) {
-                location.href = "#/wow/root" + p;
+        load(p, force) {
+            if (!force) {
+                location.href = "#/wow/root" + p;;
                 return { then() { } };
             }
-            loaded = true;
             var base = data.getInstance("base").base;
-            var p = p.replace(/^\/+|\/+$/g, '');
+            var p = this.pathlist.join('/').replace(/^\/+|\/+$/g, '');
             var bp = p ? base + p + "/" : base;
             p = p + '/';
             return data.from("folder", { opt: 'list', path: encode62.timeencode(p) }, files => {

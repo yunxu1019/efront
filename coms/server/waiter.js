@@ -224,7 +224,7 @@ var doOptions = async function (req, res, type) {
             break;
         case "login":
             var a = type[2] || '';
-            return require("./login")(a, remoteAddress).then(b => {
+            return require("./login")(a, remoteAddress(req)).then(b => {
                 if (!b) throw i18n[getHeader(req.headers, "accept-language")]`密码不正确！`;
                 res.end(b);
             }).catch(e => {
@@ -272,7 +272,7 @@ var doOptions = async function (req, res, type) {
         default:
             needLogin = true;
     }
-    if (needLogin && !await require("./checkAuth")(getHeader(req.headers, 'authorization'), remoteAddress)) {
+    if (needLogin && !await require("./checkAuth")(getHeader(req.headers, 'authorization'), remoteAddress(req))) {
         res.writeHead(401, utf8error);
         res.write(i18n[getHeader(req.headers, "accept-language")]`无权访问`);
         needLogin = false;

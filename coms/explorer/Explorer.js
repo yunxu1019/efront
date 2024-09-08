@@ -17,12 +17,13 @@ e.open = async function (p) {
         if (!p.isfolder) return;
         this.pathlist.push(p.name);
     }
+    var forceRefresh = p == null;
     p = "/" + this.pathlist.join("/").replace(/^\/+|\/+$/g, '');
     var cutedMap = Object.create(null);
     var selected = Object.create(null);
     for (var s of this.selected) selected[s.url] = true;
     for (var s of this.copyed) cutedMap[s.url] = s.cut;
-    var files = await this.load(p);
+    var files = await this.load(p, forceRefresh);
     for (var f of files) {
         if (cutedMap[f.url]) f.cut = true;
         if (selected[f.url]) f.selected = true;
