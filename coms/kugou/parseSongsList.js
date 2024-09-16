@@ -1,5 +1,5 @@
 var singerPhotosMap = Object.create(null);
-data.from("singer/list.jsp", function (a) {
+await data.from("singer/list.jsp", function (a) {
     a.forEach(a => {
         var b = a.replace(/\.\w+$/, '');
         singerPhotosMap[b] = a;
