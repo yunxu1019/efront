@@ -142,7 +142,7 @@ var createComment = function (renders, type, expression) {
 var initialComment = function (comment) {
     if (!comment.$struct.once) {
         comment.$renderid = ++renderidOffset;
-        on("append")(comment, addRenderElement);
+        onmounted(comment, addRenderElement);
         onremove(comment, removeRenderElement);
         if (isMounted(comment) || eagermount) rebuild(comment);
     }
@@ -736,7 +736,6 @@ function renderBinds(element, binds, init) {
         var h = bind.call(element, k, binds[k]);
         hs.push(h);
     }
-    if (binds.src) directives.src.call(element, binds.src);
     return hs;
 }
 
@@ -752,6 +751,7 @@ function renderRest(element, struct, replacer = element) {
     for (var k in binds) if (k !== 'src' && k in directives) {
         directives[k].call(element, binds[k], replacer);
     }
+    if (binds.src) directives.src.call(element, binds.src);
 
     for (var k in struct.attrs) {
         binders[""].call(element, k, attrs[k]);
@@ -813,9 +813,8 @@ function renderElement(element, scope = element.$scope, parentScopes = element.$
         // 替换元素
         var constructor = getFromScopes(tagName, scope, parentScopes);
         renderProp(element, props);
-        var bhs = renderBinds(element, binds);
+        renderBinds(element, binds);
         if (isFunction(constructor)) {
-            for (var h of bhs) h.call(element);
             var replacer = constructor.call(scope, element, scope, parentScopes);
             if (element === replacer) {
                 var struct1 = createStructure(element, false);
