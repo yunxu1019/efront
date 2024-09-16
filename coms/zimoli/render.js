@@ -142,7 +142,7 @@ var createComment = function (renders, type, expression) {
 var initialComment = function (comment) {
     if (!comment.$struct.once) {
         comment.$renderid = ++renderidOffset;
-        onmounted(comment, addRenderElement);
+        on("append")(comment, addRenderElement);
         onremove(comment, removeRenderElement);
         if (isMounted(comment) || eagermount) rebuild(comment);
     }
@@ -608,19 +608,21 @@ var binders = {
         attr = attr.replace(/\-(\w)/g, (_, w) => w.toUpperCase());
         var getter = createGetter(this, search);
         var oldValue;
-        this.$renders.push(function () {
+        var hook = function () {
             var value = getter(this);
             if (deepEqual(value, oldValue)) return;
             oldValue = value;
             if (this[attr] !== value) {
                 this[attr] = this[attr.replace(/\-[a-z]/g, a => a.toUpperCase())] = value;
             }
-        });
+        }
+        this.$renders.push(hook);
+        return hook;
     },
     ""(attr, search) {
         var getter = createGetter(this, search);
         var oldValue;
-        this.$renders.push(function () {
+        var hook = function () {
             var value = getter(this);
             if (deepEqual(value, oldValue)) return;
             oldValue = value;
@@ -633,7 +635,9 @@ var binders = {
                     this.removeAttribute(attr);
                 }
             } else if (this.getAttribute(attr) !== value) this.setAttribute(attr, value);
-        });
+        }
+        this.$renders.push(hook);
+        return hook;
     }
 };
 var reject = function (e) { digest(); throw e };
@@ -715,6 +719,26 @@ function getFromScopes(key, scope, parentScopes) {
         if (key in presets) return presets[key];
     }
 }
+function renderProp(elem, props) {
+    for (var k in props) {
+        try {
+            if (elem[k] !== props[k]) elem[k] = props[k];
+        } catch (e) { }
+    }
+}
+
+function renderBinds(element, binds, init) {
+    var bind = binders._;
+    var hs = [];
+    for (var k in binds) {
+        if (k === 'src') continue;
+        if (directives.hasOwnProperty(k)) continue;
+        var h = bind.call(element, k, binds[k]);
+        hs.push(h);
+    }
+    if (binds.src) directives.src.call(element, binds.src);
+    return hs;
+}
 
 function renderRest(element, struct, replacer = element) {
     var renders = element.$renders;
@@ -724,25 +748,14 @@ function renderRest(element, struct, replacer = element) {
         delete element.renders;
     }
     element.$renders = [];
-    var { binds, attrs, props } = struct;
-    for (var k in binds) {
-        if (k === 'src') continue;
-        if (directives.hasOwnProperty(k)) {
-            directives[k].call(element, binds[k], replacer);
-        }
-        else {
-            binders._.call(element, k, binds[k]);
-        }
+    var { attrs, binds } = struct;
+    for (var k in binds) if (k !== 'src' && k in directives) {
+        directives[k].call(element, binds[k], replacer);
     }
+
     for (var k in struct.attrs) {
         binders[""].call(element, k, attrs[k]);
     }
-    for (var k in struct.props) {
-        try {
-            if (replacer[k] !== props[k]) replacer[k] = props[k];
-        } catch (e) { }
-    }
-    if (binds.src) directives.src.call(element, binds.src);
     if (renders && renders.length) element.$renders.push.apply(element.$renders, renders);
     if (!isElement(replacer)) replacer = element;
     struct.ons.forEach(([on, key, value]) => on.call(element, replacer, key, value));
@@ -791,7 +804,7 @@ function renderElement(element, scope = element.$scope, parentScopes = element.$
         }
         var $struct = element.$struct;
         element.$renders = element.$renders || element.renders ? [].concat(element.$renders || [], element.renders || []) : [];
-        var { copys, binds, once } = $struct;
+        var { copys, binds, once, props } = $struct;
         if (once) element.$renderid = 9;
         if (binds.src) {
             element.$src = parseRepeat(binds.src);
@@ -799,7 +812,10 @@ function renderElement(element, scope = element.$scope, parentScopes = element.$
         var { tagName, parentNode, nextSibling } = element;
         // 替换元素
         var constructor = getFromScopes(tagName, scope, parentScopes);
+        renderProp(element, props);
+        var bhs = renderBinds(element, binds);
         if (isFunction(constructor)) {
+            for (var h of bhs) h.call(element);
             var replacer = constructor.call(scope, element, scope, parentScopes);
             if (element === replacer) {
                 var struct1 = createStructure(element, false);
@@ -837,7 +853,7 @@ function renderElement(element, scope = element.$scope, parentScopes = element.$
     }
     if (element.$renders.length) {
         if (element.$renderid !== 9) {
-            onmounted(element, addRenderElement);
+            on("append")(element, addRenderElement);
             onremove(element, removeRenderElement);
             if (isMounted(element) || element.$renderid > 1) addRenderElement.call(element);
             else if (eagermount) rebuild(element);
