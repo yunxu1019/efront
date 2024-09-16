@@ -220,7 +220,7 @@ var doOptions = async function (req, res, type) {
                     return;
                 }
                 res.end(String(time));
-            })
+            });
             break;
         case "login":
             var a = type[2] || '';
@@ -278,6 +278,17 @@ var doOptions = async function (req, res, type) {
         needLogin = false;
     }
     if (needLogin) switch (type[1]) {
+        case "status":
+            res.end(JSON.stringify({
+                uptime: await message.invoke("uptime"),
+                memery: [require('os').freemem(), require("os").totalmem()],
+                arch: require('os').arch(),
+                platform: require('os').platform(),
+                nodeVersion: process.version,
+                version: require("../../package.json").version,
+                machine: require('os').machine(),
+            }));
+            return;
         case "count":
             var stream = userdata.getStream('count.jsam');
             if (stream) stream.pipe(res);

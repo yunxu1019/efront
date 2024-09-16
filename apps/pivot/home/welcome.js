@@ -1,11 +1,15 @@
 function main() {
     var page = div();
     page.innerHTML = template;
-    renderWithDefaults(page, {
+    var scope = {
         status: [],
         version: data.from("version"),
         hrtime: data.from("uptime", a => new Date - a * 1000),
         filterTime,
+        memeryUsed: 0,
+        memery: [0, 1],
+        size,
+        progbar,
         async run(id) {
             await new Promise(ok => setTimeout(ok, 2000));
             var info = await data.from("run", {
@@ -19,6 +23,13 @@ function main() {
             zimoli.switch();
             zimoli();
         }
+    };
+    renderWithDefaults(page, scope);
+    data.from("status").then(a => {
+        var [mr, mt] = a.memery;
+        scope.memeryUsed = mt - mr;
+        scope.memery = a.memery;
+        console.log('status')
     });
     return page;
 }

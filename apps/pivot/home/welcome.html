@@ -26,3 +26,11 @@
         启动时间&nbsp;&nbsp;<span -text="filterTime(hrtime)"></span>
     </padding>
 </block>
+<block>
+    <padding>
+        内存 <progbar danger:="memery[0]/memery[1]<.05" :current="memeryUsed" :total="memery[1]"></progbar>
+        <span style="color: #999;">
+            可用<span -bind="size(memery[0])"></span> / 总内存<span -bind="size(memery[1])"></span>
+        </span>
+    </padding>
+</block>
