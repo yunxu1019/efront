@@ -867,7 +867,7 @@ class Program {
                     }
                     else if (last.type === STRAP) {
                         if (last.isend);
-                        else scope.isObject = last.transive;
+                        else scope.isObject = last.transive || last.text === 'default';
                     }
                     scope.brace = true;
                     scope.isExpress = queue.inExpress;
