@@ -751,11 +751,10 @@ function renderRest(element, struct, replacer = element) {
     for (var k in binds) if (k !== 'src' && k in directives) {
         directives[k].call(element, binds[k], replacer);
     }
-    if (binds.src) directives.src.call(element, binds.src);
-
     for (var k in struct.attrs) {
         binders[""].call(element, k, attrs[k]);
     }
+    if (binds.src) directives.src.call(element, binds.src);
     if (renders && renders.length) element.$renders.push.apply(element.$renders, renders);
     if (!isElement(replacer)) replacer = element;
     struct.ons.forEach(([on, key, value]) => on.call(element, replacer, key, value));
