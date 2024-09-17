@@ -14,10 +14,12 @@ var validate = function (text, checker, tip) {
     return valid;
 };
 function prompt() {
-    var msg = "请输入", check, ipt;
+    var msg = i18n`请输入`, check, ipt;
+    var opts = [];
     for (var arg of arguments) {
         if (isNode(arg)) ipt = arg;
         else if (typeof arg === 'string') msg = arg;
+        else if (isArray(arg)) opts = arg;
         else if (isFunction(arg) || arg instanceof RegExp) check = arg;
     }
     var ipt = input();
@@ -31,7 +33,7 @@ function prompt() {
         oks.splice(0, oks.length);
         ohs.splice(0, ohs.length);
     };
-    var buttons = [button("确认"), button("取消", 'white')];
+    var buttons = [opts[0] || button(i18n`确认`), opts[1] || button(i18n`取消`, 'white')];
     if (isFunction(check)) {
         var setDisable = function (event) {
             if (oked || ohed) return;
