@@ -272,7 +272,7 @@ var doOptions = async function (req, res, type) {
         default:
             needLogin = true;
     }
-    if (needLogin && !await require("./checkAuth")(getHeader(req.headers, 'authorization'), remoteAddress(req))) {
+    if (needLogin && !await require("./checkAuth")(req)) {
         res.writeHead(401, utf8error);
         res.write(i18n[getHeader(req.headers, "accept-language")]`无权访问`);
         needLogin = false;

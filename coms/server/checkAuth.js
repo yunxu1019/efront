@@ -1,6 +1,8 @@
 var userdata = require("./userdata");
 var encode62 = require("../crypt/encode62");
-module.exports = async function (c, sign) {
+module.exports = async function (req) {
+    var c = getHeader(req.headers, 'authorization');
+    var sign = remoteAddress(req);
     if (!c) return false;
     c = encode62.timedecode(c);
     c = await userdata.unsign(c);

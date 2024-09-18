@@ -4,7 +4,6 @@ var path = require("path");
 var { Http2ServerRequest, Http2ServerResponse } = require("http2");
 var checkAccess = require("./checkAccess");
 var checkAuth = require("./checkAuth");
-var remoteAddress = require("./remoteAddress");
 var encode62 = require("../crypt/encode62");
 var root = require("../efront/memery").webroot;
 var cachePieceSize = 32 * 1024;
@@ -247,7 +246,7 @@ async function doFile(req, res) {
         filepath = filepath + extend;
     }
     if (!/get/i.test(req.method)) {
-        if (!checkAccess(filepath) && !await checkAuth(getHeader(req.headers, "authorization"), remoteAddress(req))) {
+        if (!checkAccess(filepath) && !await checkAuth(req)) {
             res.writeHead(406, utf8);
             res.end(i18n[getHeader(req.headers, "accept-language")]`拒绝访问`);
             return;
