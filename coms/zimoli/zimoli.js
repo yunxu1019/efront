@@ -144,6 +144,7 @@ function go(pagepath, args, history_name, oldpagepath) {
     var page_object = page_generators[pgpath];
     if (!isEmpty(args0)) page_object.state.data = args, args = args0;
     var fullfill = function () {
+        zimoliad = zimoliid;
         var _page = create(pgpath, args, oldpagepath);
         var isDestroy = pushstate(pagepath, history_name, oldpagepath);
         if (isNode(history_name)) {
@@ -436,13 +437,10 @@ function create(pagepath, args, from, needroles) {
 
 }
 
-var zimoliid = 0;
+var zimoliid = 0, zimoliad = 0;
 function zimoli(pagepath, args, history_name, oldpagepath) {
-
-    if (isNode(history_name))
-        var zid = history_name.zimoliid = (history_name.zimoliid | 0) + 1;
-    else var zid = ++zimoliid;
     if (arguments.length === 0) {
+        if (zimoliid !== zimoliad) return;
         history_name = current_history;
         var _history = history[history_name] || [];
         root_path = _history[0] || "/main";
@@ -456,6 +454,9 @@ function zimoli(pagepath, args, history_name, oldpagepath) {
         args = data;
         oldpagepath = from;
     }
+    if (isNode(history_name))
+        var zid = history_name.zimoliid = (history_name.zimoliid | 0) + 1;
+    else var zid = ++zimoliid;
 
     if (page_generators[pagepath]) return go(pagepath, args, history_name, oldpagepath);
     return prepare(pagepath, function () {
