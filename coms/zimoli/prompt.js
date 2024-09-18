@@ -1,26 +1,36 @@
+var settip = function (tip, res) {
+    if (isEmpty(res)) valid = true;
+    else if (typeof res === 'boolean') valid = res;
+    else if (isNode(res)) remove(tip.childNodes), appendChild(tip, res);
+    else html(tip, res), valid = false;
+    if (valid) html(tip, '');
+    return valid;
+}
 var validate = function (text, checker, tip) {
     var valid;
     if (checker instanceof RegExp) {
         valid = checker.test(text);
     }
     if (isFunction(checker)) {
-        var res = checker(text);
-        if (isEmpty(res)) valid = true;
-        else if (typeof res === 'boolean') valid = res;
-        else if (isNode(res)) remove(tip.childNodes), appendChild(tip, res);
-        else html(tip, res), valid = false;
+        valid = checker(text);
     }
-    if (valid) html(tip, '');
+    valid = settip(tip, valid);
     return valid;
 };
 function prompt() {
     var msg = i18n`请输入`, check, ipt;
     var opts = [];
+    var submit = null;
     for (var arg of arguments) {
         if (isNode(arg)) ipt = arg;
         else if (typeof arg === 'string') msg = arg;
         else if (isArray(arg)) opts = arg;
         else if (isFunction(arg) || arg instanceof RegExp) check = arg;
+        else if (isObject(arg)) {
+            if (isFunction(arg.test)) check = arg;
+            if (isFunction(arg.submit)) submit = arg;
+            if (isString(arg.msg || arg.title)) msg = arg.msg || arg.title;
+        }
     }
     var ipt = input();
     var tip = document.createElement("tip");
@@ -49,10 +59,14 @@ function prompt() {
     }
     var body = div();
     appendChild(body, [ipt, tip]);
-    var c = confirm(msg, body, buttons, function (_) {
+    var c = confirm(msg, body, buttons, async function (_) {
         if (oked || ohed) return;
         if (_ === buttons[0]) {
             if (check && !validate(ipt.value, check, tip)) return false;
+            if (submit) {
+                var res = await submit.submit(ipt.value);
+                if (!settip(tip, res)) return false;
+            }
             oked = true;
         } else {
             ohed = true;

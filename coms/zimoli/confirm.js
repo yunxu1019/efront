@@ -94,10 +94,11 @@ function confirm() {
                 element.setAttribute("locked", '');
                 this.setAttribute("loading", "");
                 res.then((res) => {
-                    element.result = res;
-                    remove(element);
                     element.removeAttribute('locked');
                     this.removeAttribute('loading');
+                    if (res === false) return;
+                    element.result = res;
+                    remove(element);
                 }, () => {
                     this.removeAttribute('loading');
                     element.removeAttribute('locked');
