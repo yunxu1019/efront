@@ -500,6 +500,7 @@ extend(color, {
 	angle,
 	parse,
 	equal,
+	format,
 	stringify,
 	pair(c, alpha) {
 		return doWith(gray4, c, alpha);
