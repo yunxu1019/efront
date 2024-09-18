@@ -43,7 +43,7 @@ function prompt() {
         oks.splice(0, oks.length);
         ohs.splice(0, ohs.length);
     };
-    var buttons = [opts[0] || button(i18n`确认`), opts[1] || button(i18n`取消`, 'white')];
+    var buttons = [isNode(opts[0]) ? opts[0] : button(opts[0] || i18n`确认`), isNode(opts[1]) ? opts[1] : button(opts[1] || i18n`取消`, 'white')];
     if (isFunction(check)) {
         var setDisable = function (event) {
             if (oked || ohed) return;
