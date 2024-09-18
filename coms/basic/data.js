@@ -385,7 +385,7 @@ function fixApi(api, href) {
     };
     api.transpile = getTranspile(api.url);
     api.url = api.url.replace(/#[\s\S]*$/, '');
-    if (!reg.test(api.url)) {
+    if (!/^\w+?\:\/\//i.test(api.url)) {
         if (href) {
             var paramReg = /(?:\?([\s\S]*?))?(?:#([\s\S]*))?$/, extraSearch, extraHash, search, hash;
             if (/[\?#]/.test(href)) {
@@ -416,7 +416,7 @@ function fixApi(api, href) {
     }
     api.method = api.method.replace(/^\w+/, a => a.toLowerCase());
 }
-const reg = /^(https?\:\/\/|\.?\/)/i;
+const reg = /^(\w+\:\/\/|\.?\/)/i;
 var ApiMap = function () { };
 ApiMap.prototype = Object.create(null);
 function createApiMap(data) {
@@ -457,7 +457,7 @@ function createApiMap(data) {
             _headers = undefined;
         }
         if (!base) continue;
-        href = /(https?\:)?|\.?\//i.test(base) ? base : '';
+        href = reg.test(base) ? base : '';
         var item1 = items1[key];
         var items = Object.keys(item1).map(buildItem);
         formulaters.string('id method url name comment', items).map(parseConfig).map(checkApi);
