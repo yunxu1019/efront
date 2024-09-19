@@ -190,8 +190,8 @@
     });
     result.open = function (menu) {
         if (!menu) {
-            menu = result.active || result[0];
-            delete result.active;
+            if (result.active) return;
+            menu = result[0];
         }
         if (!menu.path) {
             menu.closed = !menu.closed;
