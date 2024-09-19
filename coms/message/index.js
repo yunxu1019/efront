@@ -143,7 +143,7 @@ else if (onmessage.isPrimary) {
         return w;
     };
     onmessage.forkThread = function (maxOldSpace, maxYoungSpace) {
-        var argv = (process.__proto__ ? process.__proto__ : process).argv;
+        var argv = (process.__proto__?.argv ? process.__proto__ : process).argv;
         var exec = argv[1];
         var worker = new worker_threads.Worker(`${exec.replace(/\\/g, '/')}`, {
             argv: argv.slice(2),
