@@ -94,6 +94,9 @@ var init = function () {
 };
 var resize2 = function () {
     var [head, body, foot] = getTypedChildren(this, ["head", "body", "foot"]);
+    this.head = head;
+    this.body = body;
+    this.foot = foot;
     var changed = false;
     a: if (head && body) {
         var height = head.offsetHeight + head.offsetTop;

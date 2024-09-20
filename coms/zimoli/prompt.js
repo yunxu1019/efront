@@ -47,22 +47,35 @@ function prompt() {
     }
     var tip = document.createElement("tip");
     var buttons = [isNode(opts[0]) ? opts[0] : button(opts[0] || i18n`确认`), isNode(opts[1]) ? opts[1] : button(opts[1] || i18n`取消`, 'white')];
-    var h260 = freeOffset(260);
-    var h80 = freeOffset(80);
+    var getValue = () => isFunction(ipt.getValue) ? ipt.getValue() : ipt.value;
     if (isFunction(check) || wrap) {
         var setDisable = function (event) {
-            if (wrap) {
-                var lastElementChild = ipt.lastElementChild;
-                a: if (lastElementChild) {
-                    var targetHeight = Math.min(ipt.scrollHeight, h260, lastElementChild.offsetTop + lastElementChild.offsetHeight);
-                    if (Math.abs(targetHeight - ipt.clientHeight - ipt.clientTop) < 2) break a;
-                    if (targetHeight < h80) targetHeight = h80;
-                    css(ipt, { height: targetHeight + 20 });
+            var bd = c.body;
+            if (wrap && bd) {
+                if (p) move.setPosition(c, p);
+                var cp = getCursorPosition();
+                var bp = getScreenPosition(bd);
+                var s = getComputedStyle(ipt);
+                var pl = parseFloat(s.paddingLeft) * 2 + ipt.clientLeft + ipt.offsetLeft;
+                var pr = parseFloat(s.borderRightWidth) + parseFloat(s.paddingRight) * 2 + (bd.scrollWidth - ipt.offsetLeft - ipt.offsetWidth);
+                var pt = parseFloat(s.paddingTop) * 2 + ipt.clientTop + ipt.offsetTop;
+                var pb = parseFloat(s.borderBottomWidth) + parseFloat(s.paddingBottom) * 2 + (bd.scrollHeight - ipt.offsetTop - ipt.offsetHeight);
+
+                if (cp.left < bp.left + pl) {
+                    bd.scrollLeft -= bp.left + pl - cp.left;
+                }
+                if (cp.right > bp.right - pr) {
+                    bd.scrollLeft += cp.right + pr - bp.right;
+                }
+                if (cp.top < bp.top + pt) {
+                    bd.scrollTop -= bp.top + pt - cp.top;
+                }
+                if (cp.bottom > bp.bottom - pb) {
+                    bd.scrollTop += cp.bottom + pb - cp.bottom;
                 }
             }
-            if (p) move.setPosition(c, p);
             if (!check) return;
-            var valid = validate(ipt.value, check, tip);
+            var valid = validate(getValue(), check, tip);
             if (event) attr(body, "error", !valid);
             attr(buttons[0], 'disabled', !valid);
         };
@@ -76,9 +89,10 @@ function prompt() {
     appendChild(body, [ipt, tip]);
     var c = confirm(msg, body, buttons, async function (_) {
         if (_ === buttons[0]) {
-            if (check && !validate(ipt.value, check, tip)) return false;
+            var value = getValue();
+            if (check && !validate(value, check, tip)) return false;
             if (submit) {
-                var res = await submit.submit(ipt.value);
+                var res = await submit.submit(value);
                 if (!settip(tip, res)) return false;
             }
         }
