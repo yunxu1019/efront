@@ -21,6 +21,7 @@ function prompt() {
     var msg = i18n`请输入`, check, ipt;
     var opts = [];
     var submit = null;
+    var wrap = false;
     for (var arg of arguments) {
         if (isNode(arg)) ipt = arg;
         else if (typeof arg === 'string') msg = arg;
@@ -30,23 +31,37 @@ function prompt() {
             if (isFunction(arg.test)) check = arg;
             if (isFunction(arg.submit)) submit = arg;
             if (isString(arg.msg || arg.title)) msg = arg.msg || arg.title;
+            if (arg.multiple || arg.wrap) wrap = true;
         }
     }
-    var ipt = input();
+    if (!ipt) {
+        if (wrap) {
+            ipt = document.createElement('div');
+            ipt.setAttribute('textarea', '');
+            ipt.contentEditable = true;
+        }
+        else ipt = input();
+    }
+    else {
+        ipt.setAttribute('textarea', '');
+    }
     var tip = document.createElement("tip");
-    var oked, ohed;
-    var oks = [], ohs = [];
-    var fire = function () {
-        if (!oked && !ohed) return;
-        if (oked) oks.forEach(o => o(ipt.value));
-        if (ohed) ohs.forEach(o => o(ipt.value));
-        oks.splice(0, oks.length);
-        ohs.splice(0, ohs.length);
-    };
     var buttons = [isNode(opts[0]) ? opts[0] : button(opts[0] || i18n`确认`), isNode(opts[1]) ? opts[1] : button(opts[1] || i18n`取消`, 'white')];
-    if (isFunction(check)) {
+    var h260 = freeOffset(260);
+    var h80 = freeOffset(80);
+    if (isFunction(check) || wrap) {
         var setDisable = function (event) {
-            if (oked || ohed) return;
+            if (wrap) {
+                var lastElementChild = ipt.lastElementChild;
+                a: if (lastElementChild) {
+                    var targetHeight = Math.min(ipt.scrollHeight, h260, lastElementChild.offsetTop + lastElementChild.offsetHeight);
+                    if (Math.abs(targetHeight - ipt.clientHeight - ipt.clientTop) < 2) break a;
+                    if (targetHeight < h80) targetHeight = h80;
+                    css(ipt, { height: targetHeight + 20 });
+                }
+            }
+            if (p) move.setPosition(c, p);
+            if (!check) return;
             var valid = validate(ipt.value, check, tip);
             if (event) attr(body, "error", !valid);
             attr(buttons[0], 'disabled', !valid);
@@ -57,21 +72,16 @@ function prompt() {
         on('paste')(ipt, setDisable);
         on('input')(ipt, setDisable);
     }
-    var body = div();
+    var body = document.createElement("div");
     appendChild(body, [ipt, tip]);
     var c = confirm(msg, body, buttons, async function (_) {
-        if (oked || ohed) return;
         if (_ === buttons[0]) {
             if (check && !validate(ipt.value, check, tip)) return false;
             if (submit) {
                 var res = await submit.submit(ipt.value);
                 if (!settip(tip, res)) return false;
             }
-            oked = true;
-        } else {
-            ohed = true;
         }
-        fire();
     });
     on('mounted')(ipt, function () {
         if (setDisable) setDisable();
@@ -80,15 +90,21 @@ function prompt() {
         });
     })
     on("mousedown")(c, e => e.target !== ipt && e.preventDefault() | ipt.focus());
-    on("keydown.enter")(c, function (event) {
+    on(wrap ? "keydown.ctrl.enter" : "keydown.enter")(c, function (event) {
         if (event.defaultPrevented) return;
         event.preventDefault();
         buttons[0].click();
     });
-    c.then = function (ok, oh) {
-        oks.push(ok);
-        ohs.push(oh);
-        fire();
-    };
+    var p = null;
+    if (wrap) {
+        oncemount(c, function () {
+            requestAnimationFrame(function () {
+                p = move.getPosition(c);
+            });
+            once('dragend')(c, function () {
+                p = move.getPosition(c);
+            })
+        })
+    }
     return c;
 }
