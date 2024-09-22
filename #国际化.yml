@@ -1,3 +1,33 @@
+- zh-CN: $1已存在
+  en:    $1 already exists
+
+- zh-CN: $1不存在
+  en:    $1 does not exist
+
+- zh-CN: 数据不为空
+  en:    The data is not empty
+
+- zh-CN: 您没有权限访问此内容
+  en:    You do not have permission to access this content
+
+- zh-CN: 不存在名为$1的$2
+  en:    There is no $2 named $1
+
+- zh-CN: 请设置用户密码
+  en:    Please set a user password
+
+- zh-CN: 已存在名为$1的$2
+  en:    There already exists a $2 named $1
+
+- zh-CN: 文件夹名
+  en:    Folder Name
+
+- zh-CN: 请输入名称
+  en:    Please enter a name
+
+- zh-CN: 输入名称以确认删除
+  en:    Enter name to confirm deletion
+
 - zh-CN: 目标文件存在外部引用项$1
   en:    The target file has an external reference item of $1
 
