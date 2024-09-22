@@ -193,6 +193,7 @@ function toComponent(responseTree, noVersionInfo) {
         if (type === 'string') key = _strings.encode(key);
         return destMap[getEfrontKey(key, type)];
     };
+    var warningMap = Object.create(null);
     var saveCode = function (module_body, module_key, reqMap, occurs) {
         var this_module_params = Object.create(null);
         var needAwaits = false;
@@ -221,7 +222,10 @@ function toComponent(responseTree, noVersionInfo) {
                         needAwaits = true;
                         return reqed;
                     }
-                    console.warn(i18n`目标文件存在外部引用项${responseTree[reqer] ? "," + responseTree[reqer].warn : `: <blue2>${reqer}</blue2>`}`);
+                    if (!warningMap[reqer]) {
+                        warningMap[reqer] = true;
+                        console.warn(i18n`目标文件存在外部引用项${responseTree[reqer] ? ", " + responseTree[reqer].warn : `: <blue2>${reqer}</blue2>`}`);
+                    }
                     if (reqer in libsTree) {
                         var libdir = path.relative(PUBLIC_PATH, libsTree[reqer].realpath).replace(/\\/g, '/');
                         k = _strings.encode(libdir);
