@@ -183,6 +183,9 @@ var _ifempty = {
     },
     get islive() {
         return !!memery.LIVEMODE;
+    },
+    get DATA_PATH() {
+        return path.join(require('os').homedir(), ".efront");
     }
 };
 var memery = module.exports = {
@@ -247,6 +250,7 @@ var memery = module.exports = {
     WATCH_PROJECT_VERSION: 0,
     EXTT: get("EXTT, EXT, EXTT_NAME, EXT_NAME, PUBLIC_EXTT, PUBLIC_EXT"),
     ENVS_PATH: getfullpath("ENVS_PATH, ENV_PATH, CONFIG_PATH, CONF_PATH"),
+    DATA_PATH: getfullpath("DATA_PATH"),
     COMS_PATH: getfullpath("COMS_PATH,COMM_PATH"),
     SCITER: get("SCITER,QUICKJS,QJS", false),
     I18NNAME: get("I18N_FILENAME,I18N_NAME,I18NFILE,I18NNAME", '#国际化.yml'),

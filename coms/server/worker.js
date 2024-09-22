@@ -2,6 +2,7 @@ var message = require('../message');
 var path = require("path");
 var memery = require("../efront/memery");
 var dbmap = Object.create(null);
+
 var dbdir = path.join(memery.DATA_PATH, 'db');
 var fs = require('fs');
 var fsp = fs.promises;
