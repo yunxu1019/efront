@@ -1391,21 +1391,22 @@ var killarg = function (head, body, _getname, setarg = true) {
 var revar = function (body) {
     for (var i = 0; i < body.length; i++) {
         var o = body[i];
+
         if (o.type === STRAP) {
             if (/^(const|let|var)$/.test(o.text)) {
                 var q = body;
                 if (!q) return;
                 splice(q, i, 1)
                 o = o.next;
-                var s = i, v = o;
+                var s = i, n = o;
                 if (o) do {
-                    var n = snapExpressFoot(o).next;
+                    n = snapExpressFoot(n).next;
                     if (n && n.type === STRAP && /^(in|of)$/.test(n.text)) break;
                     if (n && n.text === '=') {
                         n = skipAssignment(n);
                     }
                     else {
-                        i = q.indexOf(o, i);
+                        i = q.indexOf(n, i);
                         var j = n ? q.indexOf(n, i) + 1 : q.length;
                         splice(q, i, j - i);
                     }
