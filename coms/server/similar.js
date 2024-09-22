@@ -5,7 +5,6 @@ var getIndexFromOrderedArray = require("../basic/getIndexFromOrderedArray");
 var userdata = require("./userdata");
 var logpath = userdata.getFullpath("similar.log");
 var hosts = [];
-
 var sortbyId = function (a, b) {
     if (a.id <= b.id) return true;
     return false;

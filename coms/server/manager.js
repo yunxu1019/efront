@@ -17,7 +17,6 @@ message.rehost = function () {
     child.unref();
 };
 
-var similar = require("./similar");
 message.logsimilar = function (a) {
     a = JSON.parse(a);
     similar.log(a);
