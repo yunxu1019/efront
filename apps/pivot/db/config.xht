@@ -1,0 +1,37 @@
+<style>
+    & {
+        width: 100%;
+        height: 100%;
+        display: block;
+        position: relative;
+        padding-right: 0!important;
+        overflow: hidden;
+    }
+
+    .design {
+        list {
+            height: 100%;
+        }
+
+        list,
+        .options {
+
+            width: 600px;
+            margin: 0 auto;
+        }
+    }
+</style>
+
+<div head>
+    <span -bind="db.name"></span>
+</div>
+<div body>
+    <div>权限</div>
+    <div>是否公开<swap -model="db.open"></swap></div>
+</div>
+<div foot>
+    <button>保存</button>
+</div>
+<script>
+    var [db] = arguments;
+</script>

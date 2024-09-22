@@ -13,6 +13,13 @@
   invoke: options ::invoke-:key?:params
   version: options ::version
   uptime: options ::uptime
+  status: options ::status
+  dball: get /
+  dbget: get /:id/
+  daadd: put /:dbid/
+  dbfind: get /:dbid/:last,:size
+  dbadd: put /:id
+  dbdel: delete /:id
   count: options ::count
   bootlog: options ::similar
   link: options ::link

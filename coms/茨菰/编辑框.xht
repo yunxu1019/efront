@@ -29,7 +29,7 @@
         coder.innerHTML = colored;
     };
     coder.getValue = function () {
-        return coder.innerText;
+        return coder.innerText.replace(/[\u00a0\u2002]/g, ' ');
     };
     var markAnchorOffset = function () {
         var { anchorNode, anchorOffset } = document.getSelection();

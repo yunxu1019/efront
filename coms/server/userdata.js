@@ -107,9 +107,9 @@ async function checkPassword(p) {
     return c0 === c;
 }
 
-async function checkPasswordA(a) {
-    var c = await getItem('password-c');
-    var d = await getItem('password-d');
+async function checkPasswordA(a, u) {
+    if (u) var { c, d } = u;
+    else c = await getItem('password-c'), d = await getItem('password-d');
     if (!c || !d) return null;
     var b = encode62.da2b(d, a);
     var c0 = encode62.ab2c(a, b);
@@ -117,28 +117,38 @@ async function checkPasswordA(a) {
     return null;
 }
 
-async function checkPasswordB(b) {
-    var c = await getItem('password-c');
-    var d = await getItem('password-d');
+async function checkPasswordB(b, u) {
+    if (u) var { c, d } = u;
+    else c = await getItem('password-c'), d = await getItem('password-d');
     if (!c || !d) return null;
     var a = encode62.db2a(d, b);
     var c0 = encode62.ab2c(a, b);
     return c0 === c;
 }
 
-async function setPassword(p) {
-    var a = encode62.geta(p);
+async function setPasswordA(a, u) {
     var b = encode62.genb();
     var c = encode62.ab2c(a, b);
     var d = encode62.ba2d(b, a);
-    await setItem('password-c', c);
-    await setItem('password-d', d);
+    if (u) {
+        u.c = c;
+        u.d = d;
+    }
+    else {
+        await setItem('password-c', c);
+        await setItem('password-d', d);
+    }
+}
+function setPassword(p) {
+    var a = encode62.geta(p);
+    return setPasswordA(a);
 }
 async function hasPassword(p) {
     return !!await getItem("password-c");
 }
 var listmark = "-options";
 var optionmark = ":";
+var dbs = null;
 module.exports = {
     getStream(filename) {
         try {
@@ -157,6 +167,7 @@ module.exports = {
     getItem,
     hasPassword,
     setPassword,
+    setPasswordA,
     checkPassword,
     checkPasswordA,
     checkPasswordB,
@@ -169,7 +180,18 @@ module.exports = {
             return func();
         }
     },
+    getDBS() {
+        if (dbs) return dbs;
+        dbs = this.getOptionsList('db', "id").then(dbs => {
+            var m = Object.create(null);
+            dbs.forEach(d => m[d.id] = d);
+            return m;
+        });
+        dbs.then(s => dbs = s);
+        return dbs;
+    },
     reload() {
+        dbs = null;
         profile_promise = null;
         this.loadtime = +new Date;
     },

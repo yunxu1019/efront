@@ -1,0 +1,47 @@
+<div>
+    编辑数据 - <span -bind="db.name"></span>
+    <a @click="add">添加</a>
+</div>
+
+<div>
+    <lattice -src="m in items">
+        <div -bind="m.id"></div>
+        <div -bind="m.name"></div>
+    </lattice>
+</div>
+<script>
+    var [db] = arguments;
+    var a = button;
+    var add = function () {
+        var elem = document.createElement('jsoncode');
+        elem.type = 'json';
+        elem.contentEditable = true;
+        return prompt(茨菰$编辑框(elem), '输入JSON格式的数据', function (text) {
+            try {
+                JSON.parse(text);
+                return true;
+            } catch (e) {
+                console.log(text, e)
+                return false;
+            }
+        }, {
+            wrap: true,
+            async submit(text) {
+                var d = JSON.parse(text);
+                if (db.id === '用户') {
+                    if (!d.id && !d.password) {
+                        return alert("缺少密码！");
+                    }
+                    if (d.password) {
+                        delete d.password;
+                        d.a = encode62.geta(d.password);
+                    }
+                }
+                data.from('daadd', { dbid: db.id, ...d })
+            }
+        });
+    };
+    var items = await data.from('dbfind', { dbid: db.id, size: 20 });
+
+    console.log(arguments)
+</script>

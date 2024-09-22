@@ -1,0 +1,63 @@
+<style>
+    & {
+        width: 100%;
+        overflow: hidden;
+        display: block;
+        padding: 0;
+    }
+
+    [db] {
+        display: block;
+        border: 1px solid #000;
+        padding: 10px 6px;
+
+        h2 {
+            display: inline-block;
+            padding: 2px 6px;
+            font-size: 40px;
+            margin: 0;
+            color: #333;
+        }
+
+        a {
+            margin-right: 6px;
+        }
+    }
+</style>
+<lattice body a-src="db in dbs">
+    <div insert><a @click="adddb">添加</a></div>
+    <padding db>
+        <div>
+            <h2> ⩸ </h2>
+            <h2 -bind="db.name"></h2>
+            <a @click="go('/db/edit',db)">查看</a>
+            <a @click="go('/db/config',db)">配置</a>
+            <drop @click.singly.stop="deldb(db)"></drop>
+        </div>
+    </padding>
+</lattice>
+<script>
+    var dbs = [];
+    var a = button;
+    var load = async function name(params) {
+        dbs = await data.from("dball");
+    };
+    load();
+    var adddb = async function () {
+        var a = await prompt(i18n`请输入名称`, {
+            async submit(a) {
+                await data.from('dbadd', { id: a, name: a });
+            }
+        });
+        await load();
+    };
+    var deldb = async function (db) {
+        var a = await prompt(i18n`输入名称以确认删除`, ["删除#danger", '取消'], a => a === db.name, {
+            async submit(v) {
+                await data.from('dbdel', { id: v });
+            }
+        });
+        await load();
+    };
+
+</script>

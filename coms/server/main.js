@@ -10,8 +10,13 @@ if (global.Deno) {
     return;
 }
 var cluster = require("../message");
+var worker_threads = require("worker_threads");
 if (cluster.isPrimary) {
     require("./master");
-} else {
+}
+else if (worker_threads.isMainThread) {
     require("./waiter");
+}
+else {
+    require("./worker");
 }

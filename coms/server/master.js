@@ -10,9 +10,9 @@ var quitting = [];
 /**
  * @type {[:Worker]}
  */
-var waiters = [];
+var waiters = [], workers = [];
 var end = function () {
-    quitting = quitting.concat(waiters);
+    quitting = quitting.concat(waiters, workers);
     if (!quitting.length) {
         console.info(i18n`正在退出..`);
         afterend();
@@ -73,7 +73,11 @@ var run = async function () {
         return;
     }
     run.ing = true;
-    quitting = quitting.concat(waiters);
+    quitting = quitting.concat(waiters, workers);
+    waiters = [];
+    var dbworker = message.forkThread();
+    bindWorker(dbworker, ["dbList", 'dbLoad', 'dbFind', 'dbSave', 'dbPatch']);
+    workers = [dbworker];
     var count = memery.WAITER_NUMBER;
     while (count-- > 0) {
         var waiter = createWaiter();
@@ -116,6 +120,13 @@ message.deliver = function (a) {
             }
         }, null);
     });
+};
+var bindWorker = function (w, methods) {
+    methods.forEach(m => {
+        message[m] = function (params) {
+            return message.invoke(w, m, params)
+        };
+    })
 };
 var channel = require('./channel');
 message["set-waiter"] = function (channelId) {

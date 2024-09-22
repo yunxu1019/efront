@@ -61,7 +61,9 @@ const formulaters = {
             data = data.map(function (item) {
                 if (typeof item === 'string') {
                     const res = {};
-                    item.split(/(?:\s+|,)/).map((value, cx) => res[keys[cx]] = value);
+                    if (/\s/.test(item)) item = item.split(/\s+/);
+                    else item = item.split(',');
+                    item.forEach((value, cx) => res[keys[cx]] = value);
                     return res;
                 }
                 return item;

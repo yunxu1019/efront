@@ -246,7 +246,7 @@ async function doFile(req, res) {
         filepath = filepath + extend;
     }
     if (!/get/i.test(req.method)) {
-        if (!checkAccess(filepath) && !await checkAuth(req)) {
+        if (!checkAccess(filepath) && !await checkAuth(req, ["file"])) {
             res.writeHead(406, utf8);
             res.end(i18n[getHeader(req.headers, "accept-language")]`拒绝访问`);
             return;

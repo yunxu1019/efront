@@ -223,8 +223,7 @@ var doOptions = async function (req, res, type) {
             });
             break;
         case "login":
-            var a = type[2] || '';
-            return require("./login")(a, remoteAddress(req)).then(b => {
+            return require("./login")(type[3] ? type[3] : type[2], remoteAddress(req), type[3] ? type[2] : null).then(b => {
                 if (!b) throw i18n[getHeader(req.headers, "accept-language")]`密码不正确！`;
                 res.end(b);
             }).catch(e => {
@@ -272,7 +271,7 @@ var doOptions = async function (req, res, type) {
         default:
             needLogin = true;
     }
-    if (needLogin && !await require("./checkAuth")(req)) {
+    if (needLogin && !await require("./checkAuth")(req, ["pivot"])) {
         res.writeHead(401, utf8error);
         res.write(i18n[getHeader(req.headers, "accept-language")]`无权访问`);
         needLogin = false;
@@ -684,6 +683,7 @@ var requestListener = async function (req, res) {
             return doCross(req, res);
         }
     }
+    if (/^\/\//.test(url)) return doDB(req, res);
     try {
         url = decodeURI(url);
     } catch {
