@@ -145,6 +145,7 @@ else if (onmessage.isPrimary) {
     onmessage.forkThread = function (maxOldSpace, maxYoungSpace) {
         var argv = (process.__proto__?.argv ? process.__proto__ : process).argv;
         var exec = argv[1];
+        exec = require.resolve(exec);
         var worker = new worker_threads.Worker(`${exec.replace(/\\/g, '/')}`, {
             argv: argv.slice(2),
             workerData: [process.stdout.columns],
