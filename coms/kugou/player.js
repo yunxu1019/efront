@@ -305,6 +305,7 @@ var $scope = {
         musicList.setActive(music);
         $scope.playing = true;
         playState.width = 0;
+        $scope.info = Object.assign({}, music);
         patchMusicInfo(music).then((response) => {
             if (playid !== this.playid) return;
             if (!this.playing) return;
