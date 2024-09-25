@@ -4,7 +4,19 @@ await data.from("singer/list.jsp", function (a) {
         var b = a.replace(/\.\w+$/, '');
         singerPhotosMap[b] = a;
     })
-})
+});
+var parseFileName = function (b) {
+    var [name, singer] = String(b).replace(/\.\w+$/, '').split(/\s*-\s*/);
+    if (!singer) {
+        name = name.replace(/[\(（]([^\)）]+)[\)）]/, function (_, m) {
+            singer = m;
+            return ''
+        });
+    }
+    name = name.replace(/^\d+[\s\.,\-]+(\S+)$/, "$1")
+        .replace(/^\d+[\.]+\s+([\s\S]+)$/, "$1");
+    return { name, singer };
+};
 return a => {
     if (isElement(a)) {
         var m = /songsdata\s*=\s*(\[[\s\S]*\])/.exec(a.innerText);
@@ -21,13 +33,18 @@ return a => {
         }, b.data);
         else if (isObject(b)) extend(data, b);
         if (typeof b === 'string') {
-            var [name, singer] = b.replace(/\.\w+$/, '').split(/\s*-\s*/);
+            var { name, singer } = parseFileName(b);
             data.name = name;
             data.singer = singer;
             data.url = "song/" + b;
-
-        } if (!data.singer) {
+        }
+        if (!data.singer) {
             data.singer = data.author_name;
+        }
+        if (data.name && !data.singer) {
+            var { name, singer } = parseFileName(data.name);
+            data.name = name;
+            data.singer = singer;
         }
         if (!data.name) data.name = data.audio_name;
         if (data.hash) data.hash = data.hash.replace(/^songs\_/i, '');

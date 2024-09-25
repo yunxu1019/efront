@@ -1,4 +1,7 @@
 var musicList = data.getInstance("musicList");
+backEach(musicList, (a, i) => {
+    if (a.url && /^blob\:/.test(a.url)) musicList.splice(i, 1);
+});
 var actived = null;
 musicList.forEach(function (music) {
     if (music.activate) actived = music;
