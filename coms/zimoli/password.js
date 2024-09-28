@@ -31,6 +31,7 @@ function password() {
             dispatch(this, "change");
         }
     };
+    input(_input);
     element.type = "text";
     element.nodrag = true;
     element.tabIndex = 0;
