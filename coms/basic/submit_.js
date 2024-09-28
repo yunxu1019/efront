@@ -14,7 +14,7 @@ function submit_() {
         else Object.assign(data, arg);
     }
     for (var fields of fieldsList) for (var f of fields) {
-        if (!check(data, field.needs)) continue;
+        if (!check(data, f.needs)) continue;
         var error = valid(f, data);
         if (error === "empty") {
             if (f.options instanceof Array || /date|time|range|switch|swap|radio/i.test(f.type)) {
