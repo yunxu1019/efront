@@ -38,17 +38,20 @@ function isChildPath(relative, path) {
 var getCrossUrl = function (domain, headers, encrypt) {
     if (notCross(domain, encrypt)) return domain;
     var basehost = parseURL(base).host || parseURL(location_href).host;
+    var ishttps = /^(https\:|s\/\/)/i.test(domain);
+    var _headers = serialize(headers);
+    if (_headers) _headers = "," + _headers;
     if (parseURL(domain).host === basehost) {
         if (!encrypt) return domain;
         domain = domain.replace(domainReg, "/$3$4");
+        if (_headers) domain = _headers + domain;
     }
-    var _headers = serialize(headers);
-    if (_headers) _headers = "," + _headers;
+    else {
+        domain = domain
+            .replace(/^(s?)(\/\/)/i, "http$1:$2")
+            .replace(domainReg, `$2${_headers}/$3$4`)
+    }
     var b = encrypt ? "!" : `*`;
-    var ishttps = /^(https\:|s\/\/)/i.test(domain);
-    domain = domain
-        .replace(/^(s?)(\/\/)/i, "http$1:$2")
-        .replace(domainReg, `$2${_headers}/$3$4`)
     if (ishttps) domain = b + domain;
     if (encrypt) domain = encode62.timeencode(encode62.safeencode(domain, encrypt));
     return base + b + domain;

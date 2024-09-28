@@ -586,13 +586,20 @@ var requestListener = async function (req, res) {
                 }
             }
         }));
+        if (/^\/\!\//.test(url)) url = url.slice(2);
+        if (/^,/.test(url)) {
+            var m = /^,([^\/]+)/.exec(url);
+            if (m) {
+                extend(headers, parseKV(m[1]));
+                url = url.slice(m.index + m[0].length);
+            }
+        }
         req1.headers = headers;
         req1.url = url;
         req1.method = method;
         req1.socket = socket;
         req1.protocol = req.protocol;
         req = req1;
-        if (/^\/\!\//.test(url)) url = req.url = url.slice(2);
     }
 
     var req_access_origin = getHeader(headers, "origin");
