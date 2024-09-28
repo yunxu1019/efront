@@ -8,15 +8,37 @@ await data.from("singer/list.jsp", function (a) {
 var parseFileName = function (b) {
     var [name, singer] = String(b).replace(/\.\w+$/, '')
         .replace(/^\s*\d+[\s\.,\-]+(\S+)($|\W\s*\-)/, "$1$2")
-        .replace(/^\s*\d+[\.]+\s+([\s\S]+)/, "$1")
-        .replace(/^\s*\d+\s*(\W+)/, "$1")
-        .split(/\s*-\s*/);
+        .replace(/^\s*\d+[\.]+\s*([\s\S]+)/, "$1")
+        .replace(/^\s*\d+\s+(\W+)/, "$1")
+        .split(/\s-\s/);
+
+    if (!singer) {
+        var m = /\s+(\S+)\s*$/.exec(name);
+        if (m) {
+            var s = /^([\W\s]+\W)\s+/.exec(name);
+            if (s) {
+                singer = name.slice(s[0].length);
+                name = s[0];
+            }
+            else {
+                singer = m[1];
+                name = name.slice(0, m.index);
+            }
+
+        }
+    }
     if (!singer) {
         name = name.replace(/[\(（]([^\)）]+)[\)）]/, function (_, m) {
             singer = m;
             return ''
         });
     }
+    if (!singer) {
+        if (/\W\-\W/.test(name)) {
+            [name, singer] = name.split('-');
+        }
+    }
+    console.log(name, singer, 像中文人名(name), 像中文人名(singer));
     if (像中文人名(name) && !像中文人名(singer)) {
         b = singer;
         singer = name;
