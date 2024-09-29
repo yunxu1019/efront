@@ -510,9 +510,6 @@ var src2 = function (search) {
 
 var directives = {
     text: createBinder2(function (elem, value) {
-        elem.innerText = value;
-    }),
-    bind: createBinder2(function (elem, value) {
         if (isNode(value) || isArray(value)) {
             if (value !== elem.firstChild) {
                 remove(elem.childNodes);
@@ -524,7 +521,15 @@ var directives = {
         }
     }),
     html: createBinder2(function (elem, value) {
-        elem.innerHTML = value;
+        if (isNode(value) || isArray(value)) {
+            if (value !== elem.firstChild) {
+                remove(elem.childNodes);
+                appendChild(elem, value);
+            }
+        }
+        else {
+            elem.innerHTML = value;
+        }
     }),
     hide: createBinder2(function (elem, value) {
         var display = value ? 'none' : '';
@@ -602,6 +607,8 @@ var directives = {
     },
 
 };
+directives.bind = directives.text;
+
 // property binder
 var binders = {
     _(attr, search) {
@@ -1013,9 +1020,24 @@ function createStructure(element, useExists) {
             continue;
         }
         // ng-html,ng-src,ng-text,ng-model,ng-style,ng-class,...
-        var key = name.replace(/^(ng|v|[^\_\:\.]*?)\-|^[\:\_\.]|^v\-bind\:/i, "").toLowerCase();
-        if (key.length !== name.length && directives.hasOwnProperty(key) || /^([\_\:\.]|v\-bind\:)/.test(name)) {
+        var key = name.replace(/^(ng|v|[^\_\:\.]*?)\-|^[\:\_\.\?\@\*&]|^v\-bind\:/i, "").toLowerCase();
+        if (key.length !== name.length && directives.hasOwnProperty(key) || /^([\_\:\.]|v\-bind\:)/.test(name) || /^[@&\?\*]/.test(name) && !value) {
             if (value) binds[key] = value;
+            else switch (name.charAt(0)) {
+                case "?":
+                case ":":
+                    binds.text = key;
+                    break;
+                case "@":
+                    binds.html = key;
+                    break;
+                case "*":
+                    binds.model = key;
+                    break;
+                case "&":
+                    binds.src = key;
+                    break;
+            }
             element.removeAttribute(name);
         }
         // ng-click on-click v-click @click @mousedown ...
@@ -1026,8 +1048,26 @@ function createStructure(element, useExists) {
             if (value) ons.push([emiters[ngon], name.replace(emiter_reg, ''), value]);
         }
         // placeholder_ href_ checked_ ...
-        else if (/[_@\:\.]$/.test(name)) {
-            if (value) attr1[name.replace(/[_@\:\.]$/, "")] = value;
+        else if (/[_@\:\.&\?\*]$/.test(name)) {
+            var key = name.slice(0, name.length - 1);
+            if (value) attr1[key] = value;
+            else {
+                switch (name.charAt(name.length - 1)) {
+                    case "?":
+                        binds.text = key;
+                        break;
+                    case "@":
+                        binds.html = key;
+                        break;
+                    case "*":
+                        binds.model = key;
+                        break;
+                    case "&":
+                        binds.src = key;
+                        break;
+                }
+                element.setAttribute(key.replace(/\./g, '-'), '');
+            }
             element.removeAttribute(name);
         }
         // title alt name type placeholder href checked ...
