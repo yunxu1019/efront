@@ -53,33 +53,8 @@ var stringsFromRegExp = function (reg) {
     var res = combine(...queue).map(a => a.join(""));
     return res;
 }
-var supportUnicodeRegExp = false;
-var spaceDefined = [
-    "\\u0002",
-    "\\b-\\r",// "\\b"/*8*/, "\\t"/*9*/, "\\n"/*10*/, "\\v"/*11*/, "\\f"/*12*/, "\\r"/*13*/,
-    " "/*32*/,
-    "\\u007f", "\\u00a0", "\\u00ad", "\\u034f", "\\u061c",
-    "\\u115f", "\\u1160",
-    "\\u17b4", "\\u17b5",
-    "\\u180b-\\u180e",
-    "\\u1cbb", "\\u1cbc",
-    "\\u2000-\\u200f",
-    "\\u2028-\\u202f",
-    "\\u205f-\\u206f",
-    "\\u2800", "\\u3000", "\\u3164",
-    "\\ufe00-\\ufe0f",
-    "\\ufeff", "\\uffa0",
-    "\\ufff0-\\ufff8",
-    "\\u{133fc}",
-    "\\u{1d173}-\\u{1d17a}"
-]
-try {
-    new RegExp('.', 'u');
-    supportUnicodeRegExp = true;
-} catch (e) {
-    spaceDefined.pop();
-    spaceDefined.pop();
-}
+var spaceDefined = require("../basic/spaces");
+
 var powermap = require("./powermap");
 class Program {
     quotes = [
@@ -118,7 +93,6 @@ class Program {
     structstrap_reg = /^(class|interface|struct|enum)$/;
     control_reg = /^(if|else|switch|case|do|while|for|loop|break|continue|default|import|from|as|export|try|catch|finally|throw|await|yield|return)$/;
     type_reg = /^(var|let|const|function|fn|func|class|interface|type|struct|enum|impl)$/;
-    spaces = spaceDefined;
     nocase = false
     keepspace = false;
     lastIndex = 0
@@ -1010,14 +984,12 @@ class Program {
         });
         var scopes = this.scopes.map(a => a.join("")).join("");
         scopes = this.compile(scopes);
-        var spaces = this.spaces.join("");
         tokens = Object.keys(tokens).join("");
-        tokens = this.compile(tokens) + spaces;
-        var express = `(?:\\\\u\\{[^\\}]+\\}|[^${tokens}])+`;
-        var flagUnicode = supportUnicodeRegExp ? 'u' : '';
-        this.express_reg = new RegExp(`^${express}$`, flagUnicode);
-        this.space_reg = new RegExp(`^[${spaces}]+$`, flagUnicode);
-        this.space_exp = new RegExp(`[${spaces}]+`, flagUnicode);
+        tokens = this.compile(tokens);
+        var express = `(?:\\\\u\\{[^\\}]+\\}|${spaceDefined.avoid(tokens)})+`;
+        this.express_reg = new RegExp(`^${express}$`);
+        this.space_reg = spaceDefined.is_reg;
+        this.space_exp = spaceDefined.reg;
         var quotes_entries = this.createRegExp(this.comments.concat(this.quotes).map(q => q[0]), true).source;
         var powers = Object.keys(this.powermap).filter(k => k.length > 1 && stamp_reg.test(k));
         var powers_entries = this.createRegExp(this.tags.map(t => t[0]).concat(powers), true).source;
@@ -1026,7 +998,7 @@ class Program {
         var number_reg = this.number_reg;
         var numbers = number_reg.source.replace(/^\^|\$$/g, "");
         this.digit_reg = new RegExp(/^[+\-]?/.source + numbers, number_reg.flags);
-        this.entry_reg = new RegExp([`[${spaces}]+|${quotes_entries}|[${scopes}]|${numbers}[^${tokens}]*|${express}|${powers_entries}|[${stamps}]`], "gi" + flagUnicode);
+        this.entry_reg = new RegExp([`${spaceDefined.reg.source}|${quotes_entries}|[${scopes}]|${numbers}(?:${spaceDefined.avoid(tokens)})*|${express}|${powers_entries}|[${stamps}]`], "gi");
         var stamps = this.stamps.slice();
         for (var k in this.powermap) if (k.length === 1 && stamps.indexOf(k) < 0) stamps.push(k);
         stamps.push.apply(stamps, powers);
