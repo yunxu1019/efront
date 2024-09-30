@@ -1,1 +1,1 @@
-buildList(['song/list.jsp', 'songs-list']);
+buildList(['efront-song', 'songs-list']);

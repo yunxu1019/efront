@@ -10,6 +10,7 @@ zimoli();
 document.addEventListener('dragover', function (e) {
     e.preventDefault();
 })
+var parseSongsList = await init('parseSongsList');
 document.addEventListener('drop', function (e) {
     e.preventDefault();
     var { files } = e.dataTransfer;

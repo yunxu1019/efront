@@ -1,5 +1,5 @@
 var singerPhotosMap = Object.create(null);
-await data.from("singer/list.jsp", function (a) {
+await data.from("efront-singer", function (a) {
     a.forEach(a => {
         var b = a.replace(/\.\w+$/, '');
         singerPhotosMap[b] = a;
@@ -38,7 +38,6 @@ var parseFileName = function (b) {
             [name, singer] = name.split('-');
         }
     }
-    console.log(name, singer, 像中文人名(name), 像中文人名(singer));
     if (像中文人名(name) && !像中文人名(singer)) {
         b = singer;
         singer = name;
@@ -80,7 +79,6 @@ return a => {
         if (data.singer) data.singer = formatSingerNames(data.singer);
         if (!data.avatar && data.singer) {
             var singer0 = data.singer.split("、")[0];
-            console.log(singer0)
             if (singer0 in singerPhotosMap) data.avatar = `singer/` + singerPhotosMap[singer0];
         }
         if (!data.singerName) data.singerName = data.singer;

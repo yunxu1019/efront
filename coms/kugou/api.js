@@ -48,5 +48,9 @@
     "https://music.91q.com/": {// 千千静听/百度音乐
         "search-qqjt?word": "get:data.typeTrack v1/search#songname=title&singername=artist<、>.name&avatar=pic&priced=isVip",
         "qqjt-url?TSID": "get:data v1/song/tracklink#url=path"
+    },
+    "https://efront.cc/": {
+        "efront-song": "get song/list",
+        "efront-singer": "get singer/list",
     }
 })
