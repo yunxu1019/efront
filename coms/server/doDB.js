@@ -28,21 +28,21 @@ var checkUid = function (data, lang) {
     var id = data.id;
     if (/^[\d\_\-]+$/.test(id)) {
         // 为电话号码预留
-        return i18n`数据标识不能是纯数字`;
+        return i18n[lang]`数据标识不能是纯数字`;
     }
     if (/@/.test(id)) {
         // 为邮箱预留
-        return i18n`数据标识不能有“@”符号`;
+        return i18n[lang]`数据标识不能有“@”符号`;
     }
 }
-var checkId = function (data) {
+var checkId = function (data, lang) {
     var id = data.id;
     if (!id) return;
     var id1 = spaces.format(id);
     if (id !== id1) id = data.id = id1;
     var m = /[\*\?\|\/\\\>\<"\:]/.exec(id);
     if (m) {
-        return i18n`数据标识不能有特殊符号“${m[0]}”`
+        return i18n[lang]`数据标识不能有特殊符号“${m[0]}”`
     }
 };
 var checkField = function (data, fnames, lang) {
@@ -134,6 +134,7 @@ var doDB = async function (req, res) {
         case "get":
             if (lastId) {
                 var [lastId, pageSize, searchText] = lastId.split(',');
+                pageSize = +pageSize;
             }
             if (!lastId && !await checkRead(req, db)) {
                 res.writeHead(403, utf8error);
@@ -143,7 +144,6 @@ var doDB = async function (req, res) {
             if (lastId === undefined) {
                 return res.end(JSON.stringify(db));
             }
-            else pageSize = 20;
             if (pageSize) {
                 pageSize = +pageSize;
                 if (search || searchText || pageSize >= 0) {
@@ -235,16 +235,23 @@ var doDB = async function (req, res) {
                 if (!data.id) {
                     data.id = data.name;
                 }
-                var msg = checkUid(data);
+                var msg = checkUid(data, lang);
             }
             else {
                 var owner = await checkOwner(req, db);
                 if (!owner) {
-                    res.writeHead(401, utf8error);
-                    res.end(i18n[lang]`请登录后重试`);
-                    return;
+                    if (!await checkAuth(req, ['dbw'])) {
+                        res.writeHead(401, utf8error);
+                        res.end(i18n[lang]`请登录后重试`);
+                        return;
+                    }
+                    msg = checkField(data, ["owner"], lang);
                 }
-                msg = checkField(data, ["owner", 'mtime', 'ctime'], lang);
+                else {
+                    msg = checkField(data, ["owner", 'mtime', 'ctime'], lang);
+                    data.mtime = data.ctime = +new Date;
+                    data.owner = owner;
+                }
             }
             var msg = msg || checkId(data, lang);
             if (msg) {
@@ -252,8 +259,6 @@ var doDB = async function (req, res) {
                 res.end(msg);
                 return;
             }
-            data.mtime = data.ctime = +new Date;
-            data.owner = owner;
             if (!lastId) lastId = data.id || '';
             var origin = await message.invoke('dbLoad', [dbid, lastId]);
             if (origin) {
@@ -272,9 +277,12 @@ var doDB = async function (req, res) {
             var origin = await message.invoke('dbLoad', [dbid, lastId]);
             var owner = await checkOwner(req, db, origin);
             if (!owner) {
-                res.writeHead(403, utf8error);
-                res.end(i18n[lang]`您不能删除别人的数据`);
-                return
+                if (await checkAuth(req, ["dbw"]) && !origin.owner);
+                else {
+                    res.writeHead(403, utf8error);
+                    res.end(i18n[lang]`您不能删除别人的数据`);
+                    return
+                }
             }
             data = await message.invoke('dbDrop', [dbid, lastId]);
             break;

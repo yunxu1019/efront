@@ -7,6 +7,9 @@
         }
 
         &:hover {
+            outline: 1px solid #333;
+            outline-offset: -2px;
+
             drop {
                 display: block;
             }
@@ -18,27 +21,36 @@
         font-size: 10px;
         color: #999;
     }
+
+    & {
+        width: 100%;
+        border-top: 28px solid transparent;
+        height: 100%;
+    }
+
+    [head] {
+        line-height: 28px;
+        margin-top: -32px;
+    }
 </style>
-<div>
+<div head>
     编辑数据 - <span -bind="db.name"></span>
     <a @click="add">添加</a>
 </div>
 
-<div>
-    <lattice -src="m in items">
-        <padding item>
-            <drop @click="rm(m)"></drop>
-            <div m.id?></div>
-            <div m.name?></div>
-        </padding>
-    </lattice>
-</div>
+<lattice body -src="m in items">
+    <padding item>
+        <drop @click="rm(m)"></drop>
+        <div m.id?></div>
+        <div m.name?></div>
+    </padding>
+</lattice>
 <script>
     var [db] = arguments;
     var a = button;
     var items = null;
     var load = function (params) {
-        items = data.from('dbfind', { dbid: db.id, size: 20 });
+        items = data.from('dbfind', { dbid: db.id, size: 60 });
         return items;
     };
     var rm = async function (m) {
@@ -47,11 +59,11 @@
         await data.from('dadel', { dbid: db.id, id: m.id });
         return load();
     };
-    var add = function () {
+    var add =async function () {
         var elem = document.createElement('jsoncode');
         elem.type = 'json';
         elem.contentEditable = true;
-        return prompt(茨菰$编辑框(elem), '输入JSON格式的数据', function (text) {
+        await prompt(茨菰$编辑框(elem), '输入JSON格式的数据', function (text) {
             try {
                 JSON.parse(text);
                 return true;
@@ -76,12 +88,14 @@
                     await data.from('daadd', { dbid: db.id, ...d })
                 }
                 if (Array.isArray(d)) {
-                    for (var d of d) await upload(d);
+                    while (d.length) {
+                        await upload(d.pop());
+                    }
                 }
                 else await upload(d);
-                return load();
             }
         });
+        load();
     };
     await load();
 </script>
