@@ -2,6 +2,7 @@
 WEB:
   路径映射: /proxy/list
   文件管理: /wow/root
+  数据管理: /db/list
   长连接管理: /link/index
   字典: /dict/list
   证书管理: /cert/main
