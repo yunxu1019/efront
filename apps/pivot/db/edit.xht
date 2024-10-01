@@ -42,7 +42,7 @@
         return items;
     };
     var rm = async function (m) {
-        var res = await confirm(i18n`确定要删除标识为“${`<span style=color:red >${m.id}</span>`}”的${db.name}“${i18n`<span style='color:red'>${m.name}</span>`}”吗？`, [i18n`确定`, i18n`取消`]);
+        var res = await confirm(i18n`确定要删除标识为“${`<span style=color:red >${m.id}</span>`}”的${db.name}“${`<span style='color:red'>${m.name}</span>`}”吗？`, [i18n`确定`, i18n`取消`]);
         if (!res) return;
         await data.from('dadel', { dbid: db.id, id: m.id });
         return load();

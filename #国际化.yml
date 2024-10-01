@@ -1,3 +1,48 @@
+- zh-CN: 数据标识不能是纯数字
+  en:    The data identifier cannot be a pure number
+
+- zh-CN: "数据标识不能有“@”符号"
+  en:    "Data identification cannot have the \"@\" symbol"
+
+- zh-CN: 数据标识不能有特殊符号“$1”
+  en:    "Data identification cannot have special symbol '$1'"
+
+- zh-CN: 数据中不能有$1字段
+  en:    There cannot be a $1 field in the data
+
+- zh-CN: 您不能修改其他用户的数据
+  en:    You cannot modify the data of other users
+
+- zh-CN: 请不要冒充其他用户！
+  en:    Please do not impersonate other users!
+
+- zh-CN: 数据标识不可更改！
+  en:    The data identifier cannot be changed!
+
+- zh-CN: 请设置用户名
+  en:    Please set a username
+
+- zh-CN: 请登录后重试
+  en:    Please log in and try again
+
+- zh-CN: 参数异常
+  en:    Parameter exception
+
+- zh-CN: 您不能删除别人的数据
+  en:    "You cannot delete someone else's data"
+
+- zh-CN: 用户不存在！
+  en:    The user does not exist!
+
+- zh-CN: $1 被 $2 覆盖
+  en:    $1 is covered by $2
+
+- zh-CN: 是否公开
+  en:    Is it publicly available
+
+- zh-CN: 确定要删除标识为“$1”的$2“$3”吗？
+  en:    "Are you sure you want to delete the $2 \"$3\" marked as \"$1\"?"
+
 - zh-CN: $1已存在
   en:    $1 already exists
 
