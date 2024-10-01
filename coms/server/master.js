@@ -51,6 +51,7 @@ var workerExit = function (code) {
     }
     removeFromList(waiters, this);
     if (!waiters.length) {
+        workers.forEach(kill);
         afterend();
     }
 };
@@ -76,7 +77,7 @@ var run = async function () {
     quitting = quitting.concat(waiters, workers);
     waiters = [];
     var dbworker = message.forkThread();
-    bindWorker(dbworker, ["dbList", 'dbLoad', 'dbFind', 'dbSave', 'dbPatch']);
+    bindWorker(dbworker, ["dbList", 'dbLoad', 'dbFind', 'dbSave', 'dbPatch', 'dbDrop']);
     workers = [dbworker];
     var count = memery.WAITER_NUMBER;
     while (count-- > 0) {

@@ -586,7 +586,7 @@ var requestListener = async function (req, res) {
                 }
             }
         }));
-        if (/^\/\!\//.test(url)) url = url.slice(2);
+        if (/^\/\!/.test(url)) url = url.slice(2);
         if (/^,/.test(url)) {
             var m = /^,([^\/]+)/.exec(url);
             if (m) {

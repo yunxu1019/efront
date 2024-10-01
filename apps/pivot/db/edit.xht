@@ -1,3 +1,24 @@
+<style>
+    [item] {
+        position: relative;
+
+        drop {
+            display: none;
+        }
+
+        &:hover {
+            drop {
+                display: block;
+            }
+        }
+
+    }
+
+    [m-id] {
+        font-size: 10px;
+        color: #999;
+    }
+</style>
 <div>
     编辑数据 - <span -bind="db.name"></span>
     <a @click="add">添加</a>
@@ -5,13 +26,27 @@
 
 <div>
     <lattice -src="m in items">
-        <div -bind="m.id"></div>
-        <div -bind="m.name"></div>
+        <padding item>
+            <drop @click="rm(m)"></drop>
+            <div m.id?></div>
+            <div m.name?></div>
+        </padding>
     </lattice>
 </div>
 <script>
     var [db] = arguments;
     var a = button;
+    var items = null;
+    var load = function (params) {
+        items = data.from('dbfind', { dbid: db.id, size: 20 });
+        return items;
+    };
+    var rm = async function (m) {
+        var res = await confirm(i18n`确定要删除标识为“${`<span style=color:red >${m.id}</span>`}”的${db.name}“${i18n`<span style='color:red'>${m.name}</span>`}”吗？`, [i18n`确定`, i18n`取消`]);
+        if (!res) return;
+        await data.from('dadel', { dbid: db.id, id: m.id });
+        return load();
+    };
     var add = function () {
         var elem = document.createElement('jsoncode');
         elem.type = 'json';
@@ -21,27 +56,32 @@
                 JSON.parse(text);
                 return true;
             } catch (e) {
-                console.log(text, e)
                 return false;
             }
         }, {
             wrap: true,
             async submit(text) {
                 var d = JSON.parse(text);
-                if (db.id === '用户') {
-                    if (!d.id && !d.password) {
-                        return alert("缺少密码！");
+                var upload = async function (d) {
+                    if (!isObject(d)) return;
+                    if (db.id === '用户') {
+                        if (!d.id && !d.password) {
+                            return alert("缺少密码！");
+                        }
+                        if (d.password) {
+                            delete d.password;
+                            d.a = encode62.geta(d.password);
+                        }
                     }
-                    if (d.password) {
-                        delete d.password;
-                        d.a = encode62.geta(d.password);
-                    }
+                    await data.from('daadd', { dbid: db.id, ...d })
                 }
-                data.from('daadd', { dbid: db.id, ...d })
+                if (Array.isArray(d)) {
+                    for (var d of d) await upload(d);
+                }
+                else await upload(d);
+                return load();
             }
         });
     };
-    var items = await data.from('dbfind', { dbid: db.id, size: 20 });
-
-    console.log(arguments)
+    await load();
 </script>

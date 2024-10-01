@@ -19,7 +19,9 @@
   daadd: put /:dbid/
   dbfind: get /:dbid/:last,:size
   dbadd: put /:id
+  dbset: post /:id
   dbdel: delete /:id
+  dadel: delete /:dbid/:id
   count: options ::count
   bootlog: options ::similar
   link: options ::link

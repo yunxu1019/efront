@@ -4,7 +4,7 @@ class join {
     }
 }
 var seek = function (object, seeker) {
-    if (seeker === null || seeker === undefined || isEmpty(object)) return;
+    if (seeker === null || seeker === undefined || !isHandled(object)) return;
     if (seeker instanceof Function) {
         return seeker(object);
     }

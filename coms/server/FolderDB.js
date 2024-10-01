@@ -1,6 +1,7 @@
 var path = require('path');
 var fs = require('fs');
 var fsp = fs.promises;
+mark.setPinyin(pinyin);
 
 var src = "0123456789ABCDEFGHIJKLMNPQRSTUVW";
 var createId = function (indexed) {
@@ -68,7 +69,7 @@ class FolderDB {
         var index = indexed.indexOf(lastId) + 1;
         return indexed.slice(index, index + pagesize);
     }
-    async find(params, lastId, pageSize) {
+    async find(params, lastId, pageSize, searchText) {
         var indexed = this.indexed;
         if (pageSize > 60) pageSize = 60;
         var index = indexed.indexOf(lastId) + 1;
@@ -76,7 +77,16 @@ class FolderDB {
         var end = Math.min(indexed.length, index + 2000);
         while (index < end && result.length < pageSize) {
             var data = await this.load(indexed[index++]);
-            if (check(data, params)) result.push(data);
+            if (params && !check(data, params)) continue;
+            b: if (searchText) {
+                for (var k in data) {
+                    var v = data[k];
+                    if (typeof v !== "string" || !/^\_?(?:name|desc(?:ription)?)$/i.test(k)) continue;
+                    if (mark.power(v, searchText)[0] > searchText.length - 0.2) break b;
+                }
+                continue;
+            }
+            result.push(data);
         }
         return result;
     }
@@ -95,7 +105,6 @@ class FolderDB {
         var datapath = path.join(directory, data.id + dbExt);
         extractBase64(data, directory, id);
         data = JSON.stringify(data);
-        console.log(id, data);
         await fsp.writeFile(datapath, data);
         return id;
     }

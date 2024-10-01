@@ -31,13 +31,17 @@ message.dbPatch = async function ([baseId, lastId, data]) {
     var db = await getdb(baseId);
     return db.patch(lastId, data);
 };
-message.dbFind = async function ([baseId, params, lastId, pageSize]) {
+message.dbFind = async function ([baseId, params, lastId, pageSize, searchText]) {
     var db = await getdb(baseId);
-    return db.find(params, lastId, pageSize);
+    return db.find(params, lastId, pageSize, searchText);
 };
 message.dbLoad = async function ([baseId, dataId]) {
     var db = await getdb(baseId);
     return db.load(dataId);
+};
+message.dbDrop = async function ([baseId, dataId]) {
+    var db = await getdb(baseId);
+    return db.drop(dataId);
 };
 message.disconnect = function () {
     message.close();

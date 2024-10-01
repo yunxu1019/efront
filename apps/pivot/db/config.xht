@@ -4,7 +4,7 @@
         height: 100%;
         display: block;
         position: relative;
-        padding-right: 0!important;
+        padding-right: 0 !important;
         overflow: hidden;
     }
 
@@ -23,15 +23,20 @@
 </style>
 
 <div head>
-    <span -bind="db.name"></span>
+    数据配置 - <span -bind="db.name"></span>
 </div>
 <div body>
-    <div>权限</div>
-    <div>是否公开<swap -model="db.open"></swap></div>
+    <field -repeat="f in fields" -src="[f,db]"></field>
 </div>
 <div foot>
-    <button>保存</button>
+    <button @click="save">保存</button>
 </div>
 <script>
+    var fields = refilm`
+    是否公开/open swap`;
     var [db] = arguments;
+    var save = async function () {
+        await data.from('dbset', db);
+    };
+    console.log(db)
 </script>
