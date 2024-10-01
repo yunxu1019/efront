@@ -23,7 +23,7 @@ var unicode = [
 spaceDefined.avoid = function (extra_tokens) {
     var u0 = "[^\\ud80c][\\udc00-\\udfff]|\\ud80c[^\\udffc]";
     var u1 = "[^\\ud834][\\udc00-\\udfff]|\\ud834[^\\udd73-\\udd7a]";
-    return `[^${extra_tokens}${spaceDefined.join('')}]|${u0}|${u1}`;
+    return `[^${extra_tokens || ''}${spaceDefined.join('')}]|${u0}|${u1}`;
 }
 var reg = new RegExp(`(?:[${spaceDefined.join('')}]|${unicode.join('|')})+`);
 var is_reg = new RegExp(`^${reg.source}$`);
