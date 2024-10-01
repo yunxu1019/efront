@@ -270,7 +270,7 @@ var doDB = async function (req, res) {
                 return;
             }
             var origin = await message.invoke('dbLoad', [dbid, lastId]);
-            var owner = checkOwner(req, db, origin);
+            var owner = await checkOwner(req, db, origin);
             if (!owner) {
                 res.writeHead(403, utf8error);
                 res.end(i18n[lang]`您不能删除别人的数据`);
