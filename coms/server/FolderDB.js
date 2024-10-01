@@ -72,11 +72,12 @@ class FolderDB {
     async find(params, lastId, pageSize, searchText) {
         var indexed = this.indexed;
         if (pageSize > 60) pageSize = 60;
-        var index = indexed.indexOf(lastId) + 1;
+        var index = lastId ? indexed.lastIndexOf(lastId) : indexed.length;
+        if (index <= 0) return [];
         var result = [];
-        var end = Math.min(indexed.length, index + 2000);
-        while (index < end && result.length < pageSize) {
-            var data = await this.load(indexed[index++]);
+        var start = Math.max(0, index - 2000);
+        while (index > start && result.length < pageSize) {
+            var data = await this.load(indexed[--index]);
             if (params && !check(data, params)) continue;
             b: if (searchText) {
                 for (var k in data) {
