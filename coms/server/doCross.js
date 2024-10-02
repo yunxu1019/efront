@@ -186,6 +186,7 @@ async function cross(req, res, referer) {
         delete headers["cross-origin-embedder-policy"];
         delete headers["cross-origin-opener-policy"];
         delete headers["cross-origin-resource-policy"];
+        delete headers["keep-alive"];
         if (res instanceof Http2ServerResponse) {
             delete headers["transfer-encoding"];
             delete headers["connection"];
