@@ -162,3 +162,5 @@ test("if(a&&b||c){d}", `_ = a; if (!_) return [1, 0]; _ = b;\r\n if (_) return [
 test("if(a)switch(b){case c:d;break;} else{h}", `if (!a) return [3, 0]; if (b === c) return [1, 0]; return [2, 0];\r\n d; return [1, 0];\r\n return [2, 0];\r\n h; return [1, 0]`)
 test("var res = null, krc;", `res = null; krc`)
 test("res = null, krc;", `res = null; krc`)
+test(`while (a && b);`, '_ = a; if (!_) return [1, 0]; _ = b;\r\n if (!_) return [1, 0]; return [-1, 0]', true);
+test(`while (a < b);`, '_ = a < b; if (!_) return [1, 0]; return [0, 0]', true);

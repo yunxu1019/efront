@@ -327,6 +327,7 @@ var _while = function (body, cx, unblock, result) {
     var b = rescan`if (${getCondition(o, unblock, true)}) return []`;
     var be = b[b.length - 1];
     pushstep(result, b);
+    var i2 = result.length - 1;
     relink(result[result.length - 1]);
     var block = getblock(body, ++cx);
     cx += block.length;
@@ -335,7 +336,8 @@ var _while = function (body, cx, unblock, result) {
     var we = wend[wend.length - 1];
     pushstep(result, wend);
     we[0].text = String(1 + i - result.length);
-    be.push(...scanner2(`${result.length - i}, 0`));
+    be.push(...scanner2(`${result.length - i2}, 0`));
+
     relink(be);
     return cx;
 };
