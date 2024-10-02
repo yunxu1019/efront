@@ -35,23 +35,28 @@ function isChildPath(relative, path) {
     return relative.replace(/^(.*\/)[^\/]*$/, path);
 }
 
+var encodeNA = function (a) {
+    return a.replace(/[^\u0021-\u007f]/g, encodeURI);
+};
 var getCrossUrl = function (domain, headers, encrypt) {
     if (notCross(domain, encrypt)) return domain;
     var basehost = parseURL(base).host || parseURL(location_href).host;
     var ishttps = /^(https\:|s\/\/)/i.test(domain);
     var _headers = serialize(headers);
     if (_headers) _headers = "," + _headers;
+    var b = encrypt ? "!" : `*`;
     if (parseURL(domain).host === basehost) {
         if (!encrypt) return domain;
         domain = domain.replace(domainReg, "/$3$4");
         if (_headers) domain = _headers + domain;
     }
     else {
-        domain = domain
+        domain = encodeNA(domain)
             .replace(/^(s?)(\/\/)/i, "http$1:$2")
-            .replace(domainReg, `$2${_headers}/$3$4`)
+            .replace(domainReg, (_, _1, $2, $3, $4) => {
+                return [$2, _headers, '/', $3, $4].join('');
+            });
     }
-    var b = encrypt ? "!" : `*`;
     if (ishttps) domain = b + domain;
     if (encrypt) domain = encode62.timeencode(encode62.safeencode(domain, encrypt));
     return base + b + domain;

@@ -587,12 +587,19 @@ var requestListener = async function (req, res) {
             }
         }));
         if (/^\/\!/.test(url)) url = url.slice(2);
+        var ishttps = /^\!/.test(url);
+        if (ishttps) url = url.slice(1);
         if (/^,/.test(url)) {
             var m = /^,([^\/]+)/.exec(url);
             if (m) {
                 extend(headers, parseKV(m[1]));
                 url = url.slice(m.index + m[0].length);
             }
+        }
+        if (!/^\//.test(url)) {
+            url = "*" + url;
+            if (ishttps) url = "*" + url;
+            url = '/' + url;
         }
         req1.headers = headers;
         req1.url = url;

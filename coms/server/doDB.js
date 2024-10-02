@@ -138,7 +138,7 @@ var doDB = async function (req, res) {
             }
             if (!lastId && !await checkRead(req, db)) {
                 res.writeHead(403, utf8error);
-                res.end(i18n`您没有权限访问此内容`);
+                res.end(i18n[lang]`您没有权限访问此内容`);
                 return;
             }
             if (lastId === undefined) {
