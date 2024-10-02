@@ -49,7 +49,10 @@ data.bindInstance("base", async function (base) {
     cross.addDirect(base.base);
     var apimap = await data.getConfig();
     for (var k in apimap) {
-        if (/options|put/.test(apimap[k].method)) apimap[k].base = base.base;
+        var api = apimap[k];
+        if (api.base || !/^\w+\:\/\//.test(api.url)) {
+            api.base = base.base;
+        }
     }
 });
 var base = data.getInstance('base').base;
