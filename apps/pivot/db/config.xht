@@ -37,6 +37,7 @@
     var [db] = arguments;
     var save = async function () {
         await data.from('dbset', db);
+        history.back();
     };
     console.log(db)
 </script>
