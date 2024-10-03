@@ -23,7 +23,8 @@ var createId = function (indexed) {
         return id;
     };
     var id = getid();
-    while (indexed.indexOf(id) >= 0) id = getid();
+    while (indexed[indexed.length - 1].slice(0, id.length) === id) id = getid();
+    id += Math.random().toString(36).slice(2, 12).toUpperCase();
     indexed.push(id);
     return id;
 };
