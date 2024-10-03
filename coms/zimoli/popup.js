@@ -80,7 +80,7 @@ var popup_path = function (path = "", parameters, target) {
     }
     var fullfill = function () {
         remove(element);
-        remove(element && element.mask);
+        remove(element && element.$mask);
         element = popup.create(path, parameters);
         if (!element) return;
         load();
@@ -106,7 +106,7 @@ var popup_path = function (path = "", parameters, target) {
 
 var popup_view = function (element, target, style) {
     if (isNode(target)) {
-        if (target.isMask) {
+        if (target.$mask) {
             popup_with_mask(element, target);
             return element;
         }
@@ -115,7 +115,7 @@ var popup_view = function (element, target, style) {
     if (target instanceof Event) {
         popup_to_event(element, target);
     } else if (target instanceof Array) {
-        if (isNode(style) && style.isMask) addMask(element, style);
+        if (isNode(style) && style.$mask) addMask(element, style);
         else if (typeof style === 'boolean') addMask(element);
         popup_to_point(element, target);
     } else if (target) {
@@ -131,13 +131,13 @@ var createMask = function (element) {
     var masks = element.with;
     if (masks) for (var cx = 0, dx = masks.length; cx < dx; cx++) {
         var m = masks[cx];
-        if (m.isMask) return m;
+        if (m.$mask) return m;
     }
     var mask = document.createElement("mask");
     mask.initialStyle = animationStyle;
     css(mask, `z-index:${zIndex()};`);
     mask.className = "mask";
-    mask.isMask = true;
+    mask.$mask = true;
     return mask;
 };
 var mount = function (event) {

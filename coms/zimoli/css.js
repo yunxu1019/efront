@@ -164,7 +164,13 @@ var cssTargetSelector = function (targetSelector, oStyle, oValue) {
     });
     for (var k in styleobject) {
         if (!isEmpty(styleobject[k])) {
-            rowStyles.push(k + ":" + transformValue(styleobject[k], k));
+            var o = styleobject[k];
+            if (isArray(o)) {
+                for (var s of o) {
+                    rowStyles.push(k + ":" + transformValue(s, k));
+                }
+            }
+            else rowStyles.push(k + ":" + transformValue(o, k));
         }
     }
     var innerCss = `${targetSelector}{${rowStyles.join(";")}}`;
