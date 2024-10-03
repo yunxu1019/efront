@@ -39,8 +39,8 @@
 </div>
 
 <lattice body -src="m in items">
-    <padding item>
-        <drop @click="rm(m)"></drop>
+    <padding item @click="modify(m)">
+        <drop @click.stop="rm(m)"></drop>
         <div m.id?></div>
         <div m.name?></div>
     </padding>
@@ -49,20 +49,64 @@
     var [db] = arguments;
     var a = button;
     var items = null;
-    var load = function (params) {
+    var load = function () {
         items = data.from('dbfind', { dbid: db.id, size: 60 });
         return items;
     };
     var rm = async function (m) {
-        var res = await confirm(i18n`确定要删除标识为“${`<span style=color:red >${m.id}</span>`}”的${db.name}“${`<span style='color:red'>${m.name}</span>`}”吗？`, [i18n`确定`, i18n`取消`]);
-        if (!res) return;
+        var options = [i18n`确定`, i18n`取消`];
+        var res = await confirm(i18n`确定要删除标识为“${`<span style=color:red >${m.id}</span>`
+            }”的${db.name}“${`<span style='color:red'>${m.name}</span>`
+            }”吗？`, options);
+        if (res !== options[0]) return;
         await data.from('dadel', { dbid: db.id, id: m.id });
-        return load();
+        await load();
     };
-    var add =async function () {
+    var upload = async function (actionId, d) {
+        if (Array.isArray(d)) return alert(i18n`不支持数组格式的数据`);
+        if (!isObject(d)) return;
+        if (db.id === "用户") {
+            if (!d.id && !d.password) {
+                return alert(i18n`缺少密码！`);
+            }
+            if (d.password) {
+                delete d.password;
+                d.a = encode62.geta(d.password);
+            }
+        }
+        await data.from(actionId, { dbid: db.id, ...d })
+    }
+
+    var modify = async function (m) {
         var elem = document.createElement('jsoncode');
         elem.type = 'json';
         elem.contentEditable = true;
+        elem.setAttribute('nodrag', '');
+        茨菰$编辑框(elem);
+        elem.setValue(JSON.stringify(m, null, 4));
+        var changed = false;
+        await prompt(elem, '输入JSON格式的数据', function (text) {
+            try {
+                JSON.parse(text);
+                return true;
+            } catch (e) {
+                return false;
+            }
+        }, {
+            wrap: true,
+            async submit(text) {
+                var d = JSON.parse(text);
+                await upload("daset", d);
+                changed = true;
+            }
+        });
+        if (changed) load();
+    };
+    var add = async function () {
+        var elem = document.createElement('jsoncode');
+        elem.type = 'json';
+        elem.contentEditable = true;
+        var changed = false;
         await prompt(茨菰$编辑框(elem), '输入JSON格式的数据', function (text) {
             try {
                 JSON.parse(text);
@@ -74,28 +118,16 @@
             wrap: true,
             async submit(text) {
                 var d = JSON.parse(text);
-                var upload = async function (d) {
-                    if (!isObject(d)) return;
-                    if (db.id === '用户') {
-                        if (!d.id && !d.password) {
-                            return alert("缺少密码！");
-                        }
-                        if (d.password) {
-                            delete d.password;
-                            d.a = encode62.geta(d.password);
-                        }
-                    }
-                    await data.from('daadd', { dbid: db.id, ...d })
-                }
                 if (Array.isArray(d)) {
                     while (d.length) {
-                        await upload(d.pop());
+                        await upload('daadd', d.pop());
                     }
                 }
-                else await upload(d);
+                else await upload('daadd', d);
+                changed = true;
             }
         });
-        load();
+        if (changed) load();
     };
-    await load();
+    load();
 </script>

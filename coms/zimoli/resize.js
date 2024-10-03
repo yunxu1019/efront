@@ -17,7 +17,7 @@ var getResizer = function (event) {
         }
         var target = event.target;
         while (rect && target) {
-            if (target.isMask) break;
+            if (target.$mask) break;
             if (overlap(rect, target) > 0) {
                 if (+getComputedStyle(rect).zIndex < +getComputedStyle(target).zIndex) {
                     rect = null;

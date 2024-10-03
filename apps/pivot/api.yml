@@ -19,6 +19,7 @@
   daadd: put /:dbid/
   dbfind: get /:dbid/:last,:size
   dbadd: put /:id
+  daset: post /:dbid/:id
   dbset: post /:id
   dbdel: delete /:id
   dadel: delete /:dbid/:id

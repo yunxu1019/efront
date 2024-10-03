@@ -35,6 +35,10 @@ var checkUid = function (data, lang) {
         // 为邮箱预留
         return i18n[lang]`数据标识不能有“@”符号`;
     }
+    if (/\./.test(id)) {
+        // 防止被识别为扩展名
+        return i18n[lang]`数据标识不能有“.”符号`;
+    }
 }
 var checkId = function (data, lang) {
     var id = data.id;
@@ -63,7 +67,7 @@ var doDB = async function (req, res) {
         res.end(i18n[lang]`禁止访问`);
         return;
     }
-    var [dbid, lastId] = pathname.split('/');
+    var [dbid, lastId, version] = pathname.split('/');
     var method = req.method.toLowerCase();
 
     if (!dbid) {
@@ -157,7 +161,8 @@ var doDB = async function (req, res) {
             }
             else {
                 if (lastId) {
-                    var data = await message.invoke('dbLoad', [dbid, lastId]);
+                    if (version) version = +version;
+                    var data = await message.invoke('dbLoad', [dbid, lastId, version]);
                     if (!isHandled(data)) {
                         res.writeHead(404, utf8error);
                         res.end(i18n[lang]`数据不存在！`);
@@ -206,7 +211,10 @@ var doDB = async function (req, res) {
                 return;
             }
             var owner = await checkOwner(req, db, origin);
-            if (!owner) {
+            a: if (!owner) {
+                if (!origin.owner) {
+                    if (await checkAuth(req, ["dbw"])) break a;
+                }
                 res.writeHead(403, utf8error);
                 res.end(i18n[lang]`您不能修改其他用户的数据`);
                 return;
@@ -288,9 +296,14 @@ var doDB = async function (req, res) {
                 return;
             }
             var origin = await message.invoke('dbLoad', [dbid, lastId]);
+            if (!isHandled(origin)) {
+                res.writeHead(404, utf8error);
+                res.end(i18n[lang]`数据不存在`);
+                return;
+            }
             var owner = await checkOwner(req, db, origin);
             if (!owner) {
-                if (await checkAuth(req, ["dbw"]) && !origin.owner);
+                if (await checkAuth(req, ["dbd"]) && !origin.owner);
                 else {
                     res.writeHead(403, utf8error);
                     res.end(i18n[lang]`您不能删除别人的数据`);

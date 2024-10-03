@@ -35,9 +35,9 @@ message.dbFind = async function ([baseId, params, lastId, pageSize, searchText])
     var db = await getdb(baseId);
     return db.find(params, lastId, pageSize, searchText);
 };
-message.dbLoad = async function ([baseId, dataId]) {
+message.dbLoad = async function ([baseId, dataId, version]) {
     var db = await getdb(baseId);
-    return db.load(dataId);
+    return db.load(dataId, version);
 };
 message.dbDrop = async function ([baseId, dataId]) {
     var db = await getdb(baseId);

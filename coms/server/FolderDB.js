@@ -32,23 +32,60 @@ var extractMap = {
     "image/png": '.png',
 };
 var extractReg = new RegExp(`^data:(${Object.keys(extractMap).join('|').replace(/\//g, '\\/')});base64,`, 'i');
-var extractBase64 = async function (d, directory, id) {
+var getExtractedInc = async function (data, id) {
+    var inc = 0;
     for (var k in data) {
         var d = data[k];
         if (isObject(d)) {
-            await extractBase64(d, directory, id + '-' + k);
+            var i = await getExtractedInc(d, id);
+            if (i > inc) inc = i;
+        }
+        else if (isString(d) && d.slice(0, id.length) === id) {
+            var m = /^\-(\d{1,16})\.[^\.]+$/.exec(d.slice(id.length, id.length + 20));
+            if (m) {
+                m = +m[1];
+                if (m > inc) inc = m;
+            }
+        }
+    }
+    return inc;
+};
+var extractBase64 = async function (d, directory, id, inc) {
+    for (var k in data) {
+        var d = data[k];
+        if (isObject(d)) {
+            inc = await extractBase64(d, directory, id, inc);
         }
         else if (isString(d) && d.length > 512) {
             var m = extractReg.exec(d);
             if (m) {
                 var e = extractMap[m[0].toLowerCase()];
-                var n = id + "-" + k + e;
+                var n = id + "-" + ++inc + e;
                 await fsp.writeFile(path.join(directory, n), Buffer.from(d.slice(m[0].length), 'base64url'));
                 data[k] = n;
             }
         }
     }
+    return inc;
 };
+
+var removeSameParts = function (data, compare) {
+    var keep = false;
+    for (var k in data) {
+        var d = data[k];
+        var c = compare[k];
+        if (d === c) {
+            delete data[k];
+            continue;
+        }
+        if (!isObject(d) || !isObject(c)) {
+            keep = true;
+            continue;
+        }
+        if (removeSameParts(d, c)) keep = true;
+    }
+    return keep;
+}
 var dbExt = '.json';
 
 class FolderDB {
@@ -94,35 +131,61 @@ class FolderDB {
         }
         return result;
     }
-    async load(id) {
+    async load(id, version) {
         var hasExt = /\.[^\.]+$/.test(id);
         var buff = await fsp.readFile(path.join(this.directory, hasExt ? id : id + dbExt));
         if (hasExt) return buff;
         var data = JSON.parse(String(buff));
+        if (isArray(data)) {
+            if (!isHandled(version)) return data.pop();
+            if (version === 0) return data;
+            if (version < 0) {
+                version = data.length + version;
+            }
+            else {
+                version -= 1;
+            }
+            if (version < 0) return;
+            if (version > data.length) return;
+            return data[version];
+        }
+        else if (isHandled(version)) {
+            if (version === 0) return [data];
+        }
         return data;
     }
-    async save(data) {
-        var id = data.id;
+    async save(data, origins) {
         var directory = this.directory;
-        if (isEmpty(id)) {
-            id = createId(this.indexed);
-            data.id = id;
+        if (origins) {
+            var origin = origins[origins.length - 1];
+            if (isObject(data)) data = extend({}, origin, data);
+            origins.push(data);
         }
+        if (data) {
+            var id = data.id;
+            if (isEmpty(id)) {
+                id = createId(this.indexed);
+                data.id = id;
+            }
+            var inc = origins ? getExtractedInc(origins, data.id) : 0;
+            extractBase64(data, directory, data.id, inc);
+        }
+
+        if (!data) return;
         var datapath = path.join(directory, data.id + dbExt);
-        extractBase64(data, directory, id);
-        data = JSON.stringify(data);
+        data = JSON.stringify(origins || data);
         await fsp.writeFile(datapath, data);
         return id;
     }
     async patch(lastId, pdata) {
-        var data = await this.load(lastId);
-        if (!data) return null;
+        if (!pdata) return;
+        var origins = await this.load(lastId, 0);
         if (pdata.id && pdata.id !== lastId) {
             await this.drop(lastId);
+            origins = null;
         }
-        extend(data, pdata);
-        await this.save(data);
-        return data.id;
+        await this.save(pdata, origins);
+        return pdata.id;
     }
     async drop(id) {
         await fsp.unlink(path.join(this.directory, id + dbExt));
