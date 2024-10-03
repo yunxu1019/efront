@@ -103,7 +103,7 @@ function prompt() {
             ipt.focus();
         });
     })
-    on("mousedown")(c, e => e.target !== ipt && e.preventDefault() | ipt.focus());
+    on("mousedown")(c, e => !getTargetIn(ipt, e.target) && e.preventDefault() | ipt.focus());
     on(wrap ? "keydown.ctrl.enter" : "keydown.enter")(c, function (event) {
         if (event.defaultPrevented) return;
         event.preventDefault();
