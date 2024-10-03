@@ -1,3 +1,18 @@
+- zh-CN: 数据标识不能有“.”符号
+  en:    "Data identification cannot have a '.' symbol"
+
+- zh-CN: 数据不存在！
+  en:    The data does not exist!
+
+- zh-CN: 数据不存在
+  en:    Data does not exist
+
+- zh-CN: 不支持数组格式的数据
+  en:    Data in array format is not supported
+
+- zh-CN: 缺少密码！
+  en:    Missing password!
+
 - zh-CN: 数据标识不能是纯数字
   en:    The data identifier cannot be a pure number
 
