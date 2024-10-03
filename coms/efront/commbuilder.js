@@ -830,7 +830,9 @@ async function getXhtPromise(xhtdata, filename, fullpath, watchurls, extraJs, ex
     }
     else xhtrender = `${xhtmain}.apply(elem,arguments)`;
     var createElement = `var elem = arguments[0];
-    if(!isElement(elem)) elem = ${creator}"${tagName || commName}");`;
+    if(!isElement(elem)) elem = ${creator}"${tagName || commName}");
+    if(elem.constructor===${xhtmain})return elem;
+    elem.constructor=${xhtmain};`;
     var xht = scope ? `
     var ${xhtmain}=${async}function(){
     ${scope}
