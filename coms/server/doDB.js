@@ -1,5 +1,6 @@
 var message = require('../message');
 var userdata = require("./userdata");
+var path = require('path');
 var utf8json = { 'content-type': 'application/json;charset=utf8' };
 var lock30 = require("../efront/lock")(30);
 var checkRead = function (req, db) {
@@ -157,6 +158,18 @@ var doDB = async function (req, res) {
             else {
                 if (lastId) {
                     var data = await message.invoke('dbLoad', [dbid, lastId]);
+                    if (!isHandled(data)) {
+                        res.writeHead(404, utf8error);
+                        res.end(i18n[lang]`数据不存在！`);
+                        return;
+                    }
+                    var ext = path.extname(lastId);
+                    if (ext) {
+                        data.mime = mime[ext.slice(1)];
+                    }
+                    else {
+                        data.mime = mime.json;
+                    }
                 }
                 else {
                     var data = await message.invoke('dbList', [dbid, null, 20]);
@@ -287,6 +300,16 @@ var doDB = async function (req, res) {
             data = await message.invoke('dbDrop', [dbid, lastId]);
             break;
     }
-    res.writeHead(200, utf8json);
-    res.end(JSON.stringify(data));
+    if (!isHandled(data)) return res.end();
+    if (data.buffer instanceof ArrayBuffer) {
+        res.writeHead(200, { "content-type": data.mime || utf8json['content-type'] });
+        res.end(data);
+    }
+    else if (isObject(data)) {
+        res.writeHead(200, utf8json);
+        res.end(JSON.stringify(data));
+    }
+    else {
+        res.end(data);
+    }
 };

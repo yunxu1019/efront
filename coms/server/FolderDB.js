@@ -58,7 +58,9 @@ class FolderDB {
     }
     async init() {
         if (this.indexed) return;
-        var indexed = await fsp.readdir(this.directory);
+        var indexed = await fsp.readdir(this.directory, { withFileTypes: true });
+        indexed = indexed.filter(a => a.isFile()).map(a => a.name).filter(a => a.slice(a.length - dbExt.length) === dbExt);
+        indexed.sort();
         this.indexed = indexed.map(a => a.replace(/\.[^\.]+$/i, ''));
     }
     async list(lastId, pagesize) {
@@ -92,7 +94,9 @@ class FolderDB {
         return result;
     }
     async load(id) {
-        var buff = await fsp.readFile(path.join(this.directory, id + dbExt));
+        var hasExt = /\.[^\.]+$/.test(id);
+        var buff = await fsp.readFile(path.join(this.directory, hasExt ? id : id + dbExt));
+        if (hasExt) return buff;
         var data = JSON.parse(String(buff));
         return data;
     }
