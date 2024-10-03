@@ -45,6 +45,7 @@ if (/MSIE\s*[2-7]/.test(navigator.userAgent)) {
     backman();
 } else {
     onhashchange(window, function (event) {
+        if (fixurl.ing) return;
         // 如果是返回事件，一定不是第一次改变hash
         // 这里刚好可以屏蔽首次手动改变url可能产生的hashchange事件
         var targetHash = location.hash;
