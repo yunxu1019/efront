@@ -374,27 +374,27 @@ var parseData = function (sourceText) {
     return sourceText;
 };
 
-function fixApi(api, href) {
-    if (/^\//.test(href)) {
+function fixApi(api, base) {
+    if (/^\/([^\/]|$)/.test(base)) {
         var { protocol, host } = parseURL(location.href);
-        href = protocol + "//" + host + href;
+        base = protocol + "//" + host + base;
     }
-    else if (/^\.\//.test(href)) {
+    else if (/^\.\//.test(base)) {
         var { protocol, host, pathname } = parseURL(document.baseURI || location.href);
-        href = href.slice(1);
-        if (pathname) href = pathname.replace(/\/[^\/\\]*$/, '') + href;
-        href = protocol + "//" + host + href;
+        base = base.slice(1);
+        if (pathname) base = pathname.replace(/\/[^\/\\]*$/, '') + base;
+        base = protocol + "//" + host + base;
     };
     api.transpile = getTranspile(api.url);
     api.url = api.url.replace(/#[\s\S]*$/, '');
     if (!/^\w+?\:\/\//i.test(api.url)) {
-        if (href) {
+        if (base) {
             var paramReg = /(?:\?([\s\S]*?))?(?:#([\s\S]*))?$/, extraSearch, extraHash, search, hash;
-            if (/[\?#]/.test(href)) {
-                [, extraSearch, extraHash] = paramReg.exec(href);
-                href = href.replace(paramReg, '');
+            if (/[\?#]/.test(base)) {
+                [, extraSearch, extraHash] = paramReg.exec(base);
+                base = base.replace(paramReg, '');
             }
-            api.base = href;
+            api.base = base;
             api.path = api.url;
             if (/^\.([\?\#][\s\S]*)?$/.test(api.path)) {
                 api.path = api.path.replace(/^\./, "");
@@ -425,10 +425,10 @@ function createApiMap(data) {
     if (data instanceof ApiMap) return data;
     const apiMap = new ApiMap;
     var hasOwnProperty = {}.hasOwnProperty;
-    var href, _headers;
+    var apibase, _headers;
 
     function checkApi(api) {
-        fixApi(api, href);
+        fixApi(api, apibase);
         if (hasOwnProperty.call(apiMap, api.id)) {
             const lastApi = apiMap[api.id];
             var fmat = api => `[${api.name}](${api.method} ${api.url})`;
@@ -459,7 +459,7 @@ function createApiMap(data) {
             _headers = undefined;
         }
         if (!base) continue;
-        href = reg.test(base) ? base : '';
+        apibase = reg.test(base) ? base : '';
         var item1 = items1[key];
         var items = Object.keys(item1).map(buildItem);
         formulaters.string('id method url name comment', items).map(parseConfig).map(checkApi);
