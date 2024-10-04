@@ -339,14 +339,14 @@ var doOptions = async function (req, res, type) {
             break;
         case "recert":
             res.on("cert", function () {
-                this.socket.destroy();
+                this.socket?.destroy();
             });
             await message.broadcast("reloadCert");
             res.end();
             return;
         case "rehost":
             res.on("finish", function () {
-                this.socket.destroy();
+                this.socket?.destroy();
             });
             res.on("finish", safeQuitProcess);
             safeQuitProcess = function () { };
