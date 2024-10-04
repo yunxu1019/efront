@@ -64,7 +64,7 @@ return a => {
             var { name, singer } = parseFileName(b);
             data.name = name;
             data.singer = singer;
-            data.url = "song/" + b;
+            data.url = "https://efront.cc/song/" + b;
         }
         if (!data.singer) {
             data.singer = data.author_name;
@@ -79,7 +79,7 @@ return a => {
         if (data.singer) data.singer = formatSingerNames(data.singer);
         if (!data.avatar && data.singer) {
             var singer0 = data.singer.split("、")[0];
-            if (singer0 in singerPhotosMap) data.avatar = `singer/` + singerPhotosMap[singer0];
+            if (singer0 in singerPhotosMap) data.avatar = `https://efront.cc/singer/` + singerPhotosMap[singer0];
         }
         if (!data.singerName) data.singerName = data.singer;
         if (!data.songName) data.songName = data.name;
