@@ -23,7 +23,7 @@ var createId = function (indexed) {
         return id;
     };
     var id = getid();
-    while (indexed[indexed.length - 1].slice(0, id.length) === id) id = getid();
+    if (indexed.length) while (indexed[indexed.length - 1].slice(0, id.length) === id) id = getid();
     id += Math.random().toString(36).slice(2, 12).toUpperCase();
     indexed.push(id);
     return id;
@@ -163,7 +163,7 @@ class FolderDB {
         }
         if (data) {
             var id = data.id;
-            if (isEmpty(id)) {
+            if (!isHandled(id)) {
                 id = createId(this.indexed);
                 data.id = id;
             }
