@@ -102,13 +102,13 @@ test("if(a) a = 1;function* a(){}", "a = function *() {}; if (!a) return [1, 0];
 test("await new Promise(function(){})", '_ = function () {}; _ = new Promise(_); return [_, 1]', true);
 test(`onerror({ status: xhr.status, response: "Cookie解析异常!", toString: toResponse })`, '_ = { status: xhr.status, response: "Cookie解析异常!", toString: toResponse }; onerror(_)', true);
 test(`if (!/^https\\:\\/\\/|^s\\/\\//.test(url)) console.warn("请使用https访问如下路径:" + url)`, '_ = /^https\\:\\/\\/|^s\\/\\//.test(url); if (_) return [1, 0]; _ = "请使用https访问如下路径:" + url; _ = console.warn(_); return [1, 0]', true);
-test(`url += (/\\?/.test(url) ? "&" : "?") + datas;`, '_ = /\\?/.test(url); if (!_) return [1, 0]; _ = "&"; return [2, 0];\r\n _ = "?"; return [1, 0];\r\n _ = _ + datas; url = url + _', true);
+test(`url += (/\\?/.test(url) ? "&" : "?") + datas;`, '_0 = /\\?/.test(url); if (!_0) return [1, 0]; _0 = "&"; return [2, 0];\r\n _0 = "?"; return [1, 0];\r\n _ = _0, _ = _ + datas; url = url + _', true);
 test(`a = newname.querySelector("input,textarea").value = c.name.replace(/\\/$/, '')`, `_ = newname.querySelector("input,textarea"); _0 = c.name.replace(/\\/$/, ''); _.value = _0; a = _0`, true);
 test(`if (selected[f.url]) f.selected = true;`, `_ = f.url; _ = selected[_]; if (!_) return [1, 0]; f.selected = true; return [1, 0]`, true);
-test(`location.protocol  + parseURL(a.b).host `, `_ = a.b; _ = parseURL(_); location.protocol + _.host`, true);
-test(`var base = location.protocol + "//" + parseURL(this.$scope.data.host).host + "/";`, `_ = location.protocol + "//", _0 = this.$scope.data.host; _0 = parseURL(_0); _ = _ + _0.host, base = _ + "/"`, true);
+test(`location.protocol + parseURL(a.b).host `, `_ = location.protocol, _0 = a.b; _0 = parseURL(_0); _ + _0.host`, true);
+test(`var base = location.protocol + "//" + parseURL(this.$scope.data.host).host + "/";`, `_ = location.protocol, _ = _ + "//"; _1 = this.$scope.data.host; _1 = parseURL(_1); _0 = _1.host, _ = _ + _0, base = _ + "/"`, true);
 test(`a=a+b*c+c*d`, `_ = b * c, _ = a + _, _0 = c * d, a = _ + _0`, true);
-test(`cc.name += "<f test></f>"`, `_ = cc.name + "<f test></f>"; cc.name = _`, true);
+test(`cc.name += "<f test></f>"`, `_ = cc.name, _ = _ + "<f test></f>"; cc.name = _`, true);
 test("throw a", 'throw a', true);
 test("throw a,b", 'a; throw b', true);
 test("return a,b", 'a; return [b, 2]', true);
@@ -119,8 +119,8 @@ test("a(b,b+=1)", '_ = b; _0 = b + 1; b = _0; a(_, _0)', true);
 test("while(a){if(b){if(c);else d;continue;}}", 'if (!a) return [4, 0]; if (!b) return [3, 0]; if (!c) return [1, 0]; return [2, 0];\r\n d; return [1, 0];\r\n return [-2, 0];\r\n return [-3, 0]', true);
 test("/*abc*/", '/*abc*/', true);
 test("//aaa", '//aaa', true);
-test("menus[0].name+='aaa'", "_ = menus[0]; _0 = _.name + 'aaa'; _.name = _0", true);
-test("menus[a+b].name+='aaa'", "_ = a + b; _ = menus[_]; _0 = _.name + 'aaa'; _.name = _0", true);
+test("menus[0].name+='aaa'", "_ = menus[0]; _0 = _.name, _0 = _0 + 'aaa'; _.name = _0", true);
+test("menus[a+b].name+='aaa'", "_ = a + b; _ = menus[_]; _0 = _.name, _0 = _0 + 'aaa'; _.name = _0", true);
 test("menus[a+b]()", "_ = a + b; menus[_]()", true);
 test(`switch(a){default: a;case 1:b;}`, 'if (a === 1) return [2, 0]; return [1, 0];\r\n a; return [1, 0];\r\n b; return [1, 0]', true);
 test("loop:{a=b;if(a) continue loop}", "a = b; if (a) return [0, 0]", true);
@@ -130,9 +130,9 @@ test("predef[key[1]](r.slice(key[0].length).trim())", '_ = key[1]; _0 = key[0].l
 test("predef[key[1]](r.slice())(r.slice())", '_ = key[1]; _0 = r.slice(); _ = predef[_](_0); _0 = r.slice(); _(_0)');
 test("predef[key[1]][key[2]][key[3]]", '_ = key[1]; _ = predef[_]; _0 = key[2]; _ = _[_0]; _0 = key[3]; _[_0]');
 test("[key[1]][key[2]][key[3]]", '_ = key[1]; _ = [_]; _0 = key[2]; _ = _[_0]; _0 = key[3]; _[_0]');
-test("[key[1]][key[2]]+[key[3]][key[4]]", '_ = key[1]; _ = [_]; _0 = key[2]; _ = _[_0]; _0 = key[3]; _0 = [_0]; _1 = key[4]; _ + _0[_1]');
+test("[key[1]][key[2]]+[key[3]][key[4]]", '_0 = key[1]; _0 = [_0]; _1 = key[2]; _ = _0[_1], _1 = key[3]; _0 = [_1]; _1 = key[4]; _ + _0[_1]');
 test("if(a)a:{break a}", "if (!a) return [2, 0]; return [1, 0];\r\n return [1, 0]", true);
-test("rgb=(rgb<<8|rgb>>16)&0xffffff", "_ = rgb << 8, _0 = rgb >> 16, _ = _ | _0; rgb = _ & 0xffffff", true);
+test("rgb=(rgb<<8|rgb>>16)&0xffffff", "_0 = rgb << 8, _1 = rgb >> 16, _0 = _0 | _1; _ = _0, rgb = _ & 0xffffff", true);
 test(`if (c) a; else return true; return false`, "if (!c) return [1, 0]; a; return [2, 0];\r\n return [true, 2];\r\n return [false, 2]")
 test(`switch(a){case a:a=a?1:0;break;case b:a=b;break;}`, "if (a === a) return [1, 0]; if (a === b) return [4, 0]; return [5, 0];\r\n if (!a) return [1, 0]; a = 1; return [2, 0];\r\n a = 0; return [1, 0];\r\n return [2, 0];\r\n a = b; return [1, 0]");
 test(`a=typeof a!==1`, "_ = typeof a, a = _ !== 1");
@@ -153,8 +153,7 @@ test(`c=b+ !a`, "_ = !a, c = b + _");
 test(`do {var loadcount = 0;} while (loadcount !== 0);`, `loadcount = 0; _ = loadcount !== 0; if (_) return [0, 0]`);
 test("if(a)try{a}catch{};a;", 'if (!a) return [4, 0]; return [1, 7];\r\n a; return [0, 9];\r\n return [1, 9];\r\n return [1, 0];\r\n a');
 test("url = (o===void 0||o===null?void 0:o.url)", '_ = void 0, _ = o === _; if (_) return [1, 0]; _ = o === null;\r\n if (!_) return [1, 0]; _ = void 0; return [2, 0];\r\n _ = o.url; return [1, 0];\r\n url = _', true);
-test("p ? (ishttps ? `https` : `http`).toUpperCase() + i18n`端口` + (ishttps ? ': ' : ':  ') + p : ''", "if (!p) return [1, 0]; if (!ishttps) return [1, 0]; _0 = `https`; return [2, 0];\r\n _0 = `http`; return [1, 0];\r\n _1 = _0.toUpperCase(); _ = _1 + i18n`端口`; if (!ishttps) return [1, 0]; _2 = ': '; return [2, 0];\r\n _2 = ':  '; return [1, 0];\r\n _ = _ + _2, _ = _ + p; return [2, 0];\r\n ''; return [1, 0]")
-unstruct.debug = true; r++;
+test("p ? (ishttps ? `https` : `http`).toUpperCase() + i18n`端口` + (ishttps ? ': ' : ':  ') + p : ''", "if (!p) return [1, 0]; if (!ishttps) return [1, 0]; _1 = `https`; return [2, 0];\r\n _1 = `http`; return [1, 0];\r\n _ = _1.toUpperCase(); _0 = i18n`端口`, _ = _ + _0; if (!ishttps) return [1, 0]; _2 = ': '; return [2, 0];\r\n _2 = ':  '; return [1, 0];\r\n _0 = _2, _ = _ + _0, _ = _ + p; return [2, 0];\r\n ''; return [1, 0]")
 r++// test("if(a)else {}",'')
 test("if(a){if(b){c}d}else{e}", `if (!a) return [2, 0]; if (!b) return [1, 0]; c; return [1, 0];\r\n d; return [2, 0];\r\n e; return [1, 0]`)
 test("if(a){if(b){c}else{d}}else{e}", `if (!a) return [3, 0]; if (!b) return [1, 0]; c; return [2, 0];\r\n d; return [1, 0];\r\n return [2, 0];\r\n e; return [1, 0]`)
@@ -164,3 +163,6 @@ test("var res = null, krc;", `res = null; krc`)
 test("res = null, krc;", `res = null; krc`)
 test(`while (a && b);`, '_ = a; if (!_) return [1, 0]; _ = b;\r\n if (!_) return [1, 0]; return [-1, 0]', true);
 test(`while (a < b);`, '_ = a < b; if (!_) return [1, 0]; return [0, 0]', true);
+unstruct.debug = true; r++;
+test(`if (a() > a+b);`, '_ = a(), _0 = a + b, _ = _ > _0; if (!_) return [1, 0]; return [1, 0]', true);
+test(`index > start && result.length < pageSize`, '_ = index > start; if (!_) return [1, 0]; _ = result.length, _ < pageSize', true);

@@ -986,10 +986,21 @@ var _express = function (body, getname, ret) {
             var p = 0;
             if (o.unary) p = powermap["!"];
             else p = powermap[o.text];
-            var b = body.slice(bx, cx + 1);
-            bx = cx + 1;
-            b.index = nameindex;
             var isor = p === powermap["||"];
+            var b = body.slice(bx, cx);
+            if (isor || isempty(b, SPACE | COMMENT) || canbeTemp(b) || p <= powermap["="] || !o.unary && /^(\+\+|\-\-)$/.test(o.text)) {
+                b = body.slice(bx, cx + 1);
+                b.index = nameindex;
+            }
+            else {
+                if (needcomma(q)) q.push({ type: STAMP, text: ';' });
+                q.push(...scanner2(`${getname(nameindex)}=`), ...b);
+                b = [{ text: getname(nameindex), type: EXPRESS }, body[cx]];
+                b.index = nameindex;
+                nameindex++;
+                if (maxindex < nameindex) maxindex = nameindex;
+            }
+            bx = cx + 1;
             if (!isor) if (!cache.length || p > cache[cache.length - 1] || p >= powermap.new) {
                 cache.push(b, p);
                 continue;
