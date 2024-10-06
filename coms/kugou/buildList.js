@@ -17,7 +17,7 @@ function main(dataid, datapath) {
             if (s.hash || s.url) {
                 kugou$player.play(s);
             } else {
-                go(datapath, s);
+                zimoli.go(datapath, s);
             }
         },
         datas: data.from(dataid, parseSongsList)

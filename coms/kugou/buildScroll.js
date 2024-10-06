@@ -13,7 +13,7 @@ function Main(dataid, datapath, titleid) {
             if (s.hash) {
                 this.player.play(s);
             } else {
-                go(datapath, s);
+                zimoli.go(datapath, s);
             }
         },
         png: img,
