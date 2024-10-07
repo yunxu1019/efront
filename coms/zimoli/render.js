@@ -543,7 +543,7 @@ var directives = {
         var style = elem.style;
         if (style.display !== display) style.display = display;
     }, function (elem) {
-        return elem.style.display === 'none';
+        return elem.style.display !== 'none';
     }),
     style: createMapper(css, css.styleToMap),
     class: createMapper(addClass, addClass.classToMap),
