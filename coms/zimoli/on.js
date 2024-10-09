@@ -228,7 +228,7 @@ function checkKeyNeed(eventtypes, e) {
         for (var cx = 0, dx = keyneed.length; cx < dx; cx++) {
             var key = keyneed[cx];
             keykeep[key] = true;
-            if (!e[key + "Key"]) return false;
+            if (!e[key + "Key"] && e.keyCode !== keyCodeMap[key]) return false;
         }
     }
     if (eventtypes.only) {
