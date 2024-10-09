@@ -1021,7 +1021,7 @@ function createStructure(element, useExists) {
         }
         // ng-html,ng-src,ng-text,ng-model,ng-style,ng-class,...
         var key = name.replace(/^(ng|v|[^\_\:\.]*?)\-|^[\:\_\.\?\@\*&]|^v\-bind\:/i, "").toLowerCase();
-        if (key.length !== name.length && directives.hasOwnProperty(key) || /^([\_\:\.]|v\-bind\:)/.test(name) || /^[@&\?\*]/.test(name) && !value) {
+        if (key.length !== name.length && directives.hasOwnProperty(key) || /^([\_\:\.]|v\-bind\:)/.test(name) || /^[@&\?\*\+]/.test(name) && !value) {
             if (value) binds[key] = value;
             else switch (name.charAt(0)) {
                 case "?":
@@ -1037,6 +1037,9 @@ function createStructure(element, useExists) {
                 case "&":
                     binds.src = key;
                     break;
+                case "+":
+                    binds[key] = key;
+                    break;
             }
             element.removeAttribute(name);
         }
@@ -1048,7 +1051,7 @@ function createStructure(element, useExists) {
             if (value) ons.push([emiters[ngon], name.replace(emiter_reg, ''), value]);
         }
         // placeholder_ href_ checked_ ...
-        else if (/[_@\:\.&\?\*]$/.test(name)) {
+        else if (/[_@\:\.&\?\*\+]$/.test(name)) {
             var key = name.slice(0, name.length - 1);
             if (value) attr1[key] = value;
             else {
@@ -1064,6 +1067,9 @@ function createStructure(element, useExists) {
                         break;
                     case "&":
                         binds.src = key;
+                        break;
+                    case "+":
+                        binds[key] = key;
                         break;
                 }
                 element.setAttribute(key.replace(/\./g, '-'), '');
