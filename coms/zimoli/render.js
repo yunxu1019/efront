@@ -708,6 +708,7 @@ var emiters = {
 };
 emiters.v = emiters.ng = emiters.on;
 
+var 驼峰化 = key => key.replace(/\-([a-z])/ig, (_, w) => w.toUpperCase());
 var keyAdapters = [
     key => key,
     key => key.toLowerCase(),
@@ -947,7 +948,7 @@ class Struct {
 
 var pushid = function (ids, name) {
     ids.push(name);
-    var name1 = name.replace(/\-([a-z])/ig, (_, a) => a.toUpperCase());
+    var name1 = 驼峰化(name);
     if (name1 !== name) ids.push(name1);
 };
 
@@ -1023,23 +1024,26 @@ function createStructure(element, useExists) {
         var key = name.replace(/^(ng|v|[^\_\:\.]*?)\-|^[\:\_\.\?\@\*&]|^v\-bind\:/i, "").toLowerCase();
         if (key.length !== name.length && directives.hasOwnProperty(key) || /^([\_\:\.]|v\-bind\:)/.test(name) || /^[@&\?\*\+]/.test(name) && !value) {
             if (value) binds[key] = value;
-            else switch (name.charAt(0)) {
-                case "?":
-                case ":":
-                    binds.text = key;
-                    break;
-                case "@":
-                    binds.html = key;
-                    break;
-                case "*":
-                    binds.model = key;
-                    break;
-                case "&":
-                    binds.src = key;
-                    break;
-                case "+":
-                    binds[key] = key;
-                    break;
+            else {
+                key = 驼峰化(name.slice(1));
+                switch (name.charAt(0)) {
+                    case "?":
+                    case ":":
+                        binds.text = key;
+                        break;
+                    case "@":
+                        binds.html = key;
+                        break;
+                    case "*":
+                        binds.model = key;
+                        break;
+                    case "&":
+                        binds.src = key;
+                        break;
+                    case "+":
+                        binds[key] = key;
+                        break;
+                }
             }
             element.removeAttribute(name);
         }
@@ -1055,6 +1059,7 @@ function createStructure(element, useExists) {
             var key = name.slice(0, name.length - 1);
             if (value) attr1[key] = value;
             else {
+                key = 驼峰化(name.slice(0, name.length - 1));
                 switch (name.charAt(name.length - 1)) {
                     case "?":
                         binds.text = key;
