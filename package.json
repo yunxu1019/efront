@@ -1,6 +1,6 @@
 {
   "name": "efront",
-  "version": "4.19.5",
+  "version": "4.19.6",
   "description": "一个开发环境，提供前端开发所需的各种功能。此项目不依赖vue和angular的基础库，却同样提供了对vue/angular的语法的支持，像v-if/v-else,ng-if,v-show,ng-model,v-bind,ng-bind,@click,ng-click等可在同一个文件中使用，另外组件可以拆分成脚本、样式、模板分三个文件保存，也可以合并成一个文件保存，这取决于使用者的偏好，而不是冷冰冰的硬性规定。像vue3中直接绑定变量，vue2绑定的却是data中的数据，这种vue不同版本不兼容的问题，efront同时兼容两种绑定方式，同样取决于使用者的喜好，而不是框架作者的喜好。",
   "main": "./coms/efront",
   "directories": {
