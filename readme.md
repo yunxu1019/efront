@@ -1,7 +1,7 @@
 
 [English version](./readme-en.md)
 
- *efront* 是一个开发工具，提供前端开发所需的各种功能，可作为开发环境使用，也可当成命令行工具使用其中的部分功能。此项目不依赖vue和angular的基础库，却同样提供了对vue/angular的语法的支持，像v-if/v-else,ng-if,v-show,ng-model,v-bind,ng-bind,@click,ng-click等可在同一个文件中使用，另外组件可以拆分成脚本、样式、模板分三个文件保存，也可以合并成一个文件保存，这取决于使用者的偏好，而不是冷冰冰的硬性规定。像vue3中直接绑定变量，vue2绑定的却是data中的数据，这种不同版本语法不兼容的问题，在efront中有友好的解决，efront 同时兼容两种绑定方式，同样取决于使用者的喜好，而不是框架作者的喜好。
+ *efront* 是一个开发工具，提供前端开发所需的各种功能，可作为开发环境使用，也可当成命令行工具使用其中的部分功能。
 
 # efront 思想
 1. 每个文件只导出一份数据，这一份数据可以是 boolean,number,string,function,object,bigint,null,undefined 中的任意一种
