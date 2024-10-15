@@ -162,7 +162,13 @@ Directory.prototype.update = async function (updateonly) {
         var key = k.replace(/\.\w+$/, '');
         var o = loaded[k];
         if (changed[key]) {
-            if (o instanceof File) o.unload();
+            if (o instanceof File) {
+                if (o.mtime) {
+                    updated.push(o.pathname);
+                    hasLoaded++;
+                }
+                o.unload();
+            }
         } else if (updateonly) {
             if (o instanceof File && o.data) {
                 var data = o.data;

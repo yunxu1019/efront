@@ -10,7 +10,7 @@ var watch_ = function (file, watchers) {
         recursive: /^(darwin|win32)$/i.test(process.platform)
     }, lazy(function (file, changeType) {
         if (watch_tree[file] !== this) return;
-        if (changeType !== "change") return;
+        if (!/^(change|rename)$/i.test(changeType)) return;
         watchers.slice(1, watchers.length).forEach(w => w(file));
     }.bind(watchers, file), 160));
 }
