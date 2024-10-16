@@ -861,7 +861,8 @@ function renderElement(element, scope = element.$scope, parentScopes = element.$
         if (element.$renderid !== 9) {
             on("append")(element, addRenderElement);
             onremove(element, removeRenderElement);
-            if (isMounted(element) || element.$renderid > 1) addRenderElement.call(element);
+            if (isMounted(element));
+            else if (element.$renderid > 1) addRenderElement.call(element);
             else if (eagermount) rebuild(element);
         }
         else {
