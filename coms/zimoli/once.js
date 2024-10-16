@@ -1,8 +1,14 @@
 "use strict";
 var oncetree = {};
 function emit(ontype, target, handler, firstmost) {
+    var fired = false;
     var off = ontype(target, function (event) {
-        off();
+        if (fired) return;
+        fired = true;
+        if (!off) Promise.resolve().then(function () {
+            off();
+        });
+        else off();
         return handler.call(this, event);
     }, firstmost);
     return off;

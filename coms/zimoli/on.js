@@ -553,15 +553,13 @@ var invoke = function (event, type, pointerType) {
  * @param {Element} target 
  * @param {Function} handle 
  */
-var onmounted = on('mounted');
-handlersMap["onmounted"] = function (target, handle) {
-    onmounted(target, handle);
-    if (isMounted(target)) {
-        handle.call(target);
-    }
+var autofire = function (key) {
+    var h = on(key);
+    handlersMap["on" + key] = function (target, handle) {
+        var on = h(target, handle);
+        if (isMounted(target)) handle.call(target);
+        return on;
+    };
 };
-var onappend = on('append');
-handlersMap["onappend"] = function (target, handle) {
-    onappend(target, handle);
-    if (isMounted(target)) handle.call(target);
-};
+autofire('mounted');
+autofire('append');
