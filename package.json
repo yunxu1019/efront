@@ -1,6 +1,6 @@
 {
   "name": "efront",
-  "version": "4.19.5",
+  "version": "4.19.6",
   "description": "一个开发环境，提供一种自由的前端开发模式，也可作为辅助工具使用。",
   "main": "./coms/efront",
   "directories": {
