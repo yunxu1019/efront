@@ -284,6 +284,7 @@ function slider() {
         negative_index = -index;
         var _removingMain = _imageMain;
         reshape(index, false);
+        if (_removingMain === _imageMain) return;
         css(_removingMain, "transition:.1s opacity ease-out,.1s transform;z-index:1;left:0;");
         appendChild(outter, _removingMain);
         setTimeout(function () {
