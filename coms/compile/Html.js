@@ -153,6 +153,10 @@ Html.prototype.createScoped = function (code) {
                         var id = c.text.slice(1);
                         vars[toCamelCase(id)] = true;
                     }
+                    else if (/\#$/.test(c.text)) {
+                        var id = c.text.slice(0, c.text.length - 1);
+                        vars[toCamelCase(id)] = true;
+                    }
                 }
                 break;
             case QUOTED:

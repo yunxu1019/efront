@@ -1056,7 +1056,7 @@ function createStructure(element, useExists) {
             if (value) ons.push([emiters[ngon], name.replace(emiter_reg, ''), value]);
         }
         // placeholder_ href_ checked_ ...
-        else if (/[_@\:\.&\?\*\+]$/.test(name)) {
+        else if (/[_@\:\.&\?\*\+\#]$/.test(name)) {
             var key = name.slice(0, name.length - 1);
             if (value) attr1[key] = value;
             else {
@@ -1076,6 +1076,9 @@ function createStructure(element, useExists) {
                         break;
                     case "+":
                         binds[key] = key;
+                        break;
+                    case "#":
+                        ids.push(key);
                         break;
                 }
                 element.setAttribute(key.replace(/\./g, '-'), '');
