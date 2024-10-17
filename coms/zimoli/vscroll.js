@@ -26,7 +26,8 @@ var scroll = function () {
         if (!offsetParent) return deltay;
         var _boxPosition = getScreenPosition(_box);
         var _parentPosition = getScreenPosition(offsetParent);
-        if (_boxPosition.bottom - 1 >= _parentPosition.bottom && deltay > 0) {
+        if (!/^(auto|scroll)$/.test(getComputedStyle(offsetParent).overflowY) && !offsetParent.YScrollBoxId);
+        else if (_boxPosition.bottom - 1 >= _parentPosition.bottom && deltay > 0) {
             var deltaScroll = _boxPosition.bottom - _parentPosition.bottom;
             deltaScroll = min(deltay, deltaScroll);
             scrollY.call(offsetParent, deltaScroll, false);
