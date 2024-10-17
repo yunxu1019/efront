@@ -55,6 +55,7 @@ var filecache = new Cache(SERVER_ROOT_PATH, function (data, filename, fullpath) 
         });
     });
 }, FILE_BUFFER_SIZE);
+doFile.addNotifyCache(filecache);
 var authcache = null, authcount = 0;
 var liveload = require("./liveload");
 filecache.onreload = function (urls) {

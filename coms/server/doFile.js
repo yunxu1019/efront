@@ -161,6 +161,7 @@ function doDeleteFile(req, res, filepath) {
             res.end(String(error));
             return;
         }
+        notify();
         res.end('');
     });
 }
@@ -206,6 +207,7 @@ function doPutFile(req, res, filepath, code) {
         fired = true;
         w.close();
         res.end(filepath);
+        notify();
     };
     var inc = start || 0;
     req.on("data", function (chunk) {
@@ -225,9 +227,6 @@ function doPutFile(req, res, filepath, code) {
     req.on("close", safeend);
 }
 
-function doPatchFile(req, res) {
-    res.end();
-}
 
 async function doFile(req, res) {
     if (/^\/@/.test(req.url)) {
@@ -238,7 +237,7 @@ async function doFile(req, res) {
             return;
         }
     } else {
-        var url = req.url.replace(/^[\.\\\/]+/, '');
+        var url = path.normalize(req.url).replace(/^[\.\\\/]+/, '');
         var filepath = path.join(root, url);
     }
     if (/\!(\w+)(\.\w*)?$/.test(filepath)) {
@@ -261,9 +260,6 @@ async function doFile(req, res) {
         case "put":
             doPutFile(req, res, filepath, code);
             break;
-        case "patch":
-            doPatchFile(req, res, filepath, code);
-            break;
         case "delete":
             doDeleteFile(req, res, filepath, code);
             break;
@@ -272,4 +268,15 @@ async function doFile(req, res) {
             res.end(i18n[getHeader(req.headers, "accept-language")]`${req.method} 请求方法无效`);
     }
 }
+function notify(filepath) {
+    if (!isSubpath(filepath, root)) return;
+    notify_caches.forEach(c => {
+        c.checkUpdate();
+    })
+}
+var notify_caches = [];
+doFile.addNotifyCache = function (a) {
+    if (notify_caches.indexOf(a) < 0) notify_caches.push(a);
+};
+doFile.notify = notify;
 module.exports = doFile;

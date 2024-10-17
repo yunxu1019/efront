@@ -127,7 +127,16 @@ function doFolder(type, pathname) {
         var [, from, to] = /^([\s\S]*?)(?:\?([\s\S]*))?$/.exec(pathname);
         from = wrapPath(from);
         if (to) to = wrapPath(to);
-        return doFolder[type](from, to);
+        var du = doFolder[type];
+        var p = du(from, to);
+        if (du !== doList) {
+            var notify = function () {
+                doFile.notify(from);
+                if (to) doFolder.notify(to);
+            }
+            p.then(notify, notify);
+        }
+        return p;
     }
     throw e400;
 }
