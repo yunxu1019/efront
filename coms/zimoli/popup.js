@@ -354,7 +354,23 @@ var popup_fixup = function (element, x, y) {
     css(element, {
         position: 'absolute',
     });
+    css(element, {
+        position: 'fixed'
+    });
+    var body = document.body;
     popup_as_single(element);
+    if (getComputedStyle(element).position !== 'fixed') {
+        var clientTop = body.clientTop;
+        var clientBottom = clientTop + body.clientHeight;
+        var clientLeft = body.clientLeft;
+        var clientRight = clientLeft + body.clientWidth;
+        css(element, {
+            marginTop: -clientTop,
+            marginLeft: -clientLeft,
+            marginRight: clientRight - window.innerWidth,
+            marginBottom: clientBottom - window.innerHeight
+        })
+    }
     var left = "left", top = 'top';
     if (y + element.offsetHeight > window.innerHeight && y << 1 > window.innerHeight) {
         top = "bottom";
