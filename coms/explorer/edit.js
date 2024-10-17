@@ -33,7 +33,7 @@ function main({ path: root, rename, isfolder, add, name, hasName }) {
         var path = root + "/" + a.$scope.data.name;
         if (origin) {
             var to = path;
-            path = origin;
+            path = root + '/' + origin;
         }
         if (origin) await rename(path, to);
         else await add(path)
