@@ -6,7 +6,7 @@ await data.from("efront-singer", function (a) {
     })
 });
 var parseFileName = function (b) {
-    var [name, singer] = String(b).replace(/\.\w+$/, '')
+    var [name, singer] = String(b).replace(/\.[\w#]+$/, '')
         .replace(/^\s*\d+[\s\.,\-]+(\S+)($|\W\s*\-)/, "$1$2")
         .replace(/^\s*\d+[\.]+\s*([\s\S]+)/, "$1")
         .replace(/^\s*\d+\s+(\W+)/, "$1")
