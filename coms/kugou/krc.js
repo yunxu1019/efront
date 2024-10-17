@@ -21,8 +21,24 @@ function krc(list = div()) {
         remove(list.children);
         var children = createKRC(krc);
         appendChild(list, children);
+        list.info = info;
         list.process = children.process;
-    })
+    });
+    contextmenu(list, [{
+        name: '保存歌词',
+        do() {
+            if (!list.info) return;
+            var a = document.createElement('a');
+            if (!("download" in a)) {
+                alert('当前浏览器无法保存', 'warn');
+                return;
+            }
+            var { krc, lrc, singername, songname } = list.info;
+            a.href = 'data:application/octet-stream;base64,' + toBase64(krc || lrc);
+            a.download = `${songname}-${singername}.${krc ? 'krc' : 'lrc'}`;
+            a.click();
+        }
+    }])
     return list;
 }
 function createLRC(lrc) {
