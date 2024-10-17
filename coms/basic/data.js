@@ -98,19 +98,31 @@ var seekFromSource = function (obj, base) {
     }
     return obj;
 };
+var getkey = [
+    a => a.toUpperCase(),
+    a => a.charAt(0).toUpperCase() + a.slice(1),
+    a => a,
+]
 function getErrorMessage(error = this) {
     if (!isObject(error)) return String(error);
     if (error instanceof Error) return String(error);
     var words = "reason,message,desc,descption,msg,err,error,detail,data".split(',');
-    while (words.length) {
+    w: while (words.length) {
         var a = words.shift();
-        if (error[a]) {
-            return String(error[a]);
+        var keys = getkey.slice();
+        while (keys.length) {
+            a = keys.pop()(a);
+            var e = error[a];
+            if (typeof e === 'string') {
+                return e;
+            }
+            if (isObject(e)) {
+                var s = String(e);
+                if (!/^\[object\s/i.test(s)) return s;
+                error = e;
+                continue w;
+            }
         }
-        a = a.charAt(0).toUpperCase() + a.slice(1);
-        if (error[a]) return String(error[a]);
-        a = a.toUpperCase();
-        if (error[a]) return String(error[a]);
     }
     return Object.keys(error).map(k => `${k}: ${error[k]}`).join(',\r\n');
 }
