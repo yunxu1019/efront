@@ -3,7 +3,6 @@ var isTrident = /Trident/i.test(navigator.userAgent);
 function krc(list = div()) {
     care(list, function (info) {
         list.info = info;
-        console.log(krc)
         if (!info.grc && !info.krc) {
             remove(list.children);
             if (info.lrc) {
