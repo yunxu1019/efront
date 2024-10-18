@@ -97,7 +97,7 @@ function confirm() {
                     element.removeAttribute('locked');
                     this.removeAttribute('loading');
                     if (res === false) return;
-                    element.result = res;
+                    if (!("result" in element)) element.result = res;
                     remove(element);
                 }, () => {
                     this.removeAttribute('loading');
@@ -105,7 +105,7 @@ function confirm() {
                 });
             }
             else {
-                element.result = res;
+                if (!('result' in element)) element.result = res;
                 remove(element);
             }
         }

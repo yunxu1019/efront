@@ -22,6 +22,7 @@ function prompt() {
     var opts = [];
     var submit = null;
     var wrap = false;
+    var value = '';
     for (var arg of arguments) {
         if (isNode(arg)) ipt = arg;
         else if (typeof arg === 'string') msg = arg;
@@ -31,6 +32,7 @@ function prompt() {
             if (isFunction(arg.test)) check = arg;
             if (isFunction(arg.submit)) submit = arg;
             if (isString(arg.msg || arg.title)) msg = arg.msg || arg.title;
+            if (isHandled(arg.value)) value = arg.value;
             if (arg.multiple || arg.wrap) wrap = true;
         }
     }
@@ -41,6 +43,7 @@ function prompt() {
             ipt.contentEditable = true;
         }
         else ipt = input();
+        ipt.value = value;
     }
     else {
         ipt.setAttribute('textarea', '');
@@ -95,6 +98,7 @@ function prompt() {
                 var res = await submit.submit(value);
                 if (!settip(tip, res)) return false;
             }
+            c.result = value;
         }
     });
     on('mounted')(ipt, function () {
