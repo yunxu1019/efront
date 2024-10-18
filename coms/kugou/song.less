@@ -46,7 +46,6 @@
     padding: 0;
     line-height: 0;
     font-size: 0;
-    padding-bottom: 76%;
     height: auto;
 
     >:not(png) {
@@ -54,8 +53,10 @@
     }
 
     >.logo {
-        position: absolute;
-        height: 100%;
+        padding-bottom: 100%;
+        height: 0;
+        font-size: 0;
+        line-height: 0;
         width: 100%;
         margin: 0;
     }
@@ -180,7 +181,8 @@ png {
 
     &.error {
         border-color: #c26;
-        >div{
+
+        >div {
             display: none;
         }
     }
