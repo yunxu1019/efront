@@ -7,7 +7,7 @@
         <i type_="s.type" ng-class="{actived:musicList.isActived(s)}" priced_="!!s.priced" @click="event.stopPropagation(),play(s)" -repeat="s in song.items"></i>
     </span>
 </div>
-<div class="filterTime(song.timeLength)"></div>
+<div -bind="filterTime(song.timeLength)"></div>
 <div refresh class="play-state" -if="isActived()" ng-class={error:playState.error}>
     <div ng-style="{width:playState.width}"></div>
 </div>
