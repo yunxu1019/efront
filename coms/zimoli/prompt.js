@@ -8,7 +8,7 @@ var settip = function (tip, res) {
 }
 var validate = function (text, checker, tip) {
     var valid;
-    if (checker instanceof RegExp) {
+    if (isFunction(checker.test)) {
         valid = checker.test(text);
     }
     if (isFunction(checker)) {
@@ -51,7 +51,7 @@ function prompt() {
     var tip = document.createElement("tip");
     var buttons = [isNode(opts[0]) ? opts[0] : button(opts[0] || i18n`确认`), isNode(opts[1]) ? opts[1] : button(opts[1] || i18n`取消`, 'white')];
     var getValue = () => isFunction(ipt.getValue) ? ipt.getValue() : ipt.value;
-    if (isFunction(check) || wrap) {
+    if (check || wrap) {
         var setDisable = function (event) {
             var bd = c.body;
             if (wrap && bd) {
@@ -99,6 +99,8 @@ function prompt() {
                 if (!settip(tip, res)) return false;
             }
             c.result = value;
+        } else {
+            c.errored = true;
         }
     });
     on('mounted')(ipt, function () {

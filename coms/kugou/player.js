@@ -48,16 +48,16 @@ var patchMusicInfo = async function (info) {
                     res.avatar = res.imgUrl.replace(/\{size\}/ig, 200);
                 }
             }
-            else if (/\.\w+\#[kl]rc$/i.test(info.url)) {
+            else if (/\.\w+\#[klg]rc$/i.test(info.url)) {
                 var Uint8Array = window.Uint8Array;
                 if (!Uint8Array) break;
                 var krl = info.url.replace(/\.\w+#(\w+)$/i, '.$1');
+                var ext = /\.(\w+)$/.exec(krl);
                 var xhr = cross("get", krl);
-                xhr.responseType = 'arraybuffer';
+                if (/krc$/i.test(krl)) xhr.responseType = 'arraybuffer';
                 await xhr;
                 var krc = xhr.response;
-                var ext = /\.(\w+)$/.exec(krl);
-                if (ext) info[ext[1].toLowerCase()] = new Uint8Array(krc);
+                info[ext[1].toLowerCase()] = krc instanceof ArrayBuffer ? new Uint8Array(krc) : krc;
             }
             break;
     }

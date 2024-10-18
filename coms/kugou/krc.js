@@ -2,7 +2,9 @@ var secret = [64, 71, 97, 119, 94, 50, 116, 71, 81, 54, 49, 45, 206, 210, 110, 1
 var isTrident = /Trident/i.test(navigator.userAgent);
 function krc(list = div()) {
     care(list, function (info) {
-        if (!info.krc) {
+        list.info = info;
+        console.log(krc)
+        if (!info.grc && !info.krc) {
             remove(list.children);
             if (info.lrc) {
                 var children = createLRC(info.lrc);
@@ -15,30 +17,61 @@ function krc(list = div()) {
             }
             return;
         }
-        var content = info.krc.slice(4).map((a, i) => a ^ secret[i % 16]);
-        var bufff = thirdParty$inflate(content.slice(2));
-        var krc = decodeUTF8(bufff);
+        var krc = info.grc || info.krc_text;
+        if (!krc) {
+            var content = info.krc.slice(4).map((a, i) => a ^ secret[i % 16]);
+            var bufff = thirdParty$inflate(content.slice(2));
+            krc = decodeUTF8(bufff);
+            info.krc_text = krc;
+        }
         remove(list.children);
         var children = createKRC(krc);
+        list.extra = children.extra;
         appendChild(list, children);
-        list.info = info;
         list.process = children.process;
     });
-    contextmenu(list, [{
-        name: '保存歌词',
-        do() {
-            if (!list.info) return;
-            var a = document.createElement('a');
-            if (!("download" in a)) {
-                alert('当前浏览器无法保存', 'warn');
-                return;
+    contextmenu(list, [
+        {
+            name: "编辑歌词",
+            hidden: true,
+            do() {
+                popup('歌词编辑器', list.info, true);
             }
-            var { krc, lrc, singername, songname } = list.info;
-            a.href = 'data:application/octet-stream;base64,' + toBase64(krc || lrc);
-            a.download = `${songname}-${singername}.${krc ? 'krc' : 'lrc'}`;
-            a.click();
-        }
-    }])
+        },
+        {
+            name: "调整时间",
+            async do() {
+                var delta = await prompt('输入时间差值（毫秒）以调整全部歌词', a => +a === (a | 0));
+                delta = +delta;
+                var extra = list.extra;
+                if (extra.offset) extra.offset += +delta;
+                else extra.offset = +delta;
+            }
+        },
+        {
+            name: '保存歌词',
+            do() {
+                if (!list.info) return;
+                var a = document.createElement('a');
+                if (!("download" in a)) {
+                    alert('当前浏览器无法保存', 'warn');
+                    return;
+                }
+                var { grc, krc_text = grc, lrc, songname, songName, singername, singerName } = list.info;
+                if (krc_text) {
+                    var kp = krc_parse(krc_text);
+                    kp.extra.offset = list.extra.offset;
+                    var grc = krc_stringify(kp);
+                }
+                if (!grc && !lrc) {
+                    alert('当前歌曲没有可保存的歌词！', 'warn');
+                    return;
+                }
+                a.href = 'data:application/octet-stream;base64,' + toBase64(encodeUTF8(grc || lrc));
+                a.download = `${songname || songName}-${singername || singerName}.${krc_text ? 'grc' : 'lrc'}`;
+                a.click();
+            }
+        }])
     return list;
 }
 function createLRC(lrc) {
@@ -94,6 +127,7 @@ function createLRC(lrc) {
             }
         }
     };
+    krcList.rows = saved_rows;
     return krcList;
 }
 
@@ -113,39 +147,16 @@ function setClass(krcList, index) {
     });
     if (index + 2 < krcList.length) addClass(krcList[index + 1], 'after-active');
 }
+
 function createKRC(krc) {
-    var saved_rows = [];
-    krc.split(/[\r\n]+/).map(function (row) {
-        var data = /^\s*\[(.*?),(.*?)\](.*?)$/.exec(row);
-        if (data) {
-            var [, startTime, schedule, words] = data;
-            var wordReg = /<(.*?),(.*?),.*?>([^<]*)/g;
-            var saved_words = [];
-            do {
-                var word = wordReg.exec(words);
-                if (word) {
-                    var [, timeBegin, timeLength, label] = word;
-                    saveToOrderedArray(saved_words, {
-                        value: +timeBegin,
-                        timeBegin: +timeBegin,
-                        timeLength: +timeLength,
-                        label
-                    });
-                }
-            } while (word);
-            saveToOrderedArray(saved_rows, {
-                value: +startTime,
-                startTime: +startTime,
-                schedule: +schedule,
-                words: saved_words
-            });
-        } else {
-            if (!isProduction) console.info("%c未解析%c", "color:#c28", "color:#333", row, data);
-        }
-    });
+    var saved_rows = krc_parse(krc);
+    var extra = saved_rows.extra;
     var krcList = saved_rows.map(createRow);
     krcList.process = function (offset, length) {
         var offsetMTime = offset * 1000 | 0;
+        if (extra.offset) {
+            offsetMTime -= extra.offset;
+        }
         var index = getIndexFromOrderedArray(saved_rows, offsetMTime);
         var current_row = saved_rows[index];
         if (current_row) {
@@ -186,6 +197,7 @@ function createKRC(krc) {
         }
     };
     var markerLabel = document.createElement("div");
+    krcList.extra = extra;
     return krcList;
 }
 function createCell(word) {

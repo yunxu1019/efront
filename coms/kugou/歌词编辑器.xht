@@ -1,0 +1,153 @@
+<style>
+    & {
+        position: absolute;
+        left: 0;
+        top: 0;
+        height: auto;
+        width: auto;
+        bottom: 0;
+        right: 0;
+        overflow: hidden;
+    }
+
+    [insert] {
+        height: 12px;
+    }
+
+    w {
+        margin-right: 2px;
+        background: #fce;
+        display: inline-block;
+        padding: 2px;
+        line-height: 1;
+    }
+
+    [line] {
+        display: inline-block;
+    }
+
+    [row] {
+        margin-top: 12px;
+        line-height: 1.6;
+    }
+
+    [editing] {
+        outline: 1px solid #0009;
+        background: #0002;
+    }
+
+    [dark] {
+        color: red;
+    }
+
+    [foot] {
+        >a.button {
+            float: left;
+            margin: 0 16px 0 0;
+        }
+    }
+</style>
+<xmenu head -src="menuitems"></xmenu>
+<list body# @click="editTime(null)" -src="row in krc">
+    <div row @click.stop="editTime(row)" editing_="row.editing">
+        <span -bind="toOffsetTime(row.startTime)" dark_="row.startTime!==row.value"></span>
+        &nbsp;
+        <span line>
+            <w -repeat="w in row.words" -bind="w.label"></w>
+        </span>
+    </div>
+</list>
+<div foot>
+    <a -if="currentRow" @click="对齐">对齐</a>
+    <a -if="currentRow" @click="编辑">编辑</a>
+    <!-- <a -if="currentRow">试听</a> -->
+    <button @click="保存">保存</button>
+</div>
+<script>
+    var a = button;
+    var xmenu = zimoli$menu;
+    var menuitems = [{
+        name: "歌词",
+        actived: true,
+        do() {
+
+        }
+    }, {
+        name: "属性",
+        do() { }
+    }];
+    var timeEditor = '增加延时节点';
+    var 对齐 = async function () {
+        var time = await prompt("输入对齐差值(毫秒)", function (a) {
+            if (!isFinite(a)) return false;
+            a = +a;
+            if (a !== (a | 0)) return false;
+        });
+        var i = krc.indexOf(currentRow);
+        for (var cx = i, dx = krc.length; cx < dx; cx++) {
+            var r = krc[cx];
+            r.startTime = r.startTime + +time;
+        }
+    };
+    var 编辑 = async function () {
+        var time = await prompt('修改当前节点的启始时间', { value: toOffsetTime(currentRow.startTime) },
+            /^(\d+\:)*\d+(\.\d+)?$/);
+        currentRow.startTime = fromOffsetTime(time) | 0;
+    };
+    var 保存 = async function () {
+
+    }
+    var currentRow = null;
+    var editTime = function (row) {
+        if (currentRow === row) return;
+        if (currentRow) currentRow.editing = false;
+        if (row) row.editing = true;
+        currentRow = row;
+    }
+    var fromOffsetTime = function (t) {
+        var mili = /\d+\.\d+$/.exec(t);
+        if (mili) {
+            t = t.slice(mili[0].length);
+            mili = mili[0] * 1000;
+        }
+        var sum = 0;
+        t = t.split(':').reverse();
+        while (t.length) {
+            sum *= 60;
+            sum += +t.pop();
+        }
+        if (mili) sum += mili;
+        if (extra.offset) sum -= extra.offset;
+        return sum;
+    }
+    var toOffsetTime = function (a) {
+        if (extra.offset) a += extra.offset;
+        var d = [a % 1000];
+        a /= 1000;
+        a |= 0;
+        while (a) {
+            d.push(a % 60);
+            a /= 60;
+            a |= 0;
+        }
+        while (d.length < offsetLength) d.push(0);
+        d.reverse();
+        var time = d.slice(0, d.length - 1).map(a => a < 10 ? '0' + a : a).join(':');
+        d = d[d.length - 1];
+        if (d < 10) d = "00" + d;
+        else if (d < 100) d = '0' + d;
+        time += '.' + d;
+        return time;
+    }
+    view(this);
+    var [{ krc_text }] = arguments;
+    var krc = krc_parse(krc_text);
+    var extra = krc.extra;
+    var offsetLength = 3;
+    if (extra.total) {
+        offsetLength = Math.ceil(Math.log(extra.total) / Math.log(60));
+        if (offsetLength < 3) offsetLength = 3;
+    }
+    function 歌词编辑器() {
+    }
+</script>
