@@ -13,7 +13,7 @@
     border: 2px solid transparent;
 
     &:hover {
-        border-color: #acb;
+        border-color: #999;
     }
 
     &:active {
@@ -22,10 +22,16 @@
 }
 
 >.logo {
-    height: 40px;
-    width: 40px;
-    margin: -3px -2px -3px -11px;
+    width: 52px;
+    height: 52px;
+    font-size: 0;
+    margin: -10px -2px -10px -20px;
     border-radius: 50%;
+    border: 6px double #323336;
+    z-index: 1;
+    position: relative;
+    transition: border-width .2s;
+    background-clip: border-box;
 
     &+.singer+.song,
     &+.song {
@@ -42,6 +48,26 @@
 
 }
 
+&.activate {
+    >.logo {
+        // border-color: #acb;
+        border-width: 3.6px;
+        background-clip: content-box;
+        outline: 1.2px solid #acb;
+        outline-offset: -1.2px;
+    }
+
+    png {
+        filter: none;
+    }
+
+    &.error {
+        >.logo {
+            border-color: #c26;
+        }
+    }
+}
+
 &.imgonly {
     padding: 0;
     line-height: 0;
@@ -53,6 +79,7 @@
     }
 
     >.logo {
+        border: none;
         padding-bottom: 100%;
         height: 0;
         font-size: 0;
@@ -120,7 +147,7 @@
 >.song {
     line-height: 28px;
     padding-top: 2px;
-    padding-bottom: 14px;
+    padding-bottom: 12px;
     width: 100%;
     overflow: hidden;
     display: inline-block;
@@ -151,7 +178,7 @@ b {
 
     &+.song {
         padding-top: 12px;
-        padding-bottom: 3px;
+        padding-bottom: 2px;
     }
 }
 
@@ -165,18 +192,18 @@ png {
     right: 2px;
     left: 2px;
     display: block;
-    border-bottom: 2px solid #2c7bb522;
+    border-bottom: 1.2px solid #323336;
     height: 30px;
     border-radius: 0px 0 26px 26px;
     overflow: visible;
-    padding: 0 16px;
+    padding: 0 16px 0 26px;
 
     >div {
         width: 100%;
         height: 100%;
         box-sizing: content-box;
-        border-bottom: 2px solid #2c7bb5;
-        margin-bottom: -2px;
+        border-bottom: 1.2px solid #acb;
+        margin-bottom: -1.2px;
     }
 
     &.error {

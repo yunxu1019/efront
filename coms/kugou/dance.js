@@ -1,5 +1,5 @@
 var activeDevice, ratio = 1;
-var strokeColor = '#096';
+var strokeColor = '#acb';
 function line(buffer, style, lineWidth = window.devicePixelRatio || 1) {
     var canvas = this;
     var context = canvas.getContext("2d");
