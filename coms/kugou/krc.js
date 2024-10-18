@@ -40,7 +40,7 @@ function krc(list = div()) {
         {
             name: "调整时间",
             async do() {
-                var delta = await prompt('输入时间差值（毫秒）以调整全部歌词', a => +a === (a | 0));
+                var delta = await prompt('输入时间差值（毫秒）以调整整首歌词', a => +a === (a | 0));
                 delta = +delta;
                 var extra = list.extra;
                 if (extra.offset) extra.offset += +delta;
