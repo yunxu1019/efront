@@ -98,6 +98,7 @@ function confirm() {
                     this.removeAttribute('loading');
                     if (res === false) return;
                     if (!("result" in element)) element.result = res;
+                    element.complete = true;
                     remove(element);
                 }, () => {
                     this.removeAttribute('loading');
@@ -106,16 +107,19 @@ function confirm() {
             }
             else {
                 if (!('result' in element)) element.result = res;
+                element.complete = true;
                 remove(element);
             }
         }
         else {
             element.result = isHandled(this.result) ? this.result : this;
+            element.complete = true;
             remove(element);
         }
     };
     on('remove')(element, function () {
-        this.onload();
+        if (!this.complete) this.onerror();
+        else this.onload();
     });
     var buttons = options.map(function (label, index, options) {
         if (isNode(label)) {
