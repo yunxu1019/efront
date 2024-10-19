@@ -1,4 +1,7 @@
 <bg></bg>
+<div refresh class="play-state" -if="isActived()" ng-class={error:playState.error}>
+    <div ng-style="{width:playState.width}"></div>
+</div>
 <png class="logo" ng-if="song.imgurl" ng-src=song.imgurl></png>
 <div class="singer" ng-if="song.singer" ng-html=song.singerMarked></div>
 <div class="song" style:="{whiteSpace:song.items?'normal':'nowrap'}">
@@ -8,6 +11,3 @@
     </span>
 </div>
 <div -bind="filterTime(song.timeLength)"></div>
-<div refresh class="play-state" -if="isActived()" ng-class={error:playState.error}>
-    <div ng-style="{width:playState.width}"></div>
-</div>

@@ -1,7 +1,7 @@
 @avatar-left: 36px;
 @avatar-top: -12px;
 @avatar-size: 72px;
-
+@shade-color: #acb;
 @main-color: #000c;
 
 &.pause .play:before {
@@ -95,7 +95,7 @@
         min-width: 100px;
         width: auto;
         height: auto;
-        border-radius: 60px 0 0 0;
+        border-radius: 60px 0 60px 0;
         right: 0;
         top: 0;
         bottom: 0;
@@ -131,7 +131,7 @@
 
     >.track:after,
     >.avatar {
-        border-color: @main-color;
+        transition: border-color .2s ease-out;
         box-shadow: 0 0 6px -3px @main-color;
     }
 
@@ -139,6 +139,10 @@
         opacity: .7;
         transition: height .3s, opacity .3s;
         top: -@avatar-top;
+
+        &:before {
+            transition: background-color .2s ease-out;
+        }
     }
 
     >.avatar {
@@ -173,6 +177,7 @@
 
     >btn,
     >sbtn {
+        color: @shade-color;
         @btn-width: 42px;
         text-align: center;
         line-height: 60px;
@@ -183,6 +188,7 @@
         position: absolute;
         background: transparent;
         z-index: 2;
+        font-size: 14px;
 
         &.play {
             top: @avatar-top/2;
@@ -192,9 +198,13 @@
 
         &.next {
             right: 0;
+            padding-right: 12px;
+            text-align: right;
         }
 
         &.prev {
+            text-align: left;
+            padding-left: 12px;
             top: 0;
             left: @avatar-left - @btn-width+6px;
         }
@@ -258,8 +268,21 @@
     opacity: 1;
     @ptop: -@avatar-top;
 
+    >div.progress>.avatar {
+        border-color: @shade-color;
+    }
+
     >div.progress>.track {
         height: 3px;
+
+        &:after {
+            border-color: @shade-color;
+        }
+
+        &:before {
+            background-color: @shade-color;
+        }
+
         opacity: 1;
         top: @ptop;
 
