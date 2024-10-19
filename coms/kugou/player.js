@@ -7,7 +7,9 @@ var patchMusicInfo = async function (info) {
     var res = null, krc;
     switch (info.type) {
         case "qqjt":
-            info.lrc = (await cross("get", info.lyric)).response;
+            try {
+                info.lrc = (await cross("get", info.lyric)).response;
+            } catch { }
             res = await data.from("qqjt-url", qqjc({
                 TSID: info.id
             }))
@@ -19,19 +21,23 @@ var patchMusicInfo = async function (info) {
                 level: "standard",
                 encodeType: "aac"
             }));
-            info.lrc = await data.from('yyyy-lrc', yyyc.encode({
-                id: info.id,
-                lv: 0,
-                // tv: 0,
-            }));
+            try {
+                info.lrc = await data.from('yyyy-lrc', yyyc.encode({
+                    id: info.id,
+                    lv: 0,
+                    // tv: 0,
+                }));
+            } catch { }
             info.singerName = info.singername;
             info.songName = info.songname;
             break;
         case "kuwo":
             res = await data.from("play-url", info);
-            info.lrc = await data.from("kuwo-lrc", info, function (lrc) {
-                return lrc.map(l => `[${l.time}]${l.lineLyric}`).join('\r\n');
-            });
+            try {
+                info.lrc = await data.from("kuwo-lrc", info, function (lrc) {
+                    return lrc.map(l => `[${l.time}]${l.lineLyric}`).join('\r\n');
+                });
+            } catch { }
             info.avatar = info.pic;
             info.singerName = info.singername;
             info.songName = info.songname;
@@ -40,9 +46,11 @@ var patchMusicInfo = async function (info) {
         default:
             if (info.hash) {
                 res = await data.from("song-info", info);
-                krc = await data.from("search-krc", res);
-                krc = await data.from("download-krc", krc);
-                info.krc = fromBase64(krc);
+                try {
+                    krc = await data.from("search-krc", res);
+                    krc = await data.from("download-krc", krc);
+                    info.krc = fromBase64(krc);
+                } catch { }
                 if (res.fail_process === 12) res.priced = true;
                 if (res.imgUrl) {
                     res.avatar = res.imgUrl.replace(/\{size\}/ig, 200);
@@ -51,13 +59,15 @@ var patchMusicInfo = async function (info) {
             else if (/\.\w+\#[klg]rc$/i.test(info.url)) {
                 var Uint8Array = window.Uint8Array;
                 if (!Uint8Array) break;
-                var krl = info.url.replace(/\.\w+#(\w+)$/i, '.$1');
-                var ext = /\.(\w+)$/.exec(krl);
-                var xhr = cross("get", krl);
-                if (/krc$/i.test(krl)) xhr.responseType = 'arraybuffer';
-                await xhr;
-                var krc = xhr.response;
-                info[ext[1].toLowerCase()] = krc instanceof ArrayBuffer ? new Uint8Array(krc) : krc;
+                try {
+                    var krl = info.url.replace(/\.\w+#(\w+)$/i, '.$1');
+                    var ext = /\.(\w+)$/.exec(krl);
+                    var xhr = cross("get", krl);
+                    if (/krc$/i.test(krl)) xhr.responseType = 'arraybuffer';
+                    await xhr;
+                    var krc = xhr.response;
+                    info[ext[1].toLowerCase()] = krc instanceof ArrayBuffer ? new Uint8Array(krc) : krc;
+                } catch { }
             }
             break;
     }
