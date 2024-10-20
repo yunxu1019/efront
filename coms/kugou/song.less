@@ -12,13 +12,16 @@
 
     border: 2px solid transparent;
 
-    &:hover {
-        border-color: #999;
+    .bg:after {
+        border: 1px solid transparent;
     }
 
-    &:active {
-        border-color: #ccc;
+    &:hover {
+        .bg:after {
+            border-color: #fff9;
+        }
     }
+
 }
 
 >.logo {
@@ -73,8 +76,13 @@
     font-size: 0;
     height: auto;
 
-    >:not(png) {
+    >:not(png, bg) {
         display: none;
+    }
+
+    >.bg:after {
+        right: -10px;
+        bottom: -30px;
     }
 
     >.logo {
@@ -188,8 +196,8 @@ png {
 >.play-state {
     position: absolute;
     bottom: 0;
-    right: 2px;
-    left: 2px;
+    right: 0;
+    left: 0;
     display: block;
     border-bottom: 1.2px solid #323336;
     height: 30px;
@@ -203,11 +211,15 @@ png {
         box-sizing: content-box;
         border-bottom: 1.2px solid #acb;
         margin-bottom: -1.2px;
+
     }
 
     &.error {
 
-        &+.logo,
+        &+.logo {
+            outline-color: #c26;
+        }
+
         & {
             border-color: #c26;
         }

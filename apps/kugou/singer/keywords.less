@@ -28,7 +28,11 @@
 @media (max-width:720px) {
 
     song .bg {
-        display: none;
+
+        &:after,
+        &:before {
+            background-color: transparent;
+        }
     }
 
     song {
