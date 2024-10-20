@@ -3,6 +3,7 @@ var playState = kugou$playState;
 var playModes = kugou$playModes;
 var playModeData = data.getInstance("play-mode");
 var playList = kugou$playList();
+playList.initialStyle = 'marginLeft:-360px';
 var patchMusicInfo = async function (info) {
     var res = null, krc;
     switch (info.type) {
@@ -162,6 +163,7 @@ var $scope = {
     canvas: kugou$dance,
     activeList: playList,
     index: 0,
+    container,
     getSongName() {
         return this.info.songname || this.info.songName;
     },
@@ -376,7 +378,7 @@ if (hasContext) {
 }
 
 playList.play = index => $scope.play(index);
-var touching = false;
+var touching = false, touched = 0;
 var createControls = function () {
     var player = document.createElement("music-player");
     player.setAttribute("ng-class", "{play:playing===true,pause:playing===false,page:page,effect:effect}");
@@ -387,6 +389,7 @@ var createControls = function () {
         var x = event.clientX - getScreenPosition(player).left;
         let _audio = $scope.audio
         css(progress, { width: x });
+        touched = x;
         $scope.process(x / player.offsetWidth * _audio.duration, _audio.duration);
     }, "x");
     bindtouch(player, function (value) {
@@ -410,9 +413,8 @@ var createControls = function () {
         }
         return { y: getScreenPosition(player).top };
     }, 'y');
+
     moveupon(player, {
-        start() {
-        },
         end() {
             var currentHeight = calcPixel(this.offsetHeight), windowHeight = calcPixel(window.innerHeight);
             var $scope = this.$scope;
@@ -450,7 +452,7 @@ var createControls = function () {
             });
             if (!touching) return;
             let _audio = $scope.audio;
-            _audio.currentTime = progress.offsetWidth * _audio.duration / player.offsetWidth;
+            _audio.currentTime = touched * _audio.duration / player.offsetWidth;
             touching = false;
         }
     });
@@ -458,13 +460,6 @@ var createControls = function () {
 };
 
 var player = function (player) {
-    var savatar = player.querySelector('canvas');
-    var switchPlayList = function () {
-        if (onclick.preventClick) return;
-        onclick.preventClick = true;
-        if (playList.parentNode) remove(playList);
-        else popup(playList, savatar);
-    }
     render(player, $scope);
     player.play = function (hash) {
         $scope.play(hash);
@@ -478,14 +473,5 @@ var player = function (player) {
         if ($scope.playing) $scope.pause();
         else $scope.play();
     });
-    var timeout = 0;
-    moveupon(player, {
-        start() {
-            timeout = setTimeout(switchPlayList, 560);
-        },
-        end() {
-            clearTimeout(timeout);
-        }
-    })
     return player;
 }(createControls());

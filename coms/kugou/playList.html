@@ -1,9 +1,10 @@
 <div class="head">
-    播放列表（<span ng-bind="musicList.length"></span>）
-    <a ng-click="switchMode()"><span ng-bind="mode.name"></span></a>
 </div>
 <list class="body" ng-src="(p,i) in musicList" min-width=480>
     <padding ng-delete="remove(i)">
         <song ng-click="play(i)" ng-class="{activate:musicList.isActived(p)}" ng-src=p></song>
     </padding>
 </list>
+<div class="foot">
+    <a ng-click="switchMode()"><span ng-bind="mode.name"></span></a>
+</div>

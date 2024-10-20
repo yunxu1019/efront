@@ -210,7 +210,7 @@
 
     }
 
-    .time {
+    >.time {
         left: 6px;
         text-align: center;
         top: 46px;
@@ -220,7 +220,7 @@
         font-size: 12px;
     }
 
-    .total {
+    >.total {
         z-index: 2;
         right: 6px;
         top: 46px;
@@ -229,7 +229,7 @@
         font-size: 12px;
     }
 
-    .singer {
+    >.singer {
         color: #fffc;
         font-size: 8px;
         display: block;
@@ -240,7 +240,7 @@
     }
 
 
-    .song {
+    >.song {
         left: @avatar-left + @avatar-size + 6px;
         line-height: 1;
         top: 22px;
@@ -306,8 +306,7 @@
     z-index: 1;
 }
 
-
-&:not(.page)>.krc {
+.nkrc() {
     top: 0;
     height: 16px;
     font-size: 8px;
@@ -324,19 +323,29 @@
     .after-active+.after {
         clear: both;
     }
+}
 
+&:not(.page)>.krc {
+    .nkrc();
 }
 
 &.page>.krc {
-    text-align: center;
-    line-height: 2.2;
-    margin-bottom: -80px;
-    bottom: 50%;
-    height: 180px;
-    max-height: 60%;
-    top: auto;
-    padding: 0;
-    font-size: 16px;
+    @media all and (min-width:720px) {
+        text-align: center;
+        line-height: 2.2;
+        margin-bottom: -80px;
+        bottom: 50%;
+        height: 180px;
+        max-height: 60%;
+        top: auto;
+        left: 360px;
+        padding: 0;
+        font-size: 16px;
+    }
+
+    @media all and(max-width:719px) {
+        .nkrc();
+    }
 }
 
 
@@ -498,4 +507,67 @@
     >.background {
         opacity: 1 !important;
     }
+}
+
+
+>.playList {
+    position: absolute;
+    max-width: 100%;
+    pointer-events: none;
+
+    padding,
+    .button {
+        pointer-events: all;
+    }
+
+    @media all and (min-width:720px) {
+        >.body {
+            padding-right: calc(100% - 360px);
+        }
+    }
+
+    z-index: 0;
+
+    left: 0;
+    top: 0;
+    height: 100%;
+    bottom: 0;
+    min-height: 240px;
+    border-left: none;
+    border-radius: 0;
+    text-align: left;
+    border-color: #000;
+    background: inherit;
+    box-shadow: none;
+
+    >.foot {
+        height: 0;
+        border: none;
+        overflow: visible;
+        padding: 0;
+
+        a {
+            color: #fff;
+            margin: -60px 20px 0 0;
+        }
+    }
+
+    >.head {
+        // text-align: right;
+        border: none;
+        color: #fff9;
+        height: 60px;
+        background: inherit;
+
+
+        a {
+            color: #fff;
+        }
+    }
+
+    >.body {
+        border-radius: inherit;
+        border-bottom: none;
+    }
+
 }
