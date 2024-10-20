@@ -122,12 +122,6 @@ var resize2 = function () {
             marginTop: fromOffset(-height)
         })
     }
-    if (changed) {
-        css(body, { height: '' });
-        if (body.scrollHeight + body.offsetTop > this.clientHeight + 1) {
-            css(body, { height: fromOffset(this.clientHeight) });
-        }
-    }
 };
 function view(element) {
     var w = isNode(element) ? element : document.createElement("form");
