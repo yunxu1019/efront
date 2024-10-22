@@ -167,6 +167,9 @@ class FolderDB {
                 id = createId(this.indexed);
                 data.id = id;
             }
+            else if (this.indexed.indexOf(id) < 0) {
+                this.indexed.push(id);
+            }
             var inc = origins ? getExtractedInc(origins, data.id) : 0;
             extractBase64(data, directory, data.id, inc);
         }
