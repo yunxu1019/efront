@@ -98,6 +98,7 @@ var scrollToRight = function () {
     scrollTo.call(this, 0);
 };
 var touchend = function () {
+    if (!currentTarget) return;
     var marginLeft = -parseInt(currentTarget.scrollLeft) || 0;
     moving = false;
     if (direction < 0 && marginLeft < -7) {
