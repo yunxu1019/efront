@@ -93,6 +93,7 @@ on("keydown")(window, function (event) {
         case 32:
         case 179:
             if (event.repeat) break;
+            event.preventDefault();
             if ($scope.playing) $scope.pause();
             else $scope.play();
             break;
