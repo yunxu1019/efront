@@ -3,6 +3,8 @@
 @avatar-size: 72px;
 @shade-color: #acb;
 @main-color: #000c;
+@list-width: 320px;
+@list-only-width: 640px;
 
 &.pause .play:before {
     content: "";
@@ -59,12 +61,6 @@
     box-shadow: 0 0 6px rgba(0, 0, 0, .8) inset; // animation: 25s rotate infinite linear;
     // animation-play-state        : paused;
     // -webkit-animation-play-state: paused;
-}
-
-&:after {
-    content: "";
-    display: block;
-    box-sizing: border-box;
 }
 
 &.play,
@@ -330,7 +326,7 @@
 }
 
 &.page>.krc {
-    @media all and (min-width:720px) {
+    @media all and (min-width:@list-only-width) {
         text-align: center;
         line-height: 2.2;
         margin-bottom: -80px;
@@ -338,12 +334,14 @@
         height: 180px;
         max-height: 60%;
         top: auto;
-        left: 360px;
+        left: @list-width;
         padding: 0;
         font-size: 16px;
     }
 
-    @media all and(max-width:719px) {
+    @list-only-width1: @list-only-width - 1px;
+
+    @media all and (max-width:@list-only-width1) {
         .nkrc();
     }
 }
@@ -366,19 +364,18 @@
     background-repeat: no-repeat;
     background-position: center;
 
-    &:before {
+    &:after {
         content: "";
         display: block;
         position: absolute;
-        background: inherit;
         left: 0;
         right: 0;
-        top: 0;
+        top: 60px;
         bottom: 0;
-        filter: blur(15px);
+        backdrop-filter: blur(60px);
     }
 
-    &:after {
+    &:before {
         background-color: #000;
         opacity: .6;
         content: "";
@@ -513,16 +510,11 @@
 >.playList {
     position: absolute;
     max-width: 100%;
-    pointer-events: none;
+    background: transparent;
 
-    padding,
-    .button {
-        pointer-events: all;
-    }
-
-    @media all and (min-width:720px) {
+    @media all and (min-width: @list-only-width) {
         >.body {
-            padding-right: calc(100% - 360px);
+            padding-right: calc(100% - @list-width);
         }
     }
 
@@ -555,13 +547,19 @@
     >.head {
         // text-align: right;
         border: none;
-        color: #fff9;
         height: 60px;
         background: inherit;
+        backdrop-filter: none;
 
-
-        a {
-            color: #fff;
+        &:before {
+            left: 0;
+            top: 0;
+            bottom: 0;
+            right: 0;
+            width: auto;
+            height: auto;
+            position: absolute;
+            backdrop-filter: blur(10px);
         }
     }
 

@@ -50,5 +50,6 @@ function main(elem) {
         render(elem.children, $scope, 0);
     });
     onclick(elem, dplay);
+    patchHover(elem);
     return block(elem);
 }
