@@ -4,6 +4,10 @@ var test = function (t1, t2) {
 }
 test("11234", '1234');
 test("1234", '1234');
+test('kugou', 'kug');
+test('kuugou', 'kug');
+test('kugoukuugou', 'kug');
+test('kugoukugou', 'kugu');
 mark.setPinyin(await init('pinyin'));
 test('我们', 'women');
 test('我们', 'wm');

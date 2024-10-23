@@ -78,28 +78,66 @@ var pair = function (source, search, t1, t2, t3, t4) {
     }
     return power2(source, search);
 }
+var searchText = '';
 var power = function (source, search) {
+    searchText = search;
+    var res = power_(source, search);
+    searchText = '';
+    return res;
+};
+var power_p = function () { };
+var power_f = function () { };
+var power_ = function (source, search, func, mp) {
     if (!search || !source) {
         return [0, source];
     }
     var matchers = couple(source, search, _pinyin);
     var match_text = matchers[0];
     var match_start = matchers[1];
-    var match_length = matchers[3] - matchers[2];
+    var search_start = matchers[2];
+    var search_end = matchers[3];
+    var match_length = search_end - search_start;
     if (match_length >= 1) {
         var match_text_pre = source.slice(0, match_start);
         var match_text_aft = source.slice(match_start + match_text.length);
         var pp = 0, ap = 0;
         var p = match_length !== match_text.length ? match_length - .1 : match_length;
         if (match_start) p += .1 / match_start - .2;
-        if (match_text_pre.length > 1) {
-            [pp, match_text_pre] = power(match_text_pre, search);
+        if (func === power_p) {
+            p -= match_text_aft.length / source.length;
         }
-        if (match_text_aft.length > 1) {
-            [ap, match_text_aft] = power(match_text_aft, search);
+        if (func === power_f) {
+            p -= match_text_pre.length / source.length;
+        }
+        if (!mp) mp = p;
+
+        var pw = null;
+        if (match_text_pre.length > 1 && !(func === power_f && search_start === 0)) {
+            pw = power(match_text_pre, search_start > 0 ? search.slice(0, search_start) : searchText, search_start > 0 ? power_p : null, p);
+            pp = pw[0];
+            if (search_start !== 0) match_text_pre = pw[1];
+            else {
+                if (pp >= mp - .6) {
+                    match_text_pre = pw[1];
+                }
+                pp = 0;
+            }
+        }
+
+        var isend = search_end === search.length;
+        if (match_text_aft.length > 1 && !(func === power_p && isend)) {
+            pw = power(match_text_aft, isend ? searchText : search.slice(search_end), isend ? null : power_f, p);
+            var ap = pw[0];
+            if (search_end !== search.length) match_text_aft = pw[1];
+            else {
+                if (ap >= mp - .6) {
+                    match_text_aft = pw[1];
+                }
+                ap = 0;
+            }
         }
         if (match_length !== search.length) {
-            p += (pp + ap) / source.length / search.length * .01 - .2;
+            p += (pp + ap) - .2;
         }
         else if (pp >= p) {
             p += pp / source.length / search.length * .01 - .2;
