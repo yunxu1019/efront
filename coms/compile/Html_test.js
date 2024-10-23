@@ -15,8 +15,10 @@ var test2 = function (source) {
     var s = scanner2(source, 'html');
     assert(s.toString(), source);
 }
-test("<h><a #c>b</a><c b=x>d</c><d/><e>2px</e></h>","<h><a #c>b</a><c b=x>d</c><d></d><e>2px</e></h>");
+test("<h><a #c>b</a><c b=x>d</c><d/><e>2px</e></h>", "<h><a #c>b</a><c b=x>d</c><d></d><e>2px</e></h>");
 test("<a>Let's Encrypt</a>");
+test("<a> </a>", 'scoped.outerHTML', "<a></a>");
+test("<a> Let's Encrypt</a>", 'scoped.outerHTML', "<a>Let's Encrypt</a>");
 test("<style>{a-b:2}</style>");
 assert(scanner2("<a>Let's Encrypt</a>", Html).length, 1);
 test('<a href="${i18n``}">Let\'s Encrypt</a>');

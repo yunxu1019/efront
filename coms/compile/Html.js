@@ -30,6 +30,33 @@ var parseProperty = function (a) {
 }
 
 var fixElement = function (o) {
+    if (o.length) {
+        var o0 = o[0];
+        if (o0.type & (PIECE | SPACE)) {
+            var text = spaces.trimStart(o0.text);
+            if (!text) {
+                o.shift();
+                o0 = o[0];
+                o.first = o0;
+                if (o0) o0.prev = null;
+            }
+            else o0.text = text;
+        }
+    }
+    if (o.length) {
+        var o1 = o[o.length - 1];
+        if (o1.type & (PIECE | SPACE)) {
+            var text = spaces.trimEnd(o1.text);
+            if (!text) {
+                o.pop();
+                o1 = o[o.length - 1];
+                o.last = o1;
+                if (o1) o1.next = null;
+            }
+            else o1.text = text;
+        }
+    }
+
     if (!o.attributes) return;
     var attributes = [];
     var needValue = false;

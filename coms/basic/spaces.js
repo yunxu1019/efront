@@ -28,6 +28,8 @@ spaceDefined.avoid = function (extra_tokens) {
 var reg = new RegExp(`(?:[${spaceDefined.join('')}]|${unicode.join('|')})+`);
 var is_reg = new RegExp(`^${reg.source}$`);
 var trim_reg = new RegExp(`^${reg.source}|${reg.source}$`, 'g');
+var trim_start_reg = new RegExp(`^${reg.source}`);
+var trim_end_reg = new RegExp(`${reg.source}$`);
 var format_reg = new RegExp(reg.source, 'g');
 spaceDefined.reg = reg;
 spaceDefined.is_reg = is_reg;
@@ -39,6 +41,12 @@ spaceDefined.exec = function (a) {
 };
 spaceDefined.trim = function (a) {
     return a.replace(trim_reg, '');
+};
+spaceDefined.trimStart = function (a) {
+    return a.replace(trim_start_reg, '');
+};
+spaceDefined.trimEnd = function (a) {
+    return a.replace(trim_end_reg, '');
 };
 var formatter = function (a) {
     if (/[ \u2002\u00a0\u3000]/.test(a)) return ' ';
