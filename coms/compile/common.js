@@ -1403,10 +1403,15 @@ var createString = function (parsed) {
                         if (o.length) {
                             o.forEach(run);
                         }
-                        result.push(o.tag_entry);
-                        result.push(o.tag);
+                        result.push(o.tag_entry, o.tag, o.leave);
                     }
-                    result.push(o.leave);
+                    else if (o.tag && o.leave === '/>') {
+                        if (/^(input|img|meta|br|hr|link|area|base|basefont|param|col|frame|embed|keygen)$/i.test(o.tag)) {
+                            result.push('/>');
+                        }
+                        else result.push(`></`, o.tag, '>');
+                    }
+                    else result.push(o.leave);
                 }
                 else {
                     if (o.tag_leave) result.push(o.tag_leave);
