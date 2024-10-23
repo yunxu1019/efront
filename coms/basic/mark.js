@@ -28,7 +28,7 @@ var couple = function (source, marker, pinyin) {
     var begin1 = len1, begin2 = len2;
     var end1 = begin1;
     var end2 = begin2;
-    for (var cx = -len1, dx = len2; cx < dx; cx++) {
+    for (var cx = len2, dx = -len1; cx >= dx; cx--) {
         var c1 = cx >= 0 ? 0 : -cx;
         var c2 = cx >= 0 ? cx : 0;
         var cc = c2;
@@ -104,16 +104,16 @@ var power_ = function (source, search, func, mp) {
         var p = match_length !== match_text.length ? match_length - .1 : match_length;
         if (match_start) p += .1 / match_start - .2;
         if (func === power_p) {
-            p -= match_text_aft.length / source.length;
+            p -= match_text_aft.length * .1 / source.length;
         }
         if (func === power_f) {
-            p -= match_text_pre.length / source.length;
+            p -= match_text_pre.length * .1 / source.length;
         }
         if (!mp) mp = p;
 
         var pw = null;
         if (match_text_pre.length > 1 && !(func === power_f && search_start === 0)) {
-            pw = power(match_text_pre, search_start > 0 ? search.slice(0, search_start) : searchText, search_start > 0 ? power_p : null, p);
+            pw = power_(match_text_pre, search_start > 0 ? search.slice(0, search_start) : searchText, search_start > 0 ? power_p : null, p);
             pp = pw[0];
             if (search_start !== 0) match_text_pre = pw[1];
             else {
@@ -126,7 +126,7 @@ var power_ = function (source, search, func, mp) {
 
         var isend = search_end === search.length;
         if (match_text_aft.length > 1 && !(func === power_p && isend)) {
-            pw = power(match_text_aft, isend ? searchText : search.slice(search_end), isend ? null : power_f, p);
+            pw = power_(match_text_aft, isend ? searchText : search.slice(search_end), isend ? null : power_f, p);
             var ap = pw[0];
             if (search_end !== search.length) match_text_aft = pw[1];
             else {
@@ -137,7 +137,7 @@ var power_ = function (source, search, func, mp) {
             }
         }
         if (match_length !== search.length) {
-            p += (pp + ap) - .2;
+            p += pp + ap;
         }
         else if (pp >= p) {
             p += pp / source.length / search.length * .01 - .2;
