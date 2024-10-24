@@ -1,4 +1,4 @@
-Promise.resolve(init("pinyin")).then(py =>mark.setPinyin(py));
+Promise.resolve(init("pinyin")).then(py => mark.setPinyin(py));
 
 function minusPower(a, b) {
     return a.$power - b.$power >= 0;
@@ -122,12 +122,13 @@ class Table extends Array {
             if (name === searchtext) this.hasFullmatch = true;
             var [p, m] = mark.power(name, searchtext);
             if (p > power) power = p;
-            if (p >= searchtext.length) this.coverCount++;
             if (!isEmpty(f.key) && !isFunction(f.key)) o[f.key] = m;
             else o.name = m, o.toString = returnName, o.valueOf = returnName;
         }
+        if (power >= searchtext.length) this.coverCount++;
         o.$power = power;
-        if (o.$power > 0) {
+        var cp = searchtext.length;
+        if (o.$power > cp * .6) {
             var summary = this.$summaryData;
             if (!summary.length) saveToOrderedArray(this, o, minusPower);
             else this.summary(o);

@@ -28,14 +28,12 @@ var couple = function (source, marker, pinyin) {
     var begin1 = len1, begin2 = len2;
     var end1 = begin1;
     var end2 = begin2;
-    for (var cx = len2, dx = -len1; cx >= dx; cx--) {
-        var c1 = cx >= 0 ? 0 : -cx;
-        var c2 = cx >= 0 ? cx : 0;
+    var run = function () {
         var cc = c2;
         var start = 0, end = 0;
-        for (var ct = 0, dt = setDt(); ct < dt; ct++) {
-            var s = source[c1 + ct];
-            var m = marker[c2 + ct];
+        for (ct = 0, dt = setDt(); ct < dt; ct++) {
+            s = source[c1 + ct];
+            m = marker[c2 + ct];
             if (s === m || pinyin && isLike()) {
                 end = ct + 1;
                 if (end === dt && c2 + end - cc - start > end2 - begin2) {
@@ -55,7 +53,10 @@ var couple = function (source, marker, pinyin) {
                 start = ct + 1;
             }
         }
-    }
+    };
+    var s, m, ct, dt;
+    for (var c1 = 0, c2 = 0; c1 < len1; c1++) run();
+    for (var c1 = 0, c2 = 1; c2 < len2; c2++) run();
     return [source.slice(begin1, end1), begin1, begin2, end2];
 };
 var MARK_PRE1, MARK_PRE2, _PRE1, _PRE2 = _PRE1 = "<b>";
@@ -102,15 +103,9 @@ var power_ = function (source, search, func, mp) {
         var match_text_aft = source.slice(match_start + match_text.length);
         var pp = 0, ap = 0;
         var p = match_length !== match_text.length ? match_length - .1 : match_length;
-        if (match_start) p += .1 / match_start - .2;
-        if (func === power_p) {
-            p -= match_text_aft.length * .1 / source.length;
-        }
-        if (func === power_f) {
-            p -= match_text_pre.length * .1 / source.length;
-        }
+        if (match_start) p += .1 / (1 + match_start) - .1;
+        if (match_text_aft.length) p += .01 / (match_text_aft.length + 1) - .01;
         if (!mp) mp = p;
-
         var pw = null;
         if (match_text_pre.length > 1 && !(func === power_f && search_start === 0)) {
             pw = power_(match_text_pre, search_start > 0 ? search.slice(0, search_start) : searchText, search_start > 0 ? power_p : null, p);
@@ -137,7 +132,7 @@ var power_ = function (source, search, func, mp) {
             }
         }
         if (match_length !== search.length) {
-            p += pp + ap;
+            p += (pp + ap) * .86;
         }
         else if (pp >= p) {
             p += pp / source.length / search.length * .01 - .2;
