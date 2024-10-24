@@ -147,7 +147,7 @@ function go(pagepath, args, history_name, oldpagepath) {
     var fullfill = function () {
         zimoliad = zimoliid;
         var _page = create(pgpath, args, oldpagepath);
-        var isDestroy = pushstate(pagepath, history_name, oldpagepath);
+        var isRecover = pushstate(pagepath, history_name, oldpagepath);
         if (isNode(history_name)) {
             if (history_name.activate === pagepath && history_name.activateNode === _page) return fullfill_is_dispatched--;
             else remove(history_name.activateNode);
@@ -170,7 +170,8 @@ function go(pagepath, args, history_name, oldpagepath) {
             dispatch(document, event);
             fullfill_is_dispatched = 0;
         }
-        addGlobal(_page, history_name, isDestroy);
+        if (isRecover) setWithStyle(_page, false);
+        addGlobal(_page, history_name, isRecover);
         page_object.prepares.splice(0, page_object.prepares.length).forEach(function (url) {
             if (isNumber(url)) {
                 url = _history[url < 1 ? _history.length + url - 1 : url];
@@ -478,7 +479,7 @@ try {
 }
 var root_path;
 var pushstate = function (path_name, history_name) {
-    var isDestroy = false;
+    var isBack = false;
     if (history_name === undefined) {
         history_name = current_history;
     }
@@ -490,7 +491,7 @@ var pushstate = function (path_name, history_name) {
         for (var cx = 0, dx = _history.length; cx < dx; cx++) {
             if (_history[cx] === path_name) {
                 _history.splice(cx, dx - cx);
-                isDestroy = true;
+                isBack = cx < dx - 1;
                 break;
             }
         }
@@ -498,7 +499,7 @@ var pushstate = function (path_name, history_name) {
         if (_history.length) fixurl();
     }
     hostoryStorage.setItem(history_session_object_key, JSAM.stringify(history) || null);
-    return isDestroy;
+    return isBack;
 };
 var popstate = function (path_name, history_name) {
     if (history_name === undefined) history_name = current_history;
@@ -592,17 +593,17 @@ function setWithStyle(target, isDestroy) {
     }
 
 }
-function addGlobal(element, name = null, isDestroy) {
+function addGlobal(element, name = null, isBack) {
     if (isString(name)) {
         if (global[name] === element) return;
         var oldElement = global[name];
         if (oldElement) {
-            setWithStyle(oldElement, isDestroy);
+            setWithStyle(oldElement, isBack);
         }
         if (isFunction(body.layer)) {
             body.layer(element, oldElement, history);
         } else if (body !== element) {
-            if (isDestroy || !oldElement) appendChild.insert(body, element);
+            if (isBack || !oldElement) appendChild.insert(body, element);
             else appendChild.after(oldElement, element);
             remove(oldElement);
         }
@@ -613,7 +614,7 @@ function addGlobal(element, name = null, isDestroy) {
             appendChild.after(name, element);
             name.with = [element];
         }
-        else if (isDestroy) appendChild.insert(name, element);
+        else if (isBack) appendChild.insert(name, element);
         else appendChild(name, element);
     } else if (isFunction(name)) {
         name(element);
@@ -621,7 +622,7 @@ function addGlobal(element, name = null, isDestroy) {
         if (isFunction(body.layer)) {
             body.layer(element);
         } else {
-            if (isDestroy) appendChild.insert(body, element);
+            if (isBack) appendChild.insert(body, element);
             else appendChild(body, element);
         }
         rootElements.push(element);
