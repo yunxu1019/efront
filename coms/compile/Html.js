@@ -141,7 +141,7 @@ Html.prototype.createScoped = function (code) {
             case ELEMENT:
                 var v = toCamelCase(c.tag);
                 c.tagName = c.tag.toUpperCase();
-                if (!/^(script|style|template)$/i.test(c.tagName)) {
+                if (!/^(script|style)$/i.test(c.tagName)) {
                     fixElement(c);
                     noTag = false;
                     if (c.attributes) c.attributes.forEach(run);
