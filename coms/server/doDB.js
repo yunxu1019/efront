@@ -147,6 +147,7 @@ var doDB = async function (req, res) {
                 return;
             }
             if (lastId === undefined) {
+                res.writeHead(200, utf8json);
                 return res.end(JSON.stringify(db));
             }
             if (pageSize) {
@@ -163,17 +164,16 @@ var doDB = async function (req, res) {
                 if (lastId) {
                     if (version) version = +version;
                     var data = await message.invoke('dbLoad', [dbid, lastId, version]);
+                    if (data.buffer instanceof ArrayBuffer) {
+                        var ext = lastId && path.extname(lastId);
+                        if (ext) {
+                            data.mime = mime[ext.slice(1)];
+                        }
+                    }
                     if (!isHandled(data)) {
                         res.writeHead(404, utf8error);
                         res.end(i18n[lang]`数据不存在！`);
                         return;
-                    }
-                    var ext = path.extname(lastId);
-                    if (ext) {
-                        data.mime = mime[ext.slice(1)];
-                    }
-                    else {
-                        data.mime = mime.json;
                     }
                 }
                 else {
@@ -181,6 +181,7 @@ var doDB = async function (req, res) {
                 }
             }
             if (dbid === '用户') {
+
                 if (isArray(data)) {
                     data.forEach(d => {
                         delete d.c;
