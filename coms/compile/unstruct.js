@@ -863,6 +863,7 @@ var ternary = function (body, getname, ret) {
             var punc = eq.text.slice(0, eq.text.length - 1);
             var bdtmp = [...ass.map(cloneNode), { type: STAMP, text: punc }, ...asn];
             relink(bdtmp);
+            eqused++;
             var explist2 = _express(bdtmp, getnextname, true);
             if (isSimpleAssign) {
                 [asn, an = cloneNode(ass)] = popexp(explist2);

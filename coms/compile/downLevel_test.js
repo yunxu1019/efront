@@ -440,9 +440,9 @@ function () {
 if (!a) return [1, 0]; return [2, 0]
 },
 function () {
-_1 = getRequestProtocol(url); _0 = _1 + "//", location = _0 + location; return [1, 0]
+_0 = getRequestProtocol(url), _0 = _0 + "//", location = _0 + location; return [1, 0]
 })
-var _0, _1 }`);
+var _0 }`);
 assert(downLevel("var{a}=await b"), `return async_(
 function () {
 _0 = b; return [_0, 1]
