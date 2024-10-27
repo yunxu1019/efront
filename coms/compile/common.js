@@ -1137,7 +1137,7 @@ var getDeclared = function (o, kind, queue) {
                 o = f.next;
                 break;
             default:
-                console.log(createString(pickSentence(queue)), o.text, o.type);
+                console.log(createString(pickSentence(o.queue)), o.text, o.type);
                 throw new Error(i18n`代码结构异常`);
         }
         if (!o) break;

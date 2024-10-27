@@ -357,7 +357,7 @@ var detectLabel = function (o) {
             if (!queue.isargl && last.type & (EXPRESS | STRAP | VALUE | QUOTED)) {
                 // label
                 var lp = last.prev;
-                if (!lp || lp.type !== STRAP || lp.isend) {
+                if (!lp || lp.type !== STRAP || !lp.transive || lp.isend) {
                     last.type = LABEL;
                     last.text += ":";
                     last.end = end;
