@@ -463,8 +463,15 @@ var Method = function () {
     if (!this.base) this.base = base;
     vlist.push(valueMap);
     var argDefaults = this.args.defaults;
+    var ipd = 0;
     this.args.forEach((k, i) => {
-        var a = arguments[i];
+        var p = i + ipd;
+        if (/^\.\.\.@/i.test(k)) {
+            var a = Array.prototype.slice.call(arguments, p, i + arguments.length - this.args.length + 1);
+            ipd += a.length - 1;
+            k = k.slice(3);
+        }
+        else var a = arguments[p];
         if (a === undefined || a === null) a = seprateFunc(calcvars(argDefaults[k])).map(evalproc).join('');
         valueMap[k] = a;
     });
@@ -497,17 +504,18 @@ var killneg = function (v, n) {
             v = n + v;
         }
     }
+    else if (n === '...');
     else if (n) v = n + v;
     return v;
 };
 var calcvars = function (v) {
     var decode = /^['"`]/.test(v) ? strings.decode : a => a;
-    return v.replace(/(^\-)?(@[^\s\{\}\(\)\[\]\:\+\*\/,;\!\>\$\=\&\%\#\@'"`\?\.\/\|~#]+|@\{[^\}@]*\})/g, function (_, n, m) {
+    return v.replace(/(^\-|\.\.\.)?(@[^\s\{\}\(\)\[\]\:\+\*\/,;\!\>\$\=\&\%\#\@'"`\?\.\/\|~#]+|@\{[^\}@]*\})/g, function (_, n, m) {
         var value = getFromScopeList(m, vlist, m);
         value = decode(value);
         value = killneg(value, n);
         return value;
-    }).replace(/(^|\s|[\]\)\(\[\+\*\/,;]|^\-)(?:var\s*\(([\s\S]*?)\)|(--\S+))/g, function (m, q, a, b) {
+    }).replace(/(^|\s|[\]\)\(\[\+\*\/,;]|^\-|\.\.\.)(?:var\s*\(([\s\S]*?)\)|(--\S+))/g, function (m, q, a, b) {
         var v = getFromScopeList(b || a.trim(), vlist, m.slice(q.length));
         v = killneg(v, q);
         return v;
@@ -564,7 +572,7 @@ var eval2 = function (props) {
             var [, name, args] = match;
             args = createArgMap(args);
             p.args = args;
-            p.reg = new RegExp(args.join("|") + /|@\{[^\}@]+\}/.source, 'g');
+            p.reg = new RegExp(args.map(a => /(?:\.\.\.)?/.source + a.replace(/^\.\.\./, '')).join("|") + /|@\{[^\}@]+\}/.source, 'g');
             if (!methods[name]) methods[name] = [];
             var argDefaults = args.defaults;
             Object.keys(argDefaults).forEach(k => {
