@@ -1059,7 +1059,7 @@ function createStructure(element, useExists) {
         else if (/[_@\:\.&\?\*\+\#]$/.test(name)) {
             var key = name.slice(0, name.length - 1);
             if (value) attr1[key] = value;
-            else {
+            else a: {
                 key = 驼峰化(name.slice(0, name.length - 1));
                 switch (name.charAt(name.length - 1)) {
                     case "?":
@@ -1075,8 +1075,8 @@ function createStructure(element, useExists) {
                         binds.src = key;
                         break;
                     case "+":
-                        binds[key] = key;
-                        break;
+                        attr1[key] = key;
+                        break a;
                     case "#":
                         ids.push(key);
                         break;

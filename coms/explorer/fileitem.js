@@ -8,6 +8,7 @@ class Fileitem {
 var e = Fileitem.prototype;
 e.startMarquee = function (sp) {
     if (sp.scrollWidth <= sp.clientWidth) return;
+    clearInterval(sp.mq);
     sp.mq = setInterval(function () {
         clearInterval(sp.mq);
         sp.mq = setInterval(function () {
@@ -17,7 +18,7 @@ e.startMarquee = function (sp) {
         }, 16);
     }, 400);
     sp.setAttribute("marquee", '');
-    sp.scrollLeft = sp.clientWidth;
+    sp.scrollLeft = sp.clientWidth - parseFloat(getComputedStyle(sp).paddingLeft);
 };
 e.stopMarquee = function (sp) {
     clearInterval(sp.mq);
@@ -29,6 +30,9 @@ function fileitem(elem) {
     elem.innerHTML = template;
     var e = elem.children[0];
     e.$scope = new Fileitem;
+    var ext = /\.([^\.]+)$/.exec(elem.$scope.d.name);
+    if (ext) e.$scope.ext = ext[1];
+    else e.$scope.ext = '';
     extend(e.$scope, elem.$scope);
     return e;
 }

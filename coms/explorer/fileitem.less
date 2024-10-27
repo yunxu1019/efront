@@ -1,22 +1,76 @@
 & {
     position: relative;
     display: block;
-    padding: 10px 20px 10px 44px;
+    padding: 10px 0 10px 52px;
     white-space: nowrap;
     line-height: 28px;
     background: #fff9;
 }
+
+&[type=folder] {
+    >svg {
+        transform: scale(.9);
+    }
+}
+
 &[cut] {
     opacity: .4;
 }
 
+&>[ext] {
+    display: block;
+    position: absolute;
+    left: 2px;
+    bottom: 11px;
+    width: 46px;
+    text-align: center;
+    font-size: 12px;
+    line-height: 12px;
+    text-transform: uppercase;
+    background-color: #fff;
+    border: 1.2px solid;
+}
+
+@ext(...@name, @color) {
+    each(@name, (@n) {
+            &[ext=@n] {
+                >[ext] {
+                    color: #fff;
+                    border-color: transparent;
+                    background: @color;
+                }
+            }
+        });
+}
+
+@ext(mp3, flac, wma, wav, midi, aac, #2ac);
+@ext(krc, lrc, grc, qrc, #2ca);
+@ext(mp4, avi, wmv, mov, rmvb, rm, flv, #a32);
+@ext(jpg, svg, jpeg, png, bmp, dib, gif, webp, jfif, tiff, dng, #84c);
+@ext(js, mjs, cjs, jsx, #db9);
+@ext(bat, cmd, sh, #6ad);
+@ext(tmp, log, #bbb);
+@ext(exe, scr, com, #666);
+@ext(dll, sys, a, lib, #999);
+@ext(rar, jar, tar, zip, 7z, war, apk, tgz, xz, #666);
+@ext(ts, tsx, #9cc);
+@ext(java, c, go, rs, s, asm, h, ini, cpp, hpp, m, #9ab);
+@ext(less, #9bd);
+@ext(css, #9db);
+@ext(html, #bc9);
+@ext(ico, #b9c);
+@ext(xht, vue, #bb9);
+@ext(jsp, asp, php, #adc);
+@ext(yml, json, #ca9);
+@ext(md, rtf, gsp, doc, docx, #66a);
+
 
 >svg {
-    width: 28px;
-    height: 28px;
+    width: 52px;
+    height: 52px;
     display: inline-block;
     vertical-align: top;
-    margin: 0 6px 0 -34px;
+    margin: -12px 0 -12px -52px;
 }
 
 >span {
@@ -27,7 +81,12 @@
     text-overflow: ellipsis;
     display: inline-block;
     vertical-align: top;
+}
 
+>[name] {
+    padding-left: 10px;
+    margin-left: -10px;
+    box-sizing: content-box;
 }
 
 &:not([dragclone]) [marquee] {
@@ -49,14 +108,16 @@
     left: 6px;
     margin-left: 6px;
 }
-p{
+
+p {
     display: block;
     margin: 0;
     position: relative;
     height: 4px;
     background: #29c2;
     border-radius: 2px;
-    >r{
+
+    >r {
         height: 100%;
         display: block;
         background: #29c;
