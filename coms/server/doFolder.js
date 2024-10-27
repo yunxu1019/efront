@@ -132,7 +132,7 @@ function doFolder(type, pathname) {
         if (du !== doList) {
             var notify = function () {
                 doFile.notify(from);
-                if (to && doFolder.notify) doFolder.notify(to);
+                if (to) doFile.notify(to);
             }
             p.then(notify, notify);
         }
