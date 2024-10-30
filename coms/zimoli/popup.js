@@ -338,7 +338,7 @@ var _as_yextra = function (global, innerWidth, innerHeight, element, target, poi
 };
 var _as_xextra = arriswise(_as_yextra, arguments);
 var popup_as_single = function (element) {
-    css(element, `z-index:${zIndex()};`);
+    if (!isMounted(element)) css(element, `z-index:${zIndex()};`);
     global(element, false);
 };
 var popup_to_point = function (element, [x, y]) {
@@ -392,6 +392,7 @@ var popup_to_event = function (element, { clientX, clientY }) {
 var global = function (element, issingle) {
     once("remove")(element, cleanup);
     rootElements.push(element);
+    if (isMounted(element)) return;
     popup.global &&
         issingle !== false ? popup.global(element, true) : appendChild(document.body, element);
 };
