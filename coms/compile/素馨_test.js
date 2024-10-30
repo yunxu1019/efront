@@ -89,6 +89,8 @@ assert(素馨(`value: range(4);`, '', true), `value:1 2 3 4;`);
 assert(素馨(`@a:-1;b{a:-@a}`, '', true), `b{a:1;}`);
 assert(素馨(`@b(@c,...@d,@e){each(@d,(@a){a:@a})};@b(1,2,3,4,5,3,4)`, '', true), `a:2;a:3;a:4;a:5;a:3;`);
 assert(素馨(`--mwidth:0px;--bwidth:2px;--qwidth: var(--mwidth)+var(--bwidth);width:--qwidth`, '', true), `width:2px;`);
+assert(素馨(`a{--a:1px;padding:var(--a) -var(--a);}`, '', true), `a{padding:1px -1px;}`);
+assert(素馨(`a{@a:1px;padding:@a -@a;}`, '', true), `a{padding:1px -1px;}`);
 assert(scanner2(`-0.2em .3em -0.2em 0`, new 素馨.素心)[0].text, '-0.2em');
 assert(scanner2(`-0.2em .3em -0.2em 0`, new 素馨.素心)[0].isdigit, true);
 assert(scanner2(`-0.2em .3em -0.2em 0`, new 素馨.素心)[2].text, ".3em");

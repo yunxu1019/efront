@@ -515,7 +515,7 @@ var calcvars = function (v) {
         value = decode(value);
         value = killneg(value, n);
         return value;
-    }).replace(/(^|\s|[\]\)\(\[\+\*\/,;]|^\-|\.\.\.)(?:var\s*\(([\s\S]*?)\)|(--\S+))/g, function (m, q, a, b) {
+    }).replace(/(^|\s|[\]\)\(\[\+\*\/,;]|\-|\.\.\.)(?:var\s*\(([\s\S]*?)\)|(--\S+))/g, function (m, q, a, b) {
         var v = getFromScopeList(b || a.trim(), vlist, m.slice(q.length));
         v = killneg(v, q);
         return v;
