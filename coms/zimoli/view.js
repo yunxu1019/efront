@@ -107,7 +107,7 @@ var resize2 = function () {
             marginBottom: fromOffset(-height),
         })
         css(body, {
-            paddingTop: fromOffset(height - body.clientTop)
+            paddingTop: fromOffset(height - body.clientTop - body.offsetTop)
         });
     }
     a: if (foot && body) {
@@ -115,12 +115,12 @@ var resize2 = function () {
         if (foot.$height === height) break a;
         foot.$height = height;
         changed = true;
-        css(body, {
-            paddingBottom: fromOffset(height)
-        });
         css(foot, {
             marginTop: fromOffset(-height)
         })
+        css(body, {
+            paddingBottom: fromOffset(body.clientTop + body.clientHeight + body.offsetTop - foot.offsetTop)
+        });
     }
 };
 function view(element) {
