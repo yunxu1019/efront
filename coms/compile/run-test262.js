@@ -46,14 +46,14 @@ var harness = await async function () {
 }();
 await async function () {
     extend(harness, {
-        aster_,
-        async_,
-        asyncAster_,
-        extends_,
+        &aster,
+        &async,
+        &asyncAster,
+        &extends,
         isFunction,
-        restIter_,
-        rest_,
-        exec_,
+        &restIter,
+        &rest,
+        &exec,
     })
     extend(global, harness);
     var rest = [path.join(testpath, 'test')];
@@ -93,7 +93,7 @@ await async function () {
     await queue.call(testFiles, async function (f, i) {
         var runText = async function (text) {
             /**
-             * @type {vm.RunningCodeInNewContextOptions}
+             * &type {vm.RunningCodeInNewContextOptions}
              */
             var ctxOptions = {
                 timeout: 1000,

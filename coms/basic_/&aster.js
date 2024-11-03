@@ -31,5 +31,6 @@ class Generator {
 }
 
 function aster_() {
-    return new Generator(exec_.bind(this, arguments));
+    return new Generator(&exec.bind(this, arguments));
 }
+return aster_;

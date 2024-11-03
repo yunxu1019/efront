@@ -64,3 +64,4 @@ function Array2() {
     return obj;
 }
 Array2.prototype = Array.prototype;
+return Array2;

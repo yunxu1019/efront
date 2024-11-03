@@ -50,5 +50,6 @@ class AsyncGenerator {
     }
 }
 function asyncAster_() {
-    return new AsyncGenerator(exec_.bind(this, arguments));
+    return new AsyncGenerator(&exec.bind(this, arguments));
 }
+return asyncAster_;

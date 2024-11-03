@@ -249,7 +249,7 @@ function toComponent(responseTree, noVersionInfo) {
             return $key;
         };
         var module_string = module_body[module_body.length - 1];
-        var [, isAsync, isYield] = /^(@?)(\*?)/.exec(module_string);
+        var [, isAsync, isYield] = /^(~?)(\*?)/.exec(module_string);
         if (isAsync || isYield) module_string = module_string.slice(+!!isAsync + +!!isYield);
         if (isAsync) outsideAsync = true;
         var code_blocks = scanner(module_string);

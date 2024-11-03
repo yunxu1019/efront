@@ -5,7 +5,7 @@
 1.  ```javascript
     class ... extends Array {...} 
     ```
-    因为如果增加一级原型，数组的特性便会消失，`efront`暂时并没有实现完美的降级方案，未来实现的可能性也不大。类似语句经`typescript`转换后新定义的方法会丢失, `efront` 在降级编译期使用 `class ... extends Array2 {...}` 进行替换，`Array2`会将定义的方法挂载到新生成的对象上。
+    因为如果增加一级原型，数组的特性便会消失，`efront`暂时并没有实现完美的降级方案，未来实现的可能性也不大。类似语句经`typescript`转换后新定义的方法会丢失, `efront` 在降级编译期使用 `class ... extends &Array {...}` 进行替换，`&Array`会将定义的方法挂载到新生成的对象上。
 
 2. ```javascript
     import(...)
@@ -75,14 +75,14 @@
     Array.prototype.fill
     Array(3).fill(0) // 类似这种的将变成[0,0,0]一个常量数组
     var [a,b,c]=Array(3).fill(0).map((_,i)=>i+1) // 类似这种用于生成常量并赋值的，将直接变成赋值语句 var a=1,b=2,c=3
-    Array(3).fill(a)// 类似这种非常量的，将由类似 ArrayFill(3,a) 的语句替换
+    Array(3).fill(a)// 类似这种非常量的，将由类似 &ArrayFill(3,a) 的语句替换
     ```
     `Array(...).fill(...).map(...)`这种写法经常被`efront`开发者用来生成自增赋值序列，并且非所有运行环境都支持，所以包括其它显式用到`Array.prototype.fill`的几种写法都会被替换。为了目标代码的性能考虑，这种替换在自动常量化之前就要执行，所以不再支持用`polyfill`的开关进行关闭。如果要关闭，请使用参数`--no-autoeval`将自动常量化的功能一同关闭。
 
 9.  ```javascript
     Object.assign
     ```
-    Object.assign,`ie`系列浏览器均不支持，由于经常被`efront`开发者使用，在降级编译期，如果没有指定`--no-polyfill`参数，将由`efront`处理成替代品[extend](../basic/extend.js)
+    Object.assign,`ie`系列浏览器均不支持，由于经常被`efront`开发者使用，在降级编译期，如果没有指定`--no-polyfill`参数，将由`efront`处理成替代品[&extend](../basic_/&extend.js)
 10. ```javascript
     Promise
     Promise.prototype.then

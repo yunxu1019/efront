@@ -247,7 +247,7 @@ var multiModules = Object.create(null);
 // -->
 var hasOwnProperty = {}.hasOwnProperty;
 var loadModule = function (url, then, prebuilds = {}) {
-    var name = url.replace(/[\#\*~\?][\s\S]*$/, '');
+    var name = url.replace(/[\*~][\s\S]*$/, '');
     if (/^(?:module|exports|define|import_meta|require|window|global|undefined)$/.test(name)) return then();
     if ((hasOwnProperty.call(prebuilds, url)) || hasOwnProperty.call(modules, url) || (!hasOwnProperty.call(forceRequest, name) && !/^on/.test(name) && window[name] !== null && window[name] !== void 0)
     ) return then();
@@ -381,7 +381,7 @@ var getArgs = function (text, aftfix) {
     } else {
         functionBody = text;
     }
-    var [, isAsync, isYield] = /^(@?)(\*?)/.exec(functionBody);
+    var [, isAsync, isYield] = /^(~?)(\*?)/.exec(functionBody);
     if (isAsync || isYield) functionBody = functionBody.slice(+!!isAsync + +!!isYield);
     return [argNames || [], functionBody, args || [], required || '', strs || [], !!isAsync, !!isYield];
 };
@@ -443,7 +443,7 @@ var createModule = function (exec, originNames, compiledNames, prebuilds = {}) {
     var required = exec.required;
     if (required) required = required.map(a => loadedModules[keyprefix + a]);
     var argsList = originNames.map(function (aName) {
-        var argName = aName.replace(/[\#\*~\?][\s\S]*$/, '');
+        var argName = aName.replace(/[\*~][\s\S]*$/, '');
         if (hasOwnProperty.call(prebuilds, argName)) {
             return prebuilds[argName];
         }
@@ -523,7 +523,7 @@ var init = function (url, then, prebuilds, keeppage) {
         if (then) then(modules[url]);
         return modules[url];
     }
-    var name = url.replace(/[\#\*~\?][\s\S]*$/, '');
+    var name = url.replace(/[\*~][\s\S]*$/, '');
     if (!hasOwnProperty.call(forceRequest, name) && name in window && !/^on/.test(name)) {
         try {
             var value = window[name];

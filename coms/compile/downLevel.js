@@ -219,7 +219,7 @@ var killdec = function (queue, i, getobjname, _var = 'var', killobj, islet) {
                 map[a] = a;
             });
             d.attributes.forEach(dec);
-            write(name, `${patchMark}rest_(${tmpname},[${Object.keys(map)}])`, false), rootenvs[patchMark + "rest_"] = true;
+            write(name, `${patchMark}rest(${tmpname},[${Object.keys(map)}])`, false), rootenvs[patchMark + "rest"] = true;
         }
         else {
             doged = at + 1;
@@ -227,9 +227,9 @@ var killdec = function (queue, i, getobjname, _var = 'var', killobj, islet) {
             if (iter) {
                 while (iter.index < a) iter.next();
                 iter.done = true;
-                write(name, `${patchMark}restIter_(${tmpname})`), rootenvs[patchMark + "restIter_"] = true;
+                write(name, `${patchMark}restIter(${tmpname})`), rootenvs[patchMark + "restIter"] = true;
             }
-            else write(name, `slice_["call"](${tmpname},${at}${a > at ? `,${at - a}` : ''})`, rest.length > 0), rootenvs.slice_ = true;
+            else write(name, `${patchMark}slice["call"](${tmpname},${at}${a > at ? `,${at - a}` : ''})`, rest.length > 0), rootenvs[patchMark + 'slice'] = true;
             total = rest.length;
             rest.forEach(dec);
         }
@@ -635,7 +635,7 @@ var killcls = function (body, i, letname_, getname_) {
         while (next && !next.isClass) next = next.next;
         base = createString(splice2(body, o, o = next));
     }
-    if (base === 'Array') base = 'Array2', rootenvs.Array2 = true;
+    if (base === 'Array') base = patchMark + 'Array', rootenvs[patchMark + "Array"] = true;
     var index = 0;
     while (o && o.isClass) {
         var scoped = o.scoped;
@@ -723,7 +723,7 @@ var killcls = function (body, i, letname_, getname_) {
         }
         insert1(invokes, null, ...constructor);
         o = o.next;
-        if (base) defines.unshift(...scanner2(`${patchMark}extends_(${clz.name},${base})${defines.length ? "\r\n" : ""}`)), rootenvs[patchMark + "extends_"] = true;
+        if (base) defines.unshift(...scanner2(`${patchMark}extends(${clz.name},${base})${defines.length ? "\r\n" : ""}`)), rootenvs[patchMark + "extends"] = true;
         base = clz.name;
         if (clz.name) insert1(head, null, ...scanner2(`${head.length ? ',' : ''}${clz.name}`));
         index++;
@@ -775,8 +775,8 @@ var killspr = function (body, i, _getobjname, killobj) {
         if (!s.text) v.shift();
         if (m) splice2(o, m, m = m.next);
         killobj(v);
-        var q = scanner2(`slice_["call"]()`);
-        rootenvs.slice_ = true;
+        var q = scanner2(`${patchMark}slice["call"]()`);
+        rootenvs[patchMark + "slice"] = true;
         insert1(q[q.length - 1], null, ...v);
         return q;
     };
@@ -1366,7 +1366,7 @@ var killarg = function (head, body, _getname, setarg = true) {
             return `${a}=arguments["length"]>${collect + n - 1}?arguments[arguments["length"] - ${n}]:undefined`;
         }));
 
-        if (cname) argcodes.unshift(`var ${cname}=slice_["call"](arguments,${collect}${index > collect ? `,${collect - index}` : ""})`), rootenvs.slice_ = true;
+        if (cname) argcodes.unshift(`var ${cname}=${patchMark}slice["call"](arguments,${collect}${index > collect ? `,${collect - index}` : ""})`), rootenvs[patchMark + 'slice'] = true;
     }
     if (argcodes.length && setarg) {
         if (!body) {
@@ -1633,7 +1633,7 @@ var newpunc = function (body, i, newname) {
             var r = puncRight(o);
             var li = body.lastIndexOf(l, i);
             var ri = body.indexOf(r, i);
-            var name = t === '??' ? 'nullish_' : "power_";
+            var name = t === '??' ? 'nullish' : "power";
             name = patchMark + name;
             rootenvs[name] = true;
             o.text = ',';
@@ -1649,7 +1649,7 @@ var newpunc = function (body, i, newname) {
 var down = function (scoped) {
     var inAsync = scoped.async;
     var inAster = scoped.yield;
-    var funcMark = [, "aster_", "async_", "asyncAster_"][inAsync << 1 | inAster];
+    var funcMark = [, "aster", "async", "asyncAster"][inAsync << 1 | inAster];
     if (funcMark) funcMark = patchMark + funcMark;
     if (funcMark) rootenvs[funcMark] = true;
     var vars = Object.assign(Object.create(null), scoped.vars);
@@ -1887,7 +1887,7 @@ function downLevel(data) {
     code = downcode(code);
     return code.toString();
 }
-var patchMark = '';
+var patchMark = '&';
 var downcode = downLevel.code = function (code) {
     rootenvs = code.envs;
     rootHyper = rootenvs.Symbol || code.yield || code.async;
@@ -1895,9 +1895,10 @@ var downcode = downLevel.code = function (code) {
     if (code.patchMark) patchMark = code.patchMark;
     down(code.scoped);
     code.keepcolor = false;
-    if (rootenvs.slice_) {
-        delete rootenvs.slice_;
-        if (!code.vars.slice_) splice(code, 0, 0, ...scanner2('var slice_ = Array["prototype"]["slice"];\r\n'));
+    var slice_ = patchMark + 'slice';
+    if (rootenvs[slice_]) {
+        delete rootenvs[slice_];
+        if (!code.vars[slice_]) splice(code, 0, 0, ...scanner2(`var ${slice_} = Array["prototype"]["slice"];\r\n`));
     }
     rootenvs = null;
     patchMark = patchMark_;

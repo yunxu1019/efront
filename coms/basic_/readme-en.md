@@ -5,12 +5,12 @@
 1.  ```javascript
     class ... extends Array {...} 
     ```
-    Because if one level of prototype is added, the characteristics of the array will disappear, and `efront` has not yet implemented a perfect downgrade plan, and the possibility of future implementation is also unlikely. After similar statements are converted by `typescript`, the newly defined methods will be lost. `efront` uses `class extends Array2 {...}` will be replaced, and `Array2` will mount the defined method to the newly generated object.
+    Because if one level of prototype is added, the characteristics of the array will disappear, and `efront` has not yet implemented a perfect downgrade plan, and the possibility of future implementation is also unlikely. After similar statements are converted by `typescript`, the newly defined methods will be lost. `efront` uses `class extends &Array {...}` will be replaced, and `&Array` will mount the defined method to the newly generated object.
 
 2. ```javascript
     import(...)
     ```
-    The result imported with `import (...)`, efront will not actively wrap a layer of Promise. If you use `await` in the root scope of the module, the returned result is an instance of `Promise`. Otherwise, what you export in the imported file will be the result of this `import(...)`. If you are unsure about the content of the imported file and do not blindly use methods such as `import(...).then (...)`, you can use `await import(...)` to wait for the import to complete.
+    The result imported with `import(...)`, efront will not actively wrap a layer of Promise. If you use `await` in the root scope of the module, the returned result is an instance of `Promise`. Otherwise, what you export in the imported file will be the result of this `import(...)`. If you are unsure about the content of the imported file and do not blindly use methods such as `import(...).then(...)`, you can use `await import(...)` to wait for the import to complete.
 
 3. ```javascript
     import.meta
@@ -86,7 +86,7 @@
 9. ```javascript
     Object.assign
     ```
-    Object.assign and `ie` series browsers are not supported. Because they are often used by `efront` developers, during the downgrade Compile time period, if the '--no-polyfill' parameter is not specified, `efront` will be processed as a substitute [extend](../basic/extend.js)
+    Object.assign and `ie` series browsers are not supported. Because they are often used by `efront` developers, during the downgrade Compile time period, if the '--no-polyfill' parameter is not specified, `efront` will be processed as a substitute [&extend](../basic_/&extend.js)
 
 10. ```javascript
     Promise

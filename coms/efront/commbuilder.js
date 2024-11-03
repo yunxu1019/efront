@@ -488,10 +488,12 @@ var loadJsBody = function (data, filename, lessdata, commName, className, htmlDa
     };
 };
 
-var buildPress2 = function (imported, params, data, args, strs) {
+var buildPress2 = function (imported, params, data, args, strs, press) {
+    press = press !== false && memery.COMPRESS;
     if (imported.length > 0) {
         var code = scanner2(`var [${params.concat(args || [])}];${data}`);
-        if (memery.COMPRESS) code.press(memery.KEEPSPACE);
+        if (press) code.press(memery.KEEPSPACE);
+        else code.revar();
         params = code[1].filter(a => a.type !== code.STAMP).map(c => c.text);
         code.splice(0, 2);
     }
@@ -503,14 +505,16 @@ var buildPress2 = function (imported, params, data, args, strs) {
             else if (s instanceof RegExp) s = `/${s.source}/${s.flags}`;
             return `${a}=${s}`;
         }).join(',')};${data}`);
-        if (memery.COMPRESS) code.press(memery.KEEPSPACE);
+        if (press) code.press(memery.KEEPSPACE);
+        else code.revar();
     }
     else {
         var code = scanner2(data);
-        if (memery.COMPRESS) code.press(memery.KEEPSPACE);
+        if (press) code.press(memery.KEEPSPACE);
+        else code.revar();
     }
     data = code.toString();
-    return [imported, params, data];
+    return [params, data];
 };
 
 var rethink = function (mmap, imported, refname) {
@@ -544,19 +548,27 @@ var buildResponse = function ({ imported, prequoted, params, data, required, occ
     if (!islive && compress !== false) {
         if (memery.BREAK) var [data, args, strs] = breakcode(data, occurs), strs = `[${strs}]`;
         else args = [], strs = "[]";
-        var [imported2, params2, data2] = buildPress2(imported, params, data, args, strs);
-        data = data2;
-        imported = imported2;
-        params = params2;
+        [params, data] = buildPress2(imported, params, data, args, strs);
         if (imported.length > 0) {
             var strlength = (strs.length * 2).toString(36);
         } else {
             strs = '';
         }
-    } else {
+    }
+    else {
+        if (params.length > 0) {
+            for (var p of params) if (/^[@#%\^&\?]/.test(p)) {
+                var code = scanner2(`var [${params.concat(args || [])}];${data}`);
+                code.revar();
+                params = code[1].filter(a => a.type !== code.STAMP).map(c => c.text);
+                code.splice(0, 2);
+                data = code.toString();
+                break;
+            }
+
+        }
         strs = '';
     }
-
     var _arguments = [...imported, ...params];
     if (required.length >= 1) {
         _arguments.push(required.join(';'));
@@ -573,7 +585,7 @@ var buildResponse = function ({ imported, prequoted, params, data, required, occ
     }
     if (!isBroken) {
         if (isYield) data = "*" + data;
-        if (isAsync) data = "@" + data;
+        if (isAsync) data = "~" + data;
     }
     // [参数长度*2 参数列表]? [字符串列表长度*2 字符串数组]? 代码块
     data = (_arguments.length ? length + _arguments : "") + (strs && strs.length > 2 && imported.length > 0 ? strlength + strs : '') + (parseInt(data.slice(0, 3), 36) % 2 === 0 || /^\w{1,6}\[/.test(data) && parseInt(data.slice(0, 6), 36) % 2 === 0 ? ";" : "") + data;

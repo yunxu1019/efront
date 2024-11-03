@@ -79,7 +79,8 @@ class Program {
         ["[", "]"],
         ["{", "}"],
     ]
-    stamps = "/=+;|:?<>-!~%^&*,".split("")
+    stamps = "/=+;|:?<>-!~%^&*,".split("");
+    prefix = '&^%?:'.split('');
     value_reg = /^(false|true|null)$/
     number_reg = number_reg;
     digit_reg = digit_reg;
@@ -226,7 +227,7 @@ class Program {
                 o.unary = true;
             }
             else if (!last || last.type === STAMP && (!(last.text in powermap)) && !last.istype) {
-                if (!queue.istype && powermap[o.text] > powermap["="]) o.unary = true;
+                if (powermap[o.text] > powermap["="]) o.unary = true;
             }
             else if (last.type === STRAP && !last.isend || last.type === STAMP && !last.istype && !/^(\+\+|\-\-)$/.test(last.text) || last.type === SCOPED && /^[\{\[]$/.test(last.entry) && !last.isExpress) {
                 o.unary = /^[^=;,\:]$/.test(o.text);
@@ -267,6 +268,7 @@ class Program {
             lasttype = cache_stamp.type;
             cache_stamp = null;
         }
+        var prefix_reg = this.prefix_reg;
         var save = (type) => {
             if (type === STAMP) {
                 if (cache_stamp) {
@@ -284,6 +286,18 @@ class Program {
             else {
                 if (cache_stamp) push_stamp();
             }
+            var last = queue.last;
+            if (type & (EXPRESS | STRAP | VALUE) && lasttype === STAMP && prefix_reg.test(last.text) && last.unary) {
+                m = last.text + m;
+                delete last.unary;
+                if (value_reg.test(m)) last.type = VALUE;
+                else if (strap_reg.test(m)) last.type = STRAP;
+                else last.type = EXPRESS;
+                last.text = m;
+                last.end = end;
+                return;
+            }
+
             var scope = {
                 type,
                 start,
@@ -296,7 +310,7 @@ class Program {
             lasttype = type;
             if (type === STAMP) {
                 cache_stamp = scope;
-                scope.prev = queue.last;
+                scope.prev = last;
                 return;
             }
             if (type === STRAP) {
@@ -996,6 +1010,8 @@ class Program {
         var entries_reg = new RegExp(`^(${powers_entries}|${quotes_entries}|${scopes})$`, this.nocase ? 'iu' : '');
         stamps = this.compile(this.stamps.filter(s => !entries_reg.test(s)).join(''));
         var number_reg = this.number_reg;
+        var prefix_reg = new RegExp(`^[${this.prefix.join('')}]$`);
+        this.prefix_reg = prefix_reg;
         var numbers = number_reg.source.replace(/^\^|\$$/g, "");
         this.digit_reg = new RegExp(/^[+\-]?/.source + numbers, number_reg.flags);
         this.entry_reg = new RegExp([`${spaceDefined.reg.source}|${quotes_entries}|[${scopes}]|${numbers}(?:${spaceDefined.avoid(tokens)})*|${express}|${powers_entries}|[${stamps}]`], "gi");

@@ -1,5 +1,10 @@
 "use strict";
-var createNamelist = require("./namelist");
+var createShortName = require("./namelist");
+var createShortList = function (keys, prevent) {
+    return createShortName(keys.length, prevent);
+};
+var renameHashName = require("./nametill");
+var createNameList = createShortList;
 var Html = require("./Html");
 var Javascript = require("./Javascript");
 const {
@@ -37,7 +42,7 @@ var compress = function (scoped, maped = Object.create(null)) {
     var keys = Object.keys(map);
     keys.sort((a, b) => used[b].length - used[a].length);
     if (keys.length) {
-        var names = createNamelist(keys.length, __prevent);
+        var names = createNameList(keys, __prevent);
         for (var cx = 0, dx = keys.length; cx < dx; cx++) {
             var k = keys[cx];
             var name = names[cx];
@@ -166,6 +171,11 @@ class Code extends Array {
         var envs = this.program.detour(this, ie !== false);
         if (this._scoped) extend(this.envs, envs);
         return this;
+    }
+    revar() {
+        createNameList = renameHashName;
+        compress(this.scoped);
+        createNameList = createShortList;
     }
     // 压缩
     press(keepspace) {

@@ -12,3 +12,4 @@ function extends_(A, B) {
     A.prototype = B === null ? Object.create(null) : new (_ = function () { setConstructor(this, A) }, _.prototype = B.prototype, _);
     var _;
 }
+return extends_;
