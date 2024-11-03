@@ -118,6 +118,7 @@ var responseFromCache = function (data) {
     if (data instanceof Promise) return data.then(responseFromCache, responseFromCache);
     if (data instanceof Buffer || data instanceof Function) return data;
     if (typeof data === "string") {
+        if (/\/$/.test(data)) return console.error(i18n`路径${data}未找到入口文件`);
         data = commbuilder(`require("${data}")`, 'index.js', 'index.js', []);
         return data;
     }
