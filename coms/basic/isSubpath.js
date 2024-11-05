@@ -1,5 +1,7 @@
 var normalize = function (url) {
     var normal = [];
+    if (!isHandled(url)) return normal;
+    url = String(url);
     var protocol = /^\w+\:/.exec(url);
     if (protocol) {
         url = url.slice(protocol[0].length).replace(/^[\\\/]+/, '');
