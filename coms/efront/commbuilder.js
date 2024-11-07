@@ -348,7 +348,7 @@ var loadJsBody = function (data, filename, lessdata, commName, className, htmlDa
                         type: code_body.QUOTED,
                         text: JSON.stringify(className)
                     }
-                ), { type: code_body.SCOPED, entry: "(", leave: ")" }))
+                ), { type: code_body.SCOPED, isExpress: true, entry: "(", leave: ")" }))
         ), code_body.first = code_body[0];
 
         code_body.splice(
@@ -379,6 +379,7 @@ var loadJsBody = function (data, filename, lessdata, commName, className, htmlDa
                         { type: code_body.QUOTED, text: JSON.stringify(className) },
                     ], {
                         entry: "(",
+                        isExpress: true,
                         type: code_body.SCOPED,
                         leave: ")"
                     })),

@@ -874,7 +874,7 @@ class Program {
                             scope.istype = true;
                         }
                     }
-                    if (!last || (last.type & (SCOPED | STAMP))) queue.inExpress = true;
+                    if (!last || (last.type & (SCOPED | STAMP | EXPRESS))) queue.inExpress = true;
                     scope.isExpress = queue.inExpress;
                     scope.inExpress = true;
                 }
