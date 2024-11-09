@@ -167,8 +167,7 @@ var killdec = function (queue, i, getobjname, _var = 'var', killobj, islet) {
             i += init.length;
         }
         return() {
-            var retn = scanner2(`${index++ > 0 ? "," : ''}${this.tname}=(!${this.tname}||!${this.tname}["done"])&& isFunction(${this.iname}["return"])&&${this.iname}["return"]()`);
-            rootenvs.isFunction = true;
+            var retn = scanner2(`${index++ > 0 ? "," : ''}${this.tname}=(!${this.tname}||!${this.tname}["done"])&&typeof ${this.iname}["return"]==="function"&&${this.iname}["return"]()`);
             splice(queue, i, 0, ...retn);
             i += retn.length;
         }
@@ -477,13 +476,13 @@ var killmap = function (body, i, _getobjname, _getnewname, killobj) {
                 }
                 if (q) {
                     t = scanner2(`${patchMark}extend(${_getobjname()},)`);
-                    rootenvs.extend = true;
+                    rootenvs[patchMark + "extend"] = true;
                     insert1(q, null, ...t);
                 }
                 else {
                     if (!t) {
                         t = scanner2(`${patchMark}extend()`);
-                        rootenvs.extend = true;
+                        rootenvs[patchMark + "extend"] = true;
                         var [o0] = splice(body, i, 1, ...t);
                         t[1].push(o0);
                         l = 2;
@@ -1242,9 +1241,8 @@ var unforof = function (o, getnewname, used, killobj) {
         else splice(o[o.length - 7 - hasawait], 0, 1);
         var n = o.next;
         n = skipSentenceQueue(n);
-        var tf = scanner2(`try{}finally{if(${iname}&&!${iname}["done"]&&isFunction(${gname}["return"]))${gname}["return"]()}`);
+        var tf = scanner2(`try{}finally{if(${iname}&&!${iname}["done"]&&typeof ${gname}["return"]==="function")${gname}["return"]()}`);
         splice(tf[1], 0, 0, ...splice2(r.queue, r, n, ...tf));
-        rootenvs.isFunction = true;
     }
 };
 var unarrow = function (body, i, killobj, letname_) {
