@@ -1,3 +1,6 @@
+- zh-CN: 路径$1未找到入口文件
+  en:    Path $1 entry file not found
+
 - zh-CN: 数据标识不能有“.”符号
   en:    "Data identification cannot have a '.' symbol"
 
