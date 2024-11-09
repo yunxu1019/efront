@@ -558,7 +558,7 @@ var buildResponse = function ({ imported, prequoted, params, data, required, occ
     }
     else {
         if (params.length > 0) {
-            for (var p of params) if (/^[@#%\^&\?]/.test(p)) {
+            for (var p in occurs) if (/^[@#%\^&\?]/.test(p)) {
                 var code = scanner2(`var [${params.concat(args || [])}];${data}`);
                 code.revar();
                 params = code[1].filter(a => a.type !== code.STAMP).map(c => c.text);

@@ -1897,6 +1897,7 @@ var downcode = downLevel.code = function (code) {
     if (rootenvs[slice_]) {
         delete rootenvs[slice_];
         if (!code.vars[slice_]) splice(code, 0, 0, ...scanner2(`var ${slice_} = Array["prototype"]["slice"];\r\n`));
+        code.vars[slice_] = true;
     }
     rootenvs = null;
     patchMark = patchMark_;
