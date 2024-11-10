@@ -492,8 +492,8 @@ var scan = function (data) {
 };
 var detourTemplate = function (raw, params) {
     var spliter = { text: ",", type: STAMP };
-    var template = scan(`extend([],{["raw"]:[]})`);
-    rootenvs.extend = true;
+    var template = scan(`&extend([],{["raw"]:[]})`);
+    rootenvs["&extend"] = true;
     var str0 = template[1].first;
     var str1 = template[1][2][2];
     for (var r of raw) {

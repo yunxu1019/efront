@@ -2,7 +2,7 @@ var { SCOPED } = require("./common");
 var backEach = require("../basic/backEach");
 
 var polyfills = Object.assign(Object.create(null), {
-    "Object.assign": 'extend'
+    "Object.assign": '&extend'
 });
 var polyfill = function (o, i, used) {
     var v = o.text;
