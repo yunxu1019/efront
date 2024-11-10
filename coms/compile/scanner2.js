@@ -43,10 +43,19 @@ var compress = function (scoped, maped = Object.create(null)) {
     keys.sort((a, b) => used[b].length - used[a].length);
     if (keys.length) {
         var names = createNameList(keys, __prevent);
+        var umap = Array(keys.length);
         for (var cx = 0, dx = keys.length; cx < dx; cx++) {
             var k = keys[cx];
             var name = names[cx];
+            umap[cx] = used[k];
             rename(used, k, name);
+            delete used[k];
+            delete map[k];
+        }
+        for (var cx = 0, dx = names.length; cx < dx; cx++) {
+            var n = names[cx];
+            map[n] = true;
+            used[n] = umap[cx];
         }
     }
     if (scoped.length) {
@@ -143,7 +152,7 @@ class Code extends Array {
                 if (k in occurs) continue;
                 occurs[k] = true;
             }
-            for (var k in scoped.lets) {
+            if (scoped.lets !== scoped.vars) for (var k in scoped.lets) {
                 if (k in occurs) continue;
                 occurs[k] = true;
             }

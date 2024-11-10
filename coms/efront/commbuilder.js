@@ -564,6 +564,7 @@ var buildResponse = function ({ imported, prequoted, params, data, required, occ
                 params = code[1].filter(a => a.type !== code.STAMP).map(c => c.text);
                 code.splice(0, 2);
                 data = code.toString();
+                occurs = code.occurs;
                 break;
             }
 
