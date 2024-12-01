@@ -619,28 +619,31 @@ var requestListener = async function (req, res) {
         req_access_headers && res.setHeader("Access-Control-Allow-Headers", req_access_headers);
         req_access_method && res.setHeader("Access-Control-Allow-Methods", req_access_method);
     }
+    var isOptions = false;
     if (/^option/i.test(method)) {
         if (req_access_method || req_access_headers) {
             return res.end();
         }
-        if (/^\/\:/.test(url)) {
-            var option = url.slice(2);
-            if (option === version) res.setHeader("Powered-By", version);
-            else if (!/^(?:\:\:1?|(?:\:\:ffff\:)?127\.0\.0\.1)$/i.test(remoteAddress)) {
-            }
-            else switch (option) {
-                case "quit":
-                case "exit":
-                    let ports = portedServersList.filter(a => a && a.listening).map(a => a.address().port);
-                    message.send('quit');
-                    res.end(i18n[getHeader(headers, "accept-language")]`已关闭${ports.join("、")}端口`);
-                    return;
-            }
-            var type = /^(\w+)(?:[\-\/\!]([\/\!\'\(\)\-\.\w]*))?(?:[\?\:\+\*]([\s\S]*))?$/.exec(option);
-            if (type) return doOptions(req, res, type);
-        }
-        return res.end();
+        isOptions = true;
     }
+    if (/^\/\:/.test(url)) {
+        var option = url.slice(2);
+        if (option === version) res.setHeader("Powered-By", version);
+        else if (!/^(?:\:\:1?|(?:\:\:ffff\:)?127\.0\.0\.1)$/i.test(remoteAddress)) {
+        }
+        else switch (option) {
+            case "quit":
+            case "exit":
+                let ports = portedServersList.filter(a => a && a.listening).map(a => a.address().port);
+                message.send('quit');
+                res.end(i18n[getHeader(headers, "accept-language")]`已关闭${ports.join("、")}端口`);
+                return;
+        }
+        var type = /^(\w+)(?:[\-\/\!]([\/\!\'\(\)\-\.\w]*))?(?:[\?\:\+\*]([\s\S]*))?$/.exec(option);
+        if (type) return doOptions(req, res, type);
+    }
+    if (isOptions) return res.end();
+
     if (hasAuth(url)) {
         return doAuth(req, res);
     }

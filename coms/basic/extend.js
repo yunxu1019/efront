@@ -1,1 +1,1 @@
-Object.assign;
+&extend;
