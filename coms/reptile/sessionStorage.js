@@ -1,1 +1,1 @@
-return globalThis.sessionStorage || { getItem() { }, setItem() { } };
+return globalThis.sessionStorage || { getItem() { }, setItem() { }, removeItem() { } };

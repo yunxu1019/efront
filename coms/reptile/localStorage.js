@@ -1,4 +1,5 @@
 return globalThis.localStorage || {
     getItem() { },
-    setItem() { }
+    setItem() { },
+    removeItem() { },
 }
