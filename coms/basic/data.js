@@ -891,17 +891,14 @@ var data = {
     },
     fromApi(api, params, parse) {
         var p = privates.fromApi(api, params);
-        if (isEmpty(params)) p.id = api.id;
         return this.createResponse(p, parse);
     },
     postURL(url, data, parse) {
         var p = privates.loadIgnoreConfig("post", url, data);
-        p.id = url;
         return this.createResponse(p, parse);
     },
     fromURL(url, parse) {
         var p = privates.loadIgnoreConfig('get', url);
-        p.id = url;
         return this.createResponse(p, parse);
     },
     createResponse(p, parse) {
@@ -1170,6 +1167,7 @@ var fireListener = function (instanceId, data) {
 };
 data.setItem = data.setInstance;
 data.getItem = data.getInstance;
+data.seekResponse = seekResponse;
 data.removeItem = data.removeInstance;
 extend(dataSourceMap, loadInstance(localStorage, sourceDataId));
 extend(dataSourceMap, loadInstance(sessionStorage, sourceDataId));
