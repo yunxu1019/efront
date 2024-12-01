@@ -87,19 +87,22 @@ function record($url, request, response, req, res) {
         if (compress === false) {
             delete headers["content-encoding"];
             headers["content-length"] = data.length;
-            res.writeHead(response.statusCode || 200, headers);
-            res.end(data);
+            end(data);
             return;
         }
         require("zlib").deflate(data, function (error, data) {
             if (error) return res.writeHead(500), res.end(String(error));
             headers["content-encoding"] = "deflate";
             headers["content-length"] = data.length;
-            res.writeHead(response.statusCode || 200, headers);
-            res.end(data);
+            end(data);
         });
     };
+    var end = function (data) {
+        res.writeHead(statusCode || 200, headers);
+        res.end(data);
+    };
     var buffers = [];
+    var statusCode = response.statusCode;
     var headers = response.headers;
     response = decodeHttpResponse(response);
     response.on("data", function (data) {
@@ -108,7 +111,10 @@ function record($url, request, response, req, res) {
     response.on('error', _error);
 
     response.on("end", function () {
-        _write(null, Buffer.concat(buffers), false);
+        if (headers["content-encoding"]) {
+            end(Buffer.concat(buffers));
+        }
+        else _write(null, Buffer.concat(buffers), false);
     });
     return true;
 }
