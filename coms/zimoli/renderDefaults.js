@@ -34,7 +34,7 @@ extend(renderDefaults, {
     delete: drop,
     close: drop,
     remove: drop,
-    pic: img,
+    pic,
     image,
     back,
     success,
