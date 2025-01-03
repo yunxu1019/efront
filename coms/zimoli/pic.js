@@ -4,7 +4,7 @@ var setsrc = function (src) {
     });
 };
 
-function img() {
+function main() {
     var image = document.createElement("png");
     care(image, setsrc);
     return image;
