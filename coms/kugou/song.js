@@ -5,7 +5,7 @@ function main(elem) {
     elem = elem || document.createElement("song");
     var $scope = {
         filterTime,
-        png: img,
+        png: pic,
         bg,
         play(s) {
             if (!s) s = this.song.items ? this.song.items[0] : this.song;

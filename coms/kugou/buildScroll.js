@@ -16,7 +16,7 @@ function Main(dataid, datapath, titleid) {
                 zimoli.go(datapath, s);
             }
         },
-        png: img,
+        png: pic,
         config: {},
         player: kugou$player,
         datas: []
