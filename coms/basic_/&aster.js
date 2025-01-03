@@ -4,7 +4,7 @@ class Generator {
         this.exec = f.bind(this, this.return.bind(this), this.throw.bind(this), function (value, next) {
             this.exec = next;
             this.value = value;
-        });
+        }.bind(this));
     };
     throw(e) {
         delete this.exec;
