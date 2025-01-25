@@ -27,11 +27,6 @@ var {
     PREVENT_FRAMEWORK_MODE = preventFrame,
     devicePixelRatio = 1,
     startPath: efrontPath,
-    loading_title = {
-        "en-us": "Loading..",
-        "en-hk": "Loading..",
-        "en-ca": "Loading..",
-    }[navigator.language && navigator.language.toLowerCase()] || '加载中..',
     pixelDecoder // = d => d / 16 + "rem"
 } = window;
 if (PREVENT_FRAMEWORK_MODE !== false) {
@@ -514,8 +509,6 @@ var createModule = function (exec, originNames, compiledNames, prebuilds = {}) {
         return exec.apply(_this, args);
     });
 };
-var loading_count = 0;
-var saved_title = document && document.title;
 var init = function (url, then, prebuilds, keeppage) {
     // then = bindthen(then);
     var key = keyprefix + url;
@@ -610,13 +603,7 @@ var init = function (url, then, prebuilds, keeppage) {
         var report = window.performance || !window.alert ? console.error : window.alert;
         report(`加载 ${url} 失败，${ed && ed.length ? `${ed.join(', ')} 等 ${ed.length} 个模块` : "没有其他模块"}受到影响。\r\n${track.join("\r\n")}`);
     };
-    var loadingid = ++loading_count;
-    if (document && loading_title !== document.title) {
-        saved_title = document.title;
-        document.title = loading_title;
-    }
     loadModule(url, function (error) {
-        if (loadingid === loading_count && document && document.title === loading_title) document.title = saved_title;
         if (hasOwnProperty.call(modules, url)) {
             then(modules[url]);
             return;
