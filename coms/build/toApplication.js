@@ -426,7 +426,6 @@ var patchData = function (mainScriptData, mainScript, responseTree) {
         var code = "{\r\n\t" + cached.sort().map(k => {
             var v = responseTree[k];
             delete responseTree[k];
-            if (/prepare/.test(v.name)) console.log(v.name, v.data)
             return `["${v.name}"]:${strings.encode(String(v.data))}`;
         }).join(",\r\n\t") + "\r\n}";
         mainScriptData = replaceTree(mainScriptData, xTreeName, code);
