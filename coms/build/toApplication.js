@@ -277,6 +277,7 @@ var rebuildData = function (responseTree) {
     var keys = Object.keys(responseTree).sort();
     var keysmap = Object.create(null);
     var renmap = Object.create(null);
+
     keys.forEach(function (k) {
         var o = responseTree[k];
         if (!o.data || !o.destpath || !o.realpath) {
@@ -371,7 +372,67 @@ var isEfrontCode = function (response) {
     if (response.type === "*") return;
     if (response.isindex) return;
     return true;
+};
+var commbuilder = require("../efront/commbuilder");
+
+var replaceTree = function (data, xTreeName, code) {
+    return data.replace(
+        new RegExp(/\b/.source + xTreeName + /(\s*)=(\s*)\{.*?\}/.source),
+        function (m, s1, s2) {
+            return xTreeName + `${s1}=${s2}${code}`;
+        }
+    )
 }
+var patchData = function (mainScriptData, mainScript, responseTree) {
+    var up = memory.EFRONTUP;
+    var limit = memory.EFRONTSUM;
+    var versionTree = {};
+    var cached = [];
+    if (setting.is_file_target) {
+        up = Infinity;
+        limit = Infinity;
+    }
+    Object.keys(responseTree).filter((k) => {
+        var v = responseTree[k];
+        if (!isEfrontCode(v)) return false;
+        if (v === mainScript) return false;
+        var data = v.data;
+        if (data.length > up) return true;
+        up += data.length;
+        if (up > limit) return true;
+        cached.push(k);
+        return false;
+    }).sort().forEach(function (k) {
+        var v = responseTree[k];
+        v.data = encrypt(v.data, encoded);
+        var responseVersion = crc([].map.call(v.data.toString(), e => e.charCodeAt(0))).toString(36) + (+v.data.length).toString(36);
+        versionTree[v.name] = responseVersion;
+    });
+    var versioned = Object.keys(versionTree);
+    if (versioned.length) {
+        var xTreeName = /(?:\bversionTree\s*|\[\s*(["'])versionTree\1\s*\])\s*[\:\=]\s*(.+?)\b/m.exec(mainScriptData);
+        if (xTreeName) xTreeName = xTreeName[2];
+        else xTreeName = "versionTree";
+        var code = "{\r\n" + Object.keys(versionTree).map(k => `["${k}"]:${strings.encode(versionTree[k])}`).join(",\r\n\t") + "\r\n}";
+        mainScriptData = replaceTree(mainScriptData, xTreeName, code)
+    }
+    else {
+        commbuilder.ignoreUse_reg = /#decrypt_?\.js/;
+    }
+    if (cached.length) {
+        var xTreeName = /(?:\bresponseTree\s*|\[\s*(["'])responseTree\1\s*\])\s*[\:\=]\s*(.+?)\b/m.exec(mainScriptData);
+        if (xTreeName) xTreeName = xTreeName[2];
+        else xTreeName = "responseTree";
+        var code = "{\r\n\t" + cached.sort().map(k => {
+            var v = responseTree[k];
+            delete responseTree[k];
+            if (/prepare/.test(v.name)) console.log(v.name, v.data)
+            return `["${v.name}"]:${strings.encode(String(v.data))}`;
+        }).join(",\r\n\t") + "\r\n}";
+        mainScriptData = replaceTree(mainScriptData, xTreeName, code);
+    }
+    return mainScriptData;
+};
 module.exports = async function (responseTree) {
     if (encoded) encoded = setting.version_mark;
     rebuildData(responseTree);
@@ -390,31 +451,15 @@ module.exports = async function (responseTree) {
         console.warn(`<yellow2>${i18n`在您所编译的项目中没有发现主程序`}</yellow2>`);
         return responseTree;
     }
-    var commbuilder = require("../efront/commbuilder");
-    var mainScriptData = mainScript.data;
-    var versionTree = {};
-    var array_map = responseTree["[]map"] || responseTree["[]map.js"];
-    if (setting.is_file_target) {
-        commbuilder.ignoreUse_reg = /#decrypt_?\.js/;
-        Object.keys(responseTree).sort().forEach(function (k) {
-            var v = responseTree[k];
-            if (!isEfrontCode(v)) return;
-            if (v !== mainScript) {
-                versionTree[v.name] = String(v.data);
-            }
-            delete responseTree[k];
-        });
-    } else {
-        Object.keys(responseTree).sort().forEach(function (k) {
-            var v = responseTree[k];
-            if (!isEfrontCode(v)) return;
-            if (v !== mainScript) {
-                v.data = encrypt(v.data, encoded);
-                var responseVersion = crc([].map.call(v.data.toString(), e => e.charCodeAt(0))).toString(36) + (+v.data.length).toString(36);
-                versionTree[v.name] = responseVersion;
-            }
-        });
+    else {
+        delete responseTree["main"];
+        delete responseTree["main.js"];
     }
+
+    var mainScriptData = mainScript.data;
+    var array_map = responseTree["[]map"] || responseTree["[]map.js"];
+
+
     commbuilder.loadonly = true;
     var mainScriptData = await commbuilder(mainScript.data, "main.js", mainScript.realpath, []);
     if (!memory.ENCRYPT) {
@@ -423,20 +468,7 @@ module.exports = async function (responseTree) {
         mainScriptData = mainScriptData.toString()
     }
     commbuilder.loadonly = false;
-    var mainVersion = '';
-    if (setting.is_file_target) {
-        var xTreeName = /(?:\bresponseTree\s*|\[\s*(["'])responseTree\1\s*\])\s*[\:\=]\s*(.+?)\b/m.exec(mainScriptData);
-        if (xTreeName) xTreeName = xTreeName[2];
-        else xTreeName = "responseTree";
-        commbuilder.prepare = false;
-    } else {
-        var xTreeName = /(?:\bversionTree\s*|\[\s*(["'])versionTree\1\s*\])\s*[\:\=]\s*(.+?)\b/m.exec(mainScriptData);
-        if (xTreeName) xTreeName = xTreeName[2];
-        else xTreeName = "versionTree";
-        mainVersion = true;
-    }
     var missing = Object.keys(responseTree).filter(k => !responseTree[k].data);
-    var code = "{\r\n" + Object.keys(versionTree).map(k => `["${k}"]:${strings.encode(versionTree[k])}`).join(",\r\n\t") + "\r\n}";
     var versionVariableName;
     var prebuilds = Object.create(null);
     prebuilds.state = true;
@@ -456,18 +488,14 @@ module.exports = async function (responseTree) {
             return `${prefix}${missing.map(k => responseTree[k].warn ? `${k}:window["${k}"]` : k).join(",\r\n")}${missing.length ? ',' : ''}\r\n${modules}${aftfix}`;
         })
         .replace(/(?:\.send|\[\s*(["'])send\1\s*\])\s*\((.*?)\)/g, (match, quote, data) => (versionVariableName = data || "", quote ? `[${quote}send${quote}]()` : ".send()"))
-        .replace(/(['"])post\1\s*,\s*(.*?)\s*\)/ig, `$1get$1,$2${versionVariableName && `+"${memory.EXTT}?"+` + versionVariableName})`)
-        .replace(
-            new RegExp(/\b/.source + xTreeName + /(\s*)=(\s*)\{.*?\}/.source),
-            function (m, s1, s2) {
-                return xTreeName + `${s1}=${s2}${code}`;
-            }
-        );
+        .replace(/(['"])post\1\s*,\s*(.*?)\s*\)/ig, `$1get$1,$2${versionVariableName && `+"${memory.EXTT}?"+` + versionVariableName})`);
     if (memory.EXTRACT || !setting.is_file_target) mainScript.queryfix = crc(Buffer.from(mainScriptData)).toString(36).replace(/^\-/, "");
     if (!setting.is_file_target) mainScriptData = mainScriptData
         .replace(/(['"`]|)efrontsign\1\s*\:\s*(['"`])\2/, `$1efrontsign$1:$2?${mainScript.queryfix}$2`)
         .replace(/decrypt(\.sign|\[(['"`])sign\1\])/, `parseInt("${encoded}",36)%128`);
+    mainScriptData = patchData(mainScriptData, mainScript, responseTree);
     commbuilder.compress = false;
+    commbuilder.prepare = false;
     mainScriptData = await commbuilder(mainScriptData, mainScript.url, mainScript.realpath, []);
     memory.EXPORT_AS = '';
     memory.EXPORT_TO = "this";

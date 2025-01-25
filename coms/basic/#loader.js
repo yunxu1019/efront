@@ -138,8 +138,11 @@ var readFile = function (names, then) {
 
     readingCount++;
     var errorcount = 0;
-    var ok = function (res) {
-        responseTree[name] = res;
+    var ok = function (text) {
+        if (!/\~/.test(name)) {
+            "use ./#decrypt_.js";
+        }
+        responseTree[name] = text;
         flushTree(loadingTree, key);
         clearTimeout(flush_to_storage_timer);
         flush_to_storage_timer = setTimeout(saveResponseTreeToStorage, 200);
@@ -251,6 +254,7 @@ var killCircle = function () {
 var multiModules = Object.create(null);
 // -->
 var hasOwnProperty = {}.hasOwnProperty;
+"use ./#decrypt.js";
 var loadModule = function (url, then, prebuilds = {}) {
     var name = url.replace(/[\*~][\s\S]*$/, '');
     if (/^(?:module|exports|define|import_meta|require|window|global|undefined)$/.test(name)) return then();
@@ -345,11 +349,7 @@ var loadModule = function (url, then, prebuilds = {}) {
     }
 };
 var toRem = text => pixelDecoder && typeof text === 'string' ? text.replace(/(\:\s*)?\b((?:\d*\.)?\d+)px(\s*\))?/ig, (m, h, d, quote) => (h || "") + (d !== '1' ? h && quote ? renderPixelRatio * d + "pt" : pixelDecoder(d) : renderPixelRatio > 1 ? ".78pt" : 0.78 / devicePixelRatio + "pt") + (quote || "")) : text;
-"use ./#decrypt.js";
 var getArgs = function (text, aftfix) {
-    if (!aftfix || /^\*/.test(aftfix)) {
-        "use ./#decrypt_.js";
-    }
     var args, functionBody;
     //依赖项名称部分的长度限制为36*36*18=23328
     var doublecount = parseInt(text.slice(0, 3), 36);
