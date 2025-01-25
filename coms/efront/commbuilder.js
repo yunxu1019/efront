@@ -545,6 +545,14 @@ var rethink = function (mmap, imported, refname) {
     });
     return realimport;
 };
+var revarCode = function (params, data) {
+    var code = scanner2(`var [${params}];${data}`);
+    code.revar();
+    params = code[1].filter(a => a.type !== code.STAMP).map(c => c.text);
+    code.splice(0, 2);
+    data = code.toString();
+    return [params, data, code.occurs];
+};
 var buildResponse = function ({ imported, prequoted, params, data, required, occurs, isAsync, isYield, isBroken }, compress) {
     if (!islive && compress !== false) {
         if (memery.BREAK) var [data, args, strs] = breakcode(data, occurs), strs = `[${strs}]`;
@@ -559,12 +567,7 @@ var buildResponse = function ({ imported, prequoted, params, data, required, occ
     else {
         if (params.length > 0) {
             for (var p in occurs) if (/^[@#%\^&\?]/.test(p)) {
-                var code = scanner2(`var [${params.concat(args || [])}];${data}`);
-                code.revar();
-                params = code[1].filter(a => a.type !== code.STAMP).map(c => c.text);
-                code.splice(0, 2);
-                data = code.toString();
-                occurs = code.occurs;
+                [params, data, occurs] = revarCode(params, data);
                 break;
             }
 
@@ -1064,6 +1067,7 @@ commbuilder.parse = function (data, filename = 'main', fullpath = './main.js', c
     else if (/\.(?:json)$/i.test(fullpath)) data = `return ` + data;
     else if (/\.[mc]?[tj]sx?$/i.test(fullpath)) data = replaceIncludes(data);
     var res = loadJsBody(data, filename, null, commName, lessName, className);
+    [res.params, res.data, res.occurs] = revarCode(res.params, res.data);
     if (savedCompress === undefined) delete commbuilder.compress;
     else commbuilder.compress = savedCompress;
     breakflag = savedflag;
