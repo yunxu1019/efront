@@ -136,9 +136,6 @@ function go(pagepath, args, history_name, oldpagepath) {
     if (realpath.length > 1) var [pgpath, args0] = realpath;
     else pgpath = pagepath;
     setZimoliParams(pagepath, { data: args, from: oldpagepath, options, roles, id });
-    prepare(pgpath, function (res) {
-        if (!res.roles || res.roles === true) res.roles = !!roles;
-    });
     if (!page_generators[pgpath]) {
         return zimoli(pagepath, args, history_name, oldpagepath);
     }
@@ -349,36 +346,27 @@ function prepare(pgpath, ok) {
         }
     };
     var emit = function (pg) {
-        if (pg) {
-            page_generators[pgpath] = {
-                pg,
-                roles,
-                state,
-                with: _with_elements,
-                onback: _pageback_listener,
-                prepares
-            };
-        }
+        page_generators[pgpath] = {
+            pg,
+            roles,
+            state,
+            with: _with_elements,
+            onback: _pageback_listener,
+            prepares
+        };
         var res = page_generators[pgpath];
         var emiters = loading_tree[pgpath];
         delete loading_tree[pgpath];
-        if (emiters) {
-            var noRoles = !res.roles;
-            if (noRoles && res.roles) {
-                prepare(user.loginPath, () => emit());
-                return;
-            }
-            while (emiters.length) {
-                var ok = emiters.shift();
-                if (isFunction(ok)) {
-                    ok(res);
-                }
+        if (emiters) while (emiters.length) {
+            var ok = emiters.shift();
+            if (isFunction(ok)) {
+                ok(res);
             }
         }
+
     };
     return init(pgpath, function (pg) {
-        if (!pg) return;
-        extendIfNeeded(pg, state);
+        if (pg) extendIfNeeded(pg, state);
         if (roles) return prepare(user.loginPath, () => emit(pg));
         emit(pg);
     }, state, true);
@@ -402,6 +390,7 @@ function create(pagepath, args, from, needroles) {
         }
         return alert(i18n`没有权限！`, 0);
     }
+    if (!pg) return;
     var _with_length = _with_elements.length;
     state.onback = function (handler) {
         _pageback_listener = handler;
@@ -442,7 +431,7 @@ function create(pagepath, args, from, needroles) {
 var zimoliid = 0, zimoliad = 0;
 function zimoli(pagepath, args, history_name, oldpagepath) {
     if (arguments.length === 0) {
-        if (zimoliid !== zimoliad) return;
+        if (zimoliid !== zimoliad && zimoli.caller === go) return;
         history_name = current_history;
         var _history = history[history_name] || [];
         root_path = _history[0] || "/main";
