@@ -172,8 +172,6 @@ You can also click on [github](https://github.com/yunxu1019/efront/issues). The 
 [白前看图](https://efront.cc/baiplay)
 &nbsp;&nbsp;[酷酷千百易云音乐](https://efront.cc/kugou/)
 
-> If you would like to help me to improve this project, please follow the following link to join the metting in skype.
-https://join.skype.com/v8a630zaeGks 
-
-
-> If you are willing to offer me a job or only let me try ... try, please drop a letter to yunxu1019@live.cn
+# Chat Groups
+  QQ群: 710029752
+  Telegram: https://t.me/+y6VF1P1MTXlhN2Y1

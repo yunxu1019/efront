@@ -169,6 +169,6 @@ efront 默认读取当前路径下的`_envs/`和用户目录的`.efront/_envs/`�
 [白前看图](https://efront.cc/baiplay)
 &nbsp;&nbsp;[酷酷千百易云音乐](https://efront.cc/kugou/)
 
-> 如果您要提供修改建议或报告问题，可加入QQ群 710029752 反馈。
-
-> 项目作者正在找工作，有招工意向的可将招工信息发送至我的邮箱 yunxu1019@live.cn
+# 讨论群
+  QQ群: 710029752
+  Telegram: https://t.me/+y6VF1P1MTXlhN2Y1
