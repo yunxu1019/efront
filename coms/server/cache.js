@@ -114,54 +114,58 @@ Directory.prototype.update = async function (updateonly) {
     var loaded = that.loaded;
     that.isloaded = false;
     var files = await readdir(that.pathname);
-    var map = {}, changed = {};
     var limit = that.limit;
     var rebuild = that.rebuild;
     var pathname = that.pathname;
     var updated = [];
-    var rest = [];
     var hasLoaded = 0;
+    var newmap = Object.create(null), changed = Object.create(null);
     for (var f of files) {
-        if (/^#/.test(f.name)) continue;
-        map[f.name] = true;
-        if (!loaded[f.name]) {
-            var p = path.join(pathname, f.name);
-            var o = loaded[f.name] = f.isFile() ? new File(p, rebuild, limit) : new Directory(p, rebuild, limit);
-            var key = f.name.replace(/\.\w+$/, '');
-            changed[key] = true;
-            o.name = f.name;
-            o.root = that.root || pathname;
-            if (f instanceof File) {
-                updated.push(f.pathname);
-            }
-        }
-        if (/\-/.test(f.name)) {
-            rest.push(f);
-        }
-    }
-    for (var f of rest) {
-        var newName = f.name.replace(/\-([a-z])/g, (_, a) => a.toUpperCase());
-        if (!map[newName]) {
-            map[newName] = true;
-            loaded[newName] = loaded[f.name];
-        }
-    }
-
-    for (var k in loaded) {
-        var o = loaded[k];
-        if (o instanceof Directory || o instanceof File) {
-            if (!map[k]) {
-                updated.push(loaded[k].pathname);
-                delete loaded[k];
-                var key = k.replace(/\.\w+$/, '');
+        var fname = f.name;
+        if (/^#/.test(fname)) continue;
+        var o = loaded[fname];
+        var key = fname.replace(/\.[^\.]+$/, '');
+        var ext = fname.slice(key.length);
+        var isFile = f.isFile();
+        if (!o || isFile && o instanceof Directory || !isFile && o instanceof File) {
+            var p = path.join(pathname, fname);
+            if (isFile) {
+                o = new File(p, rebuild, limit);
+                updated.push(o.pathname);
                 changed[key] = true;
             }
+            else {
+                o = new Directory(p, rebuild, limit);
+            }
+            loaded[fname] = o;
+            o.name = fname;
+            o.root = that.root || pathname;
+        }
+        newmap[fname] = o;
+        var isjsp = /\.(jsp|asp|php)$/i.test(ext);
+        if (isjsp) {
+            if (!newmap[key]) {
+                loaded[key] = newmap[key] = o;
+            }
+        }
+        if (/\-/.test(key)) {
+            var key1 = key.replace(/\-([a-z])/g, (_, a) => a.toUpperCase());
+            loaded[key1 + ext] = newmap[key1 + ext] = o;
+            if (!newmap[key1]) {
+                loaded[key1] = newmap[key1] = o;
+            }
+        }
+    }
+    for (var k in loaded) {
+        if (!(k in newmap)) {
+            delete loaded[k];
+            changed[k.replace(/\.[^\.]+$/, '')] = true;
         }
     }
     for (var k in loaded) {
         var key = k.replace(/\.\w+$/, '');
         var o = loaded[k];
-        if (changed[key]) {
+        if (key in changed) {
             if (o instanceof File) {
                 if (o.mtime) {
                     updated.push(o.pathname);
@@ -169,7 +173,8 @@ Directory.prototype.update = async function (updateonly) {
                 }
                 o.unload();
             }
-        } else if (updateonly) {
+        }
+        else if (updateonly) {
             if (o instanceof File && o.data) {
                 var data = o.data;
                 o.promise = o.update();
@@ -192,20 +197,20 @@ Directory.prototype.update = async function (updateonly) {
     updated.loaded = hasLoaded;
     return updated;
 };
-Directory.prototype.get = function (keeys, names) {
+Directory.prototype.get = function (keeys, names, kindex) {
     var that = this;
     var reloadAfter = async function (promise) {
         await promise;
         await that.promise;
         if (!that.isloaded) throw i18n`加载${keeys.join('/')}失败！`;
-        return that.get(keeys, names);
+        return that.get(keeys, names, kindex);
     };
     var temps = [that];
     var keypath = [];
     var temp = temps[0];
-    search: for (var cx = 0, dx = keeys.length; cx < dx; cx++) {
+    var args = [];
+    search: for (var cx = kindex, dx = keeys.length; cx < dx; cx++) {
         if (!(temp instanceof Directory)) {
-            temp = undefined;
             break;
         }
         if (!temp.promise) temp.promise = temp.update();
@@ -225,13 +230,14 @@ Directory.prototype.get = function (keeys, names) {
             }
             for (var cy = temps.length - 1; cy > 0; cy--) {
                 if (key in temps[cy].loaded) {
-                    let searched = temps[cy].get(keeys.slice(cx), names);
+                    let searched = temps[cy].get(keeys, names, cx);
                     if (searched instanceof Promise) {
                         return reloadAfter(searched);
                     }
                     if (searched !== undefined) {
                         temp = searched;
-                        keypath.splice(cy, keypath.length - cy);
+                        var alist = keypath.splice(cy, keypath.length - cy);
+                        args.push.apply(args, alist);
                         if (typeof searched === 'string') {
                             keypath.push.apply(keypath, searched.split('/'));
                         } else {
@@ -242,6 +248,7 @@ Directory.prototype.get = function (keeys, names) {
                     }
                 }
             }
+            args.push(key);
             continue;
         }
         keypath.push(key);
@@ -249,17 +256,20 @@ Directory.prototype.get = function (keeys, names) {
         temp = loaded[key];
         if (!temp) break;
     }
-    if (cx < dx || !(temp instanceof Directory)) return;
-    if (!temp.promise) temp.promise = temp.update();
-    if (!temp.isloaded) return reloadAfter(temp.promise);
-    a: {
-        var loaded = temp.loaded;
-        for (var m of names) if (m in loaded) {
-            if (m === '') break a;
-            temp = loaded[m];
-            break a;
+    var namesused = false;
+    if ((temp instanceof Directory)) {
+        if (!temp.promise) temp.promise = temp.update();
+        if (!temp.isloaded) return reloadAfter(temp.promise);
+        a: {
+            var loaded = temp.loaded;
+            for (var m of names) if (m in loaded) {
+                if (m === '') break a;
+                temp = loaded[m];
+                break a;
+            }
+            temp = undefined;
         }
-        temp = undefined;
+        namesused = true;
     }
     if (temp instanceof File) {
         temp = temp.getBuffer();
@@ -267,9 +277,17 @@ Directory.prototype.get = function (keeys, names) {
     else if (temp instanceof Directory && temp.data) {
         temp = temp.data;
     }
+    if (temp instanceof Promise) {
+        return reloadAfter(temp);
+    }
 
     if (temp instanceof Function) {
-        return temp;
+        if (cx < dx) {
+            args.push.apply(args, keeys.slice(cx, dx));
+        }
+        if (!namesused) args.push(names[0]);
+        args.push(temp);
+        return args;
     }
     if (temp instanceof Error) {
         return temp;
@@ -409,15 +427,18 @@ var 参数 = function (url, extts) {
         if (k === '..') kpath.pop();
         kpath.push(k);
     }
-    match = extts.map(e => match + e);
-    return [kpath, match];
+    var i = extts.indexOf('');
+    if (i >= 0) extts.splice(i, 1);
+    extts = extts.map(e => match + e);
+    extts.unshift(match);
+    return [kpath, extts];
 };
 var { PACKAGE_NAME, PACKAGE_INDEXES } = require("../efront/memery");
 
 var seekAsync = async function (directs, keeys, match, findPackage) {
     var result, parent;
     for (var d of directs) {
-        var r = await d.get(keeys, match);
+        var r = await d.get(keeys, match, 0);
         if (isValidData(r)) return r;
         else if (typeof r === 'string') {
             if (result === undefined) result = r;
@@ -448,7 +469,7 @@ var seekAsync = async function (directs, keeys, match, findPackage) {
 }
 
 var isValidData = function (data) {
-    if (data instanceof Buffer || data instanceof Function) return true;
+    if (data instanceof Buffer || data instanceof Function || data instanceof Array) return true;
 };
 var getPackageMain = function (url, data, map) {
     if (!data instanceof PackageData) return;
@@ -513,7 +534,7 @@ class Cache {
 
         for (var d of this.directs) {
 
-            var r = d.get(keeys, match);
+            var r = d.get(keeys, match, 0);
             if (r instanceof Promise) return seekAsync(this.directs, keeys, match, findPackage);
             if (isValidData(r)) return r;
             else if (typeof r === 'string') {

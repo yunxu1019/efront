@@ -119,6 +119,10 @@ var utf8 = { "Content-Type": "text/plain;charset=utf-8" };
  */
 var adapter = function (data, url, req, res) {
     if (res.writableEnded || res.finished) return;
+    if (data instanceof Array) {
+        req.args = data;
+        data = data.pop();
+    }
     if (data instanceof Function) {
         data = data(req, res);
     }
@@ -162,6 +166,8 @@ var adapter = function (data, url, req, res) {
     if (typeof data === "string") {
         var new_url = data[0] === "/" ? data : "/" + data;
         new_url = new_url.replace(indexreg, '');
+        if (req.id) new_url += ':' + req.id;
+        if (req.search) new_url += req.search;
         if (new_url !== req.url) {
             res.writeHead(302, {
                 'Location': encodeURI(new_url)
@@ -169,7 +175,7 @@ var adapter = function (data, url, req, res) {
             return res.end();
         }
     }
-    if (url) {
+    if (/\/$/.test(url)) {
         data = getfile(url, req.deno ? denoindex : indexlist);
         req.indexed = true;
         return adapter(data, "", req, res);
@@ -195,7 +201,9 @@ var doGet = module.exports = async function (req, res) {
     var url = req.url;
     var download = /\*([\s\S]*)$/.exec(url);
     if (download) req.download = download[1];
-    var id = /\:/.test(url) ? url.replace(/^[\s\S]*?\:([\s\S]*?)([\?][\s\S]*)?$/, "$1") : null;
+    var search = /\?[\s\S]*$/.exec(url);
+    if (search) req.search = search[0], url = url.slice(0, search.index);
+    var id = /\:/.test(url) ? url.replace(/^[\s\S]*?\:([\s\S]*?)$/, "$1") : null;
     url = url.replace(/[\:\?#\*][\s\S]*/g, "");
     req.id = id;
     var exts = [''];
