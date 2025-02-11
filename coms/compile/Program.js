@@ -746,13 +746,15 @@ class Program {
                 }
                 save(STRAP);
                 var last = queue.last;
-                if (last.type === STRAP && structstrap_reg.test(last.text) && !queue.classed) {
-                    queue.classed = [last.text];
+                m = last.text;
+                if (last.type === STRAP && structstrap_reg.test(m) && !queue.classed) {
+                    queue.classed = [m];
                 }
                 else if (queue.classed) {
-                    if (last.type === STRAP && funcstrap_reg.test(last.text)) queue.classed.push(last.text);
+                    if (last.type === STRAP && funcstrap_reg.test(m)) queue.classed.push(m);
                 }
                 if (funcstrap_reg.test(m)) {
+                    last.isExpress = queue.inExpress;
                     last.isargl = true;
                 }
                 else if (type_reg.test(m)) {
@@ -874,7 +876,7 @@ class Program {
                             scope.istype = true;
                         }
                     }
-                    if (!last || (last.type !== STRAP && (!last.isObject || m === '(') || last.transive)) queue.inExpress = true;
+                    if (!last || last.type !== STRAP && last.isExpress || last.transive) queue.inExpress = true;
                     scope.isExpress = queue.inExpress;
                     scope.inExpress = true;
                 }
