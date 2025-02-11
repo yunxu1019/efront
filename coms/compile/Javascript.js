@@ -172,7 +172,9 @@ var fixType = function (o) {
             if (last && last.type === EXPRESS && /[^\.]\.$/.test(last.text)) {
                 type = EXPRESS;
             }
-            else if (isProperty(o)) type = PROPERTY;
+            else if (isProperty(o)) {
+                if (!o.isdigit) type = PROPERTY;
+            }
             else if (m === 'from') {
                 if (!last || last.type === STRAP && !/^(im|ex)port$/.test(last.text)) {
                     type = EXPRESS;
@@ -620,6 +622,9 @@ function detour(o, ie) {
                     .replace(/^\./, '0.');
                 if (/^0[0-7]+$/.test(o.text)) {
                     o.text = '0o' + o.text.slice(1);
+                }
+                if (o.isprop) {
+                    o.text = String(+o.text);
                 }
                 break;
             case QUOTED:
