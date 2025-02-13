@@ -338,9 +338,13 @@ function parse(piece) {
             [name, key, needs, holder] = spreadkey(name);
             if (key === undefined && !/^(title|label|headline)$/i.test(type)) key = name;
         }
-        if (/^[a-z\d]+\/?\d+$/i.test(type)) {
+        var value = /\/?\=([^\/\\]+)/.exec(type);
+        if (value) type = type.slice(0, value.index) + type.slice(value.index + value[0].length), value = parseValue(value[1]);
+        if (/^[a-z]+(\d+|\d*\/\d+)$/i.test(type)) {
             let [_, t, d] = /^(\w*?)\/?(\d+)$/.exec(type);
-            type = d + 'bit/' + t;
+            if (_.length === t.length + d.length) t = _;
+            if (d & 0b111 === 0) type = (d >>> 3) + 'byte/' + t;
+            else type = d + 'bit/' + t;
         }
         var sizematch = /^(\-?\d+|\-?\d*\.\d+)?([YZEPTGMK]i?b?|bytes?|bits?|words?|dword|real[48]|long|B|[^\/]*)([\/]|$|\s|\=)/i.exec(type);
         if (!sizematch[1] && /^\$\d/.test(sizematch[2])) sizematch = null;

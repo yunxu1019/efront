@@ -22,7 +22,7 @@ function parseNumber(str) {
         default:
             return parseFloat(str);
     }
-    str = str.slice(2);
+    str = str.slice(2).replace(/\_/g, '');
     if (/x/i.test(str)) {
         return bitTest.bind(null,
             parseInt(str.replace(/[\s\S]/g, xto0), 2),

@@ -6,6 +6,7 @@ var test = function (fields, key, expect) {
     if (!valid) console.log(fields)
 };
 test(refilm`启动时间/time $1`, 'key', 'time');
+test(refilm`启动时间/time int64/=1`, 'type', 'int64');
 test(refilm`启动时间/time $1`, 'type', '$1');
 test(refilm`启动时间/time ${test}`, 'key', "time");
 test(refilm`启动时间/time ${test}`, 'type', test);

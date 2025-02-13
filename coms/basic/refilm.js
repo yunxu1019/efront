@@ -35,7 +35,10 @@ var writeField = refilm.writeField = function (data, field, value, offset = fiel
         var limit = byteLimit;
         while (limit-- > 0) {
             v.push(value & 0xff);
-            value = value >>> 8;
+            if (limit >= 4) {
+                value = value / 256;
+            }
+            else value = value >>> 8;
         }
         if (value) throw new Error(i18n`数据过大`);
         value = v;
@@ -56,13 +59,30 @@ var writeFields = refilm.writeFields = function (data, fields, values, offset = 
 };
 var toint = function (buf) {
     var n = 0;
-    for (var cx = 0, dx = buf.length; cx < dx; cx++) {
-        n += buf[cx] << (cx << 3);
+    if (buf.length >= 7 && (buf[7] || buf[6] > 0x1f)) return buf;
+    switch (buf.length) {
+        default:
+        case 3:
+            n |= buf[2] << 16;
+        case 2:
+            n |= buf[1] << 8;
+        case 1:
+            n |= buf[0];
+        case 0:
+    }
+    for (var cx = 3, dx = buf.length; cx < dx; cx++) {
+        n += buf[cx] * 2 ** (cx << 3);
     }
     return n;
 };
-var readField = refilm.readField = function (data, field, offset = field.offset, size = field.size * field.ratio) {
+var readBuffer = refilm.readBuffer = function (data, field, offset = field.offset, size = field.size * field.ratio) {
     return data.slice(offset, offset + size);
+};
+
+var readField = refilm.readField = function (data, field, offset, size) {
+    var v = readBuffer(data, field, offset, size);
+    if (/^([us]?int|byte|word|dword|qword|long)/i.test(field.type)) v = toint(v);
+    return v;
 };
 
 refilm.readFields = function (data, fields, offset = fields.offset || 0) {
@@ -70,7 +90,6 @@ refilm.readFields = function (data, fields, offset = fields.offset || 0) {
     for (var f of fields) {
         var size = f.size * f.ratio;
         var v = readField(data, f, offset, size);
-        if (size <= 4) v = toint(v);
         res[f.key] = v;
         offset += size;
     }
