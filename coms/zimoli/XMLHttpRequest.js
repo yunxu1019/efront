@@ -1,4 +1,4 @@
-if (this.XMLHttpRequest) return this.XMLHttpRequest;
+if (this.XMLHttpRequest?.prototype.onreadystatechange !== undefined) return this.XMLHttpRequest;
 if (this.ActiveXObject) return this.ActiveXObject.bind(null, 'Microsoft.XMLHTTP');
 if (!this.fetch) return;
 var window = this;
@@ -17,18 +17,21 @@ XMLHttpRequest.prototype.open = function (method, url) {
 XMLHttpRequest.prototype.send = function (data) {
     var params = { method: this.method, headers: { referer: document.location.href.replace(/^#[\s\S]*$/g, '') } };
     if (data != null) params.body = data;
-    this.fetch(this.url, params).then(function (d) {
-        this.fetched = d;
-        this.readyState = 4;
-        this.status = d.status;
+    var fetched = this.fetch(this.url, params);
+    var xhr = this;
+    fetched.then(function (d) {
+        xhr.fetched = d;
+        xhr.readyState = 4;
+        xhr.status = d.status;
         return d.text();
     }).then(function (d) {
-        this.responseText = d;
-        if (this.onreadystatechange) this.onreadystatechange({ target: this });
-        if (this.onload) this.onload({ target: this });
-    }, function (e) {
-        this.readyState = 4;
-        if (this.onreadystatechange) this.onreadystatechange({ target: this });
-        if (this.onerror) this.onerror({ target: this });
+        xhr.responseText = d;
+        if (xhr.onreadystatechange) xhr.onreadystatechange({ target: xhr });
+        if (xhr.onload) xhr.onload({ target: xhr });
+    }).catch(function (e) {
+        xhr.readyState = 4;
+        if (xhr.onreadystatechange) xhr.onreadystatechange({ target: xhr });
+        if (xhr.onerror) xhr.onerror({ target: xhr });
     });
 }
+return XMLHttpRequest;
