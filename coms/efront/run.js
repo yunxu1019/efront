@@ -23,6 +23,7 @@ function fromComponent(env, base) {
     var resolve_options = Object.assign({}, resolve_config, { paths: [pathname].concat(resolve_config.paths) });
     var requestInternet = fromInternet("");
     var request = async function (url, onsuccess, onerror) {
+        var origin_url=url;
         var isdestroied = false;
         if (/^https?\:\/\//i.test(url)) {
             return requestInternet(url, onsuccess, onerror);
@@ -91,7 +92,7 @@ function fromComponent(env, base) {
                     }
                 }
             } else {
-                loadedmap[url.replace(/^(comm)\//, '')] = result.path;
+                loadedmap[origin_url.replace(/^(comm)\//, '')] = result.path;
                 result = result.toString();
             }
             onsuccess(result || '');
@@ -151,7 +152,7 @@ function efront() {
     if (!window.require) window.require = require;
     Object.assign(window, {
         eval(str, filename) {
-            return require("vm").runInThisContext(str, { filename: `${colors.FgYellow}${loadedmap[filename] || filename}${colors.Reset}` });
+            return require("vm").runInThisContext(str, { filename: ` ${colors.FgYellow}"${loadedmap[filename] || filename}"${colors.Reset}` });
         },
         setTimeout(f, timerout) {
             var args = [].slice.call(arguments, 2);
