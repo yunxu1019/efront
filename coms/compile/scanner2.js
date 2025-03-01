@@ -205,6 +205,11 @@ var avoidMap = null;
 var typeMap = Object.create(null);
 function scan() {
     var [text, type = "js", lastIndex = 0] = arguments;
+    var fullpath = null;
+    if (/\.[^\.\/\\]+$/i.test(type)) {
+        fullpath = type;
+        type = /[^\.\/\\]+$/.exec(type)[0];
+    }
     if (isFinite(type)) lastIndex = +type, type = arguments[2] || type;
     var program = typeMap[type];
     if (!program) switch (type) {
@@ -223,12 +228,13 @@ function scan() {
                 program = type;
             }
             else {
-                console.log(i18n`类型不支持`, type)
+                console.error(i18n`类型不支持`, type)
             }
             break;
     }
     program.Code = Code;
     program.lastIndex = lastIndex;
+    program.mindpath = fullpath;
     var res = program.exec(text);
     res.autospace = !program.keepspace;
     Object.defineProperty(res, "program", { value: program, enumerable: false })

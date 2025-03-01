@@ -66,7 +66,7 @@ module.exports = async function (variables, rootpath) {
             if (!/\.[cm]?[jt]sx?$/i.test(fullpath)) continue;
             var data = await readFile(fullpath);
             data = String(data).replace(/^\s*#!/, '//');
-            var undeclares = scanner2(data).getUndecleared();
+            var undeclares = scanner2(data, fullpath).getUndecleared();
             if (fs.existsSync(fullpath.replace(/\.\w+$/, '')) + ".html") delete undeclares[path.basename(fullpath).replace(/\.\w+$/, "")];
             for (var v of variables) {
                 if (undeclares[v]) {

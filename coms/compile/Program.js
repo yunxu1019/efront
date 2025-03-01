@@ -895,7 +895,16 @@ class Program {
                 pop_parents();
                 continue;
             }
-            if (this.scope_leave[m]) console.warn(i18n`标记不匹配`, queue.entry, m, "queue-start:", queue.start, "position:", `${row}:${index - colstart}\r\n`, index - queue.start < 200 ? text.slice(queue.start, index) : text.slice(queue.start, queue.start + 100) + "..." + text.slice(index - 97, index));
+            if (this.scope_leave[m]) {
+                console.warn(
+                    i18n`标记不匹配：`, queue.entry, m,
+                    i18n`\r\n文件位置：`, this.mindpath + ":" + `${row}:${index - colstart}`,
+                    i18n`\r\n摘要：\r\n`,
+                    index - queue.start < 200
+                        ? text.slice(queue.start, index)
+                        : text.slice(queue.start, queue.start + 100) + "..." + text.slice(index - 97, index)
+                );
+            }
             save(STAMP);
         }
         while (queue.tag && parents.length) {
