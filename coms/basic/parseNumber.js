@@ -8,8 +8,13 @@ function xto0(x) {
 
 function parseNumber(str) {
     var s = 10;
+    str = str.replace(/\_/g, '');
     if (!isString(str)) return str;
-    switch (str.slice(0, 2).toLowerCase()) {
+    var num = str.replace(/^[\+\-]+/, '');
+    var neg = str.slice(0, str.length - num.length).replace(/\+/g, '').length & 1;
+    if (neg) neg = "-";
+    else neg = '';
+    switch (num.slice(0, 2).toLowerCase()) {
         case "0x":
             s = 16;
             break;
@@ -20,15 +25,15 @@ function parseNumber(str) {
             s = 2;
             break;
         default:
-            return parseFloat(str);
+            return parseFloat(neg + num);
     }
-    str = str.slice(2).replace(/\_/g, '');
-    if (/x/i.test(str)) {
+    num = num.slice(2).replace(/\_/g, '');
+    if (/x/i.test(num)) {
         return bitTest.bind(null,
-            parseInt(str.replace(/[\s\S]/g, xto0), 2),
-            parseInt(str.replace(/x/g, '0'), 2)
+            parseInt(neg + num.replace(/[\s\S]/g, xto0), 2),
+            parseInt(neg + num.replace(/x/g, '0'), 2)
         );
     }
-    return parseInt(str, s);
+    return parseInt(neg + num, s);
 }
 module.exports = parseNumber

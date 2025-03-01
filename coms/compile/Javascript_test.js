@@ -27,6 +27,8 @@ var testDetour = function (a, e) {
     assert(c.toString(), e);
 }
 testDetour('={0x1:1}', '= { 1: 1 }')
+testDetour('={-0x1:1}', '= { -0x1: 1 }')
+testDetour('={false:1}', '= { ["false"]: 1 }')
 testDetour('1.1', '1.1')
 testDetour('1.1.a', '1.1["a"]')
 testDetour('-1e10.a', '-1e10["a"]')

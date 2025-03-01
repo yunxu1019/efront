@@ -2,7 +2,7 @@
 var strings = require("../basic/strings");
 var Program = require("./Program");
 var backEach = require("../basic/backEach");
-
+var parseNumber = require('../basic/parseNumber');
 const {
     /*   1 */COMMENT,
     /*   2 */SPACE,
@@ -624,7 +624,12 @@ function detour(o, ie) {
                     o.text = '0o' + o.text.slice(1);
                 }
                 if (o.isprop) {
-                    o.text = String(+o.text);
+                    if ((o.isdigit)) {
+                        var value = parseNumber(o.text);
+                        if (Number.isNaN(value) || value < 0)
+                            console.warn(i18n`发现异常属性：${`<yellow>${o.text}</yellow>`}`);
+                        else o.text = String(value);
+                    }
                 }
                 break;
             case QUOTED:
