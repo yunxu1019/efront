@@ -119,6 +119,8 @@ Directory.prototype.update = async function (updateonly) {
     var pathname = that.pathname;
     var updated = [];
     var hasLoaded = 0;
+    var pmap = this.pmap;
+    var defaultpower = pmap ? pmap["*"] : 2025;
     var newmap = Object.create(null), changed = Object.create(null);
     for (var f of files) {
         var fname = f.name;
@@ -127,6 +129,9 @@ Directory.prototype.update = async function (updateonly) {
         var key = fname.replace(/\.[^\.]+$/, '');
         var ext = fname.slice(key.length);
         var isFile = f.isFile();
+        if (isFile && pmap && !(ext in pmap)) {
+            if (defaultpower == null) continue;
+        }
         if (!o || isFile && o instanceof Directory || !isFile && o instanceof File) {
             var p = path.join(pathname, fname);
             if (isFile) {
@@ -136,18 +141,19 @@ Directory.prototype.update = async function (updateonly) {
             }
             else {
                 o = new Directory(p, rebuild, limit);
+                o.pmap = pmap;
             }
             loaded[fname] = o;
             o.name = fname;
             o.root = that.root || pathname;
         }
-        newmap[fname] = o;
-        var isjsp = /\.(jsp|asp|php)$/i.test(ext);
-        if (isjsp) {
-            if (!newmap[key]) {
+        if (isFile && pmap) {
+            o.power = pmap[ext] || defaultpower;
+            if (ext in pmap && (!newmap[key] || newmap[key].power < o.power)) {
                 loaded[key] = newmap[key] = o;
             }
         }
+        newmap[fname] = o;
         if (/\-/.test(key)) {
             var key1 = key.replace(/\-([a-z])/g, (_, a) => a.toUpperCase());
             loaded[key1 + ext] = newmap[key1 + ext] = o;
@@ -405,7 +411,7 @@ var formatpathlist = function (filesroot) {
     return filesroot;
 }
 var directRoots = Object.create(null);
-var createDirect = function (froot, rebuild, limit) {
+var createDirect = function (froot, rebuild, limit, powermap) {
     var direct;
     if (!rebuild) {
         if (directRoots[froot]) return directRoots[froot];
@@ -416,6 +422,7 @@ var createDirect = function (froot, rebuild, limit) {
         if (rebuild.cached_roots[froot]) return rebuild.cached_roots[froot];
         direct = rebuild.cached_roots[froot] = new Directory(froot, rebuild, limit);
     }
+    direct.pmap = powermap;
     return direct;
 };
 var 参数 = function (url, extts) {
@@ -500,10 +507,17 @@ class Cache {
         if (updated.length) this._emitUpdate(updated);
     }.bind(this);
     onreload = null;
-    constructor(filesroot, rebuild, buffer_size_limit) {
+    constructor(filesroot, rebuild, buffer_size_limit, pmap) {
+        if (pmap instanceof Array) {
+            var tmp = Object.create(null);
+            pmap.forEach(p => tmp[p] = 2025);
+            pmap = tmp;
+            pmap["*"] = 2025;
+        }
+        if (pmap) this.exts = Object.keys(pmap);
         buffer_size_limit = isFinite(buffer_size_limit) && buffer_size_limit >= 0 ? buffer_size_limit | 0 : buffer_size_limit
         var filesroot = formatpathlist(filesroot);
-        this.directs = filesroot.map(t => createDirect(t, rebuild, buffer_size_limit));
+        this.directs = filesroot.map(t => createDirect(t, rebuild, buffer_size_limit, pmap));
         this.directs.forEach(this.bindWatch, this);
     }
     bindWatch(direct) {

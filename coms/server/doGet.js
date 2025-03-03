@@ -54,7 +54,7 @@ var filecache = new Cache(SERVER_ROOT_PATH, function (data, filename, fullpath) 
             }
         });
     });
-}, FILE_BUFFER_SIZE);
+}, FILE_BUFFER_SIZE, [".jsp", '.asp', '.php']);
 doFile.addNotifyCache(filecache);
 var authcache = null, authcount = 0;
 var liveload = require("./liveload");
