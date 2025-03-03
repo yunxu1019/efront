@@ -1,4 +1,4 @@
-if (this.XMLHttpRequest?.prototype.onreadystatechange !== undefined) return this.XMLHttpRequest;
+if (this.XMLHttpRequest?.prototype && "onreadystatechange" in this.XMLHttpRequest.prototype) return this.XMLHttpRequest;
 if (this.ActiveXObject) return this.ActiveXObject.bind(null, 'Microsoft.XMLHTTP');
 if (!this.fetch) return;
 var window = this;
