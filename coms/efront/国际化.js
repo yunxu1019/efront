@@ -9,6 +9,8 @@ var loadData = async function (fullpath, i18nMap) {
         var keys = Object.keys(d);
         keys.forEach(k => {
             if (!d[k]) return;
+            d[k] = d[k].replace(/^\s*([\s\S]*?)([：\:]?\s*)$/, '$1');
+
             if (!i18nMap[k]) i18nMap[k] = Object.create(null);
         });
     }

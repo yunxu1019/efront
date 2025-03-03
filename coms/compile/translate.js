@@ -100,7 +100,7 @@ function translate([imap, supports], code) {
         return 0;
     });
     var getm = function (tt, nodup, warn) {
-        var mq = /^(\s*)([\s\S]*?)(\s*)$/.exec(tt);
+        var mq = /^(\s*)([\s\S]*?)([\:\：]?\s*)$/.exec(tt);
         var mq = [mq[1] || '', mq[2], mq[3] || ''];
         var tt = mq[1];
         var wrap = m => {
