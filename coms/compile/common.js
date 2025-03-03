@@ -1233,7 +1233,13 @@ var getSemicolonBetween = function (prev, next) {
     if (
         (EXPRESS | VALUE | QUOTED) & prev.type
         || prev.type === STAMP && /^(\+\+|\-\-)$/.test(prev.text)
-        || prev.type === SCOPED && (prev.isExpress || prev.isObject)
+        || prev.type === SCOPED && (prev.isExpress || prev.isObject || prev.entry === '(' && (
+            // 这两种分号不存在时efront的解析器可以识别，v8的识别不了，为了兼容追加分号
+            // do{}while(); return
+            // =function(){}(); return
+            prev.perv?.type === STRAP && prev.prev.text === 'while' || prev.prev?.type === SCOPED
+        )
+        )
     ) {
         if ((EXPRESS | VALUE | QUOTED | LABEL) & next.type) return ";";
         if (next.type === STRAP) {
