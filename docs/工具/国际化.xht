@@ -616,6 +616,7 @@
         已找到的字符串.is_loading = true;
         var addTranslate = function (translate) {
             if (!isHandled(translate)) return;
+            translate = translate.replace(/^\s*([\s\S]*?)([：\:]?\s*)$/, '$1');
             var tmap = textMap[translate];
             if (!tmap) tmap = textMap[translate] = Object.create(null), tmap["#count"] = 0;
             if (!tmap[e.path]) tmap[e.path] = [];
@@ -646,6 +647,9 @@
             var data = await readText(e);
             data = parseYML(data);
             loop: for (var d of data) {
+                for (var k in d) {
+                    d[k] = d[k].replace(/^\s*([\s\S]*?)([：\:]?\s*)$/, '$1');
+                }
                 var liang = 0, fanyi = {};
                 for (var { lang: k, id } of supports) {
                     if (!d[k]) continue;

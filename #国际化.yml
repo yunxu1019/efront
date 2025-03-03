@@ -1,3 +1,30 @@
+- zh-CN: 正在联网验证，请耐心等待..
+  en:    "Network verification in progress, please be patient"
+
+- zh-CN: 验证失败！
+  en:    Verification failed!
+
+- zh-CN: 已为您添加/更新以下权限
+  en:    We have added/updated the following permissions for you
+
+- zh-CN: 发现异常属性：$1
+  en:    "Abnormal attribute found: $1"
+
+- zh-CN: 标记不匹配
+  en:    Tag mismatch
+
+- zh-CN: 文件位置
+  en:    File location
+
+- zh-CN: 摘要
+  en:    Summary
+
+- zh-CN: "类型不支持: $1"
+  en:    "Type not supported: $1"
+
+- zh-CN: 原始数据大小为$1，目标文件大小为$2，压缩率为$3
+  en:    "The original data size is $1, the target file size is $2, and the compression ratio is $3"
+
 - zh-CN: 路径$1未找到入口文件
   en:    Path $1 entry file not found
 
@@ -292,11 +319,11 @@
 - zh-CN: 当前环境无法启用证书更新服务，nodeJs版本为$1
   en:    "The current environment cannot enable certificate update service, nodeJs version is $1"
 
-- zh-CN: "$1中，由$2引用了如下$3个路径:"
-  en:    "In $1, $2 references the following $3 paths:"
+- zh-CN: $1中，由$2引用了如下$3个路径
+  en:    "In $1, $2 references the following $3 paths"
 
-- zh-CN: "读取出错了，路径:"
-  en:    "Error reading, path:"
+- zh-CN: 读取出错了，路径
+  en:    "Error reading, path"
 
 - zh-CN: 创建账户
   en:    Create account
@@ -382,8 +409,8 @@
 - zh-CN: 已取消
   en:    Canceled
 
-- zh-CN: 输入原密码：
-  en:    "Enter the original password:"
+- zh-CN: 输入原密码
+  en:    Enter the original password
 
 - zh-CN: 数据过载..
   en:    Data overload..
@@ -463,8 +490,8 @@
 - zh-CN: 加载共享路径出错
   en:    Error loading shared path
 
-- zh-CN: "内容格式不支持:"
-  en:    "Content format not supported:"
+- zh-CN: 内容格式不支持
+  en:    Content format not supported
 
 - zh-CN: 无法存储
   en:    Unable to store
@@ -484,14 +511,14 @@
 - zh-CN: 已跳过
   en:    Skipped
 
-- zh-CN: 在异步过程中发现未处理的异常：
-  en:    "Unhandled exception found during asynchronous process:"
+- zh-CN: 在异步过程中发现未处理的异常
+  en:    Unhandled exception found during asynchronous process
 
 - zh-CN: 颜色数据不正确:$1
   en:    "Color data incorrect: $1"
 
-- zh-CN: "请使用https访问如下路径:"
-  en:    "Please use HTTPS to access the following path:"
+- zh-CN: 请使用https访问如下路径
+  en:    Please use HTTPS to access the following path
 
 - zh-CN: 对象过大，$1未能完成比对
   en:    "Object too large, $1 failed to complete comparison"
@@ -646,8 +673,8 @@
 - zh-CN: 父作用域链的长度必须相等着
   en:    The length of the parent scope chain must be equal
 
-- zh-CN: "同一个id不能使用两次:"
-  en:    "The same ID cannot be used twice:"
+- zh-CN: 同一个id不能使用两次
+  en:    The same ID cannot be used twice
 
 - zh-CN: 暂不支持在同一元素上使用多次if结构!
   en:    We currently do not support using the if structure multiple times on the same element!
@@ -667,8 +694,8 @@
 - zh-CN: 加载$1失败！
   en:    Loading $1 failed!
 
-- zh-CN: "编译错误:"
-  en:    "Compilation error:"
+- zh-CN: 编译错误
+  en:    Compilation error
 
 - zh-CN: 请不要重复添加
   en:    Please do not add again
@@ -694,11 +721,11 @@
 - zh-CN: 密码不正确！
   en:    The password is incorrect!
 
-- zh-CN: 输入新密码：
-  en:    "Enter new password:"
+- zh-CN: 输入新密码
+  en:    Enter new password
 
-- zh-CN: 确认密码：
-  en:    "Confirm password:"
+- zh-CN: 确认密码
+  en:    Confirm password
 
 - zh-CN: 两次输入密码不一致
   en:    The passwords entered twice are inconsistent
@@ -730,8 +757,8 @@
 - zh-CN: "重复定义: $1"
   en:    "Duplicate definition: $1"
 
-- zh-CN: "路径不存在:"
-  en:    "Path does not exist:"
+- zh-CN: 路径不存在
+  en:    Path does not exist
 
 - zh-CN: 指定的任务 $1 不存在！
   en:    The specified task $1 does not exist!
@@ -751,8 +778,8 @@
 - zh-CN: 余集变量不能有默认值
   en:    Residual variables cannot have default values
 
-- zh-CN: 辅助级别异常：
-  en:    "Auxiliary level exception:"
+- zh-CN: 辅助级别异常
+  en:    Auxiliary level exception
 
 - zh-CN: 自
   en:    since
@@ -1009,8 +1036,8 @@
 - zh-CN: 有$1个文件上传失败！
   en:    $1 file failed to upload!
 
-- zh-CN: "读取文件$1出错:"
-  en:    "Error reading file $1:"
+- zh-CN: 读取文件$1出错
+  en:    Error reading file $1
 
 - zh-CN: 文件不存在
   en:    file does not exist
@@ -1075,8 +1102,8 @@
 - zh-CN: 不能移入子文件夹
   en:    Unable to move into sub folder
 
-- zh-CN: "请输入新的$1名:"
-  en:    "Please enter a new $1 name:"
+- zh-CN: 请输入新的$1名
+  en:    Please enter a new $1 name
 
 - zh-CN: 文件夹
   en:    Folder
@@ -1186,8 +1213,8 @@
 - zh-CN: 更新连接
   en:    Update Connection
 
-- zh-CN: $1首次引用点如下：
-  en:    "the first position $1 occurs is:"
+- zh-CN: $1首次引用点如下
+  en:    the first position $1 occurs is
 
 - zh-CN: 与$1相关的项
   en:    item related to $1
@@ -1285,8 +1312,8 @@
 - zh-CN: 正在查找
   en:    Finding
 
-- zh-CN: "路径不正在:"
-  en:    "Path not in progress:"
+- zh-CN: 路径不正在
+  en:    Path not in progress
 
 - zh-CN: "处理完成：$1\r\n            =>  $2"
   en:    "Processing completed: $1\r\n                  =>  $2"
@@ -1300,8 +1327,8 @@
 - zh-CN: 无法确定文件名
   en:    Unable to determine file name
 
-- zh-CN: 完成：
-  en:    "Complete:"
+- zh-CN: 完成
+  en:    Complete
 
 - zh-CN: 服务器忙，请稍后再试！
   en:    "The server is busy, please try again later!"
@@ -1369,8 +1396,8 @@
 - zh-CN: 参数异常！
   en:    Parameter exception!
 
-- zh-CN: "range参数错误:"
-  en:    "Range parameter error:"
+- zh-CN: range参数错误
+  en:    Range parameter error
 
 - zh-CN: each参数异常!
   en:    Abnormal each parameter!
@@ -1405,11 +1432,11 @@
 - zh-CN: 正在合成
   en:    Synthesizing
 
-- zh-CN: 在 $1 中检测到可能不存在的外部变量：
-  en:    "Detected external variables that may not exist in $1:"
+- zh-CN: 在 $1 中检测到可能不存在的外部变量
+  en:    Detected external variables that may not exist in $1
 
-- zh-CN: "压缩($1/$2):"
-  en:    "Compress ($1/$2):"
+- zh-CN: 压缩($1/$2)
+  en:    Compress ($1/$2)
 
 - zh-CN: 存在环形引用：$1
   en:    "There is a circular reference: $1"
@@ -1417,11 +1444,11 @@
 - zh-CN: 没有可导出的文件！
   en:    There are no files to export!
 
-- zh-CN: 缺少变量：
-  en:    "Missing variable:"
+- zh-CN: 缺少变量
+  en:    Missing variable
 
-- zh-CN: 缺少常量：
-  en:    "Missing constant:"
+- zh-CN: 缺少常量
+  en:    Missing constant
 
 - zh-CN: watch功能在当前操作系统可能无法使用！
   en:    The watch function may not be available on the current operating system!
@@ -1555,14 +1582,14 @@
 - zh-CN: 有测试代码
   en:    With test code
 
-- zh-CN: "环境依赖项:"
-  en:    "Environmental dependencies:"
+- zh-CN: 环境依赖项
+  en:    Environmental dependencies
 
 - zh-CN: 无环境依赖项
   en:    No environmental dependencies
 
-- zh-CN: "导入项:"
-  en:    "Import items:"
+- zh-CN: 导入项
+  en:    Import items
 
 - zh-CN: 无导入项
   en:    No import items
@@ -1621,8 +1648,8 @@
 - zh-CN: 序号
   en:    Number
 
-- zh-CN: "翻译结果仅做为参考，未必完美替换，语法参考:"
-  en:    "The translation results are only for reference and may not be a perfect replacement. Grammar reference:"
+- zh-CN: 翻译结果仅做为参考，未必完美替换，语法参考
+  en:    The translation results are only for reference and may not be a perfect replacement. Grammar reference
 
 - zh-CN: 国际化工具仅在浏览器支持 showDirectoryPicker 时可用
   en:    International chemical tools are only available when the browser supports showDirectoryPicker
@@ -1633,11 +1660,11 @@
 - zh-CN: 导出到文件
   en:    Export to file
 
-- zh-CN: 翻译缺失：
-  en:    "Lack of translation:"
+- zh-CN: 翻译缺失
+  en:    Lack of translation
 
-- zh-CN: "翻译:"
-  en:    "Translation:"
+- zh-CN: 翻译
+  en:    Translation
 
 - zh-CN: "跳过了缺少参数的请求:$1 $2 $3\r\n缺少参数：$4"
   en:    "Skipped request $1 $2 $3 \r\n Missing parameters $4"
@@ -1801,8 +1828,8 @@
 - zh-CN: 帮助
   en:    HELP
 
-- zh-CN: $1可以使用的命令语法有：
-  en:    "The command syntax that can be used for $1 is:"
+- zh-CN: $1可以使用的命令语法有
+  en:    The command syntax that can be used for $1 is
 
 - zh-CN: 其中
   en:    among them
@@ -1819,8 +1846,8 @@
 - zh-CN: 连接到
   en:    connection to
 
-- zh-CN: 可以使用的命令有：
-  en:    "The commands that can be used are:"
+- zh-CN: 可以使用的命令有
+  en:    The commands that can be used are
 
 - zh-CN: 如要显示更具体的信息，请使用:$1
   en:    "To show more messages, use $1"
@@ -1864,20 +1891,20 @@
 - zh-CN: 没有自定义的环境变量
   en:    No custom environment variables
 
-- zh-CN: 已设置如下 $1 个环境变量：
-  en:    "The following $1 environment variables have been set:"
+- zh-CN: 已设置如下 $1 个环境变量
+  en:    The following $1 environment variables have been set
 
-- zh-CN: 未修改过的默认变量如下：
-  en:    "The unmodified default variables are as follows:"
+- zh-CN: 未修改过的默认变量如下
+  en:    The unmodified default variables are as follows
 
-- zh-CN: 其他环境变量如下：
-  en:    "Other environmental variables are as follows:"
+- zh-CN: 其他环境变量如下
+  en:    Other environmental variables are as follows
 
 - zh-CN: 不支持该命令<red2> $1 </red2>
   en:    The command <red2>$1</red2> is not supported
 
-- zh-CN: 如下命令与您输入的命令相似：
-  en:    "The following command is similar to the one you entered:"
+- zh-CN: 如下命令与您输入的命令相似
+  en:    The following command is similar to the one you entered
 
 - zh-CN: 异常退出
   en:    Abnormal exit
