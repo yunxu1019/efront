@@ -203,22 +203,62 @@ class Code extends Array {
 
 var avoidMap = null;
 var typeMap = Object.create(null);
-function scan() {
-    var [text, type = "js", lastIndex = 0] = arguments;
-    var fullpath = null;
-    if (/\.[^\.\/\\]+$/i.test(type)) {
-        fullpath = type;
-        type = /[^\.\/\\]+$/.exec(type)[0];
+function scan(text) {
+    var fullpath, type, lastIndex = 0, program;
+    for (var cx = 1, dx = arguments.length; cx < dx; cx++) {
+        var a = arguments[cx];
+        switch (typeof a) {
+            case "number":
+                lastIndex = a;
+                break;
+            case "string":
+                if (!fullpath) {
+                    fullpath = a;
+                    break;
+                }
+                else if (!type) {
+                    type = a;
+                    break;
+                }
+            case "object":
+            case "function":
+                type = a;
+                break;
+            default:
+                throw new Error('无效参数: ' + type);
+        }
     }
-    if (isFinite(type)) lastIndex = +type, type = arguments[2] || type;
-    var program = typeMap[type];
+    if (!type) {
+        if (/\.[^\.\/\\]+$/i.test(fullpath)) {
+            type = /[^\.\/\\]+$/.exec(fullpath)[0].toLowerCase();
+        }
+        else {
+            type = fullpath || 'js';
+        }
+    }
     if (!program) switch (type) {
         case "html":
-            program = typeMap[type] = new Html;
+        case "xht":
+        case "htm":
+        case "jsp":
+        case "asp":
+        case "php":
+        case "hta":
+        case "vue":
+            type = 'html';
+            program = typeMap[type];
+            if (!program) program = typeMap[type] = new Html;
             break;
         case "js":
+        case "ts":
+        case "jsx":
+        case "tsx":
+        case "mjs":
+        case "cjs":
         case "javascript":
-            program = typeMap[type] = new Javascript;
+            type = "js";
+            program = typeMap[type];
+            if (!program) program = typeMap[type] = new Javascript;
             break;
         default:
             if (type instanceof Function) {
@@ -228,7 +268,7 @@ function scan() {
                 program = type;
             }
             else {
-                console.error(i18n`类型不支持`, type)
+                throw new Error(i18n`类型不支持: ${console.format(`<red2>${type}</red2>`)}`);
             }
             break;
     }

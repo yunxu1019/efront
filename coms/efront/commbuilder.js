@@ -238,7 +238,7 @@ var loadJsBody = function (data, filename, lessdata, commName, className, htmlDa
     data = trimNodeEnvHead(data);
     data = data.replace(/\bDate\(\s*(['"`])(.*?)\1\s*\)/g, (match, quote, dateString) => `Date(${+new Date(dateString)})`);
     var destpaths = commbuilder.prepare === false ? [] : getRequiredPaths(data);
-    var code = scanner2(data);
+    var code = scanner2(data, filename, 'js');
     var hasExport = code.export || !code.first;
     var prequoted = removePrequoted(code);
     code.fix();

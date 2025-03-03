@@ -11,7 +11,9 @@ const {
     /* 512 */LABEL,
     /*1024 */PROPERTY,
     /*2048 */ELEMENT,
+    pickAssignment,
     createString,
+    setqueue,
     number_reg,
     digit_reg,
 } = require("./common");
@@ -53,6 +55,16 @@ var stringsFromRegExp = function (reg) {
     var res = combine(...queue).map(a => a.join(""));
     return res;
 }
+
+var trimDulp = function (list) {
+    var dist = [];
+    for (var a of list) {
+        if (dist.indexOf(a) >= 0) continue;
+        dist.push(a);
+    }
+    return dist;
+}
+
 var spaceDefined = require("../basic/spaces");
 
 var powermap = require("./powermap");
@@ -64,7 +76,7 @@ class Program {
         ["`", "`", /\\[\s\S]/, ["${", "}"]],
     ]
     tags = [
-        [["<", "</"], /\/?>/, /\\[\s\S]|\=\>/, "'", '"', "<!--", ["${", "}"]]
+        [["<", "</"], /\/?>/, /\\[\s\S]/, "'", '"', "<!--", ["${", "}"]]
     ];
     scriptTags = [];
     ignoreTags = ["STYLE", "SCRIPT"];
@@ -323,10 +335,10 @@ class Program {
         var scriptTags = this.scriptTags;
         var ignoreTags = this.ignoreTags;
         var structstrap_reg = this.structstrap_reg;
+        var mindpath = this.mindpath;
         var openTag = function () {
             var m1 = text.slice(start, match.index);
             var s = space_exp.exec(m1);
-
             if (s) var tag = m1.slice(0, s.index);
             else {
                 tag = m1;
@@ -373,7 +385,10 @@ class Program {
                 if (scope) queue = scope;
                 return true;
             }
-
+            if (s && !tag) {
+                undefTag();
+                return;
+            }
             queue.inTag = true;
             queue.tag = tag;
             var tagName = tag.toUpperCase();
@@ -386,7 +401,8 @@ class Program {
             }
             if (s) {
                 m = m1.slice(s[0].length + s.index);
-                if (m) save(PIECE);
+                start += s[0].length + s.index;
+                push_piece();
             }
             queue.first = null;
             queue.last = null;
@@ -405,12 +421,60 @@ class Program {
                 }
             }
             return istype;
+        };
+        var undefTag = () => {
+            var scope = {
+                type: STAMP,
+                text: queue.entry,
+                col: queue.col,
+                row: queue.row,
+                start: queue.start,
+            };
+            if (queue[0]) {
+                queue.splice(0, queue.length);
+                start = index = queue[0].start;
+            }
+            else {
+                queue = parents.pop();
+                start = index = scope.start + scope.text.length;
+            }
+            var last = queue.last;
+            if (last.type === PIECE) {
+                this.lastIndex = 0;
+                var thist = this.type;
+                this.type = undefined;
+                var res = this.exec(last.text);
+                this.type = thist;
+                this.lastIndex = index;
+                var prev = last.prev;
+                if (prev) {
+                    prev.next = res.first;
+                }
+                if (res.first) {
+                    res.first.prev = prev;
+                }
+                queue.last = res.last;
+                queue.splice(queue.length - 1, 1, ...res);
+                setqueue(res, queue);
+
+            }
+            queue_push(scope);
+
         }
         var closeTag = function () {
             queue.inTag = false;
+            if (text.charAt(index) === m) {
+                if ((m + m) in powermap) {
+                    if (!parents[parents.length - 1].tag) {
+                        undefTag();
+                        return false;
+                    }
+                }
+            }
             if (queue.closed) return;
             if (queue.length) queue.attributes = queue.splice(0, queue.length);
             if (/^\//.test(m) || queue.istype) return queue.short = true, queue.closed = true;
+            queue.tag_leave = m;
             return false;
         };
         var push_quote = function () {
@@ -506,10 +570,8 @@ class Program {
                             start = index = match.index;
                         }
                         else queue.inTag = false;
-
-                        continue;
+                        continue loop;
                     }
-
                     if (quote.end.test(m)) {
                         end = match.index;
                         if (queue.tag) {
@@ -517,7 +579,6 @@ class Program {
                             if (!queue.inTag) continue;
                             if (closeTag() === false) {
                                 start = index;
-                                queue.tag_leave = m;
                                 continue loop;
                             }
                             queue.type = ELEMENT;
@@ -542,7 +603,7 @@ class Program {
                             scope.entry = m;
                             scope.type = QUOTED;
                             if (queue.istype) scope.istype = queue.istype;
-                            scope.start = index;
+                            scope.start = match.index;
                             scope.isExpress = queue.inExpress;
                             push_parents(scope);
                             queue.inTag = 0;
@@ -708,7 +769,7 @@ class Program {
                 }
                 queue.inExpress = true;
                 queue.end = index;
-                queue.text = text.slice(queue.start, index);
+                queue.text = text.slice(start, index);
                 pop_parents();
                 continue;
             }
@@ -923,16 +984,12 @@ class Program {
         if (cache_stamp) push_stamp();
         this.lastIndex = index;
         if (queue !== origin) {
-            console.log(
-                "代码异常结束",
-                createString(origin.slice(0, 30)),
-                `\r\n ----- deep: ${parents.length}`,
-                `\r\n ---- enrty: ${queue.entry}`,
-                `\r\n --- length: ${queue.length}`,
-                `\r\n ----- last: ${queue.last ? createString([queue.last]).slice(0, 30) : createString(queue).slice(0, 30)}`,
-                `\r\n -- parents: ${parents.map(p => `${p.row}:${p.col}-${p.tag || p.text || p.entry} `).join('-)> ')}`,
-                `\r\n ----- snap: ${createString([queue]).slice(-200)}`,
-                `\r\n ------ end. `
+            var last = queue.last || queue;
+            console.warn(
+                "代码异常结束", createString(origin.slice(0, 30)),
+                `\r\n - 祖先标记: ${parents.slice(1).map(p => `<red2>${p.tag || p.text || ""}${p.entry || ""}</red2><gray>${p.row}:${p.col}</gray>`).join('')}`,
+                `\r\n - 内层入口: <yellow>${this.mindpath}</yellow>:${last.row}:${last.col} ${last.text || last.entry}`,
+                `\r\n ----- 快照: ${createString(pickAssignment(queue.last || queue))}`,
             );
             while (queue !== origin) {
                 queue.error = "代码异常结束";
@@ -968,24 +1025,6 @@ class Program {
             }
         });
         quoteslike.forEach(q => {
-            var ts = [];
-            var r = q.slice(q[2] ? 2 : 3).concat(q[1]).map(q => {
-                if (q instanceof Array) {
-                    if (q.length > 2) {
-                        ts.push(...q.slice(0, q.length - 2));
-                    }
-                    else if (q.length !== 2) throw new Error(i18n`配置错误！`);
-                    q = q[q.length - 2];
-                }
-                if (q instanceof RegExp) {
-                    return q.source;
-                }
-                return this.compile(q);
-            });
-            if (q.tag) r = r.concat(q.tag);
-            r = r.concat(ts.map(this.compile));
-            r = sortRegster(r).join("|");
-            q.reg = new RegExp(r, 'g');
             q.end = this.createRegExp([q[1]]);
             if (q.length >= 4) {
                 var entry = q.slice(3);
@@ -1030,6 +1069,32 @@ class Program {
         for (var k in this.powermap) if (k.length === 1 && stamps.indexOf(k) < 0) stamps.push(k);
         stamps.push.apply(stamps, powers);
         this.stamp_reg = new RegExp(`^(${stamps.map(this.compile).join('|')})$`);
+        quoteslike.forEach(q => {
+            var ts = [];
+            var r = q.slice(q[2] ? 2 : 3).concat(q[1]).map(q => {
+                if (q instanceof Array) {
+                    if (q.length > 2) {
+                        ts.push(...q.slice(0, q.length - 2));
+                    }
+                    else if (q.length !== 2) throw new Error(i18n`配置错误！`);
+                    q = q[q.length - 2];
+                }
+                if (q instanceof RegExp) {
+                    return q.source;
+                }
+                return this.compile(q);
+            });
+            if (q.tag) r = r.concat(q.tag, powers.filter(p => {
+                var tagentries = q.tag[0];
+                for (var t of tagentries) {
+                    if (p.indexOf(t) >= 0) return true;
+                }
+                return false;
+            }).map(this.compile));
+            r = r.concat(ts.map(this.compile));
+            r = sortRegster(trimDulp(r)).join("|");
+            q.reg = new RegExp(r, 'g');
+        })
     }
 }
 module.exports = Program;
