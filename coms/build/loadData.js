@@ -5,12 +5,16 @@ var getDependence = require("./getDependence");
 var memery = require("../efront/memery");
 var compile = require("./compile");
 var { include_required, rest_coms } = require("./environment");
+var isRest = rest_coms ? function (restcoms, p) {
+    return getPathIn(restcoms, p);
+}.bind(null, rest_coms.map(r => path.join(r[0], r[1]))) : function () { return false };
 function build(pages_root, lastBuiltTime, dest_root) {
     var responseTree = Object.create(null);
     var filterMap = Object.create(null);
     var destpathMap = Object.create(null);
     var resolve;
     var dependenceMap = Object.create(null);
+    var restRequired = Object.create(null);
     var builder = async function (roots) {
         roots = roots.sort().map(getBuildInfo).filter(a => {
             if (!a || !a.destpath) return false;
@@ -44,16 +48,20 @@ function build(pages_root, lastBuiltTime, dest_root) {
         var datas = await Promise.all(roots);
         datas.forEach(function (r) {
             responseTree[r.url] = r;
+            if (r.realpath && isRest(r.realpath) || r.url in restRequired) r.isrest = true;
         });
         var deps = {};
         var filter = r => {
-            if (/[\/\\]/.test(r)) return true;
+            if (/^\.*[\/\\]/.test(r)) return true;
             deps[r] = true;
             return false;
         };
-        datas = datas.map(getDependence).map(async function (a) {
+        var reqs = datas.map(getDependence).map(async function (a, i) {
             a.forEach((a, i, arr) => {
                 if (a in dependenceMap) arr[i] = dependenceMap[a];
+            });
+            a.forEach(a => {
+                restRequired[a] = true;
             });
             var required = (a.require || []).filter(filter);
             if (!include_required) return a.map(k => deps[k] = true);
@@ -63,9 +71,14 @@ function build(pages_root, lastBuiltTime, dest_root) {
             required3.forEach((r, cx) => {
                 map[required[cx]] = String(r);
             });
-            a.concat(required3).forEach(k => deps[k] = true);
+            var isrest = datas[i].isrest;
+            a.concat(required3).forEach(k => {
+                deps[k] = true;
+                if (isrest) restRequired[k] = true;
+            });
+
         });
-        await Promise.all(datas);
+        await Promise.all(reqs);
         return Object.keys(deps);
     };
     return new Promise(async function (ok) {
@@ -90,9 +103,10 @@ function build(pages_root, lastBuiltTime, dest_root) {
                         rest.push([p, path.join(n, f.name)]);
                     }
                     else {
-                        if (!/\.([cm]?jsx?|xht|tsx?|vue)$/i.test(f.name) || name in finded) continue;
-                        finded[name] = true;
+                        if (!/\.([cm]?jsx?|xht|tsx?|vue)$/i.test(f.name)) continue;
                         var name = path.join(n, f.name).replace(/[\\\/]/g, '$').replace(/\.[^\.\/]+$/, '');
+                        if (name in finded) continue;
+                        finded[name] = true;
                         roots.push(name);
                     }
                 }

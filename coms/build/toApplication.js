@@ -151,7 +151,7 @@ var buildHtml = function (html, code, outsideMain, responseTree) {
                 if (!k) break a;
                 var scriptData = responseTree[k].data;
                 if (!scriptData) break a;
-                delete responseTree[k];
+                if (!responseTree[k].isrest) delete responseTree[k];
                 if (memory.COMPRESS) {
                     scriptData = scanner2(scriptData.toString()).press(memory.KEEPSPACE).toString();
                 }
@@ -392,7 +392,7 @@ var patchData = function (mainScriptData, mainScript, responseTree) {
         up = Infinity;
         limit = Infinity;
     }
-    Object.keys(responseTree).filter((k) => {
+    var rests = Object.keys(responseTree).filter((k) => {
         var v = responseTree[k];
         if (!isEfrontCode(v)) return false;
         if (v === mainScript) return false;
@@ -401,8 +401,21 @@ var patchData = function (mainScriptData, mainScript, responseTree) {
         up += data.length;
         if (up > limit) return true;
         cached.push(k);
-        return false;
-    }).sort().forEach(function (k) {
+        return v.isrest;
+    }).sort();
+
+    if (cached.length) {
+        var xTreeName = /(?:\bresponseTree\s*|\[\s*(["'])responseTree\1\s*\])\s*[\:\=]\s*(.+?)\b/m.exec(mainScriptData);
+        if (xTreeName) xTreeName = xTreeName[2];
+        else xTreeName = "responseTree";
+        var code = "{\r\n\t" + cached.sort().map(k => {
+            var v = responseTree[k];
+            if (!v.isrest) delete responseTree[k];
+            return `["${v.name}"]:${strings.encode(String(v.data))}`;
+        }).join(",\r\n\t") + "\r\n}";
+        mainScriptData = replaceTree(mainScriptData, xTreeName, code);
+    }
+    rests.forEach(function (k) {
         var v = responseTree[k];
         v.data = encrypt(v.data, encoded);
         var responseVersion = crc([].map.call(v.data.toString(), e => e.charCodeAt(0))).toString(36) + (+v.data.length).toString(36);
@@ -418,17 +431,6 @@ var patchData = function (mainScriptData, mainScript, responseTree) {
     }
     else {
         commbuilder.ignoreUse_reg = /#decrypt_?\.js/;
-    }
-    if (cached.length) {
-        var xTreeName = /(?:\bresponseTree\s*|\[\s*(["'])responseTree\1\s*\])\s*[\:\=]\s*(.+?)\b/m.exec(mainScriptData);
-        if (xTreeName) xTreeName = xTreeName[2];
-        else xTreeName = "responseTree";
-        var code = "{\r\n\t" + cached.sort().map(k => {
-            var v = responseTree[k];
-            delete responseTree[k];
-            return `["${v.name}"]:${strings.encode(String(v.data))}`;
-        }).join(",\r\n\t") + "\r\n}";
-        mainScriptData = replaceTree(mainScriptData, xTreeName, code);
     }
     return mainScriptData;
 };
