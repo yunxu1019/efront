@@ -7,12 +7,37 @@
         display: block;
         padding: 6px 0;
     }
+
+    &.noinput {
+        &:before {
+            position: absolute;
+            background: #c24;
+            color: #fff;
+            left: 0;
+            right: 0;
+            top: 0;
+            height: 20px;
+            line-height: 20px;
+            font-size: 16px;
+            display: block;
+            content: "当前浏览器编辑会造成异常";
+        }
+    }
 </style>
-<编辑框 e-class="上色.className" e-style="{whiteSpace:'pre'}" onkeyup="!event.isComposing&&updatecode(event)"
-    onkeydown.tab="keytab(event)" onkeyup.enter="tab(false)">
+<编辑框 spellcheck=false e-class="上色.className" e-style="{whiteSpace:'pre'}" onkeydown="updatechar"
+    onkeydown.tab.prevent.only="keytab(1)" onkeydown.tab.shift.prevent.only="keytab(-1)" onkeyup.enter.only="tab(false)"
+    oninput='!event.isComposing&&updatecode(event)' onkeydown.space.only='fixpace'>
 </编辑框>
 <script>
     var coder = this;
+    if (!('oninput' in document)) {
+        on('focus')(this, function () {
+            if (this.contentEditable) addClass(this, "noinput");
+        });
+        on('blur')(this, function () {
+            removeClass(this, 'noinput');
+        })
+    }
     var coderid = 0;
     care(coder, async function ([text, type]) {
         try {
@@ -29,9 +54,9 @@
         coder.innerHTML = colored;
     };
     coder.getValue = function () {
-        return coder.innerText.replace(/[\u00a0\u2002]/g, ' ');
+        return coder.innerText;
     };
-    var markAnchorOffset = function () {
+    var markAnchorOffset = function (光标) {
         var { anchorNode, anchorOffset } = document.getSelection();
         if (!anchorNode || !coder) return;
         var [c] = coder.children;
@@ -130,13 +155,127 @@
         coder.scrollTop = scrollTop;
         coder.scrollLeft = scrollLeft;
     };
-    var updatecode = lazy(async function (event) {
+    var anchorChar = null, inText = false;
+    var followChar = null, beforeText = false;
+    var fixpace = function (event) {
+        event.preventDefault();
+        document.execCommand('insertText', false, ' ');
+    };
+    var updatechar = function (event) {
+        var { anchorNode, anchorOffset } = document.getSelection();
+        if (!coder || !anchorNode) return;
+        while (anchorNode.nodeType === 1) {
+            var { childNodes } = anchorNode;
+            if (childNodes.length > anchorOffset) {
+                anchorNode = childNodes[anchorOffset];
+                anchorOffset = 0;
+            }
+            else {
+                anchorNode = anchorNode.lastChild;
+                if (anchorNode.nodeType === 1) anchorOffset = anchorNode.childNodes.length;
+                else anchorOffset = anchorNode.nodeValue.length;
+            }
+            if (anchorOffset === 0) {
+                anchorNode = anchorNode.previousSibling || anchorNode.parentNode.previousSibling;
+                if (!anchorNode) return;
+                if (anchorNode.nodeType === 1 && anchorNode.lastChild) {
+                    anchorNode = anchorNode.lastChild;
+                    anchorOffset = anchorNode.nodeValue.length;
+                }
+                else {
+                    anchorOffset = anchorNode.childNodes.length;
+                }
+            }
+        }
+        if (anchorNode.nodeType === 3) {
+
+            inText = /^text$/i.test(anchorNode.parentNode.tagName);
+            beforeText = inText;
+            if (anchorOffset > 0) {
+                anchorChar = anchorNode.nodeValue.charAt(anchorOffset - 1);
+            }
+            else {
+                anchorChar = '';
+            }
+            if (anchorOffset >= anchorNode.nodeValue.length) {
+                followChar = anchorNode.nextSibling || anchorNode.parentNode.nextSibling;
+                if (followChar.nodeType === 1) {
+                    beforeText = /^text$/i.test(followChar.tagName);
+                    followChar = followChar.innerText.charAt(0);
+                }
+                else if (followChar.nodeType === 3) {
+                    beforeText = /^text$/i.test(followChar.parentNode.tagName);
+                    followChar = followChar.nodeValue.charAt(0);
+                }
+                else {
+                    followChar = '';
+                }
+            }
+            else {
+                followChar = anchorNode.nodeValue.charAt(anchorOffset);
+            }
+
+        }
+        else {
+            inText = false;
+            beforeText = false;
+            followChar = '';
+        }
+
+    };
+    var pairsmap = Object.create(null);
+    [
+        `""`,
+        "''",
+        '``',
+        "()",
+        "[]",
+        "{}",
+    ].forEach(a => {
+        var [k, p] = a.split('');
+        pairsmap[k] = p;
+    });
+
+    var updatecode = function (event) {
+        var { data, inputType } = event;
+        var patchAfter = '';
+        switch (inputType) {
+            case "insertText":
+                if (anchorChar in pairsmap) {
+                    console.log(followChar, data, anchorChar)
+                    if (followChar === pairsmap[anchorChar] && data === followChar) {
+                        document.execCommand('forwardDelete');
+                    }
+                    else if (data in pairsmap) {
+                        if (inText || beforeText) return;
+                        patchAfter = pairsmap[data];
+                    }
+                }
+                else {
+                    if (data in pairsmap) {
+                        if (inText || beforeText) return;
+                        patchAfter = pairsmap[data];
+                    }
+                }
+                break;
+            case "insertParagraph": return;
+            case "deleteContentForward": return;
+            case "deleteContentBackward":
+                if (anchorChar in pairsmap && followChar === pairsmap[anchorChar]) {
+                    document.execCommand('forwardDelete');
+                }
+                if (inText) return;
+                updatechar();
+                if (inText) return;
+                break;
+
+        }
+        updateonly(patchAfter);
+    };
+    var updateonly = lazy(async function (after) {
         var id = ++coderid;
-        var trimreg = /[\s\u00a0\u2002\u0080]+([\}\{\;\[\]\(\)\,\>\<\+\-\*\&\^\/%!~:?])*/g;
-        var innerText = coder.innerText;
-        if (jstext.replace(trimreg, trimspace).trim() === innerText.replace(trimreg, trimspace).trim()) return;
-        jstext = innerText;
-        markAnchorOffset();
+        jstext = coder.innerText;
+        markAnchorOffset(光标 + after);
         var innerText = coder.innerText;
         unmarkAnchorOffset();
         var text = await 上色.text(coder.type, innerText);
@@ -146,9 +285,8 @@
         dispatch(coder, 'change');
         return;
     });
-    var keytab = function (event) {
-        event.preventDefault();
-        tab();
+    var keytab = function (direction) {
+        tab(direction);
     };
 
 </script>
