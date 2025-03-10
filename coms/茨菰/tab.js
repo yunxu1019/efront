@@ -1,4 +1,4 @@
-var ensp = s => Array(s + 1).join("\u2002"/*&ensp*/);
+var ensp = s => Array(s + 1).join(" "/*&ensp*/);
 var getEnspBefore = function (node) {
     if (!node) return 0;
     while (node && (node.nodeType !== 1 || !/^br$/i.test(node.tagName))) {
@@ -14,7 +14,31 @@ var getEnspBefore = function (node) {
 };
 return function (forcetab) {
     var selection = document.getSelection();
-    var { anchorNode, anchorOffset } = selection;
+    var { anchorNode, anchorOffset, focusNode, focusOffset } = selection;
+    if (anchorNode !== focusNode || anchorOffset !== focusOffset) return;
+    if (forcetab < 0) {
+        var tempNode = anchorNode;
+        var space = ensp(4);
+        while (tempNode) {
+            if (tempNode.nodeType === 1) {
+                if (/^br$/i.test(tempNode.tagName)) return;
+                tempNode = tempNode.lastChild || tempNode.previousSibling;
+                continue;
+            }
+            if (tempNode.nodeValue.indexOf(space) >= 0) {
+                tempNode.nodeValue = tempNode.nodeValue.replace(space, '');
+                if (tempNode === anchorNode) {
+                    anchorOffset -= 4;
+                    if (anchorOffset < 0) anchorOffset = 0;
+                    selection.setBaseAndExtent(tempNode, anchorOffset, tempNode, anchorOffset);
+                }
+                return;
+            }
+            if (/[\r\n\u2028\u2029]/.test(tempNode.nodeValue)) return;
+            tempNode = tempNode.previousSibling || tempNode.parentNode?.previousSibling;
+        }
+        return;
+    }
     if (anchorNode.nodeType === 1) {
         var child = anchorNode.childNodes[anchorOffset];
         var spaceSize = 4;
