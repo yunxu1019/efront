@@ -43,7 +43,7 @@ instanceof`.trim().split(/[,\s]+/);
 var colonstrap_reg = /^(case|default)$/;
 class Javascript extends Program {
     straps = straps;
-    value_reg = /^(false|true|null|Infinity|NaN|undefined|eval)$/
+    value_reg = /^(false|true|null|Infinity|NaN|undefined|eval|this|arguments)$/
     transive_reg = /^(new|var|let|const|yield|void|in|of|typeof|delete|case|return|await|instanceof|throw|extends|import|from)$/
     strapexp_reg = /^(new|void|typeof|delete|class|function|await)/;
     forceend_reg = /^(return|yield|break|continue|debugger|async)$/;
