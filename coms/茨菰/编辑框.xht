@@ -148,12 +148,12 @@
         return document.getSelection().setBaseAndExtent(child, offset, child, offset);
     }
     var trimspace = (_, a) => a ? "" : " ";
-    var jstext = "";
     var 更新 = function (colored) {
         var { scrollTop, scrollLeft } = coder;
         coder.innerHTML = colored;
         coder.scrollTop = scrollTop;
         coder.scrollLeft = scrollLeft;
+        unmarkAnchorOffset();
     };
     var anchorChar = null, inText = false;
     var followChar = null, beforeText = false;
@@ -162,33 +162,55 @@
         document.execCommand('insertText', false, ' ');
     };
     var updatechar = function (event) {
+        coderid++;
         var { anchorNode, anchorOffset } = document.getSelection();
         if (!coder || !anchorNode) return;
-        while (anchorNode.nodeType === 1) {
-            var { childNodes } = anchorNode;
-            if (childNodes.length > anchorOffset) {
-                anchorNode = childNodes[anchorOffset];
-                anchorOffset = 0;
-            }
-            else {
-                anchorNode = anchorNode.lastChild;
-                if (anchorNode.nodeType === 1) anchorOffset = anchorNode.childNodes.length;
-                else anchorOffset = anchorNode.nodeValue.length;
+        while (anchorNode.nodeType === 1 || anchorOffset === 0) {
+            if (anchorNode.nodeType === 1) {
+                var { childNodes } = anchorNode;
+                if (childNodes.length > 0) {
+                    if (anchorOffset >= childNodes.length) {
+                        anchorNode = anchorNode.lastChild;
+                        if (anchorNode.nodeType === 1) anchorOffset = anchorNode.childNodes.length;
+                        else anchorOffset = anchorNode.nodeValue.length;
+                    }
+                    else {
+                        anchorNode = childNodes[anchorOffset];
+                        anchorOffset = 0;
+                    }
+                }
+                else {
+                    anchorNode = anchorNode.previousSibling;
+                    if (anchorNode.nodeType === 1) anchorOffset = anchorNode.childNodes.length;
+                    else anchorOffset = anchorNode.nodeValue.length;
+                }
             }
             if (anchorOffset === 0) {
                 anchorNode = anchorNode.previousSibling || anchorNode.parentNode.previousSibling;
                 if (!anchorNode) return;
-                if (anchorNode.nodeType === 1 && anchorNode.lastChild) {
-                    anchorNode = anchorNode.lastChild;
-                    anchorOffset = anchorNode.nodeValue.length;
-                }
-                else {
-                    anchorOffset = anchorNode.childNodes.length;
-                }
+                do {
+                    if (anchorNode.nodeType === 1) {
+                        if (anchorNode.lastChild) {
+                            anchorOffset = anchorNode.childNodes.length;
+                        }
+                        else {
+                            anchorNode = anchorNode.previousSibling;
+                        }
+                    }
+                    else {
+                        if (anchorNode.nodeValue) {
+                            anchorOffset = anchorNode.nodeValue.length;
+                            break;
+                        }
+                        else {
+                            anchorNode = anchorNode.previousSibling || anchorNode.parentNode.previousSibling;
+                        }
+                    }
+                } while (anchorChar?.nodeType === 3 || anchorOffset === 0);
             }
+            if (!anchorNode) return;
         }
         if (anchorNode.nodeType === 3) {
-
             inText = /^text$/i.test(anchorNode.parentNode.tagName);
             beforeText = inText;
             if (anchorOffset > 0) {
@@ -235,14 +257,16 @@
         var [k, p] = a.split('');
         pairsmap[k] = p;
     });
-
+    var codeHistory = [];
+    var historyIndex = 0;
     var updatecode = function (event) {
         var { data, inputType } = event;
+        coderid++;
         var patchAfter = '';
+        console.log("follow-char", followChar, 'data', data, 'anchor-char', anchorChar);
         switch (inputType) {
             case "insertText":
                 if (anchorChar in pairsmap) {
-                    console.log(followChar, data, anchorChar)
                     if (followChar === pairsmap[anchorChar] && data === followChar) {
                         document.execCommand('forwardDelete');
                     }
@@ -270,21 +294,21 @@
                 break;
 
         }
-        updateonly(patchAfter);
+        markAnchorOffset(光标 + patchAfter);
+        var markedText = coder.innerText;
+        historyIndex = codeHistory.length;
+        codeHistory.push(coder.innerHTML);
+        unmarkAnchorOffset();
+        updateonly(coderid, markedText);
     };
-    var updateonly = lazy(async function (after) {
-        var id = ++coderid;
-        jstext = coder.innerText;
-        markAnchorOffset(光标 + after);
-        var innerText = coder.innerText;
-        unmarkAnchorOffset();
-        var text = await 上色.text(coder.type, innerText);
+    var updateonly = lazy(async function (id, markedText) {
         if (coderid !== id) return;
-        更新(text);
-        unmarkAnchorOffset();
+        markedText = await 上色.text(coder.type, markedText);
+        if (coderid !== id) return;
+        更新(markedText);
         dispatch(coder, 'change');
         return;
-    });
+    }, -60);
     var keytab = function (direction) {
         tab(direction);
     };
