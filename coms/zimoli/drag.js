@@ -15,6 +15,11 @@ var getOffset = function (e) {
     if (isFinite(e.screenLeft)) return [e.screenLeft, e.screenTop];
     if (isFinite(e.screenX)) return [e.screenX, e.screenY];
 };
+
+var getMouse = function (e) {
+    console.log(e)
+    return [e.clientX, e.clientY];
+};
 var z;
 var addZIndex = function (clone) {
     if (clone.style) clone.style.zIndex = z + (+clone.style.zIndex || 0);
@@ -47,7 +52,7 @@ function drag(target, initialEvent, preventOverflow, isMovingSource) {
     if ((!target.hasAttribute || target.hasAttribute('draggable')) && target.draggable === false) return;
     initialEvent.preventDefault();
     var target_offset = getOffset(target);
-    var saved_delta = { x: target_offset[0] - initialEvent.screenX, y: target_offset[1] - initialEvent.screenY };
+    var saved_delta = { x: target_offset[0] - initialEvent.clientX, y: target_offset[1] - initialEvent.clientY };
     var clone;
     if (target.style) {
         var saved_opacity = target.style.opacity;
@@ -87,8 +92,8 @@ function drag(target, initialEvent, preventOverflow, isMovingSource) {
             dispatch("dragstart", target);
         }
         event.moveLocked = true;
-        var offsetLeft = saved_delta.x + event.screenX;
-        var offsetTop = saved_delta.y + event.screenY;
+        var offsetLeft = saved_delta.x + event.clientX;
+        var offsetTop = saved_delta.y + event.clientY;
         var [c_left, c_top] = getOffset(clone);
         var cloneDeltaLeft = -c_left, cloneDeltaTop = -c_top;
         var [c_left, c_top] = move.call(clone, offsetLeft, offsetTop, preventOverflow);
