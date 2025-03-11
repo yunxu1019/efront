@@ -76,9 +76,8 @@ var run = async function () {
     run.ing = true;
     quitting = quitting.concat(waiters, workers);
     waiters = [];
-    var dbworker = message.forkThread();
-    bindWorker(dbworker, ["dbList", 'dbLoad', 'dbFind', 'dbSave', 'dbPatch', 'dbDrop']);
-    workers = [dbworker];
+    workers = [];
+    bindWorker(["dbList", 'dbLoad', 'dbFind', 'dbSave', 'dbPatch', 'dbDrop']);
     var count = memery.WAITER_NUMBER;
     while (count-- > 0) {
         var waiter = createWaiter();
@@ -89,6 +88,7 @@ var run = async function () {
     exit();
     run.ing = false;
 };
+
 var isDevelop = function develop() { return develop.name === 'develop' }();
 var watch = require("./watch");
 if (isDevelop) [
@@ -122,7 +122,20 @@ message.deliver = function (a) {
         }, null);
     });
 };
-var bindWorker = function (w, methods) {
+var bindWorker = function (methods) {
+    var w = null;
+    methods.forEach(m => {
+        message[m] = function (params) {
+            if (!w) {
+                w = message.forkThread();
+                workers = [w];
+                bindThread(w, methods);
+            }
+            return message.invoke(w, m, params);
+        };
+    });
+};
+var bindThread = function (w, methods) {
     methods.forEach(m => {
         message[m] = function (params) {
             return message.invoke(w, m, params)
