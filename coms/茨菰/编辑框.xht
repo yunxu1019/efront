@@ -266,6 +266,7 @@
         console.log("follow-char", followChar, 'data', data, 'anchor-char', anchorChar);
         switch (inputType) {
             case "insertText":
+                if (data === ' ') return;
                 if (anchorChar in pairsmap) {
                     if (followChar === pairsmap[anchorChar] && data === followChar) {
                         document.execCommand('forwardDelete');
