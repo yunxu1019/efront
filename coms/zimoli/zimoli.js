@@ -592,9 +592,13 @@ function addGlobal(element, name = null, isBack) {
         if (isFunction(body.layer)) {
             body.layer(element, oldElement, history);
         } else if (body !== element) {
+            if (oldElement) {
+                var oldPrev = oldElement.previousSibling, oldPare = oldElement.parentNode;
+                remove(oldElement);
+                oldElement = oldPrev || oldPare.firstChild;
+            }
             if (isBack || !oldElement) appendChild.insert(body, element);
             else appendChild.after(oldElement, element);
-            remove(oldElement);
         }
         global[name] = element;
     } else if (isNode(name)) {

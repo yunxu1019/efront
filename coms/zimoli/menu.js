@@ -89,9 +89,11 @@ var getTreeNodes = function (elem) {
     [].forEach.call(elem.children, run);
     return nodes;
 };
-
+var menusList = [];
+var menusActived = data.getInstance('zimoli-actived');
 function main() {
     var [elem, mode] = arguments;
+    var istag = false;
     if (isElement(elem)) {
         // var os = /Samsung|Firefox|Chrome|MSIE|Safari/i.exec(navigator.userAgent);
         // if (os) {
@@ -111,13 +113,16 @@ function main() {
                 || elem.hasAttribute('tools')
                 || elem.hasAttribute('bar')
             ) mode = "toolbar";
+            else if (elem.hasAttribute('tag') || elem.hasAttribute('tagbar')) {
+                mode = 'tag';
+            }
         }
         if (!mode) {
-            if (/^[xyhvtci]/i.test(elem.tagName)) {
+            if (/^[xyhvtcig]/i.test(elem.tagName)) {
                 mode = elem.tagName.slice(0, 1);
                 if (/^t$/i.test(mode)) mode = elem.tagName.slice(0, 2);
             }
-            else if (/[xyhvci]$/i.test(elem.tagName)) {
+            else if (/[xyhvcig]$/i.test(elem.tagName)) {
                 mode = elem.tagName.slice(elem.tagName.length - 1);
             }
         }
@@ -132,7 +137,7 @@ function main() {
                 if (elem) {
                     var generator = getGenerator(elem, 'menu-item');
                     care(elem, function (src) {
-                        if (src) src = getTreeFromData(src);
+                        if (src) src = getTreeFromData(src, selectedId);
                         var hasIcon = src.hasIcon;
                         elem.useIcon = hasIcon;
                         elem.src = src;
@@ -157,6 +162,10 @@ function main() {
             case "toolbar":
                 direction = 't';
                 mode = "toolbar";
+            case "tag":
+            case "tagbar":
+            case "g":
+                istag = true;
             case "h":
             case "x":
             case "horizonal":
@@ -176,7 +185,7 @@ function main() {
                     care(elem, function (src) {
                         bindGlobalkey(elem, src.keymap);
                         src0.splice(0, src0.length);
-                        var s = getTreeFromData(src);
+                        var s = getTreeFromData(src, selectedId);
                         if (s.actived) {
                             elem.selected = s.actived;
                         }
@@ -207,6 +216,21 @@ function main() {
     if (!elem.hasAttribute('mode')) elem.setAttribute('mode', mode);
     if (!elem.hasAttribute(mode)) elem.setAttribute(mode, '');
     elem.target = document.body;
+    var selectedId = null;
+    if (istag) {
+        on("remove")(elem, function () {
+            removeFromList(menusList, elem);
+        });
+        on('append')(elem, function () {
+            selectedId = menusActived[menusList.length] || 1;
+            menusList.push(elem);
+        });
+        on('actived')(elem, function () {
+            var i = menusList.indexOf(elem) + 1;
+            menusList.splice(i, menusList.length - i);
+            data.setInstance('zimoli-actived', menusList.map(e => e.selected?.id));
+        });
+    }
     return elem;
 
 }

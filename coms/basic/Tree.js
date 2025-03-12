@@ -19,7 +19,7 @@ class Tree extends Array {
         super();
         this.root = this;
     }
-    static fromData(array) {
+    static fromData(array, activeId) {
         if (array && array.coustructor === Tree) return array;
         var root = new Tree;
         root.tab = -Infinity;
@@ -28,15 +28,26 @@ class Tree extends Array {
         array = array.filter(a => !!a);
         var active_item = null;
         var hasIcon = [];
+        var actived_item = null;
+        Item.id = 0;
         array.forEach(function (data) {
             var item = new Item(data);
-            if (!active_item && item.isActived()) active_item = item;
+            if (!active_item) {
+                if (item.isActived()) active_item = item;
+            }
+            if (!actived_item) {
+                if (item.id === activeId) actived_item = item;
+            }
             if (data.id) {
                 map[data.id] = item;
             } else {
                 root.push(item);
             }
         });
+        if (!active_item && actived_item) {
+            actived_item.setActive(true);
+            active_item = actived_item;
+        }
         array.forEach(function (data) {
             if (!data) return;
             var parent = map[data.parentId];
@@ -87,6 +98,7 @@ class Tree extends Array {
         root.tab = -Infinity;
         root.count = 0;
         root.total = 0;
+        Item.id = 0;
         var path = [root];
         for (var cx = 0, dx = array.length; cx < dx; cx++) {
             var arg = array[cx];

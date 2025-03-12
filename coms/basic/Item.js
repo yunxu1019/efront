@@ -10,15 +10,15 @@ function pathTo(find, item, path) {
         if (pathTo(find, m, path)) return path;
     }
 }
-var id = 0;
 class Item extends Array {
     extended = false;
+    static id = 0;
     constructor(value) {
         super();
         this.count = 0;//子项中的叶子节点数
         this.total = 0;//子项中的节点数
         this.crack = 0;
-        this.id = ++id;
+        this.id = ++Item.id;
         this.extends(value, false);
     }
     extends(value, mark) {
