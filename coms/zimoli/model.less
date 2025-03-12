@@ -6,13 +6,6 @@
 &[type=select] {
     position: relative;
 
-    >.select:hover,
-    >.select:active {
-        &+.placeholder {
-            color: #fff9;
-        }
-    }
-
     .placeholder {
         color: #0009;
         padding-left: 6px;
@@ -24,6 +17,9 @@
         z-index: 1;
         pointer-events: none;
         display: block;
+        border: none;
+        outline: none;
+        background: none;
     }
 
     .select[empty] {

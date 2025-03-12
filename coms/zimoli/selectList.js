@@ -79,6 +79,7 @@ function main() {
         var key = isEmpty(option.key) ? option.value : option.key;
         if (key in itemMap) return itemMap[key];
         var item = itemMap[key] = document.createElement('div');
+        if (isEmpty(key)) item.setAttribute('empty', '');
         item.setAttribute("item", '');
         item.innerHTML = option.innerHTML || option.name;
         item.name = option.name || option.innerHTML;

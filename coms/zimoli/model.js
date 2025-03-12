@@ -170,7 +170,7 @@ var constructors = {
             if (field.holder) _.innerHTML = `<span -if="isEmpty(data[field.key])" class="placeholder">${field.holder}</span>`;
             if (!isEmpty(o?.key)) {
                 field.options.unshift({
-                    name: i18n`选择${field.name}`,
+                    name: field.holder || i18n`选择${field.name}`,
                     key: ''
                 })
             }
