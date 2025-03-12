@@ -170,6 +170,7 @@ require2.getTaskParams = async function (taskid) {
 };
 require2.invokeTask = async function (taskid, data) {
     var task = await getLoadedTask(taskid);
+    if (!task) return;
     var params = task.params;
     if (params) {
         data = require("../crypt/encode62").timedecode(data);
