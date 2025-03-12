@@ -1,7 +1,7 @@
 "use ./KMGT.txt"
 function scanBlock(piece) {
     if (!piece) return [];
-    var reg = /\\[\s\S]|^\s*[#\-]\s*|\s+|"|'/mg;
+    var reg = /\\[\s\S]|^\s*[#\-]\s*|\s+|"|'|\^/mg;
     var res = [];
     var lastIndex = 0;
     var save = function (a) {
@@ -18,13 +18,19 @@ function scanBlock(piece) {
         });
         res.push(a);
     };
+    var avoid = false;
     for (var cx = 0, dx = piece.length; cx < dx; cx++) {
         reg.lastIndex = cx;
         var m = reg.exec(piece);
         if (m) {
             var s = m[0];
-            if (/^\s+$/.test(s)) {
-                save(piece.slice(lastIndex, reg.lastIndex));
+            if (/^(\s+|\^)$/.test(s)) {
+                if (s === '^') {
+                    avoid = res.length;
+                }
+                else {
+                    save(piece.slice(lastIndex, reg.lastIndex));
+                }
                 lastIndex = reg.lastIndex;
             } else if (/^["']$/i.test(s)) {
                 var i = piece.indexOf(s, cx + 1);
@@ -39,6 +45,7 @@ function scanBlock(piece) {
             break;
         }
     }
+    if (avoid !== false) res.avoid = avoid;
     return res;
 }
 
@@ -262,7 +269,22 @@ function spreadkey(name) {
     }
     return [name, key, needs, holder];
 }
+function parseOptions(options) {
+    if (typeof options === "string" && !/^[\$#]+\d+$/.test(options)) {
+        var needUnfold = /^\[|\]$/.test(options);
+        options = options.replace(/^\[|\]$/g, '');
+        if (needUnfold || /,/.test(options)) options = scanSlant(options, ',');
+        else options = scanSlant(options, "");
+        if (needUnfold) unfoldOptions(size, options);
+    }
+    return options;
+}
 function parse(piece) {
+    var avoid1 = null;
+    if (piece.avoid != null) {
+        avoid1 = piece[piece.avoid];
+        piece.splice(piece.avoid, 1);
+    }
     if (/^[\-#]+$/.test(piece[0])) {
         var piece0 = piece.pop();
         piece[0] = piece0 + (piece[0] || '').trim();
@@ -293,7 +315,8 @@ function parse(piece) {
             holder,
             do: action,
             editable,
-            needs, checks, repeat, endwith,
+            avoid,
+            needs, valid, repeat, endwith,
             required, inlist, hidden, readonly,
             delete_onempty, delete_onsubmit,
         } = name;
@@ -416,18 +439,12 @@ function parse(piece) {
         } else if (/^[\/]/.test(type)) {
             type = type.slice(1);
         }
-        if (typeof options === "string" && !/^[\$#]+\d+$/.test(options)) {
-            var editable = false;
-            if (/^[\+\-\*]|[\+\-\*]$/.test(options)) {
-                editable = true;
-                options = options.replace(/^[\+\-\*]|[\+\*\-]$/g, '');
-            }
-            var needUnfold = /^\[|\]$/.test(options);
-            options = options.replace(/^\[|\]$/g, '');
-            if (needUnfold || /,/.test(options)) options = scanSlant(options, ',');
-            else options = scanSlant(options, "");
-            if (needUnfold) unfoldOptions(size, options);
+        if (typeof options === 'string' && /^[\+\-\*]|[\+\-\*]$/.test(options)) {
+            editable = true;
+            options = options.replace(/^[\+\-\*]|[\+\*\-]$/g, '');
         }
+        options = parseOptions(options);
+        avoid = parseOptions(avoid1 || avoid);
         name = is(name);
         key = is(key);
     }
@@ -440,8 +457,9 @@ function parse(piece) {
         name, type, key, value, comment, options,
         editable,
         size, unit, ratio, holder,
-        needs, checks, repeat, endwith,
+        needs, valid, repeat, endwith,
         required, inlist, hidden, readonly,
+        avoid,
         do: action,
         delete_onempty, delete_onsubmit,
     };
@@ -481,11 +499,13 @@ function refilm_decode(str) {
             if (!m) break;
             var piece = s.slice(lastIndex, m.index);
             piece = scanBlock(piece);
+            if (piece.avoid != null) {
+                rest.avoid = rest.length + piece.avoid;
+            }
+            if (piece) rest.push.apply(rest, piece);
             if (m[0].length || cx + 1 === dx) {
-                result.push(rest.concat(piece));
-                rest.splice(0, rest.length);
-            } else {
-                if (piece) rest.push.apply(rest, piece);
+                result.push(rest);
+                rest = [];
             }
             lastIndex = m.index + m[0].length;
         } while (lastIndex < s.length);

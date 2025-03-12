@@ -14,6 +14,9 @@ function valid(field, data) {
         }
         return;
     }
+    if (field.avoid) for (var a of field.avoid) {
+        if (a[field.key] === data[field.key]) return i18n`已存在${field.name}为${data[field.key]}的项`;
+    }
     var tmp = validators[field.type];
     if (tmp) {
         var value = data[field.key];
