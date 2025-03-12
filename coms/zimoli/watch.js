@@ -2,8 +2,10 @@ function watcher({ changes }) {
     var watches = this.$watches;
     for (var k in changes) {
         if (k in watches) {
+            var h = watches[k];
             var { current, previous } = changes[k];
-            watches[k].call(this, current, previous);
+            if (h instanceof Function) h.call(this, current, previous);
+            else if (h instanceof Array) h.forEach(h => h.call(this, current, previous));
         }
     }
 }

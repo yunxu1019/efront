@@ -65,7 +65,7 @@ var addRenderElement = function () {
         if (element.$renderid < 10 && element.$renderid > 0) element.$renderid = ++renderidOffset;
         renderElements[element.$renderid] = element;
     }
-    rebuild(element);
+    buildFirst(element);
 };
 var removeRenderElement = function () {
     var element = this;
@@ -92,23 +92,53 @@ function refresh(root) {
     }
     if (rest.length) rest.forEach(a => removeRenderElement.call(a));
 }
-function rebuild(element) {
+function fireChanges(element, changes) {
+    var event = createEvent('changes');
+    event.changes = changes;
+    dispatch(event, element);
+}
+function buildFirst(element) {
     if (!element.$needchanges) {
         element.$renders.forEach(a => a.call(element));
         return;
     }
+    var capture = null;
+    var data = getWatchData(element);
+
+    for (var key in data) {
+        var v = data[key];
+        if (isHandled(v)) {
+            if (!capture) capture = {};
+            capture[key] = { current: v };
+        }
+    }
+    if (capture) fireChanges(element, capture);
+}
+function getWatchData(element) {
+    var { $watches } = element;
     var props = {};
-    Object.keys(element).forEach(function (key) {
+    for (var key in $watches) {
         var data = element[key];
         props[key] = isObject(data) && !isFunction(data) && !isDate(data) && !isNode(data) ? extend(data instanceof Array ? [] : {}, data) : data;
-    });
-    element.$renders.forEach(a => a.call(element));
-    var changes = getChanges(element, props);
-    if (changes) {
-        var event = createEvent('changes');
-        event.changes = changes;
-        dispatch(event, element);
     }
+    return props;
+}
+function rebuild(element, isFirstRender) {
+    if (!element.$needchanges) {
+        element.$renders.forEach(a => a.call(element));
+        return;
+    }
+    var props = getWatchData(element);
+    element.$renders.forEach(a => a.call(element));
+    var capture = null;
+    for (var k in props) {
+        var current = element[k];
+        var previous = props[k];
+        if (shallowEqual(current, previous)) continue;
+        if (!capture) capture = {};
+        capture[k] = { current, previous };
+    }
+    if (capture) fireChanges(element, capture);
 }
 var variableReg = /([^\:\,\+\=\-\!%\^\|\/\&\*\!\;\?\>\<~\{\}\s\[\]\(\)]|\?\s*\.(?=[^\d])|\s*\.\s*)+/g;
 var variableOnlyReg = new RegExp(`^${variableReg.source}$`);
@@ -624,7 +654,7 @@ var binders = {
             if (this[attr] !== value) {
                 this[attr] = this[attr.replace(/\-[a-z]/g, a => a.toUpperCase())] = value;
             }
-        }
+        };
         this.$renders.push(hook);
         return hook;
     },
@@ -739,13 +769,11 @@ function renderProp(elem, props) {
 
 function renderBinds(element, binds, init) {
     var bind = binders._;
-    var hs = [];
     for (var k in binds) {
         if (directives.hasOwnProperty(k)) continue;
         var h = bind.call(element, k, binds[k]);
-        hs.push(h);
+        h.call(element);
     }
-    return hs;
 }
 
 function renderRest(element, struct, replacer = element) {
@@ -757,8 +785,18 @@ function renderRest(element, struct, replacer = element) {
     }
     element.$renders = [];
     var { attrs, binds } = struct;
-    for (var k in binds) if (k !== 'src' && k in directives) {
-        directives[k].call(element, binds[k], replacer);
+    if (element.$needchanges) {
+        var watches = element.$watches;
+        if (!watches) watches = element.$watches = {};
+        for (var k in binds) watches[k] = true;
+    }
+    for (var k in binds) {
+        if (k in directives) {
+            if (k !== 'src') directives[k].call(element, binds[k], replacer);
+        }
+        else {
+            if (element !== replacer) replacer[k] = element[k];
+        }
     }
     for (var k in struct.attrs) {
         binders[""].call(element, k, attrs[k]);
@@ -1107,10 +1145,10 @@ function renderUnlock() {
             onremove(element, removeRenderElement);
             if (isMounted(element));
             else if (element.$renderid > 1) addRenderElement.call(element);
-            else if (eagermount) rebuild(element);
+            else if (eagermount) buildFirst(element);
         }
         else {
-            rebuild(element);
+            buildFirst(element);
         }
     });
 }
