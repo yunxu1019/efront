@@ -4,40 +4,80 @@
         height: 100%;
         display: block;
         position: relative;
-        padding-right: 0 !important;
         overflow: hidden;
+        border-right: 10px solid transparent;
+        padding-right: 0 !important;
+        background: #f2f4f6;
     }
 
-    .design {
-        list {
-            height: 100%;
-        }
+    >[head] {
+        background: #fff;
+    }
 
-        list,
-        .options {
+    design {
+        height: 100%;
+    }
 
-            width: 600px;
-            margin: 0 auto;
+    btn {
+        padding: 0 20px;
+    }
+
+    [act] {
+        display: block;
+        border-radius: 6px;
+        border: 1px solid #999;
+        padding: 4px 10px;
+        height: 60px;
+        [a-key] {
+            font-family: 20px;
+            font-style: italic;
         }
     }
 </style>
-
-<div head>
-    数据配置 - <span -bind="db.name"></span>
-</div>
+<xmenu tag head -src="m in menus"></xmenu>
 <div body>
-    <field -repeat="f in fields" -src="[f,db]"></field>
+    <div config -if="menus[0].actived">
+        <field -repeat="f in fields" -src="[f,db]"></field>
+    </div>
+    <design fields -if="menus[1].actived" _avoid="db.actions" -src="db.fields"></design>
+    <lattice actions -src="a in db.actions" -if="menus[2].actived">
+        <padding>
+            <div act @click="editAction(a)">
+                <div a.key?></div>
+                <div a.name?></div>
+            </div>
+        </padding>
+        <a insert @click="editAction(null)">添加动作</a>
+    </lattice>
 </div>
 <div foot>
-    <button @click="save">保存</button>
+    <div style="float: left;">
+        ${i18n`数据配置`} - <span -bind="db.name"></span>
+    </div>
+    <button @click="save">${i18n`保存`}</button>
 </div>
 <script>
+    view(this);
+    var xmenu = menu;
+    var btn = button;
+    var a = button;
+    var menus = refilm`
+    权限管理
+    字段管理
+    动作管理
+    `;
     var fields = refilm`
     是否公开/open swap`;
     var [db] = arguments;
+    if (!db.fields) {
+        var [da1] = await data.from('dbfind', { dbid: db.name, size: 1 });
+        db.fields = da1 ? Object.keys(da1).map(k => ({ key: k })) : [];
+    }
+    var editAction = function (a) {
+        popup('#/db/act', [db, a]);
+    };
     var save = async function () {
         await data.from('dbset', db);
         history.back();
     };
-    console.log(db)
 </script>

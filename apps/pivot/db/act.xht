@@ -1,0 +1,54 @@
+<style>
+    [field=method] {
+        jscode {
+            height: 160px;
+        }
+    }
+</style>
+<div head>编辑动作</div>
+<div body>
+    <field -repeat="f in fields" -src="[f,o]"></field>
+</div>
+<div foot>
+    <button @click="cancel" .white>取消</button>
+    <button @click="save">确定</button>
+</div>
+<script>
+    var [db, a] = arguments[0];
+    var o = Object.assign({}, a);
+    view(this);
+    var code = function (elem) {
+        var elem = document.createElement('jscode');
+        elem.type = 'js';
+        elem.contentEditable = true;
+        茨菰$编辑框(elem);
+        return elem;
+    };
+    var actionsExist = db.actions?.filter(o => o !== a) || [];
+    actionsExist.push.apply(actionsExist, db.fields);
+    console.log(actionsExist, db.fields)
+    var fields = refilm`
+    *键名/key input ^${actionsExist}
+    显示名/name input ^${actionsExist}
+    展示时机/when ${code}
+    动作/method ${code}
+    备注/disc text
+    `;
+
+    var box = this;
+    var save = function () {
+        var b = submit(fields, o);
+        var actions = db.actions;
+        if (!actions) actions = db.actions = [];
+        if (!a) actions.push(b);
+        else Object.assign(a, b);
+        remove(box);
+    };
+    resize.on(this);
+    var cancel = function () {
+        remove(box);
+    }
+    once('mounted')(this, function () {
+        drag.on(this, this.children[0]);
+    });
+</script>

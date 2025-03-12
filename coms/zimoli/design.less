@@ -1,6 +1,10 @@
 & {
-    padding: 16px 0;
     position: relative;
+    width: 412px;
+    display: block;
+    margin: 0 auto;
+    height: 260px;
+    padding-top: 30px;
 }
 
 
@@ -10,7 +14,23 @@
 >.options {
     text-align: right;
     padding: 0 16px;
-    width: 412px;
+    height: 30px;
+    line-height: 30px;
+    width: 100%;
+    margin-top: -30px;
+
+    >btn {
+        width: auto;
+        padding: 0 16px;
+        height: 28px;
+        line-height: 28px;
+        border-radius: 0 0 0 12px;
+    }
+
+    >btn:nth-last-child(n+2) {
+        padding-right: 32px;
+        margin-right: -16px;
+    }
 }
 
 .padding {
@@ -21,13 +41,21 @@
 .field-item {
     .index {
         position: absolute;
-        font-size: 10px;
-        margin-top: -12px;
+        cursor: grab;
+
+        &:active {
+            cursor: grabbing;
+        }
+
+        font-size: 12px;
+        margin-top: -13px;
         top: 0;
         left: 6px;
         padding: 0 14px;
         line-height: 1;
-        background: #fff;
+        color: #fff;
+        border-radius: 8px 0 0 0;
+        background: #666;
         display: block;
         border: 1px solid;
         border-color: inherit;
@@ -35,7 +63,6 @@
     }
 
     border-radius: 3px;
-    text-align: right;
     display: block;
     width: 390px;
     max-width: 100%;
@@ -49,44 +76,57 @@
 
         .index {
             border-color: inherit;
+            background: #39c;
         }
     }
 
-    >input,
-    >select,
-    >btn {
+    >[field] {
+        vertical-align: top;
         position: relative;
+        padding: 0;
         width: auto;
-        height: 28px;
         border: none;
         line-height: 28px;
         display: inline-block;
-        vertical-align: middle;
         box-sizing: border-box;
         outline: none;
         appearance: none;
     }
 
-    >input {
+    >[field=name] {
         border-radius: 3px 0 0 3px;
         padding-left: 6px;
-        width: 130px;
+        width: 132px;
     }
 
-    >select {
-        width: 80px;
+    >[field=key] {
+        width: 120px;
+    }
+
+    >drop {
+        line-height: 30px;
+        width: 30px;
+        text-align: center;
+        padding: 0;
+        display: none;
+    }
+
+    &:hover,
+    &:focus {
+        >drop {
+            display: block;
+        }
     }
 
     >btn {
         padding: 0 6px;
-        border-radius: 0 3px 3px 0;
+        overflow: hidden;
     }
 }
 
 &>.fields {
-    max-height: 372px;
     overflow: hidden;
-    height: 260px;
+    height: 100%;
 
     >.focus {
         outline: 1px solid #39c;
@@ -98,11 +138,4 @@ i {
     font-style: normal;
     display: inline-block;
     margin-right: 6px;
-}
-
-.add {
-    width: auto;
-    padding: 0 16px;
-    height: 28px;
-    line-height: 28px;
 }
