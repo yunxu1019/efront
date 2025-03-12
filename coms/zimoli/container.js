@@ -20,6 +20,9 @@ function container(element) {
             watch(this, 'params', onparams);
             onparams.call(this, this.params);
         }
+        else {
+            remove(this.with);
+        }
     });
     var gosrc = function (src) {
         if (!isHandled(this.$src) && !isHandled(src)) return;
