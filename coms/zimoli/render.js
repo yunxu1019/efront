@@ -52,7 +52,9 @@ presets.template = function (t) {
     }
     return comment;
 };
-if (!isProduction) window.renderElements = renderElements;
+// <!--
+window.renderElements = renderElements;
+// -->
 var renderidOffset = 10;
 var renderidClosed = 0;
 var addRenderElement = function () {
@@ -739,7 +741,6 @@ function renderBinds(element, binds, init) {
     var bind = binders._;
     var hs = [];
     for (var k in binds) {
-        if (k === 'src') continue;
         if (directives.hasOwnProperty(k)) continue;
         var h = bind.call(element, k, binds[k]);
         hs.push(h);
@@ -850,23 +851,15 @@ function renderElement(element, scope = element.$scope, parentScopes = element.$
     if (!replacer || element === replacer) {
         if (element.children && element.children.length) renderElement(element.children, scope, parentScopes, once);
     }
-    if (!isFirstRender) return element;
-    renderRest(element, $struct, replacer);
-    if (isNode(replacer) && replacer !== element) {
-        if (!replacer.$renders) replacer.$renders = [];
-        replacer.$renders.push.apply(replacer.$renders, element.$renders);
-        element = replacer;
-    }
-    if (element.$renders.length) {
-        if (element.$renderid !== 9) {
-            on("append")(element, addRenderElement);
-            onremove(element, removeRenderElement);
-            if (isMounted(element));
-            else if (element.$renderid > 1) addRenderElement.call(element);
-            else if (eagermount) rebuild(element);
+    if (isFirstRender) {
+        renderRest(element, $struct, replacer);
+        if (isNode(replacer) && replacer !== element) {
+            if (!replacer.$renders) replacer.$renders = [];
+            replacer.$renders.push.apply(replacer.$renders, element.$renders);
+            element = replacer;
         }
-        else {
-            rebuild(element);
+        if (element.$renders.length) {
+            renderlock.push(element);
         }
     }
     return element;
@@ -1104,23 +1097,41 @@ function createStructure(element, useExists) {
     element.$eval = $eval;
     return element.$struct = new Struct(ons, types, copys, binds, attr1, props, ids, once);
 }
-var eagermount = false, renderlock = false;
+function renderUnlock() {
+    var locked = renderlock.reverse();
+    renderlock = null;
+    eagermount = false;
+    locked.forEach(element => {
+        if (element.$renderid !== 9) {
+            on("append")(element, addRenderElement);
+            onremove(element, removeRenderElement);
+            if (isMounted(element));
+            else if (element.$renderid > 1) addRenderElement.call(element);
+            else if (eagermount) rebuild(element);
+        }
+        else {
+            rebuild(element);
+        }
+    });
+}
+function renderLock() {
+    if (!renderlock) {
+        renderlock = [];
+        return true;
+    }
+    return false;
+}
+var eagermount = false, renderlock = null;
 function render(element, scope, parentScopes, lazy = true) {
+    var haslock = renderLock();
     var if_top_length = if_top.length;
-    var haslock = false;
     if (isFinite(scope) && arguments.length === 2) lazy = scope, scope = undefined;
     else if (isFinite(parentScopes) && arguments.length === 3) lazy = parentScopes, parentScopes = undefined;
     var renderonce = lazy === 0;
-    if (!renderlock) {
-        haslock = true;
-        renderlock = true;
-        eagermount = !+lazy;
-    }
+    if (haslock) eagermount = !+lazy;
+
     var e = renderElement(element, scope, parentScopes, renderonce);
-    if (haslock) {
-        renderlock = false;
-        eagermount = false;
-    }
+    if (haslock) renderUnlock(), eagermount = false;
     if (if_top_length < if_top.length) initIf(if_top.splice(if_top_length, if_top.length - if_top_length));
     return e;
 }
