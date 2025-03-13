@@ -1,4 +1,4 @@
-<thead @mounted="setFixedColumn.call(this.parentNode),setContextMenu(this)">
+<thead @mounted="setContextMenu(this)">
     <tr inline-block #adapter thead @mounted="resizeT(this)">
         <td draggable="false" fixed row-index>
             <mask></mask>${i18n`序号`}

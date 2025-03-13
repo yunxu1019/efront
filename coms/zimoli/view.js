@@ -117,7 +117,7 @@ var resize2 = function () {
         changed = true;
         css(foot, {
             marginTop: fromOffset(-height)
-        })
+        });
         css(body, {
             paddingBottom: fromOffset(body.clientTop + body.clientHeight + body.offsetTop - foot.offsetTop)
         });
@@ -129,7 +129,7 @@ function view(element) {
     extend(w, prototype);
     if (w !== element) {
         extend(w, element);
-        once("append")(w, function () {
+        oncemount(w, function () {
             if (w.draggable !== true && w.draggable !== false) {
                 w.draggable = /^(fixed|absolute)$/i.test(getComputedStyle(w).position);
             }
@@ -138,8 +138,7 @@ function view(element) {
         if (w.resizable) resize.on(w);
     }
     resizingList.set(w, resize2);
-    w.renders = [resize2];
     w.reshape = lazy(resize2);
-    onmounted(w, w.reshape);
+    w.$digest = resize2;
     return w;
 }

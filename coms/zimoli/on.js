@@ -306,7 +306,8 @@ var broadcast = function (k, hk, event) {
         // firefox 中键
         Object.defineProperty(event, 'which', { value: 2 });
     }
-    for (var [eventtypes, handler, context] of handlers) {
+    for (var hand of handlers) {
+        var [eventtypes, handler, context] = hand;
         if (eventtypes.self && event.target !== element) continue;
         if (!checkKeyNeed(eventtypes, event)) continue;
         if (eventtypes.stop) event.stopPropagation();
@@ -320,7 +321,7 @@ var broadcast = function (k, hk, event) {
         } else {
             pending.call(context, handler, event);
         }
-        if (eventtypes.once) remove.call(element, k, hk, eventtypes, handler);
+        if (eventtypes.once) remove.call(element, k, hk, hand);
     }
 };
 
@@ -341,8 +342,8 @@ var append = function (k, hk, listener2, firstmost) {
     var [eventtypes, handler, context] = listener2;
     var element = this;
     var handlers = element[hk];
-    for (var [e, h, c] of handlers) {
-        if (h === handler && shallowEqual(eventtypes, e, 2) && c === context) return;
+    for (var [e, h, c, d] of handlers) {
+        if (h === handler && c === context && shallowEqual(eventtypes, e, 2)) return d.dulp = true, d;
     }
     if (k === changes_key) {
         if (!element.$needchanges) element.$needchanges = 0;
@@ -350,6 +351,7 @@ var append = function (k, hk, listener2, firstmost) {
     }
     if (firstmost) handlers.unshift(listener2);
     else handlers.push(listener2);
+    return listener2[3] = remove.bind(element, k, hk, listener2);
 };
 
 var on = document.efronton = function (k) {
@@ -373,8 +375,7 @@ var on = document.efronton = function (k) {
             else target[on_event_path] = h;
         }
         var listener = [eventtypes, handler, context];
-        append.call(target, k, hk, listener, firstmost);
-        return remove.bind(target, k, hk, listener);
+        return append.call(target, k, hk, listener, firstmost);
     };
 
     else {
@@ -419,8 +420,7 @@ var on = document.efronton = function (k) {
 
             }
             var listener = [eventtypes, handler, context];
-            append.call(target, k, handler_path, listener, firstmost);
-            return remove.bind(target, k, handler_path, listener);
+            return append.call(target, k, handler_path, listener, firstmost);
         }, addhandler = function (context, handler, firstmost) {
             return _addhandler(context, context, handler, firstmost);
         };
@@ -556,9 +556,11 @@ var invoke = function (event, type, pointerType) {
 var autofire = function (key) {
     var h = on(key);
     handlersMap["on" + key] = function (target, handle) {
-        var on = h(target, handle);
-        if (isMounted(target)) handle.call(target);
-        return on;
+        var off = h(target, handle);
+        if (!off.dulp && isMounted(target)) {
+            handle.call(target);
+        }
+        return off;
     };
 };
 autofire('mounted');

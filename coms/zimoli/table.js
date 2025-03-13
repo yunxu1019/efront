@@ -336,7 +336,6 @@ var setFixedColumn = function (remark) {
         css(tfoot, { left: this.scrollLeft });
     }
 };
-var setLazyFixedColumn = lazy(setFixedColumn, 0);
 var setClass = function (tds, cls, old) {
     tds.forEach(td => td[cls] = true);
     old.forEach(td => { if (!td[cls]) removeClass(td, cls) });
@@ -402,7 +401,6 @@ function setContextMenu(thead) {
                 if (td.offsetWidth > width) css(td, { width });
             }
         });
-        setLazyFixedColumn.call(thead.parentNode, true)
     };
     var menuItems = fields.map((f, i) => ({ name: f.name || "&nbsp", index: i, width: f.width, key: f.key, checked: !f.hidden, do: _do }));
     var scope = this;
@@ -574,13 +572,14 @@ function table(elem) {
             pagination
         };
         render(this, $scope, this.$parentScopes.concat(this.$scope));
-        if (isMounted(table)) setFixedColumn.call(table);
         await data;
         if (!data.is_errored) $scope.data = Table.from(fields, data);
         $scope.data.callback = function () {
             render.digest();
         };
     })
+    table.$digest = setFixedColumn;
+
     autodragchildren(
         table,
         cellMatchManager,
@@ -630,10 +629,8 @@ function table(elem) {
             }
             markThead();
             markedRows = true;
-            setLazyFixedColumn.call(table);
         }
     );
     resizingList.set(table, setFixedColumn);
-    on("scroll")(table, setFixedColumn);
     return table;
 }

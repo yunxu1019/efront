@@ -80,7 +80,6 @@ function lattice(element, minWidth, _maxWidth, layers) {
         }
     });
     resizingList.set(_box, _box.resize);
-    on('resize')(_box, _box.resize);
     return _box;
 }
 function main() {

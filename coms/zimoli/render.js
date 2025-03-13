@@ -35,7 +35,7 @@ var createTemplateNodes = function (text) {
         this.with = Array.apply(null, node.childNodes);
     }
     appendChild.after(this, this.with);
-    this.with = renderElement(this.with, this.$scope, this.$parentScopes, this.$renderid === 9);
+    this.with = render(this.with, this.$scope, this.$parentScopes, this.$renderid !== 9);
 };
 presets.template = function (t) {
     var comment = document.createComment('template');
@@ -90,6 +90,7 @@ function refresh(root) {
             }
         }
     }
+    callDigest();
     if (rest.length) rest.forEach(a => removeRenderElement.call(a));
 }
 function fireChanges(element, changes) {
@@ -97,22 +98,17 @@ function fireChanges(element, changes) {
     event.changes = changes;
     dispatch(event, element);
 }
-function buildFirst(element) {
-    if (!element.$needchanges) {
-        element.$renders.forEach(a => a.call(element));
-        return;
-    }
-    var capture = null;
-    var data = getWatchData(element);
 
-    for (var key in data) {
-        var v = data[key];
-        if (isHandled(v)) {
-            if (!capture) capture = {};
-            capture[key] = { current: v };
-        }
-    }
-    if (capture) fireChanges(element, capture);
+function buildFirst(element) {
+    rebuild(element, 1);
+}
+var digests = [];
+function callDigest() {
+    var d = digests;
+    digests = [];
+    d.forEach(a => {
+        a.$digest();
+    });
 }
 function getWatchData(element) {
     var { $watches } = element;
@@ -124,11 +120,12 @@ function getWatchData(element) {
     return props;
 }
 function rebuild(element, isFirstRender) {
+    if (element.$digest) digests.push(element);
     if (!element.$needchanges) {
         element.$renders.forEach(a => a.call(element));
         return;
     }
-    var props = getWatchData(element);
+    var props = getWatchData(isFirstRender ? { $watches: element.$watches } : element);
     element.$renders.forEach(a => a.call(element));
     var capture = null;
     for (var k in props) {
@@ -788,7 +785,7 @@ function renderRest(element, struct, replacer = element) {
     if (element.$needchanges) {
         var watches = element.$watches;
         if (!watches) watches = element.$watches = {};
-        for (var k in binds) watches[k] = true;
+        for (var k in binds) if (!watches[k]) watches[k] = true;
     }
     for (var k in binds) {
         if (k in directives) {
@@ -896,7 +893,7 @@ function renderElement(element, scope = element.$scope, parentScopes = element.$
             replacer.$renders.push.apply(replacer.$renders, element.$renders);
             element = replacer;
         }
-        if (element.$renders.length) {
+        if (element.$digest || element.$renders.length) {
             renderlock.push(element);
         }
     }
@@ -1167,10 +1164,10 @@ function render(element, scope, parentScopes, lazy = true) {
     else if (isFinite(parentScopes) && arguments.length === 3) lazy = parentScopes, parentScopes = undefined;
     var renderonce = lazy === 0;
     if (haslock) eagermount = !+lazy;
-
     var e = renderElement(element, scope, parentScopes, renderonce);
-    if (haslock) renderUnlock(), eagermount = false;
+    if (haslock) renderUnlock(element), eagermount = false;
     if (if_top_length < if_top.length) initIf(if_top.splice(if_top_length, if_top.length - if_top_length));
+    if (haslock) callDigest();
     return e;
 }
 var digest = lazy(refresh, -{});
