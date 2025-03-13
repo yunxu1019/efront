@@ -1,4 +1,4 @@
-<thead @mounted="setContextMenu(this)">
+<thead @mounted="setFixedColumn.call(this.parentNode),setContextMenu(this)">
     <tr inline-block #adapter thead @mounted="resizeT(this)">
         <td draggable="false" fixed row-index>
             <mask></mask>${i18n`序号`}
@@ -11,8 +11,8 @@
         <td style="min-width: 0;" draggable="false">&nbsp;</td>
     </tr>
 </thead>
-<tbody -src="(d,i) in data" :style="tbodyHeight(this,hasFoot)">
-    <tr inline-block :style="{width:adapter.style.width}" @click="rowClick(d,i,event)" @mounted="resizeR(this)">
+<tbody -src="(d,i) in data" :style="tbodyHeight(this,hasFoot,adapter.offsetWidth)">
+    <tr inline-block @click="rowClick(d,i,event)" @mounted="resizeR(this)">
         <td fixed row-index :style="adapter.firstChild.getAttribute('style')">
             <mask></mask><span -bind="i+1"></span>
         </td>

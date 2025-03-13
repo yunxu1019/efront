@@ -254,9 +254,12 @@ function enrichField(f) {
         f.fixed = true;
     }
 }
-var tbodyHeight = function (tbody, hasFoot) {
+var tbodyHeight = function (tbody, hasFoot, width) {
     var rowHeight = calcPixel(36);
-    return { 'max-height': ((innerHeight - (!!hasFoot ? rowHeight : 6) - getScreenPosition(tbody).top - 10) / rowHeight | 0) * rowHeight }
+    return {
+        'max-height': ((innerHeight - (!!hasFoot ? rowHeight : 6) - getScreenPosition(tbody).top - 10) / rowHeight | 0) * rowHeight,
+        width
+    }
 };
 
 var setFixed = function (children, scrolled, left, borderRight) {
@@ -542,7 +545,7 @@ function table(elem) {
             tbody() {
                 var e = list.apply(null, arguments);
                 css(e, tbodyHeight(e, this.hasFoot));
-                css(e, { width: this.adapter.offsetWidth, display: 'block' });
+                css(e, { width: this.adapter.style.width, display: 'block' });
                 this.tbody0 = e;
                 return e;
             },

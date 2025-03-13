@@ -782,17 +782,18 @@ function renderRest(element, struct, replacer = element) {
     }
     element.$renders = [];
     var { attrs, binds } = struct;
-    if (element.$needchanges) {
-        var watches = element.$watches;
-        if (!watches) watches = element.$watches = {};
-        for (var k in binds) if (!watches[k]) watches[k] = true;
-    }
+    var bindWatch = !!element.$needchanges;
     for (var k in binds) {
         if (k in directives) {
             if (k !== 'src') directives[k].call(element, binds[k], replacer);
         }
         else {
             if (element !== replacer) replacer[k] = element[k];
+            if (bindWatch) {
+                var watches = element.$watches;
+                if (!watches) watches = element.$watches = {};
+                if (!watches[k]) watches[k] = true;
+            }
         }
     }
     for (var k in struct.attrs) {
@@ -1135,7 +1136,6 @@ function createStructure(element, useExists) {
 function renderUnlock() {
     var locked = renderlock.reverse();
     renderlock = null;
-    eagermount = false;
     locked.forEach(element => {
         if (element.$renderid !== 9) {
             on("append")(element, addRenderElement);
@@ -1148,6 +1148,7 @@ function renderUnlock() {
             buildFirst(element);
         }
     });
+    eagermount = false;
 }
 function renderLock() {
     if (!renderlock) {
@@ -1165,7 +1166,7 @@ function render(element, scope, parentScopes, lazy = true) {
     var renderonce = lazy === 0;
     if (haslock) eagermount = !+lazy;
     var e = renderElement(element, scope, parentScopes, renderonce);
-    if (haslock) renderUnlock(element), eagermount = false;
+    if (haslock) renderUnlock(element);
     if (if_top_length < if_top.length) initIf(if_top.splice(if_top_length, if_top.length - if_top_length));
     if (haslock) callDigest();
     return e;
