@@ -1,3 +1,24 @@
+- zh-CN: 选择类型
+  en:    Select type
+
+- zh-CN: 已存在$1为$2的项
+  en:    An item with a value of $1 to $2 already exists
+
+- zh-CN: 展示时机
+  en:    Display timing
+
+- zh-CN: 数据配置
+  en:    data configuration
+
+- zh-CN: 权限管理
+  en:    Rights Management
+
+- zh-CN: 字段管理
+  en:    Field management
+
+- zh-CN: 动作管理
+  en:    Action Management
+
 - zh-CN: 正在联网验证，请耐心等待..
   en:    "Network verification in progress, please be patient"
 
