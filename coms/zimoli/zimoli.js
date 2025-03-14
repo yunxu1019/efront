@@ -431,7 +431,7 @@ function create(pagepath, args, from, needroles) {
 var zimoliid = 0, zimoliad = 0;
 function zimoli(pagepath, args, history_name, oldpagepath) {
     if (arguments.length === 0) {
-        if (zimoliid !== zimoliad && zimoli.caller === go) return;
+        if (zimoliid !== zimoliad) return;
         history_name = current_history;
         var _history = history[history_name] || [];
         root_path = _history[0] || "/main";
