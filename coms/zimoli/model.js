@@ -2,39 +2,11 @@
 /**
  * 支持任意类型的数据的编辑展示及过滤
  */
-var rebuildOptions = function () {
-    var elem = this;
-    var { $scope } = elem;
-    if (!$scope) return;
-    var { data, field } = $scope;
-    if (!data || !field) return;
-    var { options_from, options } = field;
-    var new_options = seek(data, options_from);
-    if (new_options !== options) {
-        field.options = new_options;
-        delete field.optionsMap;
-        render.refresh();
-    }
-};
-var copyOptionData = function () {
-    var { $scope } = this;
-    if (!$scope) return;
-    var { data, field } = $scope;
-    if (!data || !field) return;
-    var { option_to, options } = field;
-    if (!options) return;
-    var value = data[field.key];
-    var option = isObject(value) ? value : value in options ? options[value] : value;
-    extend(data, seek(option, option_to));
-};
-var renderModel = function (field, data) {
+
+var renderModel = function () {
     var ipt = this;
     ipt.setAttribute("ng-model", "data[field.key]");
     ipt.setAttribute("placeholder_", "field.holder");
-    render(ipt, {
-        field,
-        data
-    });
 };
 var unmark = function (select) {
     select.isediter = false;
@@ -135,9 +107,7 @@ var constructors = {
     color() {
         return colorpicker();
     },
-    title() {
-    },
-    name() { },
+
     image({ field }) {
         var img = image();
         var { options } = field;
@@ -160,47 +130,31 @@ var constructors = {
         cast(elem, field);
         return elem;
     },
-    select(_, t) {
-        if (!t) {
-            var elem = select();
-            var { field, data } = _;
-            elem.value = data[field.key];
-            var o = field.options?.[0];
-            elem.editable = field.editable;
-            if (field.holder) _.innerHTML = `<span -if="isEmpty(data[field.key])" class="placeholder">${field.holder}</span>`;
-            if (!isEmpty(o?.key)) {
-                field.options.unshift({
-                    name: field.holder || i18n`选择${field.name}`,
-                    key: ''
-                })
-            }
-            render(_.children, { field, data, isEmpty });
-            elem.innerHTML = `<option -repeat="(o,i) in field.options" ng-bind="o.name||o" _value="o.key!==undefined?o.key:o"></option>`;
+    select(_) {
+        var { field, data } = _;
+        var t = field.ref;
+        var elem = select();
+        elem.multiple = field.multi;
+        elem.editable = field.editable || t === 'a';
+        var o = field.options?.[0];
+        if (field.holder) _.innerHTML = `<span -if="isEmpty(data[field.key])" class="placeholder">${field.holder}</span>`;
+        if (!isEmpty(o?.key)) {
+            field.options.unshift({
+                name: field.holder || i18n`选择${field.name}`,
+                key: ''
+            })
         }
-        else if (t === 'a') {
-            var { field, data } = _;
-            var opt = null;
-            for (var cx = 0, options = field.options, dx = options.length; cx < dx; cx++) {
-                var o = options[cx];
-                if (o.key === data[field.key]) {
-                    opt = o;
-                    o.selected = true;
-                    break;
-                }
-            }
-            var pad = selectList(field.options, !!field.multi, true);
-            var e = document.createElement('select');
-            e.innerHTML = `<option selected value="${opt ? opt.key : ''}">${opt ? opt.name : '请选择'}</option>`;
-            e.value = opt ? opt.key : '';
-            elem = select(e, pad);
-        }
+        render(_.children, { field, data, isEmpty });
+        elem.setAttribute('a-src', '(o,i) in field.options')
+        elem.innerHTML = `<option ng-bind="o.name||o" _value="o.key!==undefined?o.key:o"></option>`;
         return elem;
     },
-    "repeat"(_, field_type) {
+    "repeat"(_) {
         var elem = input();
         elem.$renders = [function () {
             var { field, data } = this.$scope;
             var { status } = this;
+            var field_type = field.ref;
             var valid = this.value === data[field_type];
             if (!this.dirty) {
                 status = 'clean';
@@ -271,8 +225,78 @@ var readonly_types = {
         return v;
     },
 };
+var setContent = function (elem, value) {
+    if (elem === value) return;
+    if (isNode(value) && elem !== value || isArray(value)) {
+        appendChild(elem, value);
+    }
+    else if (isHandled(value)) {
+        elem.innerHTML = value;
+    }
+};
+var Binder = render.Binder;
+Object.keys(readonly_types).forEach(k => {
+    var getter = readonly_types[k];
+    readonly_types[k] = new Binder(getter, setContent);
+});
+var get = new Binder(function ({ field, data }) {
+    if (isEmpty(field.key)) return;
+    var value = seek(data, field.key);
+    if (field.options) {
+        if (!field.optionsMap) {
+            var map = Object.create(null);
+            for (var o of field.options) {
+                var v = getValue(o);
+                map[v] = o;
+            }
+            field.optionsMap = map;
+        }
+        var map = field.optionsMap;
+        if (value in map) {
+            value = getName(map[value]);
+        }
+    }
+    return value;
+}, setContent);
+
+var ipt = function (element) {
+    var { field } = element;
+    var ipt = document.createElement('input');
+    ipt.setAttribute('type', field.type);
+    input(ipt);
+    return ipt;
+};
+
+
+function setBinder(elem, binder) {
+    if (binder === elem.$binder) return;
+    removeFromList(elem.$renders, elem.$binder);
+    remove(elem.childNodes);
+    if (binder instanceof Binder) {
+        binder.call(elem);
+        elem.$renders.push(binder);
+        elem.$binder = binder;
+    }
+    else {
+        elem.$binder = null;
+        var ipt = binder(elem);
+        if (isHandled(ipt) && ipt !== elem) {
+            if (isNode(ipt)) {
+                if (!ipt.$scope) {
+                    elem.appendChild(ipt);
+                }
+                renderModel.call(ipt);
+                render(elem);
+            }
+            else {
+                elem.innerHTML = ipt;
+            }
+        }
+    }
+}
 readonly_types.anchor = readonly_types.url;
 readonly_types.do = readonly_types.act = readonly_types.action = constructors.generator;
+constructors.title = constructors.name = readonly_types.text;
 readonly_types.gen = readonly_types.generator = readonly_types.text;
 var createOptionsMap = function (options) {
     if (!isObject(options[0])) return options;
@@ -302,36 +326,12 @@ var markEditer = function (editers) {
         editers[k].isediter = true;
     }
 };
-var get = function ({ field, data }) {
-    if (isEmpty(field.key)) return;
-    var value = seek(data, field.key);
-    if (field.options) {
-        if (!field.optionsMap) {
-            var map = Object.create(null);
-            for (var o of field.options) {
-                var v = getValue(o);
-                map[v] = o;
-            }
-            field.optionsMap = map;
-        }
-        var map = field.optionsMap;
-        if (value in map) {
-            value = getName(map[value]);
-        }
-    }
-    return value;
-};
-var setContent = function (elem, value) {
-    if (isNode(value) && elem !== value || isArray(value)) {
-        appendChild(elem, value);
-    }
-    else if (isHandled(value)) {
-        elem.innerHTML = value;
-    }
-};
-var run = function ([data, field, elem]) {
+
+var run = function () {
     var function_type = "function";
-    if (data !== elem.data || field !== elem.field) return;
+    var elem = this;
+    var { data, field } = elem;
+    if (!data || !field) return;
     var field_type = field.type || field.editor, field_editor = field.editor || field.type;
     if (field_editor instanceof Function && field_type === field_editor) {
         field_type = function_type;
@@ -341,78 +341,30 @@ var run = function ([data, field, elem]) {
     }
     if (/\?/.test(field_type)) {
         var [field_type, field_ref] = field_type.split("?");
+        field.ref = field_ref;
     }
     var type = elem.getAttribute('type');
     if (type !== field_type) {
         elem.setAttribute("type", field_type);
     }
-    remove(elem.children);
     if (isString(field_type)) field_type = field_type.replace(/\:[\d+\.]+$/, '');
+    var create = null;
     if (elem.readonly || field.readonly) {
         if (field_type === "function") {
-            field_editor(elem);
+            create = field_editor;
         } else {
-            var create = findReaderForElement(field_type, elem) || readonly_types[field_type];
+            create = findReaderForElement(field_type, elem) || readonly_types[field_type];
             if (!create) create = get;
-            elem.$renders.push(new render.Binder(create, setContent));
         }
     } else {
-        var create = field_type === "function" ? field_editor : findEditerForElement(field_type, elem) || constructors[field_type];
-        var ipt = create ? create(elem, field_ref) : field.key ? input(function () {
-            var input = document.createElement('input');
-            input.setAttribute('type', field.type);
-            return input;
-        }()) : null;
-        if (ipt) {
-            if (ipt !== elem) appendChild.insert(elem, ipt);
-            if (!ipt.$scope) {
-                renderModel.call(ipt, field, data);
-                var saved_sataus;
-                ipt.$renders.push(function () {
-                    var { valid, status } = this;
-                    if (elem.valid !== valid) elem.valid = valid;
-                    if (saved_sataus === status) return;
-                    saved_sataus = status;
-                    elem.setAttribute('status', saved_sataus);
-                });
-            } else {
-                on("change")(ipt, function () {
-                    data[field.key] = getValue.call(this);
-                });
-                setValue.call(ipt, data[field.key]);
-            }
-            if ("option_to" in field) {
-                on("change")(ipt, copyOptionData);
-            }
-            if ("options_from" in field) {
-                ipt.$renders.push(rebuildOptions);
-            }
-        }
+        create = field_type === "function" ? field_editor : findEditerForElement(field_type, elem) || constructors[field_type];
+        if (!create && field.key) create = ipt;
     }
+    setBinder(elem, create);
 };
-var build = function () {
-    var elem = this;
-    var { data, field } = elem;
 
-    if (!field || !data) return;
-
-    if (data.loading_promise || field.loading_promise) {
-        Promise.all([
-            data,
-            field,
-            elem
-        ]).then(run);
-    } else {
-        run([data, field, elem]);
-    }
-};
-var onchanges = function ({ changes }) {
-    if (changes.data || changes.field || changes.readonly) {
-        build.call(this);
-    }
-};
 function main(elem) {
-    on("changes")(elem, onchanges);
+    on('changes')(elem, run);
     return elem;
 }
 markEditer(constructors);

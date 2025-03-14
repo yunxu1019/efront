@@ -503,21 +503,26 @@ var createMapper = function (write, mapper) {
         });
     }
 }
-function getBinder(getter, write, oldValue) {
-    return function () {
-        var value = getter(this);
-        if (shallowEqual(oldValue, value)) return;
-        var oldv = oldValue;
-        oldValue = value;
-        if (!isHandled(value)) value = '';
-        write(this, value, oldv);
-    }
-}
+
 class Binder {
-    constructor(getter, write, value) {
+    constructor(getter, write) {
         this.get = getter;
         this.set = write;
-        this.value = value;
+    }
+    call(elem) {
+        var value = this.get(elem);
+        var oldv = elem.$value;
+        if (shallowEqual(oldv, value)) return;
+        elem.$value = value;
+        if (!isHandled(value)) value = '';
+        this.set(elem, value, oldv);
+    }
+}
+class Binder2 {
+    constructor(getter, write, oldValue) {
+        this.get = getter;
+        this.set = write;
+        this.value = oldValue;
     }
     call(elem) {
         var value = this.get(elem);
@@ -532,7 +537,7 @@ var createBinder2 = function (write, read) {
     return function (search) {
         var getter = createGetter(this, search);
         var oldValue = isFunction(read) ? read(this) : undefined;
-        this.$renders.push(new Binder(getter, write, oldValue));
+        this.$renders.push(new Binder2(getter, write, oldValue));
     };
 }
 
