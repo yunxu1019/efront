@@ -134,14 +134,14 @@ var constructors = {
         var o = field.options?.[0];
         if (field.holder) _.innerHTML = `<span -if="isEmpty(data[field.key])" class="placeholder">${field.holder}</span>`;
         if (!isEmpty(o?.key)) {
-            field.options.unshift({
+            if (!field.required) field.options.unshift({
                 name: field.holder || i18n`选择${field.name}`,
                 key: ''
             })
         }
         render(_.children, { field, data, isEmpty });
         elem.setAttribute('a-src', 'o in field.options')
-        elem.innerHTML = `<option -text="o.name" :value="o.key"></option>`;
+        elem.innerHTML = `<option disabled:=o.disabled -text="o.name" :value="o.key"></option>`;
         render(elem, { select, data, field });
         return elem;
     },
@@ -155,7 +155,7 @@ var constructors = {
             if (!this.dirty) {
                 status = 'clean';
             } else if (isEmpty(this.value)) {
-                if (field.is_required) {
+                if (field.required) {
                     status = 'required';
                 } else {
                     status = 'empty';
