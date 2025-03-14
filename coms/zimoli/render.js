@@ -593,20 +593,24 @@ class Model {
     }
     call(elem) {
         var value = this.gv.call(elem);
-        this.ss.call(this.target, value);
         if (value === this.value) {
             return;
         }
+        this.ss.call(this.target, value);
         this.value = value;
+        this.bd.value = this.gs.call(this.target, value);
         userChanged = true;
     }
     hook(elem, emit) {
-        var binder = new Binder(this.gs, this.target !== elem ? this.sv.bind(this.target) : this.sv);
+        var binder = new Binder2(this.gs, this.target !== elem ? this.sv.bind(this.target) : this.sv);
         elem.$renders.push(binder);
         binder.call(elem);
-        if (emit) eventsBinders.forEach(on => on(this.target, this, true));
-        this.value = this.gv.call(elem);
-        this.target = elem;
+        this.bd = binder;
+        if (emit) {
+            eventsBinders.forEach(on => on(this.target, this, true));
+            this.value = this.gv.call(elem);
+            this.target = elem;
+        }
         return binder;
     }
 }
