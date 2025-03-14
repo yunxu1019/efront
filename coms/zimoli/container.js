@@ -16,7 +16,6 @@ var change = async function (src) {
         zimoli.global(src, this);
     }
     else if (isString(src) || +src < 0) {
-        watch(this, 'params', onparams);
         onparams.call(this, this.params);
     }
 };
@@ -31,12 +30,11 @@ var goone = function (src) {
     if ("$src" in this) return;
     gosrc.call(this, src);
 };
-var onparams = lazy(function (params) {
+var onparams = function (params) {
     zimoli.go(this.$src, params, this);
-});
+};
 function container(element) {
     var comment = document.createComment('container');
-    comment.$struct = element.$struct;
     care(comment, gosrc);
     if (element.hasAttribute && element.hasAttribute('src')) {
         var src = element.getAttribute('src');

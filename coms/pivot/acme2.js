@@ -253,12 +253,15 @@ var acme2 = new class {
         var termsOfService = data?.meta?.termsOfService;
         return termsOfService;
     }
-    async newAccount(params) {
+    getAccount(params) {
+        return this.newAccount(params, true);
+    }
+    async newAccount(params, onlyReturnExisting) {
         var account = await request("new-account", {
             "contact": [
                 "mailto:" + params.email
             ],
-            // onlyReturnExisting: false,// 可选
+            onlyReturnExisting: onlyReturnExisting,// 可选
             // externalAccountBinding: {},// 可选
             "termsOfServiceAgreed": params.termsOfServiceAgreed
         });
@@ -267,7 +270,7 @@ var acme2 = new class {
         this.kid = account;
         var a = data.getUrlParamsForApi(accountApi, account);
         this.aid = a.aid;
-        alert('创建成功！', 'success');
+        alert(onlyReturnExisting ? "账号存在" : '创建成功！', 'success');
         return account;
     }
     async newOrder(params) {

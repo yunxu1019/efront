@@ -503,18 +503,36 @@ var createMapper = function (write, mapper) {
         });
     }
 }
+function getBinder(getter, write, oldValue) {
+    return function () {
+        var value = getter(this);
+        if (shallowEqual(oldValue, value)) return;
+        var oldv = oldValue;
+        oldValue = value;
+        if (!isHandled(value)) value = '';
+        write(this, value, oldv);
+    }
+}
+class Binder {
+    constructor(getter, write, value) {
+        this.get = getter;
+        this.set = write;
+        this.value = value;
+    }
+    call(elem) {
+        var value = this.get(elem);
+        var oldv = this.value;
+        if (shallowEqual(oldv, value)) return;
+        this.value = value;
+        if (!isHandled(value)) value = '';
+        this.set(elem, value, oldv);
+    }
+}
 var createBinder2 = function (write, read) {
     return function (search) {
         var getter = createGetter(this, search);
         var oldValue = isFunction(read) ? read(this) : undefined;
-        this.$renders.push(function () {
-            var value = getter(this);
-            if (shallowEqual(value, oldValue)) return;
-            var oldv = oldValue;
-            oldValue = value;
-            if (!isHandled(value)) value = '';
-            write(this, value, oldv);
-        });
+        this.$renders.push(new Binder(getter, write, oldValue));
     };
 }
 
@@ -799,8 +817,8 @@ function renderRest(element, struct, replacer = element) {
     for (var k in struct.attrs) {
         binders[""].call(element, k, attrs[k]);
     }
-    if (binds.src) directives.src.call(element, binds.src);
     if (renders && renders.length) element.$renders.push.apply(element.$renders, renders);
+    if (binds.src) directives.src.call(element, binds.src);
     if (!isElement(replacer)) replacer = element;
     struct.ons.forEach(([on, key, value]) => on.call(element, replacer, key, value));
 }
@@ -1201,3 +1219,4 @@ render.register = function (key, name) {
 render.getFromScopes = getFromScopes;
 render.struct = createStructure;
 render.mergeStruct = mergeStruct;
+render.Binder = Binder;
