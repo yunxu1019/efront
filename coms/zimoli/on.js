@@ -250,7 +250,7 @@ function checkKeyNeed(eventtypes, e) {
 }
 var pendingid = 0;
 function pending(h, event) {
-    if (h instanceof Function) {
+    if (h.call instanceof Function) {
         h.pending = true;
         var res = h.call(this, event);
         if (res && isFunction(res.then) && this.setAttribute) {

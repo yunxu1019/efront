@@ -165,16 +165,19 @@ function select() {
         var $name = 'name';
         var template = target.$template;
         var isIndexedKey = false;
-        if (template) {
+        var $item = '';
+        if (template) a: {
             var { attrs, binds } = template.childNodes[0].$struct;
-            if (attrs.value) $key = attrs.value;
+            if (!attrs.value && !binds.value) break a;
+            $key = attrs.value || binds.value;
             if ($key === target.$src.indexName || $key === target.$src.keyName) isIndexedKey = true;
             $name = binds.bind || binds.html || binds.text || $name;
+            $item = target.$src.itemName;
         }
         var initList2 = function (src) {
             if (isIndexedKey) optionsMap = src;
             else src.forEach(s => {
-                optionsMap[seek(s, $key)] = s;
+                optionsMap[seek($item ? { [$item]: s } : s, $key)] = s;
                 if (isObject(s)) s.selected = s.key === target.value;
             });
             list = selectList(generator, src, !!target.multiple, !!target.editable);
@@ -263,9 +266,11 @@ function select() {
         }
     };
     if (!target.$renders) {
-        target.$renders = [setEmpty, setFocus];
+        target.$renders = [];
     }
     target.$renders.push(setIcon);
+    if (!isNode(list)) target.$renders.push(setEmpty, setFocus);
+
     onclick(target, mousedown);
     return target;
 }

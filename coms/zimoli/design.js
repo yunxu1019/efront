@@ -64,7 +64,6 @@ function main(fields, types) {
         fields = scope.fields = fields1;
         avoid.splice(0, avoid.length, ...fields1);
         defines[2].options = types;
-        console.log(page.avoid, 'avoid')
     });
     page.innerHTML = design;
     render(page, scope);

@@ -3,11 +3,6 @@
  * 支持任意类型的数据的编辑展示及过滤
  */
 
-var renderModel = function () {
-    var ipt = this;
-    ipt.setAttribute("ng-model", "data[field.key]");
-    ipt.setAttribute("placeholder_", "field.holder");
-};
 var unmark = function (select) {
     select.isediter = false;
     select.isreader = false;
@@ -133,7 +128,7 @@ var constructors = {
     select(_) {
         var { field, data } = _;
         var t = field.ref;
-        var elem = select();
+        var elem = document.createElement('select');
         elem.multiple = field.multi;
         elem.editable = field.editable || t === 'a';
         var o = field.options?.[0];
@@ -145,8 +140,9 @@ var constructors = {
             })
         }
         render(_.children, { field, data, isEmpty });
-        elem.setAttribute('a-src', '(o,i) in field.options')
-        elem.innerHTML = `<option ng-bind="o.name||o" _value="o.key!==undefined?o.key:o"></option>`;
+        elem.setAttribute('a-src', 'o in field.options')
+        elem.innerHTML = `<option -text="o.name" :value="o.key"></option>`;
+        render(elem, { select, data, field });
         return elem;
     },
     "repeat"(_) {
@@ -184,11 +180,13 @@ constructors.int
     = constructors.number;
 constructors.gen = constructors.generator;
 var readonly_types = {
-    "date"({ field, data }) {
+    "date"() {
+        var { field, data } = this;
         var string = data[field.key];
         return filterTime(string, "y年M月d日");
     },
-    "url"({ field, data }) {
+    "url"() {
+        var { field, data } = this;
         var href = data[field.key];
         if (href) {
             var e = anchor2(field.holder || href, href);
@@ -196,23 +194,29 @@ var readonly_types = {
             return e;
         }
     },
-    "datetime"({ field, data }) {
+    "datetime"() {
+        var { field, data } = this;
         return filterTime(data[field.key], "y年M月d日 h:mm");
     },
-    "timestamp"({ field, data }) {
+    "timestamp"() {
+        var { field, data } = this;
         return filterTime(data[field.key]);
     },
-    "size"({ field, data }) {
+    "size"() {
+        var { field, data } = this;
         var f = data[field.key];
         return size(f);
     },
-    html({ field, data }) {
+    html() {
+        var { field, data } = this;
         return seek(data, field.key);
     },
-    text({ field, data }) {
+    text() {
+        var { field, data } = this;
         return data[field.key] ?? '';
     },
-    swap({ field, data }) {
+    swap() {
+        var { field, data } = this;
         var v = data[field.key];
         if (field.options) {
             if (!field.optionsMap) field.optionsMap = createOptionsMap(field.options);
@@ -225,21 +229,22 @@ var readonly_types = {
         return v;
     },
 };
-var setContent = function (elem, value) {
-    if (elem === value) return;
-    if (isNode(value) && elem !== value || isArray(value)) {
-        appendChild(elem, value);
+var setContent = function (value) {
+    if (this === value) return;
+    if (isNode(value) && this !== value || isArray(value)) {
+        appendChild(this, value);
     }
     else if (isHandled(value)) {
-        elem.innerHTML = value;
+        this.innerHTML = value;
     }
 };
-var Binder = render.Binder;
+var Binder = render.Binder, Model = render.Model;
 Object.keys(readonly_types).forEach(k => {
     var getter = readonly_types[k];
     readonly_types[k] = new Binder(getter, setContent);
 });
-var get = new Binder(function ({ field, data }) {
+var get = new Binder(function () {
+    var { field, data } = this;
     if (isEmpty(field.key)) return;
     var value = seek(data, field.key);
     if (field.options) {
@@ -267,7 +272,12 @@ var ipt = function (element) {
     return ipt;
 };
 
-
+function getScopeValue() {
+    return this.data[this.field.key];
+}
+function setScopeValue(v) {
+    this.data[this.field.key] = v;
+}
 function setBinder(elem, binder) {
     if (binder === elem.$binder) return;
     removeFromList(elem.$renders, elem.$binder);
@@ -275,24 +285,22 @@ function setBinder(elem, binder) {
     if (binder instanceof Binder) {
         binder.call(elem);
         elem.$renders.push(binder);
-        elem.$binder = binder;
     }
     else {
-        elem.$binder = null;
         var ipt = binder(elem);
+        binder = null;
         if (isHandled(ipt) && ipt !== elem) {
             if (isNode(ipt)) {
-                if (!ipt.$scope) {
-                    elem.appendChild(ipt);
-                }
-                renderModel.call(ipt);
-                render(elem);
+                var model = new Model(getScopeValue, setScopeValue, ipt);
+                model.hook(elem, ipt);
+                appendChild(elem, ipt);
             }
             else {
                 elem.innerHTML = ipt;
             }
         }
     }
+    elem.$binder = binder;
 }
 readonly_types.anchor = readonly_types.url;
 readonly_types.do = readonly_types.act = readonly_types.action = constructors.generator;
@@ -327,7 +335,7 @@ var markEditer = function (editers) {
     }
 };
 
-var run = function () {
+var run = function ({ changes }) {
     var function_type = "function";
     var elem = this;
     var { data, field } = elem;

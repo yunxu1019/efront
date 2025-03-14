@@ -26,7 +26,6 @@
     };
     var actionsExist = db.actions?.filter(o => o !== a) || [];
     actionsExist.push.apply(actionsExist, db.fields);
-    console.log(actionsExist, db.fields)
     var fields = refilm`
     *键名/key input ^${actionsExist}
     显示名/name input ^${actionsExist}

@@ -100,7 +100,7 @@ function fireChanges(element, changes) {
 }
 
 function buildFirst(element) {
-    rebuild(element, 1);
+    rebuild(element, '$ready' in element);
 }
 var digests = [];
 function callDigest() {
@@ -120,6 +120,7 @@ function getWatchData(element) {
     return props;
 }
 function rebuild(element, isFirstRender) {
+    if (isFirstRender) delete element.$ready;
     if (element.$digest) digests.push(element);
     if (!element.$needchanges) {
         element.$renders.forEach(a => a.call(element));
@@ -506,16 +507,16 @@ var createMapper = function (write, mapper) {
 
 class Binder {
     constructor(getter, write) {
-        this.get = getter;
-        this.set = write;
+        this.gt = getter;
+        this.st = write;
     }
     call(elem) {
-        var value = this.get(elem);
+        var value = this.gt.call(elem);
         var oldv = elem.$value;
         if (shallowEqual(oldv, value)) return;
         elem.$value = value;
         if (!isHandled(value)) value = '';
-        this.set(elem, value, oldv);
+        this.st.call(elem, value, oldv);
     }
 }
 class Binder2 {
@@ -525,14 +526,15 @@ class Binder2 {
         this.value = oldValue;
     }
     call(elem) {
-        var value = this.get(elem);
+        var value = this.get.call(elem);
         var oldv = this.value;
         if (shallowEqual(oldv, value)) return;
         this.value = value;
         if (!isHandled(value)) value = '';
-        this.set(elem, value, oldv);
+        this.set.call(elem, value, oldv);
     }
 }
+
 var createBinder2 = function (write, read) {
     return function (search) {
         var getter = createGetter(this, search);
@@ -559,43 +561,94 @@ var src2 = function (search) {
         cast(this, origin);
     });
 }
-
+var gtValue = function () { return this.value };
+var stValue = function (v) { this.value = v };
+var gtChecked = function () { return this.checked };
+var stChecked = function (v) { this.checked = v };
+var gtHtml = function () { return this.innerHTML };
+var stHtml = function (v) { this.innerHTML = v };
+class Model {
+    constructor(getScope, setScope, target) {
+        this.gs = getScope;
+        this.ss = setScope;
+        var getValue = target.getValue;
+        var setValue = target.setValue;
+        if (getValue && setValue);
+        else if (("value" in target || target.getValue instanceof Function) && target.setValue instanceof Function) {
+            if (!getValue) getValue = gtValue;
+            if (!setValue) setValue = stValue;
+        } else if (/^input$/i.test(target.tagName) && /^checkbox$/i.test(target.type) || /^checkbox$/i.test(target.tagName)) {
+            if (!getValue) getValue = gtChecked;
+            if (!setValue) setValue = stChecked;
+        } else if (/^(select|input|textarea)$/i.test(target.tagName) || "value" in target) {
+            if (!getValue) getValue = gtValue;
+            if (!setValue) setValue = stValue;
+        } else {
+            if (!getValue) getValue = gtHtml;
+            if (!setValue) setValue = stHtml;
+        }
+        this.gv = getValue;
+        this.sv = setValue;
+        this.target = target;
+    }
+    call(elem) {
+        var value = this.gv.call(elem);
+        this.ss.call(this.target, value);
+        if (value === this.value) {
+            return;
+        }
+        this.value = value;
+        userChanged = true;
+    }
+    hook(elem, emit) {
+        var binder = new Binder(this.gs, this.target !== elem ? this.sv.bind(this.target) : this.sv);
+        elem.$renders.push(binder);
+        binder.call(elem);
+        if (emit) eventsBinders.forEach(on => on(this.target, this, true));
+        this.value = this.gv.call(elem);
+        this.target = elem;
+        return binder;
+    }
+}
+var createSetter = function (elem, search) {
+    return $$eval.bind(elem, search + "=arguments[2]", getScopeList(elem), elem);
+};
 var directives = {
-    text: createBinder2(function (elem, value) {
+    text: createBinder2(function (value) {
         if (isNode(value) || isArray(value)) {
-            if (value !== elem.firstChild) {
-                remove(elem.childNodes);
-                appendChild(elem, value);
+            if (value !== this.firstChild) {
+                remove(this.childNodes);
+                appendChild(this, value);
             }
         }
         else {
-            elem.innerText = value;
+            this.innerText = value;
         }
     }),
-    html: createBinder2(function (elem, value) {
+    html: createBinder2(function (value) {
         if (isNode(value) || isArray(value)) {
-            if (value !== elem.firstChild) {
-                remove(elem.childNodes);
-                appendChild(elem, value);
+            if (value !== this.firstChild) {
+                remove(this.childNodes);
+                appendChild(this, value);
             }
         }
         else {
-            elem.innerHTML = value;
+            this.innerHTML = value;
         }
     }),
-    hide: createBinder2(function (elem, value) {
+    hide: createBinder2(function (value) {
         var display = value ? 'none' : '';
-        var style = elem.style;
+        var style = this.style;
         if (style.display !== display) style.display = display;
-    }, function (elem) {
-        return elem.style.display === 'none';
+    }, function () {
+        return this.style.display === 'none';
     }),
-    show: createBinder2(function (elem, value) {
+    show: createBinder2(function (value) {
         var display = value ? '' : 'none';
-        var style = elem.style;
+        var style = this.style;
         if (style.display !== display) style.display = display;
-    }, function (elem) {
-        return elem.style.display !== 'none';
+    }, function () {
+        return this.style.display !== 'none';
     }),
     style: createMapper(css, css.styleToMap),
     class: createMapper(addClass, addClass.classToMap),
@@ -605,54 +658,9 @@ var directives = {
     },
     model(search, target, change) {
         var getter = createGetter(this, search);
-        var oldValue;
-        var getstr = target.getValue instanceof Function ? "this.getValue()" : "";
-        var setter = target.setValue instanceof Function ? function () {
-            var value = getter(this);
-            if (value === undefined) value = "";
-            if (deepEqual(oldValue, value)) return;
-            oldValue = value;
-            this.setValue(value);
-        } : null;
-        var setter2 = function (key) {
-            var value = getter(this);
-            if (value === undefined) value = "";
-            if (deepEqual(oldValue, value)) return;
-            oldValue = value;
-            this[key] = value;
-        };
-        if (("value" in target || target.getValue instanceof Function) && target.setValue instanceof Function) {
-            this.$renders.push(setter);
-            var change = getstr || "this.value";
-        } else if (/^input$/i.test(target.tagName) && /^checkbox$/i.test(target.type) || /^checkbox$/i.test(target.tagName)) {
-            this.$renders.push(setter || setter2.bind(target, 'checked'));
-            var change = getstr || "this.checked";
-        } else if (/^(select|input|textarea)$/i.test(target.tagName) || "value" in target) {
-            this.$renders.push(setter || setter2.bind(target, 'value'));
-            var change = getstr || "this.value";
-        } else {
-            this.$renders.push(setter || function () {
-                var value = getter(this);
-                if (value === undefined) value = "";
-                if (deepEqual(oldValue, value)) return;
-                oldValue = value;
-                if (html(this) !== value) html(this, value);
-            });
-            var change = getstr || "'value' in this?this.value:this.innerHTML";
-        }
-        if (change === false) return;
-        setter2 = null;
-        var changeme = $$eval.bind(this, search + "=" + change, getScopeList(this));
-        var onchange = function () {
-            changeme(this);
-            var value = getter(this);
-            if (value === oldValue) {
-                return;
-            }
-            oldValue = value;
-            userChanged = true;
-        };
-        eventsBinders.forEach(on => on(target, onchange, true));
+        var setter = createSetter(this, search);
+        var model = new Model(getter, setter, target);
+        model.hook(this, change !== false ? target : null);
     },
     value(search, target) {
         directives.model.call(this, search, target, false);
@@ -918,6 +926,7 @@ function renderElement(element, scope = element.$scope, parentScopes = element.$
             element = replacer;
         }
         if (element.$digest || element.$renders.length) {
+            element.$ready = true;
             renderlock.push(element);
         }
     }
@@ -1225,3 +1234,4 @@ render.getFromScopes = getFromScopes;
 render.struct = createStructure;
 render.mergeStruct = mergeStruct;
 render.Binder = Binder;
+render.Model = Model;
