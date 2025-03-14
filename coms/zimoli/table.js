@@ -250,6 +250,7 @@ function enrichField(f) {
     }
     if (width > 600) width = 600;
     f.width = parseFloat(width) + 60;
+    f.width_p = fromPixel(f.width);
     if (!f.key && f.options && isEmpty(f.fixed)) {
         f.fixed = true;
     }
@@ -581,7 +582,6 @@ function table(elem) {
             render.digest();
         };
     })
-    table.$digest = setFixedColumn;
 
     autodragchildren(
         table,
