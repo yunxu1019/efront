@@ -369,7 +369,7 @@ var acme2 = new class {
             o = await acme2.auditOrder(o, setauth);
         }
         if (o.status === 'ready') {
-            await this.finalizeOrder(o, upload);
+            o = await this.finalizeOrder(o, upload);
             o = await this.waitStatus(o);
         }
         if (o.status === 'valid') {
