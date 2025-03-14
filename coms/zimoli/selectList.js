@@ -217,7 +217,10 @@ function main() {
                         page.go(0);
                         appendChild(page, adder);
                     });
-                    popup(edit, [.5, .5]);
+                    on("remove")(edit, function () {
+                        page.with = null;
+                    });
+                    popup(edit, [.5, .5], true);
                     break;
             }
         });
