@@ -237,7 +237,7 @@ var doOptions = async function (req, res, type) {
                     var room = await userdata.getOptionObj("room", roomid);
                     if (!room) { throw i18n[getHeader(req.headers, "accept-language")]`房间不存在！`; }
                     if (!room.linkid || !clients.checkId(room.linkid)) {
-                        room.linkid = clients.create().id;
+                        room.linkid = clients.create(2).id;
                         await userdata.setOptionObj("room", roomid, room);
                         await message.broadcast("reloadUserdata");
                         room = await userdata.getOptionObj("room", roomid);
