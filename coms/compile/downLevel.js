@@ -355,7 +355,7 @@ var killdec = function (queue, i, getobjname, _var = 'var', killobj, islet) {
                     else {
                         var objname = getobjname(0);
                         q = scanner2(`(${objname} =)`);
-                        q[0].push(...splice(queue, i, i2));
+                        q[0].push(...splice(queue, i, i2 - i));
                         q[0].push(...scanner2(`${a[0]},${objname}!== undefined ? ${objname}: `), ...splice2(a[2], a[3], a[4]));
                         i2 = i;
                     }
@@ -1200,7 +1200,7 @@ var unforof = function (o, getnewname, used, killobj) {
     if (hasdeclare) {
         var [d] = getDeclared(m0);
         if (d.length) insert1(o, m, ...scanner2(d.join(",") + ","));
-        else splice(o, o.first, m0);
+        else splice2(o, o.first, m0);
     }
     var iname = getnewname();
     var gname = getnewname();
@@ -1614,7 +1614,7 @@ var newpunc = function (body, i, newname) {
                 }
                 splice(sentence, 0, 0, ...scanner2(`,${name}.${n}=${name}.${n}${punc}`));
             }
-            splice(sentence, 0, 0, ...scanner2(`${name}=`), ...splice(body, hi, i));
+            splice(sentence, 0, 0, ...scanner2(`${name}=`), ...splice(body, hi, i - hi));
             if (!isEval(body) || hp && hp.type === STAMP && /[=>]$/.test(hp.text)) {
                 var temp = scanner2(`()`)
                 splice(temp[0], 0, 0, ...sentence);

@@ -1,4 +1,4 @@
-var { STAMP, EXPRESS, STRAP, isHalfSentence, skipAssignment, skipFunction, getDeclared, VALUE, STRAP, SCOPED, QUOTED, snapSentenceHead, pickSentence, createString, getBodyWith, getFuncBody } = require("./common");
+var { STAMP, EXPRESS, STRAP, isHalfSentence, pickArgument, skipAssignment, skipFunction, getDeclared, VALUE, STRAP, SCOPED, QUOTED, snapSentenceHead, pickSentence, createString, getBodyWith, getFuncBody } = require("./common");
 var addAccessedStart = function (matched, namedMap) {
     var start = +namedMap["#1"];
     var body = getBodyWith(matched[0], 'arguments');
@@ -125,6 +125,22 @@ var unMultiple = function (matched) {
     matched.suggest = `${createString(matched)}{\r\n      // 不建议在可并行执行的函数中更改外部变量，以防并发调用时出现异常\r\n      // 建议在可并行函数内声明如下变量，并修改用到这些变量的代码\r\n      var ${undec.join(',')};\r\n  }`;
     return matched;
 }
+var checkSpliceSize = function (matched, i) {
+    var [m] = matched;
+    var argq = m.next;
+    if (argq?.type !== SCOPED || argq.entry !== '(') return;
+    var o = argq.first;
+    while (i-- > 0) {
+        o = skipAssignment(o).next;
+    }
+    var arg3 = pickArgument(o);
+    if (arg3.length === 1) {
+        var [size] = arg3;
+        if (!size.isdigit && !/\.length$/.test(size.text)) {
+            matched.suggest = `//第三个参数可能出错\r\n${createString([argq])}`;
+        }
+    }
+}
 var suggest = {
     "while($2[$1++]!==$3)": "while($1<$2.length&&$2[$1++]!==$3)",
     "while($2[$1]!==$3)$1++": "while($1<$2.length&&$2[$1]!==$3)$1++",
@@ -132,6 +148,12 @@ var suggest = {
     "for(var $1=#1;$1<arguments.length;$1++)": addAccessedStart,
     "await": unMultiple,
     "yield": unMultiple,
+    "splice"(matched) {
+        checkSpliceSize(matched, 2);
+    },
+    ".splice"(matched) {
+        checkSpliceSize(matched, 1);
+    },
     "arguments"(matched) {
         var m = matched[0];
         var body = getBodyWith(m, 'arguments');

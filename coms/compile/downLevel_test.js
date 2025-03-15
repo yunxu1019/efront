@@ -503,3 +503,9 @@ assert(downLevel(`0,{a,b}=eval`), '0, _ = eval, a = _.a, b = _.b\r\nvar _')
 assert(downLevel(`0,{a,b}=a`), '0, _ = a, a = a.a, b = _.b\r\nvar _')
 assert(downLevel(`0,{a,b}=[]`), '0, _ = [], a = _.a, b = _.b\r\nvar _')
 assert(downLevel(`0,{a,b}=a.b`), '0, _ = a.b, a = _.a, b = _.b\r\nvar _')
+assert(downLevel(`var [list = this] = arguments;`), `var list = (_ = arguments[0], _ !== undefined ? _ : this);
+var _`)
+assert(downLevel(`var [list = this] = arguments`), `var list = (_ = arguments[0], _ !== undefined ? _ : this)
+var _`)
+assert(downLevel(`var [list = this] = 0;`), `var list = (_ = 0[0], _ !== undefined ? _ : this);
+var _`)
