@@ -1,13 +1,14 @@
-<header ng-if="!user.isLogin" class="navbar-header">
+<header head ng-if="!user.isLogin" class="navbar-header">
     <!-- <avatar></avatar> -->
     <a @click="popup('#/user/login')" class="dashboard_text">请登录</a>
 </header>
-<header -else class="navbar-header">
+<header head -else class="navbar-header">
     <span class="dashboard_text" @click="go('/user/profile')">
         <avatar ng-src="user.avatar" size=30></avatar>
         <span ng-bind="user.name"></span>
         <span ng-bind="user.roles"></span>
     </span>
 </header>
-<ylist mode=inline ng-src="menu in menus" class="sidebar-menu" ng-active="menus.open(menu)">
+<ylist body mode=inline ng-src="menu in menus" class="sidebar-menu" ng-active="menus.open(menu)">
 </ylist>
+<footer foot></footer>

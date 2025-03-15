@@ -1,16 +1,18 @@
 & {
-    padding: 50px 0 0 0;
+    padding: 0 0 0 0;
     position: relative;
 }
 
 .navbar-header {
+    &:before{
+        display: none;
+    }
     min-height: 50px;
     padding: 10px 15px 10px 25px;
     font-size: 25px;
     line-height: 25px;
     text-transform: uppercase;
     color: #b8c7ce;
-    margin-top: -50px;
     display: block;
 }
 
@@ -32,7 +34,7 @@ ylist {
     box-shadow: none;
 }
 
-.label {
+>.header .label {
     border-radius: 4px;
     height: 18px;
     line-height: 18px;

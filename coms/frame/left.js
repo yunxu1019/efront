@@ -17,5 +17,6 @@ function main() {
     on('append')(page, function () {
         frame$route.open();
     });
+    view(page)
     return page;
 }

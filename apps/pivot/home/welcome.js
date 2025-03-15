@@ -8,6 +8,9 @@ function main() {
         filterTime,
         memeryUsed: 0,
         memery: [0, 1],
+        platform: '未知',
+        arch: '未知',
+        nodeVersion: "未知",
         size,
         progbar,
         async run(id) {
@@ -16,12 +19,6 @@ function main() {
                 run: id
             }).loading_promise;
             if (info) alert(info, 'pass');
-        },
-        async logout() {
-            data.setSource({});
-            await user.Logout();
-            zimoli.switch();
-            zimoli();
         }
     };
     renderWithDefaults(page, scope);
@@ -29,6 +26,9 @@ function main() {
         var [mr, mt] = a.memery;
         scope.memeryUsed = mt - mr;
         scope.memery = a.memery;
+        scope.nodeVersion = a.nodeVersion;
+        scope.platform = a.platform;
+        scope.arch = a.arch;
         console.log('status')
     });
     return page;

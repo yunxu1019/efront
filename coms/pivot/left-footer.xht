@@ -1,0 +1,25 @@
+<style>
+    & {
+        position: absolute;
+        width: 100%;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        z-index: 1;
+        display: block;
+        text-align: center;
+    }
+</style>
+<div>
+    <a @click="logout">${i18n`退出登录`}</a>
+</div>
+
+<script>
+    var a = button;
+    async function logout() {
+        data.setSource({});
+        await user.Logout();
+        zimoli.switch();
+        zimoli();
+    }
+</script>
