@@ -8,8 +8,8 @@ var setConstructor = Object.defineProperty ? function (a, c) {
 };
 // class A extends B {}
 function extends_(A, B) {
+    A.prototype = B === null ? Object.create(null) : (_ = new B, setConstructor(_, A), _);
     __static(A, B);
-    A.prototype = B === null ? Object.create(null) : new (_ = function () { setConstructor(this, A) }, _.prototype = B.prototype, _);
     var _;
 }
 return extends_;

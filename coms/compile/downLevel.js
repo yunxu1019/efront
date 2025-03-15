@@ -683,14 +683,18 @@ var killcls = function (body, i, letname_, getname_) {
         if (isExpress) fname[0].isExpress = true;
         insert1(invokes, null, ...fname);
         if (base) {
-            constructor[1].push(...scanner2('return this'))
+            var retthis = 'return this';
+            if (assign.length && assign.last.type !== SPACE && assign.last.text !== ';') {
+                retthis = "\r\n" + retthis;
+            }
+            constructor[1].push(...scanner2(retthis))
             relink(constructor[1]);
             var cs = createScoped(constructor[1]);
             var newt = getname(cs.vars, cs.envs, 'this_');
             if (cs.caps.this) rename(cs.caps, 'this', newt);
             var inited = false;
             assign.forEach(o => {
-                if (o.type === EXPRESS) o.text = o.text.replace(/^this([\[\.]|$)/g, newt + "$1");
+                if (o.type === EXPRESS || o.type === VALUE && !o.isdigit) o.text = o.text.replace(/^this([\[\.]|$)/g, newt + "$1");
             });
             if (cs.caps.super) {
                 cs.caps.super.forEach(o => {
