@@ -35,6 +35,7 @@ var onparams = function (params) {
 };
 function container(element) {
     var comment = document.createComment('container');
+    comment.$struct = element.$struct;
     care(comment, gosrc);
     if (element.hasAttribute && element.hasAttribute('src')) {
         var src = element.getAttribute('src');
