@@ -219,7 +219,10 @@ var trElementReg = /^tr$/i;
 var id = 0;
 function enrichField(f) {
     if (!f.id) f.id = ++id;
-    if (f.width) return;
+    if (f.width) {
+        f.width_p = fromPixel(f.width);
+        return;
+    }
     var width;
     if (f.size) {
         width = f.size;

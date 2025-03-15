@@ -232,6 +232,7 @@ var readonly_types = {
 var setContent = function (value) {
     if (this === value) return;
     if (isNode(value) && this !== value || isArray(value)) {
+        remove(this.childNodes);
         appendChild(this, value);
     }
     else if (isHandled(value)) {
