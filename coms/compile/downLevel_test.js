@@ -258,7 +258,7 @@ function () {
 return [0, 9]
 },
 function () {
-_2 = _; if (!_2) return [1, 0]; _2 = !_["done"]; if (!_2) return [1, 0]; _2 = _0["return"]; _2 = isFunction(_2)
+_2 = _; if (!_2) return [1, 0]; _2 = !_["done"]; if (!_2) return [1, 0]; _2 = _0["return"], _2 = typeof _2, _2 = _2 === "function"
 },
 function () {
 if (!_2) return [1, 0]; _2 = _0["return"](); return [1, 0]
@@ -287,10 +287,10 @@ function (_4) {
 _5 = _4; _1 = _5; _6 = Symbol["iterator"]; _6 = _1[_6]; if (_6) return [1, 0]; _6 = Array["prototype"]; _7 = Symbol["iterator"]; _6 = _6[_7]
 },
 function () {
-_2 = _6["call"](_1); _3 = undefined; _3 = _2["next"](); o = _3["value"]; _3 = _2["next"](); s = _3["value"]; _10 = !_3; if (_10) return [1, 0]; _10 = !_3["done"]
+_2 = _6["call"](_1); _3 = undefined; _3 = _2["next"](); o = _3["value"]; _3 = _2["next"](); s = _3["value"]; _11 = !_3; if (_11) return [1, 0]; _11 = !_3["done"]
 },
 function () {
-if (!_10) return [1, 0]; _10 = _2["return"]; _10 = isFunction(_10); if (!_10) return [1, 0]; _10 = _2["return"]()
+_10 = _11; if (!_10) return [1, 0]; _10 = _2["return"], _10 = typeof _10, _10 = _10 === "function"; if (!_10) return [1, 0]; _10 = _2["return"]()
 },
 function () {
 _3 = _10; _5 = true
@@ -305,7 +305,7 @@ function () {
 return [0, 9]
 },
 function () {
-_5 = _; if (!_5) return [1, 0]; _5 = !_["done"]; if (!_5) return [1, 0]; _5 = _0["return"]; _5 = isFunction(_5)
+_5 = _; if (!_5) return [1, 0]; _5 = !_["done"]; if (!_5) return [1, 0]; _5 = _0["return"], _5 = typeof _5, _5 = _5 === "function"
 },
 function () {
 if (!_5) return [1, 0]; _5 = _0["return"](); return [1, 0]
@@ -313,14 +313,14 @@ if (!_5) return [1, 0]; _5 = _0["return"](); return [1, 0]
 function () {
 return [1, 9]
 })
-var o, s, _, _0, _1, _2, _3, _5, _6, _7, _8, _9, _10`);
+var o, s, _, _0, _1, _2, _3, _5, _6, _7, _8, _9, _10, _11`);
 assert(downLevel(`for(o of os) noSymbol`), `for (_ = 0; _ < os["length"] && (o = os[_], true); _++) noSymbol\r\nvar _, _0`)
-assert(downLevel(`for(var o of os) Symbol`), `try { for (var o, _0 = os[Symbol["iterator"]] || Array["prototype"][Symbol["iterator"]], _0 = _0["call"](os), _ = _0["next"](); !_["done"] && (o = _["value"], true); _ = _0["next"]()) Symbol } finally { if (_ && !_["done"] && isFunction(_0["return"])) _0["return"]() }\r\nvar _, _0`)
-assert(downLevel(`for(var o of os) Symbol`), `try { for (var o, _0 = os[Symbol["iterator"]] || Array["prototype"][Symbol["iterator"]], _0 = _0["call"](os), _ = _0["next"](); !_["done"] && (o = _["value"], true); _ = _0["next"]()) Symbol } finally { if (_ && !_["done"] && isFunction(_0["return"])) _0["return"]() }\r\nvar _, _0`)
-assert(downLevel(`for(var o of o)Symbol`), `try { for (var o, _1 = o, _0 = _1[Symbol["iterator"]] || Array["prototype"][Symbol["iterator"]], _0 = _0["call"](_1), _ = _0["next"](); !_["done"] && (o = _["value"], true); _ = _0["next"]()) Symbol } finally { if (_ && !_["done"] && isFunction(_0["return"])) _0["return"]() }\r\nvar _, _0, _1`)
-assert(downLevel(`for(var [a] of os)Symbol`), `try { for (var a, _0 = os[Symbol["iterator"]] || Array["prototype"][Symbol["iterator"]], _0 = _0["call"](os), _ = _0["next"](); !_["done"] && (_1 = _["value"], _2 = (_1[Symbol["iterator"]] || Array["prototype"][Symbol["iterator"]])["call"](_1), _3 = undefined, _3 = _2["next"](), a = _3["value"], _3 = (!_3 || !_3["done"]) && isFunction(_2["return"]) && _2["return"](), true); _ = _0["next"]()) Symbol } finally { if (_ && !_["done"] && isFunction(_0["return"])) _0["return"]() }
+assert(downLevel(`for(var o of os) Symbol`), `try { for (var o, _0 = os[Symbol["iterator"]] || Array["prototype"][Symbol["iterator"]], _0 = _0["call"](os), _ = _0["next"](); !_["done"] && (o = _["value"], true); _ = _0["next"]()) Symbol } finally { if (_ && !_["done"] && typeof _0["return"] === "function") _0["return"]() }\r\nvar _, _0`)
+assert(downLevel(`for(var o of os) Symbol`), `try { for (var o, _0 = os[Symbol["iterator"]] || Array["prototype"][Symbol["iterator"]], _0 = _0["call"](os), _ = _0["next"](); !_["done"] && (o = _["value"], true); _ = _0["next"]()) Symbol } finally { if (_ && !_["done"] && typeof _0["return"] === "function") _0["return"]() }\r\nvar _, _0`)
+assert(downLevel(`for(var o of o)Symbol`), `try { for (var o, _1 = o, _0 = _1[Symbol["iterator"]] || Array["prototype"][Symbol["iterator"]], _0 = _0["call"](_1), _ = _0["next"](); !_["done"] && (o = _["value"], true); _ = _0["next"]()) Symbol } finally { if (_ && !_["done"] && typeof _0["return"] === "function") _0["return"]() }\r\nvar _, _0, _1`)
+assert(downLevel(`for(var [a] of os)Symbol`), `try { for (var a, _0 = os[Symbol["iterator"]] || Array["prototype"][Symbol["iterator"]], _0 = _0["call"](os), _ = _0["next"](); !_["done"] && (_1 = _["value"], _2 = (_1[Symbol["iterator"]] || Array["prototype"][Symbol["iterator"]])["call"](_1), _3 = undefined, _3 = _2["next"](), a = _3["value"], _3 = (!_3 || !_3["done"]) && typeof _2["return"] === "function" && _2["return"](), true); _ = _0["next"]()) Symbol } finally { if (_ && !_["done"] && typeof _0["return"] === "function") _0["return"]() }
 var _, _0, _1, _2, _3`)
-assert(downLevel(`for(var [a,b] of os)Symbol`), `try { for (var a, b, _0 = os[Symbol["iterator"]] || Array["prototype"][Symbol["iterator"]], _0 = _0["call"](os), _ = _0["next"](); !_["done"] && (_1 = _["value"], _2 = (_1[Symbol["iterator"]] || Array["prototype"][Symbol["iterator"]])["call"](_1), _3 = undefined, _3 = _2["next"](), a = _3["value"], _3 = _2["next"](), b = _3["value"], _3 = (!_3 || !_3["done"]) && isFunction(_2["return"]) && _2["return"](), true); _ = _0["next"]()) Symbol } finally { if (_ && !_["done"] && isFunction(_0["return"])) _0["return"]() }
+assert(downLevel(`for(var [a,b] of os)Symbol`), `try { for (var a, b, _0 = os[Symbol["iterator"]] || Array["prototype"][Symbol["iterator"]], _0 = _0["call"](os), _ = _0["next"](); !_["done"] && (_1 = _["value"], _2 = (_1[Symbol["iterator"]] || Array["prototype"][Symbol["iterator"]])["call"](_1), _3 = undefined, _3 = _2["next"](), a = _3["value"], _3 = _2["next"](), b = _3["value"], _3 = (!_3 || !_3["done"]) && typeof _2["return"] === "function" && _2["return"](), true); _ = _0["next"]()) Symbol } finally { if (_ && !_["done"] && typeof _0["return"] === "function") _0["return"]() }
 var _, _0, _1, _2, _3`)
 assert(downLevel(`[...a]=a`), `var &slice = Array["prototype"]["slice"];\r\na = &slice["call"](a, 0)`)
 assert(downLevel(`[c,...a]=a`), `var &slice = Array["prototype"]["slice"];\r\nc = a[0], a = &slice["call"](a, 1)`)
@@ -368,7 +368,7 @@ function () {
 return [0, 9]
 },
 function () {
-_3 = _0; if (!_3) return [1, 0]; _3 = !_0["done"]; if (!_3) return [1, 0]; _3 = _1["return"]; _3 = isFunction(_3)
+_3 = _0; if (!_3) return [1, 0]; _3 = !_0["done"]; if (!_3) return [1, 0]; _3 = _1["return"], _3 = typeof _3, _3 = _3 === "function"
 },
 function () {
 if (!_3) return [1, 0]; _3 = _1["return"](); return [1, 0]
@@ -398,7 +398,7 @@ function () {
 return [0, 9]
 },
 function () {
-_2 = _; if (!_2) return [1, 0]; _2 = !_["done"]; if (!_2) return [1, 0]; _2 = _0["return"]; _2 = isFunction(_2)
+_2 = _; if (!_2) return [1, 0]; _2 = !_["done"]; if (!_2) return [1, 0]; _2 = _0["return"], _2 = typeof _2, _2 = _2 === "function"
 },
 function () {
 if (!_2) return [1, 0]; _2 = _0["return"](); return [1, 0]
@@ -487,12 +487,19 @@ var _, _0`)
 assert(downLevel(`[...{}[a]]=[1]`), `var &slice = Array["prototype"]["slice"];
 _ = [1], {}[a] = &slice["call"](_, 0)
 var _`)
-assert(downLevel(`,{...{}[a]}=[1]`), `_ = [1], {}[a] = &rest(_, [])
+assert(downLevel(`,{...{}[a]}=[1]`), `, _ = [1], {}[a] = &rest(_, [])
 var _`)
 assert(downLevel(`var res=null,res2=1,{...{}[a]}=[1]`), `var res = null, res2 = 1, _ = [1], {}[a] = &rest(_, [])
 var _`);
 assert(downLevel(`var res=null,{...{}[a]}=[1]`), `var res = null, _ = [1], {}[a] = &rest(_, [])
 var _`)
-assert(downLevel(`,{b,...{}[a]}=[1]`), `_ = [1], b = _.b, {}[a] = &rest(_, ["b"])
+assert(downLevel(`,{b,...{}[a]}=[1]`), `, _ = [1], b = _.b, {}[a] = &rest(_, ["b"])
 var _`)
 assert(downLevel(`var penddings = {}, circle = [], module_keys = [];`), `var penddings = {}, circle = [], module_keys = [];`)
+assert(downLevel(`0,{a,b}=this`), '0, _ = this, a = _.a, b = _.b\r\nvar _')
+assert(downLevel(`0,{a,b}=1`), '0, _ = 1, a = _.a, b = _.b\r\nvar _')
+assert(downLevel(`0,{a,b}=true`), '0, _ = true, a = _.a, b = _.b\r\nvar _')
+assert(downLevel(`0,{a,b}=eval`), '0, _ = eval, a = _.a, b = _.b\r\nvar _')
+assert(downLevel(`0,{a,b}=a`), '0, _ = a, a = a.a, b = _.b\r\nvar _')
+assert(downLevel(`0,{a,b}=[]`), '0, _ = [], a = _.a, b = _.b\r\nvar _')
+assert(downLevel(`0,{a,b}=a.b`), '0, _ = a.b, a = _.a, b = _.b\r\nvar _')

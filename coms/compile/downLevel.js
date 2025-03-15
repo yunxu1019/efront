@@ -365,7 +365,7 @@ var killdec = function (queue, i, getobjname, _var = 'var', killobj, islet) {
                 }
             }
             tmpname = getobjname(0);
-            if (i > i0) splice(queue, i++, 0, { type: STAMP, text: ',' }, { type: EXPRESS, text: tmpname }, { type: STAMP, text: "=" });
+            if (index > 0) splice(queue, i++, 0, { type: STAMP, text: ',' }, { type: EXPRESS, text: tmpname }, { type: STAMP, text: "=" });
             else splice(queue, i, 0, { type: EXPRESS, text: tmpname }, { type: STAMP, text: "=" });
             i += 2;
             var i2 = skipAssignment(queue, i);
@@ -704,7 +704,7 @@ var killcls = function (body, i, letname_, getname_) {
                     inited = true;
                     insert1(o.queue, o, ...scanner2(`var ${newt}=`));
                     if (n.length) n.unshift({ type: STAMP, text: ',' });
-                    n.unshift({ type: EXPRESS, text: 'this' });
+                    n.unshift({ type: VALUE, text: 'this' });
                     insert1(o.queue, n.next, ...scanner2(`||this;`));
                 })
             }
