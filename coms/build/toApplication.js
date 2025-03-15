@@ -418,7 +418,7 @@ var patchData = function (mainScriptData, mainScript, responseTree) {
     rests.forEach(function (k) {
         var v = responseTree[k];
         v.data = encrypt(v.data, encoded);
-        var responseVersion = crc([].map.call(v.data.toString(), e => e.charCodeAt(0))).toString(36) + (+v.data.length).toString(36);
+        var responseVersion = crc.string(String(v.data)).toString(36) + (+v.data.length).toString(36);
         versionTree[v.name] = responseVersion;
     });
     var versioned = Object.keys(versionTree);

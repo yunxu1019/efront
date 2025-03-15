@@ -160,7 +160,7 @@ var care = function (req, res, type) {
         }
         var userinfo = null;
         if (type[3]) {
-            userinfo = encode62.timedecode(type[3]);
+            userinfo = encode62.packdecode(type[3]);
         }
         var usr = client.listen(res, userinfo);
         client.refresh();
@@ -233,7 +233,7 @@ var doOptions = async function (req, res, type) {
         case "link":
             if (type[2]) {
                 try {
-                    var roomid = encode62.timedecode(type[2]);
+                    var roomid = encode62.packdecode(type[2]);
                     var room = await userdata.getOptionObj("room", roomid);
                     if (!room) { throw i18n[getHeader(req.headers, "accept-language")]`房间不存在！`; }
                     if (!room.linkid || !clients.checkId(room.linkid)) {
@@ -381,12 +381,12 @@ var doOptions = async function (req, res, type) {
         case "proxy":
         case "private":
             try {
-                let key = type[2] && encode62.timedecode(type[2]);
+                let key = type[2] && encode62.packdecode(type[2]);
                 if (type[3] !== undefined) {
                     let act = type[0].charAt(type[0].length - type[3].length - 1);
                     if (type[3] && act === "+" || !type[3] && act === "?") {
                         var exists = await userdata.hasOption(type[1], key);
-                        if (!type[3]) return res.end(encode62.timeencode(String(exists)));
+                        if (!type[3]) return res.end(encode62.packencode(String(exists)));
                         if (exists && type[3]) {
                             res.writeHead(403, utf8error);
                             res.end(i18n[getHeader(req.headers, "accept-language")]`已存在相同标识的数据`);
@@ -394,12 +394,12 @@ var doOptions = async function (req, res, type) {
                         }
                     }
                     if (key && act === '*') {
-                        await userdata.patchOptionStr(type[1], key, encode62.timedecode(type[3]));
+                        await userdata.patchOptionStr(type[1], key, encode62.packdecode(type[3]));
                         res.end();
                         return;
                     }
                 }
-                var data = await userdata.option(type[1], key, type[3] && encode62.timedecode(type[3])) || '';
+                var data = await userdata.option(type[1], key, type[3] && encode62.packdecode(type[3])) || '';
                 await message.broadcast('reloadUserdata');
                 res.end(data);
             }
@@ -521,9 +521,9 @@ var requestListener = async function (req, res) {
     var headers = req.headers;
     if (/^\/\!/.test(url)) {
         var crypted = await userdata.getRequestCode(req);
-        if (url.length === 2) return res.end(encode62.timeencode(crypted));
+        if (url.length === 2) return res.end(encode62.packencode(crypted));
         try {
-            url = req.url = url.slice(0, 2) + encode62.safedecode(encode62.timedecode(url.slice(2)), crypted);
+            url = req.url = url.slice(0, 2) + encode62.safedecode(encode62.packdecode(url.slice(2)), crypted);
         } catch (e) {
             res.writeHead(403, utf8error);
             res.end(i18n[getHeader(headers, "accept-language")]`禁止访问`);
@@ -640,7 +640,10 @@ var requestListener = async function (req, res) {
                 return;
         }
         var type = /^(\w+)(?:[\-\/\!]([\/\!\'\(\)\-\.\w]*))?(?:[\?\:\+\*]([\s\S]*))?$/.exec(option);
-        if (type) return doOptions(req, res, type);
+        if (type) return doOptions(req, res, type).catch(function (e) {
+            res.writeHead(403);
+            res.end(String(e));
+        });
     }
     if (isOptions) return res.end();
 

@@ -6,12 +6,12 @@ module.exports = async function (a, sign, uid) {
         var u = await message.invoke('dbLoad', ['用户', uid]);
         if (!u) throw new Error(i18n`用户不存在！`);
     }
-    a = encode62.timedecode(a);
+    a = encode62.packdecode(a);
     var b = await userdata.checkPasswordA(a, u);
     if (!b) return;
     var a1 = encode62.geta(sign);
     var c = encode62.ab2c(a1, b);
     c = await userdata.sign(c);
-    c = encode62.timeencode(c);
+    c = encode62.packencode(c);
     return uid ? uid + " " + c : c;
 };

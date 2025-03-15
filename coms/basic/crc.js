@@ -26,7 +26,11 @@ function crc(bstr, seed) {
     if (i === L) C = C >>> 8 ^ T[(C ^ bstr[i]) & 0xFF];
     return C ^ -1;
 }
-
+crc.string = function (str) {
+    var sum = [];
+    for (var i in str) sum[i] = str.charCodeAt(i);
+    return crc(sum);
+}
 var sign = parseInt("-52l3vk", 36);
 var T = table(sign);
 module.exports = crc;

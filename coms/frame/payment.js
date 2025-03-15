@@ -22,7 +22,7 @@ function main(paytypes, price, subject = '网站扫码支付') {
             if (!pay) return 'about:blank';
             var url = pay.url;
             if (isFunction(url)) url = url.call(pay, this.finalpay, subject);
-            else if (url) url += encode62.timeencode(this.finalpay + "," + subject);
+            else if (url) url += encode62.packencode(this.finalpay + "," + subject);
             return url;
         },
         get finalpay() {
@@ -50,7 +50,7 @@ function main(paytypes, price, subject = '网站扫码支付') {
     var query = lazy(async function () {
         if (!tradeid || queryres) return;
         if (isFunction(queryurl)) var res = await queryurl(tradeid);
-        else if (isString(queryurl)) var res = await cross('get', queryurl + encode62.timeencode(tradeid)), res = JSAM.parse(res.response || res.responseText);
+        else if (isString(queryurl)) var res = await cross('get', queryurl + encode62.packencode(tradeid)), res = JSAM.parse(res.response || res.responseText);
         if (queryres) return;
         if (res) queryres = res, cast(page, 'payment', res._id);
     }, -200);

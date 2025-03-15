@@ -58,7 +58,7 @@ var getCrossUrl = function (domain, headers, encrypt) {
             });
     }
     if (ishttps) domain = b + domain;
-    if (encrypt) domain = encode62.timeencode(encode62.safeencode(domain, encrypt));
+    if (encrypt) domain = encode62.packencode(encode62.safeencode(domain, encrypt));
     return base + b + domain;
 };
 function noop() { }
@@ -506,7 +506,7 @@ function addReform(r) {
 }
 function getCode() {
     return new Promise((ok, oh) => {
-        this('get', base + "!").then((xhr) => { return ok(encode62.timedecode(xhr.response || xhr.responseText)) }, () => {
+        this('get', base + "!").then((xhr) => { return ok(encode62.packdecode(xhr.response || xhr.responseText)) }, () => {
             return oh(i18n`无法连接可加密的服务器！`);
         });
     });

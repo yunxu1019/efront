@@ -1,8 +1,8 @@
 function load(type, idkey) {
-    return data.from("list", { type, idkey: encode62.timeencode(idkey) }, a => JSAM.parse(encode62.timedecode(a || '')));
+    return data.from("list", { type, idkey: encode62.packencode(idkey) }, a => JSAM.parse(encode62.packdecode(a || '')));
 }
 function remove(type, key) {
-    return data.from("edit", { type, key: encode62.timeencode(key), value: encode62.timeencode("") }).loading_promise;
+    return data.from("edit", { type, key: encode62.packencode(key), value: encode62.packencode("") }).loading_promise;
 }
 function plist() {
     var title, type, fields, edit_ref, options, idkey, buttons;

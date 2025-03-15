@@ -102,7 +102,7 @@ function doGetFile(req, res, filepath, code) {
             return;
         }
         if (code) {
-            var sign = encode62.timedecode(code);
+            var sign = encode62.packdecode(code);
             if (!sign) {
                 res.writeHead(400, utf8);
                 res.end(i18n`请求无效`);
@@ -191,7 +191,7 @@ function doPutFile(req, res, filepath, code) {
         return;
     }
     if (code) {
-        var sign = encode62.timedecode(code);
+        var sign = encode62.packdecode(code);
         if (!sign) {
             res.writeHead(401, utf8);
             res.end("");

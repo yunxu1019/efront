@@ -24,8 +24,8 @@ function main(task) {
                 cross.addDirect(api.base);
                 await data.from(api, {
                     type: "task",
-                    key: encode62.timeencode(task.key),
-                    value: encode62.timeencode(JSON.stringify(task))
+                    key: encode62.packencode(task.key),
+                    value: encode62.packencode(JSON.stringify(task))
                 });
                 finished[h.key] = true;
             }

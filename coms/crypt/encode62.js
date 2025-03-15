@@ -28,6 +28,16 @@ Object.assign(encode62, {
     src,
     map,
     time_delta: parseInt("zzzzz", 36),
+    pack: 'efront-encode62s',
+    packdecode(string) {
+        return this.timedecode(string, this.pack);
+    },
+    packencode(string) {
+        return this.timeencode(string, this.pack);
+    },
+    packupdate(string) {
+        return this.timeupdate(string, this.pack);
+    },
     safeencode(string, sign, offset) {
         string = encodeURIComponent(string).replace(/\./g, '..').replace(/[\!'\(\)~]/g, a => escape(a)).replace(/%/g, '.');
         return this.encode62(string, sign, offset);
@@ -36,23 +46,43 @@ Object.assign(encode62, {
         string = this.decode62(string, sign, offset).replace(/\.\.?/g, a => a === '.' ? "%" : ".");
         return decodeURIComponent(string);
     },
-    timedecode(string) {
+    timedecode(string, pack) {
         var { time_delta } = this;
         var time_rest = string.slice(string.length - time_delta.toString(36).length, string.length);
         var time_start = parseInt((new Date() - parseInt(time_rest, 36)) / time_delta) * time_delta;
         var time_stamp = time_start + parseInt(time_rest, 36);
-        return this.safedecode(string.slice(0, string.length - time_delta.toString(36).length), time_stamp.toString(36));
+        string = string.slice(0, string.length - time_delta.toString(36).length);
+        if (pack) {
+            string = this.decode62(string, time_stamp.toString(36) + pack);
+            var sign = string.slice(string.length - 7, string.length);
+            sign = parseInt(sign, 36);
+            sign -= 0x600000000 + (time_stamp & 0xffffffff);
+            string = string.slice(0, string.length - 7);
+            string = decode62S(string);
+            if (crc.string(time_stamp.toString(36) + pack + string) !== sign) throw new Error('数据校验不通过！');
+            return string;
+        }
+        return this.safedecode(string, time_stamp.toString(36));
     },
-    timeencode(string) {
+    timeencode(string, pack) {
         var { time_delta } = this;
         var time_free = time_delta / 6 | 0;
         var time_stamp = +new Date() - time_free;
         var time_rest = time_stamp % time_delta;
         var time_rest_str = time_rest.toString(36);
         var time_delta_str = time_delta.toString(36);
-        return this.safeencode(string, time_stamp.toString(36)) + repeat("0", time_delta_str.length - time_rest_str.length) + time_rest_str;
+        if (pack) {
+            var sign = crc.string(time_stamp.toString(36) + pack + string);
+            sign += 0x600000000 + (time_stamp & 0xffffffff);
+            string = encode62S(string) + sign.toString(36);
+            string = this.encode62(string, time_stamp.toString(36) + pack);
+        }
+        else {
+            string = this.safeencode(string, time_stamp.toString(36));
+        }
+        return string + repeat("0", time_delta_str.length - time_rest_str.length) + time_rest_str;
     },
-    timeupdate(string) {
+    timeupdate(string, pack) {
         var { time_delta } = this;
         var time_rest = string.slice(string.length - time_delta.toString(36).length, string.length);
         var time_start = parseInt((new Date() - parseInt(time_rest, 36)) / time_delta) * time_delta;
@@ -60,7 +90,7 @@ Object.assign(encode62, {
         if (time_stamp + (time_delta >> 1) > +new Date()) {
             return string;
         } else {
-            return this.timeencode(this.timedecode(string));
+            return this.timeencode(this.timedecode(string, pack), pack);
         }
     },
     encode62(data, sign, offset = 0) {

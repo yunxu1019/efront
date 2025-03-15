@@ -6,7 +6,7 @@ module.exports = async function (req, roles) {
     var sign = remoteAddress(req);
     if (!auth) return false;
     auth = auth.split(/\s+/);
-    var c = encode62.timedecode(auth.pop());
+    var c = encode62.packdecode(auth.pop());
     var uid = auth.pop();
     c = await userdata.unsign(c);
     var a = encode62.geta(sign);

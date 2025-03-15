@@ -869,9 +869,7 @@ var loadResponseTreeFromStorage = preventCodeStorage ? function () { } : functio
         var version = preLoadVersionTree[responseName];
         if (!version) return;
         var responseText = preLoadResponseTree[responseName];
-        var sum = [];
-        for (var i in responseText) sum[i] = responseText.charCodeAt(i);
-        var sum = crc(sum).toString(36);
+        var sum = crc.string(responseText).toString(36);
         if (sum + version.slice(sum.length) === versionTree[responseName])
             responseTree[responseName] = responseText;
         // else window.console.log(responseName, sum, version, versionTree[responseName]);

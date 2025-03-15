@@ -166,14 +166,14 @@ require2.getTaskParams = async function (taskid) {
     var task = await getLoadedTask(taskid);
     if (!task) return;
     var params = JSON.stringify(task.params);
-    return require("../crypt/encode62").timeencode(params || null);
+    return require("../crypt/encode62").packencode(params || null);
 };
 require2.invokeTask = async function (taskid, data) {
     var task = await getLoadedTask(taskid);
     if (!task) return;
     var params = task.params;
     if (params) {
-        data = require("../crypt/encode62").timedecode(data);
+        data = require("../crypt/encode62").packdecode(data);
         data = JSON.parse(data);
         params = params.map(p => data[p.key]);
         var res = await task(...params);
@@ -181,7 +181,7 @@ require2.invokeTask = async function (taskid, data) {
     else {
         var res = await task();
     }
-    if (res) res = require("../crypt/encode62").timeencode(JSON.stringify(res));
+    if (res) res = require("../crypt/encode62").packencode(JSON.stringify(res));
     return res;
 };
 module.exports = require2;

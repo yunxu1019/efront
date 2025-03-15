@@ -3,7 +3,7 @@ plist.bind(null, '房间', "room", refilm`
 / $ ${[{
         name: "连接",
         async do(o) {
-            var linkid = await data.from("room", { id: encode62.timeencode(o.name) });
+            var linkid = await data.from("room", { id: encode62.packencode(o.name) });
             popup("/link/chat", { linkid, name: o.name });
         }
     }]}

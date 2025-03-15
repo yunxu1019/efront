@@ -136,7 +136,7 @@ function chat(title = '会话窗口') {
                     break;
             }
             return false;
-        }).map(m => JSAM.parse(encode62.timedecode(m))).filter(m => {
+        }).map(m => JSAM.parse(encode62.packdecode(m))).filter(m => {
             if (m.type === 'accept') {
                 page.$scope.pushFile(m.content);
                 return false;
@@ -266,7 +266,7 @@ function chat(title = '会话窗口') {
             if (this.user && this.user.id !== this.localid && type !== "accept") {
                 addToMsgList(this.msglist, [msg]);
             }
-            data = encode62.timeencode(data);
+            data = encode62.packencode(data);
             cast(page, "send", data);
             this.body.lastElementChild.focus();
             this.text = '';

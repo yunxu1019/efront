@@ -246,13 +246,13 @@ module.exports = {
                 return { key: keys[i], value: o };
             });
             if (key === false) return options;
-            return encode62.timeencode(JSAM.stringify(options));
+            return encode62.packencode(JSAM.stringify(options));
         }
         var key0 = key_privateprefix + key;
         if (value === undefined || value === false || value === 0 || value === null) {
             if (value === null) return hasItem(key0);
             var data = await getItem(key0);
-            if (value === undefined) return encode62.timeencode(data);
+            if (value === undefined) return encode62.packencode(data);
             if (value === false) return data;
             return data ? JSON.parse(data) : null;
         }

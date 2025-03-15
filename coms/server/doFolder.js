@@ -111,7 +111,7 @@ function doDelete(p1) {
 
 function wrapPath(pathname) {
     try {
-        pathname = encode62.timedecode(pathname);
+        pathname = encode62.packdecode(pathname);
     } catch (e) {
         throw e400;
     }

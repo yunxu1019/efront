@@ -6,11 +6,11 @@ async function link(page, id) {
         if (req.abort) req.abort();
         runing = false;
     });
-    var req = await data.from("care", { id, userid: encode62.timeencode([page.localid, clientInfo.name, ''].join(',')) })
+    var req = await data.from("care", { id, userid: encode62.packencode([page.localid, clientInfo.name, ''].join(',')) })
     do {
         var msg = await req;
         page.push(msg);
-        req = data.from("care", { id, userid: encode62.timeencode(page.localid) });
+        req = data.from("care", { id, userid: encode62.packencode(page.localid) });
     } while (runing);
 }
 function download(url) {

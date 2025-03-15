@@ -1,6 +1,6 @@
 <script serverside>
     var time = +new Date;
-    var out_trade_no = encode62.timedecode(request.id);
+    var out_trade_no = encode62.packdecode(request.id);
     var payed = /^(TRADE_FINISHED|TRADE_SUCCESS)$/i;
     for (var cx = 0, dx = 10; cx < dx; cx++) {
         if (+new Date - time > 30000) return;

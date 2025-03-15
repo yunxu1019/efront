@@ -51,9 +51,9 @@ var proto = {
     },
     getPassport() {
         if (!passport) {
-            passport = encode62.timeencode(encode62.decode62(user._passport, user.session));
+            passport = encode62.packencode(encode62.decode62(user._passport, user.session));
         }
-        return passport = encode62.timeupdate(passport);
+        return passport = encode62.packupdate(passport);
     },
     Login(userinfo) {
         this.login(userinfo);

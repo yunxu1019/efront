@@ -1,7 +1,7 @@
 var fields = refilm`
 文件
 `;
-var passport = encode62.timeencode(encode62.decode62(user._passport, user.session));
+var passport = encode62.packencode(encode62.decode62(user._passport, user.session));
 var pending = [];
 async function upload(f, dist, token) {
     var api = await data.getApi("upload");
@@ -94,7 +94,7 @@ function main(path) {
             var p = this.pathlist.join('/').replace(/^\/+|\/+$/g, '');
             var bp = p ? base + p + "/" : base;
             p = p + '/';
-            return data.from("folder", { opt: 'list', path: encode62.timeencode(p) }, files => {
+            return data.from("folder", { opt: 'list', path: encode62.packencode(p) }, files => {
                 if (files) return files.map(f => {
                     var file = new File(f);
                     file.host = base;
@@ -112,22 +112,22 @@ function main(path) {
         },
         upload,
         async delete(path) {
-            return data.from("folder", { opt: 'del', path: encode62.timeencode(path) })
+            return data.from("folder", { opt: 'del', path: encode62.packencode(path) })
         },
         async rename(from, to) {
-            from = encode62.timeencode(from);
-            to = encode62.timeencode(to);
+            from = encode62.packencode(from);
+            to = encode62.packencode(to);
             await data.from("folder", { opt: 'mov', path: from, to }).loading_promise;
         },
         async add(name) {
-            name = encode62.timeencode(name);
+            name = encode62.packencode(name);
             await data.from("folder", { opt: 'add', path: name }).loading_promise;
         },
         async mov(from, distpath) {
             var currentHost = data.getInstance("base").base;
             if (from.host !== currentHost) return alert("暂不支持跨服务器操作！");
-            from = encode62.timeencode(from.fullpath);
-            distpath = encode62.timeencode(distpath);
+            from = encode62.packencode(from.fullpath);
+            distpath = encode62.packencode(distpath);
             await data.from("folder", { opt: 'mov', path: from, to: distpath }).loading_promise;
         }
     });

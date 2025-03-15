@@ -65,14 +65,15 @@ setInterval(function () {
     if (!base.base) return user.token = null;
     var auth = data.getSource(base.base);
     if (!auth) return user.token = null;
-    var auth1 = encode62.timeupdate(auth);
+    var auth1 = encode62.packupdate(auth);
     if (auth1 !== auth) data.setSource(base.base, auth1);
     user.token = auth1;
 }, 2000);
 login();
 var layer = layer$glance({
     left: frame$left.bind({
-        head: await init("left-header")
+        head: await init("left-header"),
+        foot: await init('left-footer')
     }),
     top: frame$top
 });

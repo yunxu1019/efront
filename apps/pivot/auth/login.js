@@ -28,9 +28,9 @@ function main(host) {
             var api = Object.assign({}, await data.getApi("login"));
             api.base = base;
             var info = await data.from(api, {
-                a: encode62.timeencode(encode62.geta(password))
+                a: encode62.packencode(encode62.geta(password))
             }).loading_promise;
-            info = encode62.timeupdate(info);
+            info = encode62.packupdate(info);
             data.setSource(base, info);
             if (host) {
                 cast(page, 'login', info);

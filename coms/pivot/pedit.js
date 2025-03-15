@@ -1,9 +1,9 @@
 function send(type, key, value, origin) {
     return data.from(origin, {
         type,
-        key: encode62.timeencode(key),
-        value: isHandled(value) ? encode62.timeencode(JSON.stringify(value)) : '',
-    }, e => e ? JSAM.parse(encode62.timedecode(e)) : '').loading_promise;
+        key: encode62.packencode(key),
+        value: isHandled(value) ? encode62.packencode(JSON.stringify(value)) : '',
+    }, e => e ? JSAM.parse(encode62.packdecode(e)) : '').loading_promise;
 }
 function pedit(title, type, params, idkey = params.fields[0].key) {
     var pdata = params.data;
