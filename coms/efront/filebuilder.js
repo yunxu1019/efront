@@ -14,7 +14,7 @@ var getXMLHttpRequest = function () {
 }
 var liveload = () => `function () {
     if(!location.reload)location.reload=function(){
-        Window.this.load(location.href);
+        Window["this"].load(location.href);
     };
     var reloadCount = 0;
     var reload = function () {

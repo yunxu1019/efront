@@ -2,7 +2,14 @@ var __static = Object.setPrototypeOf || { __proto__: [] } instanceof Array && fu
     d.__proto__ = b;
 } || extend;
 var setConstructor = Object.defineProperty ? function (a, c) {
-    Object.defineProperty(a, "constructor", { value: c });
+    try {
+        Object.defineProperty(a, "constructor", { value: c });
+    } catch (e) {
+        setConstructor = function (a, c) {
+            a.constructor = c;
+        };
+        setConstructor(a, c);
+    }
 } : function (a, c) {
     a.constructor = c;
 };

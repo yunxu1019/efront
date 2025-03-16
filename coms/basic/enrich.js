@@ -17,8 +17,13 @@ var bindObjK = function (obj, k, resolve, _object) {
     });
 };
 var enrich = function enrich(obj) {
-    var _promise = Promise.resolve();
     var _object = Object.create(null);
+    try {
+        Object.defineProperty({}, 'a', { value: null })
+    } catch (e) {
+        _object = document.createComment('');
+    }
+    var _promise = Promise.resolve();
     var _then = _promise.then;
     var pthen = function () {
         var promise = _then.apply(this, arguments);

@@ -29,6 +29,7 @@ var {
     startPath: efrontPath,
     pixelDecoder // = d => d / 16 + "rem"
 } = window;
+
 if (PREVENT_FRAMEWORK_MODE !== false) {
     var message = '请关闭后重新打开..';
     try {
@@ -42,6 +43,7 @@ if (PREVENT_FRAMEWORK_MODE !== false) {
         return;
     }
 }
+
 var efront_time = +new Date;
 var _devicePixelRatio = devicePixelRatio;
 var request = window.request || function (url, onload, onerror, version) {
@@ -202,7 +204,7 @@ var killCircle = function () {
     };
     if (!circle.length) return;
     while (circle.length) {
-        var deleted = Object.create(null);
+        var deleted = {};
         var savedLength = circle.length;
         for (var cx = circle.length - 1; cx >= 0; cx--) {
             var arg = circle[cx];
@@ -246,7 +248,7 @@ var killCircle = function () {
         for (var k of module_keys) flushTree(tree, k);
     }
 };
-var multiModules = Object.create(null);
+var multiModules = {};
 // -->
 var hasOwnProperty = {}.hasOwnProperty;
 "use ./#decrypt.js";
@@ -436,6 +438,7 @@ function Meta(url) {
 Meta.prototype.resolve = function (url) {
     return resolve(url, this.url);
 }
+
 var createModule = function (exec, originNames, compiledNames, prebuilds = {}) {
     var module = {};
     var exports = module.exports = {};
@@ -487,7 +490,7 @@ var createModule = function (exec, originNames, compiledNames, prebuilds = {}) {
         };
         var result, created;
         if (prebuilds.init) {
-            var prebuilds2 = Object.create(null);
+            var prebuilds2 = {};
             for (var k in prebuilds) if (hasOwnProperty.call(prebuilds, k)) prebuilds2[k] = prebuilds[k];
             prebuilds = prebuilds2;
         }
@@ -577,11 +580,11 @@ var init = function (url, then, prebuilds, keeppage) {
         var length = 0;
         var deep = 0;
         // <!--
-        var map = Object.create(null);
+        var map = {};
         map[url] = true;
         do {
             deep++;
-            var rest2 = Object.create(null);
+            var rest2 = {};
             while (rest.length) {
                 var n = rest.pop();
                 var e = loadedModules[n] && loadedModules[n].error;

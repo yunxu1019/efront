@@ -1,4 +1,4 @@
-if (this.XMLHttpRequest?.prototype && "onreadystatechange" in this.XMLHttpRequest.prototype) return this.XMLHttpRequest;
+if (this.XMLHttpRequest && this.XMLHttpRequest.prototype && "onreadystatechange" in this.XMLHttpRequest.prototype) return this.XMLHttpRequest;
 if (this.ActiveXObject) return this.ActiveXObject.bind(null, 'Microsoft.XMLHTTP');
 if (!this.fetch) return;
 var window = this;
@@ -28,7 +28,7 @@ XMLHttpRequest.prototype.send = function (data) {
         xhr.responseText = d;
         if (xhr.onreadystatechange) xhr.onreadystatechange({ target: xhr });
         if (xhr.onload) xhr.onload({ target: xhr });
-    }).catch(function (e) {
+    })["catch"](function (e) {
         xhr.readyState = 4;
         if (xhr.onreadystatechange) xhr.onreadystatechange({ target: xhr });
         if (xhr.onerror) xhr.onerror({ target: xhr });
