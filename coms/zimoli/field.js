@@ -55,7 +55,8 @@ var reshape = function () {
 function main(elem) {
     if (!isElement(elem)) elem = document.createElement('field');
     elem.reshape = reshape;
-    resizingList.set(elem, () => elem.reshape());
+    resizingList.set(elem, reshape);
+    elem.$digest = reshape;
     elem.setAttribute("field", '');
     var scope = {};
     elem.$renders = [function () {
@@ -108,7 +109,6 @@ function main(elem) {
         });
         elem.oldValue = data[f.key];
         elem.setAttribute("field", f.key);
-        elem.reshape();
     }, false);
     else {
         var [head, body, foot] = getTypedChildren(elem, ["head", 'body', 'foot']);
