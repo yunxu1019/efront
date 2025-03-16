@@ -510,3 +510,4 @@ var _`)
 assert(downLevel(`var [list = this] = 0;`), `var list = (_ = 0[0], _ !== undefined ? _ : this);
 var _`)
 assert(downLevel(`a => a() + a(1), a => a`), `function (a) { return a() + a(1) }, function (a) { return a }`)
+assert(downLevel(`a(a,)`), `a(a)`);

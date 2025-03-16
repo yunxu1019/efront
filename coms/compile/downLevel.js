@@ -1046,6 +1046,11 @@ var killobj = function (body, getobjname, getletname, getname_, letname_, deep =
                 continue;
             }
             else if (o.entry === '(') {
+                var arg = o.last;
+                if (arg?.type === STAMP && arg.text === ',') {
+                    splice2(o, arg, arg.next);
+                    arg = arg.prev;
+                }
                 if (o.next && o.next.type === STAMP && o.next.text === '=>');
                 else if (o.prev && o.prev.type === STRAP) {
                     var p = o.prev;
