@@ -547,6 +547,7 @@ var grid_prototype = {
                 current_b = temp_b;
             } else {
                 var _div = point.target;
+                if (!_div && grid.patchCell) _div = point.target = document.createElement('cell');
                 if (_div && _div.parentNode !== grid) appendChild(grid, _div);
                 var current_value;
                 if (current_d === "x") {
