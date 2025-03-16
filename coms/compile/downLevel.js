@@ -1270,7 +1270,7 @@ var unarrow = function (body, i, killobj, letname_) {
         splice(b, 0, 0, { type: STRAP, transive: true, text: "return" }, ...splice(body, ni, nni - ni, b));
         killarg(h, b, letname_);
         killobj(b);
-        ni = nni;
+        nni = indexof(body, b, ni) + 1;
     }
     else nni = ni + 1;
     return nni;
