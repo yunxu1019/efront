@@ -447,7 +447,7 @@ function zimoli(pagepath, args, history_name, oldpagepath) {
     }
     if (isNode(history_name))
         var zid = history_name.zimoliid = (history_name.zimoliid | 0) + 1;
-    else var zid = ++zimoliid;
+    else var zid = arguments.length ? ++zimoliid : zimoliid;
 
     if (page_generators[pagepath]) return go(pagepath, args, history_name, oldpagepath);
     return prepare(pagepath, function () {
