@@ -599,6 +599,9 @@ class Model {
         this.ss.call(this.target, value);
         this.value = value;
         this.bd.value = this.gs.call(this.target, value);
+        if (isFunction(this.emit?.call)) {
+            this.emit.call(this.target);
+        }
         userChanged = true;
     }
     hook(elem, emit) {
@@ -606,7 +609,8 @@ class Model {
         elem.$renders.push(binder);
         binder.call(elem);
         this.bd = binder;
-        if (emit) {
+        if (emit !== false) {
+            this.emit = emit;
             eventsBinders.forEach(on => on(this.target, this, true));
             this.value = this.gv.call(elem);
             this.target = elem;
@@ -664,7 +668,7 @@ var directives = {
         var getter = createGetter(this, search);
         var setter = createSetter(this, search);
         var model = new Model(getter, setter, target);
-        model.hook(this, change !== false ? target : null);
+        model.hook(this, change !== false);
     },
     value(search, target) {
         directives.model.call(this, search, target, false);

@@ -3,7 +3,7 @@ var reshape = function () {
     var isInlineBlock = body && /^inline/i.test(getComputedStyle(body).display);
     if (head && body) {
         var left = head.offsetWidth + 1;
-        if (isInlineBlock && left < body.offsetWidth >> 2) {
+        if (isInlineBlock && left < (this.break || body.offsetWidth >> 2)) {
             css(head, {
                 marginRight: fromOffset(-left),
                 marginBottom: ''
@@ -55,6 +55,7 @@ var reshape = function () {
 function main(elem) {
     if (!isElement(elem)) elem = document.createElement('field');
     elem.reshape = reshape;
+    if (elem.break === false) elem.break = Infinity;
     resizingList.set(elem, reshape);
     elem.$digest = reshape;
     elem.setAttribute("field", '');

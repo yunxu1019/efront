@@ -279,6 +279,19 @@ function getScopeValue() {
 function setScopeValue(v) {
     this.data[this.field.key] = v;
 }
+var copyOptionData = function () {
+    var { data, field } = this;
+    if (!data || !field) return;
+    var { option_to, options } = field;
+    if (!options) return;
+    var value = data[field.key];
+    var option = isObject(value) ? value : value in options ? options[value] : value;
+    extend(data, seek(option, option_to));
+};
+var getOptionsFrom = function () {
+    var { data, field } = this;
+    return data[field.options_from];
+};
 function setBinder(elem, binder) {
     if (binder === elem.$binder) return;
     removeFromList(elem.$renders, elem.$binder);
@@ -293,7 +306,7 @@ function setBinder(elem, binder) {
         if (isHandled(ipt) && ipt !== elem) {
             if (isNode(ipt)) {
                 var model = new Model(getScopeValue, setScopeValue, ipt);
-                model.hook(elem, ipt);
+                model.hook(elem, elem.field.option_to ? copyOptionData : true);
                 appendChild(elem, ipt);
             }
             else {
@@ -351,6 +364,11 @@ var run = function ({ changes }) {
     if (/\?/.test(field_type)) {
         var [field_type, field_ref] = field_type.split("?");
         field.ref = field_ref;
+    }
+    if (field.options_from) {
+        Object.defineProperty(field, 'options', {
+            get: getOptionsFrom.bind(elem)
+        });
     }
     var type = elem.getAttribute('type');
     if (type !== field_type) {
