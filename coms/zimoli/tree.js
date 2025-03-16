@@ -42,6 +42,7 @@ function tree() {
             generator = arg;
         }
     });
+    if (!element) element = document.createElement('tree');
     if (!generator && element && "$src" in element && element.childNodes.length) {
         generator = getGenerator(element, 'node');
     }
@@ -212,7 +213,6 @@ function tree() {
                 } else {
                     marginTop = top.offsetTop - bottom.offsetTop - bottom.offsetHeight;
                 }
-                css(banner, { paddingBottom: -marginTop });
                 var res = transition(top, {
                     transition: `margin-top ${time(marginTop)}s ease-out`,
                     marginTop: fromOffset(marginTop)
@@ -232,7 +232,6 @@ function tree() {
                 setState(false);
                 z0();
                 var paddingBottom = -margin_top;
-                css(banner, { paddingBottom });
                 var res = transition(change_elem, { transition: `margin-top ${time(margin_top)}s ease-out`, marginTop: fromOffset(margin_top) }, false);
                 timeout(z1, res + 60);
             }

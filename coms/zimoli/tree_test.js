@@ -1,8 +1,9 @@
+
 var data1 = random([
     {
         name: "一级目录${inc}"
     }
-], 20);
+], 2);
 var data2 = random([{
     name: "一级目录${inc}",
     children: [
@@ -16,14 +17,15 @@ var data2 = random([{
         },
     ]
 }
-], 20)
+], 2)
 
 function tree_test() {
     var banner = tree();
     banner.setData(data2);
-    setTimeout(function () {
-        banner.go(0);
-        test_scroll(banner);
-    })
+    css(banner, {
+        overflow: 'hidden',
+        padding: 0,
+        height: 260
+    });
     return banner;
 }
