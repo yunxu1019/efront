@@ -297,6 +297,7 @@ function main() {
         }
         return generator(index, item);
     }, direction);
+    if (!page.$renders) page.$renders = [];
     page.$renders.unshift(function () {
         this.$scope.hasIcon = hasIcon();
     });
