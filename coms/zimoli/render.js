@@ -645,14 +645,14 @@ var directives = {
         var style = this.style;
         if (style.display !== display) style.display = display;
     }, function () {
-        return this.style.display === 'none';
+        return this.style?.display === 'none';
     }),
     show: createBinder2(function (value) {
         var display = value ? '' : 'none';
         var style = this.style;
         if (style.display !== display) style.display = display;
     }, function () {
-        return this.style.display !== 'none';
+        return this.style?.display !== 'none';
     }),
     style: createMapper(css, css.styleToMap),
     class: createMapper(addClass, addClass.classToMap),
