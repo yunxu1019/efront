@@ -599,7 +599,7 @@ var setprop = function (prop, k, d, q, tempname) {
     }
 }
 var rootenvs = null, rootHyper;
-var killcls = function (body, i, letname_, getname_) {
+var killcls = function (body, i, letname_, getname_, killobj) {
     var extends_ = [];
     var o = body[i];
     var ishalf = isHalfSentence(body, i - 1);
@@ -651,6 +651,7 @@ var killcls = function (body, i, letname_, getname_) {
         while (m) {
             var [prop, m] = getprop(o, m);
             if (!prop.value.length) prop.value = scanner2('undefined;');
+            else killobj(prop.value);
             var k = prop.static ? clz.name : `${clz.name}["prototype"]`;
             var d = prop.static ? static_ : define_;
             if (prop.get || prop.set || prop.static) {
@@ -988,7 +989,7 @@ var killobj = function (body, getobjname, getletname, getname_, letname_, deep =
                     i++;
                     break;
                 case "class":
-                    i = killcls(body, i, letname_, getname_);
+                    i = killcls(body, i, letname_, getname_, deepkill);
                     break;
                 case "for":
                 case "function":

@@ -511,3 +511,6 @@ assert(downLevel(`var [list = this] = 0;`), `var list = (_ = 0[0], _ !== undefin
 var _`)
 assert(downLevel(`a => a() + a(1), a => a`), `function (a) { return a() + a(1) }, function (a) { return a }`)
 assert(downLevel(`a(a,)`), `a(a)`);
+assert(downLevel(`class{a=[...presets.source]}`), `var &slice = Array["prototype"]["slice"];
+function () { this.a = &slice["call"](presets.source) }`);
+assert(downLevel(`class{a=a=>a}`), `function () { this.a = function (a) { return a } }`);
