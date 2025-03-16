@@ -591,7 +591,7 @@ var setprop = function (prop, k, d, q, tempname) {
             tmp = tmp[tmp.length - 1];
             d[prop.name] = tmp;
         }
-        insert1(d[prop.name], null, ...rescan`[${prop.get ? '"get"' : '"set"'}]=${pv},${tempname}`);
+        insert1(d[prop.name], null, ...rescan.keep`[${prop.get ? '"get"' : '"set"'}]=${pv},${tempname}`);
     }
     else {
         insert1(q, null, ...scanner2(`${q && q.length ? "\r\n" : ''}${k}${prop.name}=`));
@@ -651,7 +651,7 @@ var killcls = function (body, i, letname_, getname_, killobj) {
         while (m) {
             var [prop, m] = getprop(o, m);
             if (!prop.value.length) prop.value = scanner2('undefined;');
-            else killobj(prop.value);
+            else if (!prop.sfunc) killobj(prop.value);
             var k = prop.static ? clz.name : `${clz.name}["prototype"]`;
             var d = prop.static ? static_ : define_;
             if (prop.get || prop.set || prop.static) {

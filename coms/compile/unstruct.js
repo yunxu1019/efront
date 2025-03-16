@@ -134,13 +134,13 @@ var _withget = function (text) {
     if (index < 0) index = text.length;
     var name = text.slice(0, index);
     var prop = text.slice(index);
-    return rescan`${patchMark + "wget"}(${`"${name}"`},[${_evals()}],${name})${prop}`;
+    return rescan.keep`${patchMark + "wget"}(${`"${name}"`},[${_evals()}],${name})${prop}`;
 };
 var _withset = function (text, tmpname, valname) {
     var index = text.indexOf(".");
     if (index < 0) index = text.length;
     var name = text.slice(0, index);
-    return rescan`if(${tmpname}=${patchMark + "with"}(${`"${name}"`},[${_evals()}]))${tmpname}.${text}=${valname};else ${text}=${valname};`;
+    return rescan.keep`if(${tmpname}=${patchMark + "with"}(${`"${name}"`},[${_evals()}]))${tmpname}.${text}=${valname};else ${text}=${valname};`;
 };
 var _switch = function (body, cx, unblock, result, getname) {
     var o = body[cx];
@@ -324,7 +324,7 @@ var _while = function (body, cx, unblock, result) {
     o = o.next;
     while (cx < body.length && body[cx] !== o) cx++;
     var i = result.length;
-    var b = rescan`if (${getCondition(o, unblock, true)}) return []`;
+    var b = rescan.keep`if (${getCondition(o, unblock, true)}) return []`;
     var be = b[b.length - 1];
     pushstep(result, b);
     var i2 = result.length - 1;
@@ -351,7 +351,7 @@ var pushstep = function (result, step) {
     }
     else if (q.await_) {
         if (!step.awaited) {
-            step.unshift(...rescan`${q.name}=${ret_};`), relink(step);
+            step.unshift(...rescan.keep`${q.name}=${ret_};`), relink(step);
             step.awaited = true;
         }
         result.push(step);
@@ -435,7 +435,7 @@ var _do = function (body, cx, unblock, result) {
     o = o.next.next;
 
     if (label.continue) ifpatch(result), label.contat = result.length;
-    var b = rescan`if (${getCondition(o, unblock)}) return [${i - result.length}, 0]`;
+    var b = rescan.keep`if (${getCondition(o, unblock)}) return [${i - result.length}, 0]`;
     pushstep(result, b);
     b[b.length - 1][0].text = String(i - result.length + 1);
     while (cx < body.length && body[cx] !== o) cx++;
@@ -464,7 +464,7 @@ var _return = function (r) {
         x = stepReturn(name, 2);
     }
     else if (e === THROW) {
-        x = rescan`throw ${name}`;
+        x = rescan.keep`throw ${name}`;
     }
     else if (e === YIELD) {
         x = stepReturn(name, 3);
@@ -781,7 +781,7 @@ var ternary = function (body, getname, ret) {
                 }
                 pushstep(d, stepReturn(1, 0, d));
                 pushstep(c, stepReturn(d.length + 1, 0, c));
-                pushstep(explist, rescan`if (${getCondition(b, function (b) {
+                pushstep(explist, rescan.keep`if (${getCondition(b, function (b) {
                     b = ternary(b, getnextname, true);
                     for (var b of b) pushstep(explist, b);
                     return b;
@@ -1323,10 +1323,10 @@ function toqueue(body, getname, ret = false, result = []) {
                 var n = getCondition(o, unblock, !isbr);
                 o = o.next;
                 if (isbr) {
-                    var c = rescan`if (${n})`;
+                    var c = rescan.keep`if (${n})`;
                 }
                 else {
-                    var c = rescan`if (${n}) return [0, 0]`;
+                    var c = rescan.keep`if (${n}) return [0, 0]`;
                 }
                 var ce = c[3];
                 pushstep(result, c);

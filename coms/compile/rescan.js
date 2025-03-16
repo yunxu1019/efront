@@ -1,5 +1,5 @@
 var { SCOPED, EXPRESS, replace } = require("./common");
-
+var keep = false;
 var patchObject = function (code, objs) {
     var rest = [code];
     var m = null;
@@ -12,7 +12,7 @@ var patchObject = function (code, objs) {
             }
             if (c.type === EXPRESS) {
                 if (m = /^#\\(\d+)$/.exec(c.text)) {
-                    var o = cloneNode(objs[+m[1]]);
+                    var o = cloneNode(objs[+m[1]], keep);
                     if (o instanceof Array) replace(c, ...o);
                     else replace(c, o);
                 }
@@ -32,4 +32,10 @@ function rescan(strs, ...args) {
     dist = scanner2(dist.join(''));
     patchObject(dist, args);
     return dist;
+}
+rescan.keep = function () {
+    keep = true;
+    var res = rescan.apply(this, arguments);
+    keep = false;
+    return res;
 }

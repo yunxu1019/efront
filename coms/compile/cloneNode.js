@@ -1,7 +1,8 @@
 var { VALUE, QUOTED, EXPRESS, STRAP, relink } = require("./common");
-var cloneNode = function (o) {
+var cloneNode = function (o, keep) {
     var c = o;
     if (c instanceof Array && !c.text) {
+        if (keep) return c;
         c = c.map(cloneNode);
         c.entry = o.entry;
         c.leave = o.leave;
@@ -12,6 +13,7 @@ var cloneNode = function (o) {
         relink(c);
     }
     else if (typeof c === 'object' && c instanceof Object) {
+        if (keep) return c;
         c = Object.assign({}, c);
     }
     else switch (typeof c) {

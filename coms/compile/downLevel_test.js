@@ -514,3 +514,23 @@ assert(downLevel(`a(a,)`), `a(a)`);
 assert(downLevel(`class{a=[...presets.source]}`), `var &slice = Array["prototype"]["slice"];
 function () { this.a = &slice["call"](presets.source) }`);
 assert(downLevel(`class{a=a=>a}`), `function () { this.a = function (a) { return a } }`);
+assert(downLevel(`class{ get a(){[...a]}}`), `var &slice = Array["prototype"]["slice"];
+function () {};
+Object["defineProperty"](cls0["prototype"], "a", (tmp = {}, tmp["get"] = function () { &slice["call"](a) }, tmp))
+var tmp`);
+assert(downLevel(`class{ get (){[...a]}}`), `var &slice = Array["prototype"]["slice"];
+function () {}; cls0["prototype"].get = function () { &slice["call"](a) }`);
+assert(downLevel(`class{ async get  a(){[...a]}}`), `var &slice = Array["prototype"]["slice"];
+function () {};
+Object["defineProperty"](cls0["prototype"], "a", (tmp = {}, tmp["get"] = function () { &slice["call"](a) }, tmp))
+var tmp`);
+assert(downLevel(`a=class{ static a(){[...a]}}`), `var &slice = Array["prototype"]["slice"];
+a = function (cls0) { cls0.a = function () { &slice["call"](a) }
+return cls0 }(function () {})`);
+assert(downLevel(`a=class{ static(){[...a]}}`), `var &slice = Array["prototype"]["slice"];
+a = function (cls0) { cls0["prototype"].static = function () { &slice["call"](a) }
+return cls0 }(function () {})`);
+assert(downLevel(`a=class{ static{[...a]}}`), `var &slice = Array["prototype"]["slice"];
+a = function (cls0) { (function () { &slice["call"](a) }())
+return cls0 }(function () {})`);
+
