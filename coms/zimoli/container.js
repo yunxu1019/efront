@@ -26,9 +26,9 @@ var gosrc = function (src) {
         change.call(this, src);
     }
 };
-var goone = function (src) {
+var goone = function () {
     if ("$src" in this) return;
-    gosrc.call(this, src);
+    gosrc.call(this, this.src);
 };
 var onparams = function (params) {
     zimoli.go(this.$src, params, this);
@@ -39,7 +39,7 @@ function container(element) {
     care(comment, gosrc);
     if (element.hasAttribute && element.hasAttribute('src')) {
         var src = element.getAttribute('src');
-        if (src) oncemount(comment, goone);
+        if (src) comment.src = src, oncemount(comment, goone);
     }
     return comment;
 }
