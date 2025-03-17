@@ -37,6 +37,22 @@ model {
     }
 }
 
+[nocolon] & {
+    >.head {
+        &:after {
+            display: none;
+        }
+    }
+}
+
+[nocolon] &>.head,
+&[nocolon]>.head,
+>.head[nocolon] {
+    &:after {
+        display: none;
+    }
+}
+
 >.body {
     .image {
         margin: 10px 0;
@@ -57,11 +73,13 @@ model {
 }
 
 >.foot {
+    text-align: right;
+    right: 0;
+
     span {
-        vertical-align: middle;
+        vertical-align: top;
     }
 }
-
 
 .input {
     width: 100%;

@@ -1,6 +1,6 @@
 <template a-if="!check(data,field.needs)"></template>
 <template v-else-if='field?.name'>
-    <div class="head">
+    <div class="head" nocolon:="field.colon===false">
         <span ng-bind=field.name></span>
         <span class="required" ng-if="field.required">*</span>
     </div>

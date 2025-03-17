@@ -28,7 +28,7 @@ var reshape = function () {
     if (!body) body = head;
     if (foot && body) {
         var right = foot.offsetWidth + 1;
-        if (isInlineBlock && right < body.offsetWidth >> 2) {
+        if (isInlineBlock && right < (this.break || body.offsetWidth >> 2)) {
             css(foot, {
                 marginTop: '',
                 marginLeft: fromOffset(-right)

@@ -315,28 +315,36 @@ function parse(piece) {
             holder,
             do: action,
             editable,
+            colon,
             avoid,
             needs, valid, repeat, endwith,
             required, inlist, hidden, readonly,
             delete_onempty, delete_onsubmit,
+            option_to,
+            options_from,
         } = name;
     }
     else if (typeof type === 'string') {
         var test = (reg, a) => {
             if (reg.test(a)) {
-                return true;
+                a = a.replace(reg, '');
+                return [true, a];
             }
+            return [, a];
         };
         var is = function (a) {
-            var reg = /^[\*\+\-\!\-&\?\~]|^\$(?!\d)|[\*\+\-\!\-\$&\?\~]$/;
+            var reg = /^\$(?!\d)|[\*\+\-\!\-\$&\?\~\:;]|^[\*\+\-\!\-&\?\~]$/;
             if (!reg.test(a)) return a;
-            required = test(/^\*|\*$/, a);
-            if (test(/^[\+]|[\+]$/, a)) inlist = true;
-            if (test(/^[\!]|[\!]$/, a)) inlist = false;
-            hidden = test(/^\-|\-$/, a);
-            readonly = test(/^&|\$(?!\d)|[\$&]$/, a);
-            delete_onempty = test(/^\?|\?$/, a);
-            delete_onsubmit = test(/^\~|\~$/, a);
+            [colon, a] = test(/\;$/, a);
+            if (colon) colon = false;
+            else[colon, a] = test(/;$/, a);
+            [required, a] = test(/^\*|\*$/, a);
+            [inlist, a] = test(/^[\+]|[\+]$/, a);
+            [inlist, a] = test(/^[\!]|[\!]$/, a);
+            [hidden, a] = test(/^\-|\-$/, a);
+            [readonly, a] = test(/^&|\$(?!\d)|[\$&]$/, a);
+            [delete_onempty, a] = test(/^\?|\?$/, a);
+            [delete_onsubmit, a] = test(/^\~|\~$/, a);
             return a.replace(reg, '');
         };
         var type1 = is(type);
@@ -456,6 +464,9 @@ function parse(piece) {
     var field = {
         name, type, key, value, comment, options,
         editable,
+        colon,
+        option_to,
+        options_from,
         size, unit, ratio, holder,
         needs, valid, repeat, endwith,
         required, inlist, hidden, readonly,
