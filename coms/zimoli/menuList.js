@@ -197,7 +197,7 @@ function main() {
                 var target = root.actived.target;
                 if (isObject(menu.value)) delete menu.value.children;
                 var targetmenu = getMenu(target);
-                targetmenu.extends(menu.value);
+                extend(targetmenu.value, menu.value);
                 menu = targetmenu;
             }
             else {
@@ -293,6 +293,7 @@ function main() {
         if (istoolbar) {
             if (item.constructor === Item && item.length && !item.extended) {
                 item.extends(item[0]);
+                item.value = Object.assign({}, item.value);
             }
         }
         return generator(index, item);
