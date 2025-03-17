@@ -574,18 +574,24 @@ class Model {
         var getValue = target.getValue;
         var setValue = target.setValue;
         if (getValue && setValue);
-        else if (("value" in target || target.getValue instanceof Function) && target.setValue instanceof Function) {
+        else if (setValue) {
+            getValue = gtValue;
+        }
+        else if ('value' in target) {
+            setValue = stValue;
             if (!getValue) getValue = gtValue;
-            if (!setValue) setValue = stValue;
-        } else if (/^input$/i.test(target.tagName) && /^checkbox$/i.test(target.type) || /^checkbox$/i.test(target.tagName)) {
+        }
+        else if (/^input$/i.test(target.tagName) && /^checkbox$/i.test(target.type) || /^checkbox$/i.test(target.tagName)) {
             if (!getValue) getValue = gtChecked;
-            if (!setValue) setValue = stChecked;
-        } else if (/^(select|input|textarea)$/i.test(target.tagName) || "value" in target) {
+            setValue = stChecked;
+        }
+        else if (/^(select|input|textarea)$/i.test(target.tagName) || "value" in target) {
             if (!getValue) getValue = gtValue;
-            if (!setValue) setValue = stValue;
-        } else {
+            setValue = stValue;
+        }
+        else {
             if (!getValue) getValue = gtHtml;
-            if (!setValue) setValue = stHtml;
+            setValue = stHtml;
         }
         this.gv = getValue;
         this.sv = setValue;
@@ -593,6 +599,7 @@ class Model {
     }
     call(elem) {
         var value = this.gv.call(elem);
+        console.log(value, value === this.value, this.value)
         if (value === this.value) {
             return;
         }
@@ -611,8 +618,8 @@ class Model {
         this.bd = binder;
         if (emit !== false) {
             this.emit = emit;
+            this.value = this.gv.call(this.target);
             eventsBinders.forEach(on => on(this.target, this, true));
-            this.value = this.gv.call(elem);
             this.target = elem;
         }
         return binder;
