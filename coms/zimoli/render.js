@@ -145,7 +145,7 @@ var getScopeList = function (element) {
 };
 var createGetter = function (target, search, isprop = true) {
     if (!search) return function () { };
-    search = `(${search})`;
+    if (/^\{/.test(search)) search = `(${search})`;
     search = renderExpress(search);
     if (isprop) var getter = $$eval.bind(target, search, getScopeList(target));
     else if (variableOnlyReg.test(search)) getter = $$eval.bind(target, search + "(event)");
@@ -566,7 +566,7 @@ class Binder2 {
 var createBinder2 = function (write, read) {
     return function (search) {
         var getter = createGetter(this, search);
-        var oldValue = isFunction(read) ? read.call(this) : undefined;
+        var oldValue = isFunction(read) ? read(this) : undefined;
         this.$renders.push(new Binder2(getter, write, oldValue));
     };
 }
@@ -767,7 +767,7 @@ class Emitter {
                 scope = parsedSrc.createScope();
             }
             else {
-                var scopes = target && target.$parentScopes;
+                let scopes = target && target.$parentScopes;
                 if (scopes) {
                     var scope = null;
                     for (var cx = scopes.length - 1; cx >= 0; cx--) {
@@ -987,7 +987,8 @@ function renderElement(element, scope = element.$scope, parentScopes = element.$
 var deepcontexts = [];
 var getDeepContext = function (deep) {
     var length = deep;
-    while (deep-- > deepcontexts.length) {
+    var deepL = deepcontexts.length;
+    while (deep-- > deepL) {
         deepcontexts[deep] = `with($parentScopes[${deep}])`;
     }
     return deepcontexts.slice(0, length).join('');
@@ -1000,8 +1001,8 @@ var evalcontexts = [createEval(0)];
 
 function $$eval(search, scopes, target = this, event) {
     var length = scopes.length;
-    if (!evalcontexts[length]) evalcontexts[length] = createEval(length);
     var eval2 = evalcontexts[length];
+    if (!eval2) eval2 = evalcontexts[length] = createEval(length);
     var res = eval2.call(target, scopes, search, event);
     return res;
 }
