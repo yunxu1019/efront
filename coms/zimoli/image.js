@@ -1,8 +1,4 @@
 var { URL } = window;
-var defaultScope = {
-    hasInstance: false,
-    btn: button
-};
 function setValue(src) {
     if (this.value === src) return;
     this.value = src;
@@ -37,27 +33,26 @@ var choose = function () {
 
 var build = function () {
     var elem = this;
-    var { $scope = {} } = elem;
     elem.choose = choose;
-    extendIfNeeded($scope, defaultScope);
     elem.setValue = setValue;
     elem.getValue = getValue;
-    render(elem, $scope);
+    render(elem, { btn: button });
 };
 
+var ondata = function (src) {
+    css(this, {
+        backgroundImage: `url('${src}')`
+    });
+    this.hasInstance = !!src;
+}
 function main(elem = div()) {
     var { uploadto } = elem;
+    elem.choose = choose;
     elem.innerHTML = image;
     if (!uploadto) {
         uploadto = elem.getAttribute("uploadto");
     }
-    care(elem, function (src) {
-        css(elem, {
-            backgroundImage: `url('${src}')`
-        });
-        this.hasInstance = this.$scope.hasInstance = !!src;
-        render.refresh();
-    }, false);
+    care(elem, ondata, false);
     build.call(elem);
     return elem;
 }

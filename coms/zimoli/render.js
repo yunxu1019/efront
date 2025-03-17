@@ -145,13 +145,11 @@ var getScopeList = function (element) {
 };
 var createGetter = function (target, search, isprop = true) {
     if (!search) return function () { };
-    if (/^\{/.test(search)) search = `(${search})`;
+    search = `(${search})`;
     search = renderExpress(search);
-    var scopes = getScopeList(target);
-    if (isprop) var getter = $$eval.bind(target, search, scopes);
-    else if (variableOnlyReg.test(search)) getter = $$eval.bind(target, search + "(event)", scopes);
-    else getter = $$eval.bind(target, search, scopes);
-    getter.scopes = scopes;
+    if (isprop) var getter = $$eval.bind(target, search, getScopeList(target));
+    else if (variableOnlyReg.test(search)) getter = $$eval.bind(target, search + "(event)");
+    else getter = $$eval.bind(target, search);
     return getter;
 };
 var createComment = function (renders, type, expression) {
@@ -242,6 +240,18 @@ var parseRepeat = function (expression) {
         srcName
     );
 };
+var getClonedElements = function (clones, repsrc) {
+    var newmap = [];
+    var inc = 0;
+    clones.forEach((c, i) => {
+        var m = c.$scope.$item;
+        switch (m) {
+            case repsrc[inc]: delete clones[i]; newmap[inc++] = c; break;
+            case repsrc[inc + 1]: delete clones[i]; inc++; newmap[inc++] = c; break;
+        }
+    });
+    return newmap;
+}
 var createRepeat = function (search, id = 0) {
     // 懒渲染
     // throw new Error("repeat is not supported! use list component instead");
@@ -272,25 +282,42 @@ var createRepeat = function (search, id = 0) {
         if (element.$scope) {
             $parentScopes = $parentScopes.slice(), $parentScopes.push(element.$scope);
         }
-        var clonedElements1 = Object.create(null);
+        var clonedElements1 = isArrayResult ? [] : Object.create(null);
+        if (isArrayResult && !trackBy && clonedElements instanceof Array) {
+            clonedElements1 = getClonedElements(clonedElements, result);
+        }
         var cloned = keys.map(function (key, cx) {
             var k = isArrayResult ? cx : key;
             var $scope = repeater.createScope(result[k], k, cx);
             if (trackBy) {
                 k = seek($scope, trackBy);
                 if (clonedElements[k]) {
-                    clonedElements[k].$scope = $scope;
+                    Object.assign(clonedElements[k].$repeat, $scope)
                     return clonedElements1[k] = clonedElements[k];
                 }
             }
             else {
-                var c = changes[k];
-                if (clonedElements[k]) if (!c) return clonedElements1[k] = clonedElements[k];
+                if (isArrayResult) {
+                    var c = clonedElements1[k];
+                    if (c) {
+                        Object.assign(c.$repeat, $scope);
+                        return c;
+                    }
+                }
+                else {
+                    var c = changes[k];
+                    if (!c) c = clonedElements[k];
+                    else c = null;
+                    if (c) {
+                        Object.assign(c.$repeat, $scope);
+                        return clonedElements1[k] = c;
+                    }
+                }
             }
             var clone = element.cloneNode();
             clone.innerHTML = element.innerHTML;
             clone.$renderid = id;
-            clone.$scope = $scope;
+            clone.$repeat = clone.$scope = $scope;
             clone.$parentScopes = $parentScopes;
             clone.$struct = $struct;
             clonedElements1[k] = clone;
@@ -323,46 +350,49 @@ var initIf = function (ifs) {
         initialComment(s[0]);
     }
 };
+
+var ifget = function () {
+    var elements = this.$elements;
+    var shouldMount = -1;
+    for (var cx = 0, dx = elements.length; cx < dx; cx += 2) {
+        var getter = elements[cx + 1];
+        if (!getter || getter(this)) {
+            shouldMount = cx;
+            break;
+        }
+    }
+    return shouldMount;
+}
+var ifset = function (shouldMount) {
+    var elements = this.$elements;
+    for (var cx = 0, dx = elements.length; cx < dx; cx += 2) {
+        var c = elements[cx];
+        if (cx === shouldMount) {
+            var e = c.$template;
+            if (c.nextSibling !== e) appendChild.after(c, e);
+            if (e.$renderid < 0) {
+                e.$renderid = this.$id;
+                e = c.$template = render(e);
+                e.$comment = c;
+            }
+        }
+        else {
+            remove(c.$template);
+        }
+    }
+};
 var createIf = function (search, id = 0) {
     // 懒渲染
     var getter = createGetter(this, search);
     var element = this;
     var elements = [element, getter];
     if_top.push(elements);
-    var savedValue;
     elements.parent = this.parentNode;
-    elements.comment = search;
     if (this.$struct.repeat) id = -3;
-
-    elements.$renders = [function () {
-        var shouldMount = -1;
-        for (var cx = 0, dx = elements.length; cx < dx; cx += 2) {
-            var getter = elements[cx + 1];
-            if (!getter || getter(this)) {
-                shouldMount = cx;
-                break;
-            }
-        }
-        if (savedValue === shouldMount) return;
-        savedValue = shouldMount;
-        for (var cx = 0, dx = elements.length; cx < dx; cx += 2) {
-            var c = elements[cx];
-            if (cx === shouldMount) {
-                var e = c.$template;
-                appendChild.after(c, e);
-                if (e.$renderid < 0) {
-                    e.$renderid = id;
-                    e = c.$template = render(e, this.$scope, this.$parentScopes);
-                    e.$comment = c;
-                }
-            }
-            else {
-                remove(c.$template);
-            }
-        }
-
-    }];
-    return elements[0] = createComment.call(element, elements.$renders, 'if', elements.comment);
+    var comment = elements[0] = createComment.call(element, [new Binder2(ifget, ifset)], 'if', search);
+    comment.$id = id;
+    comment.$elements = elements;
+    return comment;
 };
 var parseIfWithRepeat = function (ifExpression, repeatExpression) {
     var repeater = parseRepeat(repeatExpression);
@@ -475,9 +505,7 @@ var structures = {
         }
         initIf(if_top.splice(cx + 1, if_top.length - cx - 1));
         var top = if_top[cx];
-        if (search && search) {
-            var getter = createGetter(this, search);
-        }
+        if (search) var getter = createGetter(this, search);
         var comment = createComment.call(this, undefined, search ? 'elseif' : 'else', search);
         top.push(comment, getter);
     },
@@ -538,7 +566,7 @@ class Binder2 {
 var createBinder2 = function (write, read) {
     return function (search) {
         var getter = createGetter(this, search);
-        var oldValue = isFunction(read) ? read(this) : undefined;
+        var oldValue = isFunction(read) ? read.call(this) : undefined;
         this.$renders.push(new Binder2(getter, write, oldValue));
     };
 }
@@ -723,12 +751,56 @@ var binders = {
     }
 };
 var reject = function (e) { digest(); throw e };
+class Emitter {
+    constructor(emit, scopes) {
+        this.emit = emit;
+        this.scopes = scopes;
+    }
+    call(elem, e) {
+        digest();
+        var scopes = this.scopes;
+        var parsedSrc = elem.$src;
+        if (parsedSrc instanceof Repeater) {
+            if (e.active || e.currentTarget) var target = e.active || (e.currentTarget === elem ? e.target || e.srcElem || e.currentTarget : e.currentTarget);
+            else var target = e.target;
+            if (target === elem) {
+                scope = parsedSrc.createScope();
+            }
+            else {
+                var scopes = target && target.$parentScopes;
+                if (scopes) {
+                    var scope = null;
+                    for (var cx = scopes.length - 1; cx >= 0; cx--) {
+                        var s = scopes[cx];
+                        if (s === elem.$scope) {
+                            scope = scopes[cx + 1];
+                            break;
+                        }
+                    }
+                }
+            }
+            if (!scope && target.$scope !== elem.$scope) scope = target.$scope;
+        }
+        var res;
+        if (scope) {
+            scopes.push(scope);
+            res = this.emit(scopes, elem, e);
+            scopes.pop();
+        }
+        else {
+            res = this.emit(scopes, elem, e);
+        }
+        if (res && isFunction(res.then)) res.then(digest, reject);
+        return res;
+
+    }
+}
 var createEmiter = function (on) {
     return function (target, key, search) {
         /**
          * @type {Repeater}
          */
-        var getter = createGetter(this, search, false);
+        var emit = createGetter(this, search, false);
         var onkey;
         if (key === 'mounted' || key === 'mount') {
             onkey = on === once ? oncemount : onmounted;
@@ -739,42 +811,7 @@ var createEmiter = function (on) {
         else {
             onkey = on(key);
         }
-        onkey(target, function (e) {
-            digest();
-            var parsedSrc = this.$src;
-            if (parsedSrc instanceof Repeater) {
-                if (e.active || e.currentTarget) var target = e.active || (e.currentTarget === this ? e.target || e.srcElem || e.currentTarget : e.currentTarget);
-                else var target = e.target;
-                if (target === this) {
-                    scope = parsedSrc.createScope();
-                }
-                else {
-                    var scopes = target && target.$parentScopes;
-                    if (scopes) {
-                        var scope = null;
-                        for (var cx = scopes.length - 1; cx >= 0; cx--) {
-                            var s = scopes[cx];
-                            if (s === this.$scope) {
-                                scope = scopes[cx + 1];
-                                break;
-                            }
-                        }
-                    }
-                }
-                if (!scope && target.$scope !== this.$scope) scope = target.$scope;
-            }
-            var res;
-            if (scope) {
-                getter.scopes.push(scope);
-                res = getter(this, e);
-                getter.scopes.pop();
-            }
-            else {
-                res = getter(this, e);
-            }
-            if (res && isFunction(res.then)) res.then(digest, reject);
-            return res;
-        });
+        onkey(target, new Emitter(emit, getScopeList(target)));
     };
 };
 var emiters = {
@@ -947,13 +984,18 @@ function renderElement(element, scope = element.$scope, parentScopes = element.$
     }
     return element;
 }
-var createEval = function (deep) {
-    var context = [];
-    while (deep-- > 0) {
-        context[deep] = `with($parentScopes[${deep}])`;
+var deepcontexts = [];
+var getDeepContext = function (deep) {
+    var length = deep;
+    while (deep-- > deepcontexts.length) {
+        deepcontexts[deep] = `with($parentScopes[${deep}])`;
     }
-    return new Function("$parentScopes", "code", "event", `${context.join('')}return eval(code)`);
+    return deepcontexts.slice(0, length).join('');
+}
+var createEval = function (deep) {
+    return new Function("$parentScopes", "code", "event", `${getDeepContext(deep)}return eval(code)`);
 };
+
 var evalcontexts = [createEval(0)];
 
 function $$eval(search, scopes, target = this, event) {
