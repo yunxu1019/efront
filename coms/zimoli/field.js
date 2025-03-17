@@ -51,66 +51,70 @@ var reshape = function () {
         }
     }
 };
-
+var checkValue = function () {
+    if (!(this.src instanceof Array)) return;
+    var { field, data } = this.$scope;
+    if (!field || !data) return;
+    var v = data[field.key];
+    if (!this.checked) if (v === this.oldValue || isEmpty(this.oldValue) && isEmpty(v)) return;
+    this.checked = false;
+    this.setAttribute("dirty", '');
+    var scope = this.$scope;
+    var error = valid(field, data);
+    if (error) {
+        this.setAttribute("error", error);
+        switch (error) {
+            case "empty":
+                scope.error = true;
+                break;
+            default:
+                if (isNode(error)) {
+                    scope.error = error;
+                }
+                else {
+                    scope.error = document.createElement('error');
+                    scope.error.innerHTML = error;
+                }
+        }
+    }
+    else {
+        this.removeAttribute('error');
+        scope.error = null;
+    }
+    this.oldValue = data[field.key];
+};
+function ondigest() {
+    checkValue.call(this);
+    reshape.call(this);
+}
+function ondata(p) {
+    var [field, data] = p;
+    this.oldValue = data[field.key];
+    this.setAttribute("field", field.key);
+    this.innerHTML = template;
+    render(this, {
+        model,
+        data,
+        error: null,
+        field,
+        container,
+        check,
+        readonly: !!this.readonly
+    });
+    this.reshape();
+}
 function main(elem) {
     if (!isElement(elem)) elem = document.createElement('field');
     elem.reshape = reshape;
     if (elem.break === false) elem.break = Infinity;
     resizingList.set(elem, reshape);
-    elem.$digest = reshape;
     elem.setAttribute("field", '');
-    var scope = {};
-    elem.$renders = [function () {
-        if (!(this.src instanceof Array)) return;
-        var [f, data] = this.src;
-        if (!f || !data) return;
-        var v = data[f.key];
-        if (!this.checked) if (v === this.oldValue || isEmpty(this.oldValue) && isEmpty(v)) return;
-        this.checked = false;
-        this.setAttribute("dirty", '');
-        var error = valid(f, data);
-        if (error) {
-            this.setAttribute("error", error);
-            switch (error) {
-                case "empty":
-                    scope.error = true;
-                    break;
-                default:
-                    if (isNode(error)) {
-                        scope.error = error;
-                    }
-                    else {
-                        scope.error = document.createElement('error');
-                        scope.error.innerHTML = error;
-                    }
-            }
-        }
-        else {
-            this.removeAttribute('error');
-            scope.error = null;
-        }
-        this.oldValue = data[f.key];
-    }]
+    elem.$digest = ondigest;
     elem.removeAttribute("tabindex");
 
-    if (!elem.childNodes.length) care(elem, function (p) {
-        var [f, data] = p;
-        elem.innerHTML = field;
-        render(elem, scope = {
-            model,
-            data,
-            error: null,
-            field: f,
-            container,
-            checkNeeds(needs, data) {
-                var res = check(data, needs);
-                return res;
-            },
-            readonly: !!this.readonly
-        });
-        elem.oldValue = data[f.key];
-        elem.setAttribute("field", f.key);
-    }, false);
+    if (!elem.childNodes.length) {
+        care(elem, ondata, false);
+    }
     else {
         var [head, body, foot] = getTypedChildren(elem, ["head", 'body', 'foot']);
         if (head) addClass(head, "head");

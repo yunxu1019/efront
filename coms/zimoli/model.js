@@ -236,7 +236,8 @@ var setContent = function (value) {
         appendChild(this, value);
     }
     else if (isHandled(value)) {
-        this.innerHTML = value;
+        if (this.field.type === 'html') this.innerHTML = value;
+        else this.innerText = value;
     }
 };
 var Binder = render.Binder, Model = render.Model;

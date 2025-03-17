@@ -574,24 +574,25 @@ class Model {
         var getValue = target.getValue;
         var setValue = target.setValue;
         if (getValue && setValue);
-        else if (setValue) {
-            getValue = gtValue;
-        }
         else if ('value' in target) {
-            setValue = stValue;
+            if (!setValue) setValue = stValue;
             if (!getValue) getValue = gtValue;
         }
         else if (/^input$/i.test(target.tagName) && /^checkbox$/i.test(target.type) || /^checkbox$/i.test(target.tagName)) {
             if (!getValue) getValue = gtChecked;
-            setValue = stChecked;
+            if (!setValue) setValue = stChecked;
         }
         else if (/^(select|input|textarea)$/i.test(target.tagName) || "value" in target) {
             if (!getValue) getValue = gtValue;
-            setValue = stValue;
+            if (!setValue) setValue = stValue;
+        }
+        else if (String(target.contentEditable) === "true") {
+            if (!getValue) getValue = gtHtml;
+            if (!setValue) setValue = stHtml;
         }
         else {
-            if (!getValue) getValue = gtHtml;
-            setValue = stHtml;
+            if (!getValue) getValue = gtValue;
+            if (!setValue) setValue = stValue;
         }
         this.gv = getValue;
         this.sv = setValue;
@@ -599,7 +600,6 @@ class Model {
     }
     call(elem) {
         var value = this.gv.call(elem);
-        console.log(value, value === this.value, this.value)
         if (value === this.value) {
             return;
         }
