@@ -141,7 +141,9 @@ function rebuild(element, isFirstRender) {
 var variableReg = /([^\:\,\+\=\-\!%\^\|\/\&\*\!\;\?\>\<~\{\}\s\[\]\(\)]|\?\s*\.(?=[^\d])|\s*\.\s*)+/g;
 var variableOnlyReg = new RegExp(`^${variableReg.source}$`);
 var getScopeList = function (element) {
-    return element.$parentScopes.concat([element.$scope]);
+    var scopes = (element.$parentScopes || []).concat();
+    if (element.$scope) scopes.push(element.$scope);
+    return scopes;
 };
 var createGetter = function (target, search, isprop = true) {
     if (!search) return function () { };
@@ -566,7 +568,7 @@ class Binder2 {
 var createBinder2 = function (write, read) {
     return function (search) {
         var getter = createGetter(this, search);
-        var oldValue = isFunction(read) ? read(this) : undefined;
+        var oldValue = isFunction(read) ? read.call(this) : undefined;
         this.$renders.push(new Binder2(getter, write, oldValue));
     };
 }
