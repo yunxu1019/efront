@@ -221,7 +221,8 @@
             }
             if (anchorOffset >= anchorNode.nodeValue.length) {
                 followChar = anchorNode.nextSibling || anchorNode.parentNode.nextSibling;
-                if (followChar.nodeType === 1) {
+                if (!followChar) followChar = '';
+                else if (followChar.nodeType === 1) {
                     beforeText = /^text$/i.test(followChar.tagName);
                     followChar = followChar.innerText.charAt(0);
                 }
@@ -263,7 +264,6 @@
         var { data, inputType } = event;
         coderid++;
         var patchAfter = '';
-        console.log("follow-char", followChar, 'data', data, 'anchor-char', anchorChar);
         switch (inputType) {
             case "insertText":
                 if (data === ' ') return;
@@ -289,10 +289,7 @@
                 if (anchorChar in pairsmap && followChar === pairsmap[anchorChar]) {
                     document.execCommand('forwardDelete');
                 }
-                if (inText) return;
-                updatechar();
-                if (inText) return;
-                break;
+                return;
 
         }
         markAnchorOffset(光标 + patchAfter);
@@ -307,7 +304,6 @@
         markedText = await 上色.text(coder.type, markedText);
         if (coderid !== id) return;
         更新(markedText);
-        dispatch(coder, 'change');
         return;
     }, -60);
     var keytab = function (direction) {
