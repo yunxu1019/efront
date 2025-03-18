@@ -301,6 +301,19 @@ var getOptionsFrom = function () {
     var { data, field } = this;
     return data[field.options_from];
 };
+function setModel(ipt) {
+    var elem = this;
+    if (isHandled(ipt) && ipt !== elem) {
+        if (isNode(ipt)) {
+            var model = new Model(getScopeValue, setScopeValue, ipt);
+            model.hook(elem, elem.field.option_to ? copyOptionData : true);
+            appendChild(elem, ipt);
+        }
+        else {
+            elem.innerText = ipt;
+        }
+    }
+}
 function setBinder(elem, binder) {
     if (binder === elem.$binder) return;
     removeFromList(elem.$renders, elem.$binder);
@@ -311,17 +324,11 @@ function setBinder(elem, binder) {
     }
     else {
         var ipt = binder(elem);
-        binder = null;
-        if (isHandled(ipt) && ipt !== elem) {
-            if (isNode(ipt)) {
-                var model = new Model(getScopeValue, setScopeValue, ipt);
-                model.hook(elem, elem.field.option_to ? copyOptionData : true);
-                appendChild(elem, ipt);
-            }
-            else {
-                elem.innerHTML = ipt;
-            }
+        if (ipt && isFunction(ipt.then)) {
+            ipt.then(setModel.bind(elem));
         }
+        else setModel.call(elem, ipt);
+        binder = null;
     }
     elem.$binder = binder;
 }
