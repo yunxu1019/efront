@@ -245,3 +245,21 @@ thead {
 [type=price] {
     float: right;
 }
+
+tbody,
+[tbody] {
+
+    [type=jscode],
+    [type=function] {
+        display: -webkit-box;
+        -webkit-box-orient: vertical;
+        -webkit-line-clamp: 2;
+        text-overflow: ellipsis;
+        line-height: 16px;
+        font-size: 14px;
+        white-space: pre;
+        font-family: Consolas, "Courier New", monospace;
+        color: #666;
+        overflow: hidden;
+    }
+}

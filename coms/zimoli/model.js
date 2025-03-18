@@ -222,7 +222,15 @@ var readonly_types = {
             if (!field.optionsMap) field.optionsMap = createOptionsMap(field.options);
             var o = field.optionsMap[v];
             try { this.setAttribute(field.key, v); } catch { }
-            if (isObject(o)) return `<s></s>` + o.name;
+            if (isObject(o)) {
+                if (o.color) {
+                    css(this, { color: o.color });
+                    var b = document.createElement('label');
+                    b.innerText = o.name;
+                    return b;
+                }
+                return o.name;
+            }
             if (isHandled(o)) return o;
         }
         if (isEmpty(v)) v = '';

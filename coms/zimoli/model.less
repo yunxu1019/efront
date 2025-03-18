@@ -79,3 +79,22 @@
 @u(4);
 @u(5);
 @u(6);
+
+&[readonly] {
+
+    &[type=radio] {
+        &:before {
+            vertical-align: middle;
+            content: '';
+            border-radius: 50%;
+            box-sizing: border-box;
+            border: 6px solid;
+            display: inline-block;
+            margin: 0 6px;
+        }
+
+        label {
+            color: #333;
+        }
+    }
+}

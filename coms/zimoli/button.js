@@ -27,7 +27,7 @@ function button(texter, type) {
         _texter = _label.cloneNode();
         if (isString(texter)) {
             if (!type) {
-                texter = texter.replace(/#\w*/, function (w) {
+                texter = texter.replace(/#\w*$/, function (w) {
                     if (/^#([a-f\d]{3,4}){1,2}$/.test(w)) {
                         type = w;
                     }

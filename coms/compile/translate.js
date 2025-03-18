@@ -75,7 +75,7 @@ function getI18nPrefixedText(code, dist = []) {
     return dist;
 }
 var ctn = function (tt, t) {
-    var tn = scanner2(tt.replace(/[\$#]+(\d+)/g, (_, i) => {
+    var tn = scanner2(tt.replace(/[\$&]+(\d+)/g, (_, i) => {
         var a = (i << 1) - 1;
         if (a in t) return `\${${a}}`;
         return _;
@@ -152,8 +152,8 @@ function translate([imap, supports], code) {
                 var o = scanner2('={}')[1];
                 Object.keys(f).forEach(k => {
                     var v = f[k];
-                    if (/[\$#]\d+/.test(v)) {
-                        var a = v.replace(/^[\$#]+/, '');
+                    if (/[\$&]\d+/.test(v)) {
+                        var a = v.replace(/^[\$&]+/, '');
                         var a = (a << 1) - 1;
                         if (a in t) v = t[a];
                         else v = scanner2(JSON.stringify(v));

@@ -19,11 +19,16 @@ function scanBlock(piece) {
         res.push(a);
     };
     var avoid = false;
+    var instr = null;
     for (var cx = 0, dx = piece.length; cx < dx; cx++) {
         reg.lastIndex = cx;
         var m = reg.exec(piece);
         if (m) {
             var s = m[0];
+            if (instr) {
+                if (instr === s) instr = null;
+                continue;
+            }
             if (/^(\s+|\^)$/.test(s)) {
                 if (s === '^') {
                     avoid = res.length;
@@ -32,12 +37,10 @@ function scanBlock(piece) {
                     save(piece.slice(lastIndex, reg.lastIndex));
                 }
                 lastIndex = reg.lastIndex;
-            } else if (/^["']$/i.test(s)) {
-                var i = piece.indexOf(s, cx + 1);
-                if (i > 0) {
-                    cx = i;
-                    continue;
-                }
+            }
+            else if (/^[`"']$/i.test(s)) {
+                instr = s;
+                continue;
             }
             cx = m.index + s.length - 1;
         } else {
@@ -51,29 +54,39 @@ function scanBlock(piece) {
 
 function scanSlant(str, s, lastIndex = 0, end = str.length) {
     s = s.replace(/[\/]/g, '\\$&');
-    var reg = new RegExp(`${/\\[\s\S]/.source}|${s}`, 'g');
+    var reg = new RegExp(`${/\\[\s\S]/.source}|[${s}'"\`]`, 'g');
     var reg1 = new RegExp(`^${s}$`);
     var res = [];
     var start = lastIndex, start;
+    var instr = false;
     while (lastIndex < end) {
         reg.lastIndex = lastIndex;
         var match = reg.exec(str);
         if (!match) {
             break;
         }
+        var [s] = match;
+        if (instr) {
+            if (instr === s) instr = null;
+            continue;
+        }
+        if (/^['"`]$/.test(s)) {
+            instr = s;
+            continue;
+        }
         lastIndex = match.index + match[0].length;
-        if (!reg1.test(match[0])) {
+        if (!reg1.test(s)) {
             continue;
         }
         if (lastIndex === start) {
             lastIndex++;
             continue;
         }
-        res.push(str.slice(start, match.index).replace(/\\([\s\S])/g, '$1'));
+        res.push(strings.decode(str.slice(start, match.index)));
         start = lastIndex;
     }
     if (start < end) {
-        res.push(str.slice(start, end).replace(/\\([\s\S])/g, '$1'));
+        res.push(strings.decode(str.slice(start, end)));
     }
     return res;
 }
@@ -121,15 +134,28 @@ var createEval = function (express, value) {
         name: express
     });
 };
-
-var createOption = function (o) {
+var getColorFromTail = function (o) {
+    var m;
+    if (m = /\#(?:[0-9a-f]{3,4}){1,2}$/.exec(o)) {
+        o = o.slice(0, m.index);
+        return [o, color.format(m[0])];
+    }
+    return [o];
+}
+var createOption = function (o, i) {
     if (isObject(o)) {
+        if (!o.color) [o.name, o.color] = getColorFromTail(o.name);
         o.toString = toName;
         o.valueOf = toValue;
         return o;
     }
+    var [name, color] = getColorFromTail(o);
+    if (!color && !/[,\/]/.test(o)) return name;
+    var [name, key = i] = spreadkey(name);
     return {
-        name: o,
+        name,
+        key,
+        color,
         valueOf: toValue,
         toString: toName
     };
@@ -139,9 +165,9 @@ function unfoldOptions(size, options) {
     for (var cx = 0, dx = options.length; cx < dx; cx++) {
         var o = options[cx];
         if (typeof o === 'string') {
-            var [name, key = name] = spreadkey(o);
+            var [name, key = name, needs, color] = spreadkey(o);
             if (parseInt(key) === +key) key = +key;
-            o = { name, key };
+            o = { name, key, color, needs };
         }
         var range = rangereg.exec(o.name);
         if (range) {
@@ -269,13 +295,14 @@ function spreadkey(name) {
     }
     return [name, key, needs, holder];
 }
-function parseOptions(options) {
-    if (typeof options === "string" && !/^[\$#]+\d+$/.test(options)) {
+function parseOptions(size, options) {
+    if (typeof options === "string" && !/^[\$&]+\d+$/.test(options)) {
         var needUnfold = /^\[|\]$/.test(options);
         options = options.replace(/^\[|\]$/g, '');
         if (needUnfold || /,/.test(options)) options = scanSlant(options, ',');
         else options = scanSlant(options, "");
         if (needUnfold) unfoldOptions(size, options);
+        else options = options.map(createOption);
     }
     return options;
 }
@@ -333,7 +360,7 @@ function parse(piece) {
             return [, a];
         };
         var is = function (a) {
-            var reg = /^\$(?!\d)|[\*\+\-\!\-\$&\?\~\:;]|^[\*\+\-\!\-&\?\~]$/;
+            var reg = /^\$(?!\d)|\$$|^[\*\+\-\!\-&\?\~]|[\*\+\-\!\-&\?\~\:;]$|^[\*\+\-\!\-&\?\~]$/;
             if (!reg.test(a)) return a;
             [colon, a] = test(/\;$/, a);
             if (colon) colon = false;
@@ -342,9 +369,10 @@ function parse(piece) {
             [inlist, a] = test(/^[\+]|[\+]$/, a);
             [inlist, a] = test(/^[\!]|[\!]$/, a);
             [hidden, a] = test(/^\-|\-$/, a);
-            [readonly, a] = test(/^&|\$(?!\d)|[\$&]$/, a);
+            [readonly, a] = test(/^&|^\$(?!\d)|[\$&]$/, a);
             [delete_onempty, a] = test(/^\?|\?$/, a);
             [delete_onsubmit, a] = test(/^\~|\~$/, a);
+
             return a.replace(reg, '');
         };
         var type1 = is(type);
@@ -451,8 +479,8 @@ function parse(piece) {
             editable = true;
             options = options.replace(/^[\+\-\*]|[\+\*\-]$/g, '');
         }
-        options = parseOptions(options);
-        avoid = parseOptions(avoid1 || avoid);
+        options = parseOptions(size, options);
+        avoid = parseOptions(size, avoid1 || avoid);
         name = is(name);
         key = is(key);
     }
