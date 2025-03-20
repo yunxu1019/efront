@@ -34,8 +34,8 @@
   unique-save: options ::unique-:data
   recert: options ::recert
   upload: put :path
-https://www.ip.cn/:
-  iplocation: get https://www.ip.cn/api/index?ip=:ip&type=1
+https://www.ip.cn/ referer=https://www.ipshudi.com/&Cookie=:empty:
+  iplocation: get https://www.ip.cn/api/index/?ip=:ip&type=1
 # https://ipchaxun.com/ :
 #   iplocation: get:[].info%20label:nth-child(n+2)>span:nth-child(2) :ip/
 # https://www.ip138.com/:

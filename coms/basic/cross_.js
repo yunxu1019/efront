@@ -398,10 +398,8 @@ function cross_(jsonp, digest = noop, method, url, headers) {
     var prepareHeaders = () => {
         cookie_ = this.hostCookie(xhr);
         var _cookies = cookie_.getCookies(originDomain);
-        if (_cookies) {
-            _headers.Cookie = _cookies;
-        }
         var cookobj = null;
+        var hasCookie = false;
         for (var k in headers) {
             if (/^\$/.test(headers[k])) {
                 var k2 = headers[k].slice(1);
@@ -416,9 +414,20 @@ function cross_(jsonp, digest = noop, method, url, headers) {
                     realHeaders[k1] = headers[k];
                 }
                 else {
+                    if (/Cookie/i.test(k)) {
+                        hasCookie = true;
+                        if (isEmpty(headers[k])) {
+                            continue;
+                        }
+                        _headers.Cookie = headers[k];
+                        continue;
+                    }
                     _headers[k] = headers[k];
                 }
             }
+        }
+        if (_cookies && !hasCookie) {
+            _headers.Cookie = _cookies;
         }
     };
     var _headers = {};
