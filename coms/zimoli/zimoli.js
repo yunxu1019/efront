@@ -14,57 +14,29 @@ var pagehash_reg = /#([\/\w\:@\.\_\(\)\+\-\*\$@!~_'\?,&~%]+)$/;
 var locationInitHash = location.hash;
 var isFirstTimeLoad = sessionInitHash === null;
 var isSimpleRefresh = sessionInitHash === locationInitHash;
-var isWithHashLoad = !!location.hash;
 var preventNextHashChange = false;
 window_history.scrollRestoration = 'manual';
-if (isWithHashLoad && !isSimpleRefresh) {
-    //带hash加载，吃掉hash
-    location.replace("#");
-}
-
-if (/MSIE\s*[2-7]/.test(navigator.userAgent)) {
-    window.onhistorychange = function (url) {
-        // 如果是返回事件，一定不是第一次改变hash
-        // 这里刚好可以屏蔽首次手动改变url可能产生的hashchange事件
-        if (preventNextHashChange) return preventNextHashChange = false, window_history.go(-1);
-        if (preventNextHashChange === void 0 ? onback && onback() === true : preventNextHashChange = void 0) { }
-    };
-    onselectstart(body, function (e) {
-        return e.preventDefault();
-    });
-    var frame = document.createElement("iframe");
-    css(frame, "display:none");
-    appendChild.insert(body, frame);
-    var doc = frame.contentWindow.document;
-    var backman = function (isloaded) {
-        doc.open();
-        doc.write(isloaded !== false ? "" : "<script>result=parent.onhistorychange();onload=function(){history.forward()}</script>");
-        doc.close();
-    };
-    backman(false);
-    backman();
-} else {
-    onhashchange(window, function (event) {
-        if (fixurl.ing) return;
-        // 如果是返回事件，一定不是第一次改变hash
-        // 这里刚好可以屏蔽首次手动改变url可能产生的hashchange事件
-        var targetHash = location.hash;
-        sessionStorage.setItem(sessionSavedHashKey, targetHash);
-        if (pagehash_reg.test(targetHash)) {
-            var currentHash = getCurrentHash();
-            if (currentHash && currentHash === targetHash) return;
-            var targetHashIndex = targetHash.indexOf("#" + current_history);
-            if (targetHashIndex < 0) return;
-            var targetpath = targetHash.slice(targetHashIndex + current_history.replace(/\/$/, '').length + 1);
-            targetpath = decodeURI(targetpath);
-            go(targetpath);
-            return;
-        }
+onhashchange(window, function (event) {
+    if (fixurl.ing) return;
+    // 如果是返回事件，一定不是第一次改变hash
+    // 这里刚好可以屏蔽首次手动改变url可能产生的hashchange事件
+    var targetHash = location.hash;
+    sessionStorage.setItem(sessionSavedHashKey, targetHash);
+    if (pagehash_reg.test(targetHash)) {
+        var currentHash = getCurrentHash();
+        if (currentHash && currentHash === targetHash) return;
+        var targetHashIndex = targetHash.indexOf("#" + current_history);
+        if (targetHashIndex < 0) return;
+        var targetpath = targetHash.slice(targetHashIndex + current_history.replace(/\/$/, '').length + 1);
+        targetpath = decodeURI(targetpath);
         if (preventNextHashChange) return preventNextHashChange = false;
-        event.preventDefault();
-        onback();
-    });
-}
+        forward(targetpath);
+        return;
+    }
+    if (preventNextHashChange) return preventNextHashChange = false;
+    event.preventDefault();
+    backward();
+});
 // body
 var location_pathname = location.pathname;
 var _zimoli_params_key = `_zimoli_parameters:${location_pathname}#`;
@@ -113,8 +85,8 @@ function go(pagepath, args, history_name, oldpagepath) {
     if (isNumber(pagepath)) {
         if (isString(history_name)) {
             var _history = history[history_name] || [];
-            pagepath = _history[pagepath < 1 ? _history.length + pagepath - 1 : pagepath];
-            oldpagepath = _history[_history.length - 1];
+            pagepath = _history[pagepath < 2 ? _history.index + pagepath : pagepath];
+            oldpagepath = _history[_history.index];
             if (arguments.length === 1) {
                 args = getZimoliParams(pagepath).data;
             }
@@ -171,7 +143,7 @@ function go(pagepath, args, history_name, oldpagepath) {
         addGlobal(_page, history_name, isRecover);
         page_object.prepares.splice(0, page_object.prepares.length).forEach(function (url) {
             if (isNumber(url)) {
-                url = _history[url < 1 ? _history.length + url - 1 : url];
+                url = _history[url < 2 ? _history.index + url : url];
             }
             if (isString(url)) prepare(url);
         });
@@ -427,15 +399,19 @@ function create(pagepath, args, from, needroles) {
     return _page;
 
 }
-
+var createEmptyHistory = function (emptyState) {
+    var h = [emptyState];
+    h.index = 0;
+    return h;
+}
 var zimoliid = 0, zimoliad = 0;
 function zimoli(pagepath, args, history_name, oldpagepath) {
     if (arguments.length === 0) {
         if (zimoliid !== zimoliad) return;
         history_name = current_history;
-        var _history = history[history_name] || [];
-        root_path = _history[0] || "/main";
-        pagepath = _history[_history.length - 1] || "/main";
+        var _history = history[history_name] || createEmptyHistory('/main');
+        root_path = _history[0];
+        pagepath = _history[_history.index];
         try {
             var saveddata = JSAM.parse(hostoryStorage.getItem(_zimoli_params_key + pagepath)) || {};
         } catch (e) {
@@ -460,7 +436,7 @@ function zimoli(pagepath, args, history_name, oldpagepath) {
 var global = {};
 var history = {};
 var current_history, default_history = current_history = "";
-history[current_history] = [];
+history[current_history] = createEmptyHistory('/main');
 var history_session_object_key = `_zimoli_history_key:${location_pathname}`;
 try {
     history = JSAM.parse(hostoryStorage.getItem(history_session_object_key)) || history;
@@ -474,18 +450,25 @@ var pushstate = function (path_name, history_name) {
     }
     if (!isString(history_name)) return;
     if (!history[history_name]) {
-        history[history_name] = [path_name];
+        history[history_name] = createEmptyHistory(path_name);
     } else {
         var _history = history[history_name];
-        for (var cx = 0, dx = _history.length; cx < dx; cx++) {
+        var prevIndex = _history.index;
+        for (var cx = 0, dx = _history.index + 1; cx < dx; cx++) {
             if (_history[cx] === path_name) {
-                _history.splice(cx, dx - cx);
+                _history.index = cx;
                 isBack = cx < dx - 1;
                 break;
             }
         }
-        _history.push(path_name);
-        if (_history.length) fixurl();
+        if (_history.index !== cx) {
+            _history.index++;
+        }
+        if (_history[_history.index] !== path_name) {
+            _history.splice(_history.index, _history.length - _history.index);
+            _history[_history.index] = path_name;
+        }
+        if (_history.index >= 0) fixurl(_history.index - prevIndex);
     }
     hostoryStorage.setItem(history_session_object_key, JSAM.stringify(history) || null);
     return isBack;
@@ -495,38 +478,44 @@ var popstate = function (path_name, history_name) {
     if (!isString(history_name)) return;
     if (!history[history_name]) return;
     var _history = history[history_name];
-    for (var cx = 0, dx = _history.length; cx < dx; cx++) {
+    for (var cx = 0, dx = _history.index; cx < dx; cx++) {
         if (_history[cx] === path_name) {
-            _history.splice(cx, dx - cx);
+            _history.index = cx;
             break;
         }
     }
 };
 var getCurrentHash = function () {
-    var _historylist = history[current_history] || [];
     var history_name = current_history.replace(/\/$/, '');
     if (rootElements.length) {
         return `#${history_name}/`;
     }
-    if (_historylist.length < 2) return "";
-    var targeturl = `#${history_name}${_historylist.length ? _historylist[_historylist.length - 1] : ""}`;
+    var _historylist = history[current_history];
+    if (!_historylist || _historylist.index < 1) return "";
+    var targeturl = `#${history_name}${_historylist.length ? _historylist[_historylist.index] : ""}`;
     return encodeURI(targeturl);
 };
 
-var fixurl = function () {
+var fixurl = function (historyDelta) {
     if (fixurl.ing) return;
-    fixurl.ing = setTimeout(function () {
-        fixurl.ing = false;
-        var targeturl = getCurrentHash();
-        if (pagehash_reg.test(targeturl)) {
-            targeturl = location.href.replace(/\#[\s\S]*$/, '') + targeturl;
-            if (!pagehash_reg.test(location.href)) location.href = targeturl;
-            else if (location.hash !== targeturl) location.replace(targeturl);
-        } else if (pagehash_reg.test(location.href)) {
-            preventNextHashChange = true;
-            window_history.go(-1);
+    preventNextHashChange = false;
+    fixurl.ing = false;
+    var hash = getCurrentHash();
+    if (pagehash_reg.test(hash)) {
+        hash = location.href.replace(/\#[\s\S]*$/, '') + hash;
+        if (!pagehash_reg.test(location.href)) location.href = hash;
+        else if (location.href !== hash) {
+            if (historyDelta) {
+                preventNextHashChange = true;
+                window_history.go(historyDelta);
+                preventNextHashChange = false;
+                if (location.href !== hash) {
+                    location.href = hash;
+                }
+            }
+            else location.replace(hash);
         }
-    }, 0);
+    }
 };
 var checkonback = function (elements) {
     for (var cx = 0, dx = elements.length; cx < dx; cx++) {
@@ -545,8 +534,16 @@ var checkonback = function (elements) {
 put(":empty", function () {
     return null;
 });
-
-var onback = function () {
+var forward = function (pgpath) {
+    var hty = history[current_history];
+    if (hty[hty.index + 1] === pgpath) {
+        go(1);
+    }
+    else if (hty[hty.index - 1] === pgpath) {
+        go(-1);
+    }
+};
+var backward = function () {
     if (rootElements.length) {
         var onback = checkonback(rootElements.slice(rootElements.length - 1));
         fixurl();
@@ -632,7 +629,7 @@ var _switch = zimoli.switch = function (history_name = default_history, target_b
         }
         if (target_body) body = target_body;
     }
-    if (emptyState !== false && !history[current_history]) root_path = (history[current_history] = [].concat(emptyState || ":empty"))[0];
+    if (emptyState !== false && !history[current_history]) root_path = (history[current_history] = createEmptyHistory(emptyState))[0];
 };
 popup.global = zimoli.global = addGlobal;
 popup.go = zimoli.go = go;
@@ -666,7 +663,7 @@ zimoli.setStorage = function (storage) {
 };
 zimoli.register = function (pathlike) {
     var params = [];
-    pathlike = pathlike.replace(/\/\:(^[^\/]+)?/g, function (_, id) {
+    pathlike = pathlike.replace(/\/\:([^\/\:\-]+)/g, function (_, id) {
         params.push(id);
         return '';
     });
@@ -677,64 +674,100 @@ zimoli.clearHistory = function () {
     history = {};
 };
 zimoli.getCurrentHistory = function () {
-    if (!history[current_history]) history[current_history] = [];
+    if (!history[current_history]) history[current_history] = createEmptyHistory();
     return history[current_history];
 };
 zimoli.inithash = locationInitHash;
 zimoli.createState = createState;
+var touchEnabled = false;
 zimoli.enableTouchBack = function () {
-    var touchTarget, currentTarget, history_name, historyList;
+    if (touchEnabled) return;
+    touchEnabled = true;
+    var backwardTarget, forwardTarget, currentTarget, history_name, historyList;
     var touchId = 0;
     var ratio = 0;
     var deltaX = 0;
     bindtouch(body, {
         start(event) {
             event.preventDefault();
+            touchId++;
             ratio = null;
         },
         move(a, event) {
             event.preventDefault();
             if (a !== null) {
+                ratio = a.x / body.clientWidth;
+                if (ratio <= -1) ratio = -0.999;
+                if (ratio >= 1) ratio = 0.999;
                 if (!currentTarget) {
-                    var id = ++touchId;
                     history_name = current_history;
                     historyList = history[history_name];
                     if (historyList.length < 2) return;
-                    var path1 = historyList[historyList.length - 1];
-                    var path0 = historyList[historyList.length - 2];
                     currentTarget = global[history_name];
+                }
+                if (ratio > 0) a: {
+                    if (backwardTarget) break a;
+                    var id = ++touchId;
+                    if (historyList.index < 1) return;
+                    var path1 = historyList[historyList.index];
+                    var path0 = historyList[historyList.index - 1];
                     prepare(path0, function () {
                         if (id !== touchId) return;
                         var args = getZimoliParams(path0).data;
-                        touchTarget = create(path0, args, path1);
-                        setWithStyle(touchTarget, true);
-                        appendChild.insert(body, touchTarget);
+                        backwardTarget = create(path0, args, path1);
+                        setWithStyle(backwardTarget, true);
+                        appendChild.insert(body, backwardTarget);
                     });
+                    if (forwardTarget) remove(forwardTarget, false), forwardTarget = null;
                 }
-                ratio = a.x / body.clientWidth;
-                if (ratio <= 0) ratio = 0.001;
-                if (ratio >= 1) ratio = 0.999;
+                else if (ratio < 0) a: {
+                    if (forwardTarget) break a;
+                    var id = ++touchId;
+                    if (historyList.index >= historyList.length - 1) return;
+                    var path2 = historyList[historyList.index + 1];
+                    prepare(path2, function () {
+                        if (id !== touchId) return;
+                        var args = getZimoliParams(path2).data;
+                        forwardTarget = create(path2, args, path1);
+                        setWithStyle(forwardTarget, false);
+                        appendChild.insert(body, forwardTarget);
+                    });
+                    if (backwardTarget) remove(backwardTarget, false), backwardTarget = null;
+                }
                 deltaX = a.deltax;
                 transition(currentTarget, ratio);
-                transition(touchTarget, ratio - 1);
+                if (backwardTarget) transition(backwardTarget, ratio - 1);
+                if (forwardTarget) transition(forwardTarget, ratio + 1);
             }
             return { x: ratio * body.clientWidth };
         },
         end() {
-            if (ratio === null || !touchTarget) return;
-            if (deltaX > 0 && ratio > .1 || deltaX < 0 && ratio > .9 || deltaX === 0 && ratio > .4) {
-                pushstate(historyList[historyList.length - 2], history_name);
+            if (ratio === null) return;
+            if (historyList.index >= 1 && (deltaX > 0 && ratio > .1 || deltaX < 0 && ratio > .9 || deltaX === 0 && ratio > .4)) {
+                setWithStyle(currentTarget, true);
+                pushstate(historyList[historyList.index - 1], history_name);
                 remove(currentTarget);
-                transition(touchTarget, 1);
-                global[history_name] = touchTarget;
+                remove(forwardTarget, false);
+                transition(backwardTarget, 1);
+                global[history_name] = backwardTarget;
+            }
+            else if (historyList.index < historyList.length - 1 && (deltaX < 0 && ratio < -.1 || deltaX > 0 && ratio < -.9 || deltaX === 0 && ratio < -.4)) {
+                pushstate(historyList[historyList.index + 1], history_name);
+                setWithStyle(currentTarget, false);
+                remove(currentTarget);
+                remove(backwardTarget, false);
+                transition(forwardTarget, 1);
+                global[history_name] = forwardTarget;
             }
             else {
-                setWithStyle(touchTarget, false);
-                remove(touchTarget);
+                if (backwardTarget) setWithStyle(backwardTarget, false), remove(backwardTarget);
+                if (forwardTarget) setWithStyle(forwardTarget, true), remove(forwardTarget);
                 transition(currentTarget, 1);
             }
             currentTarget = null;
-            touchTarget = null;
+            backwardTarget = null;
+            historyList = null;
+            forwardTarget = null;
             ratio = null;
         }
     }, 'x')

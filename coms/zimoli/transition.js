@@ -45,7 +45,7 @@ function 函数帧(p1, p2, point) {
     });
 }
 var targetWidth = innerWidth;
-var unitFloatReg = /^(\d+(?:\.\d+)?|\.\d+)([^\d]*)$/;
+var unitFloatReg = /^[\+\-]?(\d+(?:\.\d+)?|\.\d+)([^\d]*)$/;
 function 单位帧(u1, u2, point) {
     var m1 = unitFloatReg.exec(u1);
     if (!m1) return u1;
@@ -67,6 +67,9 @@ function 单位帧(u1, u2, point) {
 function 值帧(k, v1, v2, point) {
     if (/color|background/.test(k)) {
         return 颜色帧(v1, v2, point);
+    }
+    if (/opacity/.test(k)) {
+        return 浮点帧(v1, v2, Math.abs(point));
     }
     if (/\(/.test(v1)) {
         return 函数帧(v1, v2, point);
