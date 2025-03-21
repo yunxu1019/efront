@@ -604,9 +604,8 @@ class Model {
         var getValue = target.getValue;
         var setValue = target.setValue;
         if (getValue && setValue);
-        else if ('value' in target) {
-            if (!setValue) setValue = stValue;
-            if (!getValue) getValue = gtValue;
+        else if ('value' in target && setValue) {
+            getValue = gtValue;
         }
         else if (/^input$/i.test(target.tagName) && /^checkbox$/i.test(target.type) || /^checkbox$/i.test(target.tagName)) {
             if (!getValue) getValue = gtChecked;
