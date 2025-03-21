@@ -20,11 +20,15 @@ var pathFromHash = function (targetHash) {
     var targetHashIndex = targetHash.indexOf("#" + current_history);
     if (targetHashIndex < 0) return;
     var targetpath = targetHash.slice(targetHashIndex + current_history.replace(/\/$/, '').length + 1);
+    if (targetpath === '/') {
+        preventNextHashChange = true;
+        window_history.go(-1);
+        return;
+    }
     targetpath = decodeURI(targetpath);
     return targetpath;
 }
 onhashchange(window, function (event) {
-    if (fixurl.ing) return;
     if (preventNextHashChange) return preventNextHashChange = false;
     // 如果是返回事件，一定不是第一次改变hash
     // 这里刚好可以屏蔽首次手动改变url可能产生的hashchange事件
@@ -503,9 +507,7 @@ var getCurrentHash = function () {
 };
 
 var fixurl = function (historyDelta) {
-    if (fixurl.ing) return;
     preventNextHashChange = false;
-    fixurl.ing = false;
     var hash = getCurrentHash();
     if (pagehash_reg.test(hash)) {
         hash = location.href.replace(/\#[\s\S]*$/, '') + hash;
@@ -521,6 +523,11 @@ var fixurl = function (historyDelta) {
             }
             else location.replace(hash);
         }
+    }
+    else if (pagehash_reg.test(location.hash)) {
+        preventNextHashChange = true;
+        window_history.go(-1);
+        preventNextHashChange = false;
     }
 };
 var checkonback = function (elements) {
