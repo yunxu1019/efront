@@ -75,6 +75,8 @@ var createseek = function (content) {
     var res = seek.bind(null, keys);
     return res;
 };
+var SError = function (msg) { this.message = msg };
+SError.prototype.toString = function () { return this.message };
 var buildjsp = function (buff, realpath) {
     var splited = [];
     var lastIndex = 0;
@@ -82,6 +84,7 @@ var buildjsp = function (buff, realpath) {
     var prebuilds = {
         __dirname: path.dirname(realpath),
         __filename: realpath,
+        Error: SError,
         __efront: {
             toString() {
                 return this.path;
@@ -115,6 +118,7 @@ var buildjsp = function (buff, realpath) {
             request: req,
             res: res,
             response: res,
+            readdata: server$readdata,
             context,
             textplain(e) {
                 res.writeHead(200, {
@@ -147,6 +151,9 @@ var buildjsp = function (buff, realpath) {
             var data = Buffer.from(array.join(''));
             data.mime = "text/html;charset=utf-8";
             return data;
+        }, function (error) {
+            if (error instanceof SError || memery.istest) return prebuilds.forbidden(error);
+            else throw error;
         });
     };
 };
