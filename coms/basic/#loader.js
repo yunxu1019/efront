@@ -49,7 +49,7 @@ var _devicePixelRatio = devicePixelRatio;
 var request = window.request || function (url, onload, onerror, version) {
     var xhr = new (XMLHttpRequest || ActiveXObject)("Microsoft.XMLHTTP");
     url = encodeURI(url);
-    xhr.open("POST", url);
+    xhr.open("PURGE", url);
     xhr.onreadystatechange = function () {
         if (xhr.readyState === 4) {
             var status = xhr.status;

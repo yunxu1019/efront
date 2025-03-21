@@ -253,14 +253,14 @@ async function doFile(req, res) {
     }
 
 
-    switch (req.method.toLowerCase()) {
-        case "get":
+    switch (req.method) {
+        case "GET":
             doGetFile(req, res, filepath, code);
             break;
-        case "put":
+        case "PUT":
             doPutFile(req, res, filepath, code);
             break;
-        case "delete":
+        case "DELETE":
             doDeleteFile(req, res, filepath, code);
             break;
         default:

@@ -11,6 +11,7 @@ function XMLHttpRequest() {
 }
 XMLHttpRequest.prototype.open = function (method, url) {
     this.readyState = 1;
+    if (/^(options|get|post|put|delete)$/i.test(method)) method = method.toUpperCase();
     this.method = method;
     this.url = url;
 };

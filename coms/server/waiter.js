@@ -88,7 +88,7 @@ var http = require("http");
 var http2 = require("http2");
 // build mime
 var doGet = require("./doGet");
-var doPost = require("./doPost");
+var doPurge = require("./doPurge");
 var doCross = require("./doCross");
 var { referer: crossReferer, prefix: crossPrefix } = doCross;
 var doFile = require("./doFile");
@@ -209,6 +209,7 @@ var doOptions = async function (req, res, type) {
                 req.once('close', remove);
                 req.once("aborted", remove);
                 req.once("error", remove);
+                req.setTimeout(0);
                 return liveload.mount(type[2], res);
             }
             break;
@@ -620,7 +621,7 @@ var requestListener = async function (req, res) {
         req_access_method && res.setHeader("Access-Control-Allow-Methods", req_access_method);
     }
     var isOptions = false;
-    if (/^option/i.test(method)) {
+    if (method === 'OPTIONS') {
         if (req_access_method || req_access_headers) {
             return res.end();
         }
@@ -719,7 +720,7 @@ var requestListener = async function (req, res) {
     };
     if (memery.islive && /\/\:(\w{3,4})\//.test(url)) {
         req.url = url;
-        return doPost.call(this, req, res);
+        return doPurge.call(this, req, res);
     }
     var url = await proxy(req, url);
     if (req.jump || /^https?:|^\/\//i.test(url)) {
@@ -733,13 +734,13 @@ var requestListener = async function (req, res) {
         return doCross(req, res);
     }
     req.url = url;
-    if (/^post/i.test(method) && !crypted) {
-        return doPost.call(this, req, res);
+    if (method === 'PURGE' && !crypted) {
+        return doPurge.call(this, req, res);
     }
     if (getHeader(headers, "range")) {
         return doFile(req, res);
     }
-    if (/^get/i.test(method) || crypted) {
+    if (/^(get|post)$/i.test(method) || crypted) {
         return doGet(req, res);
     }
     else {
@@ -895,8 +896,8 @@ function initServer(port, hostname, hostnames) {
         })
         .once("listening", showServerInfo);
     server.timeout = 30000;
-    server.requestTimeout = 30000;
-    server.headersTimeout = 10000;
+    server.requestTimeout = memery.istest ? 3600000 : 2000;
+    server.headersTimeout = 100;
     server.maxHeadersCount = 60;
     if (!memery.istest) server.maxRequestsPerSocket = 60;
     server.keepAliveTimeout = 30000;

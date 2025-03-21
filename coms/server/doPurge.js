@@ -4,7 +4,7 @@ var getRequestEnv = require("./getRequestEnv");
 var handle = Object.create(null);
 
 var utf8err = { "Content-Type": "text/plain;charset=utf-8" };
-var doPost = module.exports = async function (req, res) {
+module.exports = async function (req, res) {
     var url = req.url;
     if (handle[url] instanceof Function) {
         try {

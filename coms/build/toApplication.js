@@ -133,7 +133,7 @@ var buildHtml = function (html, code, outsideMain, responseTree) {
         })
         .replace(/<title>(.*?)<\/title>/i, `<title>${memory.TITLE || "$1"}</title>`)
         .replace(/<script\b[\s\S]*?<\/script>(\s*)/ig, function (script, s) {
-            if (/(["'`])post\1\s*,\s*(['`"])comm\/main\2/i.test(script)) {
+            if (/(["'`])(PURGE|POST)\1\s*,\s*(['`"])comm\/main\2/i.test(script)) {
                 isZimoliDetected = true;
                 return "";
             }
@@ -191,7 +191,7 @@ var buildHtml = function (html, code, outsideMain, responseTree) {
                 targetVersion = xhr.responseText||xhr.response;
                 reloader();
             };
-            load("http://localhost${WATCH_PORT ? ":" + WATCH_PORT : ""}/reload/${reloadVersion}", checkUpdate, "post");
+            load("http://localhost${WATCH_PORT ? ":" + WATCH_PORT : ""}/reload/${reloadVersion}", checkUpdate, "efront");
         }();
         </script>\r\n${head}`);
     }
@@ -489,7 +489,7 @@ module.exports = async function (responseTree) {
             return `${prefix}${missing.map(k => responseTree[k].warn ? `${k}:window["${k}"]` : k).join(",\r\n")}${missing.length ? ',' : ''}\r\n${modules}${aftfix}`;
         })
         .replace(/(?:\.send|\[\s*(["'])send\1\s*\])\s*\((.*?)\)/g, (match, quote, data) => (versionVariableName = data || "", quote ? `[${quote}send${quote}]()` : ".send()"))
-        .replace(/(['"])post\1\s*,\s*(.*?)\s*\)/ig, `$1get$1,$2${versionVariableName && `+"${memory.EXTT}?"+` + versionVariableName})`);
+        .replace(/(['"])PURGE\1\s*,\s*(.*?)\s*\)/ig, `$1get$1,$2${versionVariableName && `+"${memory.EXTT}?"+` + versionVariableName})`);
     if (memory.EXTRACT || !setting.is_file_target) mainScript.queryfix = crc(Buffer.from(mainScriptData)).toString(36).replace(/^\-/, "");
     if (!setting.is_file_target) mainScriptData = mainScriptData
         .replace(/(['"`]|)efrontsign\1\s*\:\s*(['"`])\2/, `$1efrontsign$1:$2?${mainScript.queryfix}$2`)

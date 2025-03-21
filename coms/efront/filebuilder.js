@@ -21,7 +21,7 @@ var liveload = () => `function () {
         if (reloadCount > 72) return;
         reloadCount++;
         var xhr = new XMLHttpRequest;
-        xhr.open("options", "/:live-${require("../server/liveload").version}");
+        xhr.open("OPTIONS", "/:live-${require("../server/liveload").version}");
         xhr.timeout = 0;
         xhr.onreadystatechange = function () {
             if (xhr.readyState === 4) {
@@ -47,7 +47,7 @@ var efronthook = `function (body, window) {
             console.log("%cefront%c live", 'color:#360', 'color:333');
         }
     };
-    xhr.open('POST', 'comm/main');
+    xhr.open('PURGE', 'comm/main');
     xhr.send("step into my sight..");
 }.call(this, document.documentElement.children[0], this)`;
 var pixelDecoder = d => d / 16 + "rem";
@@ -158,8 +158,13 @@ var buildjsp = function (buff, realpath) {
     };
 };
 var buildreload = function (buff) {
-    var data = String(buff).replace(/<script\s[^>]*?(type\s*=\s*)?(["']|)efront\-?(?:hook|main|host|script|loader)\1[^>]*?>/i, `<script>\r\n-${efronthook.toString()};\r\n`)
-        .replace(/(<\/head)/i, `\r\n<script async>\r\n-${liveload()}();\r\n</script>\r\n$1`);
+    var replaced = false;
+    var data = String(buff).replace(/<script\s[^>]*?(type\s*=\s*)?(["']|)efront\-?(?:hook|main|host|script|loader)\1[^>]*?>/i, () => {
+        replaced = true;
+        return `<script>\r\n-${efronthook.toString()};\r\n`
+    });
+    if (!replaced) data = data.replace(/(["'`])POST\1\s*,\s*(['`"])comm\/main\2/i, "$1PURGE$1, $2comm/main$2");
+    data = data.replace(/(<\/head)/i, `\r\n<script async>\r\n-${liveload()}();\r\n</script>\r\n$1`);
     buff = Buffer.from(data);
     return buff;
 };
