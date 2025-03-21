@@ -38,7 +38,7 @@ var api = function () {
         }
     }
     if (!method) {
-        method = "post";
+        method = "PURGE";
     }
 
     if (!uri) {

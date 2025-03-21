@@ -44,11 +44,7 @@ function request(fullpath, data, info) {
                 fullpath,
                 data: data,
                 info: info
-            }, function (res) {
-                ok(res);
-            }, function (err) {
-                oh(err);
-            }, function () {
+            }, ok, oh, function () {
                 multithreading_requestCount--;
             });
         });
@@ -71,10 +67,10 @@ function request(fullpath, data, info) {
         if (!queue.length) return;
         var args = queue[0];
         var [fullpath, ok, oh, data, info] = args;
-        if (args.length === 1) {
+        if (args.length === 3) {
             message.abpi({
                 fullpath
-            }, function () {
+            }, ok, oh, function () {
                 queue.shift();
                 runner();
             });
