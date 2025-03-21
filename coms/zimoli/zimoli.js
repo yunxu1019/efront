@@ -415,7 +415,10 @@ function zimoli(pagepath, args, history_name, oldpagepath) {
         var _history = history[history_name] || createEmptyHistory('/main');
         root_path = _history[0];
         pagepath = location.hash;
-        if (pagepath) pagepath = pathFromHash(pagepath);
+        if (pagepath) {
+            if (_history.index > 0) pagepath = pathFromHash(pagepath);
+            else pagepath = '';
+        }
         if (!pagepath) pagepath = _history[_history.index];
         try {
             var saveddata = JSAM.parse(hostoryStorage.getItem(_zimoli_params_key + pagepath)) || {};
