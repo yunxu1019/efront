@@ -16,8 +16,16 @@ var isFirstTimeLoad = sessionInitHash === null;
 var isSimpleRefresh = sessionInitHash === locationInitHash;
 var preventNextHashChange = false;
 window_history.scrollRestoration = 'manual';
+var pathFromHash = function (targetHash) {
+    var targetHashIndex = targetHash.indexOf("#" + current_history);
+    if (targetHashIndex < 0) return;
+    var targetpath = targetHash.slice(targetHashIndex + current_history.replace(/\/$/, '').length + 1);
+    targetpath = decodeURI(targetpath);
+    return targetpath;
+}
 onhashchange(window, function (event) {
     if (fixurl.ing) return;
+    if (preventNextHashChange) return preventNextHashChange = false;
     // 如果是返回事件，一定不是第一次改变hash
     // 这里刚好可以屏蔽首次手动改变url可能产生的hashchange事件
     var targetHash = location.hash;
@@ -25,15 +33,10 @@ onhashchange(window, function (event) {
     if (pagehash_reg.test(targetHash)) {
         var currentHash = getCurrentHash();
         if (currentHash && currentHash === targetHash) return;
-        var targetHashIndex = targetHash.indexOf("#" + current_history);
-        if (targetHashIndex < 0) return;
-        var targetpath = targetHash.slice(targetHashIndex + current_history.replace(/\/$/, '').length + 1);
-        targetpath = decodeURI(targetpath);
-        if (preventNextHashChange) return preventNextHashChange = false;
+        var targetpath = pathFromHash(targetHash);
         forward(targetpath);
         return;
     }
-    if (preventNextHashChange) return preventNextHashChange = false;
     event.preventDefault();
     backward();
 });
@@ -411,7 +414,9 @@ function zimoli(pagepath, args, history_name, oldpagepath) {
         history_name = current_history;
         var _history = history[history_name] || createEmptyHistory('/main');
         root_path = _history[0];
-        pagepath = _history[_history.index];
+        pagepath = location.hash;
+        if (pagepath) pagepath = pathFromHash(pagepath);
+        if (!pagepath) pagepath = _history[_history.index];
         try {
             var saveddata = JSAM.parse(hostoryStorage.getItem(_zimoli_params_key + pagepath)) || {};
         } catch (e) {
@@ -424,8 +429,6 @@ function zimoli(pagepath, args, history_name, oldpagepath) {
     if (isNode(history_name))
         var zid = history_name.zimoliid = (history_name.zimoliid | 0) + 1;
     else var zid = arguments.length ? ++zimoliid : zimoliid;
-
-    if (page_generators[pagepath]) return go(pagepath, args, history_name, oldpagepath);
     return prepare(pagepath, function () {
         if (isNode(history_name)) {
             if (history_name.zimoliid !== zid) return;
