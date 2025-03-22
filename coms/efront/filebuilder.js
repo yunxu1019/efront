@@ -113,7 +113,7 @@ var buildjsp = function (buff, realpath) {
     return function (req, res) {
         var context = {};
         context.context = context;
-        Object.assign(prebuilds, {
+        var pb = Object.assign({}, prebuilds, {
             req: req,
             request: req,
             res: res,
@@ -134,17 +134,13 @@ var buildjsp = function (buff, realpath) {
             }
         });
         try {
-            prebuilds.remoteAddress = require("../server/remoteAddress")(req);
+            pb.remoteAddress = require("../server/remoteAddress")(req);
         } catch (e) {
-            return prebuilds.forbidden(e);
+            return pb.forbidden(e);
         }
         return queue.call(splited, function (str) {
             if (str instanceof Function) {
-                var noimport = !str.imported;
-                if (noimport) str.imported = [prebuilds.context];
-                var res = require2.invokeFunction(str, prebuilds.context);
-                if (noimport) delete str.imported;
-                return res;
+                return require2.invokeFunction(str, pb);
             }
             return str;
         }).then(function (array) {
@@ -152,7 +148,7 @@ var buildjsp = function (buff, realpath) {
             data.mime = "text/html;charset=utf-8";
             return data;
         }, function (error) {
-            if (error instanceof SError || memery.istest) return prebuilds.forbidden(error);
+            if (error instanceof SError || memery.istest) return pb.forbidden(error);
             else throw error;
         });
     };

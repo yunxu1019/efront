@@ -31,9 +31,10 @@ var prepareFunction = function (pathname) {
         });
     });
 };
-var createModule = function (required, prebuilds, pathmap, modname) {
+var createModule = function (required, pathmap, modname) {
     if (typeof modname === "number") modname = required[modname];
-    if (prebuilds && hasOwnProperty.call(prebuilds, modname)) return prebuilds[modname];
+    var prebuilds = this.prebuilds;
+    if (hasOwnProperty.call(prebuilds, modname)) return prebuilds[modname];
     switch (modname) {
         case "require": return this.require;
         case "undefined": return undefined;
@@ -68,7 +69,7 @@ var createFunction = function (data, pathname, prebuilds) {
     var func = eval(`[${isAsync ? 'async ' : ""}function${isYield ? "*" : ""}(${params ? params.join(",") : ''}){\r\n${data}\r\n}][0]`);
     if (!(imported instanceof Array)) imported = [];
     var pathmap = {};
-    func.require = createModule.bind(func, required, prebuilds, pathmap);
+    func.require = createModule.bind(func, required, pathmap);
     func.require.cache = required_cache;
     func.imported = imported;
     func.required = required;
@@ -91,16 +92,16 @@ var createFunction = function (data, pathname, prebuilds) {
     };
     return func;
 };
-var invokeFunction = function (func, context) {
+var invokeFunction = function (func, prebuilds) {
     if (func.prepare) return func.prepare().then(function () {
-        return invokeFunction(func, context);
+        return invokeFunction(func, prebuilds);
     });
+
     var { imported, require } = func;
-    func.exports = context || {};
-    if (imported instanceof Array && require instanceof Function) imported = imported.map(require);
+    var { context } = prebuilds;
     a: if (!context) {
         var ismodule = false;
-        for (var m of imported) {
+        if (imported) for (var m of imported) {
             if (/^(exports|module)$/.test(m)) {
                 ismodule = true;
                 break a;
@@ -108,6 +109,9 @@ var invokeFunction = function (func, context) {
         }
         context = global;
     }
+    func.prebuilds = prebuilds;
+    func.exports = context || {};
+    if (imported instanceof Array && require instanceof Function) imported = imported.map(require);
     return imported instanceof Array ? func.apply(context, imported) : func.call(context);
 };
 
