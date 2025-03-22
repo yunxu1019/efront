@@ -51,7 +51,9 @@ data.bindInstance("base", async function (base) {
     for (var k in apimap) {
         var api = apimap[k];
         if (api.base || !/^\w+\:\/\//.test(api.url)) {
-            api.base = base.base;
+            if (api.headers && 'authorization' in api.headers) {
+                api.base = base.base;
+            }
         }
     }
 });
