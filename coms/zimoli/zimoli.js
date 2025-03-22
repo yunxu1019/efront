@@ -16,15 +16,11 @@ var isFirstTimeLoad = sessionInitHash === null;
 var isSimpleRefresh = sessionInitHash === locationInitHash;
 var preventNextHashChange = false;
 window_history.scrollRestoration = 'manual';
+var popupHashlessPath = '/';
 var pathFromHash = function (targetHash) {
     var targetHashIndex = targetHash.indexOf("#" + current_history);
     if (targetHashIndex < 0) return;
     var targetpath = targetHash.slice(targetHashIndex + current_history.replace(/\/$/, '').length + 1);
-    if (targetpath === '/') {
-        preventNextHashChange = true;
-        window_history.go(-1);
-        return;
-    }
     targetpath = decodeURI(targetpath);
     return targetpath;
 }
@@ -38,6 +34,10 @@ onhashchange(window, function (event) {
         var currentHash = getCurrentHash();
         if (currentHash && currentHash === targetHash) return;
         var targetpath = pathFromHash(targetHash);
+        if (pathFromHash(currentHash) === popupHashlessPath) {
+            backward();
+            return;
+        }
         forward(targetpath);
         return;
     }
@@ -420,8 +420,14 @@ function zimoli(pagepath, args, history_name, oldpagepath) {
         root_path = _history[0];
         pagepath = location.hash;
         if (pagepath) {
-            if (_history.index > 0) pagepath = pathFromHash(pagepath);
-            else pagepath = '';
+            pagepath = pathFromHash(pagepath);
+            if (pagepath === popupHashlessPath) {
+                preventNextHashChange = true;
+                window_history.go(-1);
+                preventNextHashChange = true;
+                pagepath = pathFromHash(location.hash);
+            }
+            if (_history.index === 0) pagepath = '';
         }
         if (!pagepath) pagepath = _history[_history.index];
         try {
@@ -498,7 +504,7 @@ var popstate = function (path_name, history_name) {
 var getCurrentHash = function () {
     var history_name = current_history.replace(/\/$/, '');
     if (rootElements.length) {
-        return `#${history_name}/`;
+        return `#${history_name}${popupHashlessPath}`;
     }
     var _historylist = history[current_history];
     if (!_historylist || _historylist.index < 1) return "";
@@ -521,7 +527,7 @@ var fixurl = function (historyDelta) {
                     location.href = hash;
                 }
             }
-            else location.replace(hash);
+            else if (location.href !== hash) location.href = hash;
         }
     }
     else if (pagehash_reg.test(location.hash)) {
@@ -553,7 +559,7 @@ var forward = function (pgpath) {
         go(1);
     }
     else if (hty[hty.index - 1] === pgpath) {
-        go(-1);
+        backward();
     }
     else {
         go(pgpath);
