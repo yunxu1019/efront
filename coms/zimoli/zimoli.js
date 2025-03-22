@@ -555,6 +555,9 @@ var forward = function (pgpath) {
     else if (hty[hty.index - 1] === pgpath) {
         go(-1);
     }
+    else {
+        go(pgpath);
+    }
 };
 var backward = function () {
     if (rootElements.length) {
