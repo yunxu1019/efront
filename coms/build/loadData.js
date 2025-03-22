@@ -60,9 +60,6 @@ function build(pages_root, lastBuiltTime, dest_root) {
             a.forEach((a, i, arr) => {
                 if (a in dependenceMap) arr[i] = dependenceMap[a];
             });
-            a.forEach(a => {
-                restRequired[a] = true;
-            });
             var required = (a.require || []).filter(filter);
             if (!include_required) return a.map(k => deps[k] = true);
             var required2 = required.map(r => /^\./.test(r) ? path.join(a.dirname, r) : r);
