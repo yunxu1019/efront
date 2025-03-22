@@ -154,8 +154,10 @@ var adapter = function (data, url, req, res) {
     }
     if (data instanceof Promise) {
         return data.then(function (data) {
+            if (!isHandled(data)) return res.end();
             return adapter(data, url, req, res);
         }).catch(function (error) {
+            if (res.writableEnded || res.finished) return;
             res.writeHead(500, utf8);
             res.end(String(error));
         });

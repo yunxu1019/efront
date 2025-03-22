@@ -12,7 +12,7 @@ var checkRead = function (req, db) {
     return checkAuth(req, db.roles);
 };
 var checkOwner = async function (req, db, origin) {
-    if (db.open) {
+    if (db.open || db.visit) {
         var user = req.socket.user;
         if (!user) {
             await checkAuth(req);
@@ -57,6 +57,7 @@ var checkField = function (data, fnames, lang) {
         }
     }
 }
+
 var doDB = async function (req, res) {
     var lang = getHeader(req.headers, "accept-language");
     try {
@@ -128,8 +129,7 @@ var doDB = async function (req, res) {
         res.end();
         return;
     }
-    var dbmap = await userdata.getDBS();
-    var db = dbmap[dbid];
+    var db = await getDB(dbid);
     if (!db) {
         res.writeHead(404, utf8json);
         res.end(i18n[lang]`${dbid}不存在`);
@@ -154,43 +154,49 @@ var doDB = async function (req, res) {
                 pageSize = +pageSize;
                 if (search || searchText || pageSize >= 0) {
                     query = parseKV(query);
+                    if (!db.open) {
+                        if (!db.visit) {
+                            res.writeHead(403, utf8error);
+                            res.end(i18n[lang]`此数据不可查询！`);
+                            return;
+                        }
+                        var owner = checkOwner(req, db);
+                        if (!isHandled(owner)) {
+                            res.writeHead(403, utf8error);
+                            res.end(i18n[lang]`不可查询私有数据！`);
+                            return;
+                        }
+                        query.owner = owner;
+                    }
                     var data = await message.invoke('dbFind', [dbid, query, lastId, pageSize, searchText]);
+                    if (dbid === '用户') trimUser(data);
                 }
                 else {
+                    if (!db.open) {
+                        res.writeHead(403, utf8error);
+                        res.end(i18n[lang]`此数据不可枚举`);
+                        return;
+                    }
                     var data = await message.invoke('dbList', [dbid, lastId, -pageSize]);
                 }
             }
             else {
                 if (lastId) {
-                    if (version) version = +version;
-                    var data = await message.invoke('dbLoad', [dbid, lastId, version]);
-                    if (!isHandled(data)) {
-                        res.writeHead(404, utf8error);
-                        res.end(i18n[lang]`数据不存在！`);
+                    try {
+                        data = await readItem(req, dbid, lastId, version);
+                    } catch (e) {
+                        res.writeHead(403, utf8error);
+                        res.end(e);
                         return;
-                    }
-                    if (data.buffer instanceof ArrayBuffer) {
-                        var ext = lastId && path.extname(lastId);
-                        if (ext) {
-                            data.mime = mime[ext.slice(1)];
-                        }
                     }
                 }
                 else {
+                    if (!db.open) {
+                        res.writeHead(403, utf8error);
+                        res.end(i18n[lang]`此数据不可枚举`);
+                        return;
+                    }
                     var data = await message.invoke('dbList', [dbid, null, 20]);
-                }
-            }
-            if (dbid === '用户') {
-
-                if (isArray(data)) {
-                    data.forEach(d => {
-                        delete d.c;
-                        delete d.d;
-                    });
-                }
-                else if (isObject(data)) {
-                    delete data.c;
-                    delete data.d;
                 }
             }
             break;
@@ -201,117 +207,33 @@ var doDB = async function (req, res) {
                 return;
             }
             var data = await readRequestAsJson(req);
-            if (dbid === "用户" && data.a) {
-                await userdata.setPasswordA(String(data.a), data);
-                delete data.a;
+            try {
+                data = await patchItem(req, dbid, lastId, data);
             }
-            var origin = await message.invoke('dbLoad', [dbid, lastId]);
-            if (!origin) {
+            catch (e) {
                 res.writeHead(403, utf8error);
-                res.end(i18n[lang]`不存在名为${lastId}的${dbid}`);
+                res.end(e);
                 return;
             }
-            var owner = await checkOwner(req, db, origin);
-            a: if (!owner) {
-                if (!origin.owner) {
-                    if (await checkAuth(req, ["dbw"])) break a;
-                }
-                res.writeHead(403, utf8error);
-                res.end(i18n[lang]`您不能修改其他用户的数据`);
-                return;
-            }
-            if (data.owner && data.owner !== owner) {
-                res.writeHead(403, utf8error);
-                res.end(i18n[lang]`请不要冒充其他用户！`);
-                return;
-            }
-            msg = checkField(data, ['mtime', 'ctime'], lang);
-            if (msg) {
-                res.writeHead(403, utf8error);
-                res.end(msg);
-                return;
-            }
-            data.owner = owner;
-            if (data.id && data.id !== origin.id) {
-                res.writeHead(403, utf8error);
-                res.end(i18n[lang]`数据标识不可更改！`);
-                return;
-            }
-            data = await message.invoke('dbPatch', [dbid, lastId, data]);
             break;
         case "put"://覆盖
             var data = await readRequestAsJson(req);
-            if (dbid === '用户') {
-                if (!data.a) {
-                    res.writeHead(403, utf8error);
-                    res.end(i18n[lang]`请设置用户密码`);
-                    return;
-                }
-                if (!data.name) {
-                    res.writeHead(403, utf8error);
-                    res.end(i18n[lang]`请设置用户名`);
-                    return;
-                }
-                await userdata.setPasswordA(String(data.a), data);
-                delete data.a;
-                if (!data.id) {
-                    data.id = data.name;
-                }
-                var msg = checkUid(data, lang);
-            }
-            else {
-                var owner = await checkOwner(req, db);
-                if (!owner) {
-                    if (!await checkAuth(req, ['dbw'])) {
-                        res.writeHead(401, utf8error);
-                        res.end(i18n[lang]`请登录后重试`);
-                        return;
-                    }
-                    msg = checkField(data, ["owner"], lang);
-                }
-                else {
-                    msg = checkField(data, ["owner", 'mtime', 'ctime'], lang);
-                    data.mtime = data.ctime = +new Date;
-                    data.owner = owner;
-                }
-            }
-            var msg = msg || checkId(data, lang);
-            if (msg) {
+            try {
+                data = await addItem(req, dbid, lastId, data);
+            } catch (e) {
                 res.writeHead(403, utf8error);
-                res.end(msg);
+                res.end(e);
                 return;
             }
-            if (!lastId) lastId = data.id || '';
-            var origin = await message.invoke('dbLoad', [dbid, lastId]);
-            if (origin) {
-                res.writeHead(403, utf8error);
-                res.end(i18n[lang]`已存在名为${lastId}的${dbid}`);
-                return;
-            }
-            data = await message.invoke('dbSave', [dbid, data]);
             break;
         case "delete":
-            if (!lastId) {
-                res.writeHead(403, lastId);
-                res.end(i18n[lang]`参数异常`);
+            try {
+                data = await deleteItem(req, dbid, lastId);
+            } catch (e) {
+                res.writeHead(403, utf8error);
+                res.end(e);
                 return;
             }
-            var origin = await message.invoke('dbLoad', [dbid, lastId]);
-            if (!isHandled(origin)) {
-                res.writeHead(404, utf8error);
-                res.end(i18n[lang]`数据不存在`);
-                return;
-            }
-            var owner = await checkOwner(req, db, origin);
-            if (!owner) {
-                if (await checkAuth(req, ["dbd"]) && !origin.owner);
-                else {
-                    res.writeHead(403, utf8error);
-                    res.end(i18n[lang]`您不能删除别人的数据`);
-                    return
-                }
-            }
-            data = await message.invoke('dbDrop', [dbid, lastId]);
             break;
     }
     if (!isHandled(data)) return res.end();
@@ -327,3 +249,104 @@ var doDB = async function (req, res) {
         res.end(data);
     }
 };
+var addItem = async function (req, dbid, lastId, data) {
+    if (dbid === '用户') {
+        if (!data.a) throw i18n[lang]`请设置用户密码`;
+        if (!data.name) throw i18n[lang]`请设置用户名`;
+        await userdata.setPasswordA(String(data.a), data);
+        delete data.a;
+        if (!data.id) {
+            data.id = data.name;
+        }
+        var msg = checkUid(data, lang);
+    }
+    else {
+        var owner = await checkOwner(req, db);
+        if (!owner) {
+            if (!await checkAuth(req, ['dbw'])) throw i18n[lang]`请登录后重试`;
+            msg = checkField(data, ["owner"], lang);
+        }
+        else {
+            msg = checkField(data, ["owner", 'mtime', 'ctime'], lang);
+            data.mtime = data.ctime = +new Date;
+            data.owner = owner;
+        }
+    }
+    var msg = msg || checkId(data, lang);
+    if (msg) throw msg;
+    if (!lastId) lastId = data.id || '';
+    var origin = await message.invoke('dbLoad', [dbid, lastId]);
+    if (origin) throw i18n[lang]`已存在名为${lastId}的${dbid}`;
+    data = await message.invoke('dbSave', [dbid, data]);
+    return data;
+};
+var deleteItem = async function (req, dbid, lastId) {
+    if (!lastId) throw i18n[lang]`参数异常`;
+    var origin = await message.invoke('dbLoad', [dbid, lastId]);
+    if (!isHandled(origin)) throw i18n[lang]`数据不存在`;
+    var owner = await checkOwner(req, db, origin);
+    if (!owner) {
+        if (await checkAuth(req, ["dbd"]) && !origin.owner);
+        else throw i18n[lang]`您不能删除别人的数据`;
+    }
+    data = await message.invoke('dbDrop', [dbid, lastId]);
+    return data;
+};
+var patchItem = async function (req, dbid, lastId, data) {
+    if (dbid === "用户" && data.a) {
+        await userdata.setPasswordA(String(data.a), data);
+        delete data.a;
+    }
+    var origin = await message.invoke('dbLoad', [dbid, lastId]);
+    if (!origin) throw i18n[lang]`不存在名为${lastId}的${dbid}`;
+    var owner = await checkOwner(req, db, origin);
+    a: if (!owner) {
+        if (!origin.owner) {
+            if (await checkAuth(req, ["dbw"])) break a;
+        }
+        throw i18n[lang]`您不能修改其他用户的数据`;
+    }
+    if (data.owner && data.owner !== owner) throw i18n[lang]`请不要冒充其他用户！`;
+    msg = checkField(data, ['mtime', 'ctime'], lang);
+    if (msg) throw msg;
+    data.owner = owner;
+    if (data.id && data.id !== origin.id) throw i18n[lang]`数据标识不可更改！`;
+    data = await message.invoke('dbPatch', [dbid, lastId, data]);
+    return data;
+};
+
+var trimUser = function (dbid, data) {
+    if (isArray(data)) data.forEach(d => {
+        delete d.c;
+        delete d.d;
+    });
+    else if (isObject(data)) {
+        delete data.c;
+        delete data.d;
+    }
+};
+var readItem = async function (req, dbid, lastId, version) {
+    if (version) version = +version;
+    var data = await message.invoke('dbLoad', [dbid, lastId, version]);
+    if (dbid === '用户') trimUser(data);
+    if (!isHandled(data)) throw i18n[lang]`数据不存在！`;
+    if (data.buffer instanceof ArrayBuffer) {
+        var ext = lastId && path.extname(lastId);
+        if (ext) {
+            data.mime = mime[ext.slice(1)];
+        }
+    }
+    var db = await getDB(dbid);
+    if (!checkOwner(req, db, data)) throw i18n[lang]`您无权访问此数据！`;
+    return data;
+}
+var getDB = async function (dbid) {
+    var dbmap = await userdata.getDBS();
+    var db = dbmap[dbid];
+    return db;
+}
+doDB.getDB = getDB;
+doDB.getItem = readItem;
+doDB.patchItem = patchItem;
+doDB.deleteItem = deleteItem;
+doDB.addItem = addItem;

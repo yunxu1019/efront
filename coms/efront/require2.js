@@ -34,7 +34,7 @@ var prepareFunction = function (pathname) {
 var createModule = function (required, pathmap, modname) {
     if (typeof modname === "number") modname = required[modname];
     var prebuilds = this.prebuilds;
-    if (hasOwnProperty.call(prebuilds, modname)) return prebuilds[modname];
+    if (prebuilds && hasOwnProperty.call(prebuilds, modname)) return prebuilds[modname];
     switch (modname) {
         case "require": return this.require;
         case "undefined": return undefined;
@@ -98,7 +98,7 @@ var invokeFunction = function (func, prebuilds) {
     });
 
     var { imported, require } = func;
-    var { context } = prebuilds;
+    if (prebuilds) var { context } = prebuilds;
     a: if (!context) {
         var ismodule = false;
         if (imported) for (var m of imported) {

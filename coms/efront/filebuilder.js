@@ -75,6 +75,7 @@ var createseek = function (content) {
     var res = seek.bind(null, keys);
     return res;
 };
+
 var SError = function (msg) { this.message = msg };
 SError.prototype.toString = function () { return this.message };
 var buildjsp = function (buff, realpath) {
@@ -94,6 +95,7 @@ var buildjsp = function (buff, realpath) {
         },
         req: null, res: null, request: null, response: null, context: null,
         remoteAddress: null, textplain: null, forbidden: null,
+        db: null,
         clients: require("../server/clients")
     };
     //////////////////------------//////////////////////////////////////////////////////////////////////--------//////////////////////////////
@@ -113,24 +115,38 @@ var buildjsp = function (buff, realpath) {
     return function (req, res) {
         var context = {};
         context.context = context;
+        var terminate = false;
         var pb = Object.assign({}, prebuilds, {
             req: req,
             request: req,
             res: res,
             response: res,
             readdata: server$readdata,
+            db: {
+                get(dbid, dataid) {
+                    return server$doDB.getItem(req, dbid, dataid);
+                },
+                set(dbid, dataid, data) {
+                    return server$doDB.patchItem(req, dbid, dataid, data);
+                },
+                add(dbid, data) {
+                    return server$doDB.addItem(req, dbid, data.id, data);
+                }
+            },
             context,
             textplain(e) {
                 res.writeHead(200, {
                     "Content-type": "text/plain;charset=utf-8"
                 });
                 res.write(String(e));
+                terminate = true;
             },
             forbidden(e) {
                 res.writeHead(403, {
                     "Content-type": "text/html;charset=utf-8"
                 });
                 res.write(String(e));
+                terminate = true;
             }
         });
         try {
@@ -139,6 +155,7 @@ var buildjsp = function (buff, realpath) {
             return pb.forbidden(e);
         }
         return queue.call(splited, function (str) {
+            if (terminate && isHandled(str)) throw new Error('脚本异常！');
             if (str instanceof Function) {
                 return require2.invokeFunction(str, pb);
             }
@@ -148,7 +165,8 @@ var buildjsp = function (buff, realpath) {
             data.mime = "text/html;charset=utf-8";
             return data;
         }, function (error) {
-            if (error instanceof SError || memery.istest) return pb.forbidden(error);
+            if (terminate) throw error;
+            if (error instanceof SError || typeof error === 'string') return pb.forbidden(error);
             else throw error;
         });
     };
