@@ -6,14 +6,17 @@
 var body = document.body;
 var onbacks = [];
 var window_history = window.history || { length: 0, go() { }, back() { } };
-var window_history_length = window_history.length;
-var sessionSavedHashKey = "__zimoli_session_init_hash" + location.pathname;
-var sessionInitHash = sessionStorage.getItem(sessionSavedHashKey);
 var hostoryStorage = sessionStorage;
-var pagehash_reg = /#([\/\w\:@\.\_\(\)\+\-\*\$@!~_'\?,&~%]+)$/;
-var locationInitHash = location.hash;
-var isFirstTimeLoad = sessionInitHash === null;
-var isSimpleRefresh = sessionInitHash === locationInitHash;
+var getLocationHash = function () {
+    if ('hash' in location) return location.hash;
+    return location.href.replace(/^[^#]+/, '');
+};
+var setLocationHash = function (hash) {
+    preventNextHashChange = true;
+    if ('hash' in location) location.hash = hash;
+    else location.href = location.href.replace(/#[\s\S]*$/, '') + hash;
+};
+var locationInitHash = getLocationHash();
 var preventNextHashChange = false;
 window_history.scrollRestoration = 'manual';
 var popupHashlessPath = '/';
@@ -28,9 +31,8 @@ onhashchange(window, function (event) {
     if (preventNextHashChange) return preventNextHashChange = false;
     // 如果是返回事件，一定不是第一次改变hash
     // 这里刚好可以屏蔽首次手动改变url可能产生的hashchange事件
-    var targetHash = location.hash;
-    sessionStorage.setItem(sessionSavedHashKey, targetHash);
-    if (pagehash_reg.test(targetHash)) {
+    var targetHash = getLocationHash();
+    if (targetHash) {
         var currentHash = getCurrentHash();
         if (currentHash && currentHash === targetHash) return;
         var targetpath = pathFromHash(targetHash);
@@ -418,17 +420,7 @@ function zimoli(pagepath, args, history_name, oldpagepath) {
         history_name = current_history;
         var _history = history[history_name] || createEmptyHistory('/main');
         root_path = _history[0];
-        pagepath = location.hash;
-        if (pagepath) {
-            pagepath = pathFromHash(pagepath);
-            if (pagepath === popupHashlessPath) {
-                preventNextHashChange = true;
-                window_history.go(-1);
-                pagepath = pathFromHash(location.hash);
-            }
-            if (_history.index === 0) pagepath = '';
-        }
-        if (!pagepath) pagepath = _history[_history.index];
+        pagepath = _history[_history.index];
         try {
             var saveddata = JSAM.parse(hostoryStorage.getItem(_zimoli_params_key + pagepath)) || {};
         } catch (e) {
@@ -468,7 +460,6 @@ var pushstate = function (path_name, history_name) {
         history[history_name] = createEmptyHistory(path_name);
     } else {
         var _history = history[history_name];
-        var prevIndex = _history.index;
         for (var cx = 0, dx = _history.index + 1; cx < dx; cx++) {
             if (_history[cx] === path_name) {
                 _history.index = cx;
@@ -483,7 +474,6 @@ var pushstate = function (path_name, history_name) {
             _history.splice(_history.index, _history.length - _history.index);
             _history[_history.index] = path_name;
         }
-        if (_history.index >= 0) fixurl(_history.index - prevIndex);
     }
     hostoryStorage.setItem(history_session_object_key, JSAM.stringify(history) || null);
     return isBack;
@@ -500,6 +490,7 @@ var popstate = function (path_name, history_name) {
         }
     }
 };
+
 var getCurrentHash = function () {
     var history_name = current_history.replace(/\/$/, '');
     if (rootElements.length) {
@@ -510,39 +501,46 @@ var getCurrentHash = function () {
     var targeturl = `#${history_name}${_historylist.length ? _historylist[_historylist.index] : ""}`;
     return encodeURI(targeturl);
 };
-
-var fixurl = function (historyDelta) {
-    var hash = getCurrentHash();
-    preventNextHashChange = true;
-    if (pagehash_reg.test(hash)) {
-        hash = location.href.replace(/\#[\s\S]*$/, '') + hash;
-        if (!pagehash_reg.test(location.href)) location.href = hash;
-        else if (location.href !== hash) {
-            if (historyDelta) {
-                window_history.go(historyDelta);
-                if (location.href !== hash) {
-                    location.href = hash;
-                }
-                else {
-                    preventNextHashChange = false;
-                }
-            }
-            else if (location.href !== hash) {
-                location.href = hash;
-            }
-            else {
-                preventNextHashChange = false;
-            }
-        }
-        else {
-            preventNextHashChange = false;
-        }
-    }
-    else if (pagehash_reg.test(location.hash)) {
+var fixurl = function () {
+    var zimoli_hash = getCurrentHash();
+    var location_hash = getLocationHash();
+    if (location_hash === zimoli_hash) return;
+    var location_path = pathFromHash(location_hash);
+    if (location_path === popupHashlessPath) {
+        preventNextHashChange = true;
         window_history.go(-1);
+        location_hash = getCurrentHash();
+        location_path = pathFromHash(location_hash);
+    };
+    if (zimoli_hash === location_hash) return;
+    var zimoli_path = pathFromHash(zimoli_hash);
+    if (zimoli_path === popupHashlessPath) return setLocationHash(zimoli_hash);
+    if (zimoli_hash) {
+        if (!location_hash) setLocationHash(zimoli_hash);
+        else {
+            var _history = history[current_history];
+            var b = _history.indexOf(location_path);
+            if (b >= 0) {
+                var c = _history.indexOf(zimoli_path);
+                if (c >= 0) {
+                    var d = c - b;
+                    preventNextHashChange = true;
+                    window_history.go(d);
+                    location_hash = getLocationHash();
+                }
+            }
+            if (location_hash !== zimoli_hash) {
+                setLocationHash(zimoli_hash);
+            }
+        }
     }
-    else {
-        preventNextHashChange = false;
+    else if (location_hash !== locationInitHash) {
+        var _history = history[current_history];
+        var i = _history.indexOf(location_path);
+        if (i > 0) {
+            preventNextHashChange = true;
+            window_history.go(-i);
+        }
     }
 };
 var checkonback = function (elements) {
@@ -577,11 +575,12 @@ var forward = function (pgpath) {
 var backward = function () {
     if (rootElements.length) {
         var onback = checkonback(rootElements.slice(rootElements.length - 1));
-        fixurl();
         if (onback === false) {
+            fixurl();
             return;
         }
         remove(rootElements.pop());
+        fixurl();
         return;
     }
     var onback = checkonback([
@@ -610,7 +609,10 @@ function setWithStyle(target, isDestroy) {
     }
 
 }
+var fixLock = false;
 function addGlobal(element, name = null, isBack) {
+    var hasLock = !fixLock;
+    if (hasLock) fixLock = true;
     if (isString(name)) {
         if (global[name] === element) return;
         var oldElement = global[name];
@@ -648,6 +650,7 @@ function addGlobal(element, name = null, isBack) {
         }
         rootElements.push(element);
     }
+    if (hasLock) fixurl(), fixLock = false;
 }
 var _switch = zimoli.switch = function (history_name = default_history, target_body = document.body, emptyState) {
     if (!arguments.length) {
@@ -660,7 +663,13 @@ var _switch = zimoli.switch = function (history_name = default_history, target_b
         }
         if (target_body) body = target_body;
     }
-    if (emptyState !== false && !history[current_history]) root_path = (history[current_history] = createEmptyHistory(emptyState))[0];
+    if (isHandled(emptyState) && emptyState !== false) {
+        if (!history[current_history]) root_path = (history[current_history] = createEmptyHistory(emptyState))[0];
+        else {
+            var _history = history[current_history];
+            if (_history.index === 0) root_path = _history[0] = emptyState;
+        }
+    }
 };
 popup.global = zimoli.global = addGlobal;
 popup.go = zimoli.go = go;
@@ -705,11 +714,16 @@ zimoli.clearHistory = function () {
     history = {};
 };
 zimoli.getCurrentHistory = function () {
-    if (!history[current_history]) history[current_history] = createEmptyHistory();
-    return history[current_history];
+    var h = history[current_history];
+    if (h) h = h.slice(0, h.index + 1);
+    else h = [];
+    return h;
 };
 zimoli.inithash = locationInitHash;
 zimoli.createState = createState;
+zimoli.getInitPath = function () {
+    return pathFromHash(locationInitHash);
+};
 var touchEnabled = false;
 zimoli.enableTouchBack = function () {
     if (touchEnabled) return;

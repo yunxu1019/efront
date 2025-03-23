@@ -78,6 +78,7 @@
             }
         }
     };
+    var firstMenu = null;
     var parseMenuList = function (items) {
         if (items instanceof Array) {
             if (!items[0] || !items[0].name) {
@@ -123,6 +124,7 @@
     result.update = function (items) {
         delete result.loading_promise;
         delete result.then;
+        firstMenu = null;
         items = result.parse(items);
         items.map(getChildren);
         var opened = data.getInstance("menu-opened");
@@ -131,11 +133,13 @@
         historys.forEach((a, i) => map[a] = i + 1);
         result.splice(0, result.length);
         var actived, actived_value = 0;
+        var zimoilPath = zimoli.getInitPath();
         var a = function (menu) {
             var res = checkroles(user.roles, menu.roles);
             if (res) {
                 if (savedChildren[menu.id] instanceof Array) menu.children = savedChildren[menu.id].filter(a);
                 if (menu.path) {
+                    if (!firstMenu || menu.path === zimoilPath) firstMenu = menu;
                     if (map[menu.path] > actived_value) {
                         actived = menu;
                         actived_value = map[menu.path];
@@ -189,11 +193,17 @@
             oped.active = menu.id;
             data.setInstance('menu-opened', oped);
         }
+        first_opened = true;
     });
     result.open = function (menu) {
         if (!menu) {
             if (first_opened && result.active) return;
-            menu = result.active || result[0];
+            menu = result.active || firstMenu;
+            if (!menu?.path) return;
+            first_opened = true;
+            zimoli.switch(null, null, menu.path);
+            zimoli();
+            return;
         }
         if (!menu.path) {
             menu.closed = !menu.closed;
