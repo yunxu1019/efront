@@ -604,14 +604,16 @@ var privates = {
         return getApi(serviceId, this.getConfigPromise());
     },
     prepare(method, url, params) {
-        var spliterIndex = /[\:\|\/\~\!\?]/.exec(method), search;
+        var spliterIndex = /[\:\|\/\~\!\?\#\.\[]/.exec(method), search;
         if (spliterIndex) spliterIndex = spliterIndex.index;
         else spliterIndex = method.length;
         var coinmethod = method.slice(0, spliterIndex).toLowerCase();
-        var realmethod = coinmethod.replace(/\W+$/g, '');
+        var realmethod = coinmethod.replace(/\W[\s\S]*$/g, '');
         var [uri, rest, baseuri, search] = prepareURL(url, params);
         if (params && rest.length) rest.forEach(r => delete params[r]);
-        return { method: realmethod, coinmethod, selector: method.slice(spliterIndex + 1), search, baseuri, uri, params };
+        var selector = method.slice(spliterIndex);
+        if (!/^(?:[\.\#\[]|\:(?:nth|first|last)\-child)/.test(selector)) selector = selector.slice(1);
+        return { method: realmethod, coinmethod, selector, search, baseuri, uri, params };
     },
     loadIgnoreConfig(method, url, params1, api) {
         var headers = api && api.headers;
