@@ -1,3 +1,39 @@
+- zh-CN: 此数据不可查询！
+  en:    This data is not searchable!
+
+- zh-CN: 不可查询私有数据！
+  en:    Cannot query private data!
+
+- zh-CN: 此数据不可枚举
+  en:    This data cannot be enumerated
+
+- zh-CN: 您无权访问此数据！
+  en:    You do not have access to this data!
+
+- zh-CN: 商品id
+  en:    Product ID
+
+- zh-CN: 商品名称
+  en:    Product name
+
+- zh-CN: 包含
+  en:    contain
+
+- zh-CN: 商品简述
+  en:    Product Description
+
+- zh-CN: 商品展示
+  en:    Product Display
+
+- zh-CN: 允许所有人检索全部内容
+  en:    Allow everyone to retrieve all content
+
+- zh-CN: 用户互访
+  en:    User mutual visits
+
+- zh-CN: 不公开时检查此项
+  en:    Check this item when not publicly available
+
 - zh-CN: 退出登录
   en:    Log Out
 
