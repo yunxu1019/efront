@@ -26,6 +26,7 @@ class Table extends Array {
     $filterFields = [];
     $unsummaryFileds = [];
     callback = null;
+    heightLight = undefined;
     static from(fields, data) {
         var t = new Table;
         t.fields = fields;
@@ -120,7 +121,7 @@ class Table extends Array {
             var name = seek(o, f.key);
             if (isEmpty(name) || !isString(name)) continue;
             if (name === searchtext) this.hasFullmatch = true;
-            var [p, m] = mark.power(name, searchtext);
+            var [p, m] = mark.power(name, searchtext, this.heightLight);
             if (p > power) power = p;
             if (!isEmpty(f.key) && !isFunction(f.key)) o[f.key] = m;
             else o.name = m, o.toString = returnName, o.valueOf = returnName;

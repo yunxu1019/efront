@@ -80,10 +80,16 @@ var pair = function (source, search, t1, t2, t3, t4) {
     return power2(source, search);
 }
 var searchText = '';
-var power = function (source, search) {
+var concat1 = function (pre, match, aft) {
+    return pre.concat(MARK_PRE1, match, MARK_AFT1, aft);
+};
+var power = function (source, search, concat_me) {
     searchText = search;
+    var concat_ = concat1;
+    if (concat_me) concat1 = concat_me;
     var res = power_(source, search);
     searchText = '';
+    concat1 = concat_;
     return res;
 };
 var power_p = function () { };
@@ -140,7 +146,7 @@ var power_ = function (source, search, func, mp) {
         else if (ap >= p) {
             p += ap / source.length / search.length * .01 - .2;
         }
-        return [p, match_text_pre.concat(MARK_PRE1, match_text, MARK_AFT1, match_text_aft)];
+        return [p, concat1(match_text_pre, match_text, match_text_aft)];
     }
     return [0, source];
 };

@@ -522,6 +522,7 @@ function table(elem) {
             find(text) {
                 if ($scope.data.constructor === Table) {
                     $scope.data.searchText = text;
+                    $scope.data.heightLight = marker.wrap;
                     $scope.data.update();
                 }
             }
