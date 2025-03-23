@@ -119,6 +119,7 @@
         }
         return [];
     };
+    var first_opened = false;
     result.update = function (items) {
         delete result.loading_promise;
         delete result.then;
@@ -157,6 +158,7 @@
                 };
             }
         }
+        first_opened = false;
         return result;
     };
     var setActive = function (p, active) {
@@ -190,14 +192,15 @@
     });
     result.open = function (menu) {
         if (!menu) {
-            if (result.active) return;
-            menu = result[0];
+            if (first_opened && result.active) return;
+            menu = result.active || result[0];
         }
         if (!menu.path) {
             menu.closed = !menu.closed;
             return;
         }
-        if (menu === result.active) return;
+        if (first_opened && menu === result.active) return;
+        first_opened = true;
         var opened = result.opened || [];
         if (!~opened.indexOf(menu) && !getChild(menu).id) {
             opened.push(menu);

@@ -424,7 +424,6 @@ function zimoli(pagepath, args, history_name, oldpagepath) {
             if (pagepath === popupHashlessPath) {
                 preventNextHashChange = true;
                 window_history.go(-1);
-                preventNextHashChange = true;
                 pagepath = pathFromHash(location.hash);
             }
             if (_history.index === 0) pagepath = '';
@@ -513,26 +512,36 @@ var getCurrentHash = function () {
 };
 
 var fixurl = function (historyDelta) {
-    preventNextHashChange = false;
     var hash = getCurrentHash();
+    preventNextHashChange = true;
     if (pagehash_reg.test(hash)) {
         hash = location.href.replace(/\#[\s\S]*$/, '') + hash;
         if (!pagehash_reg.test(location.href)) location.href = hash;
         else if (location.href !== hash) {
             if (historyDelta) {
-                preventNextHashChange = true;
                 window_history.go(historyDelta);
-                preventNextHashChange = false;
                 if (location.href !== hash) {
                     location.href = hash;
                 }
+                else {
+                    preventNextHashChange = false;
+                }
             }
-            else if (location.href !== hash) location.href = hash;
+            else if (location.href !== hash) {
+                location.href = hash;
+            }
+            else {
+                preventNextHashChange = false;
+            }
+        }
+        else {
+            preventNextHashChange = false;
         }
     }
     else if (pagehash_reg.test(location.hash)) {
-        preventNextHashChange = true;
         window_history.go(-1);
+    }
+    else {
         preventNextHashChange = false;
     }
 };

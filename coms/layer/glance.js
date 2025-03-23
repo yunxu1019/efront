@@ -82,7 +82,7 @@ function main(mainPath, historyName = "") {
                 appendChild.replace(topLayer, page);
                 topLayer = page;
             }
-            zimoli();
+            if (mainPath) zimoli();
         };
         if (typeof leftPath === 'string') {
             zimoli.prepare(leftPath, hook);

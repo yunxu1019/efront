@@ -29,7 +29,6 @@ function main() {
         scope.nodeVersion = a.nodeVersion;
         scope.platform = a.platform;
         scope.arch = a.arch;
-        console.log('status')
     });
     return page;
 }
