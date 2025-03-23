@@ -133,7 +133,7 @@ var buildHtml = function (html, code, outsideMain, responseTree) {
         })
         .replace(/<title>(.*?)<\/title>/i, `<title>${memory.TITLE || "$1"}</title>`)
         .replace(/<script\b[\s\S]*?<\/script>(\s*)/ig, function (script, s) {
-            if (/(["'`])(PURGE|POST)\1\s*,\s*(['`"])comm\/main\2/i.test(script)) {
+            if (/(["'`])(?:PURGE|POST)\1\s*,\s*(['`"])comm\/main\2/i.test(script)) {
                 isZimoliDetected = true;
                 return "";
             }
