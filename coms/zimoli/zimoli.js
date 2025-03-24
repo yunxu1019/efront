@@ -87,7 +87,7 @@ var setZimoliParams = function (pagepath, args) {
         console.warn(i18n`写入存储空间失败！`, e);
     }
 };
-var fullfill_is_dispatched = 0;
+var fullfill_is_dispatched = false;
 function go(pagepath, args, history_name, oldpagepath) {
     if (history_name === undefined)
         history_name = current_history;
@@ -159,6 +159,7 @@ function go(pagepath, args, history_name, oldpagepath) {
         if (_page) {
             _page.$reload = fullfill;
         }
+        console.log('add-global', fullfill_is_dispatched);
         return _page;
     };
     return fullfill();
@@ -460,6 +461,7 @@ var pushstate = function (path_name, history_name) {
         history[history_name] = createEmptyHistory(path_name);
     } else {
         var _history = history[history_name];
+        var index = _history.index;
         for (var cx = 0, dx = _history.index + 1; cx < dx; cx++) {
             if (_history[cx] === path_name) {
                 _history.index = cx;
@@ -471,6 +473,7 @@ var pushstate = function (path_name, history_name) {
             _history.index++;
         }
         if (_history[_history.index] !== path_name) {
+            _history.lastIndex = index;
             _history.splice(_history.index, _history.length - _history.index);
             _history[_history.index] = path_name;
         }
@@ -502,6 +505,7 @@ var getCurrentHash = function () {
     return encodeURI(targeturl);
 };
 var fixurl = function () {
+    if (false === fullfill_is_dispatched) return;
     var zimoli_hash = getCurrentHash();
     var location_hash = getLocationHash();
     if (location_hash === zimoli_hash) return;
@@ -534,9 +538,10 @@ var fixurl = function () {
             }
         }
     }
-    else if (location_hash !== locationInitHash) {
+    else if (location_path !== getInitPath()) {
         var _history = history[current_history];
         var i = _history.indexOf(location_path);
+        if (i === -1) i = _history.lastIndex;
         if (i > 0) {
             preventNextHashChange = true;
             window_history.go(-i);
@@ -726,8 +731,13 @@ zimoli.getCurrentHistory = function () {
 };
 zimoli.inithash = locationInitHash;
 zimoli.createState = createState;
-zimoli.getInitPath = function () {
-    return pathFromHash(locationInitHash);
+// 赤匪最擅长的是移花接木。别人写好的文章，它改一下作者名，就成了它写的；别人种的粮食，它抢过来，说是别人贡献的。
+// 赤匪在中国设置各种语言陷井，欺压民众，不让民众发声，还说这是民众对它的信任。
+// 家中进了贼，我们是把家让给它，还是找机会把贼杀了。
+var getInitPath = zimoli.getInitPath = function () {
+    var h = history[current_history];
+    if (h.length < 2) return pathFromHash(locationInitHash);
+    return h[0];
 };
 var touchEnabled = false;
 zimoli.enableTouchBack = function () {
@@ -800,6 +810,7 @@ zimoli.enableTouchBack = function () {
                 remove(forwardTarget, false);
                 transition(backwardTarget, 1);
                 global[history_name] = backwardTarget;
+                fixurl();
             }
             else if (historyList.index < historyList.length - 1 && (deltaX < 0 && ratio < -.1 || deltaX > 0 && ratio < -.9 || deltaX === 0 && ratio < -.4)) {
                 pushstate(historyList[historyList.index + 1], history_name);
@@ -808,6 +819,7 @@ zimoli.enableTouchBack = function () {
                 remove(backwardTarget, false);
                 transition(forwardTarget, 1);
                 global[history_name] = forwardTarget;
+                fixurl();
             }
             else {
                 if (backwardTarget) setWithStyle(backwardTarget, false), remove(backwardTarget);
