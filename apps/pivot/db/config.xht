@@ -28,6 +28,7 @@
         border: 1px solid #999;
         padding: 4px 10px;
         height: 60px;
+
         [a-key] {
             font-family: 20px;
             font-style: italic;
@@ -67,7 +68,8 @@
     动作管理
     `;
     var fields = refilm`
-    是否公开/open swap`;
+    是否公开/open swap // 允许所有人检索全部内容
+    (用户互访/visit/,open=false) swap // 不公开时检查此项`;
     var [db] = arguments;
     if (!db.fields) {
         var [da1] = await data.from('dbfind', { dbid: db.name, size: 1 });
