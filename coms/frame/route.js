@@ -133,13 +133,12 @@
         historys.forEach((a, i) => map[a] = i + 1);
         result.splice(0, result.length);
         var actived, actived_value = 0;
-        var zimoilPath = zimoli.getInitPath();
         var a = function (menu) {
             var res = checkroles(user.roles, menu.roles);
             if (res) {
                 if (savedChildren[menu.id] instanceof Array) menu.children = savedChildren[menu.id].filter(a);
                 if (menu.path) {
-                    if (!firstMenu || menu.path === zimoilPath) firstMenu = menu;
+                    if (!firstMenu) firstMenu = menu;
                     if (map[menu.path] > actived_value) {
                         actived = menu;
                         actived_value = map[menu.path];
@@ -165,6 +164,19 @@
         first_opened = false;
         return result;
     };
+    var findMenu = function (path) {
+        if (!path) return;
+        var run = function (list) {
+            for (var o of list) {
+                if (o.path === path) return o;
+                if (o.children) {
+                    o = run(o.children);
+                    if (o) return o;
+                }
+            }
+        };
+        return run(result);
+    }
     var setActive = function (p, active) {
         while (p) {
             p.active = active;
@@ -198,7 +210,8 @@
     result.open = function (menu) {
         if (!menu) {
             if (first_opened && result.active) return;
-            menu = result.active || firstMenu;
+            var zimoilPath = zimoli.getInitPath();
+            menu = result.active || findMenu(zimoilPath) || firstMenu;
             if (!menu?.path) return;
             first_opened = true;
             zimoli.switch(null, null, menu);
