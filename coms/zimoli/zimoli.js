@@ -664,6 +664,11 @@ var _switch = zimoli.switch = function (history_name = default_history, target_b
         if (target_body) body = target_body;
     }
     if (isHandled(emptyState) && emptyState !== false) {
+        if (isObject(emptyState)) {
+            var { path: pagepath, need, roles = need, data: args, id, options } = emptyState;
+            setZimoliParams(pagepath, { roles, data: args, id, options });
+            emptyState = pagepath;
+        }
         if (!history[current_history]) root_path = (history[current_history] = createEmptyHistory(emptyState))[0];
         else {
             var _history = history[current_history];

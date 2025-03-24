@@ -201,7 +201,7 @@
             menu = result.active || firstMenu;
             if (!menu?.path) return;
             first_opened = true;
-            zimoli.switch(null, null, menu.path);
+            zimoli.switch(null, null, menu);
             zimoli();
             return;
         }
