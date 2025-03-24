@@ -379,7 +379,7 @@ function create(pagepath, args, from, needroles) {
         return alert(i18n`没有权限！`, 0);
     }
     if (!pg) return;
-    history[current_history].wardable = true;
+    if (history[current_history]) history[current_history].wardable = true;
     var _with_length = _with_elements.length;
     state.onback = function (handler) {
         _pageback_listener = handler;
@@ -687,6 +687,8 @@ var _switch = zimoli.switch = function (history_name = default_history, target_b
             setZimoliParams(pagepath, { roles, data: args, id, options });
             emptyState = pagepath;
         }
+    }
+    if (isString(emptyState)) {
         if (!history[current_history]) root_path = (history[current_history] = createEmptyHistory(emptyState))[0];
         else {
             var _history = history[current_history];
@@ -749,6 +751,7 @@ zimoli.createState = createState;
 // 家中进了贼，我们是把家让给它，还是找机会把贼杀了。
 var getInitPath = zimoli.getInitPath = function () {
     var h = history[current_history];
+    if (!h) return locationInitHash;
     if (h.length < 2) return pathFromHash(locationInitHash);
     return h[0];
 };
