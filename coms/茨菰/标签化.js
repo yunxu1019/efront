@@ -6,7 +6,20 @@ predefs.exports = true;
 predefs["module.exports"] = true;
 predefs.Promise = true;
 [Boolean, Number, String, Function, Object, Array, Date, RegExp, Error].forEach(p => predefs[p.name] = true);
+var wrapLabel = function (content, typeName) {
+    return `<${content}>${content}</${typeName}>`;
+};
+var amp = a => `&#${a.charCodeAt()};`;
+var encodeAmp = function (a) {
+    return a.replace(/[\<\>\|&]/g, amp);
+};
 var codecolor = function (c, encode) {
+    var wrap = arguments[2];
+    if (encode?.length === 2) wrap = encode, encode = arguments[2];
+    if (!wrap) {
+        wrap = wrapLabel;
+        if (!encode) encode = encodeAmp;
+    }
     var envs = c.envs;
     var deep = 0;
     var used = c.used;
@@ -45,17 +58,25 @@ var codecolor = function (c, encode) {
         return false;
     };
     var setExpress = function (o, label) {
-        if (!o.text || /^</.test(o.text)) return;
+        if (!o.text || o.wraped) return;
+        o.wraped = true;
         var keys = o.text.split(".");
+        var invoked = null;
+        var endi = keys.length - 1;
         if (isInvoke(o)) {
-            if (!/^[\<\?]/.test(keys[keys.length - 1])) keys[keys.length - 1] = `<invoke>${keys[keys.length - 1]}</invoke>`;
+            if (!/^[\?]/.test(keys[endi])) invoked = wrap(keys[endi], "invoke");
         }
+        else endi++;
         var [name] = keys;
-        if (/^[\<\?]/.test(name) || !name);
-        else if (!o.isprop && o.text !== name && isConstValue(name)) name = `<strap>${name}</strap>`;
-        else name = `<${label}>${name}</${label}>`;
+        if (!o.isprop && o.text !== name && isConstValue(name)) name = wrap(name, "strap");
+        else name = wrap(name, label);
         keys[0] = name;
-        o.text = keys.map(k => /^[\<\?]/.test(k) || !k ? k : `<express>${k}</express>`).join(".");
+        for (var cx = 1, dx = endi; cx < dx; cx++) {
+            var k = keys[cx];
+            keys[cx] = /^[\?]/.test(k) || !k ? k : wrap(k, 'express');
+        }
+        if (endi === keys.length - 1) keys[endi] = invoked;
+        o.text = keys.join('.');
     };
     var setPredef = o => setExpress(o, 'predef');
     var setOutside = o => setExpress(o, 'outside');
@@ -66,8 +87,8 @@ var codecolor = function (c, encode) {
     if (spaceReg) var unspaceReg = new RegExp(`(?:[^${光标}])+`, 'g');
     var wraptext = function (t, l) {
         if (unspaceReg) t = t.replace(unspaceReg, a => {
-            a = encode(a);
-            return `<${l}>${a}</${l}>`
+            if (encode) a = encode(a);
+            return wrap(a, l);
         });
         return t;
     };
@@ -78,13 +99,13 @@ var codecolor = function (c, encode) {
         var text = o.text;
         switch (o.type) {
             case LABEL:
-                o.text = `<label>${o.text}</label>`;
+                o.text = wrap(o.text, 'label');
                 break;
             case QUOTED:
                 if (o.length || !o.text) {
                     o.forEach(setcolor);
-                    o.entry = "<text>" + o.entry + "</text>";
-                    o.leave = "<text>" + o.leave + "</text>";
+                    o.entry = wrap(o.entry, 'text');
+                    o.leave = wrap(o.leave, 'text');
                     break;
                 }
                 if (/^\//.test(o.text)) {
@@ -101,30 +122,30 @@ var codecolor = function (c, encode) {
                 }
             case PIECE:
                 if (o.queue && o.queue.tag) {
-                    o.text = encode(o.text);
+                    if (encode) o.text = encode(o.text);
                 }
                 else o.text = wraptext(o.text, 'text');
                 break;
                 break;
             case ELEMENT:
                 if (o.attributes) o.attributes.forEach(setcolor);
-                if (o.tag_entry) o.tag_entry = `<stamp>${encode(o.tag_entry)}</stamp>`;
-                if (o.tag_leave) o.tag_leave = `<stamp>${encode(o.tag_leave)}</stamp>`;
-                if (o.entry) o.entry = `<stamp>${encode(o.entry)}</stamp>`;
-                if (o.leave) o.leave = `<stamp>${encode(o.leave)}</stamp>`;
-                o.tag = `<label>${o.tag}</label>`;
+                if (o.tag_entry) o.tag_entry = wrap(o.tag_entry, 'stamp');
+                if (o.tag_leave) o.tag_leave = wrap(o.tag_leave, 'stamp');
+                if (o.entry) o.entry = wrap(o.entry, 'stamp');
+                if (o.leave) o.leave = wrap(o.leave, 'stamp');
+                o.tag = wrap(o.tag, 'label');
                 o.forEach(setcolor);
                 break;
             case SCOPED:
                 deep++;
                 o.forEach(setcolor);
                 deep--;
-                o.entry = `<deep${deep}>${o.entry}</deep${deep}>`;
-                o.leave = `<deep${deep}>${o.leave}</deep${deep}>`;
+                o.entry = wrap(o.entry, 'deep' + deep);
+                o.leave = wrap(o.leave, 'deep' + deep);
                 break;
             case VALUE:
-                if (o.isdigit) o.text = `<digit>${o.text}</digit>`;
-                else o.text = `<value>${o.text}</value>`;
+                if (o.isdigit) o.text = wrap(o.text, 'digit');
+                else o.text = wrap(o.text, 'value');
                 break;
             case PROPERTY:
                 var next = o.next;
@@ -138,13 +159,11 @@ var codecolor = function (c, encode) {
                 setExpress(o, o.istype || o.isdef || o.next?.needle ? 'predef' : 'express');
                 break;
             case STRAP:
-                if (control_reg?.test(text)) o.text = `<flow>${o.text}</flow>`;
-                else o.text = `<strap>${o.text}</strap>`;
+                if (control_reg?.test(text)) o.text = wrap(o.text, 'flow');
+                else o.text = wrap(o.text, 'strap');
                 break;
             case STAMP:
-                if (/^(=>)$/.test(o.text) || o.text === "*" && o.prev && o.prev.type === STRAP) o.text = `<strap>${encode(o.text)}</strap>`;
-                // else if (!/^[<\/>]+$/.test(o.text));
-                // else o.text = `<stamp>${encode(o.text)}</stamp>`;
+                if (/^(=>)$/.test(o.text) || o.text === "*" && o.prev && o.prev.type === STRAP) o.text = wrap(encode ? encode(o.text) : o.text, 'strap');
                 break;
             case COMMENT:
                 o.text = wraptext(o.text, 'comment');
@@ -154,4 +173,5 @@ var codecolor = function (c, encode) {
     c.forEach(setcolor);
     return c;
 }
+codecolor.encode = encodeAmp;
 return codecolor;

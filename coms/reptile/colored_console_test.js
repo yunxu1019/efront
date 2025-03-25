@@ -54,4 +54,5 @@ var data = [
 data[data.length - 1].循环对象 = data[data.length - 1];
 console.log(data);
 console.line(data);
+console.log(compile$common.createString(茨菰$标签化(compile$scanner2("arguments.length"), colors.wrap)));
 throw new Error(2);

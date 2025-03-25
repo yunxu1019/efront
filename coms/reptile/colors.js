@@ -81,3 +81,9 @@ class Color {
 for (var k in colors) {
     colors[k] = new Color(k, colors[k]);
 }
+var reset = colors.Reset;
+colors.wrap = function (content, label) {
+    var c = colors[label];
+    if (!c) return content;
+    return c + content + reset;
+};

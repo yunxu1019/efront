@@ -8,6 +8,7 @@ var strings = require("../basic/strings");
 var lastLogLength = 0;
 var needNextLine = false;
 var getColor = function (c) {
+    if (c === 'wrap') return;
     if (!c) return colors.Reset;
     switch (c) {
         case "red":
@@ -118,7 +119,7 @@ var formatRows = function (arg, rows, deep, entry, leave) {
     if (rows.length === 0) return entry + leave;
     var ci = circleobjs.indexOf(arg);
     if (ci >= 0) {
-        entry = `<cyan><引用点 *${ci + 1}></cyan> ` + entry;
+        entry = bindColor('cyan', `<引用点 *${ci + 1}> `) + entry;
     }
     if (deepobjs.length === 0) circleobjs.splice(0, circleobjs.length);
     var space = new Array(deep).join("    ");
@@ -180,17 +181,17 @@ var format = function (arg, deep = 0) {
     deep++;
     if (arg === null) return String(arg);
     if (typeof arg === 'string') {
-        if (deep > 1) return "<green>" + strings.encode(arg) + "</green>";
+        if (deep > 1) return bindColor("green", arg);
         return arg;
     }
-    if (typeof arg === 'function') return `<cyan>[${arg.constructor.name}${arg.name ? ": " + arg.name : " (匿名)"}]</cyan>`;
-    if (/^(number|boolean)$/.test(typeof arg)) return '<yellow>' + arg + "</yellow>";
-    if (arg === undefined) return "<gray>undefined</gray>";
+    if (typeof arg === 'function') return bindColor('cyan', `[${arg.constructor.name}${arg.name ? ": " + arg.name : " (匿名)"}]`);
+    if (/^(number|boolean)$/.test(typeof arg)) return bindColor('yellow', arg);
+    if (arg === undefined) return bindColor('gray', 'undefined');
     if (typeof arg === "object") {
         if (deepobjs.indexOf(arg) >= 0) {
             var ci = circleobjs.indexOf(arg);
             if (ci < 0) ci = circleobjs.length, circleobjs.push(arg);
-            return `<cyan>[循环点 *${ci + 1}]</cyan>`;
+            return bindColor("cyan", `[循环点 *${ci + 1}]`);
         }
         if (arg instanceof Error) {
             if (deep > 1) return String(arg.message);
@@ -198,7 +199,7 @@ var format = function (arg, deep = 0) {
         }
         if (arg instanceof Buffer || arg instanceof ArrayBuffer || arg instanceof SharedArrayBuffer) {
             var data = new Uint8Array(arg.buffer || arg, arg.byteOffset || 0, arg.byteLength);
-            return `<magenta><${arg.constructor.name} ${Array.prototype.slice.call(data, 0, 20).map(a => a < 16 ? "0" + a.toString(16) : a.toString(16)).join(' ')}${arg.byteLength > 20 ? ` ... 其他 ${arg.byteLength - 20} 字节` : ''}></magenta>`;
+            return bindColor('magenta', `<${arg.constructor.name} ${Array.prototype.slice.call(data, 0, 20).map(a => a < 16 ? "0" + a.toString(16) : a.toString(16)).join(' ')}${arg.byteLength > 20 ? ` ... 其他 ${arg.byteLength - 20} 字节` : ''}>`);
         }
         else if (isFinite(arg.length)) {
             var entry = "[";
@@ -209,26 +210,26 @@ var format = function (arg, deep = 0) {
             deepobjs.push(arg);
             var res = Array.prototype.slice.call(arg, 0, 100).map(a => format(a, deep));
             deepobjs.pop();
-            if (arg.length > res.length) res.push(`<gray>.. 其他 ${arg.length - res.length} 项</gray>`);
+            if (arg.length > res.length) res.push(bindColor('gray', `.. 其他 ${arg.length - res.length} 项`));
             return formatRows(arg, res, deep, entry, leave);
         }
         if (arg.constructor === Date) {
-            return '<purple>' + formatDate.call(arg) + "</purple>";
+            return bindColor('purple', formatDate.call(arg));
         }
         if (arg.constructor === RegExp) {
-            return `<red2>/${arg.source}/</red2><cyan>${arg.flags}</cyan>`;
+            return bindColor('red2', `/${arg.source}/`) + bindColor('cyan', arg.flags);
         }
         var keys = Object.keys(arg);
         var ks = keys.slice(0, 100);
         if (deep > 3 && deep + keys.length > 5) {
             var kvs = [];
-            if (keys.length > 0) kvs.push(`<gray>.. 共 ${keys.length} 个属性</gray>`);
+            if (keys.length > 0) kvs.push(bindColor('gray', `.. 共 ${keys.length} 个属性`));
         }
         else {
             deepobjs.push(arg);
             var kvs = ks.map(k => `${/[\:'"`\[\{\(\r\n\u2028\u2029]|^\s|\s$/.test(k) ? format(k, deep) : k}: ${format(arg[k], deep)}`);
             deepobjs.pop();
-            if (keys.length > ks.length) kvs.push(`<gray>.. 其他 ${keys.length - ks.length} 个属性</gray>`);
+            if (keys.length > ks.length) kvs.push(bindColor('gray', `.. 其他 ${keys.length - ks.length} 个属性`));
         }
         var entry = '{';
         if (arg.constructor && arg.constructor !== Object) entry = arg.constructor.name + entry;
@@ -281,7 +282,7 @@ colored.log = function () {
     if (needNextLine) needNextLine = false;
     _log.apply(console, arguments);
 };
-colored.wrap = function (c, content) {
+var bindColor = colored.wrap = function (c, content) {
     var c = getColor(c);
     if (!c) throw new Error(i18n`${c}不是有效的色彩信息`);
     return c + content + colors.Reset;
@@ -300,11 +301,7 @@ colored.clear = function (tag) {
     write1(false, '');
     if (tag) write1(true, tag);
 };
-colored.format = function (a) {
-    a = format(a);
-    a = renderColor(a);
-    return a;
-};
+colored.format = format;
 if (typeof i18n !== 'undefined') {
     colored.info.tip = i18n`提示`;
     colored.warn.tip = i18n`注意`;

@@ -1,8 +1,5 @@
 
 var { SCOPED, QUOTED, SPACE, STAMP, STRAP, EXPRESS, PROPERTY } = compile$common;
-var encode = function (text) {
-    return text.replace(/[\<\>\|]/g, a => `&#${a.charCodeAt()};`);
-};
 
 var rows = function (type, text) {
     if (typeof text !== 'string') {
@@ -12,11 +9,11 @@ var rows = function (type, text) {
     type = String(type).toLowerCase();
     if (type in 语言) {
         var c = 语言[type](text);
-        标签化(c, encode);
+        标签化(c);
         text = c.toString();
 
     }
-    else text = encode(text);
+    else text = 标签化.encode(text);
 
     var codes = text.split(/\r\n|\r|\n/);
     var minSpace = Infinity;
@@ -41,5 +38,5 @@ function 茨菰(type, text) {
 };
 
 茨菰.rows = rows;
-茨菰.encode = encode;
+茨菰.encode = 标签化.encode;
 return 茨菰;
