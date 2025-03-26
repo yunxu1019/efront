@@ -59,7 +59,7 @@ var checkField = function (data, fnames, lang) {
 }
 
 var doDB = async function (req, res) {
-    var lang = getHeader(req.headers, "accept-language");
+    var lang = getLang(req);
     try {
         var { pathname = '', search, query } = parseURL(req.url.slice(1));
         pathname = decodeURIComponent(pathname.slice(1));
@@ -250,6 +250,7 @@ var doDB = async function (req, res) {
     }
 };
 var addItem = async function (req, dbid, lastId, data) {
+    var lang = getLang(req);
     if (dbid === '用户') {
         if (!data.a) throw i18n[lang]`请设置用户密码`;
         if (!data.name) throw i18n[lang]`请设置用户名`;
@@ -261,6 +262,7 @@ var addItem = async function (req, dbid, lastId, data) {
         var msg = checkUid(data, lang);
     }
     else {
+        var db = await getDB(dbid);
         var owner = await checkOwner(req, db);
         if (!owner) {
             if (!await checkAuth(req, ['dbw'])) throw i18n[lang]`请登录后重试`;
@@ -281,9 +283,11 @@ var addItem = async function (req, dbid, lastId, data) {
     return data;
 };
 var deleteItem = async function (req, dbid, lastId) {
+    var lang = getLang();
     if (!lastId) throw i18n[lang]`参数异常`;
     var origin = await message.invoke('dbLoad', [dbid, lastId]);
     if (!isHandled(origin)) throw i18n[lang]`数据不存在`;
+    var db = await getDB(dbid);
     var owner = await checkOwner(req, db, origin);
     if (!owner) {
         if (await checkAuth(req, ["dbd"]) && !origin.owner);
@@ -297,8 +301,10 @@ var patchItem = async function (req, dbid, lastId, data) {
         await userdata.setPasswordA(String(data.a), data);
         delete data.a;
     }
+    var lang = getLang();
     var origin = await message.invoke('dbLoad', [dbid, lastId]);
     if (!origin) throw i18n[lang]`不存在名为${lastId}的${dbid}`;
+    var db = await getDB(dbid);
     var owner = await checkOwner(req, db, origin);
     a: if (!owner) {
         if (!origin.owner) {
@@ -307,7 +313,7 @@ var patchItem = async function (req, dbid, lastId, data) {
         throw i18n[lang]`您不能修改其他用户的数据`;
     }
     if (data.owner && data.owner !== owner) throw i18n[lang]`请不要冒充其他用户！`;
-    msg = checkField(data, ['mtime', 'ctime'], lang);
+    var msg = checkField(data, ['mtime', 'ctime'], lang);
     if (msg) throw msg;
     data.owner = owner;
     if (data.id && data.id !== origin.id) throw i18n[lang]`数据标识不可更改！`;
@@ -325,7 +331,9 @@ var trimUser = function (dbid, data) {
         delete data.d;
     }
 };
+
 var readItem = async function (req, dbid, lastId, version) {
+    var lang = getLang();
     if (version) version = +version;
     var data = await message.invoke('dbLoad', [dbid, lastId, version]);
     if (dbid === '用户') trimUser(data);
