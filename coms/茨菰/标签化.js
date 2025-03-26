@@ -7,7 +7,7 @@ predefs["module.exports"] = true;
 predefs.Promise = true;
 [Boolean, Number, String, Function, Object, Array, Date, RegExp, Error].forEach(p => predefs[p.name] = true);
 var wrapLabel = function (content, typeName) {
-    return `<${content}>${content}</${typeName}>`;
+    return `<${typeName}>${content}</${typeName}>`;
 };
 var amp = a => `&#${a.charCodeAt()};`;
 var encodeAmp = function (a) {
@@ -92,6 +92,10 @@ var codecolor = function (c, encode) {
         });
         return t;
     };
+    var wrapcode = encode ? function (t, l) {
+        t = encode(t);
+        return wrap(t, l);
+    } : wrap;
     c.colored = true;
     var setcolor = function (o) {
         if (o.colored) return;
@@ -129,19 +133,19 @@ var codecolor = function (c, encode) {
                 break;
             case ELEMENT:
                 if (o.attributes) o.attributes.forEach(setcolor);
-                if (o.tag_entry) o.tag_entry = wrap(o.tag_entry, 'stamp');
-                if (o.tag_leave) o.tag_leave = wrap(o.tag_leave, 'stamp');
-                if (o.entry) o.entry = wrap(o.entry, 'stamp');
-                if (o.leave) o.leave = wrap(o.leave, 'stamp');
-                o.tag = wrap(o.tag, 'label');
+                if (o.tag_entry) o.tag_entry = wrapcode(o.tag_entry, 'stamp');
+                if (o.tag_leave) o.tag_leave = wrapcode(o.tag_leave, 'stamp');
+                if (o.entry) o.entry = wrapcode(o.entry, 'stamp');
+                if (o.leave) o.leave = wrapcode(o.leave, 'stamp');
+                o.tag = wrapcode(o.tag, 'label');
                 o.forEach(setcolor);
                 break;
             case SCOPED:
                 deep++;
                 o.forEach(setcolor);
                 deep--;
-                o.entry = wrap(o.entry, 'deep' + deep);
-                o.leave = wrap(o.leave, 'deep' + deep);
+                o.entry = wrapcode(o.entry, 'deep' + deep);
+                o.leave = wrapcode(o.leave, 'deep' + deep);
                 break;
             case VALUE:
                 if (o.isdigit) o.text = wrap(o.text, 'digit');
@@ -163,7 +167,7 @@ var codecolor = function (c, encode) {
                 else o.text = wrap(o.text, 'strap');
                 break;
             case STAMP:
-                if (/^(=>)$/.test(o.text) || o.text === "*" && o.prev && o.prev.type === STRAP) o.text = wrap(encode ? encode(o.text) : o.text, 'strap');
+                if (/^(=>)$/.test(o.text) || o.text === "*" && o.prev && o.prev.type === STRAP) o.text = wrapcode(o.text, 'strap');
                 break;
             case COMMENT:
                 o.text = wraptext(o.text, 'comment');
