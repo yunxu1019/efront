@@ -36,6 +36,7 @@ onhashchange(window, function (event) {
         var currentHash = getCurrentHash();
         if (currentHash && currentHash === targetHash) return;
         var targetpath = pathFromHash(targetHash);
+        if (targetpath === popupHashlessPath) return fixurl();
         if (pathFromHash(currentHash) === popupHashlessPath) {
             backward();
             return;
@@ -419,6 +420,7 @@ function create(pagepath, args, from, needroles) {
 var createEmptyHistory = function (emptyState, allowForward = true) {
     var h = [emptyState];
     h.index = 0;
+    h.lastIndex = 0;
     h.wardable = allowForward;
     return h;
 }
@@ -484,10 +486,10 @@ var pushstate = function (path_name, history_name) {
             _history.index++;
         }
         if (_history[_history.index] !== path_name) {
-            _history.lastIndex = index;
             _history.splice(_history.index, _history.length - _history.index);
             _history[_history.index] = path_name;
         }
+        _history.lastIndex = index;
     }
     savestate();
     return isBack;
@@ -515,34 +517,40 @@ var getCurrentHash = function () {
     var targeturl = `#${history_name}${_historylist.length ? _historylist[_historylist.index] : ""}`;
     return encodeURI(targeturl);
 };
+var fixlock = false;
+var fixUnlock = function () {
+    fixlock = false;
+}
+var fixNext = function (d) {
+    fixlock = true;
+    var h = history[current_history];
+    h.lastIndex = h.index;
+    preventNextHashChange = true;
+    window_history.go(d);
+    setTimeout(fixUnlock, 60);
+    setTimeout(fixurl, 60);
+};
 var fixurl = function () {
+    if (fixlock) return;
     if (false === fullfill_is_dispatched) return;
     var zimoli_hash = getCurrentHash();
     var location_hash = getLocationHash();
     if (location_hash === zimoli_hash) return;
     var location_path = pathFromHash(location_hash);
     if (location_path === popupHashlessPath) {
-        preventNextHashChange = true;
-        window_history.go(-1);
-        location_hash = getCurrentHash();
-        location_path = pathFromHash(location_hash);
+        fixNext(-1);
+        return;
     };
-    if (zimoli_hash === location_hash) return;
     var zimoli_path = pathFromHash(zimoli_hash);
     if (zimoli_path === popupHashlessPath) return setLocationHash(zimoli_hash);
     if (zimoli_hash) {
         if (!location_hash) setLocationHash(zimoli_hash);
         else {
             var _history = history[current_history];
-            var b = _history.indexOf(location_path);
-            if (b >= 0) {
-                var c = _history.indexOf(zimoli_path);
-                if (c >= 0) {
-                    var d = c - b;
-                    preventNextHashChange = true;
-                    window_history.go(d);
-                    location_hash = getLocationHash();
-                }
+            var d = _history.index - _history.lastIndex;
+            if (d) {
+                fixNext(d);
+                return;
             }
             if (location_hash !== zimoli_hash) {
                 setLocationHash(zimoli_hash);
@@ -552,11 +560,8 @@ var fixurl = function () {
     else if (location_path !== getInitPath()) {
         var _history = history[current_history];
         var i = _history.indexOf(location_path);
-        if (i === -1) i = _history.lastIndex;
-        if (i > 0) {
-            preventNextHashChange = true;
-            window_history.go(-i);
-        }
+        if (i === -1) i = _history.lastIndex, _history.lastIndex = _history.index;
+        if (i > 0) fixNext(-i);
     }
 };
 var checkonback = function (elements) {
