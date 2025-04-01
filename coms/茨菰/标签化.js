@@ -68,9 +68,11 @@ var codecolor = function (c, encode) {
         }
         else endi++;
         var [name] = keys;
-        if (!o.isprop && o.text !== name && isConstValue(name)) name = wrap(name, "strap");
-        else name = wrap(name, label);
-        keys[0] = name;
+        if (name && endi > 0) {
+            if (!o.isprop && o.text !== name && isConstValue(name)) name = wrap(name, "strap");
+            else name = wrap(name, label);
+            keys[0] = name;
+        }
         for (var cx = 1, dx = endi; cx < dx; cx++) {
             var k = keys[cx];
             keys[cx] = /^[\?]/.test(k) || !k ? k : wrap(k, 'express');
