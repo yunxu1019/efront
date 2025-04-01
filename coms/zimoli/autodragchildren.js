@@ -443,7 +443,8 @@ function addhook() {
     }
     if (!mousedownEvent) return;
     var target = targetElement || mousedownEvent.currentTarget;
-    hooka.call(targetElement, function (target) {
+    hooka.call(targetElement, function () {
+        var target = drag.shadow;
         var res = Array.prototype.filter.call(allowdrops || (boxfinder ? boxfinder(target) : document.querySelectorAll("[allowdrop]")), function (child) {
             return target && overlap(child, target);
         }).filter(e => {
