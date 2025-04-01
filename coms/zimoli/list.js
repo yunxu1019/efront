@@ -129,7 +129,7 @@ function ylist(container, generator, $Y) {
     };
     var createItem = function (index) {
         var item = generator(index);
-        if (item) {
+        if (isNode(item)) {
             item.index = index;
         }
         return item;
@@ -137,6 +137,7 @@ function ylist(container, generator, $Y) {
     //设置当前下标
     var scrollTo = function (itemIndex) {
         if (isNaN(itemIndex)) return;
+        lastY = NaN;
         itemIndex = +itemIndex;
         __animated = false;
         if (!list.offsetHeight && !list.offsetWidth && !isMounted(list)) {
@@ -377,15 +378,25 @@ function ylist(container, generator, $Y) {
     });
     list.getLastVisibleElement = getLastVisibleElement;
     list.getFirstVisibleElement = getFirstVisibleElement;
+    var lastY = NaN;
+    //
+    // 最大距离 S，最大初始速度 V = a * t = 1，求加速 a
+    // S = 0.5 * a * t * t = 0.5 * V * t;
+    // => t = S * 2 / V = S * 2, a = V / t = 1 / (S * 2);
+    //
+    // 加速度a = 1 / (S * 2)，对任意s，有t = sqrt(2 * s / a) = sqrt(2 * s * S * 2) = 2 * sqrt(s * S);
+    // 对应速度 v = a * t = 1 / (S * 2) * 2 * sqrt(s * S) = sqrt(s * S) / S;
+    // 临近零点的距离 s0 = a / 2 = 1 / (S * 4);
     list.$stopY = function (t, spd) {
         var firstElement = getFirstVisibleElement();
         var lastElement = getLastVisibleElement();
         if (!firstElement || !lastElement || !list.clientHeight) return false;
+        if (isNaN(lastY)) return false;
         var paddingTop = getFirstElement(1).offsetTop;
         var paddingBottom = parseFloat(getComputedStyle(list).paddingBottom);
         var scrolled_t = (list.scrollTop - firstElement.offsetTop + paddingTop) / firstElement.offsetHeight;
         if (scrolled_t > 1) scrolled_t -= scrolled_t | 0;
-        var last_y = currentY();
+        var last_y = lastY;
         if (spd[0] > 0) {
             var target_ty = last_y + (1 - scrolled_t) * firstElement.offsetHeight;
         } else {
@@ -398,17 +409,16 @@ function ylist(container, generator, $Y) {
         } else {
             var target_by = last_y - scrolled_b * lastElement.offsetHeight;
         }
+        var S = calcPixel(30);
         var target_y = Math.abs(target_ty - last_y) > Math.abs(target_by - last_y) ? target_by : target_ty;
-        var delta = Math.min(calcPixel(30), list.clientHeight >> 2);
+        var delta = Math.min(S, list.clientHeight >> 2);
         var absy = Math.abs(target_y - last_y), y;
         if (absy >= delta) {
             return false;
         }
-        if (absy <= 1) y = target_y;
+        if (absy <= 1 / S / 4) y = target_y;
         else {
-            var speed = spd.read().rate;
-            if (speed < 1) speed = 1;
-            if (absy < 3) speed = .5;
+            var speed = Math.sqrt(absy * S) / S;
             y = last_y + (target_y > last_y ? speed : -speed);
         }
         list.$Top(y);
@@ -428,6 +438,7 @@ function ylist(container, generator, $Y) {
     };
     list.$Top = function (y) {
         if (isFinite(y)) {
+            lastY = y;
             var last_y = currentY();
             if (y !== last_y) {
                 scrollBy(y - last_y);
@@ -625,7 +636,8 @@ function list() {
         generator = getGeneratorFromArray(container);
         bindSrc = container;
         container = div();
-    } else if (container && !generator) {
+    }
+    else if (container && !generator) {
         if (bindSrc) {
             generator = getGenerator(container);
             bindSrc = true;
@@ -656,7 +668,7 @@ function list() {
     appendChild.wrapTarget(container);
     var list = ($Y === "X" ? xlist : ylist)(container, generator, $Y);
     if (!list.group) list.group = groupCount || 2;
-    if (bindSrc instanceof Array) {
+    if (bindSrc instanceof Array || isFunction(bindSrc?.next)) {
         list.src = bindSrc;
         container.go(container.index() || 0);
     } else if (bindSrc === true) {
@@ -670,6 +682,10 @@ function list() {
             if (c.nodeType === 1 && c.$comment && isFinite(c.$comment.index)) return true;
             return false;
         });
+        if (isFunction(src?.next)) {
+            remove(children);
+            return;
+        }
         if (src && old) children = Array.prototype.filter.call(children, c => src[c.index] !== old[c.index]);
         remove(children);
     };

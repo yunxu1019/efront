@@ -14,6 +14,11 @@ function inertia(gun) {
         lastTime = Speed.now() - 1;
         _decrease0();
     }
+    var park = function () {
+        train.state = 停止;
+        if (isFunction(train.park)) train.park();
+    };
+
     var _decrease0 = function () {
         if (
             decrease instanceof Function
@@ -26,10 +31,13 @@ function inertia(gun) {
             if (smooth_timer !== id) return;
             if (res === false || isEmpty(res)) {
                 spd.unset();
-                train.state = 停止;
+                park();
                 return;
             }
             smooth_timer = requestAnimationFrame(_decrease0);
+        }
+        else {
+            park();
         }
     };
     var _cancel = function () {
@@ -50,7 +58,7 @@ function inertia(gun) {
         }
         if (args.stop || rate && args.rate < rate) {
             if (!decrease) {
-                train.state = 停止;
+                park();
                 return;
             }
             train.state = 回弹;
@@ -70,6 +78,9 @@ function inertia(gun) {
     };
     train.smooth = function (d, r) {
         _cancel();
+        if (isFunction(d) && !isFinite(r)) {
+            r = 1;
+        }
         decrease = d;
         rate = r;
         if (train.state === 移动) {

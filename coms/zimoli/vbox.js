@@ -30,6 +30,7 @@ function ybox(generator) {
     if (_box.$Height !== _box_Height) _box.$Height = _box_Height;
     if (_box.$height !== _box_height) _box.$height = _box_height;
     if (_box.$Top !== _box_Top) _box.$Top = _box_Top;
+    _box.parked = true;
     _box.$scrollY = function (deltay, useIncrease = _box.useIncrease !== false) {
         var _Top = _box.$Top();
         var top = _Top + deltay;
@@ -89,14 +90,17 @@ function ybox(generator) {
         remove(increaser);
         return 0;
     };
+    scrollY.park = function () {
+        _box.parked = true;
+    };
     var stop = _box.$stopY || _box.stopY;
     var stop2 = lazy(function () {
-        scrollY.smooth(stop, 4);
+        scrollY.smooth(stop);
     }, 40);
     var decrease = function (t) {
         var res = _decrease(increaser_t, t) + _decrease(increaser_b, t);
         if (!res) {
-            scrollY.smooth(stop, 4);
+            scrollY.smooth(stop);
         }
         return true;
     };
@@ -170,6 +174,7 @@ function ybox(generator) {
         bindtouch(_box, {
             start() {
                 scrollY.reset();
+                _box.parked = false;
             },
             move(scrolled) {
                 var y = -_box.$Top();
