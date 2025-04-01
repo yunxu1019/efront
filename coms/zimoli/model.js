@@ -303,11 +303,11 @@ var getOptionsFrom = function () {
 };
 function setModel(ipt) {
     var elem = this;
-    if (isHandled(ipt) && ipt !== elem) {
+    if (isHandled(ipt)) {
         if (isNode(ipt)) {
             var model = new Model(getScopeValue, setScopeValue, ipt);
             model.hook(elem, elem.field.option_to ? copyOptionData : true);
-            appendChild(elem, ipt);
+            if (elem !== ipt) appendChild(elem, ipt);
         }
         else {
             elem.innerText = ipt;
