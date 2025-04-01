@@ -62,7 +62,6 @@ var addRenderElement = function () {
     if (!isNode(element)) return;
     if (element.$renderid !== 9) {
         // 只渲染一次
-        if (element.$renderid < 10 && element.$renderid > 0) element.$renderid = ++renderidOffset;
         renderElements[element.$renderid] = element;
     }
     buildFirst(element);
@@ -170,10 +169,7 @@ var createComment = function (renders, type, expression) {
 };
 
 var initialComment = function (comment) {
-    if (!comment.$struct.once) {
-        comment.$renderid = ++renderidOffset;
-    }
-    else {
+    if (comment.$struct.once) {
         comment.$renderid = 9;
     }
     renderlock.push(comment);
@@ -341,7 +337,7 @@ var createRepeat = function (search, id = 0) {
     initialComment(comment);
     return comment;
 };
-var initIf = function (ifs) {
+var initIfs = function (ifs) {
     for (var s of ifs) {
         initialComment(s[0]);
     }
@@ -499,7 +495,7 @@ var structures = {
         if (cx < 0) {
             throw new Error(i18n`else/elseif前缺少同级if！`);
         }
-        initIf(if_top.splice(cx + 1, if_top.length - cx - 1));
+        if (cx + 1 < if_top.length) initIfs(if_top.splice(cx + 1, if_top.length - cx - 1));
         var top = if_top[cx];
         if (search) var getter = createGetter(this, search);
         var comment = createComment.call(this, undefined, search ? 'elseif' : 'else', search);
@@ -882,11 +878,28 @@ function renderRest(element, struct, replacer = element) {
     if (!isElement(replacer)) replacer = element;
     struct.ons.forEach(([on, key, value]) => on.call(element, replacer, key, value));
 }
+function renderArray(children, scope, parentScopes, once) {
+    if (!children) return;
+    if (children.length) {
+        var if_top_length = if_top.length;
+        for (var cx = 0, dx = children.length; cx < dx; cx++) {
+            children[cx] = renderElement(children[cx], scope, parentScopes, once);
+        }
+        if (if_top_length < if_top.length) {
+            initIfs(if_top.splice(if_top_length, if_top.length - if_top_length));
+        }
+    };
+    return children;
+}
+function getChildren(element) {
+    var children = element.children;
+    if (!children || !children.length) return;
+    var children = Array.prototype.filter.call(children, a => !a.$renderid);
+    return children
+}
 function renderElement(element, scope = element.$scope, parentScopes = element.$parentScopes, once) {
     if (isArrayLike(element)) {
-        return Array.apply(null, element).map(function (element) {
-            return renderElement(element, scope, parentScopes, once);
-        });
+        return renderArray(Array.apply(null, element), scope, parentScopes, once);
     }
     if (!isElement(element)) {
         return element;
@@ -912,7 +925,7 @@ function renderElement(element, scope = element.$scope, parentScopes = element.$
     element.$scope = scope;
     if (element.$renderid <= -1) element = renderStructure(element);
     if (!element) return;
-    if (!element || element.$renderid < 0 || element.nodeType !== 1) {
+    if (element.$renderid < 0 || element.nodeType !== 1) {
         return element;
     }
     var isFirstRender = !element.$renderid;
@@ -947,7 +960,7 @@ function renderElement(element, scope = element.$scope, parentScopes = element.$
                     if (!replacer.$scope) replacer.$scope = scope;
                     if (!replacer.$parentScopes) replacer.$parentScopes = parentScopes;
                     createStructure(replacer);
-                    if (replacer.children && replacer.children.length) renderElement(replacer.children, replacer.$scope, replacer.$parentScopes, once);
+                    renderArray(getChildren(replacer), replacer.$scope, replacer.$parentScopes, once);
                     renderRest(replacer, replacer.$struct);
                 }
                 copyAttribute(replacer, copys);
@@ -961,12 +974,7 @@ function renderElement(element, scope = element.$scope, parentScopes = element.$
             }
         }
     }
-    if ((!replacer || element === replacer) && element.children) {
-        var children = Array.prototype.filter.call(element.children, a => !a.$renderid);
-        if (children.length) {
-            for (var c of children) renderElement(c, scope, parentScopes, once);
-        };
-    }
+    if (!replacer || element === replacer) renderArray(getChildren(element), scope, parentScopes, once);
     if (isFirstRender) {
         renderRest(element, $struct, replacer);
         if (isNode(replacer) && replacer !== element) {
@@ -1225,10 +1233,10 @@ function renderUnlock() {
     renderlock = null;
     locked.forEach(element => {
         if (element.$renderid !== 9) {
+            element.$renderid = ++renderidOffset;
             on("append")(element, addRenderElement);
             onremove(element, removeRenderElement);
             if (isMounted(element));
-            else if (element.$renderid > 1) addRenderElement.call(element);
             else if (eagermount) buildFirst(element);
         }
         else {
@@ -1253,7 +1261,7 @@ function render(element, scope, parentScopes, lazy = true) {
     var renderonce = lazy === 0;
     if (haslock) eagermount = !+lazy;
     var e = renderElement(element, scope, parentScopes, renderonce);
-    if (if_top_length < if_top.length) initIf(if_top.splice(if_top_length, if_top.length - if_top_length));
+    if (if_top_length < if_top.length) initIfs(if_top.splice(if_top_length, if_top.length - if_top_length));
     if (haslock) renderUnlock(element);
     if (haslock) callDigest();
     return e;
