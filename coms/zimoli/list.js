@@ -60,7 +60,7 @@ function ylist(container, generator, $Y) {
             var child = children[cx];
             if (!isFinite(child.index) || child.index === null) continue;
             var c = getNodeTarget(child);
-            if (c.offsetTop + c.offsetHeight > scrollTop) return deltaY === 0 ? child : c;
+            if (c.offsetTop + c.offsetHeight >= scrollTop + 1) return deltaY === 0 ? child : c;
         }
         return null;
     };
@@ -107,7 +107,7 @@ function ylist(container, generator, $Y) {
             var child = children[cx];
             if (!isFinite(child.index)) continue;
             var c = getNodeTarget(child);
-            if (c.offsetTop < scrollTop + list.clientHeight) {
+            if (c.offsetTop + 1 <= scrollTop + list.clientHeight) {
                 return deltaY === 0 ? child : c;
             }
         }
@@ -416,7 +416,7 @@ function ylist(container, generator, $Y) {
         if (absy >= delta) {
             return false;
         }
-        if (absy <= 1 / S / 4) y = target_y;
+        if (absy < 1 / S / 4 + 0.01) y = target_y;
         else {
             var speed = Math.sqrt(absy * S) / S;
             y = last_y + (target_y > last_y ? speed : -speed);
