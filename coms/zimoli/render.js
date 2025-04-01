@@ -172,16 +172,11 @@ var createComment = function (renders, type, expression) {
 var initialComment = function (comment) {
     if (!comment.$struct.once) {
         comment.$renderid = ++renderidOffset;
-        onmounted(comment, addRenderElement);
-        onremove(comment, removeRenderElement);
-        if (isMounted(comment) || eagermount) rebuild(comment);
     }
     else {
         comment.$renderid = 9;
-        rebuild(comment);
-        if (comment.with) comment.with = null;
-        remove(comment);
     }
+    renderlock.push(comment);
 };
 
 class Repeater {
@@ -887,7 +882,6 @@ function renderRest(element, struct, replacer = element) {
     if (!isElement(replacer)) replacer = element;
     struct.ons.forEach(([on, key, value]) => on.call(element, replacer, key, value));
 }
-
 function renderElement(element, scope = element.$scope, parentScopes = element.$parentScopes, once) {
     if (isArrayLike(element)) {
         return Array.apply(null, element).map(function (element) {
@@ -967,8 +961,11 @@ function renderElement(element, scope = element.$scope, parentScopes = element.$
             }
         }
     }
-    if (!replacer || element === replacer) {
-        if (element.children && element.children.length) renderElement(element.children, scope, parentScopes, once);
+    if ((!replacer || element === replacer) && element.children) {
+        var children = Array.prototype.filter.call(element.children, a => !a.$renderid);
+        if (children.length) {
+            for (var c of children) renderElement(c, scope, parentScopes, once);
+        };
     }
     if (isFirstRender) {
         renderRest(element, $struct, replacer);
@@ -1256,8 +1253,8 @@ function render(element, scope, parentScopes, lazy = true) {
     var renderonce = lazy === 0;
     if (haslock) eagermount = !+lazy;
     var e = renderElement(element, scope, parentScopes, renderonce);
-    if (haslock) renderUnlock(element);
     if (if_top_length < if_top.length) initIf(if_top.splice(if_top_length, if_top.length - if_top_length));
+    if (haslock) renderUnlock(element);
     if (haslock) callDigest();
     return e;
 }
