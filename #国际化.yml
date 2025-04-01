@@ -1,3 +1,6 @@
+- zh-CN: "参数异常: $1"
+  en:    "Parameter exception: $1"
+
 - zh-CN: 此数据不可查询！
   en:    This data is not searchable!
 
