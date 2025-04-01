@@ -316,8 +316,7 @@ var createRepeat = function (search, id = 0) {
                     }
                 }
             }
-            var clone = element.cloneNode();
-            clone.innerHTML = element.innerHTML;
+            var clone = element.cloneNode(true);
             clone.$renderid = id;
             clone.$repeat = clone.$scope = $scope;
             clone.$parentScopes = $parentScopes;
