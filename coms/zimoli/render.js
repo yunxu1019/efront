@@ -812,7 +812,7 @@ var createEmiter = function (on) {
         else {
             onkey = on(key);
         }
-        onkey(target, new Emitter(emit, getScopeList(target)));
+        onkey(target, new Emitter(emit, getScopeList(this)));
     };
 };
 var emiters = {
