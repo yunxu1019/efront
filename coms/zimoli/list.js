@@ -335,8 +335,8 @@ function ylist(container, generator, $Y) {
                 item = getNodeTarget(item);
                 scrollTop += flag_element.offsetTop - offsetTop;
                 offsetTop = flag_element.offsetTop;
-                first_element = item;
             }
+            first_element = item;
         }
         //滚动到相应位置
         if (scrollTop < 0) scrollTop = 0;

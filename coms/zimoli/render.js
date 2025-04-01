@@ -1236,7 +1236,8 @@ function renderUnlock() {
             element.$renderid = ++renderidOffset;
             on("append")(element, addRenderElement);
             onremove(element, removeRenderElement);
-            if (isMounted(element));
+            if (isMounted(element) || element.nodeType === 8);
+            else if (element.$renderid > 1) addRenderElement.call(element);
             else if (eagermount) buildFirst(element);
         }
         else {

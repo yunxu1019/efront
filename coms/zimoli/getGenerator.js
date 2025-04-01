@@ -71,7 +71,6 @@ var getGenerator = function (container, tagName = 'item') {
             if (!src || index >= src.length) return;
             if (isFunction(src.get)) com = src.get(index);
             else com = src[index];
-            if (src instanceof Comb) console.log(com, index, src);
         }
         if (com === undefined) return;
         if (isNode(element));
