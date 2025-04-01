@@ -51,14 +51,16 @@ function ylist(container, generator, $Y) {
         }
         return null;
     };
+    var isSticky = child => isNode(child) && /^(sticky|fixed|absolute)$/.test(getComputedStyle(child).position);
     var getFirstVisibleElement = function (deltaY) {
         var children = list.childNodes;
         var { scrollTop } = list;
-        deltaY = +deltaY;
+        var paddingTop = parseFloat(getComputedStyle(list).paddingTop);
+        deltaY = paddingTop + (deltaY || 0);
         if (deltaY) scrollTop += deltaY;
         for (var cx = 0, dx = children.length; cx < dx; cx++) {
             var child = children[cx];
-            if (!isFinite(child.index) || child.index === null) continue;
+            if (!isFinite(child.index) || child.index === null || isSticky(child)) continue;
             var c = getNodeTarget(child);
             if (c.offsetTop + c.offsetHeight >= scrollTop + 1) return deltaY === 0 ? child : c;
         }
@@ -101,13 +103,14 @@ function ylist(container, generator, $Y) {
     var getLastVisibleElement = function (deltaY) {
         var { scrollTop } = list;
         deltaY = +deltaY;
+        var paddingBottom = parseFloat(getComputedStyle(list).paddingBottom);
         if (deltaY) scrollTop += deltaY;
         var children = list.children;
         for (var cx = children.length - 1; cx >= 0; cx--) {
             var child = children[cx];
-            if (!isFinite(child.index)) continue;
+            if (!isFinite(child.index) || isSticky(child)) continue;
             var c = getNodeTarget(child);
-            if (c.offsetTop + 1 <= scrollTop + list.clientHeight) {
+            if (c.offsetTop + 1 <= scrollTop + list.clientHeight - paddingBottom) {
                 return deltaY === 0 ? child : c;
             }
         }
@@ -392,7 +395,7 @@ function ylist(container, generator, $Y) {
         var lastElement = getLastVisibleElement();
         if (!firstElement || !lastElement || !list.clientHeight) return false;
         if (isNaN(lastY)) return false;
-        var paddingTop = getFirstElement(1).offsetTop;
+        var paddingTop = parseFloat(getComputedStyle(list).paddingTop);
         var paddingBottom = parseFloat(getComputedStyle(list).paddingBottom);
         var scrolled_t = (list.scrollTop - firstElement.offsetTop + paddingTop) / firstElement.offsetHeight;
         if (scrolled_t > 1) scrolled_t -= scrolled_t | 0;
@@ -416,7 +419,7 @@ function ylist(container, generator, $Y) {
         if (absy >= delta) {
             return false;
         }
-        if (absy < 1 / S / 4 + 0.01) y = target_y;
+        if (absy < 1) y = target_y;
         else {
             var speed = Math.sqrt(absy * S) / S;
             y = last_y + (target_y > last_y ? speed : -speed);

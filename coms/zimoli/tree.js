@@ -270,9 +270,9 @@ function tree() {
     var stickys = [];
     var setSticky = function () {
         var p = stickys[stickys.length - 1];
-        var f = banner.getFirstVisibleElement(stickys.top + 1);
+        var f = banner.getFirstVisibleElement(stickys.top);
         if (!f) return;
-        var limitHeight = f.offsetTop - banner.scrollTop;
+        var limitHeight = f.offsetTop - banner.scrollTop - parseFloat(getComputedStyle(banner).paddingTop);
         var c = dom[f.$index];
         var useLimit = false;
         if (p) {
