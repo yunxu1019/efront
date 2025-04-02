@@ -110,6 +110,7 @@ var wrapTargetMethod = function (target, methodName) {
     };
     newMethod.wrapped = true;
 };
+appendChild.dispatch = _onappend;
 appendChild.wrapTarget = function (target) {
     wrapTargetMethod(target, 'insertBefore');
     wrapTargetMethod(target, 'appendChild');

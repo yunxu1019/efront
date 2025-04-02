@@ -60,11 +60,11 @@ var renderidClosed = 0;
 var addRenderElement = function () {
     var element = this;
     if (!isNode(element)) return;
-    if (element.$renderid !== 9) {
+    buildFirst(element);
+    if (element.$renderid > 10) {
         // 只渲染一次
         renderElements[element.$renderid] = element;
     }
-    buildFirst(element);
 };
 var removeRenderElement = function () {
     var element = this;
@@ -838,7 +838,7 @@ function renderProp(elem, props) {
     }
 }
 
-function renderBinds(element, binds, init) {
+function renderBinds(element, binds) {
     var bind = binders._;
     for (var k in binds) {
         if (directives.hasOwnProperty(k)) continue;
@@ -929,7 +929,7 @@ function renderElement(element, scope = element.$scope, parentScopes = element.$
         return element;
     }
     var isFirstRender = !element.$renderid;
-
+    var origin = element;
     if (isFirstRender) {
         element.$renderid = 1;
         var parentNode = element.parentNode;
@@ -960,7 +960,6 @@ function renderElement(element, scope = element.$scope, parentScopes = element.$
                     if (!replacer.$scope) replacer.$scope = scope;
                     if (!replacer.$parentScopes) replacer.$parentScopes = parentScopes;
                     createStructure(replacer);
-                    renderArray(getChildren(replacer), replacer.$scope, replacer.$parentScopes, once);
                     renderRest(replacer, replacer.$struct);
                 }
                 copyAttribute(replacer, copys);
@@ -973,9 +972,6 @@ function renderElement(element, scope = element.$scope, parentScopes = element.$
                 }
             }
         }
-    }
-    if (!replacer || element === replacer) renderArray(getChildren(element), scope, parentScopes, once);
-    if (isFirstRender) {
         renderRest(element, $struct, replacer);
         if (isNode(replacer) && replacer !== element) {
             if (!replacer.$renders) replacer.$renders = [];
@@ -987,6 +983,7 @@ function renderElement(element, scope = element.$scope, parentScopes = element.$
             renderlock.push(element);
         }
     }
+    renderArray(getChildren(element), element.$scope || scope, element.$parentScopes || parentScopes, once);
     return element;
 }
 var deepcontexts = [];
@@ -1228,33 +1225,37 @@ function createStructure(element, useExists) {
     element.$eval = $eval;
     return element.$struct = new Struct(ons, types, copys, binds, attr1, props, ids, once);
 }
-function renderUnlock() {
-    var locked = renderlock.reverse();
-    renderlock = null;
-    locked.forEach(element => {
-        if (element.$renderid !== 9) {
-            element.$renderid = ++renderidOffset;
-            on("append")(element, addRenderElement);
-            onremove(element, removeRenderElement);
-            if (isMounted(element) || element.nodeType === 8);
-            else if (eagermount) buildFirst(element);
-        }
-        else {
-            buildFirst(element);
-        }
-    });
-    eagermount = false;
+function unlock(element) {
+    if (element.$renderid !== 9) {
+        element.$renderid = ++renderidOffset;
+        on("append")(element, addRenderElement);
+        onremove(element, removeRenderElement);
+        if (element.nodeType === 8);
+        else if (eagermount) buildFirst(element);
+    }
+    else {
+        buildFirst(element);
+    }
 }
-function renderLock() {
+function renderUnlock(element) {
+    var locked = renderlock;
+    renderlock = null;
+    locked.forEach(unlock);
+    eagermount = false;
+    var parentNode = element.parentNode;
+    if (parentNode && isMounted(parentNode)) appendChild.dispatch(element);
+}
+function renderLock(element) {
     if (!renderlock) {
         renderlock = [];
+        element.$mounted = false;
         return true;
     }
     return false;
 }
 var eagermount = false, renderlock = null;
 function render(element, scope, parentScopes, lazy = true) {
-    var haslock = renderLock();
+    var haslock = renderLock(element);
     var if_top_length = if_top.length;
     if (isFinite(scope) && arguments.length === 2) lazy = scope, scope = undefined;
     else if (isFinite(parentScopes) && arguments.length === 3) lazy = parentScopes, parentScopes = undefined;
