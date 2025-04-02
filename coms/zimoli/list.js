@@ -149,7 +149,7 @@ function ylist(container, generator, $Y) {
             saved_itemIndex = itemIndex;
             return;
         }
-        var cache_height = list.offsetHeight;
+        var cache_height = Math.min(list.offsetHeight, screen.height >> 1);
         var index = itemIndex | 0;
         if (itemIndex < 0) index--;
         var ratio = itemIndex - index || 0;
@@ -162,7 +162,10 @@ function ylist(container, generator, $Y) {
         if (last_item) last_item = getNodeTarget(last_item);
         var count = 0, delta = 1, bottom_item, offsett = offset, offsetb = offset, top_item;
         var indexed_item;
-        while (offsetBottom - ratioTop <= list.clientHeight + cache_height || indexed_item && top_item && indexed_item.offsetTop - top_item.offsetTop < cache_height) {
+        var limitHeight = screen.height;
+        while (
+            offsetBottom - ratioTop <= limitHeight + cache_height
+            || delta < 0 && indexed_item && top_item && indexed_item.offsetTop - top_item.offsetTop < cache_height) {
             var item = childrenMap[offset];
             if (!item) {
                 item = createItem(offset);
@@ -200,7 +203,15 @@ function ylist(container, generator, $Y) {
             }
             offsetBottom = bottom_item.offsetTop + bottom_item.offsetHeight;
             ratioTop = top_item.offsetTop + top_item.offsetHeight * ratio;
-            if (count++ > 600) throw new Error(i18n`多于600个元素需要绘制！`);
+            if (count++ > 600) throw console.log(
+                `头部下标`, index,
+                `当前下标`, offset,
+                `缓冲尺寸`, cache_height,
+                '限制尺寸', limitHeight,
+                '框架尺寸', list.offsetHeight,
+                '当前绘制到', ratioTop,
+                `当前元素到顶部元素占用`, offsetBottom - ratioTop
+            ), new Error(i18n`多于600个元素需要绘制！`);
         }
         for (var k in childrenMap) {
             remove(childrenMap[k]);
@@ -251,7 +262,8 @@ function ylist(container, generator, $Y) {
         if (elem.with) for (var w of elem.with) list.insertBefore(w, flag);
     };
     var patchBottom = function (deltaY = 0) {
-        var cache_height = list.offsetHeight;
+        var cache_height = Math.min(list.offsetHeight, screen.height >> 1);
+        var limitHeight = screen.height + cache_height;
         var childrenMap = getChildrenMap();
         var last_element = getLastElement(1);
         if (!last_element || !last_element.offsetHeight) return;
@@ -260,7 +272,7 @@ function ylist(container, generator, $Y) {
         var offsetBottom = getOffsetHeight(last_element) + last_element.offsetTop;
         var offset = last_element.index || 0;
         //追加元素到底部
-        while (offsetBottom <= scrollTop + list.clientHeight + cache_height) {
+        while (offsetBottom <= scrollTop + limitHeight) {
             offset++;
             var item = childrenMap[offset];
             if (!item) {
@@ -284,7 +296,7 @@ function ylist(container, generator, $Y) {
         var collection = [];
         for (var k in childrenMap) {
             let item = childrenMap[k];
-            if (getNodeTarget(item).offsetTop + getOffsetHeight(item) + cache_height < scrollTop) {
+            if (getNodeTarget(item).offsetTop + getOffsetHeight(item) + limitHeight < scrollTop) {
                 collection.push(item);
             }
         }
@@ -312,7 +324,7 @@ function ylist(container, generator, $Y) {
         return scrollTop - list.scrollTop;
     };
     var patchTop = function (deltaY = 0) {
-        var cache_height = list.offsetHeight;
+        var cache_height = Math.min(list.offsetHeight, screen.height >> 1);
 
         var childrenMap = getChildrenMap();
         var first_element, flag_element = first_element = getFirstElement(1);
@@ -322,7 +334,7 @@ function ylist(container, generator, $Y) {
         var { scrollTop } = list;
         scrollTop += deltaY;
         //追加元素到顶部
-        var targetHeight = cache_height + first_element.offsetTop;
+        var targetHeight = screen.height + cache_height + first_element.offsetTop;
         var { paddingCount, paddingMax } = list;
         if (!(paddingCount > 0 && paddingMax > 0 && paddingCount < paddingMax) || !(scrollTop < targetHeight)) {
             paddingCount = 0;
