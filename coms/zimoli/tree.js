@@ -269,34 +269,25 @@ function tree() {
     }
     var stickys = [];
     var setSticky = function () {
-        var p = stickys[stickys.length - 1];
-        var f = banner.getFirstVisibleElement(stickys.top);
+        var top = stickys.top || 0;
+        var f = banner.getFirstVisibleElement(top);
         if (!f) return;
-        var limitHeight = f.offsetTop - banner.scrollTop - parseFloat(getComputedStyle(banner).paddingTop);
-        var c = dom[f.$index];
-        var useLimit = false;
-        if (p) {
-            var d = dom[p.$index];
-            if (d.tab == c.tab) {
-                var { top, height } = getOffset(p);
-                if (top + height >= limitHeight) {
-                    var ic = c.parent.indexOf(c);
-                    useLimit = c.parent[ic - 1] === d;
-                    if (useLimit) c = d;
-                }
-            }
-            else {
-                useLimit = true;
-                limitHeight += getOffset(f).height;
-            }
-        }
+        var i = f.$index;
+        if (top > 0 && dom[i - 1]?.tab > dom[i].tab) i--;
+        var c = dom[i++];
+        while (i < dom.length && c.tab <= dom[i].tab) i++;
+        var n = dom[i]?.$target;
+        var limitHeight = n && n.offsetTop ? n.offsetTop - banner.scrollTop - parseFloat(getComputedStyle(banner).paddingTop) : Infinity;
         var parents = [];
         if (c.isClosed() || !c.length) c = c.parent;
         while (c.parent) {
             var p = c.parent;
             if (!p?.joined) {
-                if (!c.$target) return;
-                parents.push(c);
+                var ct = c.$target;
+                if (!ct) break;
+                var pt = p.$target;
+                if (pt && ct.offsetTop > pt.offsetTop + pt.offsetHeight);
+                else parents.push(c);
             }
             c = p;
         }
@@ -319,11 +310,11 @@ function tree() {
         var top = 0;
         stickys.forEach(p => {
             var h = getOffset(p).height;
-            var limit = useLimit && top + h > limitHeight;
+            var limit = top + h > limitHeight;
             css(p, {
                 position: 'sticky',
-                zIndex: 2,
-                top: limit ? limitHeight - h : top, zIndex: 3 - limit
+                top: limit ? limitHeight - h : top,
+                zIndex: 3 - limit
             });
             top += h;
         });
