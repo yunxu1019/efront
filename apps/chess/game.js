@@ -2,6 +2,15 @@ var page = document.createElement("div");
 var game_id, user_id, user_color;
 
 var current_cell = null;
+var uncheck = function () {
+    if (current_cell) removeClass(current_cell, "checked");
+    current_cell = null;
+}
+var choose = function (cell) {
+    current_cell && removeClass(current_cell, "checked");
+    current_cell = cell;
+    addClass(current_cell, "checked");
+};
 var chessmen_cells = "車馬相仕帥仕相馬車砲砲兵兵兵兵兵卒卒卒卒卒炮炮車馬象士將士象馬車"
     .split("")
     .map(function (n, i) {
@@ -9,8 +18,7 @@ var chessmen_cells = "車馬相仕帥仕相馬車砲砲兵兵兵兵兵卒卒卒�
         onclick(cell, function () {
             var step = null;
             if (cell === current_cell) {
-                removeClass(current_cell, "checked");
-                current_cell === null;
+                uncheck();
             } else if (current_cell) {
                 // 已选择过要走的棋子
                 var req = function () {
@@ -18,8 +26,7 @@ var chessmen_cells = "車馬相仕帥仕相馬車砲砲兵兵兵兵兵卒卒卒�
                     }).error(function (error) {
                         alert(error);
                     });
-                    current_cell && removeClass(current_cell, "checked");
-                    current_cell = null;
+                    uncheck();
                 };
                 var step_count, delta_step;
                 if (cell.col === current_cell.col) {
@@ -30,18 +37,23 @@ var chessmen_cells = "車馬相仕帥仕相馬車砲砲兵兵兵兵兵卒卒卒�
                     delta_step = 1;
                 } else {
                     //不正确的操作
+                    uncheck();
                     return;
                 }
                 if (step_count < 0) {
                     step_count = -step_count;
                     delta_step = -delta_step;
                 }
+                console.log(current_cell, cell)
 
                 if (cell.chessman === null) {
                     // 移棋
                     req();
                 } else if (step_count === 1) {
-                    if (cell.chessman === "") return;
+                    if (cell.chessman === "") {
+                        uncheck();
+                        return;
+                    }
                     if (
                         cell.chessman.power <= current_cell.chessman.power &&
                         !(/[帥將]/.test(current_cell.chessman.name) && /[兵卒]/.test(cell.chessman.name)) ||
@@ -67,6 +79,7 @@ var chessmen_cells = "車馬相仕帥仕相馬車砲砲兵兵兵兵兵卒卒卒�
                     // ...
                     console.log(cell.chessman);
                 }
+                uncheck();
             } else {
                 switch (cell.chessman) {
                     case "":
@@ -83,9 +96,7 @@ var chessmen_cells = "車馬相仕帥仕相馬車砲砲兵兵兵兵兵卒卒卒�
                         break;
                     default:
                         //选棋
-                        current_cell && removeClass(current_cell, "checked");
-                        current_cell = cell;
-                        addClass(current_cell, "checked");
+                        choose(cell);
                 }
             }
         });
