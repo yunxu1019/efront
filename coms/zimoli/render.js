@@ -62,7 +62,6 @@ var addRenderElement = function () {
     if (!isNode(element)) return;
     buildFirst(element);
     if (element.$renderid > 10) {
-        // 只渲染一次
         renderElements[element.$renderid] = element;
     }
 };
@@ -337,11 +336,6 @@ var createRepeat = function (search, id = 0) {
     initialComment(comment);
     return comment;
 };
-var initIfs = function (ifs) {
-    for (var s of ifs) {
-        initialComment(s[0]);
-    }
-};
 
 var ifget = function () {
     var elements = this.$elements;
@@ -384,6 +378,7 @@ var createIf = function (search, id = 0) {
     var comment = elements[0] = createComment.call(element, [new Binder2(ifget, ifset)], 'if', search);
     comment.$id = id;
     comment.$elements = elements;
+    initialComment(comment);
     return comment;
 };
 var parseIfWithRepeat = function (ifExpression, repeatExpression) {
@@ -495,7 +490,7 @@ var structures = {
         if (cx < 0) {
             throw new Error(i18n`else/elseif前缺少同级if！`);
         }
-        if (cx + 1 < if_top.length) initIfs(if_top.splice(cx + 1, if_top.length - cx - 1));
+        if (cx + 1 < if_top.length) if_top.splice(cx + 1, if_top.length - cx - 1);
         var top = if_top[cx];
         if (search) var getter = createGetter(this, search);
         var comment = createComment.call(this, undefined, search ? 'elseif' : 'else', search);
@@ -886,7 +881,7 @@ function renderArray(children, scope, parentScopes, once) {
             children[cx] = renderElement(children[cx], scope, parentScopes, once);
         }
         if (if_top_length < if_top.length) {
-            initIfs(if_top.splice(if_top_length, if_top.length - if_top_length));
+            if_top.splice(if_top_length, if_top.length - if_top_length);
         }
     };
     return children;
@@ -915,7 +910,6 @@ function renderElement(element, scope = element.$scope, parentScopes = element.$
                 throw new Error(i18n`父作用域链的长度必须相等着`);
             }
         }
-        element.$parentScopes = parentScopes || [];
         var s = createStructure(element);
         element.$struct = s;
         mountElementIds(element, s.ids);
@@ -923,14 +917,16 @@ function renderElement(element, scope = element.$scope, parentScopes = element.$
         element.$eval = $eval;
     }
     element.$scope = scope;
+    element.$parentScopes = parentScopes || [];
     if (element.$renderid <= -1) element = renderStructure(element);
     if (!element) return;
     if (element.$renderid < 0 || element.nodeType !== 1) {
         return element;
     }
     var isFirstRender = !element.$renderid;
-    var origin = element;
     if (isFirstRender) {
+        var lockid = renderlock.length;
+        renderlock[lockid] = null;
         element.$renderid = 1;
         var parentNode = element.parentNode;
         if (parentNode) {
@@ -980,8 +976,9 @@ function renderElement(element, scope = element.$scope, parentScopes = element.$
         }
         if (element.$digest || element.$renders.length) {
             element.$ready = true;
-            renderlock.push(element);
+            renderlock[lockid] = element;
         }
+        else if (renderlock.length === lockid) renderlock.pop();
     }
     renderArray(getChildren(element), element.$scope || scope, element.$parentScopes || parentScopes, once);
     return element;
@@ -1226,6 +1223,7 @@ function createStructure(element, useExists) {
     return element.$struct = new Struct(ons, types, copys, binds, attr1, props, ids, once);
 }
 function unlock(element) {
+    if (!element) return;
     if (element.$renderid !== 9) {
         element.$renderid = ++renderidOffset;
         on("append")(element, addRenderElement);
@@ -1262,7 +1260,7 @@ function render(element, scope, parentScopes, lazy = true) {
     var renderonce = lazy === 0;
     if (haslock) eagermount = !+lazy;
     var e = renderElement(element, scope, parentScopes, renderonce);
-    if (if_top_length < if_top.length) initIfs(if_top.splice(if_top_length, if_top.length - if_top_length));
+    if (if_top_length < if_top.length) if_top.splice(if_top_length, if_top.length - if_top_length);
     if (haslock) renderUnlock(element);
     if (haslock) callDigest();
     return e;
