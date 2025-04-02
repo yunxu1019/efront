@@ -51,7 +51,7 @@ function ylist(container, generator, $Y) {
         }
         return null;
     };
-    var isSticky = child => isNode(child) && /^(sticky|fixed|absolute)$/.test(getComputedStyle(child).position);
+    var isSticky = child => isElement(child) && /^(sticky|fixed|absolute)$/.test(getComputedStyle(child).position);
     var getFirstVisibleElement = function (deltaY) {
         var children = list.childNodes;
         var { scrollTop } = list;
@@ -60,8 +60,9 @@ function ylist(container, generator, $Y) {
         if (deltaY) scrollTop += deltaY;
         for (var cx = 0, dx = children.length; cx < dx; cx++) {
             var child = children[cx];
-            if (!isFinite(child.index) || child.index === null || isSticky(child)) continue;
+            if (!isFinite(child.index) || child.index === null) continue;
             var c = getNodeTarget(child);
+            if (isSticky(c)) continue;
             if (c.offsetTop + c.offsetHeight >= scrollTop + 1) return deltaY === 0 ? child : c;
         }
         return null;
@@ -108,8 +109,9 @@ function ylist(container, generator, $Y) {
         var children = list.children;
         for (var cx = children.length - 1; cx >= 0; cx--) {
             var child = children[cx];
-            if (!isFinite(child.index) || isSticky(child)) continue;
+            if (!isFinite(child.index)) continue;
             var c = getNodeTarget(child);
+            if (isSticky(c)) continue;
             if (c.offsetTop + 1 <= scrollTop + list.clientHeight - paddingBottom) {
                 return deltaY === 0 ? child : c;
             }
