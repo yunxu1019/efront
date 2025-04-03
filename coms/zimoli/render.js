@@ -143,14 +143,39 @@ var getScopeList = function (element) {
     if (element.$scope) scopes.push(element.$scope);
     return scopes;
 };
+var toNull = () => null;
+var toUndefined = () => { };
+var toResult = function (c) {
+    if (typeof c === 'function') return c();
+    return c;
+};
+var toObject = function (object) {
+    if (isArray(object)) return function (object) {
+        return object.map(toResult);
+    }
+    return function () {
+        var result = {};
+        for (var k in object) result[k] = toResult(object[k]);
+        return result;
+    }
+};
 var createGetter = function (target, search, isprop = true) {
-    if (!search) return function () { };
-    if (/^\{/.test(search)) search = `(${search})`;
-    search = renderExpress(search);
-    if (isprop) var getter = $$eval.bind(target, search, getScopeList(target));
-    else if (variableOnlyReg.test(search)) getter = $$eval.bind(target, search + "(event)");
-    else getter = $$eval.bind(target, search);
-    return getter;
+    switch (typeof search) {
+        case "function":
+            return search;
+        case "string":
+            if (!search) return toUndefined;
+            if (/^\{/.test(search)) search = `(${search})`;
+            search = renderExpress(search);
+            if (isprop) var getter = $$eval.bind(target, search, getScopeList(target));
+            else if (variableOnlyReg.test(search)) getter = $$eval.bind(target, search + "(event)");
+            else getter = $$eval.bind(target, search);
+            return getter;
+        case "object":
+            if (!isprop) throw new Error('绑定错误');
+            return toObject(search);
+    }
+    return toUndefined;
 };
 var createComment = function (renders, type, expression) {
     var comment = document.createComment(`${type} ${expression}`);
@@ -841,8 +866,7 @@ function renderBinds(element, binds) {
         h.call(element);
     }
 }
-
-function renderRest(element, struct, replacer = element) {
+function renderDynamics(element, replacer, binds, attrs) {
     var renders = element.$renders;
     if (element.renders) {
         if (!renders) renders = [];
@@ -850,7 +874,6 @@ function renderRest(element, struct, replacer = element) {
         delete element.renders;
     }
     element.$renders = [];
-    var { attrs, binds } = struct;
     var bindWatch = !!element.$needchanges;
     for (var k in binds) {
         if (k in directives) {
@@ -865,13 +888,23 @@ function renderRest(element, struct, replacer = element) {
             }
         }
     }
-    for (var k in struct.attrs) {
+    for (var k in attrs) {
         binders[""].call(element, k, attrs[k]);
     }
     if (renders && renders.length) element.$renders.push.apply(element.$renders, renders);
     if (binds.src) directives.src.call(element, binds.src);
+}
+
+function renderEmits(replacer, emits, on) {
+    for (var k in emits) on.call(this, replacer, k, emits[k]);
+}
+
+function renderRest(element, struct, replacer = element) {
+    var { attrs, binds, emits, waits } = struct;
+    renderDynamics(element, replacer, binds, attrs);
     if (!isElement(replacer)) replacer = element;
-    struct.ons.forEach(([on, key, value]) => on.call(element, replacer, key, value));
+    renderEmits.call(element, replacer, emits, emiters.on);
+    renderEmits.call(element, replacer, waits, emiters.once);
 }
 function renderArray(children, scope, parentScopes, once) {
     if (!children) return;
@@ -1051,8 +1084,9 @@ var mergeStruct = function (struct1, struct2) {
 }
 
 class Struct {
-    constructor(ons, types, copys, binds, attrs, props, ids, once) {
-        this.ons = ons;
+    constructor(emits, onceEmits, types, copys, binds, attrs, props, ids, once) {
+        this.emits = emits;
+        this.waits = onceEmits;
         this.if = types.if;
         this.repeat = types.repeat;
         this.copys = copys;
@@ -1083,7 +1117,8 @@ function createStructure(element, useExists) {
     }
     var types = {};
     var emiter_reg = /^(?:(v|ng|on|once)?\-|v\-on\:|@|once|on)/i;
-    var ons = [];
+    var emits = {};
+    var waits = {};
     var copys = [];
     var binds = {};
     var once;
@@ -1169,9 +1204,17 @@ function createStructure(element, useExists) {
         // ng-click on-click v-click @click @mousedown ...
         else if (emiter_reg.test(name)) {
             var match = emiter_reg.exec(name);
-            var ngon = (match[1] || match[0]).toLowerCase() === 'once' ? 'once' : 'on';
+            var isOnce = (match[1] || match[0]).toLowerCase() === 'once';
             element.removeAttribute(name);
-            if (value) ons.push([emiters[ngon], name.replace(emiter_reg, ''), value]);
+            if (value) {
+                var key = name.replace(emiter_reg, '');
+                if (isOnce) {
+                    waits[key] = value;
+                }
+                else {
+                    emits[key] = value;
+                }
+            }
         }
         // placeholder_ href_ checked_ ...
         else if (/[_@\:\.&\?\*\+\#]$/.test(name)) {
@@ -1220,12 +1263,13 @@ function createStructure(element, useExists) {
     if (props["zimoli"] || props["fresh"] || props["once"]) once = true;
     else if (props["refresh"] || props["digest"] || props["mount"]) once = false;
     element.$eval = $eval;
-    return element.$struct = new Struct(ons, types, copys, binds, attr1, props, ids, once);
+    return element.$struct = new Struct(emits, waits, types, copys, binds, attr1, props, ids, once);
 }
 function unlock(element) {
     if (!element) return;
-    if (element.$renderid !== 9) {
-        element.$renderid = ++renderidOffset;
+    var { $renderid = 0 } = element;
+    if ($renderid !== 9) {
+        if ($renderid < 10) element.$renderid = ++renderidOffset;
         on("append")(element, addRenderElement);
         onremove(element, removeRenderElement);
         if (element.nodeType === 8);
@@ -1297,3 +1341,28 @@ render.struct = createStructure;
 render.mergeStruct = mergeStruct;
 render.Binder = Binder;
 render.Model = Model;
+render.attribute = function (target, attrs) {
+    return renderDynamics(target, target, null, attrs);
+};
+render.dynamic = function (target, binds, attrs) {
+    renderBinds(target, binds);
+    renderDynamics(target, target, binds, attrs);
+};
+var initRenders = function (target) {
+    if (!target.$renders) target.$renders = [];
+};
+render.class = function (target, map) {
+    initRenders(target);
+    directives.class.call(target, map);
+};
+render.style = function (target, map) {
+    initRenders(target);
+    directives.style.call(target, map);
+};
+render.on = function (target, map) {
+    return renderEmits.call(this, target, map, emiters.on);
+};
+render.once = function (target, map) {
+    return renderEmits.call(this, target, map, emiters.once);
+};
+render.mount = unlock;
