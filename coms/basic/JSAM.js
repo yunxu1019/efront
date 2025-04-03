@@ -1,14 +1,14 @@
-var isEmpty = require("./isEmpty");
-var convertReg = /^(?:object|function)$/;
-var hasOwnProperty = Object.prototype.hasOwnProperty;
+var strings = require("./strings");
+var spaces = require("./spaces");
+var isArrayLike = require("./isArrayLike");
 var check = function (o) {
-    return o === null || typeof o === 'bigint' || o instanceof BigInt || typeof o === 'number' || typeof o === "boolean";
+    return o === null || o === false || o === true || o === Infinity || o !== o;
 };
 var string = function (a) {
-    return "\"" + String(a).replace(/\\/g, "\\\\").replace(/"/g, '\\$&') + "\"";
+    return strings.encode(a, '"', false);
 };
 var symbol = function (a) {
-    return "\'" + String(a).replace(/^\w*\(([\s\S]*)\)$/, '$1').replace(/\\/g, "\\\\").replace(/'/g, '\\$&') + "\'";
+    return strings.encode(String(a).replace(/^\w*\(([\s\S]*)\)$/, '$1'), "'");
 };
 var date = function (d) {
     return d.toISOString();
@@ -17,288 +17,213 @@ var regrep = a => a === '/' ? "\\/" : a;
 var regexp = function (r) {
     return '/' + r.source.replace(/\\[\s\S]|\//g, regrep) + '/' + r.flags;
 };
-var join = function (o) {
-    if (o === undefined) return '';
-    if (check(o)) return String(o);
-    if (typeof o === 'symbol' || o instanceof Symbol) return symbol(o);
-    if (typeof o !== 'object') return string(o);
-    if (o instanceof Date) return date(o);
-    if (o instanceof RegExp) return regexp(o);
-    var arr = o[""];
-    delete o[""];
-    var typeid = o._;
-    delete o._;
-    var pairs = [].concat(arr);
-    for (var k in o) {
-        pairs.push(k + ':' + o[k]);
-    }
-    var s;
-    if (o instanceof Array) {
-        s = `[${pairs.join(',')}]`;
-    }
-    else {
-        s = `{${pairs.join(',')}}`;
-    }
-    if (typeid > 0) s = typeid + s;
-    return s;
+var isValidK = function (k) {
+    return k.length < 16 && !/^\d|[,:'"\\\/`\-\[\]\{\}\(\)\.\+\#\@\&^]/.test(k) && spaces.trim(k) === k;
 };
-function stringify(memery, preload) {
-    if (!isEmpty(preload)) {
-        preload = [].concat(preload);
-        var i = preload.indexOf(memery) + 1;
-        if (i > 0) return i + ',';
-    }
+var extractK = function (k) {
+    return k.length < 16 && isFinite(k);
+};
+
+function _tostring(memery, preload, dist) {
     if (memery === undefined) return '';
     if (check(memery)) return String(memery);
-    if (typeof memery === 'symbol') return symbol(memery);
-    if (memery instanceof Date) return date(memery);
-    if (memery instanceof RegExp) return regexp(memery);
-    if (!convertReg.test(typeof memery)) return string(memery);
+    if (typeof memery === 'number') {
+        if (memery < 0) return String(memery);
+        return "+" + String(memery);
+    }
+    if (typeof memery === 'string') return string(memery);
+    if (typeof memery === 'symbol' || memery instanceof Symbol) return symbol(memery);
+    if (typeof memery === 'bigint' || memery instanceof BigInt) return String(memery) + "n";
     m: if (typeof memery === 'function') {
         for (var k in memery) break m;
         return '';
     }
-    var dist = [memery];
-    var rest = [memery];
-    var trimed = [memery instanceof Array ? [] : {}];
-    var objects = [trimed[0]];
-    if (!isEmpty(preload)) dist = dist.concat(preload);
-    var preload_used = false;
-    while (rest.length) {
-        var memery = rest.shift();
-        var o = objects.shift();
-        var inc = 0, arr = [];
-        o[""] = arr;
-        o._ = dist.indexOf(memery.constructor);
-        if (o._ > 0) preload_used = true;
-        for (var k in memery) {
-            var m = memery[k];
-            f: if (typeof m === 'function') {
-                for (var k in m) break f;
-                if (dist.indexOf(m) >= 0) {
-                    preload_used = true;
-                    break f;
-                }
-                continue;
-            }
-            if (inc === +k && k !== '') {
-                var kindex = "";
-                inc++;
-            } else {
-                var kindex = dist.indexOf(k);
-                if (!~kindex) {
-                    kindex = dist.length;
-                    dist.push(k);
-                    trimed.push(k);
-                }
-            }
-            var index = dist.indexOf(m);
-            if (!~index) {
-                index = dist.length;
-                dist.push(m);
-                if (m !== null) {
-                    if (m instanceof Date) {
-                        trimed.push(m);
-                    }
-                    else if (m instanceof RegExp) {
-                        trimed.push(m);
-                    }
-                    else if (convertReg.test(typeof m)) {
-                        rest.push(m);
-                        var t = m instanceof Array ? [] : {};
-                        trimed.push(t);
-                        objects.push(t);
-                    }
-                    else {
-                        trimed.push(m);
-                    }
-                } else {
-                    trimed.push(m);
-                }
-            }
-            if (kindex === '') {
-                arr.push(index);
-            } else {
-                o[kindex] = index;
+    if (memery instanceof Date) return date(memery);
+    if (memery instanceof RegExp) return regexp(memery);
+    var d = preload.indexOf(memery.constructor);
+    var pre = memery instanceof Array ? "[" : "{";
+    var aft = pre === "{" ? "}" : "]"
+    if (d >= 0) pre = d + pre;
+    var inc = 0, arr = [];
+    var index = dist.length;
+    dist.push(undefined);
+    for (var k in memery) {
+        var v = memery[k];
+        if (v && typeof v === 'object' || typeof v === 'function') {
+            var i = preload.indexOf(v);
+            if (i >= 0) v = i;
+            else {
+                i = preload.length;
+                preload.push(v);
+                _tostring(v, preload, dist);
+                v = i;
             }
         }
+        else {
+            v = _tostring(v, preload);
+        }
+
+        if (k && +k === inc) {
+            arr.push(v);
+        }
+        else {
+            if (extractK(k)) k = "+" + k;
+            else if (!isValidK(k)) k = string(String(k));
+            arr.push(k + ":" + v);
+        }
+        inc++;
     }
-    var result = trimed.map(join).join(',');
-    if (trimed.length === 1 && preload_used) result += ',';
-    return result;
+    dist[index] = pre + arr.join(',') + aft;
+    return dist[index];
 }
-var create = function (a, dst) {
-    if (!a) return;
-    var arr = a.split(',');
-    var rest = [];
-    for (var cx = 0, dx = arr.length; cx < dx; cx++) {
-        var s = arr[cx].split(":");
-        var k = s[0], v = s[1];
-        if (v === undefined) {
-            rest.push(k);
-        } else {
-            dst[k] = +v;
-        }
+
+function stringify(memery, preload) {
+    if (isArrayLike(preload)) {
+        preload = Array.apply(null, preload);
+        var i = preload.indexOf(memery) + 1;
+        if (i > 0) return i + ',';
+        preload.unshift(memery);
     }
-    dst[""] = rest;
-};
-function parse(string, preload) {
-    string = String(string);
-    var trimed = [];
-    var reg0 = /\d+/g;
-    var reg1 = /\}/g;
-    var reg2 = /\]/g;
-    var reg3 = /\\[\s\S]|"/g;
-    var reg4 = /,|$/g;
-    var reg5 = /\\[\s\S]|\//g;
-    var reg6 = /\\[\s\S]|'/g;
-    var marked = [];
-    for (var cx = 0, dx = string.length; cx < dx; cx++) {
-        var s = string.charAt(cx);
-        var reg = null, o = null;
-        reg0.lastIndex = 0;
-        var typeid = 0;
-        var m = reg0.test(string.charAt(cx));
-        if (m) {
-            reg0.lastIndex = cx;
-            var m = reg0.exec(string);
-            if (/^[\[\{]$/.test(string.charAt(reg0.lastIndex))) {
-                typeid = +m[0];
-                cx = reg0.lastIndex;
-                s = string.charAt(reg0.lastIndex);
-            }
+    else preload = [memery];
+    var dist = [];
+    dist[0] = _tostring(memery, preload, dist);
+    return dist.join(',');
+}
+function parseValue(v) {
+    if (/^"/.test(v)) return strings.decode(v);
+    if (/^[\+\-]?\d+n$/.test(v)) return BigInt(v.slice(0, v.length - 1));
+    if (/^[\+\-]\d/.test(v)) return parseFloat(v);
+    if (/^\d+[\-\/]/.test(v)) return new Date(v);
+    if (/^\d/.test(v)) return parseFloat(v);
+    switch (v) {
+        case "true": return true;
+        case "false": return false;
+        case "null": return null;
+        case "": return undefined;
+        case "Infinity": return Infinity;
+        case "NaN": return NaN;
+    }
+    if (/^\//.test(v)) {
+        var flag = /\/(\w*)$/.exec(v);
+        return new RegExp(v.slice(1, flag.index), flag[1]);
+    }
+    if (/^'/.test(v)) return Symbol(string.decode(v));
+    return v;
+}
+function setkd([obj, kds]) {
+    if (!isjsam) return kds.forEach(setkv, obj);
+    for (var [k, d] of kds) {
+        if (typeof k === 'number');
+        else if (/^\d+$/.test(k)) k = this[k];
+        else k = parseValue(k);
+        if (d instanceof Object);
+        else if (d.length <= 16 && /^\d+$/.test(d)) d = this[d];
+        else d = parseValue(d);
+        obj[k] = d;
+    }
+}
+function setkv([k, v]) {
+    if (typeof k === 'number');
+    else if (/^\d+$/.test(k));
+    else k = parseValue(k);
+    if (v instanceof Object);
+    else v = parseValue(v);
+    this[k] = v;
+}
+var blocks = [];
+var isjsam = false;
+function scanblock(string, index, preload, obj) {
+    var reg = /\\[\s\S]|[\:,'"\}\]\{\[\/]/g;
+    reg.lastIndex = index;
+    var instr = false;
+    var inc = index === 0 ? preload.length : 1, k = 0, d = null;
+    var start = index;
+    var kds = [];
+    a: while (index < string.length) {
+        var match = reg.exec(string);
+        if (!match) {
+            index = string.length;
+            break;
         }
-        switch (s) {
+        var m = match[0];
+        index = match.index + m.length;
+        if (/^['"\/]$/.test(m)) {
+            if (instr === m) {
+                instr = false;
+            }
+            else if (instr) continue;
+            else instr = m;
+        }
+        else if (instr) continue;
+        switch (m) {
+            case ":":
+                if (index > start + 10 && /^\d+[\/\-]/.test(string.slice(start, start + 10))) {
+                    continue;
+                }
+                k = spaces.trim(string.slice(start, match.index));
+                start = index;
+                continue;
             case ",":
-                trimed.push(undefined);
-                break;
+                d = spaces.trim(string.slice(start, match.index));
+                if (preload === obj) isjsam = true;
+                if (!d && typeof k === 'number') {
+                    start = index;
+                    k = inc++;
+                    continue;
+                }
+                if (preload === obj) {
+                    preload[k] = parseValue(d);
+                }
+                else kds.push([k, d]);
+                k = inc++;
+                start = index;
+                continue;
             case "{":
-                reg = reg1;
-                o = {};
+                var o = {};
             case "[":
-                o = o || [];
-                reg = reg || reg2;
-                reg.lastIndex = cx + 1;
-                reg.exec(string);
-                var index = reg.lastIndex;
-                var s = string.slice(cx + 1, index - 1);
-                create(s, o);
-                marked.push(trimed.length);
-                trimed.push(o);
-                cx = reg.lastIndex;
-                if (typeid) {
-                    o._ = typeid;
+                var o = o || [];
+                d = spaces.trim(string.slice(start, match.index));
+                if (d) {
+                    d = preload[d];
+                    if (!d) throw new Error('数据异常！');
+                    if (Object.setPrototypeOf) Object.setPrototypeOf(o, d.prototype);
+                    else o = Object.create(d.prototype);
                 }
-                if (/\d/.test(string.charAt(cx))) {
-                    reg4.lastIndex = cx;
-                    var m = reg4.exec(string);
-                    o._ = typeid || string.slice(cx, m.index);
-                    cx = m.index;
+                if (preload === obj) {
+                    preload[k] = o;
                 }
+                else {
+                    kds.push([k, o]);
+                }
+                index = start = scanblock(string, index, preload, o, isjsam);
+                o = null;
+                k = inc;
+                reg.lastIndex = index;
                 break;
-            case "/":
-                reg = reg5;
-                o = 1;
-            case "'":
-                reg = reg || reg6;
-                o = o || 2;
-            case "\"":
-                reg = reg || reg3;
-                reg.lastIndex = cx + 1;
-                do {
-                    var s = reg.exec(string);
-                } while (s && s[0].length === 2);
-                var index = reg.lastIndex;
-                s = string.slice(cx + 1, index - 1).replace(/\\([\s\S])/g, '$1');
-                cx = index;
-                if (o == 2) {
-                    s = Symbol(s);
-                } else if (o == 1) {
-                    reg4.lastIndex = index;
-                    var m = reg4.exec(string);
-                    index = m.index;
-                    var flag = string.slice(cx, index);
-                    cx = index;
-                    s = new RegExp(s, flag);
-                }
-                trimed.push(s);
-                break;
-            default:
-                reg4.lastIndex = cx;
-                var match = reg4.exec(string);
-                var index = match.index;
-                var s = string.slice(cx, index);
-                switch (s) {
-                    case "null":
-                        s = null;
-                        break;
-                    case "true":
-                        s = true;
-                        break;
-                    case "false":
-                        s = false;
-                        break;
-                    default:
-                        if (/^\d+[\/\-]/i.test(s)) {
-                            s = new Date(s);
-                        }
-                        else if (/^\-?\d+$/.test(s)) {
-                            if (s.length > 15) {
-                                s = BigInt(s);
-                            } else {
-                                s = parseInt(s);
-                            }
-                        } else {
-                            s = parseFloat(s);
-                        }
-
-                }
-                trimed.push(s);
-                cx = index;
+            case "}": case "]":
+                index = match.index;
+                break a;
         }
     }
-    if (string.charAt(string.length - 1) === ',') trimed.push(undefined);
-    var dist = [trimed[0]];
-    if (!isEmpty(preload)) dist = dist.concat(preload);
-    var preloads_length = dist.length - 1;
-    dist = dist.concat(trimed.slice(1, trimed.length));
-
-    for (var cx = 0, dx = marked.length; cx < dx; cx++) {
-        var index = marked[cx];
-        var o = trimed[index];
-        if (index > 0) index += preloads_length;
-        if (o._ > 0) dist[index] = Object.create(dist[o._].prototype);
-        else dist[index] = o instanceof Array ? [] : {};
+    if (start < index) {
+        var d = spaces.trim(string.slice(start, index));
+        if (typeof k !== 'number' || d) kds.push([k, d]);
     }
-    for (var cx = 0, dx = marked.length; cx < dx; cx++) {
-        var index = marked[cx];
-        var o = trimed[index];
-        if (index > 0) index += preloads_length;
-        var t = dist[index];
-        var arr = o[""];
-        delete o[""];
-        delete o._;
-        if (arr) for (var k in arr) {
-            if (hasOwnProperty.call(arr, k)) t[k] = dist[arr[k]];
-        }
-        for (var k in o) {
-            if (hasOwnProperty.call(o, k)) {
-                var v = o[k];
-                t[dist[k]] = dist[v];
-            }
-        }
-    }
-    if (trimed.length > 1 && typeof trimed[0] === 'number') {
-        return dist[trimed[0]];
-    }
-    return dist[0];
+    blocks.push([obj, kds]);
+    return reg.lastIndex;
+}
+function parse(string, preload) {
+    if (isArrayLike(preload)) preload = Array.apply(null, preload);
+    else preload = [];
+    isjsam = false;
+    preload.unshift(void 0);
+    string = String(string);
+    scanblock(string, 0, preload, preload);
+    blocks.forEach(setkd, preload);
+    blocks = [];
+    return preload[0];
 }
 module.exports = {
     stringify,
-    parse(data, preload) {
-        if (/^\s*[^\{\[\s]|^\s*(?:\[\s*\]|\{\s*\}|)\s*$/.test(data)) return parse(data, preload);
-        if (/^\s*\{[\d\,\:\s]*\}\s*,/.test(data)) return parse(data, preload);
-        if (/^\s*\[[\d\,\:\s]*\]\s*,/.test(data)) return parse(data, preload);
-        return JSON.parse(data);
-    }
+    parse,
 };

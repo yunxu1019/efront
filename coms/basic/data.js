@@ -375,7 +375,7 @@ var parseData = function (sourceText) {
         sourceText = sourceText.replace(/^[^\(]+\(([\s\S]*)\)[^\)]*$/, "$1");
     }
     try {
-        if (/^[\[\{][\d\:,]+[\}\]],|^(Infinity|''|NaN|\d+|)$|^\/[\s\S]*?\/\w*$/.test(sourceText)) {
+        if (/^[\[\{]|^[+\-]\d|^\d+[\/\-]|\dn$|^(Infinity|''|NaN|\d+|)$|^\/[\s\S]*?\/\w*$/.test(sourceText)) {
             sourceText = JSAM.parse(sourceText);
         } else {
             sourceText = parseYML(sourceText);
