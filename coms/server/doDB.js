@@ -111,9 +111,12 @@ var doDB = async function (req, res) {
             case "delete":
                 var data = await userdata.getOptionObj('db', dbid);
                 if (!data) {
-                    res.writeHead(403, utf8error);
-                    res.end(i18n[lang]`${dbid}不存在`);
-                    return;
+                    var dbs = await userdata.getDBS();
+                    if (!dbs[dbid]) {
+                        res.writeHead(403, utf8error);
+                        res.end(i18n[lang]`${dbid}不存在`);
+                        return;
+                    }
                 }
                 var items = await message.invoke('dbList', [dbid, null, 1]);
                 if (items.length > 0) {

@@ -41,6 +41,7 @@
     var a = button;
     var load = async function name(params) {
         dbs = await data.from("dball");
+        dbs.forEach(db => db.name = db.name || db.id);
     };
     load();
     var adddb = async function () {

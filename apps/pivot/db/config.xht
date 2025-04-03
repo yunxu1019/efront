@@ -72,8 +72,10 @@
     (用户互访/visit/,open=false) swap // 不公开时检查此项`;
     var [db] = arguments;
     if (!db.fields) {
-        var [da1] = await data.from('dbfind', { dbid: db.name, size: 1 });
-        db.fields = da1 ? Object.keys(da1).map(k => ({ key: k })) : [];
+        try {
+            var [da1] = await data.from('dbfind', { dbid: db.name, size: 1 });
+            db.fields = da1 ? Object.keys(da1).map(k => ({ key: k })) : [];
+        } catch { }
     }
     var editAction = function (a) {
         popup('#/db/act', [db, a]);

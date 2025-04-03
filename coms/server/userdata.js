@@ -238,9 +238,11 @@ module.exports = {
             options = await Promise.all(options);
             options = options.map((o, i) => {
                 try {
-                    if (!o) return o;
-                    o = JSON.parse(o);
-                    if (o && value) o[value] = keys[i];
+                    if (o) o = JSON.parse(o);
+                    if (value) {
+                        if (!isObject(o)) o = { [value]: isHandled(o) ? o : keys[i] };
+                        else o[value] = keys[i];
+                    }
                     return o;
                 } catch { };
                 return { key: keys[i], value: o };
