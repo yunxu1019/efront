@@ -117,14 +117,17 @@ var popup_view = function (element, target, style) {
     }
     if (target instanceof Event) {
         popup_to_event(element, target);
-    } else if (target instanceof Array) {
+    }
+    else if (target instanceof Array) {
         if (isNode(style) && style.$mask) addMask(element, style);
         else if (typeof style === 'boolean') addMask(element);
         popup_to_point(element, target);
-    } else if (target) {
+    }
+    else if (target === true || target < 0) {
         popup_with_mask(element);
-    } else {
-        popup_as_single(element);
+    }
+    else {
+        popup_as_single(element, target);
     }
     return element;
 };
