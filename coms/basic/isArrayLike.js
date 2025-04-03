@@ -9,3 +9,4 @@ function isArrayLike(a) {
     }
     return false;
 }
+module.exports = isArrayLike;
