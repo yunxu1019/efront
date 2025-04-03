@@ -68,13 +68,16 @@ var popup_path = function (path = "", parameters, target) {
             }
             else if (target instanceof Event) {
                 popup_to_event(element, target);
-            } else if (target instanceof Array) {
+            }
+            else if (target instanceof Array) {
                 popup_to_point(element, target);
-            } else if (target) {
+            }
+            else if (target < 0 || target === true) {
                 popup_with_mask(element);
-            } else {
+            }
+            else {
                 if (parameters !== false && target !== false) setInitialStyle(element);
-                popup_as_single(element);
+                popup_as_single(element, target);
             }
         };
     }
@@ -85,7 +88,7 @@ var popup_path = function (path = "", parameters, target) {
         if (!element) return;
         load();
         element.$reload = fullfill;
-        if (!target && target !== false && parameters !== false) {
+        if (target == null && parameters !== false) {
             element.style.opacity = 0;
             oncemount(element, function () {
                 move.bindPosition(element, [.5, .5]);
@@ -337,8 +340,8 @@ var _as_yextra = function (global, innerWidth, innerHeight, element, target, poi
     global(element, false);
 };
 var _as_xextra = arriswise(_as_yextra, arguments);
-var popup_as_single = function (element) {
-    if (!isMounted(element)) css(element, `z-index:${zIndex()};`);
+var popup_as_single = function (element, z) {
+    if (!isMounted(element)) css(element, `z-index:${Number.isFinite(z) ? z : zIndex()};`);
     global(element, false);
 };
 var popup_to_point = function (element, [x, y]) {

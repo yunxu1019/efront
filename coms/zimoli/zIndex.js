@@ -4,3 +4,4 @@ function zIndex(inc = 1) {
     if (inc > 0) count += inc;
     return count;
 };
+zIndex.start = count;
