@@ -140,6 +140,7 @@ function transition(target, _isLeave, _initialStyle) {
     var { recoverStyle, transitionTimerStart, transitionTimerEnd, captureStyle } = target;
     clearTimeout(transitionTimerStart);
     clearTimeout(transitionTimerEnd);
+    console.log(transitionTimerStart, transitionTimerEnd);
     var transitionDuration = 100;
     if (!initialStyle[transitionKey]) {
         initialStyle[transitionKey] = Object.keys(initialStyle).map(k => k.replace(/[A-Z]/g, a => "-" + a.toLowerCase()) + " .3s ease").join(",");
@@ -182,7 +183,6 @@ function transition(target, _isLeave, _initialStyle) {
     else if (isLeave) {
         transitionTimerStart = setTimeout(function () {
             extend(target.style, initialStyle);
-            delete target.recoverStyle;
             delete target.captureStyle;
         });
         transitionTimerEnd = setTimeout(function () {
@@ -198,7 +198,6 @@ function transition(target, _isLeave, _initialStyle) {
             if (transitionKey) target.style[transitionKey] = initialStyle[transitionKey];
             target.transitionTimerStart = setTimeout(function () {
                 extend(target.style, recoverStyle);
-                delete target.recoverStyle;
                 delete target.captureStyle;
             }, waitPaint);
         });
