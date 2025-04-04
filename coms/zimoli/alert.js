@@ -16,20 +16,25 @@ css(container, 'top:0;height:0;left:0;right:0;transition:all 0.2s ease-out;posit
 var _text = function (elem, bgcolor, parameters) {
     var box = elem || document.createElement('div');
     css(box, `background-color:${bgcolor};color:${color.pair(bgcolor, 1)};`);
-    box.innerHTML = [].slice.call(parameters, 0).join(", ");
+    appendChild(box, parameters);
     box.initialStyle = `margin-top:-${fromPixel(singleHeight)};`;
     return box;
 };
 function alert() {
     var clr = String(isString(this) && this || styles.default), text, autoclose = true, onclose;
+    var fade = [];
     var setArg = function (args) {
         text = '';
         autoclose = true;
         for (var arg of args) switch (typeof arg) {
-            case "string":
             case "object":
+                if (isNode(arg)) {
+                    fade.push(arg);
+                    continue;
+                }
+            case "string":
                 arg = String(arg);
-                if (!text) {
+                if (!text && !fade.length) {
                     text = arg;
                 } else if (color.isColor(text)) {
                     clr = text;
@@ -41,6 +46,9 @@ function alert() {
                     clr = styles[arg];
                 } else if (color.isColor(arg)) {
                     clr = arg;
+                }
+                else {
+                    fade.push(arg);
                 }
                 break;
             case "boolean":
@@ -66,10 +74,12 @@ function alert() {
         }
     };
     var setContent = function (elem) {
+        var t = [text];
+        if (fade.length) t.push(...fade);
         if (color.isColor(clr)) {
-            elem = _text(elem, clr, [text]);
+            elem = _text(elem, clr, t);
         } else {
-            elem = _text(elem, styles.log, [text]);
+            elem = _text(elem, styles.log, t);
         }
         if (!isMounted(container)) popup(container);
         if (!isMounted(elem)) appendChild(container, elem);
