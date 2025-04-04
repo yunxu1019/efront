@@ -1,5 +1,5 @@
 <style>
-    :root {
+    :scope {
         --leftwidth: 260px;
         display: block;
         width: auto;
@@ -14,39 +14,39 @@
         background: #fff;
     }
 
-    :root+scrollbar {
+    :scope+scrollbar {
         right: 0;
         background: transparent;
     }
 
-    :root>* {
+    :scope>* {
         vertical-align: top;
     }
 
-    :root>menu f {
+    :scope>menu f {
         margin-left: 6px;
     }
 
-    :root>menu f[test]:before {
+    :scope>menu f[test]:before {
         color: #fc0;
         content: "测";
     }
 
-    :root>menu f[dang]:before {
+    :scope>menu f[dang]:before {
         color: #2cf;
         content: "档";
     }
 
-    :root>menu f[less]:before {
+    :scope>menu f[less]:before {
         color: #2c9;
         content: "样";
     }
 
-    :root>menu[inline] {
+    :scope>menu[inline] {
         height: 100%;
     }
 
-    :root>menu[inline] {
+    :scope>menu[inline] {
         margin: 0;
         width: var(--leftwidth);
         margin-left: -var(--leftwidth);
@@ -81,7 +81,7 @@
         background: linear-gradient(#f2f4ff, 70%, #e9fff2);
     }
 
-    :root>menu v {
+    :scope>menu v {
         display: inline-block;
         font-size: 12px;
         color: #79a;
@@ -99,11 +99,11 @@
             z-index: 0 !important;
         }
 
-        :root>open:after {
+        :scope>open:after {
             content: "≡";
         }
 
-        :root>open {
+        :scope>open {
 
             display: block;
             position: absolute;
@@ -121,7 +121,7 @@
             border-radius: 50%;
         }
 
-        :root>menu {
+        :scope>menu {
 
             position: absolute;
             z-index: -1;
@@ -150,7 +150,7 @@
 
         }
 
-        :root {
+        :scope {
             padding: 0px !important;
         }
     }
