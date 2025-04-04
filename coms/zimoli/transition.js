@@ -140,7 +140,6 @@ function transition(target, _isLeave, _initialStyle) {
     var { recoverStyle, transitionTimerStart, transitionTimerEnd, captureStyle } = target;
     clearTimeout(transitionTimerStart);
     clearTimeout(transitionTimerEnd);
-    console.log(transitionTimerStart, transitionTimerEnd);
     var transitionDuration = 100;
     if (!initialStyle[transitionKey]) {
         initialStyle[transitionKey] = Object.keys(initialStyle).map(k => k.replace(/[A-Z]/g, a => "-" + a.toLowerCase()) + " .3s ease").join(",");
