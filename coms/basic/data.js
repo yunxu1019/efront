@@ -1061,6 +1061,12 @@ var data = {
         fireListener(instanceId, data);
         return instanceDataMap[instanceId];
     },
+    wetInstance(instanceId, data, rememberWithStorage) {
+        instanceHasDulpData = false;
+        var res = this.setInstance(instanceId, data, rememberWithStorage);
+        instanceHasDulpData = true;
+        return res;
+    },
     patchInstance(instanceId, data, rememberWithStorage = 0) {
         var instance = this.getInstance(instanceId);
         extend(instance, data);
@@ -1136,14 +1142,21 @@ var data = {
         extend(instance, data);
     }
 };
-
+var instanceHasDulpData = true;
 function setItem(instanceId, data, rememberWithStorage = 0) {
     const storageId = userPrefix + instanceId + pagePathName;
+    var buff = null;
     if (rememberWithStorage !== false) {
-        sessionStorage.setItem(storageId, JSAM.stringify(data));
+        try {
+            sessionStorage.setItem(storageId, buff = JSAM.stringify(data, instanceHasDulpData));
+        } catch (e) { console.error(i18n`无法存入数据到${"sessionStorage"}`, instanceId, e) }
     }
     if (rememberWithStorage) {
-        localStorage.setItem(storageId, JSAM.stringify(data));
+        try {
+            localStorage.setItem(storageId, buff || JSAM.stringify(data, instanceHasDulpData));
+        } catch (e) {
+            console.error(i18n`无法存入数据到${"localStorage"}`, instanceId, e)
+        }
     }
 }
 

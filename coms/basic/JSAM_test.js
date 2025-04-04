@@ -76,6 +76,8 @@ function test_time() {
     console.log(t2);
     var t3 = gettime(() => JSAM.stringify(data));
     console.log(t1, t2, t3);
+    var t4 = gettime(() => JSAM.stringify(data, false));
+    console.log(t1, t2, t3, t4);
 }
 function JSAM_test() {
     JSAM.debug = true;

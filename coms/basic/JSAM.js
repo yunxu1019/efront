@@ -23,7 +23,7 @@ var isValidK = function (k) {
 var extractK = function (k) {
     return k.length < 16 && isFinite(k);
 };
-
+var noDulp = false, plength = 0;
 function _tostring(memery, preload, dist) {
     if (memery === undefined) return '';
     if (check(memery)) return String(memery);
@@ -51,11 +51,16 @@ function _tostring(memery, preload, dist) {
         var v = memery[k];
         if (v && typeof v === 'object' || typeof v === 'function') {
             var i = preload.indexOf(v);
-            if (i >= 0) v = i;
+            if (i >= 0) {
+                if (noDulp) throw new Error(i18n`数据异常`);
+                v = i;
+            }
             else {
-                i = preload.length;
+                i = plength;
                 preload.push(v);
+                plength++;
                 _tostring(v, preload, dist);
+                if (noDulp) preload.pop();
                 v = i;
             }
         }
@@ -77,7 +82,9 @@ function _tostring(memery, preload, dist) {
     return dist[index];
 }
 
-function stringify(memery, preload) {
+function stringify(memery, preload, hasDulp = true) {
+    noDulp = preload === false || hasDulp === false;
+    if (isArrayLike(hasDulp)) preload = hasDulp;
     if (isArrayLike(preload)) {
         preload = Array.apply(null, preload);
         var i = preload.indexOf(memery) + 1;
@@ -86,6 +93,7 @@ function stringify(memery, preload) {
     }
     else preload = [memery];
     var dist = [];
+    plength = preload.length;
     dist[0] = _tostring(memery, preload, dist);
     return dist.join(',');
 }
@@ -107,7 +115,7 @@ function parseValue(v) {
         var flag = /\/(\w*)$/.exec(v);
         return new RegExp(v.slice(1, flag.index), flag[1]);
     }
-    if (/^'/.test(v)) return Symbol(string.decode(v));
+    if (/^'/.test(v)) return Symbol(strings.decode(v));
     return v;
 }
 function setkd([obj, kds]) {
