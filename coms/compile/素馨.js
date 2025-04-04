@@ -441,18 +441,29 @@ var fixBase = function (b, a) {
     return splitParams(a).map(a => {
         if (presets.test(a)) a = `@{${a}}`;
         var replaced = false;
+        var rootindex = 0;
+        a.replace(/\:root/g, function (match, index) {
+            rootindex = match.length + index;
+            return '';
+        })
+        if (rootindex > 0) a = a.slice(rootindex);
         return splitParams(b).map(b => {
-            b = b.replace(/^(&|\:scope|\:root)\s*/g, "");
-            if (!b) return a;
-            var a1 = a.replace(/&|\:scope|\:root/g, function (match) {
+            var b1 = b.replace(/^\:root\s*/g, '');
+            var rindex = rootindex;
+            if (b1.length !== b.length) rindex = true;;
+            b = b1;
+            b = b.replace(/^(&|\:scope)\s*/g, "");
+            var a1 = a.replace(/&|\:scope/g, function () {
                 replaced = true;
-                return b;
+                if (!rindex) return b;
+                return '';
             });
+            if (!b && !replaced) return a1;
             if (!replaced) {
                 if (/^[\>~\+]/.test(a) || /[\>~\+]$/.test(b)) {
-                    a1 = b + a;
+                    a1 = b + a1;
                 }
-                else a1 = b + " " + a;
+                else if (!rindex) a1 = b + " " + a;
             }
             return a1;
         }).join(",");
@@ -494,7 +505,7 @@ var Method = function () {
     vlist.pop();
     return body;
 }
-var vlist = [], mlist = [macros], clist = [], base = '';
+var vlist = [], mlist = [macros], clist = [], base = "";
 var killneg = function (v, n) {
     if (n === "-") {
         if (/^\-/.test(v)) {
@@ -529,7 +540,7 @@ var initvars = function (vars) {
 };
 var evalthis = function (p) {
     var temp = base;
-    base = p.base;
+    base = p.base || "&";
     var res = eval2(p.used);
     base = temp;
     return res;

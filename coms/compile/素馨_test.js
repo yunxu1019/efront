@@ -62,10 +62,10 @@ test(`.type(@type,@media) {.@{type} {&:before{content:"@{media}";}}}.type(videoi
 assert(素馨(`:not(a):not(b){c:d}`, 'abc'), `abc :not(a):not(b){c:d;}`);
 assert(素馨(`&:not(a):not(b){c:d}`, 'abc'), `abc:not(a):not(b){c:d;}`);
 assert(素馨(`:scope{&:not(a):not(b){c:d}}`, 'abc'), `abc:not(a):not(b){c:d;}`);
-assert(素馨(`:root{&:not(a):not(b){c:d}}`, 'abc'), `abc:not(a):not(b){c:d;}`);
+assert(素馨(`:root{&:not(a):not(b){c:d}}`, 'abc1'), `:not(a):not(b){c:d;}`);
 assert(素馨(`&{&:not(a):not(b){c:d}}`, 'abc'), `abc:not(a):not(b){c:d;}`);
 assert(素馨(`:root>a{&:not(a):not(b){c:d}}`, '.abc-'), `.abc->a:not(a):not(b){c:d;}`);
-assert(素馨(`a>:root{&:not(a):not(b){c:d}}`, '.abc-'), `a>.abc-:not(a):not(b){c:d;}`);
+assert(素馨(`a>:root{&:not(a):not(b){c:d}}`, '.abc-'), `:not(a):not(b){c:d;}`);
 
 assert(素馨(`.a (){ &:after{abc:1}} .b{.a();}`, '.abc-'), `.abc- .b:after{abc:1;}`);
 assert(素馨(`@a:1px;@margin-x:@a+10px; a{m:-@margin-x}`), `a{m:-11px;}`);
