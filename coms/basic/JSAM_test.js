@@ -49,6 +49,7 @@ var test_self = function () {
     a.d = d;
     test(a); // {1:2},"d",{3:4},"c",[5],{6:0},"a"
     test([{ "name": "用户", "open": true }, { "name": "导航", "open": true }, { "name": "商品", "open": true },]);
+    console.log(JSAM.parse(`[1:2,3:2,4:5,6:7,8:2,9:2,10:2,11:2,12:13,14:13,15:16],"is_errored",null,"error_message","is_loading",false,"is_loaded",true,"is_readonly","loading","loading_promise","data","appid",,"sign","smap",{17:7,18:7},"zh","en"`))
 };
 function test2(obj) {
     var data = JSAM.parse(JSON.stringify(obj));

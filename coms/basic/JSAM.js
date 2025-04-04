@@ -127,7 +127,6 @@ function setkd([obj, kds]) {
         if (d instanceof Object);
         else if (d.length <= 16 && /^\d+$/.test(d)) d = this[d];
         else d = parseValue(d);
-        if (k === undefined) console.log(kds, this)
         obj[k] = d;
     }
 }
@@ -181,7 +180,6 @@ function scanblock(string, index, preload, obj) {
                     continue;
                 }
                 if (preload === obj) {
-                    if (module.exports.debug) console.log(k, d);
                     preload[k] = parseValue(d);
                 }
                 else kds.push([k, d]);
