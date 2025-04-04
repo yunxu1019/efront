@@ -307,4 +307,5 @@ if (typeof i18n !== 'undefined') {
     colored.warn.tip = i18n`注意`;
     colored.error.tip = i18n`错误`;
 }
+colored.render = renderColor;
 module.exports = colored;
