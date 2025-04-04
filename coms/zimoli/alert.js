@@ -16,6 +16,7 @@ css(container, 'top:0;height:0;left:0;right:0;transition:all 0.2s ease-out;posit
 var _text = function (elem, bgcolor, parameters) {
     var box = elem || document.createElement('div');
     css(box, `background-color:${bgcolor};color:${color.pair(bgcolor, 1)};`);
+    remove(box.childNodes);
     appendChild(box, parameters);
     box.initialStyle = `margin-top:-${fromPixel(singleHeight)};`;
     return box;
@@ -25,6 +26,7 @@ function alert() {
     var fade = [];
     var setArg = function (args) {
         text = '';
+        fade = [];
         autoclose = true;
         for (var arg of args) switch (typeof arg) {
             case "object":
