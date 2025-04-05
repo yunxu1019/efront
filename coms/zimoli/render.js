@@ -585,17 +585,34 @@ var createBinder2 = function (write, read) {
 
 var src2 = function (search) {
     var getter = createGetter(this, search);
-    var savedValue;
+    var checkArrayProperties = /^\[[^\]]+\]$/.test(search);
+    var savedValue, savedLength;
+    // 非直传数组的数据源变动后，不再检查其所有属性是否相同，直接同步到组件，
+    // 直传数组的数据源以数组中的子项是否变动为准，
+    // 直传数组的判别标准为表达式以“[”开头以“]”结尾，且表达式中间不含“]”
     this.$renders.push(function () {
         var origin = getter(this);
-        var temp = shallowClone(origin);
-        if (isHandled(savedValue)) {
-            if (shallowEqual(temp, savedValue, 1)) return;
+        if (isArray(origin)) {
+            if (isArray(savedValue)) {
+                if (isSame(origin, savedValue)) {
+                    if (origin.length === savedLength) return;
+                }
+                else {
+                    a: if (checkArrayProperties && origin.length === savedLength) {
+                        for (var cx = 0, dx = savedLength; cx < dx; cx++) {
+                            if (savedValue[cx] !== origin[cx]) break a;
+                        }
+                        return;
+                    }
+                }
+            }
+            savedLength = origin.length;
+            savedValue = origin;
         }
         else {
-            if (isSame(savedValue, temp)) return;
+            if (isSame(savedValue, origin)) return;
+            savedValue = origin;
         }
-        savedValue = temp;
         if (!isHandled(origin) && !isHandled(this.src));
         else this.src = origin;
         cast(this, origin);
