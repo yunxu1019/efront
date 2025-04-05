@@ -113,7 +113,7 @@ function getWatchData(element) {
     var props = {};
     for (var key in $watches) {
         var data = element[key];
-        props[key] = isObject(data) && !isFunction(data) && !isDate(data) && !isNode(data) ? extend(data instanceof Array ? [] : {}, data) : data;
+        props[key] = data;
     }
     return props;
 }
@@ -130,7 +130,7 @@ function rebuild(element, isFirstRender) {
     for (var k in props) {
         var current = element[k];
         var previous = props[k];
-        if (shallowEqual(current, previous)) continue;
+        if (isSame(current, previous)) continue;
         if (!capture) capture = {};
         capture[k] = { current, previous };
     }
