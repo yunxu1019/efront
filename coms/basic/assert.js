@@ -51,6 +51,7 @@ var colorString = function (s, color1, e, color2) {
     else s += c1;
     return s;
 }
+var ros = [], eos = [];
 var assert = function (result, expect, log = dump) {
     var errors = {}, hasCollect;
     var collect = function (k, args) {
@@ -64,9 +65,8 @@ var assert = function (result, expect, log = dump) {
             var color3 = format("<cyan>;</cyan>").split(";");
             mark.setTag1(color1[1], color1[0]);
             mark.setTag2(color2[1], color2[0]);
-            var [r, e] = mark.pair(result, expect);
+            var [r, e] = mark.pair(String(result), String(expect));
             var s = r;
-            if (typeof s === 'object') console.log(typeof s, s);
 
             r = colorString(r, color1, e, color2);
             e = colorString(e, color2, s, color1);
@@ -84,7 +84,7 @@ var assert = function (result, expect, log = dump) {
         };
     };
     var res = false;
-    if (result === expect) {
+    if (result === expect || result !== result && expect !== expect) {
         res = true;
     }
     else if (typeof result === "number" && typeof expect === "number") {
@@ -105,8 +105,18 @@ var assert = function (result, expect, log = dump) {
         res = expect(result, (...args) => (b) => assert(result.apply(null, args), b, collect(b, args)), collect(`()`)) !== false;
     } else if (isObject(expect) && isObject(result)) {
         var res = true;
-        for (var k in expect) {
-            res = res && assert(result[k], expect[k], collect(k));
+        var ri = ros.indexOf(result);
+        var ei = eos.indexOf(expect);
+        if (ri !== ei) {
+            var color3 = format('<cyan>;</cyan>').split(";");;
+            res = false; collect(k)(`${color3.join("引用" + ri)} 应为 ${color3.join("引用" + ei)}`);
+        }
+        else if (ri === -1) {
+            ros.push(result);
+            eos.push(expect);
+            for (var k in expect) {
+                res = res && assert(result[k], expect[k], collect(k));
+            }
         }
     }
     if (!res) {
@@ -116,4 +126,9 @@ var assert = function (result, expect, log = dump) {
     }
     return res;
 }
-module.exports = assert;
+module.exports = function (result, expect, dump) {
+    var res = assert(result, expect, dump);
+    ros = [];
+    eos = [];
+    return res;
+};

@@ -23,7 +23,8 @@ var isValidK = function (k) {
 var extractK = function (k) {
     return k.length < 16 && isFinite(k);
 };
-var noDulp = false, plength = 0;
+var noDulp = false, plength = 0, dulp = false;
+var hasOwnProperty = {}.hasOwnProperty;
 function _tostring(memery, preload, dist) {
     if (memery === undefined) return '';
     if (check(memery)) return String(memery);
@@ -40,7 +41,8 @@ function _tostring(memery, preload, dist) {
     }
     if (memery instanceof Date) return date(memery);
     if (memery instanceof RegExp) return regexp(memery);
-    var d = preload.indexOf(memery.constructor);
+    var constructor = memery.constructor;
+    var d = preload.indexOf(constructor);
     var pre = memery instanceof Array ? "[" : "{";
     var aft = pre === "{" ? "}" : "]"
     if (d >= 0) pre = d + pre;
@@ -49,19 +51,34 @@ function _tostring(memery, preload, dist) {
     dist.push(undefined);
     for (var k in memery) {
         var v = memery[k];
+        if (!hasOwnProperty.call(memery, k)) {
+            if (!d || !hasOwnProperty.call(constructor.prototype, k)) break;
+        }
         if (v && typeof v === 'object' || typeof v === 'function') {
-            var i = preload.indexOf(v);
-            if (i >= 0) {
-                if (noDulp) throw new Error(i18n`数据异常`);
-                v = i;
+            if (v instanceof Date) {
+                v = date(v);
+            }
+            else if (v instanceof RegExp) {
+                v = regexp(v);
             }
             else {
-                i = plength;
-                preload.push(v);
-                plength++;
-                _tostring(v, preload, dist);
-                if (noDulp) preload.pop();
-                v = i;
+                var i = preload.indexOf(v);
+                if (i >= 0) {
+                    if (noDulp) throw new Error(i18n`数据异常`);
+                    v = i;
+                    dulp = true;
+                }
+                else {
+                    i = plength + dist.length;
+                    preload.push(v);
+                    v = _tostring(v, preload, dist);
+                    if (!v.length) {
+                        preload.pop();
+                        continue;
+                    }
+                    if (noDulp) preload.pop();
+                    v = i;
+                }
             }
         }
         else {
@@ -78,6 +95,7 @@ function _tostring(memery, preload, dist) {
         }
         inc++;
     }
+    if (arr.length && !arr[arr.length - 1].length) arr.push('');
     dist[index] = pre + arr.join(',') + aft;
     return dist[index];
 }
@@ -93,8 +111,10 @@ function stringify(memery, preload, hasDulp = true) {
     }
     else preload = [memery];
     var dist = [];
-    plength = preload.length;
+    plength = preload.length - 1;
+    dulp = false;
     dist[0] = _tostring(memery, preload, dist);
+    if (dist.length === 1 && dulp) { dist.push(''); }
     return dist.join(',');
 }
 function parseValue(v) {
@@ -174,7 +194,7 @@ function scanblock(string, index, preload, obj) {
             case ",":
                 d = spaces.trim(string.slice(start, match.index));
                 if (preload === obj) isjsam = true;
-                if (!d && typeof k === 'number') {
+                if (!d && typeof k === 'number' && !(obj instanceof Array)) {
                     start = index;
                     k = inc++;
                     continue;
