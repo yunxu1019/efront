@@ -284,11 +284,7 @@ function main() {
     ItemTemplate.setAttribute("e-class", className);
     if (src.itemName) ItemTemplate.setAttribute("e-if", notHidden);
     ItemTemplate.innerHTML = menuItem.template;
-    var generator = getGenerator(page, ItemTemplate);
-    page.$generatorScopes.push($scope);
-    list(page, function (index) {
-        var item = items[index];
-        if (!item) return;
+    var generator = getGenerator(page, ItemTemplate, (item) => {
         if (item.constructor !== Item) item = new Item(item);
         if (istoolbar) {
             if (item.constructor === Item && item.length && !item.extended) {
@@ -296,8 +292,10 @@ function main() {
                 item.value = Object.assign({}, item.value);
             }
         }
-        return generator(index, item);
-    }, direction);
+        return item;
+    });
+    page.$generatorScopes.push($scope);
+    list(page, generator, direction);
     if (!page.$renders) page.$renders = [];
     page.$renders.unshift(function () {
         this.$scope.hasIcon = hasIcon();

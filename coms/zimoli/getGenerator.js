@@ -11,12 +11,67 @@ var cloneChildNodes = function (template) {
     }
     return cNodes;
 }
+var getitem = function (i) {
+    var src = this.src;
+    if (!src || i > src.length) return;
+    if (isFunction(src.get)) return src.get(i);
+    else return src[i];
+}
+var setitem = function (i, v) {
+    var src = this.src;
+    if (!src || i > src.length) return;
+    if (isFunction(src.set)) return src.set(i);
+    else return src[i] = v;
+}
+var createScope = function (container, index, com) {
+    var parsedSrc = container.$src;
+    var wraped = undefined;
+    var origin = com;
+    if (container.$wrapItem) {
+        com = container.$wrapItem(com);
+    }
+    if (com.constructor === Item) {
+        wraped = com;
+        com = com.value;
+    } else {
+    }
+    if (parsedSrc) {
+        var newScope = parsedSrc.createScope(com, index, index, wraped);
+    } else {
+        var newScope = container.src[index];
+        if (!isObject(newScope)) newScope = {
+            get $item() {
+                return getitem.call(container, this.$index);
+            },
+            set $item(v) {
+                return setitem.call(container, this.$index, v);
+            },
+            $key: index,
+            $index: index,
+            toString() {
+                return this.$item;
+            },
+            valueOf() {
+                return this.$item;
+            }
+        }
+        if (wraped) newScope.$wraped = wraped;
+    }
+    newScope.$origin = origin;
+    return newScope;
+}
+var update = function (scope, index) {
+    var item = getitem.call(this, index);
+    if (!isHandled(item) || item === scope.$origin) return;
+    var newScope = createScope(this, index, item);
+    extend(scope, newScope);
+}
 
 /**
  * @param {Element} container
  * @param {Element|string} tagName;
  */
-var getGenerator = function (container, tagName = 'item') {
+var getGenerator = function (container, tagName = 'item', wrapItem = false) {
     if (!container) return;
     var scopes = container.$parentScopes || [];
     if (container.$scope) scopes = scopes.concat(container.$scope);
@@ -26,6 +81,9 @@ var getGenerator = function (container, tagName = 'item') {
     var tagTemplate = isElement(tagName);
     var templates = [];
     var hasAfter = false;
+    if (wrapItem) {
+        container.$wrapItem = isFunction(wrapItem) ? wrapItem : Item;
+    }
     for (let a of container.childNodes) {
         if (a.nodeType === 1 && a.hasAttribute('insert')) {
             if (!templates.length) a.$isbefore = true;
@@ -67,10 +125,7 @@ var getGenerator = function (container, tagName = 'item') {
      */
     return container.$generator = function (index, com, element) {
         if (com === undefined) {
-            var src = container.src;
-            if (!src || index >= src.length) return;
-            if (isFunction(src.get)) com = src.get(index);
-            else com = src[index];
+            com = getitem.call(container, index);
         }
         if (com === undefined) return;
         if (isNode(element));
@@ -83,37 +138,10 @@ var getGenerator = function (container, tagName = 'item') {
             if (childNodes.length > 1) element.with = Array.prototype.slice.call(childNodes, 1);
         }
         var scopes = container.$generatorScopes;
-        var parsedSrc = container.$src;
-        var wraped = undefined;
-        if (com instanceof Item) {
-            wraped = com;
-            com = com.value;
-        }
-        if (parsedSrc) {
-            var newScope = parsedSrc.createScope(com, index, index, wraped);
-        } else {
-            var newScope = container.src[index];
-            if (!isObject(newScope)) newScope = {
-                get $item() {
-                    return container.src[this.$index];
-                },
-                set $item(v) {
-                    container.src[this.$index] = v;
-                    this.value = v;
-                },
-                $key: index,
-                $index: index,
-                toString() {
-                    return this.$item;
-                },
-                valueOf() {
-                    return this.$item;
-                }
-            }
-            if (wraped) newScope.$wraped = wraped;
-        }
+        var newScope = createScope(container, index, com);
         element.$scope = newScope;
         element.$parentScopes = scopes;
+        element.$renders = [update.bind(container, newScope, index)];
         var newItem = render(element, newScope, scopes, false);
         if (element.with) newItem.with = render(element.with, newScope, scopes, false);
         return newItem;
