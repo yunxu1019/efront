@@ -295,6 +295,7 @@ function main() {
         return item;
     });
     page.$generatorScopes.push($scope);
+    page.src = items;
     list(page, generator, direction);
     if (!page.$renders) page.$renders = [];
     page.$renders.unshift(function () {
