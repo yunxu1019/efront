@@ -1029,12 +1029,8 @@ var data = {
             dataSourceMap[sourceid] = value;
             rememberWithStorage = arguments[2];
         }
-        if (rememberWithStorage !== false) {
-            sessionStorage.setItem(sourceDataId, JSAM.stringify(dataSourceMap));
-        }
-        if (rememberWithStorage) {
-            localStorage.setItem(sourceDataId, JSAM.stringify(dataSourceMap));
-        }
+        if (rememberWithStorage === undefined) rememberWithStorage = 0;
+        setItem(sourceDataId, dataSourceMap, rememberWithStorage);
     },
     getSource(sourceid) {
         if (sourceid) return dataSourceMap[sourceid];
@@ -1057,18 +1053,21 @@ var data = {
         } else {
             instanceDataMap[instanceId] = data;
         }
+        instance.rw_storage = rememberWithStorage;
         setItem(instanceId, data, rememberWithStorage);
         fireListener(instanceId, data);
         return instanceDataMap[instanceId];
     },
-    wetInstance(instanceId, data, rememberWithStorage) {
+    // rememberWithStorage =null 生产环境不存储，开发环境存到sessionStorage
+    wetInstance(instanceId, data, rememberWithStorage = null) {
         instanceHasDulpData = false;
         var res = this.setInstance(instanceId, data, rememberWithStorage);
         instanceHasDulpData = true;
         return res;
     },
-    patchInstance(instanceId, data, rememberWithStorage = 0) {
+    patchInstance(instanceId, data, rememberWithStorage) {
         var instance = this.getInstance(instanceId);
+        if (rememberWithStorage === undefined) rememberWithStorage = instance.rw_storage;
         extend(instance, data);
         return this.setInstance(instanceId, instance, rememberWithStorage);
     },
@@ -1143,9 +1142,15 @@ var data = {
     }
 };
 var instanceHasDulpData = true;
-function setItem(instanceId, data, rememberWithStorage = 0) {
+function setItem(instanceId, data, rememberWithStorage) {
     const storageId = userPrefix + instanceId + pagePathName;
     var buff = null;
+    if (rememberWithStorage === null) {
+        rememberWithStorage = false;
+        // <!--
+        rememberWithStorage = 0;
+        // -->
+    }
     if (rememberWithStorage !== false) {
         try {
             sessionStorage.setItem(storageId, buff = JSAM.stringify(data, instanceHasDulpData));

@@ -5,5 +5,6 @@ class LoadingArray extends Array {
     is_loaded = false;
     is_readonly = null;
     loading = null;
+    rw_storage = 0;
     loading_promise = null;
 }
