@@ -47,13 +47,6 @@ var create = function (url, key, report_error) {
         remove(p);
     };
     image.park = function (x, y, scaled, rotate) {
-        var style = get_style(x, y, scaled, rotate);
-        var a = transition(imgpic, style, true);
-        setTimeout(function () {
-            // set_unlock();
-            // image.locked = false;
-        }, a || 0);
-
     };
     var init = function () {
         if (!imgpic) return;
