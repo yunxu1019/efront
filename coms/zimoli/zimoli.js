@@ -317,6 +317,7 @@ function prepare(pgpath, ok) {
         //只能在page上使用
         _pageback_listener = handler;
     };
+    state.upwith = popup.upwith(_with_elements);
     state.titlebar = function () {
         var realTitleBar = titlebar.apply(null, arguments);
         if (!realTitleBar.parentNode) _with_elements.push(realTitleBar);
@@ -388,8 +389,12 @@ function create(pagepath, args, from, needroles) {
     var _page = pg.call(state, args, from);
     if (undefined === args || null === args) args = {};
     if (_page) {
-        if (_with_length) _page.with = _with_elements.concat(_page.with || []);
-        _with_elements.splice(_with_length, _with_elements.length - _with_length);
+        var page_with = _with_elements.splice(_with_length, _with_elements.length - _with_length);
+        if (_page.with && _page.with !== _with_elements) {
+            page_with = page_with.concat(_page.with);
+            _with_elements.with = page_with;
+        }
+        _page.with = _with_elements;
         if (args.initialStyle) _page.initialStyle = args.initialStyle;
         if (args.holdupStyle) _page.holdupStyle = args.holdupStyle;
         if (_page.initialStyle && !_page.holdupStyle) {
@@ -671,7 +676,8 @@ function addGlobal(element, name = null, isBack) {
             if (isBack) appendChild.insert(body, element);
             else appendChild(body, element);
         }
-        rootElements.push(element);
+        var upwith = element.$upwith || rootElements;
+        if (upwith.indexOf(element) < 0) upwith.push(element);
     }
     if (hasLock) fixurl(), fixLock = false;
 }

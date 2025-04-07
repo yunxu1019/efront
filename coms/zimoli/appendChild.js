@@ -19,12 +19,9 @@ function _onappend(node, append = createEvent("append"), mount = createEvent("mo
     }
     dispatch(node, mount);
 }
+
 function appendChild(parent, obj, transition) {
-    if (transition === false) {
-        var children = [].concat(obj);
-    } else {
-        var children = isArrayLike(obj) ? slice.call(obj, 0) : slice.call(arguments, 1);
-    }
+    var children = getArgsChildren(arguments);
     if (parent.appendChild) {
         for (var cx = 0, dx = children.length; cx < dx; cx++) {
             var o = release(children[cx]);
@@ -43,11 +40,7 @@ function appendChild(parent, obj, transition) {
 function insertBefore(alreadyMounted, obj, transition) {
     var parent = alreadyMounted && alreadyMounted.parentNode;
     if (!parent || !parent.insertBefore) return;
-    if (transition === false) {
-        var children = [].concat(obj);
-    } else {
-        var children = isArray(obj) ? slice.call(obj, 0) : slice.call(arguments, 1);
-    }
+    var children = getArgsChildren(arguments);
     for (var cx = 0, dx = children.length; cx < dx; cx++) {
         var o = release(children[cx]);
         if (!o) continue;
@@ -60,21 +53,20 @@ function insertBefore(alreadyMounted, obj, transition) {
         }
     }
 }
+
 function insertAfter(alreadyMounted, obj, transition) {
     var parent = alreadyMounted && alreadyMounted.parentNode;
     if (!parent || !parent.insertBefore) return;
-    if (transition === false) {
-        var children = [].concat(obj);
-    } else {
-        var children = isArray(obj) ? slice.call(obj, 0) : slice.call(arguments, 1);
-    }
-    children = children.reverse();
+    var nextSibling = alreadyMounted.nextSibling;
+    var children = getArgsChildren(arguments);
+    transition = transition !== false;
+    if (!nextSibling) return appendChild(parent, children, transition);
     for (var cx = 0, dx = children.length; cx < dx; cx++) {
         var o = release(children[cx]);
         if (!o) continue;
         if (o.removeTimer) clearTimeout(o.removeTimer);
-        parent.insertBefore(o, alreadyMounted.nextSibling);
-        o.with && insertBefore(alreadyMounted.nextSibling, o.with, transition);
+        parent.insertBefore(o, nextSibling);
+        o.with && insertBefore(nextSibling, o.with, transition);
         if (isMounted(parent)) _onappend(o);
         if (hasEnterStyle(o) && transition !== false) {
             isFunction(appendChild.transition) && appendChild.transition(o);

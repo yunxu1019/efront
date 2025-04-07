@@ -26,7 +26,26 @@ var popup = function (path) {
     }
     throw new Error(i18n`参数异常:${path}`);
 };
+var onAppendUp = function () {
+    var upwith = this.$upwith;
+    if (isArray(upwith) && upwith.indexOf(this) < 0) {
+        upwith.push(this);
+    }
+};
+var onRemoveUp = function () {
+    var upwith = this.$upwith;
+    if (isArray(upwith)) {
+        removeFromList(upwith, this);
+    }
+};
+var setUpwith = function (page, upwith) {
+    if (!isArray(upwith)) return;
+    page.$upwith = upwith;
+    on('append')(page, onAppendUp);
+    on('remove')(page, onRemoveUp);
+};
 var popup_path = function (path = "", parameters, target) {
+    var upwith_ = upwith;
     if (!popup.go || !popup.prepare) throw new Error(i18n`当前环境无法使用`);
     // 3 has mask has view control
     var element;
@@ -86,6 +105,7 @@ var popup_path = function (path = "", parameters, target) {
         remove(element && element.$mask);
         element = popup.create(path, parameters);
         if (!element) return;
+        setUpwith(element, upwith_);
         load();
         element.$reload = fullfill;
         if (target == null && parameters !== false) {
@@ -106,8 +126,9 @@ var popup_path = function (path = "", parameters, target) {
         }, fullfill
     };
 };
-
+var upwith = null;
 var popup_view = function (element, target, style) {
+    setUpwith(element, upwith);
     if (isNode(target)) {
         if (target.$mask) {
             popup_with_mask(element, target);
@@ -395,9 +416,19 @@ var popup_fixup = function (element, x, y) {
 var popup_to_event = function (element, { clientX, clientY }) {
     popup_fixup(element, clientX, clientY);
 };
+
+popup.upwith = function (collects) {
+    return function () {
+        upwith = collects;
+        var res = popup.apply(this, arguments);
+        upwith = null;
+        return res;
+    }
+};
 var global = function (element, issingle) {
     once("remove")(element, cleanup);
-    rootElements.push(element);
+    var upwith = element.$upwith || rootElements;
+    if (upwith.indexOf(element) < 0) upwith.push(element);
     if (isMounted(element)) return;
     popup.global &&
         issingle !== false ? popup.global(element, true) : appendChild(document.body, element);

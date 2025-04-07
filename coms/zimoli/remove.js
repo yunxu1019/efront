@@ -1,15 +1,6 @@
-function remove() {
-    var [node, transition] = arguments;
+function remove(node, transition) {
     if (!node) return;
-    if (isNode(node)) {
-        if (transition !== false) {
-            var args = arguments;
-        } else {
-            var args = [node];
-        }
-    } else {
-        var args = node;
-    }
+    var args = getArgsChildren(arguments, 0);
     for (var cx = args.length - 1; cx >= 0; cx--) {
         node = args[cx];
         if (!node) continue;
