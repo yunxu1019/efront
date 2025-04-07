@@ -247,6 +247,9 @@ var setContent = function (value) {
         if (this.field.type === 'html') this.innerHTML = value;
         else this.innerText = value;
     }
+    else {
+        remove(this.childNodes);
+    }
 };
 var Binder = render.Binder, Model = render.Model;
 Object.keys(readonly_types).forEach(k => {
