@@ -385,7 +385,10 @@ function cross_(jsonp, digest = noop, method, url, headers) {
             }
             if (is_gb2312) xhr.overrideMimeType("text/plain; charset=gb2312");
             if (location_href) delete realHeaders.Cookie;
-            Object.keys(realHeaders).forEach(key => setRequestHeader.call(xhr, key, realHeaders[key]));
+            Object.keys(realHeaders).forEach(key => {
+                var value = realHeaders[key];
+                if (isHandled(value)) setRequestHeader.call(xhr, key, value);
+            });
             if (!isEmpty(datas)) send.call(xhr, !isencrypt ? datas : encode62.safeencode(datas, code));
             else send.call(xhr);
             digest();
