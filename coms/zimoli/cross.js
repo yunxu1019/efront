@@ -7,7 +7,7 @@ var location_href = parseURL(location.href);
 location_href = `${location_href.protocol}//${location_href.host}/`;
 cross_.setLocation(location_href);
 
-var cookieItemsInSessionStorageKey = "--zimoli-coms-cross";
+var cookieItemsInSessionStorageKey = "紫茉莉:得特呢勒";
 var cookiesData = sessionStorage.getItem(cookieItemsInSessionStorageKey);
 if (cookiesData) {
     try {

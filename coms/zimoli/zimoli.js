@@ -49,8 +49,8 @@ onhashchange(window, function (event) {
 });
 // body
 var location_pathname = location.pathname;
-var _zimoli_params_key = `_zimoli_parameters:${location_pathname}#`;
-var _zimoli_state_prefix = `_zimoli_page_state:${location_pathname}#`;
+var _zimoli_params_key = `紫茉莉:${location_pathname}#`;
+var _zimoli_state_prefix = `茉莉紫:${location_pathname}#`;
 
 function getReverseStyle(style) {
     if (!isObject(style)) {
@@ -461,7 +461,7 @@ var global = {};
 var history = {};
 var current_history, default_history = current_history = "";
 history[current_history] = createEmptyHistory('/main', false);
-var history_session_object_key = `_zimoli_history_key:${location_pathname}`;
+var history_session_object_key = `紫茉莉:${location_pathname}`;
 try {
     history = JSAM.parse(historyStorage.getItem(history_session_object_key)) || history;
 } catch (e) {
