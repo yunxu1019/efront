@@ -371,17 +371,18 @@ function create(pagepath, args, from, needroles) {
         var pg = pagepath;
         var { with: _with_elements = [], state = {}, onback: _pageback_listener, roles } = pg;
     }
+    var h = history[current_history];
     if (!checkroles(user.roles, roles) || !checkroles(user.roles, needroles)) {
         // 检查权限
         if (!user.isLogin && user.loginPath) {
             var pg = create(user.loginPath);
-            history[current_history].wardable = false;
+            if (h) h.wardable = false;
             return pg;
         }
         return alert(i18n`没有权限！`, 0);
     }
     if (!pg) return;
-    if (history[current_history]) history[current_history].wardable = true;
+    if (h) h.wardable = true;
     var _with_length = _with_elements.length;
     state.onback = function (handler) {
         _pageback_listener = handler;
