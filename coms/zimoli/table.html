@@ -1,4 +1,4 @@
-<thead @mounted="setFixedColumn.call(this.parentNode),setContextMenu(this)">
+<thead @mounted="setFixedColumn.call(this.parentNode),setContextMenu(this),updateStyles()">
     <tr inline-block #adapter thead @append="resizeT(this)">
         <td draggable="false" fixed row-index>
             <mask></mask>${i18n`序号`}
@@ -13,10 +13,10 @@
 </thead>
 <tbody -src="(d,i) in data" :style="tbodyHeight(this,hasFoot,adapter.offsetWidth)">
     <tr inline-block @click="rowClick(d,i,event)" once-mounted="resizeR(this)">
-        <td fixed row-index @append="this.style=adapter.firstChild.getAttribute('style')">
+        <td fixed row-index @append="this.style=thStyles[0]">
             <mask></mask><span -bind="i+1"></span>
         </td>
-        <td fixed:="f.fixed" -repeat="(f,i) in fields" once-append="this.style=adapter.children[i+1].getAttribute('style')">
+        <td fixed:="f.fixed" -repeat="(f,i) in fields" @append="this.style=thStyles[i+1]">
             <mask></mask>
             <model -if="!isEmpty(f.key)" :field=f :data=d readonly></model>
             <template -else>&nbsp;</template>
@@ -30,6 +30,7 @@
         </td>
     </tr>
 </tbody>
+<scrollbar y></scrollbar>
 <tfoot>
     <tr .fade -if="!data||!data.length" style="padding-bottom: 20px;">
         <td style="text-align: center;">
@@ -44,3 +45,4 @@
         </td>
     </tr>
 </tfoot>
+<scrollbar x :target="this.parentNode"></scrollbar>

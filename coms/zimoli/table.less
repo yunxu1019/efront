@@ -263,3 +263,24 @@ tbody,
         overflow: hidden;
     }
 }
+
+tfoot,
+[tfoot] {
+    pointer-events: none;
+    z-index: 1;
+}
+
+scrollbar[y] {
+    height: 100%;
+}
+
+scrollbar[x] {
+    height: 30px;
+
+    >.thumb {
+        border-radius: 0 0 3px 3px;
+        background-color: #29c3;
+    }
+
+    width: 100%;
+}

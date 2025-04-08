@@ -1,19 +1,21 @@
 & {
     position: absolute;
-    width: 6px;
     border-radius: 7px;
-    height: 100px;
-    border-left: 3px solid transparent;
-
+    
     &[x],
     &.x {
         left: 0;
+        height: 12px;
+        width: 100px;
         bottom: 0;
     }
-
+    
     &[y],
     &.y {
+        border-left: 3px solid transparent;
         top: 0;
+        height: 100px;
+        width: 12px;
         right: 0;
     }
 

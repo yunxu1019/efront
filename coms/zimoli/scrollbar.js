@@ -1,18 +1,25 @@
 var scrollbary = function () {
     var reshape = function (scrollHeight, offsetHeight) {
         var target = this.target;
+        var targetHeight = target.offsetHeight;
+        var targetTop = target.offsetTop;
+        var restHeight = scrollHeight - offsetHeight;
+        if (targetHeight === this.targetHeight && targetTop === this.targetTop && restHeight === this.restHeight) return;
         if (target) {
-            css(this, { height: target.offsetHeight });
+            if (targetHeight !== this.targetHeight || targetTop !== this.targetTop)
+                css(this, { height: targetHeight, top: targetTop });
         }
         var scrollbarHeight = this.offsetHeight;
         var ratio = offsetHeight / scrollHeight;
         var thumbHeight = scrollbarHeight * ratio;
-        if (thumbHeight < 14) thumbHeight = 14;
-        if (thumbHeight < 0) thumbHeight = 0;
-        this.restHeight = scrollHeight - offsetHeight;
-        css(this.thumb, {
+        if (thumbHeight < 36) thumbHeight = 36;
+        this.targetHeight = targetHeight;
+        this.targetTop = targetTop;
+        this.restHeight = restHeight;
+        if (thumbHeight !== this.thumb.height) css(this.thumb, {
             height: thumbHeight
         });
+        this.thumb.height = thumbHeight;
         if (thumbHeight >= this.clientHeight) {
             this.style.opacity = 0;
         } else {
@@ -21,19 +28,25 @@ var scrollbary = function () {
         }
     };
     var getTop = function () {
-        var availableHeight = this.offsetHeight - this.thumb.offsetHeight;
+        var availableHeight = this.clientHeight - this.thumb.offsetHeight | 0;
         if (!availableHeight) return 0;
-        return this.thumb.offsetTop / availableHeight * this.restHeight;
+        if (availableHeight < 1) {
+            availableHeight = 0;
+        }
+        var offsetTop = this.thumb.offsetTop;
+        if (offsetTop < 1) offsetTop = 0;
+        if (offsetTop > availableHeight - 1) offsetTop = availableHeight;
+        return offsetTop / availableHeight * this.restHeight;
     };
 
     var scrollTo = function (scrollTop) {
         var thumb = this.thumb;
-        var deltaHeight = this.offsetHeight - thumb.offsetHeight;
+        var deltaHeight = this.clientHeight - thumb.offsetHeight;
         if (deltaHeight > 0) {
             var ratio = scrollTop / this.restHeight;
             var targetTop = +(ratio * deltaHeight).toFixed(4);
-            if (targetTop > deltaHeight) targetTop = deltaHeight;
-            if (targetTop < 0) targetTop = 0;
+            if (targetTop > deltaHeight - 1) targetTop = deltaHeight;
+            if (targetTop < 1) targetTop = 0;
             targetTop += "px";
             if (thumb.style.top !== targetTop) thumb.style.top = targetTop;
         }
@@ -42,6 +55,7 @@ var scrollbary = function () {
     var moving = null;
 
     var mousemove = function (event) {
+        event.moveLocked = true;
         var deltaY = event.clientY - moving.y;
         if (!moving.ing) {
             if (Math.abs(deltaY) < MOVELOCK_DELTA) return;
@@ -65,13 +79,6 @@ var scrollbary = function () {
             css(thumb, { top: targetY });
             dispatch(target, "change");
         }
-        var tt = target.target;
-        if (tt) {
-            var { Height, height } = getTargetHeight(tt);
-            var top = targetY * (Height - height) / (target.clientHeight - thumb.offsetHeight);
-            setTargetTop(tt, top);
-        }
-
     };
 
     var mouseup = function () {
@@ -96,7 +103,7 @@ var scrollbary = function () {
                 var targetTop = scroller.$Top() + delta;
                 var target = scroller.target;
                 scroller.scrollTo(targetTop);
-                if (target) setTargetTop(target, targetTop);
+                if (target) scroller.setTTop(targetTop);
             }
             scrollingTimer = setTimeout(run, nextTickTime);
             delta = (delta + saved_delta) / 2;
@@ -132,46 +139,86 @@ var scrollbary = function () {
     }
 
 
-    var setTargetTop = function (target, top) {
+    var setTargetTop = function (top) {
+        var target = this.target;
         if (target.$Top instanceof Function) target.$Top(top);
         else target.scrollTop = top;
     };
-    var getTargetTop = function (target) {
+    var getTargetTop = function () {
+        var target = this.target;
         if (target.$Top instanceof Function) return target.$Top();
         return target.scrollTop;
     };
-
-    var getTargetHeight = function (target) {
-        var Height = target.scrollHeight, height = target.clientHeight;
-        if (target.Height instanceof Function) Height = target.Height();
-        if (target.height instanceof Function) height = target.height();
-        return { Height, height };
+    var getListTop = function () {
+        var target = this.target;
+        var f = target.getFirstVisibleElement(0);
+        if (!f) return;
+        return f.index;
+    }
+    var isList = function (target) {
+        return isObject(target) && isFunction(target.index) && isFunction(target.go) && isFunction(target.getFirstVisibleElement) && isFunction(target.getLastVisibleElement);
+    }
+    var getListHeight = function () {
+        var target = this.target;
+        var f = target.getFirstVisibleElement(0);
+        var l = target.getLastVisibleElement(0);
+        var height = 1;
+        if (f && l) {
+            height = 1 + l.index - f.index
+        }
+        return [target.src.length, height];
+    }
+    var getTargetHeight = function () {
+        var target = this.target;
+        var Height, height;
+        if (target.$Height instanceof Function) Height = target.$Height();
+        else Height = target.scrollHeight;
+        if (target.$height instanceof Function) height = target.$height();
+        else height = target.clientHeight;
+        return [Height, height];
+    };
+    var setListTop = function (top) {
+        this.target.go(top);
     };
 
     function scrollbar(elem) {
         var onscroll = function () {
-            var top = getTargetTop(this);
-            _scrollbar.scrollTo(top);
-            _scrollbar.autoshow();
+            if (moving) return;
+            var top = _scrollbar.getTTop();
+            if (Number.isFinite(top)) {
+                _scrollbar.scrollTo(top);
+                _scrollbar.autoshow();
+            }
         };
         var onchange = function () {
             var top = _scrollbar.$Top();
-            setTargetTop(this, top);
+            this.setTTop(top);
         };
         function bindTarget(_container, followResize = _container) {
             _container.with = _scrollbar;
             _scrollbar.target = _container;
-            onmounted(_container, _scrollbar.reshape);
+            if (isList(_container) && hasClass(_container, "list-y")) {
+                this.getTTop = getListTop;
+                this.setTTop = setListTop;
+                this.getTHeight = getListHeight;
+            }
+            else {
+                this.getTHeight = getTargetHeight;
+                this.getTTop = getTargetTop;
+                this.setTTop = setTargetTop;
+            }
             on("scroll")(_container, onscroll);
             on("change")(_scrollbar, onchange);
             if (followResize) resizingList.set(followResize, _scrollbar.reshape);
         }
         var _scrollbar = elem || document.createElement("scrollbar");
-        _scrollbar.reshape = lazy(function () {
-            var _container = _scrollbar.target;
-            var { Height, height } = getTargetHeight(_container);
+        _scrollbar.$digest = _scrollbar.reshape = function () {
+            if (!this.target) return;
+            var [Height, height] = this.getTHeight();
+            if (!isHandled(Height) || !isHandled(height)) return;
             reshape.call(_scrollbar, Height, height);
-        });
+        };
+
         _scrollbar.scrollTo = scrollTo;
         var _handler = document.createElement("scrollbar-thumb");
         _handler.className = "thumb";
@@ -201,7 +248,7 @@ var scrollbary = function () {
 var scrollbar_y = scrollbary();
 var scrollbar_x = arriswise(scrollbary, arguments)();
 var isBody = function (elem) {
-    return hasClass(elem, 'body') || elem.hasAttribute('body');
+    return elem ? hasClass(elem, 'body') || elem.hasAttribute('body') || /body$/i.test(elem.tagName) : false;
 }
 function main(elem) {
     var direction, bar, target;
@@ -210,18 +257,19 @@ function main(elem) {
         elem = null;
     }
     else if (isElement(elem)) {
-        direction = elem.tagName;
-        var $struct = elem.$struct;
-        if ($struct) {
-            if ($struct.props?.target);
-            else if (isBody(elem.previousElementSibling)) {
+        if (elem.hasAttribute('y') || hasClass(elem, 'y')) direction = "y";
+        else if (elem.hasAttribute('x') || hasClass(elem, 'x')) direction = "x";
+        else direction = elem.tagName;
+        target = elem.target;
+        if (!target) {
+            if (isBody(elem.previousElementSibling)) {
                 target = elem.previousElementSibling;
             }
             else if (isBody(elem.nextElementSibling)) {
                 target = elem.nextElementSibling;
             }
+            else if (!/^(\w*\-?)?scroll/i.test(direction)) target = elem, elem = null;
         }
-        else if (!/^(\w*\-?)?scroll/i.test(direction)) target = elem, elem = null;
     }
     else {
         elem = null;

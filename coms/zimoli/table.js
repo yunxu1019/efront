@@ -108,10 +108,19 @@ var getTbody = function (table) {
 var isTfoot = function (c) {
     return /^tfoot$/i.test(c.tagName) || c.hasAttribute("tfoot");
 }
-var getTfoot = function (table) {
+var getTExtras = function (table) {
+    var tfoot, xb, yb;
     for (var c of table.children) {
-        if (isTfoot(c)) return c;
+        if (isTfoot(c)) {
+            tfoot = c;
+            continue;
+        }
+        if (hasClass(c, 'scrollbar')) {
+            if (c.hasAttribute('x') || hasClass(c, 'x')) xb = c;
+            else yb = c;
+        }
     }
+    return [tfoot, xb, yb];
 };
 var isTableRow = function (e) {
     return trElementReg.test(e.tagName);
@@ -170,7 +179,7 @@ var resizeTarget = function (event) {
     if (targetW < 20) targetW = 20;
     resizeColumn.call(this, target, targetW);
     resizing.clientX = event.clientX;
-    setFixedColumn.call(this);
+    setFixedColumn.call(this, target);
 };
 var getFirstSingleColCell = function (table, col) {
     var tds = getTdsByCol(table, col, col);
@@ -304,44 +313,55 @@ var setFixed = function (children, scrolled, left, borderRight) {
     }
 
 };
-
-
-var setFixedColumn = function (remark) {
-    var thead = getThead(this);
+var getTheadChildren = function (table) {
+    var thead = getThead(table);
     if (!thead) return;
-    remark = remark === true;
-    if (remark) remark = [], forEachRow(thead, function (tr) {
-        markRowTds(tr, remark);
-    });
     if (!isTableRow(thead)) thead = thead.querySelector('tr');
     if (!thead) return;
-    var children = Array.prototype.slice.call(thead.children);
-    var lastChild = children[children.length - 1];
-    var lastFieldChild = children[children.length - 2];
-    if (children.length <= 2) lastFieldChild = null;
-    if (!lastChild) return;
-    var cindex = children.length - 1;
-    if (lastFieldChild) css(lastChild, { width: 0 }), lastChild = lastFieldChild, cindex = children.length - 2;
-    var deltaW = thead.scrollWidth - lastChild.offsetWidth;
-    if (this.clientWidth > deltaW + lastChild.offsetWidth) {
-        css(lastChild, { width: this.clientWidth - deltaW });
-        css(thead, { width: this.clientWidth });
-        resizeColumn.call(this, lastChild, this.clientWidth - deltaW);
-        remark = true;
-    }
-    if (remark) {
-        var tbody = getTbody(this);
-        forEachRow(tbody, function (tr) {
-            css(tr.children[cindex], lastChild.style);
-        });
-        css(tbody, { width: thead.offsetWidth });
-    }
+    return Array.apply(null, thead.children);
+}
+var fixScroll = function (children) {
+    var scrollOnly = !children;
+    if (scrollOnly) children = getTheadChildren(this);
+    if (!children) return;
     setFixed.call(this, children, this.scrollLeft, 'left', 'borderRight');
     setFixed.call(this, children.reverse(), this.scrollWidth - this.clientWidth - this.scrollLeft, 'right', 'borderLeft');
-    var tfoot = getTfoot(this);
+    var [tfoot, xsb, ysb] = getTExtras(this);
     if (tfoot) {
         css(tfoot, { left: this.scrollLeft });
     }
+    if (xsb) {
+        if (!scrollOnly) xsb.reshape();
+        css(xsb, { left: this.scrollLeft });
+    }
+    if (ysb) {
+        css(ysb, { marginRight: -this.scrollLeft });
+    }
+};
+var setFixedColumn = function (remark) {
+    var children = getTheadChildren(this);
+    if (!children || children.length < 2) return;
+    var cindex = children.length - 1;
+    var lastChild = children[cindex];
+    if (!lastChild) return;
+    if (remark !== false) {
+        var scrollWidth = this.clientWidth + this.scrollLeft;
+        var restWidth = scrollWidth - lastChild.offsetLeft;
+        if (restWidth > 20 || restWidth > lastChild.offsetWidth) {
+            var lastStyle = { width: restWidth }
+            css(lastChild, lastStyle);
+            var thead = getThead(this);
+            css(thead, { width: scrollWidth });
+            resizeColumn.call(this, lastChild, restWidth);
+            var tbody = getTbody(this);
+            forEachRow(tbody, function (tr) {
+                css(tr.children[cindex], lastStyle);
+            });
+            css(tbody, { width: thead.offsetWidth });
+            remark = true;
+        }
+    }
+    fixScroll.call(this, children);
 };
 var setClass = function (tds, cls, old) {
     tds.forEach(td => td[cls] = true);
@@ -421,6 +441,13 @@ function table(elem) {
     var activeCols = [];
     bind('mousemove')(tableElement, adaptTarget);
     var updateSummaryFields = null;
+    var thStyles = [];
+    var updateStyles = function () {
+        thStyles.splice(0, thStyles.length);
+        thStyles.push.apply(thStyles, getTheadChildren(table).map(a => {
+            return a.getAttribute('style');
+        }));
+    }
     moveupon(tableElement, {
         start(event) {
             if (this.resizing) return event.preventDefault();
@@ -440,6 +467,7 @@ function table(elem) {
         move: resizeTarget,
         end() {
             if (swapping) swapping.end(), swapping = null;
+            updateStyles();
         }
     });
     var activeRows = [];
@@ -503,8 +531,17 @@ function table(elem) {
     table.useIncrease = false;
     var _vbox = function () {
         table.$Left = function (x) {
-            if (isFinite(x)) this.scrollLeft = x, setFixedColumn.call(this);
-            return this.scrollLeft;
+            if (isFinite(x)) {
+                var thd = getTbody(this);
+                if (thd.offsetLeft + thd.offsetWidth < x + this.clientWidth) {
+                    x = thd.offsetLeft + thd.offsetWidth - this.clientWidth;
+                }
+                this.scrollLeft = x, fixScroll.call(this);
+            }
+            else {
+                x = this.scrollLeft;
+            }
+            return x;
         };
         vbox(table, 'x');
     };
@@ -542,11 +579,13 @@ function table(elem) {
             fields: fields.filter(f => !f.hidden),
             isEmpty,
             hasFoot: true,
+            thStyles,
             setContextMenu,
             tbody0: null,
             rowClick(d, i, event) {
                 active(table, i, d, event.target);
             },
+            updateStyles,
             tbody() {
                 var e = list.apply(null, arguments);
                 css(e, tbodyHeight(e, this.hasFoot));
@@ -569,6 +608,7 @@ function table(elem) {
             resizeT,
             resizeR,
             model,
+            scrollbar,
             sort(f) {
                 this.data.sort(f);
             },
