@@ -50,7 +50,7 @@ function encodeStructure(array) {
 var { location, navigator, window, document } = this;
 const pagePathName = location ? location.pathname : '';
 const dataSourceMap = {};
-const sourceDataId = 'datasource' + pagePathName;
+const sourceDataId = '波泼摸佛';
 const userPrefix = ';';
 const instanceDataMap = {};
 const cachedLoadingPromise = {};
@@ -1022,7 +1022,6 @@ var data = {
     setSource(sourceid, value) {
         var rememberWithStorage;
         if (isObject(sourceid)) {
-
             this.rebuildInstance(dataSourceMap, sourceid);
             rememberWithStorage = value;
         } else {
@@ -1189,5 +1188,4 @@ data.setItem = data.setInstance;
 data.getItem = data.getInstance;
 data.seekResponse = seekResponse;
 data.removeItem = data.removeInstance;
-extend(dataSourceMap, loadInstance(localStorage, sourceDataId));
-extend(dataSourceMap, loadInstance(sessionStorage, sourceDataId));
+extend(dataSourceMap, getItem(sourceDataId));
