@@ -12,7 +12,7 @@ var getArgsChildren = function (args, from = 1) {
             else ith = null;
         }
     }
-    else if (transition === false) {
+    else if (transition === false || transition === true || !isHandled(obj)) {
         children = [].concat(obj);
     }
     else {
