@@ -11,3 +11,5 @@
 4.0 No longer relying on `typescript` (nearly 170000 lines of source code), the compilation speed has increased by four times, the memory usage has been reduced to 1/8 of the original, and the self compilation time on GitHub has also been reduced to about 15 seconds.
 
 4.1 No longer relying on `less-node` or `pngjs`, while the `less-node` is replaced with [suxin](https://www.npmjs.com/package/suxin) from `efront`.
+
+4.23 The `zimoli` library has adjusted the component rendering method to provide a relatively clean DOM for developers. When calling methods such as `on` and `render`, associated data is no longer attached to DOM elements (except for browsers without WeakMap). Code that uses corresponding underlying features needs to be modified.
