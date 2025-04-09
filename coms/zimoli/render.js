@@ -1,6 +1,7 @@
 var hasOwnProperty = {}.hasOwnProperty;
 var renderElements = Object.create(null);
 var presets = Object.create(null);
+var renderIds = new WeakMap;
 var copyAttribute = function (node, copys) {
     for (var { name, value } of copys) switch (name.toLowerCase()) {
         case "class":
@@ -24,8 +25,9 @@ var createTemplateNodes = function (text) {
     if (isEmpty(text)) return;
     if (isNode(text)) {
         var node = text;
-        if (isElement(node) && this.$struct.copys) {
-            copyAttribute(node, this.$struct.copys);
+        var struct = $structed.get(this);
+        if (isElement(node) && struct.copys) {
+            copyAttribute(node, struct.copys);
         }
         this.with = [node];
         return;
@@ -35,14 +37,27 @@ var createTemplateNodes = function (text) {
         this.with = Array.apply(null, node.childNodes);
     }
     appendChild.after(this, this.with);
-    this.with = render(this.with, this.$scope, this.$parentScopes, this.$renderid !== 9);
+    this.with = render(this.with, $scoped.get(this), $parented.get(this), renderIds.get(this) !== 9);
 };
+var createCloner = function (node) {
+    var $struct = $structed.get(node);
+    var parentScopes = getScopeList(node);
+    return function (id, scope) {
+        var clone = node.cloneNode(true);
+        $scoped.set(clone, scope);
+        $parented.set(clone, parentScopes);
+        $structed.set(clone, $struct);
+        renderIds.set(clone, id);
+        return clone;
+    }
+};
+
 presets.template = function (t) {
     var comment = document.createComment('template');
-    comment.$scope = t.$scope;
-    comment.$parentScopes = t.$parentScopes;
+    $scoped.set(comment, $scoped.get(t));
+    $parented.set(comment, $parented.get(t));
     t.$comment = comment;
-    if (t.$struct.binds.src) {
+    if ($structed.get(t).binds.src) {
         care(comment, createTemplateNodes)
     }
     else {
@@ -61,18 +76,19 @@ var addRenderElement = function () {
     var element = this;
     if (!isNode(element)) return;
     buildFirst(element);
-    if (element.$renderid > 10) {
-        renderElements[element.$renderid] = element;
+    var renderid = renderIds.get(element);
+    if (renderid > 10) {
+        renderElements[renderid] = element;
     }
 };
 var removeRenderElement = function () {
     var element = this;
-    delete renderElements[element.$renderid];
+    delete renderElements[renderIds.get(element)];
 };
 function refresh(root) {
     var rest = [];
     var body = document.documentElement;
-    if (root && root.$renders) {
+    if (root && $renders.has(root)) {
         for (var k in renderElements) {
             var element = renderElements[k];
             if (
@@ -121,11 +137,11 @@ function rebuild(element, isFirstRender) {
     if (isFirstRender) delete element.$ready;
     if (element.$digest) digests.push(element);
     if (!element.$needchanges) {
-        element.$renders.forEach(a => a.call(element));
+        $renders.get(element).forEach(a => a.call(element));
         return;
     }
     var props = getWatchData(isFirstRender ? { $watches: element.$watches } : element);
-    element.$renders.forEach(a => a.call(element));
+    $renders.get(element).forEach(a => a.call(element));
     var capture = null;
     for (var k in props) {
         var current = element[k];
@@ -139,8 +155,12 @@ function rebuild(element, isFirstRender) {
 var variableReg = /([^\:\,\+\=\-\!%\^\|\/\&\*\!\;\?\>\<~\{\}\s\[\]\(\)]|\?\s*\.(?=[^\d])|\s*\.\s*)+/g;
 var variableOnlyReg = new RegExp(`^${variableReg.source}$`);
 var getScopeList = function (element) {
-    var scopes = (element.$parentScopes || []).concat();
-    if (element.$scope) scopes.push(element.$scope);
+    var scopes = $parented.get(element);
+    var s = $scoped.get(element);
+    if (s) {
+        if (scopes) scopes = scopes.slice(), scopes.push(s);
+        else scopes = [s];
+    }
     return scopes;
 };
 var toNull = () => null;
@@ -179,10 +199,10 @@ var createGetter = function (target, search, isprop = true) {
 };
 var createComment = function (renders, type, expression) {
     var comment = document.createComment(`${type} ${expression}`);
-    comment.$renders = renders;
-    comment.$scope = this.$scope;
-    comment.$struct = this.$struct;
-    comment.$parentScopes = this.$parentScopes;
+    $renders.set(comment, renders);
+    $scoped.set(comment, $scoped.get(this));
+    $structed.set(comment, $structed.get(this));
+    $parented.set(comment, $parented.get(this));
     if (this.parentNode) {
         appendChild.after(this, comment);
         if (!/^if|^else/i.test(type)) remove(this);
@@ -193,8 +213,8 @@ var createComment = function (renders, type, expression) {
 };
 
 var initialComment = function (comment) {
-    if (comment.$struct.once) {
-        comment.$renderid = 9;
+    if ($structed.get(comment).once) {
+        renderIds.set(comment, 9);
     }
     renderlock.push(comment);
 };
@@ -261,7 +281,7 @@ var getClonedElements = function (clones, repsrc) {
     var newmap = [];
     var inc = 0;
     clones.forEach((c, i) => {
-        var m = c.$scope.$item;
+        var m = $scoped.get(c).$item;
         switch (m) {
             case repsrc[inc]: delete clones[i]; newmap[inc++] = c; break;
             case repsrc[inc + 1]: delete clones[i]; inc++; newmap[inc++] = c; break;
@@ -269,6 +289,7 @@ var getClonedElements = function (clones, repsrc) {
     });
     return newmap;
 }
+var repeats = new WeakMap;
 var createRepeat = function (search, id = 0) {
     // 懒渲染
     // throw new Error("repeat is not supported! use list component instead");
@@ -279,7 +300,7 @@ var createRepeat = function (search, id = 0) {
     // 懒渲染
     var getter = createGetter(this, srcName);
     var element = this, clonedElements = [], savedValue, savedOrigin;
-    if (this.$struct.if) id = -7;
+    if ($structed.get(this).if) id = -7;
     var renders = [function () {
         var result = getter(this);
         var origin = result;
@@ -294,11 +315,7 @@ var createRepeat = function (search, id = 0) {
         if (keys.length > 600) {
             throw new Error(i18n`数据量过大，取消绘制！`);
         }
-        var $parentScopes = element.$parentScopes || [];
-        var $struct = element.$struct;
-        if (element.$scope) {
-            $parentScopes = $parentScopes.slice(), $parentScopes.push(element.$scope);
-        }
+        var cloner = createCloner(element);
         var clonedElements1 = isArrayResult ? [] : Object.create(null);
         if (isArrayResult && !trackBy && clonedElements instanceof Array) {
             clonedElements1 = getClonedElements(clonedElements, result);
@@ -309,7 +326,7 @@ var createRepeat = function (search, id = 0) {
             if (trackBy) {
                 k = seek($scope, trackBy);
                 if (clonedElements[k]) {
-                    Object.assign(clonedElements[k].$repeat, $scope)
+                    Object.assign(repeats.get(clonedElements[k]), $scope)
                     return clonedElements1[k] = clonedElements[k];
                 }
             }
@@ -317,7 +334,7 @@ var createRepeat = function (search, id = 0) {
                 if (isArrayResult) {
                     var c = clonedElements1[k];
                     if (c) {
-                        Object.assign(c.$repeat, $scope);
+                        Object.assign(repeats.get(c), $scope);
                         return c;
                     }
                 }
@@ -326,16 +343,14 @@ var createRepeat = function (search, id = 0) {
                     if (!c) c = clonedElements[k];
                     else c = null;
                     if (c) {
-                        Object.assign(c.$repeat, $scope);
+                        Object.assign(repeats.get(c), $scope);
                         return clonedElements1[k] = c;
                     }
                 }
             }
-            var clone = element.cloneNode(true);
-            clone.$renderid = id;
-            clone.$repeat = clone.$scope = $scope;
-            clone.$parentScopes = $parentScopes;
-            clone.$struct = $struct;
+
+            var clone = cloner(id, $scope);
+            repeats.set(clone, $scope);
             clonedElements1[k] = clone;
             return clone;
         }, this);
@@ -381,8 +396,8 @@ var ifset = function (shouldMount) {
         if (cx === shouldMount) {
             var e = c.$template;
             if (c.nextSibling !== e) appendChild.after(c, e);
-            if (e.$renderid < 0) {
-                e.$renderid = this.$id;
+            if (renderIds.get(e) < 0) {
+                renderIds.set(e, this.$id);
                 e = c.$template = render(e);
                 e.$comment = c;
             }
@@ -399,7 +414,7 @@ var createIf = function (search, id = 0) {
     var elements = [element, getter];
     if_top.push(elements);
     elements.parent = this.parentNode;
-    if (this.$struct.repeat) id = -3;
+    if ($structed.get(this).repeat) id = -3;
     var comment = elements[0] = createComment.call(element, [new Binder2(ifget, ifset)], 'if', search);
     comment.$id = id;
     comment.$elements = elements;
@@ -470,16 +485,14 @@ var parseIfWithRepeat = function (ifExpression, repeatExpression) {
     };
 };
 
-var mountElementIds = function (element, ids) {
-    var scope = element.$scope;
-    if (!scope) return;
+var mountElementIds = function (scope, element, ids) {
     for (var id of ids) {
         if (isHandled(scope[id]) && scope[id] !== element) throw new Error(i18n`同一个id不能使用两次:` + id);
         scope[id] = element;
     }
 }
 var renderStructure = function (element) {
-    var $struct = element.$struct;
+    var $struct = $structed.get(element);
     if ($struct.if) var { name: ifkey, key, value: ifexp } = $struct.if;
     if ($struct.repeat) var { value: repeat } = $struct.repeat;
     if (!ifkey) return createRepeat.call(element, repeat);
@@ -531,7 +544,8 @@ var createMapper = function (write, mapper) {
     return function (search) {
         var getter = isArray(search) ? search.map(s => createGetter(this, s)) : createGetter(this, search);
         var oldValue = mapper();
-        this.$renders.push(function () {
+        var renders = $renders.get(this);
+        renders.push(function () {
             var value = mapper(isArray(getter) ? getter.map(g => g(this)) : getter(this));
             var changes = getChanges(value, oldValue);
             if (!changes) return;
@@ -579,7 +593,7 @@ var createBinder2 = function (write, read) {
     return function (search) {
         var getter = createGetter(this, search);
         var oldValue = isFunction(read) ? read.call(this) : undefined;
-        this.$renders.push(new Binder2(getter, write, oldValue));
+        $renders.get(this).push(new Binder2(getter, write, oldValue));
     };
 }
 
@@ -590,7 +604,7 @@ var src2 = function (search) {
     // 非直传数组的数据源变动后，不再检查其所有属性是否相同，直接同步到组件，
     // 直传数组的数据源以数组中的子项是否变动为准，
     // 直传数组的判别标准为表达式以“[”开头以“]”结尾，且表达式中间不含“]”
-    this.$renders.push(function () {
+    $renders.get(this).push(function () {
         var origin = getter(this);
         if (isArray(origin)) {
             if (isArray(savedValue)) {
@@ -669,7 +683,7 @@ class Model {
     }
     hook(elem, emit) {
         var binder = new Binder2(this.gs, this.target !== elem ? this.sv.bind(this.target) : this.sv);
-        elem.$renders.push(binder);
+        $renders.get(elem).push(binder);
         binder.call(elem);
         this.bd = binder;
         if (emit !== false) {
@@ -754,7 +768,7 @@ var binders = {
                 this[attr] = this[attr.replace(/\-[a-z]/g, a => a.toUpperCase())] = value;
             }
         };
-        this.$renders.push(hook);
+        $renders.get(this).push(hook);
         return hook;
     },
     ""(attr, search) {
@@ -774,7 +788,7 @@ var binders = {
                 }
             } else if (this.getAttribute(attr) !== value) this.setAttribute(attr, value);
         }
-        this.$renders.push(hook);
+        $renders.get(this).push(hook);
         return hook;
     }
 };
@@ -791,23 +805,28 @@ class Emitter {
         if (parsedSrc instanceof Repeater) {
             if (e.active || e.currentTarget) var target = e.active || (e.currentTarget === elem ? e.target || e.srcElem || e.currentTarget : e.currentTarget);
             else var target = e.target;
+            var es = $scoped.get(elem);
             if (target === elem) {
                 scope = parsedSrc.createScope();
             }
             else {
-                let scopes = target && target.$parentScopes;
+                let scopes = target && $parented.get(target);
                 if (scopes) {
                     var scope = null;
                     for (var cx = scopes.length - 1; cx >= 0; cx--) {
                         var s = scopes[cx];
-                        if (s === elem.$scope) {
+                        if (s === es) {
                             scope = scopes[cx + 1];
                             break;
                         }
                     }
                 }
             }
-            if (!scope && target.$scope !== elem.$scope) scope = target.$scope;
+
+            if (!scope) {
+                var ts = $scoped.get(target);
+                if (es !== ts) scope = ts;
+            }
         }
         var res;
         if (scope) {
@@ -883,14 +902,24 @@ function renderBinds(element, binds) {
         h.call(element);
     }
 }
-function renderDynamics(element, replacer, binds, attrs) {
-    var renders = element.$renders;
+var getUserRenders = function (element) {
+    var renders = $renders.get(element);
     if (element.renders) {
         if (!renders) renders = [];
         renders.push.apply(renders, element.renders);
         delete element.renders;
     }
-    element.$renders = [];
+    if (element.$renders) {
+        if (!renders) renders = [];
+        renders.push.apply(renders, element.$renders);
+        delete element.$renders;
+    }
+    return renders;
+}
+function renderDynamics(element, replacer, binds, attrs) {
+    var renders = getUserRenders(element);
+    var element_renders = [];
+    $renders.set(element, element_renders);
     var bindWatch = !!element.$needchanges;
     for (var k in binds) {
         if (k in directives) {
@@ -908,7 +937,7 @@ function renderDynamics(element, replacer, binds, attrs) {
     for (var k in attrs) {
         binders[""].call(element, k, attrs[k]);
     }
-    if (renders && renders.length) element.$renders.push.apply(element.$renders, renders);
+    if (renders && renders.length) element_renders.push.apply(element_renders, renders);
     if (binds.src) directives.src.call(element, binds.src);
 }
 
@@ -939,53 +968,52 @@ function renderArray(children, scope, parentScopes, once) {
 function getChildren(element) {
     var children = element.children;
     if (!children || !children.length) return;
-    var children = Array.prototype.filter.call(children, a => !a.$renderid);
+    var children = Array.prototype.filter.call(children, a => !renderIds.get(a));
     return children
 }
-function renderElement(element, scope = element.$scope, parentScopes = element.$parentScopes, once) {
+function renderElement(element, scope = $scoped.get(element), parentScopes = $parented.get(element), once) {
     if (isArrayLike(element)) {
         return renderArray(Array.apply(null, element), scope, parentScopes, once);
     }
     if (!isElement(element)) {
         return element;
     }
-    if (!isNumber(element.$renderid)) {
-        element.$renderid = 0;
-        element.$scope = scope;
+    if (!renderIds.get(element)) {
+        renderIds.set(element, 0);
         if (isHandled(parentScopes) && !isArray(parentScopes)) {
             throw new Error(i18n`父级作用域链应以数组的类型传入`);
         }
         if (parentScopes) {
-            if (element.$renderid && !element.$parentScopes || element.$parentScopes && element.$parentScopes.length !== parentScopes.length) {
+            var eps = $parented.get(element);
+            if (eps && eps.length !== parentScopes.length) {
                 throw new Error(i18n`父作用域链的长度必须相等着`);
             }
         }
         var s = createStructure(element);
-        element.$struct = s;
-        mountElementIds(element, s.ids);
         if (isEmpty(s.once)) s.once = once;
-        element.$eval = $eval;
     }
-    element.$scope = scope;
-    element.$parentScopes = parentScopes || [];
-    if (element.$renderid <= -1) element = renderStructure(element);
+    $scoped.set(element, scope);
+    $parented.set(element, parentScopes || []);
+    if (renderIds.get(element) <= -1) element = renderStructure(element);
     if (!element) return;
-    if (element.$renderid < 0 || element.nodeType !== 1) {
+    if (renderIds.get(element) < 0 || element.nodeType !== 1) {
         return element;
     }
-    var isFirstRender = !element.$renderid;
+    var $struct = $structed.get(element);
+    mountElementIds(scope, element, $struct.ids);
+    var isFirstRender = !renderIds.get(element);
     if (isFirstRender) {
         var lockid = renderlock.length;
         renderlock[lockid] = null;
-        element.$renderid = 1;
+        renderIds.set(element, 1);
         var parentNode = element.parentNode;
         if (parentNode) {
-            if (parentNode.$renderid > 1 || isMounted(parentNode)) element.$renderid = 2;
+            if (renderIds.get(parentNode) > 1 || isMounted(parentNode)) renderIds.set(element, 2);
         }
-        var $struct = element.$struct;
-        element.$renders = element.$renders || element.renders ? [].concat(element.$renders || [], element.renders || []) : [];
+        var renders = getUserRenders(element) || [];
+        $renders.set(element, renders);
         var { copys, binds, once, props } = $struct;
-        if (once) element.$renderid = 9;
+        if (once) renderIds.set(element, 9);
         if (binds.src) {
             element.$src = parseRepeat(binds.src);
         }
@@ -999,38 +1027,38 @@ function renderElement(element, scope = element.$scope, parentScopes = element.$
             if (element === replacer) {
                 var struct1 = createStructure(element, false);
                 renderRest(element, struct1);
-                element.$scope = scope;
+                $scoped.set(element, scope);
             }
             else if (isNode(replacer)) {
-                if (isElement(replacer) && !replacer.$renderid) {
-                    if (!replacer.$scope) replacer.$scope = scope;
-                    if (!replacer.$parentScopes) replacer.$parentScopes = parentScopes;
-                    createStructure(replacer);
-                    renderRest(replacer, replacer.$struct);
+                if (isElement(replacer) && !renderIds.get(replacer)) {
+                    if (!$scoped.has(replacer)) $scoped.set(replacer, scope);
+                    if (!$parented.has(replacer)) $parented.set(replacer, parentScopes);
+                    var struct = createStructure(replacer);
+                    renderRest(replacer, struct);
                 }
                 copyAttribute(replacer, copys);
                 if (nextSibling) appendChild.before(nextSibling, replacer);
                 else if (parentNode) appendChild(parentNode, replacer);
                 if (element.parentNode === parentNode) remove(element);
-                if (!replacer.$renderid) replacer.$renderid = element.$renderid;
-                for (var id of element.$struct.ids) {
+                if (!renderIds.get(replacer)) renderIds.set(replacer, renderIds.get(element));
+                for (var id of $struct.ids) {
                     scope[id] = replacer;
                 }
             }
         }
         renderRest(element, $struct, replacer);
         if (isNode(replacer) && replacer !== element) {
-            if (!replacer.$renders) replacer.$renders = [];
-            replacer.$renders.push.apply(replacer.$renders, element.$renders);
+            var reprenders = initRenders(replacer);
+            reprenders.push.apply(reprenders, $renders.get(element));
             element = replacer;
         }
-        if (element.$digest || element.$renders.length) {
+        if (element.$digest || $renders.get(element).length) {
             element.$ready = true;
             renderlock[lockid] = element;
         }
         else if (renderlock.length === lockid) renderlock.pop();
     }
-    renderArray(getChildren(element), element.$scope || scope, element.$parentScopes || parentScopes, once);
+    renderArray(getChildren(element), $scoped.get(element) || scope, $parented.get(element) || parentScopes, once);
     return element;
 }
 var deepcontexts = [];
@@ -1058,7 +1086,7 @@ function $$eval(search, scopes, target = this, event) {
 
 function $eval(search, scope, event) {
     var scopes = getScopeList(this);
-    if (isHandled(scope) && scope !== this.$scope) scopes.push(scope);
+    if (isHandled(scope) && scope !== $scoped.get(this)) scopes.push(scope);
     return $$eval.call(this, search, scopes, this, event);
 }
 
@@ -1124,7 +1152,10 @@ var pushid = function (ids, name) {
 
 function createStructure(element, useExists) {
     if (isArrayLike(element)) return Array.prototype.map.call(element, createStructure);
-    if (useExists !== false && element.$struct) return element.$struct;
+    if (useExists !== false) {
+        var s = $structed.get(element);
+        if (s) return s;
+    }
     if (element.nodeType !== 1) return;
     // 处理结构流
     var attributes = element.attributes;
@@ -1169,7 +1200,7 @@ function createStructure(element, useExists) {
         }
         var key = name.replace(/^(ng|v|.*?)\-/i, "").toLowerCase();
         if (structures.hasOwnProperty(key)) {
-            if (element.$renderid <= -2) {
+            if (renderIds.get(element) <= -2) {
                 if (/^if$|^else/i.test(key)) {
                     if (types.if) {
                         throw new Error(i18n`暂不支持在同一元素上使用多次if结构!`);
@@ -1186,8 +1217,8 @@ function createStructure(element, useExists) {
             else {
                 types.repeat = attr;
             }
-            if (!element.$renderid) element.$renderid = -1;
-            else element.$renderid = -2;
+            if (!renderIds.get(element)) renderIds.set(element, -1);
+            else renderIds.set(element, -2);
             element.removeAttribute(name);
             continue;
         }
@@ -1279,14 +1310,15 @@ function createStructure(element, useExists) {
     }
     if (props["zimoli"] || props["fresh"] || props["once"]) once = true;
     else if (props["refresh"] || props["digest"] || props["mount"]) once = false;
-    element.$eval = $eval;
-    return element.$struct = new Struct(emits, waits, types, copys, binds, attr1, props, ids, once);
+    var s = new Struct(emits, waits, types, copys, binds, attr1, props, ids, once);
+    $structed.set(element, s);
+    return s;
 }
 function unlock(element) {
     if (!element) return;
-    var { $renderid = 0 } = element;
-    if ($renderid !== 9) {
-        if ($renderid < 10) element.$renderid = ++renderidOffset;
+    var rid = renderIds.get(element) || 0;
+    if (rid !== 9) {
+        if (rid < 10) renderIds.set(element, ++renderidOffset);
         on("append")(element, addRenderElement);
         onremove(element, removeRenderElement);
         if (element.nodeType === 8);
@@ -1307,13 +1339,16 @@ function renderUnlock(element) {
 function renderLock(element) {
     if (!renderlock) {
         renderlock = [];
-        element.$mounted = false;
+        $mounted.set(element, false);
         return true;
     }
     return false;
 }
 var eagermount = false, renderlock = null;
 function render(element, scope, parentScopes, lazy = true) {
+    // <!--
+    if (isNode(element)) Object.defineProperties(element, $weaks);
+    // -->
     var haslock = renderLock(element);
     var if_top_length = if_top.length;
     if (isFinite(scope) && arguments.length === 2) lazy = scope, scope = undefined;
@@ -1326,6 +1361,34 @@ function render(element, scope, parentScopes, lazy = true) {
     if (haslock) callDigest();
     return e;
 }
+// <!--
+var $weaks = (key, weak, tip = key + '(element)') => {
+    var warn = gs => {
+        if (tip) {
+            console.warn(i18n`${`%c ${key} %c`}仅在开发环境存在，供开发者调试查看，${`%c${i18n`项目发布后将没有这个属性！`}%c`}`, 'color:red', 'color', 'color:cyan', 'color:');
+            console.info(`要在代码中访问 ${"element." + key}，可以用 ${tip + "." + gs + "(element)"} 代替！`);
+            tip = null;
+        }
+    };
+    return {
+        configurable: true,
+        enumerable: false,
+        get() {
+            warn("get");
+            return weak.get(this);
+        },
+        set(v) {
+            warn("set");
+            return weak.set(this, v);
+        }
+    };
+};
+$weaks = {
+    $scope: $weaks('$scope', $scoped, "$scoped"),
+    $struct: $weaks('$struct', $structed, "$structed"),
+    $parentScopes: $weaks('$parentScopes', $parented, "$parented"),
+};
+// -->
 var digest = lazy(refresh, -{});
 render.digest = render.apply = render.refresh = digest;
 render.parseRepeat = parseRepeat;
@@ -1354,7 +1417,22 @@ render.register = function (key, name) {
     }
 };
 render.getFromScopes = getFromScopes;
+render.findKey = function (express, element) {
+    var scopes = getScopeList(element);
+    return getFromScopes(express, null, scopes);
+};
+var $renderid = {
+    get() {
+        return renderIds.get(this);
+    },
+    set(v) {
+        return renderIds.set(this, v);
+    },
+    configurable: true,
+    enumerable: false
+};
 render.struct = createStructure;
+render.stepId = renderIds;
 render.mergeStruct = mergeStruct;
 render.Binder = Binder;
 render.Model = Model;
@@ -1366,7 +1444,12 @@ render.dynamic = function (target, binds, attrs) {
     renderDynamics(target, target, binds, attrs);
 };
 var initRenders = function (target) {
-    if (!target.$renders) target.$renders = [];
+    var renders = $renders.get(target);
+    if (!renders) {
+        renders = [];
+        $renders.set(target, renders);
+    }
+    return renders;
 };
 render.class = function (target, map) {
     initRenders(target);
@@ -1382,4 +1465,15 @@ render.on = function (target, map) {
 render.once = function (target, map) {
     return renderEmits.call(this, target, map, emiters.once);
 };
+render.eval = $eval;
 render.mount = unlock;
+render.getScopes = getScopeList;
+render.createCloner = createCloner;
+render.clone = function (template, id = renderIds.get(template)) {
+    var clone = template.cloneNode(true);
+    $structed.set(clone, $structed.get(template));
+    renderIds.set(clone, id);
+    $scoped.set(clone, $scoped.get(template));
+    $parented.set(clone, $parented.get(template));
+    return clone;
+}

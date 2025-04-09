@@ -197,6 +197,7 @@ function main() {
                         while (i < s.length) {
                             src0.push.apply(src0, s.slice(i, i += 1000));
                         }
+                        elem.src = src0;
                     });
                     menuList(elem, src0, emit, direction);
                 }

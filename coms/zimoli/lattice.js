@@ -29,9 +29,7 @@ function lattice(element, minWidth, _maxWidth, layers) {
         _box.group = boxCount;
         if (savedCount === boxCount) return;
         _box.clean();
-        [].forEach.call(_box.children, function (c) {
-            build(c);
-        });
+        [].forEach.call(_box.children, build);
         return true;
     };
     if (layers) {
@@ -105,7 +103,7 @@ function main() {
             initMinWidth(arg);
         }
     });
-    if (element && element.$scope) {
+    if (element && element.$src) {
         layers = null;
     }
     return lattice(element, minWidth || 240, maxWidth, layers);

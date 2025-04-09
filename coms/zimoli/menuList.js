@@ -133,9 +133,7 @@ function main() {
         if (!item.length) return;
         var menu = item.menu;
         if (!menu) {
-            var clone = template.cloneNode();
-            clone.$parentScopes = page.$parentScopes;
-            clone.$scope = page.$scope;
+            var clone =render.clone(template);
             clone.$src = src;
             clone.innerHTML = template.innerHTML;
             menu = item.menu = main(clone, item.children, active);
@@ -165,6 +163,7 @@ function main() {
         template.innerHTML = page.innerHTML;
         page.$template = template;
     }
+    var cloner = render.createCloner(template);
     var enterMenuEnabled = 0;
     onmousemove(page, function () {
         enterMenuEnabled = +new Date;
@@ -258,7 +257,7 @@ function main() {
     };
     var $scope = {
         "menu-item"(e, s) {
-            if (e && s === e.$scope) s = itemName ? s[itemName] : s.$item.value;
+            if (e && s === $scoped.get(e)) s = itemName ? s[itemName] : s.$item.value;
             var a = button(
                 menuItem(e, s, this.hasIcon)
             );
@@ -284,6 +283,7 @@ function main() {
     ItemTemplate.setAttribute("e-class", className);
     if (src.itemName) ItemTemplate.setAttribute("e-if", notHidden);
     ItemTemplate.innerHTML = menuItem.template;
+    page.src = items;
     var generator = getGenerator(page, ItemTemplate, (item) => {
         if (item.constructor !== Item) item = new Item(item);
         if (istoolbar) {
@@ -294,15 +294,15 @@ function main() {
         }
         return item;
     });
-    page.$generatorScopes.push($scope);
-    page.src = items;
+    var generatorScopes = generator.scopes;
+    generatorScopes.push($scope);
     list(page, generator, direction);
     if (!page.$renders) page.$renders = [];
     page.$renders.unshift(function () {
-        this.$scope.hasIcon = hasIcon();
+        $scope.hasIcon = hasIcon();
     });
     var getMenu = function (a) {
-        return a.$scope.$item;
+        return $scoped.get(a).$item;
     }
     page.open = function (a) {
         var amenu = getMenu(a);

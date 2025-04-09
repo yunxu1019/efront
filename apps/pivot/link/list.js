@@ -2,7 +2,7 @@ var autoreload = true;
 function main() {
     var page = div();
     page.innerHTML = template;
-    renderWithDefaults(page, {
+    var scope = {
         load: lazy(async function () {
             this.clusters = data.lazyInstance("cluster");
             await this.clusters;
@@ -32,16 +32,17 @@ function main() {
             if (c) this.clients = [];
             this.clients = await data.asyncInstance("clients", { id: clusters[index] });
         },
-    });
+    };
+    renderWithDefaults(page, scope);
     var loadid = 0;
     on("append")(page, function () {
         if (autoreload) loadid = setInterval(function () {
-            page.$scope.load();
+            scope.load();
         }, 30);
     });
     on('remove')(page, function () {
         clearInterval(loadid);
     });
-    page.$scope.load();
+    scope.load();
     return page;
 }

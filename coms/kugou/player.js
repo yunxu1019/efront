@@ -87,7 +87,7 @@ var oncanplay = on("canplay"), ondataloaded = on("loadeddata");
 on("keydown")(window, function (event) {
     var { target } = event;
     if (/^(input|select|textarea)$/i.test(target.tagName)) return;
-    var $scope = player.$scope;
+    var $scope = $scoped.get(player);
     if (!$scope.audio && !kugou$musicList.getActived()) return;
     switch (event.keyCode || event.which) {
         case 32:
@@ -418,7 +418,7 @@ var createControls = function () {
     moveupon(player, {
         end() {
             var currentHeight = calcPixel(this.offsetHeight), windowHeight = calcPixel(window.innerHeight);
-            var $scope = this.$scope;
+            var $scope = $scoped.get(this);
             var { deltaTop } = this;
             removeClass(this, "dragging");
             if (deltaTop) {

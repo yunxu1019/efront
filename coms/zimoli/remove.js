@@ -33,14 +33,14 @@ function hasLeaveStyle(o) {
 }
 
 function _onremove(node, event) {
-    if (!node || node.$mounted === false) return;
+    if (!node || $mounted.get(node) === false) return;
     var children = node.childNodes;
-    if (node.$mounted) {
+    if ($mounted.get(node)) {
         if (!event) {
             event = createEvent("remove");
         }
         dispatch(node, event);
-        node.$mounted = false;
+        $mounted.set(node, false);
     }
     if (children) for (var cx = 0, dx = children.length; cx < dx; cx++) {
         _onremove(children[cx], event);

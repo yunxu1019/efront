@@ -1,13 +1,17 @@
+
 function createItemTarget(item, target) {
     var $scope = {};
     var { itemName, indexName, keyName } = this.$src;
     if (itemName) $scope[itemName] = item;
     else $scope.$item = item;
-    if (target && target.$scope) {
-        if (indexName) $scope[indexName] = target.$scope[indexName];
-        if (keyName) $scope[keyName] = target.$scope[keyName];
-        $scope.$index = target.$scope.$index;
-        $scope.$key = target.$scope.$key;
+    var element = document.createComment('active');
+    var tscope = target && $scoped.get(target);
+    if (tscope) {
+        if (indexName) $scope[indexName] = tscope[indexName];
+        if (keyName) $scope[keyName] = tscope[keyName];
+        $scope.$index = tscope.$index;
+        $scope.$key = tscope.$key;
     }
-    return { $scope };
+    $scoped.set(element, $scope);
+    return element;
 }

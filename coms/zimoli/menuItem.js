@@ -2,10 +2,11 @@ var preventDefault = function (e) { e.preventDefault() };
 function main(elem, scope, hasIcon) {
     var item = elem || document.createElement('menu-item');
     item.innerHTML = menuItem;
-    if (isObject(scope) && scope !== item.$scope) {
+    var ms = $scoped.get(item);
+    if (isObject(scope) && scope !== ms) {
     }
-    else if (item.$scope) {
-        var scope = item.$scope;
+    else if (ms) {
+        var scope = ms;
     }
     var menu = scope;
     if (menu.menu || menu.$item) menu = menu.menu || menu.$item;

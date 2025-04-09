@@ -53,13 +53,13 @@ var reshape = function () {
 };
 var checkValue = function () {
     if (!(this.src instanceof Array)) return;
-    var { field, data } = this.$scope;
+    var scope = $scoped.get(this);
+    var { field, data } = scope;
     if (!field || !data) return;
     var v = data[field.key];
     if (!this.checked) if (v === this.oldValue || isEmpty(this.oldValue) && isEmpty(v)) return;
     this.checked = false;
     this.setAttribute("dirty", '');
-    var scope = this.$scope;
     var error = valid(field, data);
     if (error) {
         this.setAttribute("error", error);
@@ -120,7 +120,7 @@ function main(elem) {
         if (head) addClass(head, "head");
         if (body) addClass(body, "body");
         if (foot) addClass(foot, "foot");
-        elem.$renders.push(reshape);
+        elem.$renders = [reshape];
     }
     return elem;
 }

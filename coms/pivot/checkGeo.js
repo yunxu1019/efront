@@ -20,7 +20,6 @@ return async function (a) {
     var m = /(\d+\.){3}\d+$/.exec(ip);
     ip = m ? m[0] : ip;
     var res = await data.from("ipcn", { ip });
-    console.log(res)
     if (!res.address && !res.data) res = await baidu(ip);
     var msg = '加载错误';
     if (res.message && !res.data && !res.content && !res.address) {

@@ -7,7 +7,7 @@ function clickfile(event) {
             break;
         }
     }
-    this.$eval(`pullFile(m.content[${cx}])`);
+    $eval.call(this, `pullFile(m.content[${cx}])`);
 }
 
 function msg(elem, { m }, parentScopes) {
@@ -50,7 +50,7 @@ var dragpage = {
         moving = null;
         saved_event = null;
         if (getTargetIn(a => /^(msg)$/i.test(a.tagName), event.target)) return;
-        if (!this.$scope.users.length) return;
+        if (!$scoped.get(this).users.length) return;
         saved_event = event;
     },
     move(event) {
@@ -91,11 +91,11 @@ var dragpage = {
         var menuWidth = target.children[1].offsetWidth;
         target.style.paddingLeft = '';
         if (moving.deltaX < 0 && left > menuWidth * .1 || moving.deltaX > 0 && left > menuWidth * .9 || !moving.deltaX && left > menuWidth >> 1) {
-            target.$scope.showList = true;
+            $scoped.get(target).showList = true;
             addClass(target, "showList")
         }
         else {
-            target.$scope.showList = false;
+            $scoped.get(target).showList = false;
             removeClass(target, "showList")
         }
         render.refresh();
@@ -110,20 +110,20 @@ function chat(title = '会话窗口') {
     var users = [];
     var addToMsgList = function (list, msgs) {
         list.push.apply(list, msgs);
-        if (list === page.$scope.msglist) {
+        if (list === ps.msglist) {
             var chat = page.querySelector("chat");
             var lastmsg = chat.getLastVisibleElement();
             if (msgs.length && (!lastmsg || lastmsg.offsetTop + lastmsg.offsetHeight === chat.scrollHeight)) {
                 chat.go(list.length ? list.length - 1 : 0);
             }
-            if (page.$scope.user) page.$scope.user.msgread = list.length;
+            if (ps.user) ps.user.msgread = list.length;
         }
         else {
-            page.$scope.totalunread += msgs.length;
+            ps.totalunread += msgs.length;
         }
     }
     page.push = function (msgs) {
-        var { msglist } = this.$scope;
+        var { msglist } = ps;
         var userMap = null;
         msgs = msgs.filter(m => {
             if (!m) return false;
@@ -138,15 +138,15 @@ function chat(title = '会话窗口') {
             return false;
         }).map(m => JSAM.parse(encode62.packdecode(m))).filter(m => {
             if (m.type === 'accept') {
-                page.$scope.pushFile(m.content);
+                ps.pushFile(m.content);
                 return false;
             }
             return true;
         });
         if (userMap) {
             userManager(users, userMap);
-            if (users.indexOf(page.$scope.user) < 0) page.$scope.user = users[0];
-            if (users.length > 0 && page.$scope.showList === 0) page.$scope.showList = true;
+            if (users.indexOf(ps.user) < 0) ps.user = users[0];
+            if (users.length > 0 && ps.showList === 0) ps.showList = true;
         }
         if (msgs.length) {
             var msgMap = Object.create(null);
@@ -169,19 +169,19 @@ function chat(title = '会话窗口') {
         }
     };
     page.$renders = [function () {
-        this.$scope.resize(this.$scope.body);
+        ps.resize(ps.body);
     }];
     page.localid = localid;
     Object.defineProperty(page, 'userid', {
         get() {
-            var user = this.$scope.user;
+            var user = ps.user;
             if (user) return user.id;
         }
     });
     page.setAttribute('ng-class', "{showList:showList}");
     var fid = 0;
     var filesMap = Object.create(null);
-    renderWithDefaults(page, {
+    var ps = {
         chat: zimoli$list,
         title,
         msglist: [],
@@ -271,14 +271,15 @@ function chat(title = '会话窗口') {
             this.body.lastElementChild.focus();
             this.text = '';
         }
-    });
+    };
+    renderWithDefaults(page, ps);
     var headHeight = 0;
     resizingList.set(page, function () {
         var height = page.firstElementChild.offsetHeight;
         if (height !== headHeight) {
             headHeight = height;
             css(page.firstElementChild, { marginBottom: fromOffset(-headHeight) });
-            css(page.$scope.body.firstElementChild, { paddingTop: fromOffset(headHeight) });
+            css(ps.body.firstElementChild, { paddingTop: fromOffset(headHeight) });
         }
     });
     moveupon(page, dragpage);

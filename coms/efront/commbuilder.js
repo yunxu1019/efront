@@ -847,10 +847,7 @@ async function getXhtPromise(xhtdata, filename, fullpath, watchurls, extraJs, ex
     }
     else xhtrender = `${xhtmain}.apply(elem,arguments)`;
     var createElement = `var elem = arguments[0];
-    if(!isElement(elem)) elem = ${creator}"${tagName || commName}");
-    if(!elem.$constructors)elem.$constructors=[${xhtmain}];
-    else if(elem.$constructors.indexOf(${xhtmain})>=0)return elem;
-    else elem.$constructors.push(${xhtmain});`;
+    if(!isElement(elem)) elem = ${creator}"${tagName || commName}");`;
     var xht = scope ? `
     var ${xhtmain}=${async}function(){
     ${scope}

@@ -6,11 +6,11 @@ var selectRected = on("resize")(rect, function () {
     if (!lattice) return;
     var selected = [];
     if (touchitems) for (var m of touchitems) {
-        var file = m.$scope.d;
+        var file = $scoped.get(m).d;
         file.selected = overlap(m, rect);
         if (file.selected) selected.push(file);
     }
-    lattice.$scope.selected = selected;
+    $scoped.get(lattice).selected = selected;
     render.refresh();
 });
 var dragger = null;
@@ -21,11 +21,13 @@ var touch = {
          */
         var t = this;
         var start = () => {
-            var a = t.$scope.toActive(e);
+            var ts = $scoped.get(t);
+            var a = ts.toActive(e);
+            var as = $scoped.get(a);
             touchitems = t.querySelectorAll("fileitem");
-            if (a && t.$scope.selected.indexOf(a.$scope.d) >= 0) {
+            if (a && ts.selected.indexOf(as.d) >= 0) {
                 dragger = e;
-                if (!drag.target) drag(t.$scope.selected.length === 1 ? a : t.querySelectorAll(".focused"), e);
+                if (!drag.target) drag(ts.selected.length === 1 ? a : t.querySelectorAll(".focused"), e);
                 return;
             }
             var pos = getScreenPosition(t.parentNode);
@@ -52,7 +54,7 @@ var touch = {
         if (dragger) {
             var tiped = null;
             for (var c of touchitems) {
-                var d = c.$scope.d;
+                var d = $scoped.get(c).d;
                 if (d.isfolder && !d.selected && overpos(c, e)) {
                     if (!c.hasAttribute('dropping')) {
                         if (!drag.tip) {
@@ -74,7 +76,7 @@ var touch = {
                             });
                         }
                         css(drag.tip, 'display:block');
-                        drag.tip.innerHTML = `<b style="color:#169;font-weight:400">移动到</b> ${c.$scope.d.name}`;
+                        drag.tip.innerHTML = `<b style="color:#169;font-weight:400">移动到</b> ${d.name}`;
                         c.setAttribute('dropping', '');
                     }
                     tiped = c;
@@ -103,8 +105,9 @@ var touch = {
             var p = this.querySelector("[dropping]");
             if (p) {
                 p.removeAttribute("dropping");
-                var $scope = this.$scope;
-                var base = $scope.pathlist.concat(p.$scope.d.name).join("/");
+                var $scope = $scoped.get(this);
+                var ps = $scoped.get(p);
+                var base = $scope.pathlist.concat(ps.d.name).join("/");
                 for (var s of $scope.selected) {
                     await $scope.mov(s, base + "/" + s.name);
                 }
@@ -115,7 +118,7 @@ var touch = {
     },
 };
 var moveFocus = function (delta) {
-    var { selected, data } = this.$scope;
+    var { selected, data } = $scoped.get(this);
     var index, targetIndex;
     var boxCount = this.group;
     if (delta === 'home') targetIndex = 0;
@@ -127,7 +130,7 @@ var moveFocus = function (delta) {
         else {
             index = data.indexOf(selected[selected.length - 1]);
             var e = this.getLastVisibleElement(0);
-            if (e) targetIndex = data.indexOf(e.$scope.d);
+            if (e) targetIndex = data.indexOf($scoped.get(e).d);
             else targetIndex = data.length - 1;
             targetIndex = (targetIndex / boxCount | 0) * boxCount + index % boxCount;
             if (targetIndex >= data.length) targetIndex = data.length - 1;
@@ -141,13 +144,13 @@ var moveFocus = function (delta) {
             var f = this.getFirstVisibleElement();
             var index = data.indexOf(selected[0]);
             if (!f) targetIndex = 0;
-            else if (f.$scope.d !== selected[0]) {
-                targetIndex = index + ((data.indexOf(f.$scope.d) - index) / boxCount | 0) * boxCount;
+            else if ($scoped.get(f).d !== selected[0]) {
+                targetIndex = index + ((data.indexOf($scoped.get(f).d) - index) / boxCount | 0) * boxCount;
             }
             else {
                 var e = this.getLastVisibleElement(0);
-                var fi = data.indexOf(f.$scope.d);
-                var ei = data.indexOf(e.$scope.d)
+                var fi = data.indexOf($scoped.get(f).d);
+                var ei = data.indexOf($scoped.get(e).d);
                 targetIndex = fi - ((ei - fi) / boxCount | 0) * boxCount;
 
             }
@@ -194,7 +197,7 @@ var moveFocus = function (delta) {
         s.selected = false;
     }
     var d = data[targetIndex];
-    if (d) d.selected = true, this.$scope.selected = [d];
+    if (d) d.selected = true, $scoped.get(this).selected = [d];
     this.setFocus(targetIndex);
     render.refresh();
 };
@@ -207,7 +210,7 @@ var bindkey = function (lattice) {
 async function ondrop(event) {
     event.preventDefault();
     var files = event.dataTransfer.files;
-    this.$scope.uploadAll(files);
+    $scoped.get(this).uploadAll(files);
 }
 function main() {
     var page = document.createElement('explorer');

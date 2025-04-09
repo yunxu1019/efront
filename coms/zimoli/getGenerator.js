@@ -1,13 +1,13 @@
+var renderIds = render.stepId;
 /**
  * @param {Element} template
  */
-var cloneChildNodes = function (template) {
+var cloneChildNodes = function (template, structs, ids) {
     var cloned = template.cloneNode(true);
     var cNodes = cloned.childNodes;
-    var tNodes = template.childNodes;
     for (var cx = 0, dx = cNodes.length; cx < dx; cx++) {
-        cNodes[cx].$struct = tNodes[cx].$struct;
-        cNodes[cx].$renderid = tNodes[cx].$renderid;
+        $structed.set(cNodes[cx], structs[cx]);
+        renderIds.set(cNodes[cx], ids[cx]);
     }
     return cNodes;
 }
@@ -23,12 +23,12 @@ var setitem = function (i, v) {
     if (isFunction(src.set)) return src.set(i);
     else return src[i] = v;
 }
-var createScope = function (container, index, com) {
+var createScope = function (container, index, com, wrap) {
     var parsedSrc = container.$src;
     var wraped = undefined;
     var origin = com;
-    if (container.$wrapItem) {
-        com = container.$wrapItem(com);
+    if (wrap) {
+        com = wrap(com);
     }
     if (com.constructor === Item) {
         wraped = com;
@@ -60,30 +60,31 @@ var createScope = function (container, index, com) {
     newScope.$origin = origin;
     return newScope;
 }
-var update = function (scope, index) {
+var update = function (scope, index, wrap) {
     var item = getitem.call(this, index);
     if (!isHandled(item) || item === scope.$origin) return;
-    var newScope = createScope(this, index, item);
+    var newScope = createScope(this, index, item, wrap);
     extend(scope, newScope);
 }
-
+var generatorScopes = new WeakMap;
+var generators = new WeakMap;
+var wrapItem1 = a => new Item(a);
 /**
  * @param {Element} container
  * @param {Element|string} tagName;
  */
 var getGenerator = function (container, tagName = 'item', wrapItem = false) {
     if (!container) return;
-    var scopes = container.$parentScopes || [];
-    if (container.$scope) scopes = scopes.concat(container.$scope);
-    container.$generatorScopes = scopes;
-    if (container.$generator) return container.$generator;
+    var generator = generators.get(container);
+    if (wrapItem) {
+        wrapItem = isFunction(wrapItem) ? wrapItem : wrapItem1;
+    }
+    if (generator) return generator;
+    var scopes = render.getScopes(container) || [];
     var template = document.createElement(container.tagName);
     var tagTemplate = isElement(tagName);
     var templates = [];
     var hasAfter = false;
-    if (wrapItem) {
-        container.$wrapItem = isFunction(wrapItem) ? wrapItem : Item;
-    }
     for (let a of container.childNodes) {
         if (a.nodeType === 1 && a.hasAttribute('insert')) {
             if (!templates.length) a.$isbefore = true;
@@ -111,19 +112,21 @@ var getGenerator = function (container, tagName = 'item', wrapItem = false) {
 
     appendChild(template, templates);
     render.struct(templates);
+    var ids, structs;
     if (tagTemplate) {
-        render.struct(tagName);
+        var tt = $structed.get(tagName);
         var template0 = templates[0];
-        template0.$struct = render.mergeStruct(tagName.$struct, template0.$struct);
-        template0.$renderid = tagName.$renderid;
+        tt = render.mergeStruct(tt, $structed.get(template0));
+        $structed.set(template0, tt);
+        renderIds.set(template0, renderIds.get(tagName));
     }
-    if (templates.length) container.$template = template;
+
     /**
      * @param {number} index;
      * @param {Object} com;
      * @param {Element} element;
      */
-    return container.$generator = function (index, com, element) {
+    generator = function (index, com, element) {
         if (com === undefined) {
             com = getitem.call(container, index);
         }
@@ -133,17 +136,22 @@ var getGenerator = function (container, tagName = 'item', wrapItem = false) {
             element = document.createElement(tagName);
         }
         else {
-            var childNodes = cloneChildNodes(template);
+            var childNodes = cloneChildNodes(template, structs, ids);
             element = childNodes[0];
             if (childNodes.length > 1) element.with = Array.prototype.slice.call(childNodes, 1);
         }
-        var scopes = container.$generatorScopes;
-        var newScope = createScope(container, index, com);
-        element.$scope = newScope;
-        element.$parentScopes = scopes;
-        element.$renders = [update.bind(container, newScope, index)];
+        var newScope = createScope(container, index, com, wrapItem);
+        element.$renders = [update.bind(container, newScope, index, wrapItem)];
         var newItem = render(element, newScope, scopes, false);
         if (element.with) newItem.with = render(element.with, newScope, scopes, false);
         return newItem;
     };
+    if (templates.length) {
+        generator.$template = template;
+        ids = Array.prototype.map.call(templates, a => renderIds.get(a));
+        structs = Array.prototype.map.call(templates, a => $structed.get(a));
+    }
+    generators.set(container, generator);
+    generator.scopes = scopes;
+    return generator;
 };

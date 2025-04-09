@@ -1,9 +1,12 @@
 function isMounted(parent) {
-    if ("$mounted" in parent) return parent.$mounted;
+    var m = $mounted.get(parent);
+    if (m !== undefined) return m;
     var temp = parent;
     while (temp && temp !== document.documentElement) {
-        if ("$mounted" in temp) {
-            return parent.$mounted = temp.$mounted;
+        if ($mounted.has(temp)) {
+            var m = $mounted.get(temp);
+            $mounted.set(parent, m);
+            return m;
         }
         temp = temp.parentNode;
     }

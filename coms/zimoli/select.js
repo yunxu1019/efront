@@ -163,11 +163,11 @@ function select() {
         var optionsMap = {};
         var $key = 'key';
         var $name = 'name';
-        var template = target.$template;
+        var template = generator.$template;
         var isIndexedKey = false;
         var $item = '';
         if (template) a: {
-            var { attrs, binds } = template.childNodes[0].$struct;
+            var { attrs, binds } = $structed.get(template.childNodes[0]);
             if (!attrs.value && !binds.value) break a;
             $key = attrs.value || binds.value;
             if ($key === target.$src.indexName || $key === target.$src.keyName) isIndexedKey = true;
@@ -192,7 +192,7 @@ function select() {
             var s = optionsMap[v];
             var name = s ? s.name : '';
             if (s && template) {
-                name = this.$eval($name, this.$src.createScope(s, v, v));
+                name = $eval.call(this, $name, this.$src.createScope(s, v, v));
             }
             this.innerHTML = `<option selected value="${v}">${name || ''}</option>`;
             this.value = v;

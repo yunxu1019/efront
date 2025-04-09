@@ -185,8 +185,7 @@ function maps(config = {}) {
         canvas.map.refresh();
         canvas._default = canvas.map.defaultImage();
     };
-    if (canvas.$mounted) reshape();
-    else once("append")(canvas, reshape);
+    once("append")(canvas, reshape);
     bind('resize')(canvas, reshape);
 
     return canvas;

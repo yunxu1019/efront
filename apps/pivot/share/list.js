@@ -18,13 +18,13 @@ function main() {
                     return;
                 }
                 await data.from('share', { opt: 'delete', path: e.path }).loading_promise;
-                page.$scope.load();
+                scope.load();
             }
         }
     ];
     var page = div();
     page.innerHTML = list;
-    renderWithDefaults(page, {
+    var scope = {
         data: [],
         load() {
             this.data = data.from("share", { opt: 'list' }, a => {
@@ -37,8 +37,9 @@ function main() {
             type: 'button',
             options,
         }),
-    });
-    page.$scope.load();
+    };
+    renderWithDefaults(page, scope);
+    scope.load();
     contextmenu(page, [
         {
             name: "添加",
@@ -46,7 +47,7 @@ function main() {
                 zimoli.prepare("/share/edit", function () {
                     var p = popup("/share/edit", { fields });
                     on('submited')(p, function () {
-                        page.$scope.load();
+                        scope.load();
                     })
                 })
             }

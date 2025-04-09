@@ -1,5 +1,5 @@
 var toHex = lazy(function (event) {
-    var data = this.$scope.data;
+    var data = $scoped.get(this).data;
     data.splice(0, data.length);
     this.innerText.replace(/[a-f\d]{2}/g, function (a) {
         a = parseInt(a, 16);

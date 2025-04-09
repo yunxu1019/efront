@@ -30,7 +30,7 @@ function main({ path: root, rename, isfolder, add, name, hasName }) {
     });
     on('submit')(a, async function (e) {
         e.preventDefault();
-        var path = root + "/" + a.$scope.data.name;
+        var path = root + "/" + $scoped.get(a).data.name;
         if (origin) {
             var to = path;
             path = root + '/' + origin;

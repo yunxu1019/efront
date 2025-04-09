@@ -272,7 +272,7 @@ function pending(h, event) {
 }
 var remove = function (k, hk, [eventtypes, handler, context]) {
     var element = this;
-    var hs = element[hk];
+    var hs = hk.get(element);
     if (hs) {
         for (var cx = hs.length - 1; cx >= 0; cx--) {
             var [e, h, c] = hs[cx];
@@ -282,7 +282,7 @@ var remove = function (k, hk, [eventtypes, handler, context]) {
             }
         }
         if (!hs.length && hs.h) {
-            element[hk] = null;
+            hk.delete(element);
             if (element.removeEventListener) {
                 element.removeEventListener(k, hs.h, getListenerOption(eventtypes, k));
             }
@@ -292,7 +292,7 @@ var remove = function (k, hk, [eventtypes, handler, context]) {
 };
 var broadcast = function (k, hk, event) {
     var element = this;
-    var handlers = element[hk];
+    var handlers = hk.get(element);
     if (handlers.length > 1) handlers = handlers.slice();
     if (event.which === 1 && event.buttons === 0) {
         // firefox 无按键
@@ -341,7 +341,7 @@ var checkroot = function (element, k) {
 var append = function (k, hk, listener2, firstmost) {
     var [eventtypes, handler, context] = listener2;
     var element = this;
-    var handlers = element[hk];
+    var handlers = hk.get(element);
     for (var [e, h, c, d] of handlers) {
         if (h === handler && c === context && shallowEqual(eventtypes, e, 2)) return d.dulp = true, d;
     }
@@ -353,23 +353,29 @@ var append = function (k, hk, listener2, firstmost) {
     else handlers.push(listener2);
     return listener2[3] = remove.bind(element, k, hk, listener2);
 };
-
+var emitersMap = Object.create(null);
+var getEmiters = function (k, eventtypes) {
+    k = k + +!!eventtypes.capture;
+    k = k + +!!eventtypes.passive;
+    var m = emitersMap[k];
+    if (!m) m = emitersMap[k] = new WeakMap;
+    return m;
+}
 var on = document.efronton = function (k) {
     var on_event_path = "on" + k;
     if (handlersMap[on_event_path]) return handlersMap[on_event_path];
     var eventtypes = parseEventTypes(k);
     k = k.replace(eventtypereg, '');
-    var handler_path = "$h_" + k;
-    var hk = handler_path + +!!eventtypes.capture;
-    if (supportPassive) hk += +!!eventtypes.passive;
+    var hk = getEmiters(k, is_addEventListener_enabled && eventtypes);
     if (is_addEventListener_enabled) var addhandler = function (context, handler, firstmost = false) {
         var target = this || context;
         target = checkroot(target, k);
-        if (target[hk] instanceof Array) {
-        } else {
+        var emiters = hk.get(target);
+        if (!emiters) {
             var h = broadcast.bind(target, k, hk);
-            target[hk] = [];
-            target[hk].h = h;
+            emiters = [];
+            emiters.h = h;
+            hk.set(target, emiters);
             if (target.addEventListener)
                 target.addEventListener(k, h, getListenerOption(eventtypes, k));
             else target[on_event_path] = h;
@@ -385,8 +391,8 @@ var on = document.efronton = function (k) {
                 firstmost = true;
             }
             target = checkroot(target, k);
-            if (target[handler_path] instanceof Array) {
-            } else {
+            var emiters = hk.get(target);
+            if (!emiters) {
                 var h = function (e) {
                     if (!e) e = window.event || {};
                     if (!e.target && e.srcElement) {
@@ -411,16 +417,18 @@ var on = document.efronton = function (k) {
                     if (e.keyCode) {
                         if (e.which === undefined) e.which = e.keyCode;
                     }
-                    broadcast.call(target, k, handler_path, e);
+                    broadcast.call(target, k, emiters, e);
                     return e.returnValue;
                 };
-                target[handler_path] = target["on" + k] && target["on" + k] !== handler ? [[{}, target["on" + k]]] : [];
-                target[handler_path].h = h;
-                target["on" + k] = h;
-
+                var emiters = [];
+                emiters.h = h;
+                var h0 = target[on_event_path];
+                if (h0 && h0 !== h) emiters.push([{}, h0, target]);
+                hk.set(target, emiters);
+                target[on_event_path] = h;
             }
             var listener = [eventtypes, handler, context];
-            return append.call(target, k, handler_path, listener, firstmost);
+            return append.call(target, k, hk, listener, firstmost);
         }, addhandler = function (context, handler, firstmost) {
             return _addhandler(context, context, handler, firstmost);
         };

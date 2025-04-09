@@ -33,7 +33,7 @@ function main() {
         try {
             var xhr = await cross("put", `/(${file.size})`);
             var channelId = xhr.response;
-            page.$scope.send('accept', { file: file.id, channel: channelId });
+            $scoped.get(page).send('accept', { file: file.id, channel: channelId });
             download(`/(${channelId})/${file.name}`);
         } catch (e) {
             alert(e);

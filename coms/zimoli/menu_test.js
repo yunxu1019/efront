@@ -22,12 +22,13 @@ function main() {
             ]
         }]
     }], 20);
-    render(page, {
+    var scope = {
         ylist: menu,
         menus: []
-    });
+    };
+    render(page, scope);
     on("append")(page, function () {
-        page.$scope.menus = data;
+        scope.menus = data;
         page.querySelector("ylist").go(0)
     });
     return page;

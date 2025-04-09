@@ -9,9 +9,9 @@ function hasEnterStyle(e) {
 }
 
 function _onappend(node, append = createEvent("append"), mount = createEvent("mounted")) {
-    if (node.$mounted) return;
+    if ($mounted.get(node)) return;
     if (node.nodeType !== 1 && node.nodeType !== 8) return;
-    node.$mounted = true;
+    $mounted.set(node, true);
     dispatch(node, append);
     var children = Array.apply(null, node.childNodes);
     for (var c of children) {

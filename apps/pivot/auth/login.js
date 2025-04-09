@@ -19,11 +19,11 @@ function main(host) {
     });
     on("submit")(page, async function () {
         data.setInstance("hosts", hosts, true);
-        var { password } = submit(fields, this.$scope.data);
-        this.$scope.pending = true;
+        var { password } = submit(fields, $scoped.get(this).data);
+        $scoped.get(this).pending = true;
         page.disabled = true;
         try {
-            var base = location.protocol + "//" + parseURL(this.$scope.data.host).host + "/";
+            var base = location.protocol + "//" + parseURL($scoped.get(this).data.host).host + "/";
             if (!host) data.setInstance("base", { base, host: parseURL(base).host });
             var api = Object.assign({}, await data.getApi("login"));
             api.base = base;
@@ -42,7 +42,7 @@ function main(host) {
         } catch (e) {
             console.log(e);
         }
-        this.$scope.pending = false;
+        $scoped.get(this).pending = false;
     })
     return page;
 }

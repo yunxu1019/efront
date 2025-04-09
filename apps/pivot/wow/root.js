@@ -75,7 +75,8 @@ class File {
 }
 function main(path) {
     var page = explorer$main();
-    extend(page.$scope, {
+    var ps = $scoped.get(page);
+    extend(ps, {
         pathlist: path ? path.split('/') : [],
         read(from, start, size) {
             var authorization = data.getSource(data.getInstance("base").base);
@@ -131,6 +132,6 @@ function main(path) {
             await data.from("folder", { opt: 'mov', path: from, to: distpath }).loading_promise;
         }
     });
-    page.$scope.open();
+    ps.open();
     return page;
 }

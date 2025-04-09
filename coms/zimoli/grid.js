@@ -290,7 +290,7 @@ function grid(breakpoints) {
     }
     extend(grid, grid_prototype);
     if (!breakpoints) {
-        if (grid.clientHeight || grid.$mounted) {
+        if (grid.clientHeight || $mounted.get(grid)) {
             createPointsWithChildren.call(grid);
         } else {
             on("append")(grid, createPointsWithChildren);
@@ -456,7 +456,7 @@ var grid_prototype = {
         run(this.breakpoints);
     },
     reshape() {
-        if (this.$mounted || this.offsetWidth || this.offsetHeight) {
+        if (this.offsetWidth || this.offsetHeight || $mounted.get(this)) {
             this._reshape();
         } else {
             once("append")(this, this._reshape);

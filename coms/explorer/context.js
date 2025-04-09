@@ -1,34 +1,37 @@
 var getActive = e => {
-    var s = e.currentTarget.$scope;
+    var s = $scoped.get(e.currentTarget);
     return s.toActive(e);
 };
 var notGetActive = e => !getActive(e);
 var getStable = e => {
     var a = getActive(e);
     if (!a) return;
-    return !a.$scope.d.pending;
+    return !$scoped.get(a).d.pending;
 };
 var getSelected = function (d) {
     var p = getPageScope(d);
     return p.selected;
 }
 var getPageScope = function (d) {
-    var $scope = d.$scope.d ? d.$parentScopes[d.$parentScopes.length - 1] : d.$scope;
-    return $scope;
+    var scopes = render.getScopes(d);
+    var s = scopes[scopes.length - 1];
+    if (s.d) return scopes[scopes.length - 2];
+    return s;
 };
 var never = function () { return false };
 var popupRen = function (d) {
     var $scope = getPageScope(d);
     var selected = $scope.selected;
     var active;
-    if (d.$scope === $scope) {
+    var ds = $scoped.get(d);
+    if (ds === $scope) {
         if (selected.length !== 1) return;
         active = selected[0];
     }
     else {
-        active = d.$scope.d;
+        active = ds.d;
     }
-    if (d.$scope.pending) return;
+    if (ds.pending) return;
     popupEdit($scope, active);
 };
 var popupAdd = function (d) {

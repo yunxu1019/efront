@@ -1,5 +1,5 @@
 function dplay() {
-    this.firstChild.$scope.play();
+    $scoped.get(this.firstChild).play();
 }
 function main(elem) {
     elem = elem || document.createElement("song");

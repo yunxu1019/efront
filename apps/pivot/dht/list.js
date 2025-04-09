@@ -17,9 +17,10 @@ return plist.bind({
         name: "从文件读取", async do() {
             var FileReader = window.FileReader;
             if (!FileReader) return alert('当前浏览器无法读取文件', 'warn')
-            var f = await chooseFile(".torrent",true);
+            var f = await chooseFile(".torrent", true);
             var pg = await popup("/dht/rent");
-            pg.$scope.pending = true;
+            var scope = $scoped.get(pg);
+            scope.pending = true;
             for (var f of f) await new Promise(function (ok, oh) {
                 var r = new FileReader;
                 r.onload = function () {
@@ -28,8 +29,8 @@ return plist.bind({
                     } catch (e) {
                         return;
                     }
-                    pg.$scope.load(t);
-                    pg.$scope.pending = false;
+                    scope.load(t);
+                    scope.pending = false;
                     ok();
                 };
                 r.onerror = function () {
@@ -38,7 +39,6 @@ return plist.bind({
                 };
                 r.readAsArrayBuffer(f);
             });
-            console.log(pg.$scope.pending)
         }
     }]
 })

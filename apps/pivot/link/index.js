@@ -11,6 +11,6 @@ function index() {
         },
         menu,
     });
-    page.$scope.menus[+data.getInstance("link-index")].actived = true;
+    $scoped.get(page).menus[+data.getInstance("link-index")].actived = true;
     return page;
 }

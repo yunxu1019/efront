@@ -2,7 +2,7 @@ function main(options) {
     var page = view();
     page.innerHTML = template;
     on("submit")(page, e => e.preventDefault());
-    render(page, {
+    var scope = {
         options, a: button, input, _search: '',
         add() {
             var a = this._search;
@@ -46,7 +46,8 @@ function main(options) {
             remove(page);
         },
         filtered: []
-    });
+    };
+    render(page, scope);
     drag.on(page.firstChild, page);
     on("append")(page, function () {
         setTimeout(function () {
@@ -59,8 +60,8 @@ function main(options) {
         }
     });
     page.onback = function () {
-        if (page.$scope.search) {
-            page.$scope.search = '';
+        if (scope.search) {
+            scope.search = '';
             return false;
         }
     };

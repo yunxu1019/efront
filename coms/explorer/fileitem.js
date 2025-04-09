@@ -28,11 +28,13 @@ e.stopMarquee = function (sp) {
 
 function fileitem(elem) {
     elem.innerHTML = template;
-    var e = elem.children[0];
-    e.$scope = new Fileitem;
-    var ext = /\.([^\.]+)$/.exec(elem.$scope.d.name);
-    if (ext) e.$scope.ext = ext[1];
-    else e.$scope.ext = '';
-    extend(e.$scope, elem.$scope);
-    return e;
+    var c = elem.children[0];
+    var cs = new Fileitem;
+    $scoped.set(c, cs);
+    var es = $scoped.get(elem);
+    var ext = /\.([^\.]+)$/.exec(es.d.name);
+    if (ext) cs.ext = ext[1];
+    else cs.ext = '';
+    extend(cs, es);
+    return c;
 }

@@ -3,7 +3,7 @@ function Main(dataid, datapath, titleid) {
     var page = createVboxWithState(state);
     page.initialStyle = 'margin-left:100%';
     page.innerHTML = buildScroll;
-    render(page, {
+    var pgscope = {
         list: lattice,
         song,
         padding,
@@ -20,7 +20,8 @@ function Main(dataid, datapath, titleid) {
         config: {},
         player: kugou$player,
         datas: []
-    });
+    };
+    render(page, pgscope);
     bindScroll(_titlebar, page);
     var loadedId, requested = false;
     function main(params) {
@@ -31,8 +32,8 @@ function Main(dataid, datapath, titleid) {
             var ranklist = data.from(dataid, {
                 id
             }, parseSongsList);
-            page.$scope.config = params;
-            page.$scope.datas = ranklist;
+            pgscope.config = params;
+            pgscope.datas = ranklist;
             if (titleid) {
                 data.from(titleid, {
                     id

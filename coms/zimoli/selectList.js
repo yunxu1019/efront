@@ -210,7 +210,7 @@ function main() {
                         page.with = null;
                         children.splice(0, children.length);
                         if (optholder) children.push(optholder);
-                        children.push.apply(children, edit.$scope.options.map(o => ({ value: o.key || o.value, name: o.name || o.innerHTML })))
+                        children.push.apply(children, $scoped.get(edit).options.map(o => ({ value: o.key || o.value, name: o.name || o.innerHTML })))
                         cast(page.target, 'set-options', children);
                         page.clean();
                         remove(adder);

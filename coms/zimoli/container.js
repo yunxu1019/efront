@@ -2,8 +2,9 @@ var change = async function (src) {
     if (src !== this.$src) return;
     if (!src) remove(this.with);
     else if (isNode(src)) {
-        if (isElement(src) && this.$struct.copys) {
-            for (var c of this.$struct.copys) {
+        var struct = $structed.get(this);
+        if (isElement(src) && struct.copys) {
+            for (var c of struct.copys) {
                 if (c.name === 'class') {
                     addClass(src, c.value);
                 }
@@ -35,7 +36,7 @@ var onparams = function (params) {
 };
 function container(element) {
     var comment = document.createComment('container');
-    comment.$struct = element.$struct;
+    $structed.set(comment, $structed.get(element));
     care(comment, gosrc);
     if (element.hasAttribute && element.hasAttribute('src')) {
         var src = element.getAttribute('src');

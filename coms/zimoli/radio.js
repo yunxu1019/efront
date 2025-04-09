@@ -27,7 +27,7 @@ function main(elem = document.createElement("radio-group")) {
         }
     });
     elem.setValue = function (key) {
-        var { options } = this.$scope;
+        var { options } = $scoped.get(this);
         if (!(options instanceof Array)) return;
         var index = options.map(a => getValue(a)).indexOf(key);
         options.active = options[index];

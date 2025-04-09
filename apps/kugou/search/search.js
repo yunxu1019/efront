@@ -9,7 +9,7 @@ function main(params, from) {
     page.initialStyle = 'margin-left:100%';
     page.innerHTML = search;
     document.title = "搜索";
-    var $scope = render(page, {
+    var $scope = {
         titlebar,
         back,
         btn: button,
@@ -35,7 +35,7 @@ function main(params, from) {
         resultMap: null,
         addResult(info) {
             var resultMap = this.resultMap;
-        var singerName = sortname(String(info.singername || '').split(/[\&\,，、]/)).join('、');
+            var singerName = sortname(String(info.singername || '').split(/[\&\,，、]/)).join('、');
             var songName = info.songname;
             var id = `${singerName}:${info.songname}`;
             if (!resultMap[id]) resultMap[id] = Object.assign([], { singer: singerName, song: songName });
@@ -92,7 +92,8 @@ function main(params, from) {
             this.search(void 0, 0);
         },
         keyword: state().keyword,
-    }).$scope;
+    };
+    render(page, $scope);
     $scope.keyword && $scope.search();
     return page;
 }

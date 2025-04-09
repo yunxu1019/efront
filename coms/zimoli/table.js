@@ -456,7 +456,7 @@ function table(elem) {
             var th = getTargetIn(thead, event.target, false);
             if (!th) return;
             if (th.tagName.toLowerCase() === 'tr') th = getTargetIn(th, event.target, false);
-            var field = th.$scope?.f;
+            var field = $scoped.get(th).f;
             if (!field || field.fixed || !isHandled(field.key)) return;
             swapping = lazySwap(th, function (value) {
                 field.summary = value;
@@ -524,8 +524,9 @@ function table(elem) {
     };
     watch(table, {
         showTotal(v) {
-            this.$scope.showTotal = v;
-            if (v) this.$scope.hasFoot = true;
+            var ts = $scoped.get(this);
+            ts.showTotal = v;
+            if (v) ts.hasFoot = true;
         }
     })
     table.useIncrease = false;
@@ -619,21 +620,21 @@ function table(elem) {
             setFixedColumn,
             pagination
         };
-        render(this, $scope, this.$parentScopes.concat(this.$scope));
+        render(this, $scope, tableScopes);
         await data;
         if (!data.is_errored) $scope.data = Table.from(fields, data);
         $scope.data.callback = function () {
             render.digest();
         };
     })
-
+    var tableScopes = render.getScopes(this);
     autodragchildren(
         table,
         cellMatchManager,
         function (src, dst, rel, append, parentNode) {
             if (table.src) {
                 if (src < 1 || dst < 1) return false;
-                var fields = parentNode.$scope.fields;
+                var fields = $scoped.get(parentNode).fields;
                 var [f] = fields.splice(src - 1, 1);
                 fields.splice(dst - 1, 0, f);
             }

@@ -56,9 +56,10 @@ var constructors = {
         return e;
     },
     success(e) {
+        var { field } = e;
         success(e);
         e.innerHTML = `<span ng-html="field.comment"></span>`;
-        render(e.children, e.$scope, e.$parentScopes);
+        render(e.children, { field });
         return e;
     },
     switch: swap,
@@ -147,8 +148,8 @@ var constructors = {
     },
     "repeat"(_) {
         var elem = input();
+        var { field, data } = _;
         elem.$renders = [function () {
-            var { field, data } = this.$scope;
             var { status } = this;
             var field_type = field.ref;
             var valid = this.value === data[field_type];
@@ -319,11 +320,12 @@ function setModel(ipt) {
 }
 function setBinder(elem, binder) {
     if (binder === elem.$binder) return;
-    removeFromList(elem.$renders, elem.$binder);
+    var renders = $renders.get(elem);
+    removeFromList(renders, elem.$binder);
     remove(elem.childNodes);
     if (binder instanceof Binder) {
         binder.call(elem);
-        elem.$renders.push(binder);
+        renders.push(binder);
     }
     else {
         var ipt = binder(elem);
@@ -350,11 +352,11 @@ var createOptionsMap = function (options) {
 }
 readonly_types.radio = readonly_types.select = readonly_types.swap;
 var findReaderForElement = function (type, e) {
-    var editor = render.getFromScopes(type, e.$scope, e.$parentScopes);
+    var editor = render.findKey(type, e);
     if (isFunction(editor) && (editor.isreader || !editor.isediter) && editor.isreader !== false) return editor;
 };
 var findEditerForElement = function (type, e) {
-    var editor = render.getFromScopes(type, e.$scope, e.$parentScopes);
+    var editor = render.findKey(type, e);
     if (isFunction(editor) && (editor.isediter || !editor.isreader) && editor.isediter !== false) return editor;
 };
 var markReader = function (readers) {

@@ -46,7 +46,7 @@ function main(elem = document.createElement("checkbox-group")) {
         value.checked = checked;
     };
     elem.setValue = function (value) {
-        var { options } = this.$scope;
+        var { options } = $scoped.get(this);
         buildValue(value, options);
     };
     return elem;

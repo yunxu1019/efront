@@ -86,7 +86,7 @@ function init() {
         render.refresh();
     };
     onmounted(_block, function () {
-        _block.$scope.start();
+        recoder.start();
     })
     return _block;
 

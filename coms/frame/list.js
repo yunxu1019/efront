@@ -6,7 +6,7 @@ function main(title, { fields, options: options0, load, remove, buttons }, edit_
             return;
         }
         var callback = function () {
-            page.$scope.load();
+            page_scope.load();
         };
         if (isFunction(edit_ref)) {
             var p = await edit_ref({ fields, data: o, callback });
@@ -54,12 +54,12 @@ function main(title, { fields, options: options0, load, remove, buttons }, edit_
                     return;
                 }
                 await remove(o);
-                page.$scope.load();
+                page_scope.load();
             }
         }
     ];
     if (options0) options = options.concat(options0);
-    renderWithDefaults(page, {
+    var page_scope = {
         title,
         load() {
             this.data = load();
@@ -74,9 +74,10 @@ function main(title, { fields, options: options0, load, remove, buttons }, edit_
         async add() {
             await edit();
         },
-    });
+    }
+    renderWithDefaults(page, page_scope);
     on("append")(page, function () {
-        page.$scope.load();
+        page_scope.load();
     });
     return page;
 }
