@@ -1,3 +1,9 @@
+- zh-CN: $1仅在开发环境存在，供开发者调试查看，$2
+  en:    "$1 only exists in the development environment for developers to debug and view, $2"
+
+- zh-CN: 项目发布后将没有这个属性！
+  en:    "After the project is released, this attribute will no longer exist!"
+
 - zh-CN: 无法存入数据到$1
   en:    Unable to deposit data to $1
 
