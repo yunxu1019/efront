@@ -65,7 +65,8 @@ var isProperty = function (o) {
         }
         if (prev.type === STAMP) {
             if (prev.isprop) return true;
-            return /^(\+\+|\-\-|[,;])$/.test(prev.text) && (o.type !== STAMP || !/^[,;\=\:]$/.test(o.text));
+            if (/^[,;]$/.test(prev.text) || !prev.unary && /^(\+\+|\-\-)$/.test(prev.text)) return o.type !== STAMP || !/^[,;\=\:]$/.test(o.text);
+            return false;
         }
         if (prev.type === EXPRESS && !/\.$/.test(prev.text)) {
             return prev.text !== 'async' || o.text !== 'function';
