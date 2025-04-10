@@ -336,7 +336,7 @@ function prepare(pgpath, ok) {
 function create(pagepath, args, from, needroles, zimolidata) {
     if (zimolidata) {
         if (!isHandled(args)) args = zimolidata.data;
-        if (!isHandled(needroles)) args = zimolidata.needroles;
+        if (!isHandled(needroles)) needroles = zimolidata.roles;
     }
     var [pgpath, args0] = getpgpath(pagepath);
     var page_object = page_generators[pgpath];
@@ -413,7 +413,7 @@ function create(pagepath, args, from, needroles, zimolidata) {
             fullfill_is_dispatched = 0;
         }
         _page.$reload = function () {
-            var _page = create(pagepath, args, from, needroles, zimolidata);
+            var _page = create(pagepath, undefined, from, undefined, zimolidata);
             appendChild.replace(this, _page);
             return _page;
         };
