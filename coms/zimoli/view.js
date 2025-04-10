@@ -119,7 +119,7 @@ var resize2 = function () {
             marginTop: fromOffset(-height)
         });
         css(body, {
-            paddingBottom: fromOffset(body.clientTop + body.clientHeight + body.offsetTop - foot.offsetTop)
+            paddingBottom: fromOffset(foot.offsetHeight)
         });
     }
 };
