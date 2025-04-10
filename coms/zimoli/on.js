@@ -270,6 +270,7 @@ function pending(h, event) {
     }
     return h;
 }
+var changes = new WeakMap;
 var remove = function (k, hk, [eventtypes, handler, context]) {
     var element = this;
     var hs = hk.get(element);
@@ -278,7 +279,11 @@ var remove = function (k, hk, [eventtypes, handler, context]) {
             var [e, h, c] = hs[cx];
             if (h === handler && shallowEqual(e, eventtypes, 2) && c === context) {
                 hs.splice(cx, 1);
-                if (k === changes_key) element.$needchanges--;
+                if (k === changes_key) {
+                    var i = changes.get(element) - 1;
+                    if (i > 0) changes.set(element, i);
+                    else changes.delete(element), $watches.delete(element);
+                };
             }
         }
         if (!hs.length && hs.h) {
@@ -346,8 +351,11 @@ var append = function (k, hk, listener2, firstmost) {
         if (h === handler && c === context && shallowEqual(eventtypes, e, 2)) return d.dulp = true, d;
     }
     if (k === changes_key) {
-        if (!element.$needchanges) element.$needchanges = 0;
-        element.$needchanges++;
+        var i = changes.get(element) || 0;
+        changes.set(element, i + 1);
+        if (i === 0) {
+            if (!$watches.has(element)) $watches.set(element, {});
+        }
     }
     if (firstmost) handlers.unshift(listener2);
     else handlers.push(listener2);

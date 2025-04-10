@@ -1,5 +1,5 @@
 function watcher({ changes }) {
-    var watches = this.$watches;
+    var watches = $watches.get(this);
     for (var k in changes) {
         if (k in watches) {
             var h = watches[k];
@@ -10,18 +10,20 @@ function watcher({ changes }) {
     }
 }
 function watch(elem, prop, handler) {
-    if (!elem.$watches) {
-        elem.$watches = {};
+    var w = $watches.get(elem);
+    if (!w) {
+        w = {};
+        $watches.set(elem, w);
         on("changes")(elem, watcher);
     }
     if (isFunction(handler)) {
-        elem.$watches[prop] = handler;
+        w[prop] = handler;
     }
     else if (isObject(prop)) {
         var e = 0;
         for (var k in prop) {
             if (!isFunction(prop[k])) e++;
-            else elem.$watches[k] = prop[k];
+            else w[k] = prop[k];
         }
         if (e > 0) throw new Error(i18n`参数不支持！`);
     }

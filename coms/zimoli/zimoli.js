@@ -338,9 +338,12 @@ function create(pagepath, args, from, needroles, zimolidata) {
         if (!isHandled(args)) args = zimolidata.data;
         if (!isHandled(needroles)) needroles = zimolidata.roles;
     }
-    var [pgpath, args0] = getpgpath(pagepath);
-    var page_object = page_generators[pgpath];
-    if (!isEmpty(args0)) page_object.state.data = args, args = args0;
+    if (typeof pagepath === 'string') {
+        var [pgpath, args0] = getpgpath(pagepath);
+        var page_object = page_generators[pgpath];
+        if (!isEmpty(args0)) page_object.state.data = args, args = args0;
+    }
+    else pgpath = pagepath;
     if (typeof pgpath === 'string') {
         var page_object = page_generators[pgpath];
         if (!page_object) {
@@ -401,6 +404,7 @@ function create(pagepath, args, from, needroles, zimolidata) {
             _page.onback = _pageback_listener;
         }
         _page.disptch = function () {
+            if (!zimolidata) return;
             zimoli.upwith = state.upwith;
             if (fullfill_is_dispatched > 0) return;
             fullfill_is_dispatched = 1;
@@ -418,6 +422,7 @@ function create(pagepath, args, from, needroles, zimolidata) {
             return _page;
         };
     }
+    if (!page_object) return _page;
     var _history = history[current_history];
     if (_history) page_object.prepares.splice(0, page_object.prepares.length).forEach(function (url) {
         if (isNumber(url)) {
