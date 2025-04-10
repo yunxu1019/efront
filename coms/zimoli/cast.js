@@ -20,20 +20,19 @@ function cast(target, type, data) {
             throw new Error(i18n`参数数量不正确`);
     }
     if (!isObject(target)) return;
-
-    var datakey = `cast(${type})`;
-    type = `care(${type})`;
-    if (target[type] instanceof Array) {
-        var listeners = target[type];
-        if (!listeners.datas) listeners.datas = [];
-        var datas = listeners.datas;
-        datas.push(data);
-        if (datas.length === 1) {
-            while (datas.length) target[type].forEach(function (listener) {
-                if (listener instanceof Function) {
-                    listener.call(target, datas[0], target[datakey]);
-                }
-            }), target[datakey] = datas.shift();
+    var cared = $cared.get(target);
+    var listeners = cared[type];
+    if (listeners) listeners.cast(data);
+    else {
+        var casted = $casted.get(target);
+        if (!casted) {
+            casted = {};
+            $casted.set(target, casted);
         }
+        var datas = casted[type];
+        if (!datas) {
+            datas = casted[type] = [];
+        }
+        datas.push(data);
     }
 }

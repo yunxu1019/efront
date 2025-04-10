@@ -6,16 +6,18 @@
  * @param {Function} listener 
  */
 function care() {
-    var [target, type, listener, allowMultiHandle] = parse.apply(this, arguments);
-    if (!target[type]) {
-        target[type] = [];
-    }
-    var listeners = target[type];
+    var [listeners, listener, target, type, allowMultiHandle] = parse.apply(this, arguments);
     if (listeners.length && !allowMultiHandle) return;
     if (listener instanceof Function && !~listeners.indexOf(listener)) {
         if (listeners.length > 600) throw new Error(i18n`请不要在同一个对象上使用过多的同类型的care!`);
         listeners.push(listener);
     }
+    var casted = $casted.get(target);
+    if (!casted) return;
+    var datas = casted[type];
+    if (!datas) return;
+    delete casted[type];
+    datas.forEach(listeners.cast, listeners);
 }
 function parse() {
     var [target, type, listener] = arguments;
@@ -46,12 +48,28 @@ function parse() {
             throw new Error(i18n`参数数量不正确`);
     }
     if (!isObject(target)) throw new Error(i18n`care只能使用在对象上！`);
-    type = `care(${type})`;
-    return [target, type, listener, allowMultiHandle];
+    var cared = $cared.get(target);
+    if (!cared) {
+        cared = {};
+        $cared.set(target, cared);
+    }
+    var listeners = cared[type];
+    if (!listeners) listeners = cared[type] = [], listeners.cast = cast(target);
+    return [listeners, listener, target, type, allowMultiHandle];
 }
+function cast(target) {
+    var newdata, olddata;
+    var call = function (listener) {
+        listener.call(target, newdata, olddata);
+    }
+    return function (data) {
+        newdata = data;
+        this.forEach(call);
+        olddata = data;
+    }
+};
 function clean() {
-    var [target, type, listener] = parse.apply(this, arguments);
-    var listeners = target[type];
+    var [listeners, listener] = parse.apply(this, arguments);
     if (listener instanceof Function) {
         for (var cx = listeners.length - 1; cx >= 0; cx--) {
             if (listeners[cx] === listener) listeners.splice(cx, 1);
