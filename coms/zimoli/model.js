@@ -305,12 +305,15 @@ var getOptionsFrom = function () {
     var { data, field } = this;
     return data[field.options_from];
 };
-function setModel(ipt) {
+function setModel(ipt, renders) {
     var elem = this;
     if (isHandled(ipt)) {
         if (isNode(ipt)) {
             var model = new Model(getScopeValue, setScopeValue, ipt);
-            model.hook(elem, elem.field.option_to ? copyOptionData : true);
+            var binder = model.hook(elem, elem.field.option_to ? copyOptionData : true);
+            removeFromList(renders, elem.$binder);
+            renders.push(binder);
+            elem.$binder = binder;
             if (elem !== ipt) appendChild(elem, ipt);
         }
         else {
@@ -330,9 +333,9 @@ function setBinder(elem, binder) {
     else {
         var ipt = binder(elem);
         if (ipt && isFunction(ipt.then)) {
-            ipt.then(setModel.bind(elem));
+            ipt.then(setModel.bind(elem, renders));
         }
-        else setModel.call(elem, ipt);
+        else setModel.call(elem, ipt, renders);
         binder = null;
     }
     elem.$binder = binder;

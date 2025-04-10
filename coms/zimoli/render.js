@@ -769,10 +769,10 @@ var directives = {
         var getter = createGetter(this, search);
         var setter = createSetter(this, search);
         var model = new Model(getter, setter, target);
-        model.hook(this, change !== false);
+        return model.hook(this, change !== false);
     },
     value(search, target) {
-        directives.model.call(this, search, target, false);
+        return directives.model.call(this, search, target, false);
     },
 
 };
@@ -1397,7 +1397,7 @@ function unlock(renders) {
 }
 var notNull = a => a;
 var isOnce = a => a.r1;
-var notComment = a => isOnce(a) && a.nodeType !== 8;
+var notComment = a => !isOnce(a) && a.el.nodeType !== 8;
 function renderUnlock(element) {
     var locked = renderlock.filter(notNull);
     renderlock = null;
