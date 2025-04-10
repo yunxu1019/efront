@@ -21,7 +21,7 @@ function cast(target, type, data) {
     }
     if (!isObject(target)) return;
     var cared = $cared.get(target);
-    var listeners = cared[type];
+    if (cared) var listeners = cared[type];
     if (listeners) listeners.cast(data);
     else {
         var casted = $casted.get(target);
