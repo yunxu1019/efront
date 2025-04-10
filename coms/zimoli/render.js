@@ -321,13 +321,17 @@ var createRepeat = function (search, id = 0, struct) {
     var renders = [function () {
         var result = getter(this);
         var origin = result;
-        result = extend(result instanceof Array ? [] : {}, result);
+        var isArrayResult = origin instanceof Array;
+        result = extend(isArrayResult ? [] : {}, result);
         if (savedOrigin === origin && shallowEqual(savedValue, result)) return;
-        var changes = getChanges(result, savedValue);
-        if (!changes) return;
+        if (!isArrayResult && isObject(origin && isObject(savedValue))) {
+            var changed = getChanged(result, savedValue);
+            if (!changed.length) return;
+            var changes = Object.create(null);
+            changed.forEach(k => changes[k] = true);
+        }
         savedValue = result;
         savedOrigin = origin;
-        var isArrayResult = result instanceof Array;
         var keys = isArrayResult ? result.map((_, i) => i) : Object.keys(result);
         if (keys.length > 600) {
             throw new Error(i18n`数据量过大，取消绘制！`);
@@ -355,7 +359,7 @@ var createRepeat = function (search, id = 0, struct) {
                         return c;
                     }
                 }
-                else {
+                else if (changes) {
                     var c = changes[k];
                     if (!c) c = clonedElements[k];
                     else c = null;
