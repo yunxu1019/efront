@@ -27,20 +27,20 @@ var popup = function (path) {
     throw new Error(i18n`参数异常:${path}`);
 };
 var onAppendUp = function () {
-    var upwith = this.$upwith;
+    var upwith = $upwith.get(this);
     if (isArray(upwith) && upwith.indexOf(this) < 0) {
         upwith.push(this);
     }
 };
 var onRemoveUp = function () {
-    var upwith = this.$upwith;
+    var upwith = $upwith.get(this);
     if (isArray(upwith)) {
         removeFromList(upwith, this);
     }
 };
 var setUpwith = function (page, upwith) {
     if (!isArray(upwith)) return;
-    page.$upwith = upwith;
+    $upwith.set(page, upwith);
     on('append')(page, onAppendUp);
     on('remove')(page, onRemoveUp);
 };
@@ -427,7 +427,7 @@ popup.upwith = function (collects) {
 };
 var global = function (element, issingle) {
     once("remove")(element, cleanup);
-    var upwith = element.$upwith || rootElements;
+    var upwith = $upwith.get(element) || rootElements;
     if (upwith.indexOf(element) < 0) upwith.push(element);
     if (isMounted(element)) return;
     popup.global &&

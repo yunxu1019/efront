@@ -120,54 +120,28 @@ function go(pagepath, args, history_name, oldpagepath) {
         return true;
     }
     var realpath = getpgpath(pagepath);
-    if (realpath.length > 1) var [pgpath, args0] = realpath;
+    if (realpath.length > 1) var [pgpath] = realpath;
     else pgpath = pagepath;
-    setZimoliParams(pagepath, { data: args, from: oldpagepath, options, roles, id });
+    var params = { data: args, from: oldpagepath, options, roles, id };
+    setZimoliParams(pagepath, params);
     if (!page_generators[pgpath]) {
         return zimoli(pagepath, args, history_name, oldpagepath);
     }
-    var page_object = page_generators[pgpath];
-    if (!isEmpty(args0)) page_object.state.data = args, args = args0;
-    var fullfill = function () {
-        zimoliad = zimoliid;
-        var _page = create(pgpath, args, oldpagepath);
-        var isRecover = pushstate(pagepath, history_name, oldpagepath);
-        if (isNode(history_name)) {
-            if (history_name.activate === pagepath && history_name.activateNode === _page) return fullfill_is_dispatched--;
-            else remove(history_name.activateNode);
-            history_name.activate = pagepath;
-            history_name.activateNode = _page;
-        }
-        else if (isString(pagepath)) {
-            if (fullfill_is_dispatched > 0) return;
-            fullfill_is_dispatched = 1;
-            var event = createEvent("zimoli");
-            event.$reload = fullfill;
-            event.zimoli = {
-                path: pagepath,
-                roles,
-                data: args,
-                target: _page,
-                id,
-                options
-            };
-            dispatch(document, event);
-            fullfill_is_dispatched = 0;
-        }
-        if (isRecover) setWithStyle(_page, false);
-        addGlobal(_page, history_name, isRecover);
-        page_object.prepares.splice(0, page_object.prepares.length).forEach(function (url) {
-            if (isNumber(url)) {
-                url = _history[url < 2 ? _history.index + url : url];
-            }
-            if (isString(url)) prepare(url);
-        });
-        if (_page) {
-            _page.$reload = fullfill;
-        }
-        return _page;
-    };
-    return fullfill();
+    var page = create(pagepath, args, oldpagepath, roles, params);
+    zimoliad = zimoliid;
+    var isRecover = pushstate(pagepath, history_name, oldpagepath);
+    if (isNode(history_name)) {
+        if (history_name.activate === pgpath && history_name.activateNode === page) return;
+        else remove(history_name.activateNode);
+        history_name.activate = pgpath;
+        history_name.activateNode = page;
+    }
+    else if (isString(pgpath)) {
+        page.disptch();
+    }
+    if (isRecover) setWithStyle(page, false);
+    addGlobal(page, history_name, isRecover);
+    return page;
 }
 var page_generators = {};
 /**
@@ -359,16 +333,23 @@ function prepare(pgpath, ok) {
         emit(pg);
     }, state, true);
 }
-function create(pagepath, args, from, needroles) {
-    if (typeof pagepath === 'string') {
-        var page_object = page_generators[pagepath];
+function create(pagepath, args, from, needroles, zimolidata) {
+    if (zimolidata) {
+        if (!isHandled(args)) args = zimolidata.data;
+        if (!isHandled(needroles)) args = zimolidata.needroles;
+    }
+    var [pgpath, args0] = getpgpath(pagepath);
+    var page_object = page_generators[pgpath];
+    if (!isEmpty(args0)) page_object.state.data = args, args = args0;
+    if (typeof pgpath === 'string') {
+        var page_object = page_generators[pgpath];
         if (!page_object) {
-            throw new Error(i18n`调用create前请确保prepare执行完毕:${pagepath}`);
+            throw new Error(i18n`调用create前请确保prepare执行完毕:${pgpath}`);
         }
         var { pg, "with": _with_elements, state, onback: _pageback_listener, roles } = page_object;
     }
-    else if (isFunction(pagepath)) {
-        var pg = pagepath;
+    else if (isFunction(pgpath)) {
+        var pg = pgpath;
         var { with: _with_elements = [], state = {}, onback: _pageback_listener, roles } = pg;
     }
     var h = history[current_history];
@@ -379,7 +360,7 @@ function create(pagepath, args, from, needroles) {
             if (h) h.wardable = false;
             return pg;
         }
-        return alert(i18n`没有权限！`, 0);
+        return zimoli.alert(i18n`没有权限！`, 0);
     }
     if (!pg) return;
     if (h) h.wardable = true;
@@ -419,7 +400,31 @@ function create(pagepath, args, from, needroles) {
         if (isEmpty(_page.onback)) {
             _page.onback = _pageback_listener;
         }
+        _page.disptch = function () {
+            zimoli.upwith = state.upwith;
+            if (fullfill_is_dispatched > 0) return;
+            fullfill_is_dispatched = 1;
+            var event = createEvent("zimoli");
+            event.$reload = _page.$reload.bind(_page);
+            zimolidata.target = _page;
+            zimolidata.path = pagepath;
+            event.zimoli = zimolidata;
+            dispatch(document, event);
+            fullfill_is_dispatched = 0;
+        }
+        _page.$reload = function () {
+            var _page = create(pagepath, args, from, needroles, zimolidata);
+            appendChild.replace(this, _page);
+            return _page;
+        };
     }
+    var _history = history[current_history];
+    if (_history) page_object.prepares.splice(0, page_object.prepares.length).forEach(function (url) {
+        if (isNumber(url)) {
+            url = _history[url < 2 ? _history.index + url : url];
+        }
+        if (isString(url)) prepare(url);
+    });
     return _page;
 
 }
@@ -677,7 +682,7 @@ function addGlobal(element, name = null, isBack) {
             if (isBack) appendChild.insert(body, element);
             else appendChild(body, element);
         }
-        var upwith = element.$upwith || rootElements;
+        var upwith = $upwith.get(element) || rootElements;
         if (upwith.indexOf(element) < 0) upwith.push(element);
     }
     if (hasLock) fixurl(), fixLock = false;
@@ -731,6 +736,8 @@ rootElements.splice = function () {
 appendChild.transition = transition;
 remove.transition = transition;
 zimoli.prepare = prepare;
+var upwith = [];
+zimoli.upwith = popup.upwith(upwith);
 zimoli.setStorage = function (storage) {
     historyStorage = storage;
     try {
@@ -801,8 +808,7 @@ zimoli.enableTouchBack = function () {
                     var path0 = historyList[historyList.index - 1];
                     prepare(path0, function () {
                         if (id !== touchId) return;
-                        var args = getZimoliParams(path0).data;
-                        backwardTarget = create(path0, args, path1);
+                        backwardTarget = create(path0, null, path1, null, getZimoliParams(path0));
                         setWithStyle(backwardTarget, true);
                         appendChild.insert(body, backwardTarget);
                     });
@@ -815,8 +821,7 @@ zimoli.enableTouchBack = function () {
                     var path2 = historyList[historyList.index + 1];
                     prepare(path2, function () {
                         if (id !== touchId) return;
-                        var args = getZimoliParams(path2).data;
-                        forwardTarget = create(path2, args, path1);
+                        forwardTarget = create(path2, null, path1, null, getZimoliParams(path2));
                         setWithStyle(forwardTarget, false);
                         appendChild.insert(body, forwardTarget);
                     });
@@ -839,6 +844,7 @@ zimoli.enableTouchBack = function () {
                 transition(backwardTarget, 1);
                 global[history_name] = backwardTarget;
                 fixurl();
+                backwardTarget.disptch();
             }
             else if (historyList.index < historyList.length - 1 && (deltaX < 0 && ratio < -.1 || deltaX > 0 && ratio < -.9 || deltaX === 0 && ratio < -.4)) {
                 pushstate(historyList[historyList.index + 1], history_name);
@@ -848,6 +854,7 @@ zimoli.enableTouchBack = function () {
                 transition(forwardTarget, 1);
                 global[history_name] = forwardTarget;
                 fixurl();
+                forwardTarget.disptch();
             }
             else {
                 if (backwardTarget) setWithStyle(backwardTarget, false), remove(backwardTarget);
@@ -861,4 +868,9 @@ zimoli.enableTouchBack = function () {
             ratio = null;
         }
     }, 'x')
+};
+zimoli.alert = function () {
+    var ae = alert.apply(this, arguments);
+    zimoli.upwith(ae.parentNode);
+    return ae;
 };

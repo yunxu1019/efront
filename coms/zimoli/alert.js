@@ -72,7 +72,7 @@ function alert() {
             }
             close_timer = setTimeout(function () {
                 remove(elem);
-            }, autoclose);
+            }, +autoclose);
         }
     };
     var setContent = function (elem) {
@@ -83,7 +83,9 @@ function alert() {
         } else {
             elem = _text(elem, styles.log, t);
         }
-        if (!isMounted(container)) popup(container);
+        Promise.resolve().then(function () {
+            if (!isMounted(container)) popup(container);
+        });
         if (!isMounted(elem)) appendChild(container, elem);
         waitclose(autoclose, 400);
         return elem;
