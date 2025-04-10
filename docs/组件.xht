@@ -286,7 +286,20 @@
                 }
             }
             var argNames = Object.keys(envs);
-            var args = await Promise.all(argNames.map(a => init(a + "*" + live, null, { ["init*" + live]: init, ["put*" + live]: put, ["zimoli*" + live]: zimoli, ["appendChild*" + live]: appendChild, ["remove*" + live]: remove, ["render*" + live]: render })));
+            var args = await Promise.all(argNames.map(a => init(a + "*" + live, null, {
+                ["init*" + live]: init,
+                ["put*" + live]: put,
+                ["zimoli*" + live]: zimoli,
+                ["appendChild*" + live]: appendChild,
+                ["remove*" + live]: remove,
+                ["render*" + live]: render,
+                ["$structed*" + live]: $structed,
+                ["$scoped*" + live]: $scoped,
+                ["$parented*" + live]: $parented,
+                ["$mounted*" + live]: $mounted,
+                ["$watches*" + live]: $watches,
+                ["$renders*" + live]: $renders,
+            })));
             var func = createFunction("", jstext, argNames, code.async, code.yield);
             var res = func.apply(window, args);
             if (isFunction(res)) {

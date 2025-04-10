@@ -163,7 +163,6 @@ function main() {
         template.innerHTML = page.innerHTML;
         page.$template = template;
     }
-    var cloner = render.createCloner(template);
     var enterMenuEnabled = 0;
     onmousemove(page, function () {
         enterMenuEnabled = +new Date;
