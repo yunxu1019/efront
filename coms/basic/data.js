@@ -690,11 +690,7 @@ var getInstanceId = function () {
     }
     return instanceId;
 };
-var error_report = isProduction ? alert : function (error, type) {
-    error_report = alert;
-    error_report(error, type);
-    console.info(i18n`已使用默认的报错工具，您可以使用 ${"data.setReporter(error_reporter,error_finder)"} 替换! 本信息在仅在开发环境显示。`);
-};
+var error_report = () => { throw new Error('请使用data.setReporter(alert)进行初始化，然后再使用data') };
 
 var error_check = function (data) { };
 
@@ -722,10 +718,6 @@ function responseCrash(e, data) {
     error_report(e, e.status < 500 ? 'warn' : 'error');
 }
 var toDataString = function () { return isEmpty(this.data) ? '' : this.data };
-var updateLoadingCount = function () {
-    data.loading_count = cross.requests.length;
-};
-on('render')(window, updateLoadingCount, true);
 var bubApply = function (f, args) {
     if (args.length === 1) {
         var [instanceMap] = args;
@@ -766,6 +758,9 @@ var oncatch = function (e) {
     if (e === OUTDATE || e === ABORTED) return;
     throw e;
 };
+var cross = () => { throw new Error('请使用data.setEnvs(cross,on,onmounted)进行初始化，然后再使用data') };
+var on = () => { throw new Error("请使用data.setEnvs(cross,on,onmounted)") };
+var onmounted = () => { throw new Error("请使用data.setEnvs(cross,on,onmounted)") };
 var data = {
     prepareURL,
     decodeStructure,
@@ -788,6 +783,12 @@ var data = {
             response.then = LoadingArray_then;
             response.abort = LoadingArray_abort;
         }
+    },
+    setEnvs(cross1, on1, onmounted1) {
+        delete data.setEnvs;
+        cross = cross1;
+        on = on1;
+        onmounted = onmounted1;
     },
     setReporter(report, checker) {
         if (report instanceof Function) {
