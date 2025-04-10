@@ -243,8 +243,8 @@ class BigNumber {
         else if (!dist.length) dist.push(0);
         if (s) dist.unshift('-');
         BigNumber.DECIMAL_DIGIT = BACK_DIGIT;
-        if (system_scale <= 36) dist = dist.map(d => Number.isFinite(d) ? vsrc[d] : d);
-        else dist = dist.map(d => Number.isFinite(d) ? '[' + d + ']' : d);
+        if (system_scale <= 36) dist = dist.map(d => isFinit(d) ? vsrc[d] : d);
+        else dist = dist.map(d => isFinit(d) ? '[' + d + ']' : d);
         return dist.join('');
     };
     add(bignumber) {

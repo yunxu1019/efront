@@ -1,0 +1,1 @@
+a => typeof a === 'number' && a < Infinity && a > -Infinity;

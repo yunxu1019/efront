@@ -365,7 +365,7 @@ var _as_yextra = function (global, innerWidth, innerHeight, element, target, poi
 };
 var _as_xextra = arriswise(_as_yextra, arguments);
 var popup_as_single = function (element, z) {
-    if (!isMounted(element)) css(element, `z-index:${Number.isFinite(z) ? z : zIndex()};`);
+    if (!isMounted(element)) css(element, `z-index:${isFinit(z) ? z : zIndex()};`);
     global(element, false);
 };
 var popup_to_point = function (element, [x, y]) {

@@ -185,7 +185,7 @@ var scrollbary = function () {
         var onscroll = function () {
             if (moving) return;
             var top = _scrollbar.getTTop();
-            if (Number.isFinite(top)) {
+            if (isFinit(top)) {
                 _scrollbar.scrollTo(top);
                 _scrollbar.autoshow();
             }
