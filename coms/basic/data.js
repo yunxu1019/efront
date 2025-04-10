@@ -766,7 +766,6 @@ var data = {
     decodeStructure,
     getUrlParamsForApi,
     encodeStructure,
-    abortAll: cross.abortAll,
     responseLoaded(response) {
         if (isObject(response)) {
             response.is_loaded = true;
@@ -789,6 +788,7 @@ var data = {
         cross = cross1;
         on = on1;
         onmounted = onmounted1;
+        data.abortAll = cross.abortAll;
     },
     setReporter(report, checker) {
         if (report instanceof Function) {
