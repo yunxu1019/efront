@@ -318,14 +318,20 @@ var createRepeat = function (search, id = 0, struct) {
     var getter = createGetter(this, srcName);
     var element = this, clonedElements = [], savedValue, savedOrigin;
     if (struct.if) id = -7;
+    var renderA = function (a, i) {
+        a = render(a);
+        repeats.set(a, this[i]);
+        return a;
+    };
+    var reps = [];
     var renders = [function () {
         var result = getter(this);
         var origin = result;
         var isArrayResult = origin instanceof Array;
         result = extend(isArrayResult ? [] : {}, result);
         if (savedOrigin === origin && shallowEqual(savedValue, result)) return;
-        if (!isArrayResult && isObject(origin && isObject(savedValue))) {
-            var changed = getChanged(result, savedValue);
+        if (savedOrigin !== origin && isObject(origin) && isObject(savedOrigin)) {
+            var changed = getChanged(result, savedOrigin);
             if (!changed.length) return;
             var changes = Object.create(null);
             changed.forEach(k => changes[k] = true);
@@ -369,9 +375,8 @@ var createRepeat = function (search, id = 0, struct) {
                     }
                 }
             }
-
+            reps[cx] = $scope;
             var clone = cloner(id, $scope);
-            repeats.set(clone, $scope);
             clonedElements1[k] = clone;
             return clone;
         }, this);
@@ -380,7 +385,7 @@ var createRepeat = function (search, id = 0, struct) {
             if (a.previousSibling !== last) appendChild.after(last, a);
             last = a;
         }, this);
-        cloned.forEach(a => render(a));
+        clonedElements1 = cloned.map(renderA, reps);
         for (var k in clonedElements) {
             if (clonedElements1[k] !== clonedElements[k]) {
                 var selected = clonedElements[k].selected;
@@ -1075,11 +1080,11 @@ function renderElement(element, scope = $scoped.get(element), parentScopes = $pa
                 if (isElement(replacer) && !renderIds.get(replacer)) {
                     if (!$scoped.has(replacer)) $scoped.set(replacer, scope);
                     if (!$parented.has(replacer)) $parented.set(replacer, parentScopes);
-                    var struct = createStructure(replacer);
+                    var struct2 = createStructure(replacer);
                     scope = $scoped.get(replacer) || scope;
                     parentScopes = $parented.get(replacer) || parentScopes;
                     scopeList = makeScopeList(scope, parentScopes);
-                    if (struct) renderRest(renders, replacer, struct);
+                    if (struct2) renderRest(renders, replacer, struct2);
                 }
                 if ($struct) {
                     copyAttribute(replacer, copys);
@@ -1090,7 +1095,7 @@ function renderElement(element, scope = $scoped.get(element), parentScopes = $pa
                 if (nextSibling) appendChild.before(nextSibling, replacer);
                 else if (parentNode) appendChild(parentNode, replacer);
                 if (element.parentNode === parentNode) remove(element);
-                if (!renderIds.get(replacer)) renderIds.set(replacer, renderIds.get(element));
+                if (!renderIds.get(replacer)) renderIds.set(replacer, element.parentNode === parentNode, renderIds.get(element));
             }
             scopeList = scopeList0;
         }
