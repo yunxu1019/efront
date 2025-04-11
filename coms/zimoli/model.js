@@ -305,7 +305,7 @@ var getOptionsFrom = function () {
     var { data, field } = this;
     return data[field.options_from];
 };
-function setModel(ipt, renders) {
+function setModel(renders, ipt) {
     var elem = this;
     if (isHandled(ipt)) {
         if (isNode(ipt)) {
@@ -335,7 +335,7 @@ function setBinder(elem, binder) {
         if (ipt && isFunction(ipt.then)) {
             ipt.then(setModel.bind(elem, renders));
         }
-        else setModel.call(elem, ipt, renders);
+        else setModel.call(elem, renders, ipt);
         binder = null;
     }
     elem.$binder = binder;
