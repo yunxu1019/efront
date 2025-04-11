@@ -1,3 +1,3 @@
 basic$data.setReporter(alert);
-basic$data.setCross(cross);
+basic$data.setEnvs(cross);
 return basic$data;
