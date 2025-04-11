@@ -1095,7 +1095,7 @@ function renderElement(element, scope = $scoped.get(element), parentScopes = $pa
                 if (nextSibling) appendChild.before(nextSibling, replacer);
                 else if (parentNode) appendChild(parentNode, replacer);
                 if (element.parentNode === parentNode) remove(element);
-                if (!renderIds.get(replacer)) renderIds.set(replacer, element.parentNode === parentNode, renderIds.get(element));
+                if (!renderIds.get(replacer)) renderIds.set(replacer, renderIds.get(element));
             }
             scopeList = scopeList0;
         }
