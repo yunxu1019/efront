@@ -1397,7 +1397,7 @@ function unlock(renders) {
         onremove(node, removeRenderElement);
     }
     else {
-        buildFirst(node);
+        buildFirst(renders);
     }
 }
 var notNull = a => a;
