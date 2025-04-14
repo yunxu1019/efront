@@ -181,10 +181,8 @@ function main() {
                     active(elem, item, null, elem.$src ? createItemTarget.call(elem, item, target) : target);
                 };
                 if ("$src" in elem) {
-                    var src0 = [];
                     care(elem, function (src) {
                         bindGlobalkey(elem, src.keymap);
-                        src0.splice(0, src0.length);
                         var s = getTreeFromData(src, selectedId);
                         if (s.actived) {
                             elem.selected = s.actived;
@@ -193,13 +191,8 @@ function main() {
                             elem.selected = s[0];
                             if (elem.selected) elem.selected.setActive(true);
                         }
-                        var i = 0;
-                        while (i < s.length) {
-                            src0.push.apply(src0, s.slice(i, i += 1000));
-                        }
-                        elem.src = src0;
                     });
-                    menuList(elem, src0, emit, direction);
+                    menuList(elem, null, emit, direction);
                 }
                 else {
                     var nodes = getArrayNodes(elem);

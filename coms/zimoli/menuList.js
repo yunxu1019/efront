@@ -133,7 +133,7 @@ function main() {
         if (!item.length) return;
         var menu = item.menu;
         if (!menu) {
-            var clone =render.clone(template);
+            var clone = render.clone(template);
             clone.$src = src;
             clone.innerHTML = template.innerHTML;
             menu = item.menu = main(clone, item.children, active);
@@ -246,8 +246,8 @@ function main() {
         switchMenu.done = true;
     }, 300);
     var hasIcon = function () {
-        var menus = items;
-        for (var menu of menus) {
+        var menus = page.src;
+        if (menus) for (var menu of menus) {
             if (menu.icon) {
                 return true;
             }
