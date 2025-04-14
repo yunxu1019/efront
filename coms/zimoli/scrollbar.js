@@ -164,7 +164,8 @@ var scrollbary = function () {
         var l = target.getLastVisibleElement(0);
         var height = 1;
         if (f && l) {
-            height = 1 + l.index - f.index
+            height = l.index - f.index;
+            if (height === 0) height = 1;
         }
         return [target.src.length, height];
     }
