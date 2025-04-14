@@ -1,4 +1,5 @@
 var USERINFO = 'userinfo';
+var encode62 = basic$encode62;
 var userInstance = data.getInstance(USERINFO);
 var emptyProto = {
     name: "",
