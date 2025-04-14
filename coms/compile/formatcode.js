@@ -6,9 +6,11 @@ var {
     relink,
 } = require("./common");
 var { createExpressList } = require("./washcode")
-function format(code, step) {
+function format(code, step, br) {
+    if (br === undefined) br = "\r\n";
+    else if (isEmpty(br)) br = '';
     if (!code.length) return;
-    var rest = ["\r\n", code];
+    var rest = [br, code];
     while (rest.length > 0) {
         var code = rest.pop();
         var lowspace = rest.pop();
@@ -54,8 +56,8 @@ function format(code, step) {
         relink(code);
     }
 }
-module.exports = function (code, tabSize) {
-    format(code, new Array(tabSize + 1).join(" "));
+module.exports = function (code, tabSize, breakLine) {
+    format(code, new Array(tabSize + 1).join(" "), breakLine);
     code.keepspace = true;
     code.helpcode = true;
     return code;
