@@ -3,6 +3,11 @@ var getEnspBefore = function (node) {
     if (!node) return 0;
     while (node && (node.nodeType !== 1 || !/^br$/i.test(node.tagName))) {
         node = node.previousSibling;
+        if (node?.tagName === 'D') {
+            var match = /^[\u2002\u0020\u00a0]+/.exec(node.innerText);
+            if (match) return match[0].length;
+            return 0;
+        }
     }
     if (node) {
         var next = node.nextSibling;
@@ -47,6 +52,9 @@ return function (forcetab) {
         if (!spaceSize) return;
         var space = document.createTextNode(ensp(spaceSize));
         anchorNode.insertBefore(space, child);
+        if (forcetab === false && anchorNode.tagName === "D") {
+            if (child.tagName === 'BR') remove(child);
+        }
         selection.setBaseAndExtent(space, spaceSize, space, spaceSize);
     }
     else if (anchorNode.nodeType === 3) {

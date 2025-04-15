@@ -1,11 +1,10 @@
 <style>
     & {
         overflow: auto;
-        border: 6px solid transparent;
         border-top: 0;
         border-bottom: 0;
         display: block;
-        padding: 6px 0;
+        padding: 0;
     }
 
     &.noinput {
@@ -23,13 +22,91 @@
             content: "当前浏览器编辑会造成异常";
         }
     }
+
+    @ntype(@len) {
+
+        &[ntype="@{len}"] {
+            @w: @len/2+2;
+            @bg: --bgcolor;
+
+            >[nlist],
+            >[clist] {
+                display: inline-block;
+                vertical-align: top;
+                min-height: 100%;
+                outline: none;
+
+                >r,
+                >d {
+                    display: block;
+                }
+
+            }
+
+            >[clist] {
+                background: #2c2d2c;
+                margin-left:-@{w}em;
+                border-left: @{w}em solid transparent;
+                width: 100%;
+                overflow-x: scroll;
+            }
+
+            >[nlist] {
+                z-index: 1;
+                width: @{w}em;
+                text-align: right;
+                padding-right: .6em;
+                color: #666;
+                position: relative;
+            }
+        }
+    }
+
+    @ntype(0);
+    @ntype(1);
+    @ntype(2);
+    @ntype(3);
+    @ntype(4);
+    @ntype(5);
+    @ntype(6);
+    @ntype(7);
+
+    >list {
+        display: inline-block;
+        border-top: 6px solid #2c2d2c;
+
+        &[nlist] {
+            background: #222;
+            border-color: #222;
+        }
+
+        >d {
+            outline: none;
+            border: none;
+
+            &:focus {
+                outline: 1px solid #fff3;
+            }
+        }
+
+        >n,
+        >d {
+            display: block;
+            height: 1.36em;
+        }
+    }
 </style>
-<编辑框 spellcheck=false e-class="上色.className" e-style="{whiteSpace:'pre'}" onkeydown="updatechar"
-    onkeydown.tab.prevent.only="keytab(1)" onkeydown.tab.shift.prevent.only="keytab(-1)" onkeyup.enter.only="tab(false)"
-    oninput='!event.isComposing&&updatecode(event)' onkeydown.space.only='fixpace'>
+<编辑框 spellcheck=false e-class="上色.className" e-style="{whiteSpace:'pre'}" ntype:="codeSpan">
+    <list contenteditable="false" nlist# :src="(r,i) in coderows" -style="{height:codeHeight}">
+        <n -bind="i+1"></n>
+    </list>
+    <list clist# contenteditable="true" :src="(r,i) in coderows" -style="{height:codeHeight}">
+        <d -html="r"></d>
+    </list>
 </编辑框>
 <script>
     var coder = this;
+    vbox(this);
     if (!('oninput' in document)) {
         on('focus')(this, function () {
             if (this.contentEditable) addClass(this, "noinput");
@@ -38,6 +115,8 @@
             removeClass(this, 'noinput');
         })
     }
+    var codeHeight = '';
+    var codeSpan = 1;
     var coderid = 0;
     care(coder, async function ([text, type]) {
         try {
@@ -47,19 +126,29 @@
             if (typeof text === 'string') coder.innerHTML = 渲染.encode(text);
         }
     });
+    var refresh = function () {
+        codeHeight = coderows.length * 1.36 + 10 + 'em';
+        codeSpan = (coderows.length).toString().length;
+    };
+    on('scroll')(coder, function () {
+        nlist.refresh();
+        clist.refresh();
+    })
+    var coderows = [], codetext = '';
     coder.setValue = async function (text) {
+        codetext = text;
         var id = ++coderid;
-        var colored = await 上色.text(this.type, text);
+        var colored = 上色.rows(this.type, text);
         if (id !== coderid) return;
-        coder.innerHTML = colored;
+        coderows = colored;
+        render.refresh();
     };
     coder.getValue = function () {
-        return coder.innerText;
+        return codetext;
     };
     var markAnchorOffset = function (光标) {
         var { anchorNode, anchorOffset } = document.getSelection();
-        if (!anchorNode || !coder) return;
-        var [c] = coder.children;
+        if (!anchorNode || !clist) return;
         if (anchorNode.nodeType === 1) {
             var node = document.createTextNode(光标);
             anchorNode.insertBefore(node, anchorNode.childNodes[anchorOffset])
@@ -69,7 +158,7 @@
         }
     };
     var unmarkAnchorOffset = function () {
-        var c = coder;
+        var c = clist;
         var node = c.firstChild;
         while (node) {
             if (node.nodeType === 1) {
@@ -148,12 +237,13 @@
         return document.getSelection().setBaseAndExtent(child, offset, child, offset);
     }
     var trimspace = (_, a) => a ? "" : " ";
-    var 更新 = function (colored) {
-        var { scrollTop, scrollLeft } = coder;
-        coder.innerHTML = colored;
-        coder.scrollTop = scrollTop;
-        coder.scrollLeft = scrollLeft;
-        unmarkAnchorOffset();
+    var 更新 = function () {
+        var { scrollTop, scrollLeft } = clist;
+        refresh();
+        render.refresh(clist);
+        render.refresh(nlist);
+        clist.scrollTop = scrollTop;
+        clist.scrollLeft = scrollLeft;
     };
     var anchorChar = null, inText = false;
     var followChar = null, beforeText = false;
@@ -262,7 +352,6 @@
     var historyIndex = 0;
     var updatecode = function (event) {
         var { data, inputType } = event;
-        coderid++;
         var patchAfter = '';
         switch (inputType) {
             case "insertText":
@@ -283,7 +372,9 @@
                     }
                 }
                 break;
-            case "insertParagraph": return;
+            case "insertParagraph":
+                tab(false);
+                return;
             case "deleteContentForward": return;
             case "deleteContentBackward":
                 if (anchorChar in pairsmap && followChar === pairsmap[anchorChar]) {
@@ -292,22 +383,60 @@
                 return;
 
         }
-        markAnchorOffset(光标 + patchAfter);
-        var markedText = coder.innerText;
-        historyIndex = codeHistory.length;
-        codeHistory.push(coder.innerHTML);
-        unmarkAnchorOffset();
-        updateonly(coderid, markedText);
+        return patchAfter;
     };
-    var updateonly = lazy(async function (id, markedText) {
-        if (coderid !== id) return;
-        markedText = await 上色.text(coder.type, markedText);
-        if (coderid !== id) return;
-        更新(markedText);
-        return;
-    }, -60);
+    var patchRows = function (rows, marked) {
+        var ds = clist.querySelectorAll('d');
+        var i = $scoped.get(ds[0]);
+        i = i ? i.i : 0;
+        var e = $scoped.get(ds[ds.length - 1]);
+        e = e ? e.i : coderows.length;
+        rows.splice(i, e - i + 1, ...marked);
+    }
+    var getCodeText = function () {
+        var markedText = clist.innerText;
+        var rows = codetext.split(/\r\n|\r|\n/);
+        patchRows(rows, markedText.split(/\r\n|\r|\n/));
+        return rows.join('\r\n');
+    };
+    var updateCodeHtml = function () {
+        patchRows(coderows, Array.apply(null, clist.querySelectorAll('d')).map(a => {
+            if (a.lastChild === a.firstChild) {
+                var c = a.lastChild;
+                if (c.tagName === 'BR') remove(c);
+            }
+            return a.innerHTML;
+        }));
+    };
     var keytab = function (direction) {
         tab(direction);
     };
-
+    on("input")(coder, function (event) {
+        if (event.isComposing) return;
+        coderid++;
+        var patchAfter = updatecode(event);
+        if (patchAfter != null) {
+            markAnchorOffset(光标 + patchAfter);
+            var markedText = getCodeText();
+            historyIndex = codeHistory.length;
+            codeHistory.push(markedText);
+            unmarkAnchorOffset();
+            codetext = getCodeText();
+            coderows = 上色.rows(coder.type, markedText);
+            更新();
+            unmarkAnchorOffset();
+            coderows.forEach(function (c, i) {
+                var d = c.indexOf(光标);
+                if (d > 0) coderows[i] = c.slice(0, d) + c.slice(d + 1);
+            });
+        }
+    });
+    on('keydown.space.only')(coder, fixpace);
+    on('keydown.tab.shift.prevent.only')(coder, function () {
+        keytab(-1);
+    });
+    on('keydown.tab.prevent.only')(coder, function () {
+        keytab(1);
+    });
+    on('keydown')(coder, updatechar)
 </script>

@@ -977,6 +977,9 @@ function renderEmits(replacer, emits, on) {
 
 function renderRest(renders, element, struct, replacer = element) {
     var { attrs, binds, emits, waits } = struct;
+    if (binds.src) {
+        if (!element.$src) element.$src = parseRepeat(binds.src);
+    }
     renderDynamics(element, replacer, binds, attrs, renders);
     if (!isElement(replacer)) replacer = element;
     renderEmits.call(element, replacer, emits, emiters.on);
@@ -1469,7 +1472,10 @@ $weaks = {
 };
 // -->
 var digest = lazy(refresh);
-render.digest = render.apply = render.refresh = digest;
+render.digest = render.apply = render.refresh = function (a) {
+    if (isNode(a)) refresh(a);
+    else digest();
+};
 render.parseRepeat = parseRepeat;
 "fullscreenchange,resize,load,hashchange".split(",").forEach(e => on(e)(window, digest));
 var eventsBinders = "change,click,paste,cut,resize,keydown,keypress,keyup,input,drop".split(",").map(k => on(k));

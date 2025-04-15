@@ -73,9 +73,8 @@
         overflow: auto;
         display: block;
         white-space: pre;
-        height: auto;
+        height: 100%;
         min-height: 100%;
-        border-width: 10px 20px 40px 20px;
         outline: none;
     }
 
@@ -125,7 +124,7 @@
         </p4>
     </div>
     <div body codearea -elseif="tags[1].actived">
-        <cigu contenteditable #coder></cigu>
+        <cigu #coder></cigu>
     </div>
     <resultpad -if="tags[1].actived" .result #coderesult></resultpad>
     <div foot -if="tags[1].actived">
@@ -272,7 +271,7 @@
             if (live) live = live[1];
             var commap = initCommap(live);
             remove(coderesult.childNodes);
-            var jstext = coder.innerText;
+            var jstext = coder.getValue();
             jstext = jstext.replace(/[\u2002\u00a0]/g, ' ');
             data.patchInstance("docscode", { codetext: jstext })
             var code = compile$scanner2(jstext);

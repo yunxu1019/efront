@@ -1,5 +1,5 @@
 
-var { STRAP, SCOPED, ELEMENT, QUOTED, LABEL, COMMENT, STAMP, VALUE, EXPRESS, PROPERTY, PIECE, needhead_reg } = compile$common;
+var { STRAP, SCOPED, ELEMENT, SPACE, QUOTED, LABEL, COMMENT, STAMP, VALUE, EXPRESS, PROPERTY, PIECE, needhead_reg } = compile$common;
 var predefs = Object.create(null);
 predefs.module = true;
 predefs.exports = true;
