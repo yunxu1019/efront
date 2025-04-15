@@ -101,10 +101,10 @@ var touchend = function () {
     if (!currentTarget) return;
     var marginLeft = -parseInt(currentTarget.scrollLeft) || 0;
     moving = false;
-    if (direction < 0 && marginLeft < -7) {
+    if (direction <= 1 && marginLeft < -7) {
         scrollToLeft.call(currentTarget);
     }
-    else if (direction > 0 && marginLeft > -currentTarget.clientWidth + 7) {
+    else if (direction >= 1 && marginLeft > -currentTarget.clientWidth + 7) {
         scrollToRight.call(currentTarget);
     }
     else if (marginLeft < currentTarget.clientWidth - currentTarget.scrollWidth >> 1) {
