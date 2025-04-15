@@ -86,7 +86,7 @@ var codecolor = function (c, encode) {
         used[k].forEach(k in predefs ? setPredef : setOutside);
     }
     if (c.program) var { space_exp: spaceReg, control_reg } = c.program;
-    if (spaceReg) var unspaceReg = new RegExp(`(?:[^${光标}])+`, 'g');
+    if (spaceReg) var unspaceReg = new RegExp(`(?:${spaces.avoid(光标)}+)`, 'g');
     var wraptext = function (t, l) {
         if (unspaceReg) t = t.replace(unspaceReg, a => {
             if (encode) a = encode(a);

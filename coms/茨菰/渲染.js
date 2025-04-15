@@ -11,10 +11,8 @@ var rows = function (type, text) {
         var c = 语言[type](text);
         标签化(c);
         text = c.toString();
-
     }
     else text = 标签化.encode(text);
-
     var codes = text.split(/\r\n|\r|\n/);
     var minSpace = Infinity;
     for (var c of codes) {
