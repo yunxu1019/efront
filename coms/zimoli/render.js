@@ -71,7 +71,7 @@ presets.template = function (t) {
 window.elementRenders = elementRenders;
 // -->
 var isLe = function (a, b) {
-    return a.id <= b.id;
+    return a.d <= b.d;
 };
 var renderidOffset = 10;
 var renderidClosed = 0;
@@ -79,7 +79,7 @@ var addRenderElement = function () {
     var element = this;
     var renders = $renders.get(element);
     buildFirst(renders);
-    if (renders.id > 10) {
+    if (renders.d > 10) {
         saveToOrderedArray(elementRenders, renders, isLe);
     }
 };
@@ -93,7 +93,7 @@ var removeRenderElement = function () {
     if (elementRenders[i] === renders) elementRenders.splice(i, 1);
 };
 var buildI = function (renders) {
-    if (getTargetIn(this, renders.el)) rebuild(renders);
+    if (getTargetIn(this, renders.e)) rebuild(renders);
 };
 var buildO = function (renders) {
     rebuild(renders);
@@ -145,7 +145,7 @@ var buildThisA = function (f) {
 };
 function rebuild(renders, isFirstRender) {
     if (isFirstRender) delete renders.$ready;
-    var el = renders.el;
+    var el = renders.e;
     var w = $watches.get(el);
     if (el.$digest) digests.push(el);
     if (!w) {
@@ -229,7 +229,7 @@ var createComment = function (type, expression) {
 };
 
 var initialComment = function (el, renders, struct) {
-    renders.el = el;
+    renders.e = el;
     if (struct.once) renders.r1 = true;
     $renders.set(el, renders);
     renderlock.push(renders);
@@ -1386,11 +1386,11 @@ function createStructure(element, useExists) {
 function unlock(renders) {
     if (!renders) return;
     if (!isOnce(renders)) {
-        var node = renders.el;
+        var node = renders.e;
         var rid = renderIds.get(node) || 0;
         if (rid < 10) {
             rid = ++renderidOffset;
-            renders.id = rid;
+            renders.d = rid;
             renderIds.set(node, rid);
         }
         on("append")(node, addRenderElement);
@@ -1402,7 +1402,7 @@ function unlock(renders) {
 }
 var notNull = a => a;
 var isOnce = a => a.r1;
-var notComment = a => !isOnce(a) && a.el.nodeType !== 8;
+var notComment = a => !isOnce(a) && a.e.nodeType !== 8;
 function renderUnlock(element) {
     var locked = renderlock.filter(notNull);
     renderlock = null;
@@ -1468,7 +1468,7 @@ $weaks = {
     $parentScopes: $weaks('$parentScopes', $parented, "$parented"),
 };
 // -->
-var digest = lazy(refresh, -{});
+var digest = lazy(refresh);
 render.digest = render.apply = render.refresh = digest;
 render.parseRepeat = parseRepeat;
 "fullscreenchange,resize,load,hashchange".split(",").forEach(e => on(e)(window, digest));
@@ -1527,7 +1527,7 @@ var initRenders = function (target) {
     var renders = $renders.get(target);
     if (!renders) {
         renders = [];
-        renders.el = target;
+        renders.e = target;
         $renders.set(target, renders);
     }
     return renders;

@@ -1,9 +1,30 @@
+<style>
+    [head] {
+        margin-bottom: 10px;
+        >span,
+        >btn,
+        >swap {
+            vertical-align: top;
+            margin: 0 10px;
+        }
+
+        btn {
+            float: right;
+        }
+    }
+
+</style>
+<div head>
+    <span>
+        自动刷新
+    </span>
+    <swap -model="autoreload"></swap>
+    <btn @click="chat()">新建连接</btn>
+</div>
 <div class="clusters">
     <a -repeat="(c,i) in clusters" ng-class="{current:i===index.index}" @click="active(i,c)">
         <span -text="c"></span>
     </a>
-    自动刷新<swap -model="autoreload"></swap>
-    <btn @click="chat()">新建连接</btn>
 </div>
 <lattice -src="c in clients">
     <padding>

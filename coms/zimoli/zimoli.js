@@ -127,7 +127,7 @@ function go(pagepath, args, history_name, oldpagepath) {
     if (!page_generators[pgpath]) {
         return zimoli(pagepath, args, history_name, oldpagepath);
     }
-    var page = create(pagepath, args, oldpagepath, roles, params);
+    var page = create(pagepath, args, oldpagepath, roles, params, history_name);
     zimoliad = zimoliid;
     var isRecover = pushstate(pagepath, history_name, oldpagepath);
     if (isNode(history_name)) {
@@ -140,7 +140,7 @@ function go(pagepath, args, history_name, oldpagepath) {
         page.disptch();
     }
     if (isRecover) setWithStyle(page, false);
-    addGlobal(page, history_name, isRecover);
+    page.mount(history_name, isRecover);
     return page;
 }
 var page_generators = {};
@@ -416,9 +416,16 @@ function create(pagepath, args, from, needroles, zimolidata) {
             dispatch(document, event);
             fullfill_is_dispatched = 0;
         }
+        var history_name = current_history;
+        var isRecover = false;
+        _page.mount = function (hname, isR) {
+            history_name = hname;
+            isRecover = isR;
+            addGlobal(this, history_name, isRecover);
+        }
         _page.$reload = function () {
             var _page = create(pagepath, undefined, from, undefined, zimolidata);
-            appendChild.replace(this, _page);
+            _page.mount(history_name, isRecover);
             return _page;
         };
     }

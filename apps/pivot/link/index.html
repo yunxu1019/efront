@@ -1,2 +1,7 @@
+<style>
+    menu{
+        margin: 10px 0;
+    }
+</style>
 <menu @active="saveIndex(i)" -src="(m,i) in menus" #navbar></menu>
 <container -src="navbar.selected?.path"></container>
