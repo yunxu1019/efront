@@ -298,6 +298,10 @@
                 ["$mounted*" + live]: $mounted,
                 ["$watches*" + live]: $watches,
                 ["$renders*" + live]: $renders,
+                ["$cared*" + live]: $cared,
+                ["$casted*" + live]: $casted,
+                ["$eval*" + live]: $eval,
+                ["$upwith*" + live]: $upwith,
             })));
             var func = createFunction("", jstext, argNames, code.async, code.yield);
             var res = func.apply(window, args);
