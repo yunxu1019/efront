@@ -298,7 +298,7 @@ macros.each = function () {
 };
 
 
-var presets = /^@(media|keyframes|layer|import|namespace|page|property|suppports|font-face|document|counter-style|charset|color-profile|container|font-feature-values|font-palette-values|scope|starting-style)(\s|\(|$)/i;
+var presets = /^@(media|keyframes|layer|import|namespace|page|property|supports|font-face|document|counter-style|charset|color-profile|container|font-feature-values|font-palette-values|scope|starting-style)(\s|\(|$)/i;
 class 素心 extends Program {
     straps = ["and", ...presets.source.replace(/^[\s\S]*?\(([\s\S]*?)\)[\s\S]*$/, '$1').split('|').map(a => "@" + a)];
     stamps = `;:,>+~&!/`.split("");
