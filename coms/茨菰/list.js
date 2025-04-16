@@ -44,7 +44,10 @@ function list(elem) {
         elem.end = i;
     };
     var refresh = function () {
-        childrenMap = Array.apply(null, elem.children);
+        childrenMap = [];
+        Array.apply(null, elem.children).forEach(a => {
+            childrenMap[a.i] = a;
+        });
         mount();
         remove(childrenMap.filter(a => !!a));
         childrenMap = [];
