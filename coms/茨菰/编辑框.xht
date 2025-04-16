@@ -385,28 +385,34 @@
         }
         return patchAfter;
     };
-    var patchRows = function (rows, marked) {
-        var ds = clist.querySelectorAll('d');
-        var i = $scoped.get(ds[0]);
-        i = i ? i.i : 0;
-        var e = $scoped.get(ds[ds.length - 1]);
-        e = e ? e.i : coderows.length;
-        rows.splice(i, e - i + 1, ...marked);
+    var removeEndBR = function (d) {
+        var e = d.lastChild;
+        while (e) {
+            if (e.tagName === 'BR') {
+                remove(e);
+                return;
+            }
+            e = e.lastChild;
+        }
+    };
+    var patchRows = function (rows, k) {
+        var ds = clist.children;
+        ds = Array.apply(null, ds);
+        ds.forEach(removeEndBR);
+        var marked = ds.map(d => {
+            return d[k]
+        });
+        var i = clist.start;
+        var e = clist.end;
+        rows.splice(i, e - i, ...marked);
     }
     var getCodeText = function () {
-        var markedText = clist.innerText;
         var rows = codetext.split(/\r\n|\r|\n/);
-        patchRows(rows, markedText.split(/\r\n|\r|\n/));
+        patchRows(rows, 'innerText');
         return rows.join('\r\n');
     };
     var updateCodeHtml = function () {
-        patchRows(coderows, Array.apply(null, clist.querySelectorAll('d')).map(a => {
-            if (a.lastChild === a.firstChild) {
-                var c = a.lastChild;
-                if (c.tagName === 'BR') remove(c);
-            }
-            return a.innerHTML;
-        }));
+        patchRows(coderows, "innerHTML");
     };
     var keytab = function (direction) {
         tab(direction);
@@ -414,22 +420,20 @@
     on("input")(coder, function (event) {
         if (event.isComposing) return;
         coderid++;
-        var patchAfter = updatecode(event);
-        if (patchAfter != null) {
-            markAnchorOffset(光标 + patchAfter);
-            var markedText = getCodeText();
-            historyIndex = codeHistory.length;
-            codeHistory.push(markedText);
-            unmarkAnchorOffset();
-            codetext = getCodeText();
-            coderows = 上色.rows(coder.type, markedText);
-            更新();
-            unmarkAnchorOffset();
-            coderows.forEach(function (c, i) {
-                var d = c.indexOf(光标);
-                if (d > 0) coderows[i] = c.slice(0, d) + c.slice(d + 1);
-            });
-        }
+        var patchAfter = updatecode(event) || "";
+        markAnchorOffset(光标 + patchAfter);
+        var markedText = getCodeText();
+        historyIndex = codeHistory.length;
+        codeHistory.push(markedText);
+        unmarkAnchorOffset();
+        codetext = getCodeText();
+        coderows = 上色.rows(coder.type, markedText);
+        更新();
+        unmarkAnchorOffset();
+        coderows.forEach(function (c, i) {
+            var d = c.indexOf(光标);
+            if (d > 0) coderows[i] = c.slice(0, d) + c.slice(d + 1);
+        });
     });
     on('keydown.space.only')(coder, fixpace);
     on('keydown.tab.shift.prevent.only')(coder, function () {
