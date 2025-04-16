@@ -473,6 +473,10 @@
         codetext = getCodeText();
         historyIndex++;
         codeHistory.splice(historyIndex, codeHistory.length - historyIndex);
+        if (historyIndex > 6000) {
+            codeHistory.splice(0, 1000);
+            historyIndex -= 1000;
+        }
         codeHistory.push([codetext, selection]);
         return;
     };
