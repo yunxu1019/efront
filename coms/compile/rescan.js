@@ -11,7 +11,7 @@ var patchObject = function (code, objs) {
                 continue;
             }
             if (c.type === EXPRESS) {
-                if (m = /^#\\(\d+)$/.exec(c.text)) {
+                if (m = /^&(\d+)$/.exec(c.text)) {
                     var o = cloneNode(objs[+m[1]], keep);
                     if (o instanceof Array) replace(c, ...o);
                     else replace(c, o);
@@ -25,7 +25,7 @@ function rescan(strs, ...args) {
     var i = 0;
     for (var s of strs) {
         if (s) dist.push(s, ' ');
-        dist.push('#\\' + i++, " ");
+        dist.push('&' + i++, " ");
     }
     dist.pop();
     if (i > args.length) dist.pop();

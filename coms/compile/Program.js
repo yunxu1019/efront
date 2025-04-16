@@ -1066,7 +1066,9 @@ class Program {
         this.digit_reg = new RegExp(/^[+\-]?/.source + numbers, number_reg.flags);
         this.entry_reg = new RegExp([`${spaceDefined.reg.source}|${quotes_entries}|[${scopes}]|${numbers}(?:${spaceDefined.avoid(tokens)})*|${express}|${powers_entries}|[${stamps}]`], "gi");
         var stamps = this.stamps.slice();
-        for (var k in this.powermap) if (k.length === 1 && stamps.indexOf(k) < 0) stamps.push(k);
+        for (var k in this.powermap) {
+            if (k.length === 1 && stamps.indexOf(k) < 0) stamps.push(k);
+        }
         stamps.push.apply(stamps, powers);
         this.stamp_reg = new RegExp(`^(${stamps.map(this.compile).join('|')})$`);
         quoteslike.forEach(q => {
