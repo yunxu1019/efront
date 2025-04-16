@@ -13,7 +13,7 @@ function list(elem) {
         if (i < s) return;
         var e = elem.end;
         if (i >= e) return;
-        return elem.children[i + s];
+        return elem.children[i - s];
     }
     var mount = function () {
         var fsize = parseFloat(getComputedStyle(elem).lineHeight);
