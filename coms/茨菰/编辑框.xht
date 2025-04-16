@@ -141,100 +141,61 @@
         var colored = 上色.rows(this.type, text);
         if (id !== coderid) return;
         coderows = colored;
+        codeHistory = [[codetext]];
+        historyIndex = 0;
         render.refresh();
     };
     coder.getValue = function () {
         return codetext;
     };
-    var markAnchorOffset = function (光标) {
-        var { anchorNode, anchorOffset } = document.getSelection();
-        if (!anchorNode || !clist) return;
-        if (anchorNode.nodeType === 1) {
-            var node = document.createTextNode(光标);
-            anchorNode.insertBefore(node, anchorNode.childNodes[anchorOffset])
-        }
-        else if (anchorNode.nodeType === 3) {
-            anchorNode.nodeValue = anchorNode.nodeValue.slice(0, anchorOffset) + 光标 + anchorNode.nodeValue.slice(anchorOffset);
-        }
+    var selection;
+    var markAnchorOffset = function () {
+        selection = getSelection();
     };
-    var unmarkAnchorOffset = function () {
-        var c = clist;
-        var node = c.firstChild;
-        while (node) {
-            if (node.nodeType === 1) {
-                if (node.innerText.indexOf(光标) >= 0) {
-                    node = node.firstChild;
+    var getNodeAt = function (row, col) {
+        var d = clist.at(row);
+        if (!d) return [];
+        var c = d.firstChild;
+        var inc = 0;
+        while (c) {
+            if (c.nodeType === 1) {
+                var t = c.innerText;
+                var tl = t.length;
+                if (inc + tl >= col) {
+                    c = c.firstChild;
                     continue;
                 }
+                inc += tl;
+                c = c.nextSibling;
             }
-            else if (node.nodeType === 3) {
-                if (node.nodeValue.indexOf(光标) >= 0) break;
-            }
-            node = node.nextSibling;
-        }
-        if (node) {
-            var offset = node.nodeValue.indexOf(光标);
-            node.nodeValue = node.nodeValue.slice(0, offset) + node.nodeValue.slice(offset + 1);
-            document.getSelection().setBaseAndExtent(node, offset, node, offset);
-            if (!node.nodeValue) {
-                remove(node);
-            }
-        }
-    }
-    var getAnchorOffset = function () {
-        var { anchorNode, anchorOffset } = document.getSelection();
-        var [c] = coder.children;
-        if (anchorNode === c || !anchorNode) return -anchorOffset;
-        var sibling = anchorNode.previousSibling ? anchorNode.previousSibling : anchorNode.parentNode.previousSibling;
-        while (sibling && sibling !== c) {
-            switch (sibling.nodeType) {
-                case 1:
-                    anchorOffset += sibling.innerText.length || 1;
-                    break;
-                case 3:
-                    anchorOffset += sibling.nodeValue.length;
-                    break;
-            }
-            sibling = sibling.previousSibling ? sibling.previousSibling : sibling.parentNode.previousSibling;
-        }
-        return anchorOffset;
-    };
-    var setAnchorOffset = function (anchorOffset) {
-        var [c] = coder.children;
-        if (anchorOffset < 0) {
-            anchorOffset = -anchorOffset;
-            if (anchorOffset > c.childNodes.length) anchorOffset = c.childNodes.length;
-            return document.getSelection().setBaseAndExtent(c, anchorOffset, c, anchorOffset);
-        }
-        var offset = anchorOffset;
-        var child = c.firstChild;
-        while (child) {
-            var delta = 0;
-            switch (child.nodeType) {
-                case 1:
-                    delta = child.innerText.length || 1;
-                    break;
-                case 3:
-                    delta = child.nodeValue.length;
-                    break;
-            }
-            if (delta >= offset) {
-                if (child.nodeType === 1) {
-                    if (child.firstChild) {
-                        child = child.firstChild;
-                        continue;
+            else if (c.nodeType === 3) {
+                var t = c.nodeValue;
+                var tl = t.length;
+                if (inc + tl > col) {
+                    col -= inc;
+                    inc = 0;
+                    if (t.charAt(col - 1) === " ") {
+                        col++;
                     }
-                    offset -= 1;
                     break;
                 }
-                break;
+                else if (inc + tl === col) {
+                    if (t.charAt(col - inc - 1) === " ") col++;
+                    else break;
+                }
+                inc += tl;
+                c = c.nextSibling;
             }
-            offset -= delta;
-            if (offset <= 0) break;
-            child = child.nextSibling;
         }
-        if (!child) child = c, offset = c.childNodes.length;
-        return document.getSelection().setBaseAndExtent(child, offset, child, offset);
+        if (!c) return [d, d.childNodes.length];
+        return [c, col - inc];
+    }
+    var unmarkAnchorOffset = function () {
+        if (!selection) return;
+        var [an, ai, fn, fi] = selection;
+        [fn, fi] = getNodeAt(fn, fi);
+        [an, ai] = fn === an && fi === ai ? [fn, fi] : getNodeAt(an, ai);
+        document.getSelection().setBaseAndExtent(an, ai, fn, fi);
     }
     var trimspace = (_, a) => a ? "" : " ";
     var 更新 = function () {
@@ -252,6 +213,7 @@
         document.execCommand('insertText', false, ' ');
     };
     var updatechar = function (event) {
+        if (event.defaultPrevented) return;
         coderid++;
         var { anchorNode, anchorOffset } = document.getSelection();
         if (!coder || !anchorNode) return;
@@ -277,8 +239,8 @@
             }
             if (anchorOffset === 0) {
                 anchorNode = anchorNode.previousSibling || anchorNode.parentNode.previousSibling;
-                if (!anchorNode) return;
                 do {
+                    if (!anchorNode) return;
                     if (anchorNode.nodeType === 1) {
                         if (anchorNode.lastChild) {
                             anchorOffset = anchorNode.childNodes.length;
@@ -348,8 +310,55 @@
         var [k, p] = a.split('');
         pairsmap[k] = p;
     });
-    var codeHistory = [];
+    var codeHistory = [""];
     var historyIndex = 0;
+    var getRow = function (node) {
+        var d = getTargetIn(clist, node, false);
+        if (!d) return;
+        var i = d.i;
+        if (isFinit(i)) return i;
+        if (d.previousSibling) i = d.previousSibling.i + 1;
+        else if (d.nextSibling) i = d.nextSibling.i - 1;
+        return i;
+    };
+    var getCol = function (node, offset) {
+        var d = getTargetIn(clist, node, false);
+        if (!d) return;
+        if (node.nodeType === 1) node = node.childNodes[offset], offset = 0;
+        while (node && node !== d) {
+            var p = node.previousSibling;
+            if (p) {
+                if (p.nodeType === 1) {
+                    offset += p.innerText.length;
+                }
+                else if (p.nodeType === 3) {
+                    offset += p.nodeValue.length;
+                }
+                node = p;
+                continue;
+            }
+            node = node.parentNode;
+        }
+        return offset;
+    };
+    var getFocusRow = function () {
+        var { focusNode } = document.getSelection();
+        return getRow(focusNode);
+    };
+    var getSelection = function () {
+        var { focusNode, anchorNode, focusOffset, anchorOffset } = document.getSelection();
+        var fn = getRow(focusNode);
+        var an = anchorNode === focusNode ? fn : getRow(anchorNode);
+        var fi = getCol(focusNode, focusOffset);
+        var ai = anchorNode == focusNode && anchorOffset === focusOffset ? fi : getCol(anchorNode, anchorOffset);
+        if (fn === an) {
+            if (ai > fi) [ai, fi] = [fi, ai];
+        }
+        else if (an > fn) {
+            [fn, an] = [an, fn];
+        }
+        return [an, ai, fn, fi];
+    };
     var updatecode = function (event) {
         var { data, inputType } = event;
         var patchAfter = '';
@@ -373,7 +382,8 @@
                 }
                 break;
             case "insertParagraph":
-                tab(false);
+                var i = getFocusRow();
+                tab(clist, false);
                 return;
             case "deleteContentForward": return;
             case "deleteContentBackward":
@@ -382,6 +392,9 @@
                 }
                 return;
 
+        }
+        if (patchAfter) {
+            document.execCommand("insertText", false, patchAfter);
         }
         return patchAfter;
     };
@@ -415,19 +428,25 @@
         patchRows(coderows, "innerHTML");
     };
     var keytab = function (direction) {
-        tab(direction);
+        tab(clist, direction);
+        markAnchorOffset();
+        pudo();
     };
     on("input")(coder, function (event) {
         if (event.isComposing) return;
-        coderid++;
-        var patchAfter = updatecode(event) || "";
-        markAnchorOffset(光标 + patchAfter);
-        var markedText = getCodeText();
-        historyIndex = codeHistory.length;
-        codeHistory.push(markedText);
-        unmarkAnchorOffset();
-        codetext = getCodeText();
-        coderows = 上色.rows(coder.type, markedText);
+        var id = ++coderid;
+        if (updatecode(event) == null) {
+            if (id !== coderid) return;
+            // codetext = getCodeText();
+            updateCodeHtml();
+            pudo();
+            更新();
+            unmarkAnchorOffset();
+            return;
+        }
+        if (id !== coderid) return;
+        pudo();
+        coderows = 上色.rows(coder.type, codetext);
         更新();
         unmarkAnchorOffset();
         coderows.forEach(function (c, i) {
@@ -442,5 +461,35 @@
     on('keydown.tab.prevent.only')(coder, function () {
         keytab(1);
     });
+    var updo = function () {
+        [codetext, selection] = codeHistory[historyIndex];
+        coderows = 上色.rows(coder.type, codetext);
+        更新();
+        unmarkAnchorOffset();
+        codetext = getCodeText();
+    };
+    var pudo = function (markedText) {
+        markAnchorOffset();
+        codetext = getCodeText();
+        historyIndex++;
+        codeHistory.splice(historyIndex, codeHistory.length - historyIndex);
+        codeHistory.push([codetext, selection]);
+        return;
+    };
+    var undo = function () {
+        if (historyIndex > 0) {
+            historyIndex--;
+            updo();
+        }
+    };
+    var redo = function () {
+        if (historyIndex + 1 < codeHistory.length) {
+            historyIndex++;
+            updo();
+        }
+    };
+    on('keydown.ctrl.z.prevent.only')(coder, undo);
+    on('keydown.ctrl.shift.z.prevent.only')(coder, redo);
+    on('keydown.ctrl.y.prevent.only')(coder, redo);
     on('keydown')(coder, updatechar)
 </script>

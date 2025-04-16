@@ -3,34 +3,18 @@ function list(elem) {
     var g = getGenerator(elem);
     var src = [];
     var childrenMap = [];
-    var collectChildren = function (src, old) {
-        var children = Array.apply(null, elem.children);
-        childrenMap = [];
-        var inc = 0;
-        for (var cx = 0, dx = src.length; cx < dx; cx++) {
-            switch (old[cx]) {
-                case old[inc]:
-                    childrenMap[cx] = children[inc];
-                    delete children[inc];
-                    inc++;
-                    continue;
-                case old[inc + 1]:
-                    childrenMap[cx] = children[++inc];
-                    delete children[inc];
-                    inc++;
-                    continue;
-            }
-        }
-        remove(children.filter(a => !!a));
-        console.log(src)
-    }
     care(elem, function (src1, old) {
         src = src1;
-        if (src1 !== old) remove(elem.children);
-        else collectChildren(src, old);
+        remove(elem.children);
         if (isMounted(elem)) mount();
-        remove(childrenMap.filter(a => !!a));
     });
+    var at = function (i) {
+        var s = elem.start;
+        if (i < s) return;
+        var e = elem.end;
+        if (i >= e) return;
+        return elem.children[i + s];
+    }
     var mount = function () {
         var fsize = parseFloat(getComputedStyle(elem).lineHeight);
         var { top, height } = getScreenPosition(elem);
@@ -50,6 +34,7 @@ function list(elem) {
             else delete childrenMap[i];
             if (!e) break;
             top += fsize;
+            e.i = i;
             i++;
             if (isMounted(e) && (!p || e.previousSibling === p));
             else if (p) appendChild.after(p, e);
@@ -65,6 +50,7 @@ function list(elem) {
         childrenMap = [];
     }
     on("mounted")(elem, refresh);
+    elem.at = at;
     elem.refresh = refresh;
     return elem;
 }
