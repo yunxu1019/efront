@@ -705,7 +705,7 @@ function prepare(filename, fullpath) {
     commName = commName && commName[1];
     var className = filename.replace(/[\\\/\:\.]+/g, "-");
     if (!/\-/.test(className)) className += "- " + className;
-    var shortName = className.replace(/^.*?(\w*?)$/g, "$1");
+    var shortName = className.replace(/^.*?([^\-\s]*?)$/g, "$1");
     var lessName = /\s/.test(className) ? className.split(/\s+/)[0] : className;
     if (shortName !== className) className = className + " " + shortName;
     return [commName, lessName, className];
