@@ -551,7 +551,6 @@ class Program {
             m = match?.[0];
         }
         loop: while (index < text.length) {
-
             if (queue.type & (QUOTED | ELEMENT)) {
                 var quote = quote_map[queue.entry];
                 var reg = quote.reg;
@@ -1053,7 +1052,7 @@ class Program {
         scopes = this.compile(scopes);
         tokens = Object.keys(tokens).join("");
         tokens = this.compile(tokens);
-        var express = `(?:\\\\u\\{[^\\}]+\\}|${spaceDefined.avoid(tokens)})+`;
+        var express = `(?:\\\\u\\{[^\\}]+\\}|${spaceDefined.avoid(tokens, false)})+`;
         this.express_reg = new RegExp(`^${express}$`);
         this.space_reg = spaceDefined.is_reg;
         this.space_exp = spaceDefined.reg;

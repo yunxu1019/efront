@@ -25,8 +25,8 @@ var toHex = a => {
     a = Array(5 - a.length).join('0') + a;
     return "\\u" + a;
 };
-spaceDefined.avoid = function (extra_tokens) {
-    if (extra_tokens) extra_tokens = extra_tokens.replace(/[^\w]/ig, toHex);
+spaceDefined.avoid = function (extra_tokens, encodeAvoid) {
+    if (extra_tokens && encodeAvoid !== false) extra_tokens = extra_tokens.replace(/[^\w]/ig, toHex);
     var u0 = "[^\\ud80c][\\udc00-\\udfff]|\\ud80c[^\\udffc]";
     var u1 = "[^\\ud834][\\udc00-\\udfff]|\\ud834[^\\udd73-\\udd7a]";
     return `[^${extra_tokens || ''}${spaceDefined.join('')}]|${u0}|${u1}`;
