@@ -241,7 +241,10 @@ class Program {
             else if (!last || last.type === STAMP && (!(last.text in powermap)) && !last.istype) {
                 if (powermap[o.text] > powermap["="]) o.unary = true;
             }
-            else if (last.type === STRAP && !last.isend || last.type === STAMP && !last.istype && !/^(\+\+|\-\-)$/.test(last.text) || last.type === SCOPED && /^[\{\[]$/.test(last.entry) && !last.isExpress) {
+            else if (last.type === STRAP && !last.isend
+                || last.type === STAMP && !last.istype && !/^(\+\+|\-\-)$/.test(last.text)
+                || last.type === SCOPED && !last.isExpress
+            ) {
                 o.unary = /^[^=;,\:]$/.test(o.text);
                 if (o.unary && /^(\+|\-)$/.test(o.text) && last && last.type === STAMP && /^(\+\+|\-\-)$/.test(last.text)) o.unary = !!last.unary;
             }
