@@ -205,7 +205,7 @@
         var [an, ai, fn, fi] = selection;
         [fn, fi] = getNodeAt(fn, fi);
         [an, ai] = fn === an && fi === ai ? [fn, fi] : getNodeAt(an, ai);
-        document.getSelection().setBaseAndExtent(an, ai, fn, fi);
+        document_selection.setBaseAndExtent(an, ai, fn, fi);
     }
     var trimspace = (_, a) => a ? "" : " ";
     var 更新 = function () {
@@ -219,12 +219,12 @@
     var followChar = null, beforeText = false;
     var fixpace = function (event) {
         event.preventDefault();
-        document.execCommand('insertText', false, ' ');
+        insertText(' ', false);
     };
     var updatechar = function (event) {
         if (event.defaultPrevented) return;
         coderid++;
-        var { anchorNode, anchorOffset } = document.getSelection();
+        var { anchorNode, anchorOffset } = document_selection;
         if (!coder || !anchorNode) return;
         while (anchorNode.nodeType === 1 || anchorOffset === 0) {
             if (anchorNode.nodeType === 1) {
@@ -332,7 +332,17 @@
     var getCol = function (node, offset) {
         var d = getTargetIn(clist, node, false);
         if (!d) return;
-        if (node.nodeType === 1) node = node.childNodes[offset], offset = 0;
+        if (node.nodeType === 1) {
+            var childNodes = node.childNodes;
+            if (offset < childNodes.length) {
+                node = childNodes[offset];
+                offset = 0;
+            }
+            else {
+                offset = node.innerText.length;
+                node = null;
+            }
+        }
         while (node && node !== d) {
             var p = node.previousSibling;
             if (p) {
@@ -350,11 +360,11 @@
         return offset;
     };
     var getFocusRow = function () {
-        var { focusNode } = document.getSelection();
+        var { focusNode } = document_selection;
         return getRow(focusNode);
     };
     var getSelection = function () {
-        var { focusNode, anchorNode, focusOffset, anchorOffset } = document.getSelection();
+        var { focusNode, anchorNode, focusOffset, anchorOffset } = document_selection;
         var fn = getRow(focusNode);
         var an = anchorNode === focusNode ? fn : getRow(anchorNode);
         var fi = getCol(focusNode, focusOffset);
@@ -402,10 +412,39 @@
 
         }
         if (patchAfter) {
-            document.execCommand("insertText", false, patchAfter);
+            insertText(patchAfter, true);
         }
         return patchAfter;
     };
+    var document_selection = document.getSelection();
+    var insertText = function (text, isPatch) {
+        markAnchorOffset();
+        var [an, ai, fn, fi] = selection;
+        var [n, i] = getNodeAt(fn, fi);
+        var d = 0;
+        if (n.nodeType === 1) {
+            n.insertBefore(document.createTextNode(text), n.childNodes[i + 1]);
+            if (!isPatch) d = 1;
+        }
+        else if (n.nodeType === 3) {
+            var v = n.nodeValue;
+            n.nodeValue = v.slice(0, i) + text + v.slice(i);
+            if (!isPatch) d = text.length;
+        }
+        if (d) {
+            selection[3] += d;
+            if (ai === fi) selection[1] += d;
+        }
+        if (an === fn && ai === fi) {
+            i += d;
+            document_selection.setBaseAndExtent(n, i, n, i);
+        }
+        else {
+            [an, ai] = getNodeAt(an, ai);
+            document_selection.setBaseAndExtent(an, ai, n, i + d);
+        }
+
+    }
     var removeEndBR = function (d) {
         var e = d.lastChild;
         while (e) {
