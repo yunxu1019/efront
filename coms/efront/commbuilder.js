@@ -719,6 +719,7 @@ var getValidName = function (prefix, used) {
     return prefix;
 }
 var Timer = require("../basic/Timer");
+const { isDeclareOnly } = require("../compile/common");
 async function getXhtPromise(xhtdata, filename, fullpath, watchurls, extraJs, extraCss) {
     var timer = new Timer;
     var [commName, lessName, className] = prepare(filename, fullpath);
@@ -810,20 +811,38 @@ async function getXhtPromise(xhtdata, filename, fullpath, watchurls, extraJs, ex
             }
         });
         var htmlchanged = false;
-        scope = scope.filter(k => {
+        var uscope = [];
+        var pushu = function (u1, u2, k) {
+            if (u1) for (var a of u1) {
+                if (isDeclareOnly(a)) {
+                    uscope.push(k);
+                    return;
+                }
+            }
+            if (u2) for (var a of u2) {
+                if (isDeclareOnly(a)) {
+                    uscope.push(k);
+                    return;
+                }
+            }
+        }
+        var cscope = scope.filter(k => {
             if (!jsvars[k]) return true;
             delete jsvars[k];
-            delete scope[k];
-            if (jscode.used[k]) {
-                compile$patchlist(xhtmain + ".", jscode.used[k]);
+            delete jscope[k];
+            var ju = jscode.used[k];
+            var hu = htcode.used[k];
+            pushu(ju, hu, k + ":undefined");
+            if (ju) {
+                compile$patchlist(xhtmain + ".", ju);
             }
-            if (htcode.used[k]) {
+            if (hu) {
                 htmlchanged = true;
-                compile$patchlist(xhtmain + '.', htcode.used[k]);
+                compile$patchlist(xhtmain + '.', hu);
             }
-        });
+        }).concat(uscope);
         if (htmlchanged) htmltext = htcode.toString();
-        scope = `var ${Object.keys(jsvars).concat(xhtmain).join(',')}={${scope.join(",")}};`;
+        scope = `var ${Object.keys(jsvars).concat(xhtmain).join(',')}={${cscope.join(",")}};`;
         scripts = jscode.toString();
     }
     if (attributes) attributes = attributes.map(a => `elem.setAttribute("${a.name}",${a.value ? strings.recode(a.value) : '""'})`).join("\r\n");

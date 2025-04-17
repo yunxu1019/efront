@@ -36,7 +36,7 @@
                 min-height: 100%;
                 outline: none;
 
-                >r,
+                >n,
                 >d {
                     display: block;
                 }
@@ -89,6 +89,10 @@
             }
         }
 
+        >n[current] {
+            color: #ccc;
+        }
+
         >n,
         >d {
             display: block;
@@ -98,7 +102,7 @@
 </style>
 <编辑框 spellcheck=false e-class="上色.className" e-style="{whiteSpace:'pre'}" ntype:="codeSpan">
     <list contenteditable="false" nlist# :src="(r,i) in coderows" -style="{height:codeHeight}">
-        <n -bind="i+1"></n>
+        <n current:="isCurrent(i)" -bind="i+1"></n>
     </list>
     <list clist# contenteditable="true" :src="(r,i) in coderows" -style="{height:codeHeight}">
         <d -html="r"></d>
@@ -129,12 +133,15 @@
     var refresh = function () {
         codeHeight = coderows.length * 1.36 + 10 + 'em';
         codeSpan = (coderows.length).toString().length;
-        console.log(codeSpan)
     };
     on('scroll')(coder, function () {
         nlist.refresh();
         clist.refresh();
-    })
+    });
+    var isCurrent = function (i) {
+        if (!selection) return false;
+        return i >= selection[0] && i <= selection[2];
+    };
     var coderows = [], codetext = '';
     coder.setValue = async function (text) {
         codetext = text;
@@ -153,6 +160,7 @@
     var selection;
     var markAnchorOffset = function () {
         selection = getSelection();
+        render.refresh(nlist);
     };
     var getNodeAt = function (row, col) {
         var d = clist.at(row);
@@ -297,7 +305,6 @@
             beforeText = false;
             followChar = '';
         }
-
     };
     var pairsmap = Object.create(null);
     [
@@ -461,6 +468,9 @@
     });
     on('keydown.tab.prevent.only')(coder, function () {
         keytab(1);
+    });
+    bind('selectionchange', document)(coder, function () {
+        markAnchorOffset();
     });
     var updo = function () {
         [codetext, selection] = codeHistory[historyIndex];

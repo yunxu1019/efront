@@ -1835,6 +1835,19 @@ var patchArrawScope = function (arraw, origin) {
     };
 };
 
+var isDeclareOnly = function (o) {
+    if (!o.kind) return false;
+    while (o) {
+        var q = o.queue;
+        if (!q.kind) break;
+        o = q;
+    }
+    var n = o.next;
+    if (!n) return true;
+    if (n.type !== STAMP || /^[,;]$/.test(n.text)) return true;
+    return false;
+}
+
 module.exports = {
     /*   1 */COMMENT,
     /*   2 */SPACE,
@@ -1854,6 +1867,7 @@ module.exports = {
     needfoot_reg,
     unshort,
     skipAssignment,
+    isDeclareOnly,
     getDeclared,
     getBodyWith,
     getFuncBody,
