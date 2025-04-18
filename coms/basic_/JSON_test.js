@@ -1,5 +1,4 @@
 var JSON0 = window.JSON;
-console.log(JSON0);
 var test = function (JSON) {
     var parse = function (s) {
         try {
@@ -172,10 +171,33 @@ var test2 = function (JSON) {
     assert(JSON.parse(`{/*a*/"1":\r\n2}`), { "1": 2 })
     assert(JSON.parse(`{"1/*a*/":\r\n2}`), { "1/*a*/": 2 })
 }
+var test3 = function (JSON) {
+    console.log(JSON, JSON0, JSON === JSON0);
+    var start_time = performance.now();
+    for (var cx = 0, dx = 0xffff; cx < dx; cx++) {
+        var str = String.fromCodePoint(cx);
+        var enc = JSON.stringify(str);
+        var dec = JSON.parse(enc);
+        assert(dec, str);
+        var obj = { [str]: str };
+        enc = JSON.stringify(obj);
+        dec = JSON.parse(enc);
+        assert(dec, obj);
+        obj = { [enc]: dec, [str]: obj };
+        var enc = JSON.stringify(obj);
+        dec = JSON.parse(enc);
+        if (!assert(dec, obj)) {
+            console.log(cx, str, cx.toString(16), enc, dec, obj);
+            process.exit(1);
+        }
+    }
+    console.log(performance.now() - start_time);
+}
 function JSON_test() {
     window.JSON0 = JSON0;
     window.JSON = void 0;
     delete modules.JSON;
     modules.init("JSON", test2);
+    modules.init("JSON", test3);
     window.JSON = JSON0;
 }
