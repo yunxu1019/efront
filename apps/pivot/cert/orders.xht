@@ -196,8 +196,7 @@
                         remove(e);
                     }
                 })
-                popup(e);
-                move.setPosition(e, [.5, .5]);
+                popup(e, [.5, .5]);
             },
             async upload(o) {
                 var cert = await data.fromURL(o.certificate);
