@@ -23,7 +23,9 @@ var unescapeUnc = function (a) {
     }
     return "\\u" + code;
 };
-var unescapeMap = {};
+var unescapeMap = {
+    "\\v": "\v",
+};
 for (var k in escapeMap) unescapeMap[escapeMap[k]] = k;
 function encode(str, q = "\"", escapeUnicode = true) {
     str = str.replace(new RegExp(`[\\\\${q}]`, 'g'), "\\$&");
