@@ -189,7 +189,7 @@ var doDB = async function (req, res) {
                         data = await readItem(req, dbid, lastId, version);
                     } catch (e) {
                         res.writeHead(403, utf8error);
-                        res.end(e);
+                        res.end(String(e));
                         return;
                     }
                 }
@@ -215,7 +215,7 @@ var doDB = async function (req, res) {
             }
             catch (e) {
                 res.writeHead(403, utf8error);
-                res.end(e);
+                res.end(String(e));
                 return;
             }
             break;
@@ -225,7 +225,7 @@ var doDB = async function (req, res) {
                 data = await addItem(req, dbid, lastId, data);
             } catch (e) {
                 res.writeHead(403, utf8error);
-                res.end(e);
+                res.end(String(e));
                 return;
             }
             break;
@@ -234,7 +234,7 @@ var doDB = async function (req, res) {
                 data = await deleteItem(req, dbid, lastId);
             } catch (e) {
                 res.writeHead(403, utf8error);
-                res.end(e);
+                res.end(String(e));
                 return;
             }
             break;
