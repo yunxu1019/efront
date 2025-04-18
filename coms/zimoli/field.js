@@ -109,7 +109,7 @@ function main(elem) {
     if (elem.break === false) elem.break = Infinity;
     resizingList.set(elem, reshape);
     elem.setAttribute("field", '');
-    elem.$digest = ondigest;
+    elem.$digest = reshape;
     elem.removeAttribute("tabindex");
 
     if (!elem.childNodes.length) {
@@ -120,7 +120,7 @@ function main(elem) {
         if (head) addClass(head, "head");
         if (body) addClass(body, "body");
         if (foot) addClass(foot, "foot");
-        elem.$renders = [reshape];
     }
+    elem.$renders = [checkValue];
     return elem;
 }
