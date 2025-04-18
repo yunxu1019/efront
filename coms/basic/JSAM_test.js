@@ -328,6 +328,24 @@ function test_time() {
     var t4 = gettime(() => JSAM.stringify(data, false));
     console.log(t1, t2, t3, t4);
 }
+function test_encode() {
+    for (var cx = 0, dx = 0xffff; cx < dx; cx++) {
+        var str = String.fromCodePoint(cx);
+        var enc = JSAM.stringify(str);
+        var dec = JSAM.parse(enc);
+        assert(str, dec);
+        var obj = { [str]: str };
+        enc = JSAM.stringify(obj);
+        dec = JSAM.parse(enc);
+        if (!assert(dec, obj) || cx === 0x41) {
+            console.log(cx, str, cx.toString(16), enc);
+        };
+        obj = { [str]: obj, [enc]: obj };
+        enc = JSAM.stringify(obj);
+        dec = JSAM.parse(enc);
+        assert(dec, obj);
+    }
+}
 function JSAM_test() {
     test_self();
     test_json();
@@ -336,4 +354,5 @@ function JSAM_test() {
     test_parse();
     JSAM.debug = false;
     test_time();
+    test_encode();
 }

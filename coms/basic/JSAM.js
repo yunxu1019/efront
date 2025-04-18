@@ -21,7 +21,7 @@ var isValidK = function (k) {
     return k.length < 16 && !/^\d|[,:'"\\\/`\-\[\]\{\}\(\)\.\+\#\@\&^]/.test(k) && spaces.trim(k) === k;
 };
 var extractK = function (k) {
-    return k.length < 16 && isFinite(k);
+    return /^\d{1,16}$/.test(k);
 };
 var noDulp = false, plength = 0, dulp = false;
 var hasOwnProperty = {}.hasOwnProperty;
@@ -85,12 +85,12 @@ function _tostring(memery, preload, dist) {
             v = _tostring(v, preload);
         }
 
-        if (k && +k === inc) {
-            arr.push(v);
+        if (extractK(k)) {
+            if (+k === inc) arr.push(v);
+            else arr.push("+" + k + ":" + v);
         }
         else {
-            if (extractK(k)) k = "+" + k;
-            else if (!isValidK(k)) k = string(String(k));
+            if (!isValidK(k)) k = string(String(k));
             arr.push(k + ":" + v);
         }
         inc++;
