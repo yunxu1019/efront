@@ -199,29 +199,29 @@ var acme2 = new class {
         var acme2 = this;
         var extra;
         [private_key, public_key, extra] = unique.split(',');
-        if (extra) {
-            extra = JSON.parse(decodeUTF8(fromBase64(extra)));
-            acme2.email = extra.email;
-            acme2.kid = extra.kid;
-            if (extra.kid) {
-                var account = data.getUrlParamsForApi(accountApi, extra.kid);
-                acme2.aid = account.aid;
-            }
-            acme2.domain = extra.domain;
-            acme2.termsOfServiceAgreed = extra.termsOfServiceAgreed;
-            acme2.orders = extra.orders;
-            acme2.lastUpdateTime = filterTime(extra.lastUpdateTime, "y-MM-dd hh:mm");
-            acme2.nextUpdateTime = parseDate(extra.nextUpdateTime);
-            acme2.schadulePeriod = +extra.schadulePeriod || 80;
-            acme2.schaduleEnabled = extra.schaduleEnabled;
-            this.updateTime();
-        }
         if (!this.enabled) {
             public_key = null;
             private_key = null;
             return;
         }
         try {
+            if (extra) {
+                extra = JSON.parse(decodeUTF8(fromBase64(extra)));
+                acme2.email = extra.email;
+                acme2.kid = extra.kid;
+                if (extra.kid) {
+                    var account = data.getUrlParamsForApi(accountApi, extra.kid);
+                    acme2.aid = account.aid;
+                }
+                acme2.domain = extra.domain;
+                acme2.termsOfServiceAgreed = extra.termsOfServiceAgreed;
+                acme2.orders = extra.orders;
+                acme2.lastUpdateTime = filterTime(extra.lastUpdateTime, "y-MM-dd hh:mm");
+                acme2.nextUpdateTime = parseDate(extra.nextUpdateTime);
+                acme2.schadulePeriod = +extra.schadulePeriod || 80;
+                acme2.schaduleEnabled = extra.schaduleEnabled;
+                this.updateTime();
+            }
             privateKey = await subtle.importKey("pkcs8", new Uint8Array(fromBase64(private_key)), {
                 name: RSASSA_PKCS1_v1_5,
                 hash: "SHA-256",
@@ -231,7 +231,9 @@ var acme2 = new class {
                 hash: "SHA-256",
             }, true, ["verify"]);
             acme2.public_key = public_key;
-        } catch (e) { alert("加载服务器公钥异常！", "error"); throw e }
+        } catch (e) {
+            alert("加载服务器公钥异常！", "error");
+        }
     }
     pickUnique() {
         var acme2 = this;
