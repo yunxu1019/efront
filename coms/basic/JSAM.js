@@ -21,7 +21,7 @@ var isValidK = function (k) {
     return k.length < 16 && !/^\d|[,:'"\\\/`\-\[\]\{\}\(\)\.\+\#\@\&^]/.test(k) && spaces.trim(k) === k;
 };
 var extractK = function (k) {
-    return /^\d{1,16}$/.test(k);
+    return /^\d{1,16}$/.test(k) && !/^0\d/.test(k);
 };
 var noDulp = false, plength = 0, dulp = false;
 var hasOwnProperty = {}.hasOwnProperty;
