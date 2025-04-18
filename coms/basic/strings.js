@@ -8,7 +8,6 @@ var escapeMap = {
     "\u2028": "\\u2028",
     "\u2029": "\\u2029",
 };
-var unescapeReg = new RegExp(`[${Object.keys(escapeMap).map(a => escapeMap[a]).join('')}]`, 'g');
 var unescapeFun = a => escapeMap[a];
 var unescapeUnc = function (a) {
     if (escapeMap.hasOwnProperty(a)) return escapeMap[a];
@@ -27,6 +26,7 @@ var unescapeMap = {
     "\\v": "\v",
 };
 for (var k in escapeMap) unescapeMap[escapeMap[k]] = k;
+var unescapeReg = new RegExp(`[${Object.keys(escapeMap).map(a => escapeMap[a]).join('')}]`, 'g');
 function encode(str, q = "\"", escapeUnicode = true) {
     str = str.replace(new RegExp(`[\\\\${q}]`, 'g'), "\\$&");
     if (escapeUnicode) str = str.replace(/[\r\n\t\v\f\u0008\u0000-\u001f\u007f-\uffff]/g, unescapeUnc);
