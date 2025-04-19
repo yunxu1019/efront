@@ -156,11 +156,19 @@ function translate([imap, supports], code) {
                         var a = v.replace(/^[\$&]+/, '');
                         var a = (a << 1) - 1;
                         if (a in t) v = t[a];
-                        else v = scanner2(JSON.stringify(v));
+                        else v = scanner2(`(${JSON.stringify(v)})`)[0];
                     }
                     else if (/^(name|holder|comment)$/.test(k)) v = ctn('i18n' + getm(v, t.nodup, t.warn), t);
-                    else v = scanner2(JSON.stringify(v));
-                    o.push({ type: PROPERTY, isprop: true, text: JSON.stringify(k) }, { type: STAMP, text: ':' }, ...v, { type: STAMP, text: ',' });
+                    else v = scanner2(`(${JSON.stringify(v)})`)[0];
+                    o.push({
+                        type: PROPERTY,
+                        isprop: true,
+                        text: JSON.stringify(k),
+                    }, {
+                        type: STAMP, text: ':'
+                    }, ...v, {
+                        type: STAMP, text: ','
+                    });
                 })
                 o.pop();
                 setqueue(o);

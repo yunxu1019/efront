@@ -32,7 +32,8 @@ var createTemplateNodes = function (text) {
         this.with = [node];
         return;
     } else {
-        var node = document.createElement(this.parentNode.tagName || "div");
+        var parentNode = this.parentNode;
+        var node = parentNode ? parentNode.cloneNode(false) : document.createElement("div");
         node.innerHTML = text;
         this.with = Array.apply(null, node.childNodes);
     }
@@ -53,7 +54,10 @@ var createCloner = function (node) {
 };
 
 presets.template = function (t) {
-    var comment = document.createComment('template');
+    var comment = document.createComment('');
+    // <!--
+    comment = document.createComment('template');
+    // -->
     $scoped.set(comment, $scoped.get(t));
     $parented.set(comment, $parented.get(t));
     t.$comment = comment;
@@ -215,7 +219,10 @@ var createGetter = function (target, search, isprop = true) {
     return toUndefined;
 };
 var createComment = function (type, expression) {
-    var comment = document.createComment(`${type} ${expression}`);
+    var comment = document.createComment(``);
+    //<!--
+    comment = document.createComment(`${type} ${expression}`);
+    // -->
     $scoped.set(comment, $scoped.get(this));
     $structed.set(comment, $structed.get(this));
     $parented.set(comment, $parented.get(this));
