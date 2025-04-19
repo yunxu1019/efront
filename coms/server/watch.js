@@ -1,5 +1,7 @@
 "use strict";
 var fs = require("fs");
+var fsp = fs.promises;
+var path = require("path");
 var lazy = require("../basic/lazy");
 var watch_tree = {};
 var watching = false;
@@ -8,10 +10,14 @@ var watch_ = function (file, watchers) {
     watchers[0] = fs.watch(file, {
         persistent: false,
         recursive: /^(darwin|win32)$/i.test(process.platform)
-    }, lazy(function (file, changeType) {
-        if (watch_tree[file] !== this) return;
+    }, lazy(async function (folder, changeType, changedFile) {
+        if (watch_tree[folder] !== this) return;
         if (!/^(change|rename)$/i.test(changeType)) return;
-        watchers.slice(1, watchers.length).forEach(w => w(file));
+        var fullpath = path.join(folder, changedFile);
+        var stats = await fsp.stat(fullpath);
+        if (new Date - stats.mtime < 6000) {
+            watchers.slice(1, watchers.length).forEach(w => w(folder));
+        }
     }.bind(watchers, file), 160));
 }
 var close = function (file) {
