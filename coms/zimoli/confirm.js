@@ -56,7 +56,13 @@ function confirm() {
         element.style.width = fromPixel(width + 260);
         body.innerHTML = message;
     } else if (isNode(message)) {
-        appendChild(body, message);
+        if (message.nodeType === 1) {
+            addClass(message, 'body');
+            appendChild.replace(body, message);
+        }
+        else {
+            appendChild(body, message);
+        }
     } else {
         throw new Error(i18n`消息体不合法！`);
     }

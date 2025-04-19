@@ -137,6 +137,7 @@ return function (elem, forcetab) {
         return;
     }
     if (forcetab === false) {
+        if (!rowNode) return;
         if (!rowNode.innerText) remove(rowNode.childNodes);
         [parentNode, child, spaceSize] = getPrevEnsp(rowNode);
         if (!spaceSize) return;

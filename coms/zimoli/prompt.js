@@ -53,30 +53,6 @@ function prompt() {
     var getValue = () => isFunction(ipt.getValue) ? ipt.getValue() : ipt.value;
     if (check || wrap) {
         var setDisable = function (event) {
-            var bd = c.body;
-            if (wrap && bd) {
-                if (p) move.setPosition(c, p);
-                var cp = getCursorPosition();
-                var bp = getScreenPosition(bd);
-                var s = getComputedStyle(ipt);
-                var pl = parseFloat(s.paddingLeft) * 2 + ipt.clientLeft + ipt.offsetLeft;
-                var pr = parseFloat(s.borderRightWidth) + parseFloat(s.paddingRight) * 2 + (bd.scrollWidth - ipt.offsetLeft - ipt.offsetWidth);
-                var pt = parseFloat(s.paddingTop) * 2 + ipt.clientTop + ipt.offsetTop;
-                var pb = parseFloat(s.borderBottomWidth) + parseFloat(s.paddingBottom) * 2 + (bd.scrollHeight - ipt.offsetTop - ipt.offsetHeight);
-
-                if (cp.left < bp.left + pl) {
-                    bd.scrollLeft -= bp.left + pl - cp.left;
-                }
-                if (cp.right > bp.right - pr) {
-                    bd.scrollLeft += cp.right + pr - bp.right;
-                }
-                if (cp.top < bp.top + pt) {
-                    bd.scrollTop -= bp.top + pt - cp.top;
-                }
-                if (cp.bottom > bp.bottom - pb) {
-                    bd.scrollTop += cp.bottom + pb - cp.bottom;
-                }
-            }
             if (!check) return;
             var valid = validate(getValue(), check, tip);
             if (event) attr(body, "error", !valid);
@@ -124,7 +100,8 @@ function prompt() {
             once('dragend')(c, function () {
                 p = move.getPosition(c);
             })
-        })
+        });
+        resize.on(c);
     }
     return c;
 }

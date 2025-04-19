@@ -128,6 +128,7 @@ function go(pagepath, args, history_name, oldpagepath) {
         return zimoli(pagepath, args, history_name, oldpagepath);
     }
     var page = create(pagepath, args, oldpagepath, roles, params, history_name);
+    if (!page) return;
     zimoliad = zimoliid;
     var isRecover = pushstate(pagepath, history_name, oldpagepath);
     if (isNode(history_name)) {

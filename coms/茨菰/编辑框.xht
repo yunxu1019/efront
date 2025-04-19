@@ -5,6 +5,7 @@
         border-bottom: 0;
         display: block;
         padding: 0;
+        max-height: 100%;
     }
 
     &.noinput {
@@ -33,7 +34,6 @@
             >[clist] {
                 display: inline-block;
                 vertical-align: top;
-                min-height: 100%;
                 outline: none;
 
                 >n,
@@ -48,7 +48,7 @@
                 margin-left:-@{w}em;
                 border-left: @{w}em solid transparent;
                 width: 100%;
-                overflow-x: scroll;
+                overflow-x: auto;
             }
 
             >[nlist] {
@@ -73,11 +73,16 @@
 
     >list {
         display: inline-block;
+        min-height: 6em;
         border-top: 6px solid #2c2d2c;
 
         &[nlist] {
             background: #222;
             border-color: #222;
+        }
+
+        &[clist] {
+            border-right: 2px solid transparent;
         }
 
         >d {
@@ -130,8 +135,8 @@
             if (typeof text === 'string') coder.innerHTML = 渲染.encode(text);
         }
     });
-    var refresh = function () {
-        codeHeight = coderows.length * 1.36 + 10 + 'em';
+    var reshape = function () {
+        codeHeight = coderows.length * 1.36 + 1 + 'em';
         codeSpan = (coderows.length).toString().length;
     };
     on('scroll')(coder, function () {
@@ -142,7 +147,7 @@
         if (!selection) return false;
         return i >= selection[0] && i <= selection[2];
     };
-    var coderows = [], codetext = '';
+    var coderows = [""], codetext = '';
     coder.setValue = async function (text) {
         codetext = text;
         var id = ++coderid;
@@ -151,7 +156,7 @@
         coderows = colored;
         codeHistory = [[codetext]];
         historyIndex = 0;
-        refresh();
+        reshape();
         render.refresh(coder);
     };
     coder.getValue = function () {
@@ -200,17 +205,40 @@
         if (!c) return [d, d.childNodes.length];
         return [c, col - inc];
     }
+    var anchor = document.createElement('span');
     var unmarkAnchorOffset = function () {
         if (!selection) return;
         var [an, ai, fn, fi] = selection;
         [fn, fi] = getNodeAt(fn, fi);
         [an, ai] = fn === an && fi === ai ? [fn, fi] : getNodeAt(an, ai);
-        document_selection.setBaseAndExtent(an, ai, fn, fi);
+        if (an && an === fn && ai === fi) {
+            var d = getTargetIn(clist, an, false);
+            if (an === d) {
+                d.insertBefore(anchor, d.childNodes[ai]);
+            }
+            else {
+                an.parentNode.insertBefore(anchor, an.nextSibling);
+            }
+            if (anchor.offsetLeft > clist.clientWidth + clist.scrollLeft + d.offsetLeft) {
+                clist.scrollLeft = anchor.offsetLeft - clist.clientWidth + 6;
+            }
+            else if (anchor.offsetLeft < clist.scrollLeft) {
+                clist.scrollLeft = anchor.offsetLeft;
+            }
+            anchor.parentNode.removeChild(anchor);
+            if (d.offsetTop < coder.scrollTop + clist.offsetTop) {
+                coder.scrollTop = d.offsetTop - clist.offsetTop;
+            }
+            if (d.offsetTop + clist.offsetTop > coder.scrollTop + coder.clientHeight){
+                console.log(d.offsetTop,clist.offsetTop, coder.scrollTop,coder.clientHeight)
+            }
+        }
+        if (an && fn) document_selection.setBaseAndExtent(an, ai, fn, fi);
     }
     var trimspace = (_, a) => a ? "" : " ";
     var 更新 = function () {
         var { scrollTop, scrollLeft } = clist;
-        refresh();
+        reshape();
         render.refresh(coder);
         clist.scrollTop = scrollTop;
         clist.scrollLeft = scrollLeft;
@@ -220,6 +248,8 @@
     var fixpace = function (event) {
         event.preventDefault();
         insertText(' ', false);
+        markAnchorOffset();
+        unmarkAnchorOffset();
     };
     var updatechar = function (event) {
         if (event.defaultPrevented) return;
@@ -242,6 +272,7 @@
                 }
                 else {
                     anchorNode = anchorNode.previousSibling;
+                    if (!anchorNode) return;
                     if (anchorNode.nodeType === 1) anchorOffset = anchorNode.childNodes.length;
                     else anchorOffset = anchorNode.nodeValue.length;
                 }
@@ -318,7 +349,7 @@
         var [k, p] = a.split('');
         pairsmap[k] = p;
     });
-    var codeHistory = [""];
+    var codeHistory = [[""]];
     var historyIndex = 0;
     var getRow = function (node) {
         var d = getTargetIn(clist, node, false);
@@ -545,5 +576,13 @@
     on('keydown.ctrl.z.prevent.only')(coder, undo);
     on('keydown.ctrl.shift.z.prevent.only')(coder, redo);
     on('keydown.ctrl.y.prevent.only')(coder, redo);
-    on('keydown')(coder, updatechar)
+    on('keydown.backspace')(coder, function (event) {
+        var { firstChild, lastChild } = clist;
+        if (firstChild === lastChild && !firstChild.childNodes.length) {
+            event.preventDefault();
+            return;
+        }
+    });
+    on('keydown')(coder, updatechar);
+    reshape();
 </script>

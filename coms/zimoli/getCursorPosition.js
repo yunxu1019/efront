@@ -13,9 +13,9 @@ var getCursorPosition = function () {
         focusNode.nodeValue = nodeValue.slice(0, focusOffset);
         focusNode.parentNode.insertBefore(cursor, focusNode.nextSibling);
         position = getScreenPosition(cursor);
-        cursor.parentNode.removeChild(cursor);
         focusNode.nodeValue = nodeValue;
     }
+    if (cursor.parentNode) cursor.parentNode.removeChild(cursor);
     selection.setBaseAndExtent(anchorNode, anchorOffset, focusNode, focusOffset)
     return position;
 };

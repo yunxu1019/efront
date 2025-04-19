@@ -12,10 +12,16 @@ tip {
     }
 }
 
-[body],
-.body {
-    >div {
+>[body],
+>.body {
+    >[textarea] {
         height: 100%;
+        max-height: 260px;
+    }
+
+    >.编辑框 {
+        margin: 0 -16px;
+        width: auto;
     }
 }
 
@@ -23,12 +29,16 @@ textarea,
 [textarea] {
     width: 100%;
     resize: none;
+    border: 1px solid #ddd;
+
+    &:focus {
+        border-color: #09c;
+        outline: none;
+    }
 }
 
 >[body],
->.body {
-    max-height: 360px;
-}
+>.body {}
 
 [textarea] {
     min-height: 80px;
