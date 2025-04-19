@@ -187,7 +187,7 @@ function main() {
                         if (s.actived) {
                             elem.selected = s.actived;
                         }
-                        else if (direction === 't') {
+                        else if (direction === 't' || istag) {
                             elem.selected = s[0];
                             if (elem.selected) elem.selected.setActive(true);
                         }
