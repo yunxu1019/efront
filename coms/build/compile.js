@@ -1,6 +1,7 @@
 "use strict";
 var fs = require("fs");
 var path = require("path");
+var spaces = require("../basic/spaces");
 var getDepedence = require("./getDependence");
 var searchPath = require("./searchPath");
 var window = {
@@ -203,8 +204,8 @@ async function compile() {
                     }).catch(findRealpath);
                 };
                 var response = function (buffer, p = _filepath) {
-                    var id = buildInfo.destpath.replace(/\..*$/, "").replace(/[^\w]/g, a => "_" + a.charCodeAt(0).toString(36) + "-");
-                    id = '/' + componentId + ' ' + id.replace(/^[\s\S]*?(\w*)$/, "$1");
+                    var id = $split(buildInfo.destpath.replace(/\..*$/, "")).pop();
+                    id = '/' + componentId + ' ' + id.replace(/^[\s\S]*?([^\-\\\/\:\.\s]*)$/, "$1");
                     responseText = builder(buffer, id, p, []);
                     responsePath = _filepath;
                     isPackaged = isDirectory;
