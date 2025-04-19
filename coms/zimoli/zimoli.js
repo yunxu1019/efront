@@ -512,6 +512,7 @@ var pushstate = function (path_name, history_name) {
         if (_history[_history.index] !== path_name) {
             _history.splice(_history.index, _history.length - _history.index);
             _history[_history.index] = path_name;
+            index = _history.index;
         }
         _history.lastIndex = index;
     }
