@@ -409,9 +409,10 @@ var createRepeat = function (search, id = 0, struct) {
     initialComment(comment, renders, struct);
     return comment;
 };
+var $elements = new WeakMap;
 
 var ifget = function () {
-    var elements = this.$elements;
+    var elements = $elements.get(this);
     var shouldMount = -1;
     for (var cx = 0, dx = elements.length; cx < dx; cx += 2) {
         var getter = elements[cx + 1];
@@ -423,7 +424,7 @@ var ifget = function () {
     return shouldMount;
 }
 var ifset = function (shouldMount) {
-    var elements = this.$elements;
+    var elements = $elements.get(this);
     for (var cx = 0, dx = elements.length; cx < dx; cx += 2) {
         var c = elements[cx];
         if (cx === shouldMount) {
@@ -451,7 +452,7 @@ var createIf = function (search, id = 0, struct) {
     var renders = [new Binder2(ifget, ifset)];
     var comment = elements[0] = createComment.call(element, 'if', search);
     comment.$id = id;
-    comment.$elements = elements;
+    $elements.set(comment, elements);
     if (struct.once) renders.r1 = true;
     initialComment(comment, renders, struct);
     return comment;
