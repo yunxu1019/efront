@@ -14,17 +14,20 @@ tip {
 
 >[body],
 >.body {
+    height: 100%;
     >[textarea] {
         height: 100%;
-        max-height: 260px;
     }
 
     >.编辑框 {
         margin: 0 -16px;
         width: auto;
+        height: 100%;
+        >list{
+            min-height: auto;
+        }
     }
 }
-
 textarea,
 [textarea] {
     width: 100%;

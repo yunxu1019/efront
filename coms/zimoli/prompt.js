@@ -17,6 +17,18 @@ var validate = function (text, checker, tip) {
     valid = settip(tip, valid);
     return valid;
 };
+var fixContainer = function (elem, ipt) {
+    var lastChild = ipt.lastChild;
+    if (!lastChild) return;
+    var deltaHeight = lastChild.offsetHeight + lastChild.offsetTop - ipt.clientHeight;
+    if (Math.abs(deltaHeight) < 1) return;
+    var offsetHeight = elem.offsetHeight;
+    var targetHeight = offsetHeight + deltaHeight;
+    if (targetHeight > innerHeight) targetHeight = +innerHeight;
+    else if (offsetHeight > 260 && targetHeight < 260) targetHeight = 260;
+    css(elem, { height: targetHeight });
+    move.fixPosition(elem);
+};
 function prompt() {
     var msg = i18n`请输入`, check, ipt;
     var opts = [];
@@ -53,6 +65,7 @@ function prompt() {
     var getValue = () => isFunction(ipt.getValue) ? ipt.getValue() : ipt.value;
     if (check || wrap) {
         var setDisable = function (event) {
+            fixContainer(c, ipt);
             if (!check) return;
             var valid = validate(getValue(), check, tip);
             if (event) attr(body, "error", !valid);
@@ -96,10 +109,13 @@ function prompt() {
         oncemount(c, function () {
             requestAnimationFrame(function () {
                 p = move.getPosition(c);
+                css(c, {
+                    height: c.offsetHeight
+                });
             });
             once('dragend')(c, function () {
                 p = move.getPosition(c);
-            })
+            });
         });
         resize.on(c);
     }

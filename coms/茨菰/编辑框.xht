@@ -6,6 +6,7 @@
         display: block;
         padding: 0;
         max-height: 100%;
+        min-height: 6em;
     }
 
     &.noinput {
@@ -73,7 +74,7 @@
 
     >list {
         display: inline-block;
-        min-height: 6em;
+        min-height: 100%;
         border-top: 6px solid #2c2d2c;
 
         &[nlist] {
@@ -109,7 +110,7 @@
     <list contenteditable="false" nlist# :src="(r,i) in coderows" -style="{height:codeHeight}">
         <n current:="isCurrent(i)" -bind="i+1"></n>
     </list>
-    <list clist# contenteditable="true" :src="(r,i) in coderows" -style="{height:codeHeight}">
+    <list clist# body contenteditable="true" :src="(r,i) in coderows" -style="{height:codeHeight}">
         <d -html="r"></d>
     </list>
 </编辑框>
@@ -136,7 +137,9 @@
         }
     });
     var reshape = function () {
-        codeHeight = coderows.length * 1.36 + 1 + 'em';
+        codeHeight = coderows.length * 1.36 + 2;
+        if (codeHeight < 6) codeHeight = 6;
+        codeHeight += 'em';
         codeSpan = (coderows.length).toString().length;
     };
     on('scroll')(coder, function () {
@@ -228,9 +231,6 @@
             anchor.parentNode.removeChild(anchor);
             if (d.offsetTop < coder.scrollTop + clist.offsetTop) {
                 coder.scrollTop = d.offsetTop - clist.offsetTop;
-            }
-            if (d.offsetTop + clist.offsetTop > coder.scrollTop + coder.clientHeight){
-                console.log(d.offsetTop,clist.offsetTop, coder.scrollTop,coder.clientHeight)
             }
         }
         if (an && fn) document_selection.setBaseAndExtent(an, ai, fn, fi);
