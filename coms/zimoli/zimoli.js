@@ -128,7 +128,6 @@ function go(pagepath, args, history_name, oldpagepath) {
         return zimoli(pagepath, args, history_name, oldpagepath);
     }
     var page = create(pagepath, args, oldpagepath, roles, params, history_name);
-    if (!page) return;
     zimoliad = zimoliid;
     var isRecover = pushstate(pagepath, history_name, oldpagepath);
     if (isNode(history_name)) {
@@ -137,9 +136,10 @@ function go(pagepath, args, history_name, oldpagepath) {
         history_name.activate = pgpath;
         history_name.activateNode = page;
     }
-    else if (isString(pgpath)) {
+    else if (page && isString(pgpath)) {
         page.disptch();
     }
+    if (!page) return;
     if (isRecover) setWithStyle(page, false);
     page.mount(history_name, isRecover);
     return page;
