@@ -136,10 +136,13 @@ function go(pagepath, args, history_name, oldpagepath) {
         history_name.activate = pgpath;
         history_name.activateNode = page;
     }
-    else if (page && isString(pgpath)) {
+    if (!page) {
+        addGlobal(null, history_name, isRecover);
+        return;
+    }
+    if (isString(pgpath)) {
         page.disptch();
     }
-    if (!page) return;
     if (isRecover) setWithStyle(page, false);
     page.mount(history_name, isRecover);
     return page;
