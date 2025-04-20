@@ -27,6 +27,7 @@ var reshape = function () {
     }
     if (!body) body = head;
     if (foot && body) {
+        console.log(foot)
         var right = foot.offsetWidth + 1;
         if (isInlineBlock && right < (this.break || body.offsetWidth >> 2)) {
             css(foot, {
