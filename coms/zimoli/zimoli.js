@@ -155,6 +155,7 @@ var page_generators = {};
  */
 var loading_tree = {};
 var pathmaped = Object.create(null);
+var realmaped = Object.create(null);
 var getpgpath = function (pagepath) {
     pagepath = /^[@#!]/.test(pagepath) ? pagepath.slice(1) : pagepath;
     if (pagepath === 'main') pagepath = modules.efrontPath || "/main";
@@ -170,8 +171,10 @@ var getpgpath = function (pagepath) {
             for (var m of mparams) argobj[m] = params.pop();
             if (params.length) argobj[m] += "/" + params.reverse().join("/");
         }
+        pagepath = realmaped[pagepath] || pagepath;
         return [pagepath, argobj];
     }
+    pagepath = realmaped[pagepath] || pagepath;
     return [pagepath];
 };
 function createState(pgpath) {
@@ -762,13 +765,14 @@ zimoli.setStorage = function (storage) {
     } catch (e) {
     }
 };
-zimoli.register = function (pathlike) {
+zimoli.register = function (pathlike, realpath) {
     var params = [];
     pathlike = pathlike.replace(/\/\:([^\/\:\-]+)/g, function (_, id) {
         params.push(id);
         return '';
     });
     pathmaped[pathlike] = params;
+    if (realpath) realmaped[pathlike] = realpath;
 };
 zimoli.clearHistory = function () {
     historyStorage.removeItem(history_session_object_key);
