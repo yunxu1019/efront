@@ -15,32 +15,35 @@ if (!Promise) {
     var isThenable = function (pendding) {
         return pendding instanceof Promise || pendding && isFunction(pendding.then);
     };
+    var thro = function (error) {
+        // <!--
+        console.error(i18n`在异步过程中发现未处理的异常：`, error);
+        // -->
+    };
     var queue = [];
     var running = false;
-    var run = function (q) {
+    var run = function () {
         while (queue.length) {
             var threads = queue.splice(0, queue.length);
             for (var t of threads) {
-                var PromiseRejectReactions = t.PromiseRejectReactions.splice(0, t.PromiseRejectReactions.length);
-                var PromiseFulfillReactions = t.PromiseFulfillReactions.splice(0, t.PromiseFulfillReactions.length);
+                var { $j, $s } = t;
+                var PromiseRejectReactions = $j.splice(0, $j.length);
+                var PromiseFulfillReactions = $s.splice(0, $s.length);
                 if (t.oked) {
+                    var oked = t.oked[0];
                     for (var r of PromiseFulfillReactions) {
-                        r.call(null, t.oked[0]);
+                        r(oked);
                     }
                 }
                 if (t.ohed) {
                     var throwed = t.throwed;
                     t.throwed = true;
+                    var ohed = t.ohed[0];
                     if (!throwed && !PromiseRejectReactions.length) {
-                        // <!--
-                        console.warn(i18n`在异步过程中发现未处理的异常：`, t.ohed[0], t.ohed[1], t.ohed[2]);
-                        // -->
-                        requestAnimationFrame(function () {
-                            throw t.ohed[0];
-                        })
+                        requestAnimationFrame(thro.bind(null, ohed));
                     }
                     for (var r of PromiseRejectReactions) {
-                        r.apply(null, t.ohed);
+                        r(ohed);
                     }
                 }
             }
@@ -54,8 +57,8 @@ if (!Promise) {
         requestAnimationFrame(run);
     };
     var Promise = function (executor) {
-        this.PromiseFulfillReactions = []; //thens
-        this.PromiseRejectReactions = []; //catches
+        this.$j = []; // rejects
+        this.$s = []; // resolves
         this.oked = this.ohed = null;
         var p = this;
         var ResolvingFunctions_resolve = function (result) { //ok
@@ -82,7 +85,7 @@ if (!Promise) {
                     a = onok(a);
                     ok(a);
                 } catch (e) {
-                    oh(e, onok, onoh);
+                    oh(e);
                 }
             };
             else resolve = ok;
@@ -91,13 +94,13 @@ if (!Promise) {
                     a = onoh.apply(null, arguments);
                     ok(a);
                 } catch (e) {
-                    oh(e, onok, onoh);
+                    oh(e);
                 }
             };
             else reject = oh;
         })
-        if (resolve) this.PromiseFulfillReactions.push(resolve);
-        if (reject) this.PromiseRejectReactions.push(reject);
+        if (resolve) this.$s.push(resolve);
+        if (reject) this.$j.push(reject);
         if (this.oked || this.ohed) fire(this);
         return promise;
     }
@@ -107,7 +110,7 @@ if (!Promise) {
     Promise.all = function (penddings) {
         return new Promise(function (ok, oh) {
             if (!(penddings && penddings.length)) {
-                return ok();
+                return ok([]);
             }
             var resolved_count = 0,
                 results = Array(penddings.length);

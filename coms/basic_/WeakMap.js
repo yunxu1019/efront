@@ -4,11 +4,12 @@ var id = 0;
 WeakMap = class WeakMap {
     id = "#" + ++id;
     get(o) {
+        if (o == null) return;
         return o[this.id];
     }
     set(o, v) {
         defineObj.value = v;
-        Object.defineProperty(o, this.id, defineObj);
+        defineProperty(o, this.id, defineObj);
     }
     has(o) {
         return this.id in o;
@@ -19,18 +20,23 @@ WeakMap = class WeakMap {
 }
 var defineObj = {
     value: null,
-    enumerable: true,
+    enumerable: false,
     writable: true,
-    configurable: false
+    configurable: true
 }
 var defineProperty = Object.defineProperty;
 try {
     defineProperty(document, '#weakmap', defineObj);
     delete document["#weakmap"];
 } catch {
-    defineProperty = function (o, k, d) {
-        o[k] = d.value;
+    try {
+        delete defineObj.enumerable;
+        defineProperty(document, '#weakmap', defineObj);
+        delete document["#weakmap"];
+    } catch {
+        defineProperty = function (o, k, d) {
+            o[k] = d.value;
+        }
     }
-    delete defineObj.enumerable;
 }
 return WeakMap;

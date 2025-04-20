@@ -379,9 +379,10 @@ function cross_(jsonp, digest = noop, method, url, headers) {
             if (is_gb2312) method = method.slice(1);
             if (nocross) {
                 extend(realHeaders, _headers);
-                xhr.open(method, url);
+                method = method.toUpperCase();
+                xhr.open(method, url, true);
             } else {
-                xhr.open(method, getCrossUrl(url, _headers, isencrypt && code));
+                xhr.open(method, getCrossUrl(url, _headers, isencrypt && code), true);
             }
             if (is_gb2312) xhr.overrideMimeType("text/plain; charset=gb2312");
             if (location_href) delete realHeaders.Cookie;
@@ -393,7 +394,7 @@ function cross_(jsonp, digest = noop, method, url, headers) {
             else send.call(xhr);
             digest();
         };
-        Promise.resolve(xhr.encrypt).then(fire, onerror1);
+        Promise.resolve(xhr.encrypt).then(fire).catch(onerror1);
     }
     var setRequestHeader = xhr.setRequestHeader;
     var realHeaders = Object.create(null);
