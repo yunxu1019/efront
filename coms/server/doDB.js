@@ -286,7 +286,7 @@ var addItem = async function (req, dbid, lastId, data) {
     return data;
 };
 var deleteItem = async function (req, dbid, lastId) {
-    var lang = getLang();
+    var lang = getLang(req);
     if (!lastId) throw i18n[lang]`参数异常`;
     var origin = await message.invoke('dbLoad', [dbid, lastId]);
     if (!isHandled(origin)) throw i18n[lang]`数据不存在`;
@@ -304,7 +304,7 @@ var patchItem = async function (req, dbid, lastId, data) {
         await userdata.setPasswordA(String(data.a), data);
         delete data.a;
     }
-    var lang = getLang();
+    var lang = getLang(req);
     var origin = await message.invoke('dbLoad', [dbid, lastId]);
     if (!origin) throw i18n[lang]`不存在名为${lastId}的${dbid}`;
     var db = await getDB(dbid);
@@ -336,7 +336,7 @@ var trimUser = function (dbid, data) {
 };
 
 var readItem = async function (req, dbid, lastId, version) {
-    var lang = getLang();
+    var lang = getLang(req);
     if (version) version = +version;
     var data = await message.invoke('dbLoad', [dbid, lastId, version]);
     if (dbid === '用户') trimUser(data);
