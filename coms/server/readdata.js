@@ -2,7 +2,7 @@ var { Http2ServerRequest } = require("http2");
 /**
  * @param {Http2ServerRequest} req;
  */
-var readdata = function (req, max_length) {
+var readdata = function (req, max_length = 2000000) {
     return new Promise(function (ok, oh) {
         var buff = [], length = 0;
         req.on("data", function (buf) {
