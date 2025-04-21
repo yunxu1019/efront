@@ -6,6 +6,8 @@ function main(elem, scope, hasIcon) {
     if (isObject(scope) && scope !== ms) {
     }
     else if (ms) {
+        var parentScopes = hasIcon;
+        hasIcon = null;
         var scope = ms;
     }
     var menu = scope;
@@ -21,7 +23,7 @@ function main(elem, scope, hasIcon) {
         checker,
     };
     if (hasIcon || menu.icon) scope.hasIcon = true;
-    render(item.children, scope);
+    render(item.children, scope, parentScopes);
     if (menu.line) item.setAttribute("line", ''), on("click")(item, preventDefault);
     return item;
 }
