@@ -191,17 +191,21 @@ var indexreg = new RegExp(`(${str2array(memery.INDEX_NAME).join('|')})\\.[^\/\\\
 if (memery.istest) builder = function (buff, name, fullpath) {
     var dev = buff;
     if (/\.(?:jsp|php|asp)$/i.test(fullpath)) {
-        var data = fixpixel(buff);
-        data = buildreload(data);
-        data = buildjsp.call(this, data, fullpath)
-        return data;
+        return function (req, res) {
+            var data = fixpixel(buff);
+            data = buildreload(data);
+            data = buildjsp.call(this, data, fullpath)
+            return data(req, res);
+        };
     }
 
     else if (indexreg.test(fullpath) || /\.html?$/i.test(fullpath) && /^\s*<!Doctype/i.test(buff.slice(0, 100).toString())) {
-        var data = fixpixel(buff);
-        data = buildreload(data);
-        data.mime = dev.mime || 'text/html;charset=utf-8';
-        return data;
+        return function () {
+            var data = fixpixel(buff);
+            data = buildreload(data);
+            data.mime = dev.mime || 'text/html;charset=utf-8';
+            return data;
+        };
     }
     return dev;
 };
