@@ -405,12 +405,9 @@
     var getAllText = function (data, f) {
         try {
             if (/^\s*(\<\!--[\s\S]*?--\>\s*)*<!doctype\s/i.test(data)) return [];
-            if (/\.(xht|vue)$/i.test(f.name)) {
+            if (/\.(xht|html?|jsp|asp|php|vue)$/i.test(f.name)) {
                 var { scripts, innerHTML, outerHTML: htmltext = innerHTML, attributes = '', tagName, styles } = compile$scanner2(data, 'html').scoped;
                 data = compile$wraphtml(htmltext) + ";\r\n" + scripts.join("\r\n");
-            }
-            else if (/\.html?$/i.test(f.name)) {
-                data = compile$wraphtml(data);
             }
             var code = compile$scanner2(String(data));
             return compile$translate.getI18nPrefixed(code);
@@ -598,7 +595,7 @@
                 }
                 else {
                     if (/^[\.]|^node_modules|_test\.js$/i.test(name)) continue;
-                    if (e.kind === "file" && !/\.([mc]?[tj]sx?|xht|vue|html?)$/i.test(name)) continue;
+                    if (e.kind === "file" && !/\.([mc]?[tj]sx?|xht|html?|jsp|asp|php|vue)$/i.test(name)) continue;
                 }
                 e.path = path + e.name;
                 if (e.kind === 'directory') {

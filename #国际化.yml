@@ -1,3 +1,18 @@
+- zh-CN: 请求方法错误
+  en:    Request method error
+
+- zh-CN: 商品数量过多，无法完成交易！
+  en:    "Too many products, unable to complete transaction!"
+
+- zh-CN: 商品信息已变更，请刷新页面后重新购买！
+  en:    The product information has been changed. Please refresh the page and make a new purchase!
+
+- zh-CN: 商品金额过大，交易无法进行
+  en:    "The amount of the product is too large, and the transaction cannot proceed"
+
+- zh-CN: 商品总价值过大，交易无法进行
+  en:    "The total value of the product is too high, and the transaction cannot proceed"
+
 - zh-CN: $1仅在开发环境存在，供开发者调试查看，$2
   en:    "$1 only exists in the development environment for developers to debug and view, $2"
 

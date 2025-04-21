@@ -76,7 +76,7 @@ class Program {
         ["`", "`", /\\[\s\S]/, ["${", "}"]],
     ]
     tags = [
-        [["<", "</"], /\/?>/, /\\[\s\S]/, "'", '"', "<!--", ["${", "}"]]
+        [["<", "</"], /\/?>/, /\\[\s\S]/, "'", '"', "<!--", ["${", "}"], ["<%", "%>"]]
     ];
     scriptTags = [];
     ignoreTags = ["STYLE", "SCRIPT"];
@@ -90,6 +90,7 @@ class Program {
         ["(", ")"],
         ["[", "]"],
         ["{", "}"],
+        ["<%", "%>"],
     ]
     stamps = "/=+;|:?<>-!~%^&*,".split("");
     prefix = '&^%?:'.split('');
@@ -1048,8 +1049,7 @@ class Program {
         this.stamps.forEach(s => {
             if (s.length === 1) tokens[s] = true;
         });
-        var scopes = this.scopes.map(a => a.join("")).join("");
-        scopes = this.compile(scopes);
+        var scopes = this.scopes.map(a => a.map(this.compile).join("|")).join("|");
         tokens = Object.keys(tokens).join("");
         tokens = this.compile(tokens);
         var express = `(?:\\\\u\\{[^\\}]+\\}|${spaceDefined.avoid(tokens, false)})+`;
@@ -1066,7 +1066,7 @@ class Program {
         this.prefix_reg = prefix_reg;
         var numbers = number_reg.source.replace(/^\^|\$$/g, "");
         this.digit_reg = new RegExp(/^[+\-]?/.source + numbers, number_reg.flags);
-        this.entry_reg = new RegExp([`${spaceDefined.reg.source}|${quotes_entries}|[${scopes}]|${numbers}(?:${spaceDefined.avoid(tokens)})*|${express}|${powers_entries}|[${stamps}]`], "gi");
+        this.entry_reg = new RegExp([`${spaceDefined.reg.source}|${quotes_entries}|${scopes}|${numbers}(?:${spaceDefined.avoid(tokens)})*|${express}|${powers_entries}|[${stamps}]`], "gi");
         var stamps = this.stamps.slice();
         for (var k in this.powermap) {
             if (k.length === 1 && stamps.indexOf(k) < 0) stamps.push(k);

@@ -1085,7 +1085,7 @@ commbuilder.parse = function (data, filename = 'main', fullpath = './main.js', c
     if (/\.(?:pem|html?|xml|glsl|txt|log)$/i.test(fullpath)) data = `return ${strings.encode(data)}`;
     else if (/\.(?:json)$/i.test(fullpath)) data = `return ` + data;
     else if (/\.[mc]?[tj]sx?$/i.test(fullpath)) data = replaceIncludes(data);
-    var res = loadJsBody(data, filename, null, commName, lessName, className);
+    var res = loadJsBody.call(this, data, filename, null, commName, lessName, className);
     [res.params, res.data, res.occurs] = revarCode(res.params, res.data);
     if (savedCompress === undefined) delete commbuilder.compress;
     else commbuilder.compress = savedCompress;

@@ -11,6 +11,7 @@ if (index >= 0) COMM.splice(index, 0, 'reptile');
 else COMM.push('reptile');
 var fs = require('fs');
 var path = require("path");
+var commparse = commbuilder.parse;
 var comspath = mixin(COMS_PATH, COMM).map(c => path.join.apply(path, c)).filter(fs.existsSync);
 var required_cache = Object.create(null);
 var hasOwnProperty = {}.hasOwnProperty;
@@ -65,7 +66,7 @@ var prepareModule = async function (dirname, required, prebuilds, pathmap, modna
 
 var createFunction = function (data, pathname, prebuilds) {
     var content = String(data);
-    var { params, imported, data, required, isAsync, isYield } = commbuilder.parse(content, pathname, pathname);
+    var { params, imported, data, required, isAsync, isYield } = commparse.call(this, content, pathname, pathname);
     var func = eval(`[${isAsync ? 'async ' : ""}function${isYield ? "*" : ""}(${params ? params.join(",") : ''}){\r\n${data}\r\n}][0]`);
     if (!(imported instanceof Array)) imported = [];
     var pathmap = {};

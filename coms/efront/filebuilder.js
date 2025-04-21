@@ -75,7 +75,8 @@ var createseek = function (content) {
     var res = seek.bind(null, keys);
     return res;
 };
-
+var createFunction = require2.createFunction;
+var invokeFunction = require2.invokeFunction;
 var SError = function (msg) { this.message = msg };
 SError.prototype.toString = function () { return this.message };
 var buildjsp = function (buff, realpath) {
@@ -96,8 +97,10 @@ var buildjsp = function (buff, realpath) {
         req: null, res: null, request: null, response: null, context: null,
         remoteAddress: null, textplain: null, forbidden: null,
         db: null,
+        i18n: null,
         clients: require("../server/clients")
     };
+    var that = this;
     //////////////////------------//////////////////////////////////////////////////////////////////////--------//////////////////////////////
     // // ///////////1/////////////11//2////////22/////////////2/2//////////////2/////////////////////11////////////////2////////2/////////1//
     input.replace(/\<([%\?]|script)(?:(?<=%)|(?:(?<=[\?])(?:php|jsp|asp))|(?<=\<script)[^\>]*?serverside[^\>]*\>)([\s\S]*?)(?:\<\/(?=script)\1\>|\1\>)/gi, function (match, split, content, index, input) {
@@ -106,7 +109,7 @@ var buildjsp = function (buff, realpath) {
         if (/^(?:\=|\return\s|)\s*[^[$_a-zA-Z]\w*(\s*\.\s*[$_a-zA-Z]\w*)*\s*$/.test(content)) {
             func = createseek(content);
         } else {
-            func = require2.createFunction(content, realpath, prebuilds);
+            func = createFunction.call(that, content, realpath, prebuilds);
         }
         splited.push(str, func);
         return match;
@@ -122,6 +125,7 @@ var buildjsp = function (buff, realpath) {
             res: res,
             response: res,
             readdata: server$readdata,
+            i18n: i18n.lang(server$getLang(req)),
             db: {
                 get(dbid, dataid) {
                     return server$doDB.getItem(req, dbid, dataid);
@@ -157,7 +161,7 @@ var buildjsp = function (buff, realpath) {
         return queue.call(splited, function (str) {
             if (terminate && isHandled(str)) throw new Error('脚本异常！');
             if (str instanceof Function) {
-                return require2.invokeFunction(str, pb);
+                return invokeFunction(str, pb);
             }
             return str;
         }).then(function (array) {
@@ -187,21 +191,17 @@ var indexreg = new RegExp(`(${str2array(memery.INDEX_NAME).join('|')})\\.[^\/\\\
 if (memery.istest) builder = function (buff, name, fullpath) {
     var dev = buff;
     if (/\.(?:jsp|php|asp)$/i.test(fullpath)) {
-        dev = function (req, res) {
-            var data = fixpixel(buff);
-            data = buildreload(data);
-            data = buildjsp(data, fullpath)(req, res);
-            return data;
-        };
+        var data = fixpixel(buff);
+        data = buildreload(data);
+        data = buildjsp.call(this, data, fullpath)
+        return data;
     }
 
     else if (indexreg.test(fullpath) || /\.html?$/i.test(fullpath) && /^\s*<!Doctype/i.test(buff.slice(0, 100).toString())) {
-        dev = function () {
-            var data = fixpixel(buff);
-            data = buildreload(data);
-            data.mime = dev.mime || 'text/html;charset=utf-8';
-            return data;
-        };
+        var data = fixpixel(buff);
+        data = buildreload(data);
+        data.mime = dev.mime || 'text/html;charset=utf-8';
+        return data;
     }
     return dev;
 };
@@ -209,7 +209,7 @@ if (memery.istest) builder = function (buff, name, fullpath) {
 else builder = function (buff, name, fullpath) {
     if (/\.(?:jsp|php|asp)$/i.test(fullpath)) {
         buff = fixpixel(buff);
-        buff = buildjsp(buff, fullpath);
+        buff = buildjsp.call(this, buff, fullpath);
     }
     return buff;
 };

@@ -2,7 +2,7 @@
 var zlib = require("zlib");
 var path = require("path");
 var { Http2ServerRequest, Http2ServerResponse } = require("http2");
-var filebuilder = require("../efront/filebuilder");
+var filebuilder = require("../efront/filebuilder").bind(await require("../efront/getCommap")());
 var checkAccess = require("./checkAccess");
 var doFile = require("./doFile");
 var doCross = require("./doCross");
@@ -33,7 +33,7 @@ var filecache = new Cache(SERVER_ROOT_PATH, function (data, filename, fullpath) 
     if (memery.TRANSFER && /\.(m?[tj]sx?|html?|json|css|less)$/i.test(fullpath)) {
         data = Buffer.from(transfer(data));
     }
-    var data = filebuilder.call(this, data, filename, fullpath);
+    var data = filebuilder(data, filename, fullpath);
     if (data instanceof Function) {
         if (checkAccess(fullpath)) {
             throw i18n`请不要在共享路径中创建服务器脚本！`;
