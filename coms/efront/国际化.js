@@ -5,6 +5,8 @@ var loadData = async function (fullpath, i18nMap) {
     if (!fs.existsSync(fullpath)) return;
     var text = await fs.promises.readFile(fullpath);
     var data = parseYML(text.toString());
+    if (!data || typeof data !== "object") return;
+    if (!(data instanceof Array)) data = [data];
     for (var d of data) {
         var keys = Object.keys(d);
         keys.forEach(k => {

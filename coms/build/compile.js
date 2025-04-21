@@ -209,7 +209,6 @@ async function compile() {
                     responseText = builder(buffer, id, p, []);
                     responsePath = _filepath;
                     isPackaged = isDirectory;
-
                     responseVersion = stat.mtime;
                     writeNeeded = true;
                     if (responseText instanceof Promise) {

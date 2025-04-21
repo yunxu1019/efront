@@ -11,6 +11,7 @@ var noopbuilder = a => a;
 var getCommmap = require("../efront/getCommap");
 var commap = await getCommmap(memery.APP, Infinity);
 var xhtbuilder = commbuilder = commbuilder.bind(commap);
+var dynabuilder = require("../efront/dynabuilder").bind(commap);
 manybuilder = manybuilder.bind(commap);
 var pagebuilder = function (buffer, filename) {
     if (memery.webindex.indexOf(filename) >= 0 || /^\s*<!Doctype\b/i.test(buffer.slice(0, 2000).toString().replace(/^(\s*<!--[\s\S]*?--!?>)*/g, ""))) {
@@ -72,7 +73,14 @@ function getBuildInfo(url) {
                         name = "/" + name;
                         builder = pagebuilder;
                     }
-                } else if (!/\.([cm]?[jt]sx?|xht|vuex?)$/i.test(extt)) {
+                }
+                else if (/\.(jsp|asp|php)$/i.test(extt)) {
+                    destpath = path.join(name + extt);
+                    name = "/" + name;
+                    type = "*";
+                    builder = dynabuilder;
+                }
+                else if (!/\.([cm]?[jt]sx?|xht|vuex?)$/i.test(extt)) {
                     if (/\.asm$/i.test(extt)) {
                         builder = asmbuilder
                     } else {
@@ -81,7 +89,8 @@ function getBuildInfo(url) {
                     }
                     destpath = path.join(name + extt);
                     name = "/" + name;
-                } else {
+                }
+                else {
                     extt = extt || "";
                     builder = xhtbuilder;
                     destpath = path.join("page", name + memery.EXTT);

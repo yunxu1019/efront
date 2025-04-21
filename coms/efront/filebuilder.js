@@ -80,6 +80,8 @@ var invokeFunction = require2.invokeFunction;
 var SError = function (msg) { this.message = msg };
 SError.prototype.toString = function () { return this.message };
 var buildjsp = function (buff, realpath) {
+    var dynareg = dynabuilder.dynareg;
+    var seekreg = dynabuilder.seekreg;
     var splited = [];
     var lastIndex = 0;
     var input = String(buff);
@@ -103,10 +105,10 @@ var buildjsp = function (buff, realpath) {
     var that = this;
     //////////////////------------//////////////////////////////////////////////////////////////////////--------//////////////////////////////
     // // ///////////1/////////////11//2////////22/////////////2/2//////////////2/////////////////////11////////////////2////////2/////////1//
-    input.replace(/\<([%\?]|script)(?:(?<=%)|(?:(?<=[\?])(?:php|jsp|asp))|(?<=\<script)[^\>]*?serverside[^\>]*\>)([\s\S]*?)(?:\<\/(?=script)\1\>|\1\>)/gi, function (match, split, content, index, input) {
+    input.replace(dynareg, function (match, split, content, index, input) {
         var str = input.slice(lastIndex, index), func;
         lastIndex = index + match.length;
-        if (/^(?:\=|\return\s|)\s*[^[$_a-zA-Z]\w*(\s*\.\s*[$_a-zA-Z]\w*)*\s*$/.test(content)) {
+        if (seekreg.test(content)) {
             func = createseek(content);
         } else {
             func = createFunction.call(that, content, realpath, prebuilds);

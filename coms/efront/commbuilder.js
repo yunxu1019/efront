@@ -549,7 +549,7 @@ var revarCode = function (params, data) {
     var code = scanner2(`var [${params}];${data}`);
     code.revar();
     params = code[1].filter(a => a.type !== code.STAMP).map(c => c.text);
-    code.splice(0, 2);
+    code.splice(0, 3);
     data = code.toString();
     return [params, data, code.occurs];
 };

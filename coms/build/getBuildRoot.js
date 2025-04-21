@@ -242,6 +242,7 @@ var getBuildRoot = async function (files, matchFileOnly) {
                 names.forEach(function (name) {
                     if (name.isDirectory()) name = name.name + path.sep;
                     else name = name.name;
+                    if (/^#/.test(name)) return;
                     files.push(path.join(file, name));
                 });
             }
