@@ -897,6 +897,11 @@ zimoli.reload = function () {
         delete modules[a];
         delete page_generators[a];
     })
+    var loginpath = user.loginPath;
+    if(loginpath){
+        delete modules[loginpath];
+        delete page_generators[loginpath];
+    }
     zimoli();
 };
 zimoli.alert = function () {
