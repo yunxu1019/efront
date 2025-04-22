@@ -486,12 +486,19 @@ var history = {};
 var current_history, default_history = current_history = "";
 history[current_history] = createEmptyHistory('/main', false);
 var history_session_object_key = `紫茉莉:${location_pathname}`;
-try {
-    history = JSAM.parse(historyStorage.getItem(history_session_object_key)) || history;
-} catch (e) {
-}
+var setStorage = function (storage) {
+    historyStorage = storage;
+    try {
+        var history1 = JSAM.parse(historyStorage.getItem(history_session_object_key));
+        if (history1 && history1.wlength === window_history.length) history = history1;
+        else savestate();
+    } catch (e) {
+    }
+};
+setStorage(historyStorage);
 var root_path;
 var savestate = function () {
+    history.wlength = window_history.length;
     historyStorage.setItem(history_session_object_key, JSAM.stringify(history) || null);
 };
 var pushstate = function (path_name, history_name) {
@@ -758,13 +765,7 @@ remove.transition = transition;
 zimoli.prepare = prepare;
 var upwith = [];
 zimoli.upwith = popup.upwith(upwith);
-zimoli.setStorage = function (storage) {
-    historyStorage = storage;
-    try {
-        history = JSAM.parse(historyStorage.getItem(history_session_object_key)) || history;
-    } catch (e) {
-    }
-};
+zimoli.setStorage = setStorage;
 zimoli.register = function (pathlike, realpath) {
     var params = [];
     pathlike = pathlike.replace(/\/\:([^\/\:\-]+)/g, function (_, id) {
