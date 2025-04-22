@@ -1,4 +1,13 @@
-(document.body.hasAttribute('menu-path') || document.body.hasAttribute("menu") || document.body.hasAttribute("config-path") ? data.fromURL(document.body.getAttribute('menu-path') || document.body.getAttribute('menu') || document.body.getAttribute('config-path') || 'menu.yml').loading_promise : Promise.resolve([])).then(function (items) {
+(document.body.hasAttribute('menu-path')
+    || document.body.hasAttribute("menu")
+    || document.body.hasAttribute("config-path")
+    ? data.fromURL(document.body.getAttribute('menu-path')
+        || document.body.getAttribute('menu')
+        || document.body.getAttribute('config-path')
+        || 'menu.yml'
+    ).loading_promise
+    : Promise.resolve([])
+).then(function (items) {
     var result = [];
     var menuid = 0;
     var savedChildren = Object.create(null);
@@ -29,10 +38,6 @@
         }
         if (!icon && /(?!\.)\.(?=[\w\-])/.test(k)) {
             icon = k.slice(k.indexOf(/(?!\.)\.(?=[\w\-])/));
-        }
-        if (!icon && /\s+/.test(k)) {
-            [icon] = k.split(/\s+/);
-            k = k.slice(icon.length).trim();
         }
         if (!name) name = k;
         var item = {};
@@ -210,6 +215,7 @@
     result.open = function (menu) {
         if (!menu) {
             if (first_opened && result.active) return;
+            if (!result.length) result.update(items);
             var zimoilPath = zimoli.getInitPath();
             menu = result.active || findMenu(zimoilPath) || firstMenu;
             if (!menu?.path) return;
@@ -280,6 +286,5 @@
         ok(result);
         result.then = then;
     };
-    result.update(items);
     return result;
 });

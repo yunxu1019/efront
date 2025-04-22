@@ -19,12 +19,12 @@ function main(a) {
         jscode: 茨菰$编辑框,
         async run() {
             var id = ++taskid;
-            this.output = "正在执行..";
+            this.output = i18n`正在执行..`;
             this.error = false;
             var params = JSON.stringify(this.data);
             try {
                 var res = await data.from("invoke", { key: a.key, params: encode62.packencode(params) }, function (a) {
-                    return a ? encode62.packdecode(a) : '完成！';
+                    return a ? encode62.packdecode(a) : i18n`完成！`;
                 });
                 if (id !== taskid) return;
                 this.output = res;

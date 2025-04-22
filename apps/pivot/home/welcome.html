@@ -2,34 +2,37 @@
 </block>
 <block>
     <padding>
-        服务器版本&nbsp;&nbsp;<span -text="String(version)"></span>
+        ${i18n`服务器版本`}&nbsp;&nbsp;<span -text="String(version)"></span>
     </padding>
     <padding>
-        nodejs版本&nbsp;&nbsp;<span -text="String(nodeVersion)"></span>
+        ${i18n`nodejs版本`}&nbsp;&nbsp;<span -text="String(nodeVersion)"></span>
     </padding>
     <padding>
-        操作系统&nbsp;&nbsp;<span -text="String(platform)"></span>
+        ${i18n`操作系统`}&nbsp;&nbsp;<span -text="String(platform)"></span>
     </padding>
     <padding>
-        处理器&nbsp;&nbsp;<span -text="String(arch)"></span>
-    </padding>
-</block>
-<block>
-    <padding>
-        清理服务器缓存 <btn @click="run('clear-cache',this)">清理</btn>
-    </padding>
-    <padding>
-        重启服务器 <btn @click="run('rehost',this)" confirm type="danger">重启</btn>
+        ${i18n`处理器`}
+        &nbsp;&nbsp;<span -text="String(arch)"></span>
     </padding>
 </block>
 <block>
     <padding>
-        启动时间&nbsp;&nbsp;<span -text="filterTime(hrtime)"></span>
+        ${i18n`清理服务器缓存`}
+        <btn @click="run('clear-cache',this)">${i18n`清理`}</btn>
     </padding>
     <padding>
-        内存 <progbar danger:="memery[0]/memery[1]<.05" :current="memeryUsed" :total="memery[1]"></progbar>
+        ${i18n`重启服务器`}
+        <btn @click="run('rehost',this)" confirm type="danger">${i18n`重启`}</btn>
+    </padding>
+</block>
+<block>
+    <padding>
+        ${i18n`启动时间`}&nbsp;&nbsp;<span -text="filterTime(hrtime)"></span>
+    </padding>
+    <padding>
+        ${i18n`内存`} <progbar danger:="memery[0]/memery[1]<.05" :current="memeryUsed" :total="memery[1]"></progbar>
         <span style="color: #999;">
-            可用<span -bind="size(memery[0])"></span> / 总内存<span -bind="size(memery[1])"></span>
+            ${i18n`可用`} <span -bind="size(memery[0])"></span> / ${i18n`总内存`}<span -bind="size(memery[1])"></span>
         </span>
     </padding>
 </block>

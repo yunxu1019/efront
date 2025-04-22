@@ -25,13 +25,13 @@
     }
 </style>
 <lattice body a-src="db in dbs">
-    <div insert><a @click="adddb">添加</a></div>
+    <div insert><a @click="adddb">${i18n`添加`}</a></div>
     <padding db>
         <div>
             <h2> ⩸ </h2>
             <h2 -bind="db.name"></h2>
-            <a @click="go('/db/edit',db)">查看</a>
-            <a @click="go('/db/config',db)">配置</a>
+            <a @click="go('/db/edit',db)">${i18n`查看`}</a>
+            <a @click="go('/db/config',db)">${i18n`配置`}</a>
             <drop @click.singly.stop="deldb(db)"></drop>
         </div>
     </padding>
@@ -53,7 +53,7 @@
         await load();
     };
     var deldb = async function (db) {
-        var a = await prompt(i18n`输入名称以确认删除`, ["删除#danger", '取消'], a => a === db.name, {
+        var a = await prompt(i18n`输入名称以确认删除`, [i18n`删除` + "#danger", i18n`取消`], a => a === db.name, {
             async submit(v) {
                 await data.from('dbdel', { id: v });
             }

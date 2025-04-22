@@ -2,8 +2,8 @@
 /**
  * 确定就继续，取消就中断
  */
-function yousure(title = "您确定要这么做吗？", content = "当前操作需要您再次确认") {
-    var options = [button("确定(Y)"), button("取消(N)", "white")];
+function yousure(title = i18n`您确定要这么做吗？`, content = i18n`当前操作需要您再次确认`) {
+    var options = [button(i18n`确定` + "(Y)"), button(i18n`取消` + "(N)", "white")];
     options[0].tabindex = -1;
     options[1].tabindex = -1;
     var changeFocus = function (event) {

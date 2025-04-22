@@ -5,7 +5,7 @@ function main() {
     var options = [
         {
             name(e) {
-                return this.confirm === e ? "确认取消" : "取消"
+                return this.confirm === e ? i18n`确认取消` : i18n`取消`
             },
             type: 'danger',
             confirm: false,
@@ -32,7 +32,7 @@ function main() {
             });
         },
         fields: fields.concat({
-            name: "操作",
+            name: i18n`操作`,
             width: 200,
             type: 'button',
             options,
@@ -42,7 +42,7 @@ function main() {
     scope.load();
     contextmenu(page, [
         {
-            name: "添加",
+            name: i18n`添加`,
             do(e) {
                 zimoli.prepare("/share/edit", function () {
                     var p = popup("/share/edit", { fields });

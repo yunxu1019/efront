@@ -173,7 +173,7 @@ function main() {
     })
     if (addable) {
         var adder = document.createElement("div");;
-        adder.innerHTML = "<a>添加</a><a>管理</a>";
+        adder.innerHTML = `<a>${i18n`添加`}</a><a>${i18n`管理`}</a>`;
         adder.setAttribute('insert', '');
         button(adder.firstChild);
         button(adder.children[1]);
@@ -182,10 +182,10 @@ function main() {
             var target = getTargetIn(this, event.target, false);
             switch (target) {
                 case this.children[0]:
-                    var a = prompt("请输入", a => {
+                    var a = prompt(i18n`请输入`, a => {
                         if (!a) return false;
                         if (a in itemMap) {
-                            return `选项 ${a} 已存在！`;
+                            return i18n`选项 ${a} 已存在！`;
                         }
                     });
                     page.with = a;

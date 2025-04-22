@@ -16,10 +16,10 @@
 </style>
 <div head>
     <span>
-        自动刷新
+        ${i18n`自动刷新`}
     </span>
     <swap -model="autoreload"></swap>
-    <btn @click="chat()">新建连接</btn>
+    <btn @click="chat()">${i18n`新建连接`}</btn>
 </div>
 <div class="clusters">
     <a -repeat="(c,i) in clusters" ng-class="{current:i===index.index}" @click="active(i,c)">

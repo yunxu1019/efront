@@ -1,6 +1,6 @@
 var actions = [
     {
-        name: "访问",
+        name: i18n`访问`,
         do(o) {
             var url = o.url;
             if (!/\//.test(url)) url = "//" + url;
@@ -16,4 +16,4 @@ var fields = refilm`
 动作/action select/100 [跳转,转发]
 状态/status select/100 [启用,禁用]
 / $ ${actions}`;
-return plist.bind(null, '短链接', "proxy", fields, "/proxy/edit");
+return plist.bind(null, i18n`短链接`, "proxy", fields, "/proxy/edit");

@@ -245,8 +245,33 @@ var loadJsBody = function (data, filename, lessdata, commName, className, htmlDa
     if (this && this["#"]) {
         translate(this["#"], code);
         if (commName === "i18n") {
+            let i18ndata = this["#"][1];
+            let ls = code.used.supports;
+            let i18nSupports = require("../basic/i18n-supports");
+            if (ls && ls[0].next && ls[0].next.next) {
+                var ss = {};
+                ls = ls[0].next.next;
+                i18ndata.forEach((a, i) => {
+                    ss[a] = i;
+                });
+                i18ndata = i18nSupports.filter(s => {
+                    return s.lang in ss;
+                });
+                i18nSupports = scanner2(`[${i18ndata.map(a => `{
+                    "name":${strings.encode(a.name)},
+                    "land":i18n${strings.encode(a.land, '`')},
+                    "id":${strings.encode(a.id)},
+                    "key":${strings.encode(a.key)}
+                }`)}]`);
+                translate(this["#"], i18nSupports);
+                ls.push(...i18nSupports[0]);
+            }
             let lm = code.used.languageMap;
-            if (lm && lm[0].next && lm[0].next.next) lm[0].next.next.push(...scanner2(`={${this["#"][1].map((a, i) => JSON.stringify(a) + ":" + i).join(",")}}`)[1]);
+            if (lm && lm[0].next && lm[0].next.next) {
+                i18ndata = i18ndata.map((a, i) => JSON.stringify(a.lang) + ":" + i).join(",");
+                i18ndata = scanner2(`={${i18ndata}}`)[1];
+                lm[0].next.next.push(...i18ndata);
+            }
         }
     }
     if (memery.AUTOEVAL) {

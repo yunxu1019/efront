@@ -779,8 +779,9 @@ var directives = {
         return src2.call(this, parsedSrc && /[\{\[\s]/.test(src) ? parsedSrc.srcName : src);
     },
     model(search, target, change) {
-        var getter = createGetter(this, search);
-        var setter = createSetter(this, search);
+        search = search.split(',');
+        var getter = search.length > 1 ? createGetter(this, search[0])(this) : createGetter(this, search[0]);
+        var setter = search.length > 1 ? createGetter(this, search[1] || search[0])(this) : createSetter(this, search[0]);
         var model = new Model(getter, setter, target);
         return model.hook(this, change !== false);
     },

@@ -12,11 +12,11 @@ var fields = refilm`名称/name
 return plist.bind({
     fields,
     type: 'nodes',
-    title: "DHT服务器管理",
+    title: i18n`DHT服务器管理`,
     buttons: [{
-        name: "从文件读取", async do() {
+        name: i18n`从文件读取`, async do() {
             var FileReader = window.FileReader;
-            if (!FileReader) return alert('当前浏览器无法读取文件', 'warn')
+            if (!FileReader) return alert(i18n`当前浏览器无法读取文件`, 'warn')
             var f = await chooseFile(".torrent", true);
             var pg = await popup("/dht/rent");
             var scope = $scoped.get(pg);
@@ -34,7 +34,7 @@ return plist.bind({
                     ok();
                 };
                 r.onerror = function () {
-                    alert("读取文件失败！", 'error');
+                    alert(i18n`读取文件失败！`, 'error');
                     oh();
                 };
                 r.readAsArrayBuffer(f);

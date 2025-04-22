@@ -34,8 +34,8 @@
     }
 </style>
 <div head>
-    编辑数据 - <span -bind="db.name"></span>
-    <a @click="add">添加</a>
+    ${i18n`编辑数据`} - <span -bind="db.name"></span>
+    <a @click="add">${i18n`添加`}</a>
 </div>
 
 <lattice body -src="m in items">

@@ -76,7 +76,7 @@
 </form>
 <script>
     var enabled = acme2.enabled;
-    if (!enabled) return ["请在支持window.crypto.subtle的浏览器上使用此页面的功能"];
+    if (!enabled) return [i18n`请在支持window.crypto.subtle的浏览器上使用此页面的功能`];
     var form = view;
     var activeIndex = 0;
     var nosubmit = e => e.preventDefault();
@@ -147,7 +147,7 @@
                 }}
             *邮箱/email email
             /termsOfServiceAgreed/同意 checker ${{
-                    async"《服务条款》"(data) {
+                    async"Let’s Encrypt Subscriber Agreement"(data) {
                         var termsOfService = await acme2.getTermsOfService();
                         if (termsOfService) window.open(termsOfService, "_blank", "popup,noopener,noreferer")
                     },
@@ -157,7 +157,7 @@
                 return formdata.kid ? i18n`已创建账户` : '';
             },
             options: {
-                async 检查账户(actived) {
+                async [i18n`检查账户`](actived) {
                     var params = submit(actived.fields, formdata);
                     await saveUnique(params);
                     formdata.kid = await acme2.getAccount(params);
@@ -165,7 +165,7 @@
                 },
             },
             actions: {
-                async 创建账户(actived) {
+                async [i18n`创建账户`](actived) {
                     if (formdata.kid) {
                         if (!await confirm(i18n`您已创建账户，请确认是否重新创建？`)) return;
                     }
@@ -186,13 +186,13 @@
             *当前服务器的域名/domain/每行一个，不支持泛域名 text
             `,
             options: {
-                async 从证书列表同步() {
+                async [i18n`从证书列表同步`]() {
                     var a = await plist.load('cert', 'hostname');
                     formdata.domain = a.map(a => a.hostname).join('\r\n');
                 }
             },
             actions: {
-                async 创建订单(actived) {
+                async [i18n`创建订单`](actived) {
                     var params = submit(actived.fields, formdata);
                     await acme2.newOrder(params);
                     await saveUnique();

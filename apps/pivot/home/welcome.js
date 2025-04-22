@@ -8,9 +8,9 @@ function main() {
         filterTime,
         memeryUsed: 0,
         memery: [0, 1],
-        platform: '未知',
-        arch: '未知',
-        nodeVersion: "未知",
+        platform: i18n`未知`,
+        arch: i18n`未知`,
+        nodeVersion: i18n`未知`,
         size,
         progbar,
         async run(id) {

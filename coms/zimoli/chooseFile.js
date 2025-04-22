@@ -3,7 +3,7 @@ function chooseFile(accept, multiple, extra) {
     form.innerHTML = `<input tabindex=0 ${extra ? extra + " " : ''}type='file'${accept ? ` accept="${accept}"` : ''}${multiple ? ' multiple' : ''} />`;
     var [input] = form.children;
     var result = new Promise(function (ok, oh) {
-        if (/msie\s+[2-9]/i.test(navigator.userAgent)) return alert("无法在当前浏览器操作！");
+        if (/msie\s+[2-9]/i.test(navigator.userAgent)) return alert(i18n`无法在当前浏览器操作！`);
         input.onfocus = function () {
             // focus 事件比change事件早40-80毫秒
             if (opened && document.hasFocus()) {

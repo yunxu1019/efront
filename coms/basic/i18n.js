@@ -28,4 +28,27 @@ var getLanguageIndexFromName = function (language) {
 i18n.setLanguage = function (language) {
     languageIndex = getLanguageIndexFromName(language);
 };
+i18n.getIndex = function () {
+    return languageIndex;
+};
+i18n.setIndex = function (index) {
+    languageIndex = +index;
+    localStorage.setItem('language-index', index);
+    supports = [];
+    i18n.supports = supports;
+    i18n.reload();
+};
+var relaods = [];
+i18n.reload = function () {
+    relaods.forEach(a => a());
+};
+i18n.addReloader = function () {
+    for (var callback of arguments) {
+        if (isFunction(callback)) relaods.push(callback);
+    }
+};
 if (this.navigator) i18n.setLanguage(this.navigator.language);
+var i = +localStorage.getItem('language-index');
+if (i >= 0) i18n.setIndex(i);
+else i18n.setIndex(languageIndex);
+var supports;

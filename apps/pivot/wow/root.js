@@ -126,7 +126,7 @@ function main(path) {
         },
         async mov(from, distpath) {
             var currentHost = data.getInstance("base").base;
-            if (from.host !== currentHost) return alert("暂不支持跨服务器操作！");
+            if (from.host !== currentHost) return alert(i18n`暂不支持跨服务器操作！`);
             from = encode62.packencode(from.fullpath);
             distpath = encode62.packencode(distpath);
             await data.from("folder", { opt: 'mov', path: from, to: distpath }).loading_promise;

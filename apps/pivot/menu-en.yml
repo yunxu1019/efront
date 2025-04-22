@@ -1,0 +1,16 @@
+Home Page: /home/welcome
+WEB:
+  Path Redirects: /proxy/list
+  File Manager: /wow/root
+  Data Manager: /db/list
+  Living Link: /link/index
+  # Dictionary: /dict/list
+  Cert Manager: /cert/main
+  Shared Path: /share/list
+Service:
+  Key Manager: /token/list
+  Task Manager: /task/list
+Logs:
+  Visit Count: /log/count
+  Boot Log: /log/boot
+# Shop: /shop/home

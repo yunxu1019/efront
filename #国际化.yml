@@ -1,3 +1,216 @@
+- zh-CN: 密钥管理
+  en:    Key Management
+
+- zh-CN: 任务
+  en:    task
+
+- zh-CN: 执行
+  en:    execute
+
+- zh-CN: 正在执行..
+  en:    Executing
+
+- zh-CN: 完成！
+  en:    Done!
+
+- zh-CN: 任务管理
+  en:    task management
+
+- zh-CN: 同步
+  en:    synchronous
+
+- zh-CN: 同步完成！
+  en:    Synchronization completed!
+
+- zh-CN: 同步任务
+  en:    Synchronize tasks
+
+- zh-CN: 当前
+  en:    current
+
+- zh-CN: 短链接
+  en:    Short Link
+
+- zh-CN: 访问
+  en:    visit
+
+- zh-CN: 自动刷新
+  en:    auto refresh
+
+- zh-CN: 新建连接
+  en:    make new connection
+
+- zh-CN: 房间
+  en:    room
+
+- zh-CN: 会话
+  en:    conversation
+
+- zh-CN: 连接
+  en:    connect
+
+- zh-CN: 未知
+  en:    unknown
+
+- zh-CN: 字典
+  en:    dictionary
+
+- zh-CN: 接口管理
+  en:    Interfaces
+
+- zh-CN: DHT服务器管理
+  en:    DHT Server Management
+
+- zh-CN: 从文件读取
+  en:    Read from file
+
+- zh-CN: 当前浏览器无法读取文件
+  en:    The current browser is unable to read the file
+
+- zh-CN: 读取文件失败！
+  en:    Failed to read file!
+
+- zh-CN: 请在支持window.crypto.subtle的浏览器上使用此页面的功能
+  en:    Please use the functionality of this page on browsers that support window.crypto.subtle
+
+- zh-CN: 检查账户
+  en:    Check account
+
+- zh-CN: 从证书列表同步
+  en:    Synchronize from certificate list
+
+- zh-CN: 暂无订单
+  en:    No orders at the moment
+
+- zh-CN: 删除订单
+  en:    Delete Order
+
+- zh-CN: 刷新
+  en:    Refresh
+
+- zh-CN: 提交审核
+  en:    Submit for review
+
+- zh-CN: 请求证书
+  en:    Request certificate
+
+- zh-CN: 查看证书
+  en:    View Certificate
+
+- zh-CN: 上传到服务器
+  en:    Upload to server
+
+- zh-CN: 订单异常
+  en:    Order exception
+
+- zh-CN: 执行更新
+  en:    Perform updates
+
+- zh-CN: 替换证书
+  en:    Replace Certificate
+
+- zh-CN: 保存计划
+  en:    Save Plan
+
+- zh-CN: 无法在当前浏览器操作！
+  en:    Cannot operate in the current browser!
+
+- zh-CN: 无法在当前浏览器操作!
+  en:    Cannot operate in the current browser!
+
+- zh-CN: 您确定要这么做吗？
+  en:    Are you sure you want to do this?
+
+- zh-CN: 当前操作需要您再次确认
+  en:    The current operation requires your confirmation again
+
+- zh-CN: 操作
+  en:    operate
+
+- zh-CN: 暂不支持跨服务器操作！
+  en:    Cross server operations are not currently supported!
+
+- zh-CN: 确认取消
+  en:    Confirm Cancel
+
+- zh-CN: 服务器版本
+  en:    Server version
+
+- zh-CN: nodejs版本
+  en:    Node.js version
+
+- zh-CN: 操作系统
+  en:    operating system
+
+- zh-CN: 处理器
+  en:    processor
+
+- zh-CN: 清理服务器缓存
+  en:    Clean up server cache
+
+- zh-CN: 重启服务器
+  en:    Restart the server
+
+- zh-CN: 重启
+  en:    Restart
+
+- zh-CN: 内存
+  en:    Memory
+
+- zh-CN: 可用
+  en:    available
+
+- zh-CN: 总内存
+  en:    total memory
+
+- zh-CN: 搜索或添加
+  en:    Search or add
+
+- zh-CN: 删除
+  en:    delete
+
+- zh-CN: 管理
+  en:    manage
+
+- zh-CN: 选项 $1 已存在！
+  en:    Option $1 already exists!
+
+- zh-CN: 切换语言
+  en:    switch language
+
+- zh-CN: 中文简体
+  en:    Simplified Chinese
+
+- zh-CN: 中文繁体
+  en:    traditional Chinese
+
+- zh-CN: 英文
+  en:    English
+
+- zh-CN: 葡萄牙语
+  en:    Portuguese
+
+- zh-CN: 波兰语
+  en:    Polish
+
+- zh-CN: 测试
+  en:    test
+
+- zh-CN: 全部测试
+  en:    All Tests
+
+- zh-CN: 添加可用链接
+  en:    Add available links
+
+- zh-CN: 配置
+  en:    configuration
+
+- zh-CN: 添加动作
+  en:    Add action
+
+- zh-CN: 编辑数据
+  en:    Edit Data
+
 - zh-CN: 请求方法错误
   en:    Request method error
 
@@ -2334,3 +2547,12 @@
 
 - zh-CN: 这是一个空白项目
   en:    This is a blank project
+
+- zh-CN: menu.yml
+  en:    menu-en.yml
+
+- zh-CN: menu.yml
+  en:    menu-en.yml
+
+- zh-CN: menu.yml
+  en:    menu-en.yml

@@ -1,5 +1,5 @@
 <div>
-    <btn -if="hasedit" @click="add()">添加</btn>
+    <btn -if="hasedit" @click="add()">${i18n`添加`}</btn>
     <btn -repeat="b in buttons" @click="b.do()">
         <span -text="b.name"></span>
     </btn>

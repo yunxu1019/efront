@@ -891,6 +891,13 @@ zimoli.enableTouchBack = function () {
         }
     }, 'x')
 };
+zimoli.reload = function () {
+    for (var k in page_generators) {
+        delete modules[k];
+    }
+    page_generators = {};
+    zimoli();
+};
 zimoli.alert = function () {
     var ae = alert.apply(this, arguments);
     zimoli.upwith(ae.parentNode);

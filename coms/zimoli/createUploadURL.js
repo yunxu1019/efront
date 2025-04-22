@@ -1,7 +1,7 @@
 var URL = window.URL, Blob = window.Blob;
 function main(basepath) {
     if (!URL || !Blob) {
-        alert("无法在当前浏览器操作!");
+        alert(i18n`无法在当前浏览器操作!`);
         return;
     }
     var url = URL.createObjectURL(new Blob);

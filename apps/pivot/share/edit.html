@@ -1,10 +1,10 @@
-<div head>修改</div>
+<div head>${i18n`修改`}</div>
 <div body>
     <form>
         <field -repeat="f in fields" -src="[f,data]"></field>
     </form>
 </div>
 <div foot>
-    <btn white @click="close()">取消</btn>
-    <button @click="save()"> 保存 </button>
+    <btn white @click="close()">${i18n`取消`}</btn>
+    <button @click="save()"> ${i18n`保存`} </button>
 </div>

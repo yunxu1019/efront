@@ -57,23 +57,23 @@
 </style>
 <xmenu -src="o of orders" @active="openOrder(o)"></xmenu>
 <div -if="!order">
-    暂无订单
+    ${i18n`暂无订单`}
 </div>
 <form -elseif="order.oid" onsubmit="event.preventDefault()">
     <div body>
         <field -repeat="f in fields" _src="[f,order]"></field>
     </div>
     <div foot>
-        <button -if="order?.removable" class="danger" confirm @click="dropOrder(order)">删除订单</button>
-        <button -if="order.status==='processing'" @click="openOrder(order)">刷新</button>
-        <button -if="order.status==='pending'" @click="auditOrder(order)">提交审核</button>
-        <button -if="order.status==='ready'" @click="finalize(order)">请求证书</button>
-        <button -if="order.status==='valid'" @click="see(order)">查看证书</button>
-        <button -if="order.shouldupload" @click="upload(order)">上传到服务器</button>
+        <button -if="order?.removable" class="danger" confirm @click="dropOrder(order)">${i18n`删除订单`}</button>
+        <button -if="order.status==='processing'" @click="openOrder(order)">${i18n`刷新`}</button>
+        <button -if="order.status==='pending'" @click="auditOrder(order)">${i18n`提交审核`}</button>
+        <button -if="order.status==='ready'" @click="finalize(order)">${i18n`请求证书`}</button>
+        <button -if="order.status==='valid'" @click="see(order)">${i18n`查看证书`}</button>
+        <button -if="order.shouldupload" @click="upload(order)">${i18n`上传到服务器`}</button>
     </div>
 </form>
 <div -else>
-    订单异常
+    ${i18n`订单异常`}
 </div>
 <script>
     var fields = refilm`

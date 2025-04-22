@@ -371,37 +371,7 @@
     //     "庄，庄": ["za", "Zhuang, Chuang"],
     //     祖鲁语: ["zu", "Zulu"]
     // };
-    var supports = [
-        { name: `汉语`/*中文简体*/, id: "zh", lang: "zh-CN" },
-        { name: `漢語`/*中文繁体*/, id: "cht", lang: "zh-TW" },
-        { name: `English`/*英文*/, id: "en", lang: "en" },
-        // { name: i18n`文言文`, id: "wyw" },
-        // { name: i18n`粤语`, id: "yue" },
-        { name: `日本語`/*日语*/, id: "jp", lang: "ja" },
-        { name: `Français`/*法语*/, id: "fra", lang: 'fr' },
-        { name: `Русский язык`/*俄语*/, id: "ru", lang: 'ru' },
-        { name: `한국어`/*韩语*/, id: "kor", lang: "ko" },
-        { name: `Deutsch`/*德语*/, id: "de", lang: "de" },
-        { name: `Italiano`/*意大利语*/, id: "it", lang: 'it' },
-        { name: `ภาษาไทย`/*泰语*/, id: "th", lang: "th" },
-        { name: `Tiếng Việt`/*越南语*/, id: "vie", lang: 'vi' },
-        { name: `بالعربية`/*阿拉伯语*/, id: "ara", lang: "ar" },
-        { name: `Nederlands`/*荷兰语*/, id: "nl", lang: "nl" },
-        { name: `suomi`/*芬兰语*/, id: "fin", lang: "fi" },
-        { name: `Ελληνικά`/*希腊语*/, id: "el", lang: "el" },
-        { name: `Español`/*西班牙语*/, id: "spa", lang: "es" },
-        { name: `Português`/*葡萄牙语*/, id: "pt", lang: /pt\-(BR|PT)/ },
-        { name: `Húngaro`/*匈牙利语*/, id: "hu", lang: 'hu' },
-        { name: `Svenska`/*瑞典语*/, id: "swe", lang: 'sv' },
-        { name: `Dansk`/*丹麦语*/, id: "dan", lang: 'da' },
-        { name: `Čeština`/*捷克语*/, id: "cs", lang: 'cs' },
-        { name: `Polski`/*波兰语*/, id: "pl" },
-        { name: `Български`/*保加利亚语*/, id: "bul", lang: "bg" },
-        { name: `Eesti keel`/*爱沙尼亚语*/, id: "est", lang: 'et' },
-        { name: `Română`/*罗马尼亚语*/, id: "rom", lang: 'ro' },
-        { name: `slovenski jezik`/*斯洛文尼亚语*/, id: "slo", lang: 'sl' },
-    ];
-    supports.forEach(s => s.key = s.id);
+    var supports = i18nSupports;
     var getAllText = function (data, f) {
         try {
             if (/^\s*(\<\!--[\s\S]*?--\>\s*)*<!doctype\s/i.test(data)) return [];

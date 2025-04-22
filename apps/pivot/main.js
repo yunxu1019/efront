@@ -1,3 +1,8 @@
+var setRoute = async function () {
+    frame$route.update(await data.fromURL(i18n`menu.yml`));
+};
+setRoute();
+i18n.addReloader(setRoute, zimoli.reload);
 data.loadConfig("api.yml");
 user.loginPath = '/auth/login';
 var login_queue = [], reject_queue = [];

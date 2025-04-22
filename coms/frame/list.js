@@ -65,7 +65,7 @@ function main(title, { fields, options: options0, load, remove, buttons }, edit_
             this.data = load();
         },
         fields: fields.filter(f => !f.hidden && f.inlist !== false).concat({
-            name: "操作",
+            name: i18n`操作`,
             options
         }),
         buttons,

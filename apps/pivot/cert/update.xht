@@ -3,9 +3,9 @@
         <field -repeat="f in fields" -src="[f,acme2]"></field>
     </div>
     <div foot>
-        <a confirm @click="autoUpdate()">执行更新</a>
-        <a @click="updateCert()">替换证书</a>
-        <button @click="saveSchadule()">保存计划</button>
+        <a confirm @click="autoUpdate()">${i18n`执行更新`}</a>
+        <a @click="updateCert()">${i18n`替换证书`}</a>
+        <button @click="saveSchadule()">${i18n`保存计划`}</button>
     </div>
 </form>
 <script>

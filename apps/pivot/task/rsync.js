@@ -29,7 +29,7 @@ function main(task) {
                 });
                 finished[h.key] = true;
             }
-            alert('同步完成！');
+            alert(i18n`同步完成！`);
         },
         remove() {
             remove(page);
