@@ -13,6 +13,7 @@ function main(host) {
         move.bindPosition(page, [.5, .5]);
     });
     renderWithDefaults(page, {
+        i18nChooser,
         fields, data: {
             host: host ? parseURL(host).host : data.getInstance("base").host || location.host,
         }, pending: false

@@ -129,6 +129,7 @@
     result.update = function (items) {
         delete result.loading_promise;
         delete result.then;
+        delete result.active;
         firstMenu = null;
         items = result.parse(items);
         items.map(getChildren);
@@ -200,6 +201,7 @@
         var menu = getChild(zimoli);
         if (!menu) return;
         if (menu !== result.active) {
+            console.log(zimoli, menu);
             setActive(result.active, false);
             setActive(menu, true);
             result.active = menu;

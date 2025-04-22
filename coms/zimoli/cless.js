@@ -50,7 +50,7 @@ var _create = function (commFactory, className, _invoke) {
 var head = document.getElementsByTagName("head")[0];
 function cless(commFactory, innerCss, className) {
     if (innerCss) {
-        var stylesheet = document.createElement("style");
+        var stylesheet = isNode(this) ? this : document.createElement("style");
         //<!-- stylesheet.setAttribute("scope",className) -->
         stylesheet.type = "text/css";
         stylesheet.savedText = innerCss;
@@ -59,7 +59,7 @@ function cless(commFactory, innerCss, className) {
         } else {
             stylesheet.innerHTML = innerCss;
         }
-        appendChild(head, stylesheet);
+        if (!stylesheet.parentNode) appendChild(head, stylesheet);
     }
     return _create(commFactory, className, _create);
 }

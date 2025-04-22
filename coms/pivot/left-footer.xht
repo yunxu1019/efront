@@ -10,24 +10,14 @@
         text-align: center;
     }
 
-    >select {
-        background: inherit;
-        vertical-align: top;
-        color: inherit;
-        margin-left: -2px;
-        padding-left: 2px;
-    }
 </style>
 <div>
-    <select -model="i18n.getIndex,i18n.setIndex" title:="title()" style="float: left;" -src="(s,i) in i18n.supports">
-        <option -value="i" -bind="s.land===s.name?'🌏'+s.land:'🌐'+s.land +' - '+s.name"></option>
-    </select>
+    <i18n-chooser style="float: left;"></i18n-chooser>
     <a @click="logout" -bind="exitLabel()"></a>
 </div>
 
 <script>
     var a = button;
-    var title = () => i18n`切换语言`;
     var exitLabel = () => i18n`退出登录`;
     async function logout() {
         data.setSource({});

@@ -494,11 +494,17 @@ var createModule = function (exec, originNames, compiledNames, prebuilds = {}) {
             for (var k in prebuilds) if (hasOwnProperty.call(prebuilds, k)) prebuilds2[k] = prebuilds[k];
             prebuilds = prebuilds2;
         }
+        var isCless = argName === 'cless';
+        if (isCless && exec[argName]) return exec[argName];
         var promise = init(aName, function (res) {
+            if (isCless) res = exec[argName] = res.bind(document.createElement('style'));
             result = res;
             created = true;
         }, prebuilds);
         if (created) return result;
+        if (isCless) promise = exec[argName] = promise.then(a => {
+            return result;
+        })
         return promise;
     });
     var _this = isModuleInit ? exports : window;
@@ -651,6 +657,7 @@ var init = function (url, then, prebuilds, keeppage) {
             if (saveAsModule) {
                 penddings[key] = created;
                 created.then(function (res) {
+                    delete penddings[key];
                     then(modules[url] = res);
                 });
                 return;

@@ -42,7 +42,8 @@ var relaods = [];
 i18n.reload = function () {
     relaods.forEach(a => a());
 };
-i18n.addReloader = function () {
+i18n.setReloader = function () {
+    relaods = [];
     for (var callback of arguments) {
         if (isFunction(callback)) relaods.push(callback);
     }

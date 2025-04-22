@@ -686,7 +686,7 @@ function addGlobal(element, name = null, isBack) {
             if (oldElement) {
                 var oldPrev = oldElement.previousSibling, oldPare = oldElement.parentNode;
                 remove(oldElement);
-                oldElement = oldPrev || oldPare.firstChild;
+                oldElement = oldPrev || oldPare?.firstChild;
             }
             if (isBack || !oldElement) appendChild.insert(body, element);
             else appendChild.after(oldElement, element);
@@ -892,16 +892,26 @@ zimoli.enableTouchBack = function () {
     }, 'x')
 };
 zimoli.reload = function () {
-    history[current_history].forEach(a => {
-        [a] = getpgpath(a);
-        delete modules[a];
-        delete page_generators[a];
-    })
+    for (var k in history) {
+        var h = history[k];
+        if (!h) continue;
+        if (h instanceof Array) h.forEach(a => {
+            [a] = getpgpath(a);
+            delete modules[a];
+            delete page_generators[a];
+        })
+        var g = global[k];
+        if (g) remove(g);
+        delete global[k];
+
+    }
     var loginpath = user.loginPath;
-    if(loginpath){
+    if (loginpath) {
         delete modules[loginpath];
         delete page_generators[loginpath];
     }
+    current_history = default_history;
+    body = document.body;
     zimoli();
 };
 zimoli.alert = function () {
