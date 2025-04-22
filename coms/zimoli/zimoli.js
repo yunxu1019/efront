@@ -892,10 +892,11 @@ zimoli.enableTouchBack = function () {
     }, 'x')
 };
 zimoli.reload = function () {
-    for (var k in page_generators) {
-        delete modules[k];
-    }
-    page_generators = {};
+    history[current_history].forEach(a => {
+        [a] = getpgpath(a);
+        delete modules[a];
+        delete page_generators[a];
+    })
     zimoli();
 };
 zimoli.alert = function () {
