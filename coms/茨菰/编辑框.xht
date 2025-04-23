@@ -83,6 +83,7 @@
         >d {
             outline: none;
             border: none;
+
             &:after {
                 content: "";
                 pointer-events: none;
@@ -171,6 +172,7 @@
         selection = getSelection();
         render.refresh(nlist);
     };
+    var spacing = false;
     var getNodeAt = function (row, col) {
         var d = clist.at(row);
         if (!d) return [];
@@ -193,13 +195,13 @@
                 if (inc + tl > col) {
                     col -= inc;
                     inc = 0;
-                    if (t.charAt(col - 1) === " ") {
+                    if (!spacing && t.charAt(col - 1) === " ") {
                         col++;
                     }
                     break;
                 }
                 else if (inc + tl === col) {
-                    if (t.charAt(col - inc - 1) === " ") col++;
+                    if (!spacing && t.charAt(col - inc - 1) === " ") col++;
                     else break;
                 }
                 inc += tl;
@@ -247,10 +249,12 @@
     var anchorChar = null, inText = false;
     var followChar = null, beforeText = false;
     var fixpace = function (event) {
+        spacing = true;
         event.preventDefault();
         insertText(' ', false);
         markAnchorOffset();
         unmarkAnchorOffset();
+        spacing = false;
     };
     var updatechar = function (event) {
         if (event.defaultPrevented) return;
@@ -414,7 +418,7 @@
         var patchAfter = '';
         switch (inputType) {
             case "insertText":
-                if (data === ' ') return;
+                if (data === ' ') return false;
                 if (anchorChar in pairsmap) {
                     if (followChar === pairsmap[anchorChar] && data === followChar) {
                         document.execCommand('forwardDelete');
@@ -430,6 +434,7 @@
                         patchAfter = pairsmap[data];
                     }
                 }
+                spacing = false;
                 break;
             case "insertParagraph":
                 var i = getFocusRow();
@@ -445,11 +450,14 @@
         }
         if (patchAfter) {
             insertText(patchAfter, true);
+            markAnchorOffset();
         }
         return patchAfter;
     };
     var document_selection = document.getSelection();
+    var isInput = false;
     var insertText = function (text, isPatch) {
+        isInput = true;
         markAnchorOffset();
         var [an, ai, fn, fi] = selection;
         var [n, i] = getNodeAt(fn, fi);
@@ -475,7 +483,7 @@
             [an, ai] = getNodeAt(an, ai);
             document_selection.setBaseAndExtent(an, ai, n, i + d);
         }
-
+        markAnchorOffset();
     }
     var removeEndBR = function (d) {
         var e = d.lastChild;
@@ -513,8 +521,11 @@
     };
     on("input")(coder, function (event) {
         if (event.isComposing) return;
+        isInput = true;
         var id = ++coderid;
-        if (updatecode(event) == null) {
+        spacing = true;
+        var patch = updatecode(event);
+        if (patch == null) {
             if (id !== coderid) return;
             // codetext = getCodeText();
             updateCodeHtml();
@@ -541,6 +552,7 @@
         keytab(1);
     });
     bind('selectionchange', document)(coder, function () {
+        if (isInput) return isInput = false;
         markAnchorOffset();
     });
     var updo = function () {
