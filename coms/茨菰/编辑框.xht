@@ -36,12 +36,6 @@
                 display: inline-block;
                 vertical-align: top;
                 outline: none;
-
-                >n,
-                >d {
-                    display: block;
-                }
-
             }
 
             >[clist] {
@@ -89,6 +83,13 @@
         >d {
             outline: none;
             border: none;
+            &:after {
+                content: "";
+                pointer-events: none;
+                user-select: none;
+                display: inline-block;
+                width: 16px;
+            }
 
             &:focus {
                 outline: 1px solid #fff3;
