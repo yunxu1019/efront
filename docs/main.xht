@@ -154,22 +154,33 @@
             padding: 0px !important;
         }
     }
+
+    &>menu {
+        >i18n-chooser {
+            display: block;
+            z-index: 2;
+            position: relative;
+            background: inherit;
+        }
+    }
 </style>
 
 <menu #mulu open@="menued" inline -src="m in menus" @active="openMenu(m)">
+    <i18n-chooser insert></i18n-chooser>
     <div2></div2>
 </menu>
 <div1 #content></div1>
 <open #switch @click="switchMenu()" insert></open>
 <script>
+    i18n.setReloader(zimoli.reload);
     var menus = [
         {
             name: i18n`efront简介`,
             children: [
-                { name: i18n`使用说明`, md: i18n`readme.md` },
-                { name: i18n`兼容性说明`, md: i18n`coms/basic_/readme.md` },
-                { name: i18n`版本说明`, md: i18n`docs/版本说明.md` },
-                { name: i18n`与前端框架对比`, md: i18n`docs/compare.md` },
+                { name: i18n`使用说明`, id: 'readme', md: i18n`readme.md` },
+                { name: i18n`兼容性说明`, id: 'adaption', md: i18n`coms/basic_/readme.md` },
+                { name: i18n`版本说明`, id: 'version', md: i18n`docs/版本说明.md` },
+                { name: i18n`与前端框架对比`, id: 'compare', md: i18n`docs/compare.md` },
                 // { name: i18n`notive`, md: "docs/notive.md" },
             ]
         },
@@ -209,6 +220,7 @@
         menus[0].name += ` <v>${version[0]}</v>`;
     };
     var initCommandsDocs = async function () {
+        delete modules['docs$helps'];
         var helps = await init("docs$helps");
         var m = {
             name: i18n`命令参考`,
@@ -225,6 +237,7 @@
             a.children = helps.helps.filter(h => h.type === a.a);
             a.children.forEach(c => {
                 c.name = c.info;
+                c.id = c.cmds[0];
                 c.path = `/命令/${c.name}`;
             });
             a.closed = true;
@@ -274,8 +287,7 @@
         await initComponentDocs();
         var route = await init("frame$route");
         scope.menus = route.update(menus);
-        zimoli();
-        render.refresh();
+        route.open(route.active);
     };
     var scope = {
         menus,
@@ -286,6 +298,7 @@
         },
         grid,
         menu,
+        i18nChooser,
         menued: false,
         switchMenu() {
             scope.menued = !scope.menued;
