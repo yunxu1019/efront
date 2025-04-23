@@ -13,8 +13,23 @@ btn {
 }
 
 padding {
+    display: block;
+    color: #666;
+    .button {
+        margin: 0;
+    }
+
     >span {
-        color: #999;
+        vertical-align: top;
+        &:first-child {
+            // width: 120px;
+        }
+        >div{
+            line-height: 1.2;
+            font-size: 12px;
+        }
+        display: inline-block;
+        color: #333;
         margin-right: 10px;
     }
 }
