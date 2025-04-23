@@ -222,7 +222,7 @@ var doDB = async function (req, res) {
         case "put"://覆盖
             var data = await readRequestAsJson(req);
             try {
-                data = await addItem(req, dbid, lastId, data);
+                data = await setItem(req, dbid, lastId, data);
             } catch (e) {
                 res.writeHead(403, utf8error);
                 res.end(String(e));
@@ -252,7 +252,7 @@ var doDB = async function (req, res) {
         res.end(data);
     }
 };
-var addItem = async function (req, dbid, lastId, data) {
+var setItem = async function (req, dbid, lastId, data) {
     var lang = getLang(req);
     if (dbid === '用户') {
         if (!data.a) throw i18n[lang]`请设置用户密码`;
@@ -273,7 +273,6 @@ var addItem = async function (req, dbid, lastId, data) {
         }
         else {
             msg = checkField(data, ["owner", 'mtime', 'ctime'], lang);
-            data.mtime = data.ctime = +new Date;
             data.owner = owner;
         }
     }
@@ -282,6 +281,7 @@ var addItem = async function (req, dbid, lastId, data) {
     if (!lastId) lastId = data.id || '';
     var origin = await message.invoke('dbLoad', [dbid, lastId]);
     if (origin) throw i18n[lang]`已存在名为${lastId}的${dbid}`;
+    data.mtime = data.ctime = +new Date;
     data = await message.invoke('dbSave', [dbid, data]);
     return data;
 };
@@ -360,4 +360,7 @@ doDB.getDB = getDB;
 doDB.getItem = readItem;
 doDB.patchItem = patchItem;
 doDB.deleteItem = deleteItem;
-doDB.addItem = addItem;
+doDB.setItem = setItem;
+doDB.addItem = function (req, dbid, data) {
+    return setItem(req, dbid, null, data);
+};

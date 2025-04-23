@@ -136,7 +136,7 @@ var buildjsp = function (buff, realpath) {
                     return server$doDB.patchItem(req, dbid, dataid, data);
                 },
                 add(dbid, data) {
-                    return server$doDB.addItem(req, dbid, data.id, data);
+                    return server$doDB.addItem(req, dbid, data);
                 }
             },
             context,

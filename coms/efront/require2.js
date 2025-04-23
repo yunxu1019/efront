@@ -42,6 +42,7 @@ var createModule = function (required, pathmap, modname) {
         case "runtask": case "_runtask": return _runtask;
         case "lock": case "_lock": return lock60;
         case "lock30": case "_lock30": return lock30;
+        case "DB": return server$doDB;
         case "module": return this;
         case "exports": return this.exports;
     }
