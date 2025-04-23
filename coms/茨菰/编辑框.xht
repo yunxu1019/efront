@@ -112,13 +112,19 @@
     <list contenteditable="false" nlist# :src="(r,i) in coderows" -style="{height:codeHeight}">
         <n current:="isCurrent(i)" -bind="i+1"></n>
     </list>
-    <list clist# body contenteditable="true" :src="(r,i) in coderows" -style="{height:codeHeight}">
+    <list clist# body contenteditable:="contenteditable" :src="(r,i) in coderows" -style="{height:codeHeight}">
         <d -html="r"></d>
     </list>
 </编辑框>
 <script>
     var coder = this;
     vbox(this);
+    var contenteditable = !this.readonly;
+    watch(coder, {
+        readonly(v) {
+            contenteditable = !v;
+        }
+    })
     if (!('oninput' in document)) {
         on('focus')(this, function () {
             if (this.contentEditable) addClass(this, "noinput");
