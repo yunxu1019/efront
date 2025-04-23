@@ -84,7 +84,7 @@
         茨菰$编辑框(elem);
         elem.setValue(JSON.stringify(m, null, 4));
         var changed = false;
-        await prompt(elem, '输入JSON格式的数据', function (text) {
+        await prompt(elem, i18n`输入JSON格式的数据`, function (text) {
             try {
                 JSON.parse(text);
                 return true;
@@ -106,7 +106,7 @@
         elem.type = 'json';
         茨菰$编辑框(elem);
         var changed = false;
-        await prompt(elem, '输入JSON格式的数据', function (text) {
+        await prompt(elem, i18n`输入JSON格式的数据`, function (text) {
             try {
                 JSON.parse(text);
                 return true;

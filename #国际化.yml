@@ -1,11 +1,83 @@
+- zh-CN: 英文
+  en:    English
+
+- zh-CN: 英语
+  en:    English
+
+- zh-CN: 中文繁体
+  en:    Traditional Chinese
+
+- zh-CN: 繁体中文
+  en:    Traditional Chinese
+
+- zh-CN: 返回
+  en:    Return
+
+- zh-CN: 返回
+  en:    Back
+
+- zh-CN: 路径不存在
+  en:    Path does not exist
+
+- zh-CN: 路径不存在
+  en:    path does not exist
+
+- zh-CN: "参数异常: $1"
+  en:    "Parameter exception: $1"
+
+- zh-CN: 参数异常:$1
+  en:    "Parameter exception: $1"
+
+- zh-CN: 确定
+  en:    Confirm
+
+- zh-CN: 确认
+  en:    Confirm
+
+- zh-CN: 无法在当前浏览器操作！
+  en:    Cannot operate in the current browser!
+
+- zh-CN: 无法在当前浏览器操作!
+  en:    Cannot operate in the current browser!
+
+- zh-CN: 不启用
+  en:    Disable
+
+- zh-CN: 禁用
+  en:    Disable
+
+- zh-CN: 输入JSON格式的数据
+  en:    Input data in JSON format
+
+- zh-CN: 启用
+  en:    Enable
+
+- zh-CN: 跳转
+  en:    Jump
+
+- zh-CN: 转发
+  en:    Forward
+
+- zh-CN: 未审核
+  en:    Unaudited
+
+- zh-CN: 审核通过
+  en:    Approved
+
+- zh-CN: 生成中
+  en:    Generating in progress
+
+- zh-CN: 生效
+  en:    Take effect
+
 - zh-CN: 密钥管理
   en:    Key Management
 
 - zh-CN: 任务
-  en:    task
+  en:    Task
 
 - zh-CN: 执行
-  en:    execute
+  en:    Execute
 
 - zh-CN: 正在执行..
   en:    Executing
@@ -14,10 +86,10 @@
   en:    Done!
 
 - zh-CN: 任务管理
-  en:    task management
+  en:    Task management
 
 - zh-CN: 同步
-  en:    synchronous
+  en:    Synchronous
 
 - zh-CN: 同步完成！
   en:    Synchronization completed!
@@ -26,34 +98,34 @@
   en:    Synchronize tasks
 
 - zh-CN: 当前
-  en:    current
+  en:    Current
 
 - zh-CN: 短链接
   en:    Short Link
 
 - zh-CN: 访问
-  en:    visit
+  en:    Visit
 
 - zh-CN: 自动刷新
-  en:    auto refresh
+  en:    Auto refresh
 
 - zh-CN: 新建连接
-  en:    make new connection
+  en:    Make new connection
 
 - zh-CN: 房间
-  en:    room
+  en:    Room
 
 - zh-CN: 会话
-  en:    conversation
+  en:    Conversation
 
 - zh-CN: 连接
-  en:    connect
+  en:    Connect
 
 - zh-CN: 未知
-  en:    unknown
+  en:    Unknown
 
 - zh-CN: 字典
-  en:    dictionary
+  en:    Dictionary
 
 - zh-CN: 接口管理
   en:    Interfaces
@@ -112,12 +184,6 @@
 - zh-CN: 保存计划
   en:    Save Plan
 
-- zh-CN: 无法在当前浏览器操作！
-  en:    Cannot operate in the current browser!
-
-- zh-CN: 无法在当前浏览器操作!
-  en:    Cannot operate in the current browser!
-
 - zh-CN: 您确定要这么做吗？
   en:    Are you sure you want to do this?
 
@@ -125,7 +191,7 @@
   en:    The current operation requires your confirmation again
 
 - zh-CN: 操作
-  en:    operate
+  en:    Operate
 
 - zh-CN: 暂不支持跨服务器操作！
   en:    Cross server operations are not currently supported!
@@ -143,7 +209,7 @@
   en:    operating system
 
 - zh-CN: 处理器
-  en:    processor
+  en:    Processor
 
 - zh-CN: 清理服务器缓存
   en:    Clean up server cache
@@ -158,34 +224,28 @@
   en:    Memory
 
 - zh-CN: 可用
-  en:    available
+  en:    Available
 
 - zh-CN: 总内存
-  en:    total memory
+  en:    Total memory
 
 - zh-CN: 搜索或添加
   en:    Search or add
 
 - zh-CN: 删除
-  en:    delete
+  en:    Delete
 
 - zh-CN: 管理
-  en:    manage
+  en:    Manage
 
 - zh-CN: 选项 $1 已存在！
   en:    Option $1 already exists!
 
 - zh-CN: 切换语言
-  en:    switch language
+  en:    Switch language
 
 - zh-CN: 中文简体
   en:    Simplified Chinese
-
-- zh-CN: 中文繁体
-  en:    traditional Chinese
-
-- zh-CN: 英文
-  en:    English
 
 - zh-CN: 葡萄牙语
   en:    Portuguese
@@ -194,7 +254,7 @@
   en:    Polish
 
 - zh-CN: 测试
-  en:    test
+  en:    Test
 
 - zh-CN: 全部测试
   en:    All Tests
@@ -203,7 +263,7 @@
   en:    Add available links
 
 - zh-CN: 配置
-  en:    configuration
+  en:    Configuration
 
 - zh-CN: 添加动作
   en:    Add action
@@ -234,9 +294,6 @@
 
 - zh-CN: 无法存入数据到$1
   en:    Unable to deposit data to $1
-
-- zh-CN: "参数异常: $1"
-  en:    "Parameter exception: $1"
 
 - zh-CN: 此数据不可查询！
   en:    This data is not searchable!
@@ -512,13 +569,13 @@
   en:    Loading..
 
 - zh-CN: 查看
-  en:    check
+  en:    Check
 
 - zh-CN: 单击生成
   en:    Click to generate
 
 - zh-CN: 同意
-  en:    agree
+  en:    Agree
 
 - zh-CN: 每行一个，不支持泛域名
   en:    "One per line, does not support generic domain names"
@@ -530,7 +587,7 @@
   en:    Unable to complete audit through HTTP service
 
 - zh-CN: 下载
-  en:    download
+  en:    Download
 
 - zh-CN: 以后不会再测试是否兼容vue了，也不准备增加对vue3及后续版本的支持，望知悉。
   en:    "We will no longer test whether it is compatible with Vue in the future, and we are not planning to add support for Vue3 and subsequent versions. Please be informed."
@@ -601,17 +658,11 @@
 - zh-CN: 发现不同的翻译
   en:    Discovering different translations
 
-- zh-CN: 确定
-  en:    Confirm
-
 - zh-CN: 导出完成
   en:    Export completed
 
 - zh-CN: 继续
   en:    Continue
-
-- zh-CN: 确认
-  en:    Confirm
 
 - zh-CN: 用于$1的证书不可用
   en:    Certificate not available for $1
@@ -692,10 +743,10 @@
   en:    Private key
 
 - zh-CN: 证书
-  en:    certificate
+  en:    Certificate
 
 - zh-CN: 账户
-  en:    account
+  en:    Account
 
 - zh-CN: 当前服务器的域名
   en:    The domain name of the current server
@@ -749,7 +800,7 @@
   en:    pathend
 
 - zh-CN: 邮箱
-  en:    mailbox
+  en:    Mailbox
 
 - zh-CN: 过滤空串
   en:    Filter empty strings
@@ -949,9 +1000,6 @@
 - zh-CN: 绑定事件参数无效$1
   en:    Invalid binding event parameter $1
 
-- zh-CN: 参数异常:$1
-  en:    "Parameter exception: $1"
-
 - zh-CN: 当前环境无法使用
   en:    The current environment cannot be used
 
@@ -1056,9 +1104,6 @@
 
 - zh-CN: "重复定义: $1"
   en:    "Duplicate definition: $1"
-
-- zh-CN: 路径不存在
-  en:    Path does not exist
 
 - zh-CN: 指定的任务 $1 不存在！
   en:    The specified task $1 does not exist!
@@ -1348,9 +1393,6 @@
 - zh-CN: 文件内容不足
   en:    Insufficient file content
 
-- zh-CN: 路径不存在
-  en:    path does not exist
-
 - zh-CN: 文件已存在
   en:    file already exist
 
@@ -1378,26 +1420,23 @@
 - zh-CN: 发送
   en:    send
 
-- zh-CN: 返回(O)
-  en:    Return(O)
+- zh-CN: 打开
+  en:    Open
 
-- zh-CN: 打开(O)
-  en:    Open(O)
+- zh-CN: 剪切
+  en:    Cut
 
-- zh-CN: 剪切(C)
-  en:    Cut(C)
+- zh-CN: 复制
+  en:    Copy
 
-- zh-CN: 复制(R)
-  en:    Copy(R)
+- zh-CN: 全选
+  en:    Select All
 
-- zh-CN: 全选(A)
-  en:    Select All(A)
+- zh-CN: 替换
+  en:    Replace
 
-- zh-CN: 替换(R)
-  en:    Replace(R)
-
-- zh-CN: 粘贴(V)
-  en:    Paste(V)
+- zh-CN: 粘贴
+  en:    Paste
 
 - zh-CN: 不能移入子文件夹
   en:    Unable to move into sub folder
@@ -1414,20 +1453,20 @@
 - zh-CN: 有文件正在复制！
   en:    There are files being copied!
 
-- zh-CN: 新建文件夹(D)
-  en:    New folder(D)
+- zh-CN: 新建文件夹
+  en:    New folder
 
-- zh-CN: 添加文件(F)
-  en:    Add file(F)
+- zh-CN: 添加文件
+  en:    Add file
 
-- zh-CN: 重命名(R)
-  en:    Renaming(R)
+- zh-CN: 重命名
+  en:    Renaming
 
-- zh-CN: 确认删除(D)
-  en:    Confirm deletion(D)
+- zh-CN: 确认删除
+  en:    Confirm deletion
 
-- zh-CN: 删除(D)
-  en:    Delete(D)
+- zh-CN: 删除
+  en:    
 
 - zh-CN: 确认要删除如下 $1 项吗？
   en:    Are you sure you want to delete the following $1 item?
@@ -1576,9 +1615,6 @@
 - zh-CN: 自动识别环境并启动测试环境服务器
   en:    Automatically recognize the environment and start the testing environment server
 
-- zh-CN: 返回
-  en:    Back
-
 - zh-CN: 未没找到匹配的资源：$1
   en:    "No matching resources found: $1"
 
@@ -1688,7 +1724,7 @@
   en:    Lack of guidance!
 
 - zh-CN: 标记不匹配
-  en:    Tag mismatch
+  en:    
 
 - zh-CN: 类型不支持
   en:    Type not supported
@@ -2001,12 +2037,6 @@
 
 - zh-CN: 中文
   en:    Chinese
-
-- zh-CN: 繁体中文
-  en:    Traditional Chinese
-
-- zh-CN: 英语
-  en:    English
 
 - zh-CN: 日语
   en:    Japanese
@@ -2547,12 +2577,6 @@
 
 - zh-CN: 这是一个空白项目
   en:    This is a blank project
-
-- zh-CN: menu.yml
-  en:    menu-en.yml
-
-- zh-CN: menu.yml
-  en:    menu-en.yml
 
 - zh-CN: menu.yml
   en:    menu-en.yml

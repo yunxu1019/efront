@@ -604,6 +604,10 @@
                         addTranslate(f.name);
                         addTranslate(f.holder);
                         addTranslate(f.comment);
+                        var options = f.options;
+                        if (options instanceof Array) options.forEach(o => {
+                            addTranslate(o.name);
+                        })
                     });
                 }
             }
@@ -611,6 +615,7 @@
         msg.setText(i18n`提取完成`);
         var result = [];
         var preMap = Object.create(null);
+        var againstid = 0;
         for (var e of pretrans) {
             var data = await readText(e);
             data = parseYML(data);
@@ -621,16 +626,35 @@
                 var liang = 0, fanyi = {};
                 for (var { lang: k, id } of supports) {
                     if (!d[k]) continue;
-                    if (preMap[d[k]] && preMap[d[k]] !== d) {
-                        console.log(i18n`发现不同的翻译`, k, preMap[d[k]], d);
+                    var pd = preMap[d[k]];
+                    if (pd && pd !== d) {
+                        if (shallowEqual(pd, d)) continue;
+                        if (!pd.against) {
+                            pd.against = ++againstid;
+                        }
+                        d.against = pd.against;
+                        console.log(i18n`发现不同的翻译`, k, pd, d);
                     }
                     preMap[d[k]] = d;
                     liang++;
                     fanyi[id] = d[k];
                 }
-                result.push({ text: d[supports[0].lang], fanyi, liang });
+                d = { text: d[supports[0].lang], fanyi, liang, d };
+                result.push(d);
             }
         }
+        var againsts = [];
+        result = result.filter(a => {
+            var ag = a.d.against;
+            delete a.d;
+            if (!ag) return true;
+            var aga = againsts[ag];
+            if (!aga) aga = againsts[ag] = [];
+            aga.push(a);
+        });
+        againsts.forEach(a => {
+            result.unshift.apply(result, a);
+        });
         var untrans = [];
         Object.keys(textMap).map(k => {
             var texts = textMap[k];

@@ -27,7 +27,7 @@ function main(title, { fields, options: options0, load, remove, buttons }, edit_
     page.innerHTML = template;
     var options = [
         {
-            name: "修改",
+            name: i18n`修改`,
             async do(o) {
                 await edit(o);
             },
@@ -35,7 +35,7 @@ function main(title, { fields, options: options0, load, remove, buttons }, edit_
         {
             type: "danger",
             name(o) {
-                return this.confirm === o ? "确认删除" : "删除";
+                return this.confirm === o ? i18n`确认删除` : i18n`删除`;
             },
             type(o) {
                 return this.confirm === o ? "dark" : "danger";

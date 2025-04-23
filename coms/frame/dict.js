@@ -1,6 +1,6 @@
 function main(types, elem) {
     var { field, data, readonly } = elem;
-    elem.innerHTML = `<span -text="text()"></span>` + (readonly ? "" : '<a @click="edit()">修改</a>');
+    elem.innerHTML = `<span -text="text()"></span>` + (readonly ? "" : `<a @click="edit()">${i18n`修改`}</a>`);
     renderWithDefaults(elem.children, {
         text() {
             if (data[field.key]) return data[field.key].map(k => `${k.name} ${isEmpty(k.key) ? "" : `(${k.key})`}`).join(", ");

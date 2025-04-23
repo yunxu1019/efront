@@ -147,7 +147,7 @@
                 }}
             *邮箱/email email
             /termsOfServiceAgreed/同意 checker ${{
-                    async"Let’s Encrypt Subscriber Agreement"(data) {
+                    async" Let’s Encrypt Subscriber Agreement"(data) {
                         var termsOfService = await acme2.getTermsOfService();
                         if (termsOfService) window.open(termsOfService, "_blank", "popup,noopener,noreferer")
                     },

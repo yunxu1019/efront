@@ -158,6 +158,29 @@ function translate([imap, supports], code) {
                         if (a in t) v = t[a];
                         else v = scanner2(`(${JSON.stringify(v)})`)[0];
                     }
+                    else if (k === 'options') {
+                        if (v instanceof Array) {
+                            var a = scanner2(`[]`);
+                            v.map(function (o) {
+                                var name = o.name;
+                                if (!name) return scanner2(`(${JSON.stringify(o)})`)[0];
+                                delete o.name;
+                                name = ctn('i18n' + getm(name, t.nodup, t.warn), t);
+                                o = scanner2(`(${JSON.stringify(o)})`)[0];
+                                splice(o[0], 0, 0,
+                                    { type: PROPERTY, isprop: true, text: `"name"` },
+                                    { type: STAMP, text: ":" }, ...name,
+                                    { type: STAMP, text: "," });
+                                setqueue(o);
+                                return o;
+                            }).forEach(function (o) {
+                                a[0].push(...o, { type: STAMP, text: ',' });
+                            });
+                            a[0].pop();
+                            setqueue(a);
+                            v = a;
+                        }
+                    }
                     else if (/^(name|holder|comment)$/.test(k)) v = ctn('i18n' + getm(v, t.nodup, t.warn), t);
                     else v = scanner2(`(${JSON.stringify(v)})`)[0];
                     o.push({

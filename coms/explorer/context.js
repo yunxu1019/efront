@@ -60,7 +60,7 @@ var popupEdit = function ($scope, active) {
 };
 return extend([
     {
-        name: i18n`返回(O)`,
+        name: i18n`返回` + `(O)`,
         hotkey: "backspace",
         when: never,
         do() {
@@ -68,7 +68,7 @@ return extend([
         }
     },
     {
-        name: i18n`打开(O)`,
+        name: i18n`打开` + `(O)`,
         hotkey: "Enter",
         when: never,
         do(d) {
@@ -78,7 +78,7 @@ return extend([
         }
     },
     {
-        name: i18n`剪切(C)`,
+        name: i18n`剪切` + `(C)`,
         hotkey: "Ctrl+X",
         when: getStable,
         do(d) {
@@ -88,7 +88,7 @@ return extend([
         }
     },
     {
-        name: i18n`复制(R)`,
+        name: i18n`复制` + `(R)`,
         hotkey: "Ctrl+C",
         when: getStable,
         do(d) {
@@ -98,7 +98,7 @@ return extend([
         }
     },
     {
-        name: i18n`全选(A)`,
+        name: i18n`全选` + `(A)`,
         hotkey: "Ctrl+A",
         when: never,
         do(d) {
@@ -108,11 +108,11 @@ return extend([
         }
     },
     {
-        name: i18n`替换(R)`,
+        name: i18n`替换` + `(R)`,
         when: never,
     },
     {
-        name: i18n`粘贴(V)`,
+        name: i18n`粘贴` + `(V)`,
         hotkey: "Ctrl+V",
         when(e) {
             var copyed = getPageScope(e.target).copyed;
@@ -162,12 +162,12 @@ return extend([
         }
     },
     {
-        name: i18n`新建文件夹(D)`,
+        name: i18n`新建文件夹` + `(D)`,
         when: notGetActive,
         do: popupAdd
     },
     {
-        name: i18n`添加文件(F)`,
+        name: i18n`添加文件` + `(F)`,
         when: notGetActive,
         async do(d) {
             var $scope = getPageScope(d);
@@ -176,13 +176,13 @@ return extend([
     },
     {
         hotkey: "F2",
-        name: i18n`重命名(R)`,
+        name: i18n`重命名` + `(R)`,
         when: getStable,
         do: popupRen
     },
     {
         get name() {
-            return this.confirm ? i18n`确认删除(D)` : i18n`删除(D)`;
+            return this.confirm ? i18n`确认删除` + `(D)` : i18n`删除` + `(D)`;
         },
         hotkey: "Shift+Del",
         confirm: false,
