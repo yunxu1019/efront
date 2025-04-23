@@ -627,7 +627,7 @@ function table(elem) {
             render.digest();
         };
     })
-    var tableScopes = render.getScopes(this);
+    var tableScopes = render.getScopes(table);
     autodragchildren(
         table,
         cellMatchManager,
