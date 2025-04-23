@@ -21,7 +21,15 @@ function main(a) {
             var id = ++taskid;
             this.output = i18n`正在执行..`;
             this.error = false;
-            var params = JSON.stringify(this.data);
+            var params = {};
+            for (var k in this.data) {
+                var v = this.data[k];
+                try {
+                    v = JSAM.parse(v);
+                } catch { }
+                params[k] = v;
+            }
+            var params = JSON.stringify(params);
             try {
                 var res = await data.from("invoke", { key: a.key, params: encode62.packencode(params) }, function (a) {
                     return a ? encode62.packdecode(a) : i18n`完成！`;
