@@ -9,7 +9,7 @@
     : Promise.resolve([])
 ).then(function (items) {
     var result = [];
-    var menuid = 0;
+    var idmap = Object.create(null);
     var savedChildren = Object.create(null);
     var savedMenus = Object.create(null);
     var keymap = {};
@@ -57,7 +57,10 @@
     }
     var getChildren = function (menu) {
         if (!menu.id) {
-            menu.id = ++menuid;
+            var pathid = menu.path;
+            if (!idmap[pathid]) idmap[pathid] = 0;
+            menu.id = (menu.path || "") + "#" + idmap[pathid];
+            idmap[pathid]++;
         }
         if (!savedMenus[menu.id]) {
             savedMenus[menu.id] = menu;
@@ -130,6 +133,9 @@
         delete result.loading_promise;
         delete result.then;
         delete result.active;
+        savedChildren = Object.create(null);
+        savedMenus = Object.create(null);
+        idmap = Object.create(null);
         firstMenu = null;
         items = result.parse(items);
         items.map(getChildren);
@@ -164,7 +170,7 @@
                 if (actived_value === historys.length) {
                     setActive(actived, true);
                     result.active = actived;
-                };
+                }
             }
         }
         first_opened = false;
