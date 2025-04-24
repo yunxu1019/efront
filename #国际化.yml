@@ -46,6 +46,39 @@
 - zh-CN: 禁用
   en:    Disable
 
+- zh-CN: 删除
+  en:    Delete
+
+- zh-CN: 删除
+  en:    delete
+
+- zh-CN: 当前服务器不可注册用户
+  en:    The current server is unable to register users
+
+- zh-CN: 当前服务器不可注册用户！
+  en:    The current server cannot register users!
+
+- zh-CN: 数据库不存在
+  en:    The database does not exist
+
+- zh-CN: 非法访问
+  en:    illegal access
+
+- zh-CN: 您已注册过，无法重新注册！
+  en:    You have already registered and cannot register again!
+
+- zh-CN: 注册号
+  en:    Registration No
+
+- zh-CN: 注销
+  en:    log off
+
+- zh-CN: 注册
+  en:    register
+
+- zh-CN: 标记不匹配
+  en:    Tag mismatch
+
 - zh-CN: 输入JSON格式的数据
   en:    Input data in JSON format
 
@@ -232,9 +265,6 @@
 - zh-CN: 搜索或添加
   en:    Search or add
 
-- zh-CN: 删除
-  en:    Delete
-
 - zh-CN: 管理
   en:    Manage
 
@@ -366,9 +396,6 @@
 
 - zh-CN: 发现异常属性：$1
   en:    "Abnormal attribute found: $1"
-
-- zh-CN: 标记不匹配
-  en:    Tag mismatch
 
 - zh-CN: 文件位置
   en:    File location
@@ -1465,9 +1492,6 @@
 - zh-CN: 确认删除
   en:    Confirm deletion
 
-- zh-CN: 删除
-  en:    
-
 - zh-CN: 确认要删除如下 $1 项吗？
   en:    Are you sure you want to delete the following $1 item?
 
@@ -1722,9 +1746,6 @@
 
 - zh-CN: 缺少导出名！
   en:    Lack of guidance!
-
-- zh-CN: 标记不匹配
-  en:    
 
 - zh-CN: 类型不支持
   en:    Type not supported

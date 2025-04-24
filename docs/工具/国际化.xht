@@ -621,14 +621,15 @@
             data = parseYML(data);
             loop: for (var d of data) {
                 for (var k in d) {
-                    d[k] = d[k].replace(/^\s*([\s\S]*?)([：\:]?\s*)$/, '$1');
+                    var s = d[k];
+                    if (typeof s === 'string') d[k] = s.replace(/^\s*([\s\S]*?)([：\:]?\s*)$/, '$1');
                 }
                 var liang = 0, fanyi = {};
                 for (var { lang: k, id } of supports) {
                     if (!d[k]) continue;
                     var pd = preMap[d[k]];
                     if (pd && pd !== d) {
-                        if (shallowEqual(pd, d)) continue;
+                        if (shallowEqual(pd, d)) continue loop;
                         if (!pd.against) {
                             pd.against = ++againstid;
                         }
