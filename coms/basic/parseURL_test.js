@@ -1,5 +1,5 @@
 var parseURL = require("./parseURL");
-require("../efront/console");
+var console = efront$console;
 var test = function (url, key, value) {
     var parsed = parseURL(url);
     if (parsed[key] !== value) console.log(parsed), console.fail(`url:${url}, key:${key}, expect:${value}, result:${parsed[key]}`);
@@ -50,6 +50,7 @@ test("http://[::]/", "host", "[::]")
 test("http://[::%12]/", "host", "[::%12]")
 test("http://[::]:80/", "hostname", "[::]")
 test("[::]:80/", "hostname", "[::]")
+test("[::ffff:127.0.0.1]:80/", "hostname", "[::ffff:127.0.0.1]")
 test("[fd64:f52:f52:f52:f52:f52:f52:97]", "hostname", "[fd64:f52:f52:f52:f52:f52:f52:97]")
 test("./cluster-opt.html", "pathname", "./cluster-opt.html")
 test(":cluster-opt.html", "pathname", ":cluster-opt.html")

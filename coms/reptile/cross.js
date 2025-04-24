@@ -44,6 +44,7 @@ var cross = cross_.bind(function (callback, onerror) {
                 data = Buffer.from(data);
                 this.headers["Content-Length"] = data.length;
             }
+            if (/^\[/.test(hostname)) hostname = hostname.replace(/^\[(.*?)\]$/, "$1");
             var options = {
                 method: this.method,
                 hostname,
