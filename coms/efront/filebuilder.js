@@ -60,21 +60,6 @@ if (memery.TRANSFORM_PIXEL) {
 } else {
     var fixpixel = e => String(e);
 }
-var seek = function (keeys, o) {
-    var cx = 0;
-    for (var cx = 0, dx = keeys.length; cx < dx; cx++) {
-        if (o === null || o === undefined) return '';
-        var key = keeys[cx];
-        o = o[key];
-    }
-    if (o === undefined) return '';
-    return o;
-};
-var createseek = function (content) {
-    var keys = String(content || '').trim().split('.').map(a => a.trim());
-    var res = seek.bind(null, keys);
-    return res;
-};
 var createFunction = require2.createFunction;
 var invokeFunction = require2.invokeFunction;
 var SError = function (msg) { this.message = msg };
