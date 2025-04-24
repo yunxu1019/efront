@@ -165,6 +165,7 @@ module.exports = {
     saveAsync,
     setItem,
     getItem,
+    removeItem,
     hasPassword,
     setPassword,
     setPasswordA,

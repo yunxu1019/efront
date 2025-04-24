@@ -43,6 +43,10 @@ message.dbDrop = async function ([baseId, dataId]) {
     var db = await getdb(baseId);
     return db.drop(dataId);
 };
+message.dbAlloc = async function ([baseId]) {
+    var db = await getdb(baseId);
+    return db.alloc();
+};
 message.disconnect = function () {
     message.close();
 }

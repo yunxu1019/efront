@@ -1,6 +1,16 @@
 <block>
     <padding>
         <span>
+            ${i18n`注册号`}
+        </span>
+        <template -if="usercode">
+            <span -text="String(usercode)"></span>
+            <!-- <a @click="unregister">${i18n`注销`}</a> -->
+        </template>
+        <a -else @click="register">${i18n`注册`}</a>
+    </padding>
+    <padding>
+        <span>
             ${i18n`服务器版本`}
         </span>
         <span -text="String(version)"></span>

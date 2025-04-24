@@ -255,6 +255,8 @@ var doDB = async function (req, res) {
 var setItem = async function (req, dbid, lastId, data) {
     var lang = getLang(req);
     if (dbid === '用户') {
+        var db = await getDB(dbid);
+        if (!db || !db.open) throw i18n[lang]`当前服务器不可注册用户`;
         if (!data.a) throw i18n[lang]`请设置用户密码`;
         if (!data.name) throw i18n[lang]`请设置用户名`;
         await userdata.setPasswordA(String(data.a), data);
@@ -262,6 +264,7 @@ var setItem = async function (req, dbid, lastId, data) {
         if (!data.id) {
             data.id = data.name;
         }
+        data.owner = data.id;
         var msg = checkUid(data, lang);
     }
     else {
@@ -356,6 +359,18 @@ var getDB = async function (dbid) {
     var db = dbmap[dbid];
     return db;
 }
+doDB.allocId = async function (req, dbid) {
+    var lang = getLang(req);
+    var db = await getDB(dbid);
+    if (dbid !== "用户") {
+        if (!db || !db.open) throw i18n[lang]`当前服务器不可注册用户！`;
+    }
+    else {
+        if (!db) throw i18n[lang]`数据库不存在`;
+        if (!checkOwner(req, db)) throw i18n[lang]`非法访问`;
+    }
+    return message.invoke("dbAlloc", [dbid]);
+};
 doDB.getDB = getDB;
 doDB.getItem = readItem;
 doDB.patchItem = patchItem;

@@ -77,7 +77,7 @@ var run = async function () {
     quitting = quitting.concat(waiters, workers);
     waiters = [];
     workers = [];
-    bindWorker(["dbList", 'dbLoad', 'dbFind', 'dbSave', 'dbPatch', 'dbDrop']);
+    bindWorker(["dbList", 'dbLoad', 'dbFind', 'dbSave', 'dbPatch', 'dbDrop', 'dbAlloc']);
     var count = memery.WAITER_NUMBER;
     while (count-- > 0) {
         var waiter = createWaiter();

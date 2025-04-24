@@ -94,6 +94,9 @@ class FolderDB {
     constructor(directory) {
         this.directory = directory;
     }
+    async alloc() {
+        return createId(this.indexed);
+    }
     async init() {
         if (this.indexed) return;
         var indexed = await fsp.readdir(this.directory, { withFileTypes: true });

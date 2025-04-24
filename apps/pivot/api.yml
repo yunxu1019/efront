@@ -34,6 +34,7 @@
   unique-save: options ::unique-:data
   recert: options ::recert
   upload: put :path
+  register: options ::register
 https://api.map.baidu.com/:
   ipbaidu: get location/ip
 https://restapi.amap.com/:

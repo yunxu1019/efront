@@ -286,7 +286,24 @@ var doOptions = async function (req, res, type) {
                 nodeVersion: process.version,
                 version: require("../../package.json").version,
                 machine: require('os').machine(),
+                userid: await userdata.getItem("usercode-e"),
             }));
+            return;
+        case "register":
+            var userid = await userdata.getItem("usercode-e");
+            if (userid) {
+                res.writeHead(403, utf8error);
+                res.end(i18n[getLang(req)]`您已注册过，无法重新注册！`);
+                return;
+            }
+            try {
+                setAuth('/:version', "efront " + require("../../package.json").version);
+                res.end(await require("./register")(req.protocol, req.socket.localPort));
+            } catch (e) {
+                res.writeHead(403, utf8error);
+                res.end(String(e));
+                return;
+            }
             return;
         case "count":
             var stream = userdata.getStream('count.jsam');
