@@ -327,7 +327,7 @@ var patchItem = async function (req, dbid, lastId, data) {
     return data;
 };
 
-var trimUser = function (dbid, data) {
+var trimUser = function (data) {
     if (isArray(data)) data.forEach(d => {
         delete d.c;
         delete d.d;
