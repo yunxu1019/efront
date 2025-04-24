@@ -179,10 +179,36 @@
         render.refresh(nlist);
     };
     var spacing = false;
+    var isEqual = function (a, b) {
+        return a === b || !a && !b;
+    };
+    var getNodeText = function (node) {
+        if (!node) return '';
+        if (node.nodeType === 3) return node.nodeValue;
+        if (node.nodeType === 1) return node.innerText;
+        return '';
+    }
     var getNodeAt = function (row, col) {
         var d = clist.at(row);
         if (!d) return [];
         var c = d.firstChild;
+        if (!spacing) {
+            var t = d.innerText;
+            var tbb = t.charAt(col - 3);
+            var tb = t.charAt(col - 2);
+            var ta = t.charAt(col - 1);
+            var tf = t.charAt(col);
+            var tff = t.charAt(col + 1);
+            if (ta === " " && isEqual(tb, anchorChar)) {
+                col++;
+            }
+            else if (isEqual(ta, anchorChar) && !isEqual(tb, anchorChar)) {
+                col++;
+            }
+            else if (anchorChar === " " && isEqual(ta, followChar) && !isEqual(tf, followChar)) {
+                col--;
+            }
+        }
         var inc = 0;
         while (c) {
             if (c.nodeType === 1) {
@@ -201,14 +227,10 @@
                 if (inc + tl > col) {
                     col -= inc;
                     inc = 0;
-                    if (!spacing && t.charAt(col - 1) === " ") {
-                        col++;
-                    }
                     break;
                 }
                 else if (inc + tl === col) {
-                    if (!spacing && t.charAt(col - inc - 1) === " ") col++;
-                    else break;
+                    break;
                 }
                 inc += tl;
                 c = c.nextSibling;
@@ -430,13 +452,17 @@
                         document.execCommand('forwardDelete');
                     }
                     else if (data in pairsmap) {
-                        if (inText || beforeText) return;
+                        if (inText) {
+                            if (/^'/.test(data)) return;
+                        }
                         patchAfter = pairsmap[data];
                     }
                 }
                 else {
                     if (data in pairsmap) {
-                        if (inText || beforeText) return;
+                        if (inText) {
+                            if (/^'/.test(data)) return;
+                        }
                         patchAfter = pairsmap[data];
                     }
                 }
