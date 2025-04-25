@@ -118,8 +118,8 @@ if (global.Deno) {
             if (onfinish) onfinish();
         }
     };
-    onmessage.broadcast = function (key, data) {
-        if (onmessage[key] instanceof Function) onmessage[key](data);
+    onmessage.broadcast = async function (key, data) {
+        if (onmessage[key] instanceof Function) await onmessage[key](data);
     };
 }
 else if (onmessage.isPrimary) {
