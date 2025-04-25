@@ -16,12 +16,6 @@
 - zh-CN: 返回
   en:    Back
 
-- zh-CN: 路径不存在
-  en:    Path does not exist
-
-- zh-CN: 路径不存在
-  en:    path does not exist
-
 - zh-CN: "参数异常: $1"
   en:    "Parameter exception: $1"
 
@@ -46,11 +40,20 @@
 - zh-CN: 禁用
   en:    Disable
 
+- zh-CN: 拥有注册号的用户可查看商品
+  en:    Users with registration numbers can view products
+
+- zh-CN: 获取
+  en:    Obtain
+
+- zh-CN: 获取注册号时，请确保您的服务器可以通过公网访问。暂不支持非公网服务器获取注册号。
+  en:    "When obtaining the registration number, please ensure that your server can be accessed through the public network. We currently do not support obtaining registration numbers from non-public servers."
+
 - zh-CN: 删除
   en:    Delete
 
-- zh-CN: 删除
-  en:    delete
+- zh-CN: 路径不存在
+  en:    Path does not exist
 
 - zh-CN: 当前服务器不可注册用户
   en:    The current server is unable to register users
@@ -62,7 +65,7 @@
   en:    The database does not exist
 
 - zh-CN: 非法访问
-  en:    illegal access
+  en:    Illegal Access
 
 - zh-CN: 您已注册过，无法重新注册！
   en:    You have already registered and cannot register again!
@@ -71,10 +74,10 @@
   en:    Registration No
 
 - zh-CN: 注销
-  en:    log off
+  en:    Unregister
 
 - zh-CN: 注册
-  en:    register
+  en:    Register
 
 - zh-CN: 标记不匹配
   en:    Tag mismatch
@@ -239,7 +242,7 @@
   en:    Node.js version
 
 - zh-CN: 操作系统
-  en:    operating system
+  en:    Operating system
 
 - zh-CN: 处理器
   en:    Processor
