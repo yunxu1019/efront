@@ -15,6 +15,7 @@ function main() {
         progbar,
         usercode: null,
         async register() {
+            await yousure(i18n`获取注册号时，请确保您的服务器可以通过公网访问。暂不支持非公网服务器获取注册号。`, [i18n`继续` + "(C)", i18n`取消` + "(Q)#white"]);
             var usercode = await data.from("register");
             serverStatus.userid = scope.usercode = usercode;
         },

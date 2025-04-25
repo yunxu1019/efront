@@ -299,6 +299,7 @@ var doOptions = async function (req, res, type) {
             try {
                 setAuth('/:version', "efront " + require("../../package.json").version);
                 res.end(await require("./register")(req.protocol, req.socket.localPort));
+                await message.broadcast("reloadUserdata");
             } catch (e) {
                 res.writeHead(403, utf8error);
                 res.end(String(e));
