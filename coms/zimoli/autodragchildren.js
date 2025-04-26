@@ -353,7 +353,11 @@ var hooka = function (matcher, move, event, targetChild, isMovingSource) {
             var copyZIndex = function (e) {
                 e.style.zIndex = zIndex;
                 var z = zIndex - 1;
-                if (e.with) for (var w of e.with) w.style.zIndex = z;
+                var ws = e.with;
+                if (ws){
+                    if (isNode(ws)) ws = [ws];
+                    for (var w of ws) w.style.zIndex = z;
+                } 
             };
             if (zIndex > 2) {
                 previousElements.forEach(copyZIndex);
