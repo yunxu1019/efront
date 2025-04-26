@@ -891,7 +891,7 @@ zimoli.enableTouchBack = function () {
         }
     }, 'x')
 };
-zimoli.reload = function () {
+var reloadAll = function () {
     for (var k in history) {
         var h = history[k];
         if (!h) continue;
@@ -913,6 +913,17 @@ zimoli.reload = function () {
     current_history = default_history;
     body = document.body;
     zimoli();
+}
+var reloadMounted = function () {
+    for (var k in global) {
+        var o = global[k];
+        if (!o || !o.$reload) return;
+        if (isMounted(o)) o.$reload();
+    }
+}
+zimoli.reload = function (reloadAll = true) {
+    if (!reloadAll) reloadMounted();
+    else reloadAll();
 };
 zimoli.alert = function () {
     var ae = alert.apply(this, arguments);

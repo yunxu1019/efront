@@ -1,10 +1,10 @@
 var hosts = data.getItem("hosts");
 if (!hosts.length) hosts.push({ key: location.host, name: location.host });
-var fields = refilm`
-服务器地址/host* select?a ${hosts}
-密码/password* password
-`;
 function main(host) {
+    var fields = refilm`
+    服务器地址/host* select?a ${hosts}
+    密码/password* password
+    `;
     var page = view();
     page.innerHTML = login;
     drag.on(page);

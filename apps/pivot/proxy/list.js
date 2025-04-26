@@ -1,4 +1,4 @@
-var actions = [
+var actions = () => [
     {
         name: i18n`访问`,
         do(o) {
@@ -8,12 +8,13 @@ var actions = [
         }
     }
 ];
-
-var fields = refilm`
+var fields = () => refilm`
 *代理路径/url input/120
 &二维码/url ${qrcode}
 真实路径/realpath input/300
 动作/action select/100 [跳转,转发]
 状态/status select/100 [启用,禁用]
-/ $ ${actions}`;
-return plist.bind(null, i18n`短链接`, "proxy", fields, "/proxy/edit");
+/ $ ${actions()}`;
+function main() {
+    return plist(i18n`短链接`, "proxy", fields(), "/proxy/edit");
+}

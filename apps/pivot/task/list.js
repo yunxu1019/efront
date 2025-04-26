@@ -5,7 +5,7 @@ model.setEditor('jscode', function (element) {
     return element;
 });
 model.setReader('jscode', "text");
-return plist.bind(null, i18n`任务管理`, "task", refilm`
+return () => plist(i18n`任务管理`, "task", refilm`
 *任务ID/key 100
 *任务名/name 100
 *是否启用/status radio 不启用#ccc,启用#396

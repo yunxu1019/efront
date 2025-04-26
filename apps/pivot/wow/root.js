@@ -1,6 +1,3 @@
-var fields = refilm`
-文件
-`;
 var passport = encode62.packencode(encode62.decode62(user._passport, user.session));
 var pending = [];
 async function upload(f, dist, token) {

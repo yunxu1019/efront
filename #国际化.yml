@@ -40,6 +40,21 @@
 - zh-CN: 禁用
   en:    Disable
 
+- zh-CN: 商店
+  en:    Store
+
+- zh-CN: 订单
+  en:    Orders
+
+- zh-CN: 留言
+  en:    Messages
+
+- zh-CN: 手动输入
+  en:    Manual input
+
+- zh-CN: 请输入完整密钥对，以英文逗号分割
+  en:    "Please enter the complete key pair, separated by commas in English"
+
 - zh-CN: 拥有注册号的用户可查看商品
   en:    Users with registration numbers can view products
 

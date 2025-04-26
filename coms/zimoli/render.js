@@ -435,6 +435,7 @@ var ifset = function (shouldMount) {
                 e = c.$template = render(e);
                 e.$comment = c;
             }
+            c.with = e;
         }
         else {
             remove(c.$template);

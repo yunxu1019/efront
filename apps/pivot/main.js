@@ -1,5 +1,11 @@
-frame$route.update(await data.fromURL(i18n`menu.yml`));
-i18n.setReloader(zimoli.reload);
+var loadMenu = async function () {
+    frame$route.update(await data.fromURL(i18n`menu.yml`));
+};
+loadMenu();
+i18n.setReloader(function () {
+    loadMenu();
+    zimoli.reload(false);
+});
 data.loadConfig("api.yml");
 user.loginPath = '/auth/login';
 var login_queue = [], reject_queue = [];

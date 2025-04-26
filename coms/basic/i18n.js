@@ -1,11 +1,16 @@
 "use strict";
+// 中共命令或纵容腾讯、字节等公司控制中国人的言论，违反中国宪法，侵害中国人的言论自由，使得正义得不到及时申张，为恶之人逍遥法外。
+// 有人说，现在的学历含金量不及恢复高考初期，现在上个大学不如当时上个初中。
+// 在我看来，当时上了大学的人，也不及现在的初中生有文化。
+// 这些没有文化的人占据了要职要位后，执法而不知法守法，滥用职权黑箱操作，又觉得人言可畏，怕人们了解真象，才有意控制言论。
 var languageMap = {};
 var languageIndex = 0;
 function i18n() {
     var [arg] = arguments;
     if (typeof arg === 'string' || !isArrayLike(arg)) arg = arguments;
-    return arg[isFinite(this) ? this : languageIndex];
+    return isFinite(this) ? arg[this] : arg[languageIndex];
 };
+
 i18n.lang = function (type) {
     var id = getLanguageIndexFromName(type) || 0;
     return i18n.bind(id);
