@@ -66,41 +66,42 @@
 </div>
 <script>
     var position = [.2, .2];
-    var page = view();
-    page.innerHTML = template;
-    once("append")(page, function () {
-        move.setPosition(this, position);
-    });
-    var scope = {
-        help: null,
-        dict: helps.topics,
-        cmds(elem, scope) {
-            var topics = scope.topics = [];
-            var cmds = scope.c.split(/\s+/).map(a => a.split("|"));
-            cmds = combine(...cmds).map(a => "<efront></efront>" + a.join("&ensp;")).join("<br/>");
-            elem.innerHTML = cmds.replace(/[A-Z]+(\_[A-Z]+)*/g, m => {
-                if (topics.indexOf(m) < 0) topics.push(m);
-                return `<w>${m}</w>`;
-            });
-        },
-        topic(elem, s) {
-            var topics = s.topics.filter(a => scope.dict[a]);
-            if (!topics.length) return;
-            elem.innerHTML = i18n`其中，` + topics.map(a => {
-                var d = scope.dict[a];
-                var t = i18n`${a}是${d[0]}`;
-                if (d.length > 1) t += i18n`，可取值有${d.slice(1).join('、')}`;
-                if (d.default) t += i18n`，默认值是${d.default}`;
-                return t;
-            }).join('；');
-        }
-    }
-    drag.on(page, page.firstElementChild);
-    resize.on(page);
-    render(page, scope);
     function main(dict) {
+        var page = view();
+        var helps = init('docs$helps');
+        once("append")(page, function () {
+            move.setPosition(this, position);
+        });
+        var scope = {
+            help: null,
+            dict: helps.topics,
+            cmds(elem, scope) {
+                var topics = scope.topics = [];
+                var cmds = scope.c.split(/\s+/).map(a => a.split("|"));
+                cmds = combine(...cmds).map(a => "<efront></efront>" + a.join("&ensp;")).join("<br/>");
+                elem.innerHTML = cmds.replace(/[A-Z]+(\_[A-Z]+)*/g, m => {
+                    if (topics.indexOf(m) < 0) topics.push(m);
+                    return `<w>${m}</w>`;
+                });
+            },
+            topic(elem, s) {
+                var topics = s.topics.filter(a => scope.dict[a]);
+                if (!topics.length) return;
+                elem.innerHTML = i18n`其中，` + topics.map(a => {
+                    var d = scope.dict[a];
+                    var t = i18n`${a}是${d[0]}`;
+                    if (d.length > 1) t += i18n`，可取值有${d.slice(1).join('、')}`;
+                    if (d.default) t += i18n`，默认值是${d.default}`;
+                    return t;
+                }).join('；');
+            }
+        }
         var [help] = helps.helps.filter(h => dict === h.info);
         scope.help = help;
+        drag.on(page, page.firstElementChild);
+        resize.on(page);
+        page.innerHTML = template;
+        render(page, scope);
         return page;
     }
 </script>

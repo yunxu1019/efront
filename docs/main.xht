@@ -172,8 +172,10 @@
 <div1 #content></div1>
 <open #switch @click="switchMenu()" insert></open>
 <script>
-    i18n.setReloader(zimoli.reload);
-    var menus = [
+    i18n.setReloader(function () {
+        initMenus();
+    });
+    var menus = () => [
         {
             name: i18n`efront简介`,
             children: [
@@ -214,12 +216,12 @@
             }
         ]);
     });
-    var initVersionInfo = async function () {
+    var initVersionInfo = async function (menus) {
         var xhr = await cross("get", "version");
         var version = xhr.response.split(",");
         menus[0].name += ` <v>${version[0]}</v>`;
     };
-    var initCommandsDocs = async function () {
+    var initCommandsDocs = async function (menus) {
         delete modules['docs$helps'];
         var helps = await init("docs$helps");
         var m = {
@@ -244,7 +246,7 @@
         });
         menus.splice(1, 0, m);
     };
-    var initComponentDocs = async function () {
+    var initComponentDocs = async function (menus) {
         var m = await cross("get", "components");
         m = JSON.parse(m.response);
         for (var c of m) {
@@ -280,17 +282,19 @@
         menus[2].children = m;
     };
     var initMenus = async function () {
-        menus[0].children.forEach(c => { c.path = "/mark/" + c.md });
-        zimoli.switch('', scope.content, menus[0].children[0].path);
-        await initVersionInfo();
-        await initCommandsDocs();
-        await initComponentDocs();
-        var route = await init("frame$route");
-        scope.menus = route.update(menus);
+        var ms = menus();
+        ms[0].children.forEach(c => { c.path = "/mark/" + c.md });
+        zimoli.switch('', scope.content, ms[0].children[0].path);
+        await initVersionInfo(ms);
+        await initCommandsDocs(ms);
+        await initComponentDocs(ms);
+        var route = frame$route;
+        scope.menus = route;
+        route.update(ms);
         route.open(route.active);
     };
     var scope = {
-        menus,
+        menus: [],
         div2(elem, scope) {
             if (scope.m.data?.mark) elem.setAttribute("mark", '');
             if (scope.m.data?.test) elem.setAttribute("test", '');
@@ -326,10 +330,10 @@
         drag.on(close, window);
     }
     render(page, scope);
-    var s = scrollbar();
+    var scrbar = scrollbar();
     on("mounted")(page, initMenus);
-    s.bindTarget(scope.content);
-    page.with = s;
+    scrbar.bindTarget(scope.content);
+    page.with = scrbar;
     resizingList.set(page, function () {
         if (page.adapted === true) return;
         if (calcPixel(page.offsetWidth) < 720) return;
@@ -338,7 +342,7 @@
     });
     bind("render")(page, function () {
         requestAnimationFrame(function () {
-            s.reshape();
+            scrbar.reshape();
         })
     });
     drag.on(scope.switch);

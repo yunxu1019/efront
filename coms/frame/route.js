@@ -138,17 +138,22 @@
         idmap = Object.create(null);
         firstMenu = null;
         items = result.parse(items);
-        items.map(getChildren);
+        migrate(result, items);
+        result.map(getChildren);
         var opened = data.getInstance("menu-opened");
         var historys = zimoli.getCurrentHistory();
         var map = {}, mmap = {};
         historys.forEach((a, i) => map[a] = i + 1);
-        result.splice(0, result.length);
         var actived, actived_value = 0;
-        var a = function (menu) {
+        var a = function (menu, i, arr) {
             var res = checkroles(user.roles, menu.roles);
-            if (res) {
-                if (savedChildren[menu.id] instanceof Array) menu.children = savedChildren[menu.id].filter(a);
+            if (!res) arr.splice(i, 1);
+            else {
+                if (savedChildren[menu.id] instanceof Array) {
+                    var children = savedChildren[menu.id];
+                    backEach(children, a);
+                    menu.children = children;
+                }
                 if (menu.path) {
                     if (!firstMenu) firstMenu = menu;
                     if (map[menu.path] > actived_value) {
@@ -161,7 +166,7 @@
             }
             return res;
         };
-        result.push.apply(result, items.filter(a));
+        backEach(result, a);
         result.opened = opened.map(a => mmap[a]).filter(a => !!a);
         var active = result.active;
         if (!active || result.indexOf(active) < 0) {

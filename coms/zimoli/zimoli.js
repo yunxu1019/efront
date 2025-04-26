@@ -891,7 +891,7 @@ zimoli.enableTouchBack = function () {
         }
     }, 'x')
 };
-var reloadAll = function () {
+var reloadFully = function () {
     for (var k in history) {
         var h = history[k];
         if (!h) continue;
@@ -923,7 +923,7 @@ var reloadMounted = function () {
 }
 zimoli.reload = function (reloadAll = true) {
     if (!reloadAll) reloadMounted();
-    else reloadAll();
+    else reloadFully();
 };
 zimoli.alert = function () {
     var ae = alert.apply(this, arguments);
