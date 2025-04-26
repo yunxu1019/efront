@@ -43,14 +43,22 @@ i18n.setIndex = function (index) {
     i18n.supports = supports;
     i18n.reload();
 };
-var relaods = [];
+var reloads = [];
 i18n.reload = function () {
-    relaods.forEach(a => a());
+    reloads.forEach(a => a());
 };
 i18n.setReloader = function () {
-    relaods = [];
+    reloads = [];
+    addReloader(...arguments);
+};
+var addReloader = i18n.addReloader = function () {
     for (var callback of arguments) {
-        if (isFunction(callback)) relaods.push(callback);
+        if (isFunction(callback)) reloads.push(callback);
+    }
+}
+i18n.removeReloader = function () {
+    for (var callback of arguments) {
+        removeFromList(reloads, callback)
     }
 };
 if (this.navigator) i18n.setLanguage(this.navigator.language);

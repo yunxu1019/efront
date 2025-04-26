@@ -430,7 +430,7 @@ function create(pagepath, args, from, needroles, zimolidata) {
             isRecover = isR;
             addGlobal(this, history_name, isRecover);
         }
-        _page.$reload = function () {
+        _page.$reload = _page.$reload || _page.reload || function () {
             var _page = create(pagepath, undefined, from, undefined, zimolidata);
             _page.mount(history_name, isRecover);
             return _page;
@@ -917,7 +917,7 @@ var reloadAll = function () {
 var reloadMounted = function () {
     for (var k in global) {
         var o = global[k];
-        if (!o || !o.$reload) return;
+        if (!o || !o.$reload) continue;
         if (isMounted(o)) o.$reload();
     }
 }

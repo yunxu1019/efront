@@ -1,1 +1,1 @@
-pedit.bind(null, i18n`证书`, "cert");
+pedit.bind(null, () => i18n`证书`, "cert");

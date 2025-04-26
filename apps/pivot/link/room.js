@@ -1,4 +1,4 @@
-return () => plist.bind(i18n`房间`, "room", refilm`
+return plist.bind(null, () => i18n`房间`, "room", () => refilm`
 *房间名/name 100
 / $ ${[{
         name: () => i18n`连接`,

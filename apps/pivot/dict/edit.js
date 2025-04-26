@@ -1,1 +1,1 @@
-pedit.bind(null, i18n`字典`, "dict");
+pedit.bind(null, () => i18n`字典`, "dict");

@@ -58,7 +58,7 @@ var popupEdit = function ($scope, active) {
     })
 
 };
-return extend([
+return () => [
     {
         name: i18n`返回` + `(O)`,
         hotkey: "backspace",
@@ -213,4 +213,4 @@ return extend([
             $scope.open();
         }
     }
-])
+];

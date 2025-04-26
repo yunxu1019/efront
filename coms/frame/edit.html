@@ -1,5 +1,5 @@
 <div head>
-    <span v-text="origin?'${i18n`修改`}':'${i18n`添加`}'"></span><span -text="title"></span>
+    <span -text="title"></span>
 </div>
 <div body>
     <field v-if="!f.hidden" -repeat="f in fields" ng-src="[f,data]"></field>

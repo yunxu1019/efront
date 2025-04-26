@@ -1,7 +1,7 @@
-var fields = refilm`
-路径/path
-`;
 function main() {
+    var fields = refilm`
+    路径/path
+    `;
     var options = [
         {
             name(e) {

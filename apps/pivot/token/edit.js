@@ -1,1 +1,1 @@
-pedit.bind(null, i18n`密钥`, "private");
+pedit.bind(null, () => i18n`密钥`, "private");

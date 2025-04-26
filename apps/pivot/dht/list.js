@@ -5,15 +5,14 @@ function hash(a) {
     }
     return r;
 }
-var fields = refilm`名称/name
-服务器/host
-端口/port
-`;
 return plist.bind({
-    fields,
+    fields: () => refilm`名称/name
+    服务器/host
+    端口/port
+    `,
     type: 'nodes',
-    title: i18n`DHT服务器管理`,
-    buttons: [{
+    title: () => i18n`DHT服务器管理`,
+    buttons: () => [{
         name: i18n`从文件读取`, async do() {
             var FileReader = window.FileReader;
             if (!FileReader) return alert(i18n`当前浏览器无法读取文件`, 'warn')

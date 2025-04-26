@@ -1,1 +1,1 @@
-pedit.bind(null, i18n`短链接`, "proxy");
+pedit.bind(null, () => i18n`短链接`, "proxy");

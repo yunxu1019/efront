@@ -1,1 +1,1 @@
-pedit.bind(null, i18n`任务`, "task");
+pedit.bind(null, () => i18n`任务`, "task");

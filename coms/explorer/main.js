@@ -220,7 +220,7 @@ function main() {
     renderWithDefaults(page, scope);
     bind('drop')(scope.listview, ondrop);
     bindkey(scope.listview);
-    contextmenu(scope.listview, explorer$context);
+    contextmenu(scope.listview, explorer$context());
     on("pointerdown")(scope.listview, function () {
         if (document.activeElement !== scope.listview) scope.listview.focus();
     })

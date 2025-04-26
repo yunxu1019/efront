@@ -1,22 +1,29 @@
 function main(title, { submit }, { data: origin, fields, }) {
     var page = view();
     var item = Object.assign({}, origin);
-    page.innerHTML = edit;
-    drag.on(page.firstChild, page);
-    resize.on(page);
     page.onback = function () {
         if (page.querySelector('[dirty]')) return false;
     };
-    renderWithDefaults(page, {
+    var page_scope = {
         fields,
-        title,
+        get title() {
+            var t = title;
+            if (isFunction(t)) t = t();
+            t = (origin ? i18n`修改` : i18n`添加`) + t;
+            return t;
+        },
         origin,
         scrollbar,
         data: item,
         remove() {
             remove(page);
         },
-    });
+    };
+    page.innerHTML = template;
+    renderWithDefaults(page, page_scope);
+    drag.on(page.firstChild, page);
+    resize.on(page);
+
     on('submit')(page, async function (e) {
         e.preventDefault();
         var res = await submit(item, fields, origin);

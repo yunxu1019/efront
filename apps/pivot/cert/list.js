@@ -1,4 +1,4 @@
-return () => plist(i18n`接口管理`, "cert", refilm`
+return plist.bind(null, () => i18n`接口管理`, "cert", () => refilm`
 *域名/hostname input/253
 公钥/private text
 私钥/public text

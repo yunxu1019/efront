@@ -9,8 +9,7 @@ function plist() {
     var parse = function (a) {
         switch (typeof a) {
             case "string":
-                if (!title) title = a;
-                else if (!type) type = a;
+                if (!type) type = a;
                 else if (!edit_ref) edit_ref = a;
                 else idkey = a;
                 break;
@@ -31,11 +30,16 @@ function plist() {
                     } = a);
                 }
                 break;
+            case "function":
+                if (!title) title = a;
+                else if (!fields) fields = a;
+                else if (!options) options = a;
+                else if (!buttons) buttons = a;
         }
     }
     for (var a of arguments) parse(a);
     if (!fields) parse(this);
-    if (!idkey) idkey = fields[0].key;
+    if (!idkey) idkey = (isFunction(fields) ? fields() : fields)[0].key;
     return frame$list(title, {
         load() {
             return load(type, idkey);
@@ -49,8 +53,7 @@ function plist() {
     }, edit_ref ? edit_ref : function (o) {
         var p = pedit(title, type, o);
         p.initialStyle = popup.style;
-        popup(p, true);
-        move.setPosition(p, [.5, .5]);
+        popup(p, [.5, .5]);
         return p;
     });
 }
