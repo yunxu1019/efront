@@ -63,7 +63,6 @@ function main(gtTitle, { fields: gtFields, options: gtOptions, load, remove, but
     on('remove')(page, function () {
         i18n.removeReloader(update);
     });
-    var ep;
     var edit = async function (o) {
         if (!edit_ref) {
             return;
@@ -80,13 +79,11 @@ function main(gtTitle, { fields: gtFields, options: gtOptions, load, remove, but
                 popup(p, true);
                 move.setPosition(p, [.5, .5]);
             }
-            ep = p;
             return;
         }
         if (isString(edit_ref)) await zimoli.prepare(edit_ref, function () {
             var p = popup(edit_ref, { fields, data: o })
             on("submited")(p, callback);
-            ep = p;
         })
     };
     update();
