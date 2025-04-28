@@ -41,15 +41,15 @@ jobs:
         shell: cmd
       - run: call node public/efront.js basic/parseURL_test & if errorlevel 1 (echo 目标代码无法执行&exit 1)
         shell: cmd
-      - run: call node public/efront.js audit coms/ --force & if errorlevel 1 (echo 目标代码无法执行&exit 1)
+      - run: call node public/efront.js audit coms/ --force & if errorlevel 1 (echo 源码中发现可能出错的代码&exit 1)
         shell: cmd
-      - run: call node public/efront.js audit apps/ --force & if errorlevel 1 (echo 目标代码无法执行&exit 1)
+      - run: call node public/efront.js audit apps/ & if errorlevel 1 (echo 目标代码无法执行&exit 1)
         shell: cmd
-      - run: call node public/efront.js build pivot --force & if errorlevel 1 (echo 目标代码无法执行&exit 1)
+      - run: call node public/efront.js build pivot & if errorlevel 1 (echo 目标代码无法执行&exit 1)
         shell: cmd
       - run: if not exist public\pivot (echo 未发现编译项目&exit 1)
         shell: cmd
-      - run: rd /s /q public\pivot & if errorlevel 1 (echo 目标代码无法执行&exit 1)
+      - run: rd /s /q public\pivot & if errorlevel 1 (echo 清理目录失败&exit 1)
         shell: cmd
       - run: if exist public\pivot (echo 目录未清理&exit 1)
         shell: cmd
