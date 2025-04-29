@@ -202,7 +202,7 @@
             if (ta === " " && isEqual(tb, anchorChar)) {
                 col++;
             }
-            else if (isEqual(ta, anchorChar) && !isEqual(tb, anchorChar)) {
+            else if (anchorChar && tb && isEqual(ta, anchorChar) && !isEqual(tb, anchorChar)) {
                 col++;
             }
             else if (anchorChar === " " && isEqual(ta, followChar) && !isEqual(tf, followChar)) {
@@ -286,6 +286,8 @@
     };
     var updatechar = function (event) {
         if (event.defaultPrevented) return;
+        anchorChar = "";
+        followChar = '';
         coderid++;
         var { anchorNode, anchorOffset } = document_selection;
         if (!coder || !anchorNode) return;
@@ -452,7 +454,7 @@
                         document.execCommand('forwardDelete');
                     }
                     else if (data in pairsmap) {
-                        if (inText) {
+                        if (inText && anchorChar) {
                             if (/^'/.test(data)) return;
                         }
                         patchAfter = pairsmap[data];
@@ -460,7 +462,7 @@
                 }
                 else {
                     if (data in pairsmap) {
-                        if (inText) {
+                        if (inText && anchorChar) {
                             if (/^'/.test(data)) return;
                         }
                         patchAfter = pairsmap[data];
@@ -482,6 +484,7 @@
         }
         if (patchAfter) {
             insertText(patchAfter, true);
+            followChar = patchAfter;
             markAnchorOffset();
         }
         return patchAfter;
