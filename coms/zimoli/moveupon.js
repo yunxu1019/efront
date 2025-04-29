@@ -29,7 +29,9 @@ if (/Firefox/.test(navigator.userAgent)) on('dragstart')(document, function (e) 
         return false;
     }
 });
-var locktouch = function (target) {
+var locktouch = function (target, handles) {
+    var resizing = moveupon.resizing;
+    if (resizing) return resizing !== handles;
     if (target.resizable) return false;
     if (/(input|textarea|select)/i.test(target.tagName) || getTargetIn(a => String(a.contentEditable) === 'true' || a.draggable, target)) {
         return true;
@@ -49,7 +51,8 @@ var locktouch = function (target) {
     }
 };
 
-function moveupon(target, { start, move, end }, initialEvent) {
+function moveupon(target, handles, initialEvent) {
+    var { start, move, end } = handles;
     var touchLocked = false;
     var offmouseup, offtouchend, offtouchcancel;
     var mousemove = function (event) {
@@ -83,7 +86,7 @@ function moveupon(target, { start, move, end }, initialEvent) {
     };
 
     if (initialEvent) {
-        if (locktouch(initialEvent.target)) return;
+        if (locktouch(initialEvent.target, handles)) return;
         if (initialEvent.type === "touchstart") {
             extendTouchEvent(initialEvent);
             initialEvent.preventDefault();
@@ -96,14 +99,14 @@ function moveupon(target, { start, move, end }, initialEvent) {
     }
     onmousedown(target, function (event) {
         if (touchLocked) return;
-        if (locktouch(event.target)) return;
+        if (locktouch(event.target, handles)) return;
         touchLocked = true;
         hookmouse(event);
         if (isFunction(start)) start.call(this, event);
     });
     ontouchstart(target, function (event) {
         if (touchLocked) return;
-        if (locktouch(event.target)) return;
+        if (locktouch(event.target, handles)) return;
         touchLocked = true;
         extendTouchEvent(event);
         hooktouch(event);

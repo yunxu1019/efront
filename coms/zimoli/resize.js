@@ -1,5 +1,7 @@
 var resizingElements = [];
+var currentResizing = null;
 var getResizer = function (event) {
+    moveupon.resizing = null;
     if (dragging) return;
     var rect = getTargetIn(a => ~resizingElements.indexOf(a), event.target);
     if (!rect) {
@@ -46,6 +48,7 @@ var getResizer = function (event) {
         resize.height = parseFloat(computedStyle.height);
         resize.rect = rect;
         resize.cursor = fringe.cursor;
+        moveupon.resizing = handle;
         return resize;
     }
 };
