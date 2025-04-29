@@ -52,7 +52,7 @@ function main(gtTitle, { fields: gtFields, options: gtOptions, load, remove, but
         var fields1 = fields.filter(f => !f.hidden && f.inlist !== false).concat({
             name: i18n`操作`,
             options
-        })
+        });
         fieldsL = gt(fields1, fieldsL);
     };
     if (isString(edit_ref)) prepare(edit_ref);
@@ -94,7 +94,7 @@ function main(gtTitle, { fields: gtFields, options: gtOptions, load, remove, but
         load() {
             this.data = load();
         },
-        fields,
+        fields: fieldsL,
         buttons,
         hasedit: !!edit_ref,
         data: [],
