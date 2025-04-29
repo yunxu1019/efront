@@ -40,15 +40,19 @@ var checkUid = function (data, lang) {
         return i18n[lang]`数据标识不能有“.”符号`;
     }
 }
-var checkId = function (data, lang) {
+var checkid = function (id, lang) {
+    var m = /[\*\?\|\/\\\>\<"\:\.]/.exec(id);
+    if (m) {
+        return i18n[lang]`数据标识不能有特殊符号“${m[0]}”`;
+    }
+}
+
+var adaptId = function (data, lang) {
     var id = data.id;
     if (!id) return;
     var id1 = spaces.format(id);
     if (id !== id1) id = data.id = id1;
-    var m = /[\*\?\|\/\\\>\<"\:]/.exec(id);
-    if (m) {
-        return i18n[lang]`数据标识不能有特殊符号“${m[0]}”`
-    }
+    checkid(id, lang);
 };
 var checkField = function (data, fnames, lang) {
     for (var f of fnames) {
@@ -80,6 +84,12 @@ var doDB = async function (req, res) {
         var dbs = await userdata.getOptionsList('db', 'id');
         res.writeHead(200, utf8json);
         res.end(JSON.stringify(dbs));
+        return;
+    }
+    var msg = checkid(dbid);
+    if (msg) {
+        res.writeHead(403, utf8error);
+        res.end(msg);
         return;
     }
     if (method !== 'get' && lastId === undefined) {
@@ -279,7 +289,7 @@ var setItem = async function (req, dbid, lastId, data) {
             data.owner = owner;
         }
     }
-    var msg = msg || checkId(data, lang);
+    var msg = msg || adaptId(data, lang);
     if (msg) throw msg;
     if (!lastId) lastId = data.id || '';
     var origin = await message.invoke('dbLoad', [dbid, lastId]);

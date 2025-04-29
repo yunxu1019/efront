@@ -42,6 +42,7 @@ function prompt() {
         else if (isFunction(arg) || arg instanceof RegExp) check = arg;
         else if (isObject(arg)) {
             if (isFunction(arg.test)) check = arg;
+            if (isFunction(arg.check)) check = arg.check;
             if (isFunction(arg.submit)) submit = arg;
             if (isString(arg.msg || arg.title)) msg = arg.msg || arg.title;
             if (isHandled(arg.value)) value = arg.value;

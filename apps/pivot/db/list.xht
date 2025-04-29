@@ -46,6 +46,11 @@
     load();
     var adddb = async function () {
         var a = await prompt(i18n`请输入名称`, {
+            check(a) {
+                if (a = /[\*\?\|\/\\\>\<"\:\.]/.exec(a)) {
+                    return i18n`不能有特殊符号"${a[0]}"`;
+                }
+            },
             async submit(a) {
                 await data.from('dbadd', { id: a, name: a });
             }
