@@ -443,7 +443,7 @@ class Program {
                 start = index = scope.start + scope.text.length;
             }
             var last = queue.last;
-            if (last.type === PIECE) {
+            if (last?.type === PIECE) {
                 this.lastIndex = 0;
                 var thist = this.type;
                 this.type = undefined;
@@ -467,7 +467,12 @@ class Program {
         }
         var closeTag = function () {
             queue.inTag = false;
-            if (text.charAt(index) === m) {
+            a: if (text.charAt(index) === m) {
+                var qp = queue.prev;
+                if (!qp) break a;
+                var ptype = qp.type;
+                if (ptype & (ELEMENT | STRAP | PROPERTY | LABEL)) break a;
+                if (ptype === STAMP && !/^(\+\+|\-\-)$/.test(qp.text)) break a;
                 if ((m + m) in powermap) {
                     if (!parents[parents.length - 1].tag) {
                         undefTag();
@@ -565,7 +570,6 @@ class Program {
                         break loop;
                     }
                     var m = match[0];
-
                     index = match.index + m.length;
                     if (quote.tag && queue.inTag === 0) {
                         if (openTag()) {

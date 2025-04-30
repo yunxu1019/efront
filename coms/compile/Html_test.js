@@ -46,3 +46,4 @@ test(`<meta charset="utf-8" />`);
 test('a><a></a>', 'a > <a></a>');
 test('X', 'X');
 test('<input -class="{actived:actived===f}"/>', 'scoped.envs.actived', true);
+test('<i>>_</i>', '<i>>_</i>');
