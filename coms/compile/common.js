@@ -1328,7 +1328,10 @@ var createString = function (parsed) {
                 || prev.type === STAMP && !prev.unary && !prev.needle && !prev.isprop
             ) {
                 if (intag || prev.type === ELEMENT && o.type === ELEMENT) break a;
-                if ((o.type & ~(EXPRESS | PROPERTY) || !needhead_reg.test(o.text)) && (!prev.tag && !o.tag || prev.type === STAMP || o.type === STAMP)) {
+                if (
+                    (o.type & ~(EXPRESS | PROPERTY) || !needhead_reg.test(o.text))
+                    && (!prev.tag && !o.tag || prev.type === STAMP || o.type === STAMP)
+                ) {
                     result.push(" ");
                     lasttype = SPACE
                 }
@@ -1472,7 +1475,12 @@ var createString = function (parsed) {
                         if (autospace || o.prev?.isdigit) result.push(" ");
                     }
                     else if (o.prev && o.type === STAMP && !/^[,;]/.test(o.text)) {
-                        if (result[result.length - 1] === " " || (lasttype === PROPERTY || !o.isExpress && o.prev && o.prev.type !== LABEL) && o.text === ':') { }
+                        if (result[result.length - 1] === " ");
+                        else if (o.text === ':') {
+                            var p = o.prev;
+                            if ((lasttype === PROPERTY || p && p.isprop || !o.isExpress));
+                            else if (autospace) result.push(' ');
+                        }
                         else if (lasttype === STAMP) {
                             var prev = o.prev;
                             if (autospace) if (!prev.unary || /[\+\-]$/.test(prev.text) && prev.text === o.text) result.push(" ");

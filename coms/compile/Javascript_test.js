@@ -119,7 +119,10 @@ a ? function () {} : function () {}
 declare module 'buffer' {}
 a <= 1;
 `)
-
+testTypescript(`
+    var a: TypeA
+    var a: TypeA, b: TypeB
+`);
 var testPress = function (text, expect) {
     var code = scanner2(text);
     code.press(false);

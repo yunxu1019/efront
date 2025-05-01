@@ -244,7 +244,7 @@ class Program {
             }
             else if (last.type === STRAP && !last.isend
                 || last.type === STAMP && !last.istype && !/^(\+\+|\-\-)$/.test(last.text)
-                || last.type === SCOPED && !last.isExpress
+                || last.type === SCOPED && !last.isExpress && !last.istype
             ) {
                 o.unary = /^[^=;,\:]$/.test(o.text);
                 if (o.unary && /^(\+|\-)$/.test(o.text) && last && last.type === STAMP && /^(\+\+|\-\-)$/.test(last.text)) o.unary = !!last.unary;
@@ -648,6 +648,7 @@ class Program {
                         push_piece();
                         var scope = [];
                         scope.entry = m;
+                        if (queue.istype) scope.istype = true;
                         scope.type = QUOTED;
                         push_parents(scope);
                         continue loop;
@@ -883,8 +884,8 @@ class Program {
                 scope.row = row;
                 if (m === "{") {
                     if (!last) {
-                        if (queue.istype) scope.isClass = true;
-                        else scope.isObject = queue.inExpress;
+                        scope.isObject = queue.inExpress;
+                        if (queue.istype) scope.istype = true;
                     }
                     else if (queue.classed) {
                         if (last.type !== STAMP || last.text !== "=>") {
@@ -897,17 +898,12 @@ class Program {
                             scope.inExpress = false;
                         }
                     }
-                    else if (last.type === SCOPED && last.istype) {
-                        scope.isClass = true;
-                    }
                     else if (last.type === STAMP) {
-                        if (last.istype) {
-                            scope.isClass = true;
-                        }
-                        else if (last.text === ':') {
+                        if (last.text === ':') {
                             scope.isObject = queue.inExpress;
                         }
                         else queue.inExpress = scope.isObject = !/^(;|\+\+|\-\-|=>)$/.test(last.text);
+                        if (last.istype && scope.isObject) scope.istype = true;
                     }
                     else if (last.type === EXPRESS) a: {
                         if (last.text === '...') {

@@ -322,8 +322,13 @@ var detectLabel = function (o) {
             }
             inExpress = true;
             break;
+        case "|":
+        case "&":
+            var p = o.prev;
+            if (p?.istype) o.istype = true;
+            inExpress = true;
+            break;
         case ":":
-
             if (queue.question) {
                 queue.question--;
                 if (last.type === STAMP && last.text === '?') {
@@ -360,6 +365,10 @@ var detectLabel = function (o) {
             if (!queue.isargl && last.type & (EXPRESS | STRAP | VALUE | QUOTED)) {
                 // label
                 var lp = last.prev;
+                if (lp && lp.type === STAMP && lp.text === ',') {
+                    o.istype = true;
+                    break;
+                }
                 if (!lp || lp.type !== STRAP || !lp.transive || lp.isend) {
                     last.type = LABEL;
                     last.text += ":";
