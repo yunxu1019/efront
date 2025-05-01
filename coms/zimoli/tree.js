@@ -201,6 +201,7 @@ function tree() {
                 css(banner, { paddingBottom: '' });
             };
             var time = size => (Math.log(-size / 30 + 2) * 100 | 0) / 1000;
+            var maxAnimateHeight = Math.min(element.clientHeight >> 1, screen.height >> 1) || 100;
             if (com.isClosed() && com.length) {
                 z0();
                 setState(true);
@@ -213,6 +214,7 @@ function tree() {
                 } else {
                     marginTop = top.offsetTop - bottom.offsetTop - bottom.offsetHeight;
                 }
+                if (maxAnimateHeight && marginTop < -maxAnimateHeight) marginTop = -maxAnimateHeight | 0;
                 var res = transition(top, {
                     transition: `margin-top ${time(marginTop)}s ease-out`,
                     marginTop: fromOffset(marginTop)
@@ -231,7 +233,8 @@ function tree() {
                 }
                 setState(false);
                 z0();
-                var paddingBottom = -margin_top;
+                var maxAnimateHeight = 100;
+                if (maxAnimateHeight && margin_top < -maxAnimateHeight) margin_top = -maxAnimateHeight | 0;
                 var res = transition(change_elem, { transition: `margin-top ${time(margin_top)}s ease-out`, marginTop: fromOffset(margin_top) }, false);
                 timeout(z1, res + 60);
             }
