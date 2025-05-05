@@ -1,26 +1,5 @@
 var { SCOPED, QUOTED, SPACE, STAMP, STRAP, EXPRESS, PROPERTY } = compile$common;
-var asm = new compile$Javascript;
-asm.straps = [
-    "include", "includelib",
-    "typedef",
-    "proto",
-    'equ', "and", 'or', 'not', "sizeof",
-    "invoke", "offset", 'addr',
-    "end", "start",
-    "proc", "endp", "uses",
-    "macro", 'struct', "ends",
-    ".if", ".elseif", '.else', '.break', '.endif', '.while', '.endw', "db", 'real4', 'real8', 'dw', 'dd', 'dq', 'byte', 'word', 'dword', 'qword', 'tword', 'dt',
-];
-asm.control_reg = /^\.[\w]+$/;
-asm.stamps = [",", ":", "<", ">", "=", "&", "|", "*", "~", "!", "+", "-", '/'];
-asm.quotes = [
-    ["'", "'"],
-    ['"', '"']
-];
-asm.comments = [
-    [";", /(?=[\r\n\u2028\u2029])/]
-];
-
+var asm = new compile$Asm;
 var go = new compile$Javascript;
 go.straps = ["var", 'for', 'package', "import", 'type', 'func', 'struct', 'return', 'go', 'const', 'if', 'else', 'switch', 'case', 'default', 'range'];
 go.istype = function (o) {

@@ -64,6 +64,46 @@ var trimDulp = function (list) {
     }
     return dist;
 }
+var setObject = function (o) {
+    o.isObject = true;
+    var needproperty = true;
+    for (var cx = 0; cx < o.length; cx++) {
+        var m = o[cx];
+        if (!needproperty) {
+            if (m.type === SCOPED && m.entry === '{') {
+                if (!m.isObject) setObject(m);
+                continue;
+            }
+            if (m.type !== STAMP || m.text !== ',') continue;
+        }
+        if (m.type === STAMP && m.text === ':') {
+            needproperty = false;
+            continue;
+        }
+        if (m.type === LABEL) {
+            o.splice(cx, 0, o[++cx].prev = m.next = m.next.prev = {
+                prev: m,
+                text: ':',
+                type: STAMP,
+                next: m.next,
+            });
+            m.type = PROPERTY;
+            m.text = m.text.replace(/\:$/, '');
+            m.isprop = true;
+            m.end--;
+            needproperty = false;
+            continue;
+        }
+        m.isprop = true;
+        if (m.type === EXPRESS || m.type === STRAP) {
+            if (!/\./.test(m.text)) m.type = PROPERTY;
+        }
+        if (m.prev && m.prev.type === PROPERTY) {
+            m.prev.type = STRAP;
+        }
+    }
+};
+
 
 var spaceDefined = require("../basic/spaces");
 
@@ -101,17 +141,130 @@ class Program {
     powermap = powermap;
     transive_reg = /^(new|var|let|const|yield|void|in|of|typeof|delete|case|return|await|default|instanceof|throw|extends|import|from)$/;
     straps = "if,for".split(',');
-    forceend_reg = /^(return|break|continue)$/;
+    colonstrap_reg = /^(case|default)$/;
+    forceend_reg = /^(return|break|continue|end[psm])$/;
     funcstrap_reg = /^(class|function|fn|func|async|interface|struct|enum|impl|pub)$/;
     extends_reg = /^(extends|implements)$/;
     structstrap_reg = /^(class|interface|struct|enum)$/;
     control_reg = /^(if|else|switch|case|do|while|for|loop|break|continue|default|import|from|as|export|try|catch|finally|throw|await|yield|return)$/;
-    type_reg = /^(var|let|const|function|fn|func|class|interface|type|struct|enum|impl)$/;
+    type_reg = /^(var|let|const|function|fn|func|class|interface|type|struct|enum|impl|local)$/;
     nocase = false
     keepspace = false;
     lastIndex = 0
+    detectLabel(o) {
+        var queue = o.queue;
+        var last = queue.last;
+        var m = o.text;
+        var type = o.type;
+        var end = o.end;
+        var inExpress = queue.inExpress;
+        if (type === SPACE);
+        else if (type !== STAMP);
+        else if (m === ";") {
+            if (last && last.isend === false) last.isend = true;
+            inExpress = false;
+        }
+        else if (last) check: switch (m) {
+            case "?":
+                if (last.isprop) {
+                    o.type = EXPRESS;
+                    o.isprop = true;
+                    break;
+                }
+                if (last.type & (STAMP | STRAP)) break;
+                inExpress = true;
+                if (!queue.question) queue.question = 1;
+                else queue.question++;
+                break;
+            case "=":
+                if (last.type === SCOPED && last.brace) {
+                    if (!last.isObject) {
+                        setObject(last);
+                    }
+                }
+                var lp = last.prev;
+                if (lp?.type === STRAP && lp.text === 'type') {
+                    o.istype = true;
+                }
+            case ",":
+                if (queue.isObject) {
+                    if (last.type === PROPERTY) {
+                        var lp = last.prev;
+                        if (!lp || lp.type === STAMP && lp.text === ',') last.short = true;
+                    }
+                }
+                inExpress = true;
+                break;
+            case "|":
+            case "&":
+                var p = o.prev;
+                if (p?.istype) o.istype = true;
+                inExpress = true;
+                break;
+            case ":":
+                if (queue.question) {
+                    queue.question--;
+                    if (last.type === STAMP && last.text === '?') {
+                        inExpress = false;
+                        o.istype = true;
+                        last.istype = true;
+                        last.type = EXPRESS;
+                    }
+                    else {
+                        inExpress = true;
+                    }
+                    break;
+                }
+                if (queue.isObject) {
+                    if (last.isprop) {
+                        o.isExpress = false;
+                        queue.inExpress = true;
+                        return;
+                    }
+                }
+                inExpress = false;
+                if (queue.entry && (!queue.brace || queue.isClass)) {
+                    o.istype = true;
+                    break;
+                }
+                var temp = last;
+                var colonstrap_reg = this.colonstrap_reg;
+                while (temp) {
+                    if (temp.type === STRAP && colonstrap_reg.test(temp.text)) {
+                        break check;
+                    }
+                    if (!temp.isExpress) break;
+                    temp = temp.prev;
+                }
+                if (!queue.isargl && last.type & (EXPRESS | STRAP | VALUE | QUOTED)) {
+                    // label
+                    var lp = last.prev;
+                    if (lp && lp.type === STAMP && lp.text === ',') {
+                        o.istype = true;
+                        break;
+                    }
+                    if (!lp || lp.type !== STRAP || !lp.transive || lp.isend) {
+                        last.type = LABEL;
+                        last.text += ":";
+                        last.end = end;
+                        queue.inExpress = false;
+                        return o;
+                    }
+                }
+                o.istype = true;
+                break;
+            default:
+                inExpress = true;
+        }
+        else {
+            inExpress = true;
+        }
+        if (inExpress !== queue.inExpress) {
+            o.isExpress = queue.inExpress = inExpress;
+        }
+    }
     twain(o1, o2) {
-        if (o1.istype || o1.needle || o2.needle) return;
+        if (o1.type === STRAP || o1.istype || o1.needle || o2.needle) return;
         o2.istype = true;
     }
     compile2(s) {
@@ -144,7 +297,8 @@ class Program {
         if (source.length > 1) return new RegExp(`^(${s})$`, flag);
         return new RegExp(`^${s}$`, flag);
     }
-    setType() {
+    setType(scope) {
+        if (this.detectLabel(scope)) return false;
     }
 
     exec(text) {
@@ -728,6 +882,9 @@ class Program {
                         case QUOTED:
                             if (!last.tag) break test;
                             break;
+                        case VALUE:
+                        case EXPRESS:
+                            break test;
                         case SCOPED:
                             if (queue.inExpress && !iscomment) break test;
                             break;
@@ -875,7 +1032,13 @@ class Program {
                 continue;
             }
 
-            if (scope_entry[m]) {
+            if (scope_entry[m]) scope: {
+                if (stamp_reg.test(m)) {
+                    var last = queue.last;
+                    if (last) {
+                        if (last.isExpress && !last.istype) break scope;
+                    }
+                }
                 var scope = [];
                 scope.entry = m;
                 scope.type = SCOPED;
@@ -960,7 +1123,8 @@ class Program {
                 continue;
             }
             if (this.scope_leave[m]) {
-                console.warn(
+                var last = queue.last;
+                if (!stamp_reg.test(m) || last && !last.isExpress) console.warn(
                     i18n`标记不匹配：`, queue.entry, m,
                     i18n`\r\n文件位置：`, this.mindpath + ":" + `${row}:${index - colstart}`,
                     i18n`\r\n摘要：\r\n`,
