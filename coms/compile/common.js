@@ -1429,6 +1429,7 @@ var createString = function (parsed) {
                 break;
             case QUOTED:
                 if (!o.length && o.text) {
+                    if (prev?.istype && lasttype !== SPACE) result.push(" ");
                     if (helpcolor) o.text = color.transform(o.text);
                     result.push(o.text);
                     break;
@@ -1471,8 +1472,11 @@ var createString = function (parsed) {
                     if (intag || o.needle || o.type & (EXPRESS | PROPERTY) && (needhead_reg.test(o.text) || lasttype & EXPRESS && needfoot_reg.test(prev?.text))) {
                         if (prev?.isdigit && !/^0[\dxbo]|[mni]$|[e\.]/.test(prev.text) && lasttype & ~(SPACE | COMMENT)) result.push(" ");
                     }
-                    else if ((STRAP | EXPRESS | PROPERTY | COMMENT | VALUE) & lasttype && (STRAP | EXPRESS | PROPERTY | VALUE | LABEL) & o.type) {
-                        if (autospace || o.prev?.isdigit) result.push(" ");
+                    else if (
+                        (STRAP | EXPRESS | PROPERTY | COMMENT | VALUE) & lasttype
+                        && (STRAP | EXPRESS | PROPERTY | VALUE | LABEL) & o.type
+                    ) {
+                        if (autospace || prev?.isdigit) result.push(" ");
                     }
                     else if (o.prev && o.type === STAMP && !/^[,;]/.test(o.text)) {
                         if (result[result.length - 1] === " ");

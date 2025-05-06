@@ -171,7 +171,7 @@ class Program {
                     o.isprop = true;
                     break;
                 }
-                if (last.type & (STAMP | STRAP)) break;
+                if (last.type & (STAMP | STRAP) || last.istype) break;
                 inExpress = true;
                 if (!queue.question) queue.question = 1;
                 else queue.question++;
@@ -1013,7 +1013,7 @@ class Program {
                 queue.inExpress = true;
                 if (isdigit && lasttype === STAMP) {
                     var prev = last.prev;
-                    if ((!prev || prev.type & (STAMP | STRAP) && !/^(\+\+|\-\-)$/.test(prev.text)) && /^[+\-]+$/.test(last.text)) {
+                    if ((!prev || prev.istype || prev.type & (STAMP | STRAP) && !/^(\+\+|\-\-)$/.test(prev.text)) && /^[+\-]+$/.test(last.text)) {
                         last.type = VALUE;
                         last.text += m;
                         lasttype = VALUE;

@@ -50,17 +50,22 @@ var codecolor = function (c, encode) {
         isConstValue = a => strap_reg.test(a) || value_reg.test(a);
     }
     var isInvoke = function (o) {
-        var o = o.next;
+        var p = o.prev;
+        if (p?.type === STRAP && /^(invoke|call)$/i.test(p.text)) return true;
+        o = o.next;
+        if (o?.type === STRAP && /^(proc|endp)$/i.test(o.text)) return true;
         if (o?.type === EXPRESS && needhead_reg.test(o.text)) o = o.next;
         if (o?.type === ELEMENT && o.istype) o = o.next;
         if (o?.type === STAMP && o.needle) o = o.next;
         if (o?.type === SCOPED && o.entry === "(") return true;
+
         return false;
     };
     var setExpress = function (o, label) {
         if (!o.text || o.wraped) return;
         o.wraped = true;
         var keys = o.text.split(".");
+        if (!keys[0] && keys.length > 1) keys.shift(), keys[0] = "." + keys[0];
         var invoked = null;
         var endi = keys.length - 1;
         if (isInvoke(o)) {
@@ -86,7 +91,7 @@ var codecolor = function (c, encode) {
         used[k].forEach(k in predefs ? setPredef : setOutside);
     }
     if (c.program) var { space_exp: spaceReg, control_reg } = c.program;
-    if (spaceReg) var unspaceReg = new RegExp(`(?:${spaces.avoid(光标)}+)`, 'g');
+    if (spaceReg) var unspaceReg = new RegExp(`(?:${spaces.avoid(光标)})+`, 'g');
     var wraptext = function (t, l) {
         if (unspaceReg) t = t.replace(unspaceReg, a => {
             if (encode) a = encode(a);
@@ -159,7 +164,6 @@ var codecolor = function (c, encode) {
                     setExpress(o, 'method');
                 }
                 else setExpress(o, 'property');
-
                 break;
             case EXPRESS:
                 setExpress(o, o.istype || o.isdef || o.next?.needle ? 'predef' : 'express');
