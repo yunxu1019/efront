@@ -62,8 +62,8 @@
         <span>
             <progbar danger:="memery[0]/memery[1]<.05" :current="memeryUsed" :total="memery[1]"></progbar>
             <div>
+                <span -bind="size(memery[1])"></span> \
                 <span -bind="size(memery[0])"></span>
-                / <span -bind="size(memery[1])"></span>
             </div>
         </span>
     </padding>
