@@ -1,32 +1,11 @@
-- zh-CN: 英文
-  en:    English
+- zh-CN: "不能有特殊符号\"$1\""
+  en:    "Cannot have special symbol '$1'"
 
-- zh-CN: 英语
-  en:    English
+- zh-CN: 不启用
+  en:    Disable
 
-- zh-CN: 中文繁体
-  en:    Traditional Chinese
-
-- zh-CN: 繁体中文
-  en:    Traditional Chinese
-
-- zh-CN: 返回
-  en:    Return
-
-- zh-CN: 返回
-  en:    Back
-
-- zh-CN: "参数异常: $1"
-  en:    "Parameter exception: $1"
-
-- zh-CN: 参数异常:$1
-  en:    "Parameter exception: $1"
-
-- zh-CN: 确定
-  en:    Confirm
-
-- zh-CN: 确认
-  en:    Confirm
+- zh-CN: 禁用
+  en:    Disable
 
 - zh-CN: 无法在当前浏览器操作！
   en:    Cannot operate in the current browser!
@@ -34,11 +13,35 @@
 - zh-CN: 无法在当前浏览器操作!
   en:    Cannot operate in the current browser!
 
-- zh-CN: 不启用
-  en:    Disable
+- zh-CN: 确定
+  en:    Confirm
 
-- zh-CN: 禁用
-  en:    Disable
+- zh-CN: 确认
+  en:    Confirm
+
+- zh-CN: "参数异常: $1"
+  en:    "Parameter exception: $1"
+
+- zh-CN: 参数异常:$1
+  en:    "Parameter exception: $1"
+
+- zh-CN: 返回
+  en:    Return
+
+- zh-CN: 返回
+  en:    Back
+
+- zh-CN: 中文繁体
+  en:    Traditional Chinese
+
+- zh-CN: 繁体中文
+  en:    Traditional Chinese
+
+- zh-CN: 英文
+  en:    English
+
+- zh-CN: 英语
+  en:    English
 
 - zh-CN: 商店
   en:    Store
