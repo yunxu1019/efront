@@ -165,7 +165,9 @@ test(`while (a && b);`, '_ = a; if (!_) return [1, 0]; _ = b;\r\n if (!_) return
 test(`while (a < b);`, '_ = a < b; if (!_) return [1, 0]; return [0, 0]', true);
 test(`if (a() > a+b);`, '_ = a(), _0 = a + b, _ = _ > _0; if (!_) return [1, 0]; return [1, 0]', true);
 test(`index > start && result.length < pageSize`, '_ = index > start; if (!_) return [1, 0]; _ = result.length, _ < pageSize', true);
-unstruct.debug = true; r++;
 test(`menus[0][str_name] += [str__v_, version[0], str__v_1][str_join]("")`, `_ = menus[0]; _0 = str__v_; _1 = version[0]; _2 = str__v_1; _0 = [_0, _1, _2]; _0 = _0[str_join](""); _1 = _[str_name], _1 = _1 + _0; _[str_name] = _1`);
 test(`a.b.c += menus[0][str_name] += [str__v_, version[0], str__v_1][str_join]("")`, `_ = menus[0]; _0 = str__v_; _1 = version[0]; _2 = str__v_1; _0 = [_0, _1, _2]; _0 = _0[str_join](""); _1 = _[str_name], _1 = _1 + _0; _[str_name] = _1; _2 = a.b.c, _2 = _2 + _1; a.b.c = _2`);
 test(`menus[0].c += menus[0][str_name] += [str__v_, version[0], str__v_1][str_join]("")`, `_ = menus[0]; _0 = menus[0]; _1 = str__v_; _2 = version[0]; _3 = str__v_1; _1 = [_1, _2, _3]; _1 = _1[str_join](""); _2 = _0[str_name], _2 = _2 + _1; _0[str_name] = _2; _3 = _.c, _3 = _3 + _2; _.c = _3`);
+unstruct.debug = true; r++;
+test(`new Array(2).join("") + 1`, `_0 = new Array(2); _ = _0.join(""), _ + 1`);
+test(`new window.Array(2).join("") + 1`, `_0 = new window.Array(2); _ = _0.join(""), _ + 1`);

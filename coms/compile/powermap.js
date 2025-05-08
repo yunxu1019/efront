@@ -7,8 +7,8 @@ var powermap = {
     'instanceof,in,==,>=,<=,>,<,!=,!==,===,!in,!instanceof'/* 6 */,
     '>>,>>>,<<'/* 7 */, '+,-'/* 8 */, '*,/,%'/* 9 */, '**'/* 10 */,
     '++,--'/* 11 */,
-    "typeof,await,yield,new,delete,void,..."/*12*/,
-    '!,~,#'/* 13 */,
+    "typeof,await,yield,delete,void,..."/*12*/,
+    '!,~,#,new'/* 13 */,
     "::,?.,->,."/*14*/,
 ].forEach((pp, i) => {
     pp.split(",").forEach(p => {

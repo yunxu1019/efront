@@ -415,7 +415,7 @@ class Program {
             }
 
             if (!o.unary && /^(\.\.\.|\*)$/.test(o.text)) {
-                if (powermap[o.text] === powermap.new) o.unary = true;
+                if (powermap[o.text] === powermap.void) o.unary = true;
                 if (last?.isarg || last?.isargl || last?.isprop) {
                     o.unary = true;
                     o.istype = true;
@@ -429,7 +429,7 @@ class Program {
                 o.needle = true;
             }
             if (o.needle);
-            else if (powermap[o.text] > powermap.new && !o.unary) {
+            else if (powermap[o.text] > powermap.void && !o.unary) {
                 o.needle = true;
             }
             queue_push(cache_stamp);

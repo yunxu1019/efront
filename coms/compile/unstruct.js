@@ -282,7 +282,7 @@ var isunary = function (o) {
     var f = o.first;
     if (!f) return false;
     while (f) {
-        if (f.type & (STAMP | STRAP) && powermap[f.text] < powermap.new) return false;
+        if (f.type & (STAMP | STRAP) && powermap[f.text] < powermap.void) return false;
         f = f.next;
     }
     return true;
@@ -643,7 +643,7 @@ var _invoke = function (t, getname) {
     else if (t.length) {
         if (!isAequalA(t)) {
             var t0 = t[0];
-            if ((t0.type === EXPRESS && /^[\.\[]/.test(t0.text) || t0.type & (STAMP | STRAP) && powermap[t0.text] < powermap.new) && result.length) {
+            if ((t0.type === EXPRESS && /^[\.\[]/.test(t0.text) || t0.type & (STAMP | STRAP) && powermap[t0.text] < powermap.void) && result.length) {
                 t.unshift(...rescan`${qname}=${qname}`);
                 relink(t);
             }
@@ -980,7 +980,7 @@ var _express = function (body, getname, ret) {
             continue;
         }
         if (o.type & (STRAP | STAMP)) {
-            if (o.needle) {
+            if (o.needle || o.text === 'new') {
                 exps.push(o);
                 continue;
             }
@@ -1002,7 +1002,7 @@ var _express = function (body, getname, ret) {
                 if (maxindex < nameindex) maxindex = nameindex;
             }
             bx = cx + 1;
-            if (!isor) if (!cache.length || p > cache[cache.length - 1] || p >= powermap.new) {
+            if (!isor) if (!cache.length || p > cache[cache.length - 1] || p >= powermap.void) {
                 cache.push(b, p);
                 continue;
             }
@@ -1241,7 +1241,7 @@ function toqueue(body, getname, ret = false, result = []) {
             continue;
         }
         a: if (o.type === STRAP) {
-            if (/^(new|typeof|delete|await|void|debugger)$/.test(o.text)) {
+            if (/^(typeof|delete|await|void|debugger)$/.test(o.text)) {
                 break a;
             }
             if (/^(var|let|const)$/i.test(o.text)) {
