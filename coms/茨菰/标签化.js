@@ -65,7 +65,8 @@ var codecolor = function (c, encode) {
         if (!o.text || o.wraped) return;
         o.wraped = true;
         var keys = o.text.split(".");
-        if (!keys[0] && keys.length > 1) keys.shift(), keys[0] = "." + keys[0];
+        var pdot = !keys[0] && keys.length > 1;
+        if (pdot) keys.shift();
         var invoked = null;
         var endi = keys.length - 1;
         if (isInvoke(o)) {
@@ -83,7 +84,9 @@ var codecolor = function (c, encode) {
             keys[cx] = /^[\?]/.test(k) || !k ? k : wrap(k, 'express');
         }
         if (endi === keys.length - 1) keys[endi] = invoked;
-        o.text = keys.join('.');
+        keys = keys.join(".");
+        if (pdot) keys = "." + keys;
+        o.text = keys;
     };
     var setPredef = o => setExpress(o, 'predef');
     var setOutside = o => setExpress(o, 'outside');
