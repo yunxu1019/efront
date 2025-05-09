@@ -155,7 +155,7 @@
                     menu.children = children;
                 }
                 if (menu.path) {
-                    if (!firstMenu) firstMenu = menu;
+                    firstMenu = menu;
                     if (map[menu.path] > actived_value) {
                         actived = menu;
                         actived_value = map[menu.path];
@@ -232,6 +232,7 @@
             menu = result.active || findMenu(zimoilPath) || firstMenu;
             if (!menu?.path) return;
             first_opened = true;
+            if (!result.active) setActive(menu, true);
             zimoli.switch(null, null, menu);
             zimoli();
             return;
