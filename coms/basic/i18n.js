@@ -38,7 +38,7 @@ i18n.getIndex = function () {
 };
 i18n.setIndex = function (index) {
     languageIndex = +index;
-    localStorage.setItem('language-index', index);
+    if (localStorage) localStorage.setItem('language-index', index);
     supports = [];
     i18n.supports = supports;
     i18n.reload();
@@ -62,7 +62,8 @@ i18n.removeReloader = function () {
     }
 };
 if (this.navigator) i18n.setLanguage(this.navigator.language);
-var i = +localStorage.getItem('language-index');
+var { localStorage } = this;
+var i = +localStorage?.getItem('language-index');
 if (i >= 0) i18n.setIndex(i);
 else i18n.setIndex(languageIndex);
 var supports;
