@@ -1,7 +1,7 @@
 var scanner2 = require("./scanner2");
 var strings = require("../basic/strings");
 var Program = scanner2.Program;
-var { STAMP, SCOPED, STRAP, EXPRESS, pickAssignment, COMMENT, SPACE, PROPERTY, VALUE, LABEL, QUOTED, snapExpressFoot, isEval, canbeTemp, rename, isHalfSentence, skipFunction, getDeclared, skipAssignment, skipSentenceQueue, createScoped, createString, splice, relink, pickSentence, snapExpressHead, needBreakBetween } = require("./common");
+var { STAMP, SCOPED, STRAP, EXPRESS, pickAssignment, COMMENT, SPACE, PROPERTY, VALUE, LABEL, QUOTED, snapExpressFoot, isEval, canbeTemp, rename, isHalfSentence, skipFunction, getDeclared, skipAssignment, skipSentenceQueue, createScoped, createString, splice, relink, rolink, pickSentence, snapExpressHead, needBreakBetween } = require("./common");
 var splice2 = function (q, from, to, ...a) {
     var cx = q.indexOf(from);
     if (cx < 0) throw console.log(splice2.caller, console.format(`\r\n<red2>${i18n`自`}</red2>`), from && createString([from]), console.format(`\r\n<yellow>${i18n`至`}</yellow>`), to && createString([to]), console.format(`\r\n<cyan>${i18n`码列`}</cyan>`), createString(pickSentence(from))), i18n`结构异常`;
@@ -1009,6 +1009,7 @@ var killobj = function (body, getobjname, getletname, getname_, letname_, deep =
                     break;
                 case "async":
                     splice(body, i, 1);
+                    if (o.next) o.next.async = true;
                     break;
                 case "new":
                     if (o.next?.needle) {
@@ -1068,7 +1069,7 @@ var killobj = function (body, getobjname, getletname, getname_, letname_, deep =
         }
         else if (o.type === STAMP) {
             if (o.text === "=>") {
-                i = unarrow(body, i, deepkill, letname_);
+                i = unarrow(body, i);
                 continue;
             }
             else i = newpunc(body, i, _getnewname);
@@ -1255,7 +1256,7 @@ var unforof = function (o, getnewname, used, killobj) {
         splice(tf[1], 0, 0, ...splice2(r.queue, r, n, ...tf));
     }
 };
-var unarrow = function (body, i, killobj, letname_) {
+var unarrow = function (body, i) {
     var o = body[i];
     var p = o.prev;
     var n = o.next;
@@ -1273,10 +1274,16 @@ var unarrow = function (body, i, killobj, letname_) {
     if (n.type !== SCOPED || !n.brace) {
         var nni = skipAssignment(body, ni);
         b = scanner2('{}')[0];
-        splice(b, 0, 0, { type: STRAP, transive: true, text: "return" }, ...splice(body, ni, nni - ni, b));
-        killarg(h, b, letname_);
-        killobj(b);
+        var q = splice(body, ni, nni - ni, b);
+        if (q.length === 1 && q.entry === '(') {
+            q = q[0];
+        }
+        splice(b, 0, 0, { type: STRAP, transive: true, text: "return" }, ...q);
+        relink(b);
         nni = indexof(body, b, ni) + 1;
+        var bd = body.slice(pi, nni);
+        if (p?.async) bd.unshift({ type: STRAP, text: 'async' });
+        down(createScoped(rolink(bd)));
     }
     else nni = ni + 1;
     return nni;
@@ -1653,8 +1660,8 @@ var newpunc = function (body, i, newname) {
     }
     return hi;
 }
-
 var down = function (scoped) {
+    if (scoped.isArrow) return;
     var inAsync = scoped.async;
     var inAster = scoped.yield;
     var funcMark = [, "aster", "async", "asyncAster"][inAsync << 1 | inAster];
@@ -1787,13 +1794,13 @@ var down = function (scoped) {
     };
 
     var markcodes = [];
-    if (scoped.isfunc && scoped.caps.this && (funcMark && !scoped.isArrow || scoped.insett)) {
+    if (scoped.isfunc && scoped.caps.this && (funcMark || scoped.insett)) {
         let tn = _getname("this_");
         rename(scoped.caps, "this", tn);
         scoped.caps.this.forEach(o => o.origin = 'this');
         markcodes.push(`${tn}=this`);
     }
-    if (scoped.isfunc && scoped.caps.arguments && (funcMark && !scoped.isArrow || scoped.inseta)) {
+    if (scoped.isfunc && scoped.caps.arguments && (funcMark || scoped.inseta)) {
         let an = _getname("arguments_");
         scoped.caps.arguments.forEach(o => o.origin = 'arguments');
         rename(scoped.caps, "arguments", an);
@@ -1803,7 +1810,7 @@ var down = function (scoped) {
     var _killobj = function (_getlocal, o) {
         return killobj(o, gettmpname, getletname, _getlocal, _letname);
     };
-    var kill = function (scoped, _, parentScope) {
+    var kill = function (scoped) {
         if (scoped.isfunc) return down(scoped);
         killlet(scoped);
         var saveddeep = fordeep;

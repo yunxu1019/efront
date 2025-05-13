@@ -1260,20 +1260,26 @@ var needBreakBetween = function (prev, next) {
     if (hasBreakBetween(prev, next)) return;
     return getSemicolonBetween(prev, next) === ';' ? ';' : '';
 };
-var relink = function (list) {
-    var pi = 0, p = null;
-    list.first = p;
+var rolink = function (list) {
+    return link(list, list[0]?.prev, list[list.length - 1]?.next);
+};
+var link = function (list, p, n) {
+    var pi = 0, f = null;
+    list.first = null;
     for (var cx = 0, dx = list.length; cx < dx; cx++) {
         var o = list[cx];
         o.prev = p;
         if (o.type & (COMMENT | SPACE)) continue;
-        if (!p) list.first = o;
+        if (!f) list.first = o;
         while (pi < cx) list[pi++].next = o;
-        p = o;
+        f = p = o;
     }
-    while (pi < cx) list[pi++].next = null;
-    list.last = p;
+    while (pi < cx) list[pi++].next = n;
+    list.last = f;
     return list;
+};
+var relink = function (list) {
+    return link(list, null, null);
 };
 var rehead = function (list) {
     for (var cx = 0, dx = list.length; cx < dx; cx++) {
@@ -1901,6 +1907,7 @@ module.exports = {
     isEval,
     rename,
     relink,
+    rolink,
     rehead,
     createSeeker,
     setqueue,

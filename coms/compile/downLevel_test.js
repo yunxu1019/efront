@@ -160,16 +160,15 @@ textSpan: highlightSpan.textSpan,
 isWriteAccess: highlightSpan.kind === "writtenReference" /* writtenReference */ }, highlightSpan.isInString && { isInString: true }, highlightSpan.contextSpan && { contextSpan: highlightSpan.contextSpan })) }`);
 assert(downLevel(`async()=>({ [argitem.sort ? argitem.sort : 'date']: "desc" })`), `function () { return &async(
 function () {
-_ = {}; if (!argitem.sort) return [1, 0]; _1 = argitem.sort; return [2, 0]
+_ = {}; if (!argitem.sort) return [1, 0]; _2 = argitem.sort; return [2, 0]
 },
 function () {
-_1 = 'date'; return [1, 0]
+_2 = 'date'; return [1, 0]
 },
 function () {
-_[_1] = "desc"; _0 = _; return [_0, 2]
+_[_2] = "desc"; _1 = _; return [_1, 2]
 })
-var _0, _1 }
-var _`);
+var _, _1, _2 }`);
 assert(downLevel(`={...{a:1}}`), `= &extend({}, { a: 1 })`);
 assert(downLevel(`={...a,...c}`), `= &extend({}, a, c)`);
 assert(downLevel(`={a:a,...b,c}`), `= (_ = &extend({ a: a }, b),\r\n_.c = c, _)\r\nvar _`);
@@ -451,11 +450,14 @@ function (_) {
 _0 = _; _0 = _0.a; a = _0
 })
 var a, _0`)
-assert(downLevel(`async a=>await a`), `function (a) { return return &async(
+assert(downLevel(`async a=>await a`), `function (a) { return &async(
 function () {
 _0 = a; return [_0, 1]
+},
+function (_) {
+_0 = _; return [_0, 2]
 })
-var a, _0 }`)
+var _0 }`)
 assert(downLevel(`function(a=b=>b,c){c}`), 'function (a, c) { if (a === undefined) a = function (b) { return b }; c }')
 assert(downLevel(`Object.defineProperty(dis, f.key, {get() {}, set(v) {}})`), `Object.defineProperty(dis, f.key, (_ = {},
 _.get = function () {},
@@ -533,4 +535,6 @@ return cls0 }(function () {})`);
 assert(downLevel(`a=class{ static{[...a]}}`), `var &slice = Array["prototype"]["slice"];
 a = function (cls0) { (function () { &slice["call"](a) }())
 return cls0 }(function () {})`);
-
+assert(downLevel(`geta=()=>({[a]:1})`), `geta = function () { return ((_ = {},
+_[a] = 1, _))
+var _ }`);
