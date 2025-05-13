@@ -163,6 +163,7 @@ function translate([imap, supports], code) {
                             var a = scanner2(`[]`);
                             v.map(function (o) {
                                 var name = o.name;
+                                if (!name) return o;
                                 if (!name) return scanner2(`(${JSON.stringify(o)})`)[0];
                                 delete o.name;
                                 name = ctn('i18n' + getm(name, t.nodup, t.warn), t);
@@ -181,7 +182,7 @@ function translate([imap, supports], code) {
                             v = a;
                         }
                     }
-                    else if (/^(name|holder|comment)$/.test(k)) v = ctn('i18n' + getm(v, t.nodup, t.warn), t);
+                    else if (/^(name|holder|comment)$/.test(k)) v = v ? ctn('i18n' + getm(v, t.nodup, t.warn), t) : [{ type: QUOTED, text: `""` }];
                     else v = scanner2(`(${JSON.stringify(v)})`)[0];
                     o.push({
                         type: PROPERTY,
