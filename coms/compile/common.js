@@ -551,7 +551,7 @@ var createScoped = function (parsed, wash) {
             var isCatch = false;
             var isFunction = false;
             var isScope = false;
-            var isArrow = false;
+            var isArraw = false;
             var isClass = false;
             var isAsync = false;
             var isAster = false;
@@ -616,7 +616,7 @@ var createScoped = function (parsed, wash) {
                     }
                     if (o.next && o.next.type === STAMP && o.next.text === "=>") {
                         isScope = true;
-                        isArrow = true;
+                        isArraw = true;
                         isAsync = o.prev?.type === STRAP && o.prev.text === 'async';
                     }
                     else {
@@ -739,7 +739,7 @@ var createScoped = function (parsed, wash) {
                     if (o.entry === "(") {
                         var prev = o.prev;
                         if (o.next && o.next.type === STAMP && o.next.text === "=>") {
-                            isArrow = true;
+                            isArraw = true;
                             isScope = true;
                             if (prev?.type === STRAP && prev.text === 'async') {
                                 isAsync = true;
@@ -783,7 +783,7 @@ var createScoped = function (parsed, wash) {
                 scoped = [];
                 var isExpress = o.isExpress;
 
-                if (isFunction || isArrow) {
+                if (isFunction || isArraw) {
                     scoped.used = used;
                     scoped.vars = vars;
                     lets = vars;
@@ -809,7 +809,7 @@ var createScoped = function (parsed, wash) {
                         thisscope = scoped;
                     }
                 }
-                if (isArrow);
+                if (isArraw);
                 else while (o && (o.type !== SCOPED || o.entry === '[')) {
                     o = o.next;
                     if (o && o.type === EXPRESS) {
@@ -850,7 +850,7 @@ var createScoped = function (parsed, wash) {
                     if (!o);
                     else if (o.type === STAMP && o.text === "=>") o = o.next;
                 }
-                else if (isArrow) {
+                else if (isArraw) {
                     vars[o.text] = true;
                     o.kind = 'argument';
                     saveTo(used, o.text, o);
@@ -862,7 +862,7 @@ var createScoped = function (parsed, wash) {
                     o.scoped = scoped;
                     o.isExpress = isExpress;
                     run(o.first);
-                    if (isArrow && id >= 0 && o) o = o.next;
+                    if (isArraw && id >= 0 && o) o = o.next;
                     if (wash && isFunction) {
                         var e = o.next;
                         if (e && e.type === EXPRESS && /^[\.\[]/.test(e.text) || e && e.type === SCOPED && e.entry === "[") {
@@ -877,7 +877,7 @@ var createScoped = function (parsed, wash) {
                         }
                     }
                 }
-                else if (isArrow) {
+                else if (isArraw) {
                     var next = skipAssignment(o);
                     scoped.arraw = o;
                     var u = o;
@@ -907,7 +907,7 @@ var createScoped = function (parsed, wash) {
                     } while (o);
                 }
                 var map = isFunction ? vars : lets;
-                var keepscope = !!scoped.body || !!scoped.head || isArrow;
+                var keepscope = !!scoped.body || !!scoped.head;
                 if (!keepscope) for (var k in map) {
                     keepscope = true;
                     break;
@@ -934,8 +934,8 @@ var createScoped = function (parsed, wash) {
                     mergeTo(_used, used);
                     if (scoped.length) _scoped.push(scoped);
                 }
-                if (isArrow) {
-                    scoped.isArrow = true;
+                if (isArraw) {
+                    scoped.isArraw = true;
                     if (!thisscope.insett && used.this) thisscope.insett = true;
                     if (!argscope.inseta && used.arguments) argscope.inseta = true;
                 }
@@ -943,7 +943,7 @@ var createScoped = function (parsed, wash) {
                 if (isFunction) {
                     funcbody = _funcbody;
                     labelused = _labelused;
-                    if (!isArrow) {
+                    if (!isArraw) {
                         delete vars.this;
                         delete vars.arguments;
                         thisscope = _thisscope;

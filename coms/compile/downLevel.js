@@ -1281,11 +1281,12 @@ var unarrow = function (body, i) {
         splice(b, 0, 0, { type: STRAP, transive: true, text: "return" }, ...q);
         relink(b);
         nni = indexof(body, b, ni) + 1;
-        var bd = body.slice(pi, nni);
-        if (p?.async) bd.unshift({ type: STRAP, text: 'async' });
-        down(createScoped(rolink(bd)));
     }
     else nni = ni + 1;
+    var bd = body.slice(pi, nni);
+    if (p?.async) bd.unshift({ type: STRAP, text: 'async' });
+    relink(bd);
+    down(createScoped(bd));
     return nni;
 };
 var getname = function (vars, envs, k) {
@@ -1661,7 +1662,7 @@ var newpunc = function (body, i, newname) {
     return hi;
 }
 var down = function (scoped) {
-    if (scoped.isArrow) return;
+    if (scoped.isArraw) return;
     var inAsync = scoped.async;
     var inAster = scoped.yield;
     var funcMark = [, "aster", "async", "asyncAster"][inAsync << 1 | inAster];
