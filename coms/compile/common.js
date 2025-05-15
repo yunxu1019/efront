@@ -21,7 +21,7 @@ var needfoot_reg = /(\:\:|\.)$/;
 var skipAssignment = function (o, cx) {
     if (!o) return;
     var next = arguments.length === 1 ? function () {
-        o = o.next;
+        o = getnext(o);
     } : function () {
         o = body[++ox];
         cx = ox;
@@ -34,7 +34,7 @@ var skipAssignment = function (o, cx) {
         while (o && o.type & (SPACE | COMMENT)) o = body[++ox];
         cx = ox;
     }
-    else if (o.type & (SPACE | COMMENT)) o = o.next;
+    else if (o.type & (SPACE | COMMENT)) o = getnext(o);
     var needpunc = false;
     var qcount = 0;
     var condition = false;
@@ -51,7 +51,7 @@ var skipAssignment = function (o, cx) {
             switch (o.text) {
                 case ";":
                     if (!ifdeep) break loop;
-                    var n = o.next;
+                    var n = getnext(o);
                     if (!n || n.type !== STRAP || n.text !== 'else') break loop;
                     next();
                     break;
@@ -79,7 +79,7 @@ var skipAssignment = function (o, cx) {
                     break;
                 case ":":
                     if (qcount === 0) {
-                        var p = o.prev;
+                        var p = getprev(o);
                         if (p && p.type === LABEL) {
                             next();
                             break;
@@ -119,7 +119,7 @@ var skipAssignment = function (o, cx) {
                 next();
                 break;
             }
-            var prev = o.prev;
+            var prev = getprev(o);
             if (prev?.type === EXPRESS && needfoot_reg.test(prev.text)) {
                 next();
                 break;
@@ -222,45 +222,45 @@ var skipAssignment = function (o, cx) {
 function skipSentenceQueue(o) {
     do {
         o = skipAssignment(o)
-    } while (o && o.type === STAMP && o.text === ',' ? o = o.next : false);
+    } while (o && o.type === STAMP && o.text === ',' ? o = getnext(o) : false);
     return o;
 }
 function skipFunction(o) {
-    if (o.type === STRAP && o.text === 'async') o = o.next;
+    if (o.type === STRAP && o.text === 'async') o = getnext(o);
     if (o.type !== STRAP) return skipAssignment(o);
     if (o.text === 'function') {
-        while (o && (o.type !== SCOPED || o.entry !== '{')) o = o.next;
-        return o.next;
+        while (o && (o.type !== SCOPED || o.entry !== '{')) o = getnext(o);
+        return getnext(o);
     }
     if (o.text === 'class') {
-        while (!o.isClass) o = o.next;
-        while (o.isClass) o = o.next;
+        while (!o.isClass) o = getnext(o);
+        while (o.isClass) o = getnext(o);
         return o;
     }
     return o;
 }
 var getDoBeforeWhile = function (while_) {
-    var p = while_.prev;
+    var p = getprev(while_);
     if (!p || p.type !== SCOPED || p.entry !== '{') return;
-    p = p.prev;
+    p = getprev(p);
     if (p.type === STRAP && p.text === "do") return p;
 };
 var getIfElseHead = function (if_) {
     var p = if_;
     do {
         if_ = p;
-        p = if_.prev;
+        p = getprev(if_);
         if (!p || p.type !== STRAP || p.text !== 'else') {
             return if_;
         }
-        while (p && (p.type !== STRAP || p.text !== 'if')) p = p.prev;
+        while (p && (p.type !== STRAP || p.text !== 'if')) p = getprev(p);
     } while (p);
 };
 var getContitionHeadBeforeScoped = function (p, nodo) {
-    var pp = p.prev;
+    var pp = getprev(p);
     if (pp.type !== STRAP) return;
     if (pp.text === 'await') {
-        pp = pp.prev;
+        pp = getprev(pp);
         if (pp?.type === STRAP && pp.text === "for") {
             return pp;
         };
@@ -281,12 +281,12 @@ var getContitionHeadBeforeScoped = function (p, nodo) {
     }
 };
 var getFunctionHeadBeforeScoped = function (p) {
-    var pp = p.prev;
-    if (pp && pp.type === EXPRESS) pp = pp.prev;
-    if (pp && pp.text === '*') pp = pp.prev;
+    var pp = getprev(p);
+    if (pp && pp.type === EXPRESS) pp = getprev(pp);
+    if (pp && pp.text === '*') pp = getprev(pp);
     if (pp && pp.type === STRAP && pp.text === 'function') {
         p = pp;
-        pp = pp.prev;
+        pp = getprev(pp);
         if (pp && pp.type === STRAP && pp.text === 'async') {
             p = pp;
         }
@@ -294,19 +294,19 @@ var getFunctionHeadBeforeScoped = function (p) {
     }
     while (pp?.isprop) {
         p = pp;
-        pp = pp.prev;
+        pp = getprev(pp);
         if (pp?.isend) break;
     }
     if (p.isprop) return p;
 }
 function snapSentenceHead(o) {
     // 只检查一级
-    while (o && o.prev) {
-        var p = o.prev;
+    while (o && getprev(o)) {
+        var p = getprev(o);
         if (o.entry === '(') {
             if (p.type & ~(STAMP | STRAP)) {
                 o = p;
-                p = o.prev;
+                p = getprev(o);
                 if (!p) break;
             }
             var pp = getContitionHeadBeforeScoped(o, false);
@@ -314,7 +314,7 @@ function snapSentenceHead(o) {
             pp = getFunctionHeadBeforeScoped(o);
             if (pp) {
                 o = pp;
-                p = o.prev;
+                p = getprev(o);
                 if (!p || p.type === STAMP && /^[,;]$/.test(p.text)) break;
                 continue
             };
@@ -334,7 +334,7 @@ function snapSentenceHead(o) {
         if (p.type & (VALUE | QUOTED)) {
             if (maybeprop) {
                 o = p;
-                if (p.entry === '`' && p.prev && p.prev.type & ~(STAMP | STRAP)) o = p.prev;
+                if (p.entry === '`' && getprev(p) && getprev(p).type & ~(STAMP | STRAP)) o = getprev(p);
                 continue;
             }
             break;
@@ -350,7 +350,7 @@ function snapSentenceHead(o) {
                 var pp = getFunctionHeadBeforeScoped(p);
                 if (pp) {
                     o = pp;
-                    p = o.prev;
+                    p = getprev(o);
                     if (!p || p.type === STAMP && /^[,;]$/.test(p.text)) break;
                     continue;
                 }
@@ -363,7 +363,7 @@ function snapSentenceHead(o) {
                 continue;
             }
             if (/^(in|instanceof|of|as|from)$/.test(p.text)) {
-                o = p.prev;
+                o = getprev(p);
                 continue;
             }
             if (/^(return|yield|break|continue)$/.test(p.text)) {
@@ -388,7 +388,7 @@ function snapSentenceHead(o) {
             }
             if (/^[\?\:]$/.test(p.text)) {
                 if (o) {
-                    var e = snapExpressFoot(o).next;
+                    var e = getnext(snapExpressFoot(o));
                     if (!e || e.type === STAMP && equal_reg.test(e.text)) break;
                 }
             }
@@ -403,37 +403,42 @@ function snapSentenceHead(o) {
                 o = p;
                 continue;
             }
-            o = p.prev;
+            o = getprev(p);
             continue;
         }
         break;
     }
     while (o) {
-        var p = o.prev;
+        var p = getprev(o);
         if (!p || p.type !== LABEL) break;
         o = p;
     }
     return o;
 }
 var getStrapHead = function (o) {
-    var p = o.prev;
+    var p = getprev(o);
     if (p && p.type === STRAP && !p.transive) return p;
-    if (p && p.type === STRAP && p.text === 'await') p = p.prev;
+    if (p && p.type === STRAP && p.text === 'await') p = getprev(p);
     if (p && p.type === STRAP && p.text === 'for') return p;
     return null;
 }
+var getprev = function (o) {
+    return o.prev;
+};
+var getnext = function (o) {
+    return o.next;
+};
 var snapExpressHead = function (o) {
     if (!o || o.type & ~(EXPRESS | SCOPED | QUOTED) && !o.needle) return o;
-    var a = o;
-    while (o && o.prev) {
-        var p = o.prev;
+    var a = o, p = getprev(o);
+    while (o && (p = getprev(o))) {
         if (p.type === STAMP && p.needle || o.type === STAMP && o.needle) {
             o = p;
             continue;
         }
         if (p && p.type === STRAP && p.text === 'new') return p;
         if (o.type === SCOPED && o.entry === '(') {
-            var h = getStrapHead(o);
+            var h = getStrapHead(o, getprev);
             if (h) return h;
         }
         if (o.type === SCOPED && o.entry !== '{'
@@ -442,7 +447,7 @@ var snapExpressHead = function (o) {
             || o.type === QUOTED && (o.length || /^\`/.test(o.text))
         ) {
             if (p.type === SCOPED && p.entry === '(') {
-                if (getStrapHead(p)) return o;
+                if (getStrapHead(p, getprev)) return o;
             }
             if (p.type & (EXPRESS | VALUE | QUOTED | SCOPED)) {
                 a = o;
@@ -455,18 +460,18 @@ var snapExpressHead = function (o) {
             if (o.isObject) return o;
             if (!o.isClass) {
                 if (p.type === SCOPED && p.entry === "(") {
-                    p = p.prev;
-                    if (p && p.type === EXPRESS) p = p.prev;
-                    if (p && p.type === STAMP && p.text === '*') p = p.prev;
+                    p = getprev(p);
+                    if (p && p.type === EXPRESS) p = getprev(p);
+                    if (p && p.type === STAMP && p.text === '*') p = getprev(p);
                     if (!p || p.type !== STRAP || !/^function$/.test(p.text)) return a;
-                    if (p && p.type === STRAP && p.text === "new") p = p.prev;
+                    if (p && p.type === STRAP && p.text === "new") p = getprev(p);
                     return p;
                 }
                 return a;
             }
             while (o.isClass) {
                 isclass++;
-                o = o.prev;
+                o = getprev(o);
             }
             var p = o;
             while (o && isclass > 0) {
@@ -474,7 +479,7 @@ var snapExpressHead = function (o) {
                 if (o.type === STRAP && o.text === 'class') {
                     isclass--;
                 }
-                o = o.prev;
+                o = getprev(o);
             }
             if (p && p.type === STRAP && p.text === 'new') return p;
             return p;
@@ -485,30 +490,30 @@ var snapExpressHead = function (o) {
 };
 
 var snapExpressFoot = function (o) {
-    while (o && o.next) {
+    while (o && getnext(o)) {
         if (o.needle) {
-            o = o.next;
+            o = getnext(o);
             continue;
         }
         var n = null;
         var isExpress = o.isExpress;
         if (o.type & STRAP) {
             n = o;
-            if (n.text === 'new') n = n.next;
+            if (n.text === 'new') n = getnext(n);
             if (n.text === 'function') {
-                while (n && (n.type !== SCOPED || n.entry !== '{')) n = n.next;
+                while (n && (n.type !== SCOPED || n.entry !== '{')) n = getnext(n);
             }
             else if (n.text === 'class') {
                 var n = o;
-                while (n && !n.isClass) n = n.next;
-                while (n && n.isClass) n = n.next;
+                while (n && !n.isClass) n = getnext(n);
+                while (n && n.isClass) n = getnext(n);
             }
             else break;
             o = n;
-            n = o && o.next;
+            n = o && getnext(o);
         }
         else if (o.type & (EXPRESS | QUOTED | VALUE | SCOPED)) {
-            n = o.next;
+            n = getnext(o);
         }
         if (!n) break;
         if (n.type === SCOPED && (o.entry !== '{' || isExpress)
@@ -531,8 +536,8 @@ var createScoped = function (parsed, wash) {
     scoped.isfunc = true;
     var dec = function (map, o) {
         var kind = o.text;
-        o = o.next;
-        while (o && o.type === STRAP) o = o.next;
+        o = getnext(o);
+        while (o && o.type === STRAP) o = getnext(o);
         var [declared, used0, o0, skiped] = getDeclared(o, kind);
         if (o0 !== o) {
             mergeTo(used, used0);
@@ -557,9 +562,9 @@ var createScoped = function (parsed, wash) {
             var isAster = false;
             var function_obj = null;
             if (o.type === STAMP && equal_reg.test(o.text)) {
-                var p = snapExpressHead(o.prev);
+                var p = snapExpressHead(getprev(o));
                 if (!p || p.type & (STRAP | STAMP) || p.type !== EXPRESS && !p.isExpress) {
-                    let n = o.next;
+                    let n = getnext(o);
                     if (n && n.type & (EXPRESS | VALUE)) {
                         n.equal = o;
                     }
@@ -569,7 +574,7 @@ var createScoped = function (parsed, wash) {
                 }
                 else if (o.text === '=' && p.type === SCOPED && !p.isprop) {
                     if (!p.kind) {
-                        var pp = p.prev;
+                        var pp = getprev(p);
                         if (!pp || pp.type === STAMP || pp.type === STRAP) {
                             getDeclared(p, 'assign');
                         }
@@ -599,36 +604,38 @@ var createScoped = function (parsed, wash) {
                 case EXPRESS:
                     if (needhead_reg.test(o.text)) break;
 
-                    var prev = o.prev;
-                    if (prev) {
-                        if (prev.needle || prev.type === EXPRESS && needfoot_reg.test(prev.text)) break;
-                        if (prev.type === STRAP && prev.istype) {
-                            var o0 = dec(lets, prev);
+                    var p = getprev(o);
+                    if (p) {
+                        if (p.needle || p.type === EXPRESS && needfoot_reg.test(p.text)) break;
+                        if (p.type === STRAP && p.istype) {
+                            var o0 = dec(lets, p);
                             if (o0 && o0.type === SCOPED && o0.entry === "(") {
                                 isFunction = true;
                                 isScope = true;
                                 break;
                             }
-                            if (o === o0) o = o.next;
+                            if (o === o0) o = getnext(o);
                             else o = o0;
                             continue;
                         }
                     }
-                    if (o.next && o.next.type === STAMP && o.next.text === "=>") {
+                    var on = getnext(o);
+                    if (on && on.type === STAMP && on.text === "=>") {
                         isScope = true;
                         isArraw = true;
-                        isAsync = o.prev?.type === STRAP && o.prev.text === 'async';
+                        var p = getprev(o);
+                        isAsync = p?.type === STRAP && p.text === 'async';
                     }
                     else {
                         var u = o.text;
                         if (/^\.\.\./.test(u)) u = u.slice(3);
                         var u = u.replace(/^([^\.\[\?\s\:]*)[\s\S]*$/, '$1');
                         if (!u) break;
-                        var prev = o.prev;
-                        if (prev && prev.type === STAMP && /^(?:\+\+|\-\-)$/.test(prev.text)) {
-                            var pp = prev.prev;
+                        var p = getprev(o);
+                        if (p && p.type === STAMP && /^(?:\+\+|\-\-)$/.test(p.text)) {
+                            var pp = getprev(p);
                             if (!pp || pp.type === STAMP) {
-                                o.equal = o.prev;
+                                o.equal = p;
                             }
                         }
                         saveTo(used, u, o);
@@ -649,7 +656,7 @@ var createScoped = function (parsed, wash) {
                         case "break":
                         case "continue":
                             if (o.isend) break;
-                            o = o.next;
+                            o = getnext(o);
                             if (o?.type === EXPRESS) {
                                 saveTo(labelused, o.text, o);
                             }
@@ -672,21 +679,23 @@ var createScoped = function (parsed, wash) {
                         case "let":
                         case "const":
                             m = lets;
-                            if (!o.next || o.next.type & ~(EXPRESS | STRAP) && (o.next.type !== SCOPED || o.next.entry === "(")) {
+                            var n = getnext(o);
+                            if (!n || n.type & ~(EXPRESS | STRAP) && (n.type !== SCOPED || n.entry === "(")) {
                                 o.type = EXPRESS;
                                 continue;
                             }
                         case "import":
                         case "use":
-                            if (!o.next || o.next.type === QUOTED) break;
-                            if (o.next.needle) {
+                            var n = getnext(o);
+                            if (!n || n.type === QUOTED) break;
+                            if (n.needle) {
                                 o.type = EXPRESS;
                                 continue;
                             }
                         case "var":
                             m = m || vars;
                             var o0 = dec(m, o);
-                            if (o0 === o) o = o.next;
+                            if (o0 === o) o = getnext(o);
                             else o = o0;
                             continue loop;
                         case "static":
@@ -694,16 +703,17 @@ var createScoped = function (parsed, wash) {
                         case "fn":
                         case "func":
                             isFunction = true;
-                            var op = o.prev;
-                            if (op?.type === STRAP && op.text === 'async') {
+                            var p = getprev(o);
+                            if (p?.type === STRAP && p.text === 'async') {
                                 isAsync = true;
-                                o.isExpress = op.isExpress;
+                                o.isExpress = p.isExpress;
                             }
                             function_obj = o;
-                            if (o.next.type === STAMP) {
+                            var n = getnext(o);
+                            if (n.type === STAMP) {
                                 isAster = true;
-                                o = o.next;
-                                o.isExpress = op?.isExpress;
+                                o = getnext(o);
+                                o.isExpress = p?.isExpress;
                             }
                         case "catch":
                             if (s === 'catch') isCatch = true;
@@ -711,24 +721,24 @@ var createScoped = function (parsed, wash) {
                         case "interface":
                             if (/^interface|class$/.test(s)) isClass = true;
                             if (!o.isExpress) {
-                                o = o.next;
+                                o = getnext(o);
 
                                 if (o.type === EXPRESS) {
                                     vars[o.text] = true;
                                     o.kind = isFunction ? 'function' : 'class';
                                     saveTo(used, o.text, o);
-                                    o = o.next;
-                                    if (o?.type === ELEMENT) o = o.next;
+                                    o = getnext(o);
+                                    if (o?.type === ELEMENT) o = getnext(o);
                                 }
                             }
                             isScope = true;
                             break;
                         case "for":
-                            o = o.next;
+                            o = getnext(o);
                             if (o.type !== SCOPED && o.text === 'await') {
                                 if (o.type === EXPRESS) o.type = STRAP;
                                 funcbody.await = funcbody.async = true;
-                                o = o.next;
+                                o = getnext(o);
                             }
                             isScope = true;
                             break;
@@ -737,18 +747,19 @@ var createScoped = function (parsed, wash) {
                     break;
                 case SCOPED:
                     if (o.entry === "(") {
-                        var prev = o.prev;
-                        if (o.next && o.next.type === STAMP && o.next.text === "=>") {
+                        var p = getprev(o);
+                        var n = getnext(o);
+                        if (n?.type === STAMP && n.text === "=>") {
                             isArraw = true;
                             isScope = true;
-                            if (prev?.type === STRAP && prev.text === 'async') {
+                            if (p?.type === STRAP && p.text === 'async') {
                                 isAsync = true;
                             }
                         }
-                        else if (prev?.isprop) {
+                        else if (p?.isprop) {
                             isFunction = true;
                             isScope = true;
-                            var pp = o.prev.prev;
+                            var pp = getprev(p);
                             if (pp && pp.type === STAMP && pp.isprop) {
                                 isAster = true;
                             }
@@ -811,20 +822,20 @@ var createScoped = function (parsed, wash) {
                 }
                 if (isArraw);
                 else while (o && (o.type !== SCOPED || o.entry === '[')) {
-                    o = o.next;
+                    o = getnext(o);
                     if (o && o.type === EXPRESS) {
                         var tack = o.text.replace(/[\.\[][\s\S]*$/, '');
                         saveTo(used, tack, o);
-                        if (o.prev && o.prev.type === STRAP && o.prev.text === 'extends') continue;
+                        var p = getprev(o);
+                        if (p?.type === STRAP && p.text === 'extends') continue;
                         lets[tack] = true;
                         o.kind = isFunction ? 'function' : 'class';
-                        o = o.next;
+                        o = getnext(o);
                     }
                 }
                 if (!isFunction) while (o.type !== SCOPED) {
-                    // if (o.next && o.next.type === STAMP && o.next.text === "=>") break;
                     o = run(o, 0);
-                    o = o.next;
+                    o = getnext(o);
                     if (!o) break;
                 }
                 if (!o);
@@ -846,15 +857,15 @@ var createScoped = function (parsed, wash) {
                     else {
                         run(o.first);
                     }
-                    o = o.next;
+                    o = getnext(o);
                     if (!o);
-                    else if (o.type === STAMP && o.text === "=>") o = o.next;
+                    else if (o.type === STAMP && o.text === "=>") o = getnext(o);
                 }
                 else if (isArraw) {
                     vars[o.text] = true;
                     o.kind = 'argument';
                     saveTo(used, o.text, o);
-                    o = o.next.next;
+                    o = getnext(getnext(o));
                 }
                 if (!o);
                 else if (o.type === SCOPED && o.brace) {
@@ -862,12 +873,12 @@ var createScoped = function (parsed, wash) {
                     o.scoped = scoped;
                     o.isExpress = isExpress;
                     run(o.first);
-                    if (isArraw && id >= 0 && o) o = o.next;
+                    if (isArraw && id >= 0 && o) o = getnext(o);
                     if (wash && isFunction) {
-                        var e = o.next;
+                        var e = getnext(o);
                         if (e && e.type === EXPRESS && /^[\.\[]/.test(e.text) || e && e.type === SCOPED && e.entry === "[") {
                             scoped.target = true;
-                            e = e.next;
+                            e = getnext(e);
                         }
                         if (e && e.type === SCOPED && e.entry === '(') {
                             if (e.first) {
@@ -878,13 +889,13 @@ var createScoped = function (parsed, wash) {
                     }
                 }
                 else if (isArraw) {
-                    var next = skipAssignment(o);
+                    var n = skipAssignment(o);
                     scoped.arraw = o;
                     var u = o;
-                    while (o !== next) {
-                        var n = run(o, 0);
-                        if (o === n || n && n.entry === '{') o = n.next;
-                        else o = n;
+                    while (o !== n) {
+                        var n1 = run(o, 0);
+                        if (o === n1 || n1 && n1.entry === '{') o = getnext(n1);
+                        else o = n1;
                     }
                 }
                 else {
@@ -892,18 +903,19 @@ var createScoped = function (parsed, wash) {
                         if (o.type === STAMP && o.text === ";") break;
                         o = run(o, 0);
                         if (!o) break;
-                        var next = o.next;
-                        if (!next) break;
+                        var n = getnext(o);
+                        if (!n) break;
                         var e = o;
-                        if (o.type === STAMP && /^(\+\+|\-\-)$/.test(o.text) && o.prev && o.prev.type === EXPRESS
+                        var p = getprev(o);
+                        if (o.type === STAMP && /^(\+\+|\-\-)$/.test(o.text) && p?.type === EXPRESS
                             || (VALUE | QUOTED | SCOPED) & o.type
                             || EXPRESS === o.type && !needfoot_reg.test(o.text)) {
-                            if ((VALUE | QUOTED | PROPERTY | LABEL) & next.type) break;
-                            if (EXPRESS === next.type && !/^[\.\[]/.test(next.text)) break;
-                            if (next.type === SCOPED && next.brace) break;
-                            if (next.type === STRAP && !next.isExpress) break;
+                            if ((VALUE | QUOTED | PROPERTY | LABEL) & n.type) break;
+                            if (EXPRESS === n.type && !/^[\.\[]/.test(n.text)) break;
+                            if (n.type === SCOPED && n.brace) break;
+                            if (n.type === STRAP && !n.isExpress) break;
                         }
-                        o = next;
+                        o = n;
                     } while (o);
                 }
                 var map = isFunction ? vars : lets;
@@ -956,11 +968,29 @@ var createScoped = function (parsed, wash) {
                 scoped = _scoped;
             }
             if (id >= 0) break;
-            if (o) o = o.next;
+            if (o) o = getnext(o);
         }
         return o;
     };
-    run(parsed.first);
+    if (parsed.first) run(parsed.first);
+    else {
+        rehead(parsed);
+        var { first, last } = parsed;
+        var gtprev = getprev;
+        var gtnext = getnext;
+        getnext = function (o) {
+            if (o === last) return null;
+            return gtnext(o);
+        };
+        getprev = function (o) {
+            if (o === first) return null;
+            return gtprev(o);
+        };
+        run(first);
+        getnext = gtnext;
+        getprev = gtprev;
+    }
+
     scoped.used = used;
     scoped.vars = vars;
     scoped.caps = used;
@@ -1002,19 +1032,19 @@ var createScoped = function (parsed, wash) {
 var hasEqual = function (s) {
     while (s) {
         if (s.equal) return true;
-        var sn = s.next;
+        var sn = getnext(s);
         if (sn?.type === STRAP) {
             if (sn.text === 'of') return true;
             if (sn.text === "in") {
                 var q = s.queue;
                 if (q.entry === '(') {
-                    var qp = q.prev;
+                    var qp = getprev(q);
                     if (qp.type === STRAP && qp.text === 'await') qp = qp.text;
                     if (qp.type === STRAP && qp.text === 'for') return true;
                 }
             }
         }
-        var sp = s.prev;
+        var sp = getprev(s);
         if (sp?.type === STRAP && sp.text === 'as') return true;
         s = s.queue;
     }
@@ -1027,14 +1057,14 @@ var getDeclared = function (o, kind, queue) {
     var attributes = [];
     var index = 0;
     loop: while (o) {
-        while (o && o.type === STAMP && o.text === ',') o = o.next, index++;
+        while (o && o.type === STAMP && o.text === ',') o = getnext(o), index++;
         if (!o) {
             index--;
             break;
         }
-        var next = o.next;
-        if (next?.needle) {
-            o = next.next;
+        var n = getnext(o);
+        if (n?.needle) {
+            o = getnext(n);
             continue;
         }
         if (o.isprop) {
@@ -1045,9 +1075,9 @@ var getDeclared = function (o, kind, queue) {
             else if (o.isdigit) prop = `[${prop}]`;
             else if (!/^\[[\s\S]*\]$/.test(prop)) prop = "." + prop;
             skiped.push(o);
-            if (o.next && o.next.type === STAMP && o.next.text === ":") {
-                o = o.next;
-                o = o.next;
+            var n = getnext(o);
+            if (n?.type === STAMP && n.text === ":") {
+                o = getnext(n);
             }
         }
         switch (o.type) {
@@ -1062,40 +1092,41 @@ var getDeclared = function (o, kind, queue) {
                     d.entry = o.entry;
                     o.kind = kind;
                     attributes.push([prop, d]);
-                    o = o.next;
+                    o = getnext(o);
                     break;
                 }
                 else {
                     var s = [];
                     while (foot !== o) {
                         s.push(o);
-                        o = o.next;
+                        o = getnext(o);
                     }
                     s.push(foot);
                     skiped.push(...s);
-                    o = o.next;
+                    o = getnext(o);
                     attributes.push([prop, s]);
                     break;
                 }
             case STAMP:
-                var next = o.next;
-                if (o.text === "*" && next) {
-                    if (next.type === STRAP && next.text === 'as') {
-                        o = next.next;
+                var n = getnext(o);
+                if (o.text === "*" && n) {
+                    if (n.type === STRAP && n.text === 'as') {
+                        o = getnext(n);
                         prop = "*";
                         continue;
                     }
                 }
                 if (o.text === '...') {
-                    o = o.next;
+                    o = getnext(o);
                     continue;
                 }
                 break;
             case PROPERTY:
-                if (o.next) {
-                    if (o.next.type === STAMP && o.next.text === ":" || o.next.type === STRAP && o.next.text === "as") {
+                var n = getnext(o);
+                if (n) {
+                    if (n.type === STAMP && n.text === ":" || n.type === STRAP && n.text === "as") {
                         prop = "." + o.text;
-                        o = o.next.next;
+                        o = getnext(n);
                         continue;
                     }
                 }
@@ -1109,7 +1140,7 @@ var getDeclared = function (o, kind, queue) {
                 var isdec = !/[\.\[]/.test(k);
                 if (k && isdec) declared.push(k);
                 if (!isrest) {
-                    var prev = o.prev;
+                    var prev = getprev(o);
                     if (prev?.type === STAMP && prev.text === '...') {
                         isrest = true;
                     }
@@ -1130,11 +1161,11 @@ var getDeclared = function (o, kind, queue) {
                 var f = snapExpressFoot(o);
                 if (k) saveTo(used, k, o);
                 var s = [o];
-                while (o !== f) o = o.next, s.push(o);
+                while (o !== f) o = getnext(o), s.push(o);
                 if (isrest) declared["..."] = [s, index];
                 else attributes.push([prop, s]);
                 o.kind = kind;
-                o = f.next;
+                o = getnext(f);
                 break;
             default:
                 console.log(createString(pickSentence(o.queue)), o.text, o.type);
@@ -1144,36 +1175,36 @@ var getDeclared = function (o, kind, queue) {
         switch (o.type) {
             case STRAP:
                 if (/^(in|of)$/.test(o.text)) {
-                    o = o.next;
+                    o = getnext(o);
                     break loop;
                 }
                 break loop;
             case STAMP:
                 if (o.text === "=") {
-                    o.prev.equal = o;
-                    o = o.next;
+                    getprev(o).equal = o;
+                    o = getnext(o);
                     var o0 = skipAssignment(o);
                     if (isrest) throw new Error(i18n`余集变量不能有默认值`);
                     attributes[attributes.length - 1].push(queue, o, o0);
                     while (o !== o0) {
                         skiped.push(o);
-                        o = o.next;
+                        o = getnext(o);
                     }
                     o = o0;
                     break;
                 }
                 if (o.text === '*') {
-                    o = o.next;
+                    o = getnext(o);
                     break;
                 }
                 break;
             case EXPRESS:
-                if (o.text === '?') o = o.next;
+                if (o.text === '?') o = getnext(o);
                 break;
         }
         if (o?.type === STAMP) {
             while (o?.istype) {
-                o = o.next;
+                o = getnext(o);
             }
         }
         if (!o) break;
@@ -1229,7 +1260,8 @@ var hasBreakBetween = function (prev, next) {
 };
 var getSemicolonBetween = function (prev, next) {
     if (next.type === PROPERTY) return ";";
-    if (next.type === STAMP && next.text === "*" && next.next && next.next.type === PROPERTY) return ";";
+    if (next.type === STAMP && next.text === "*" && getnext(next) && getnext(next).type === PROPERTY) return ";";
+    var pp = getprev(prev);
     if (
         (EXPRESS | VALUE | QUOTED) & prev.type
         || prev.type === STAMP && /^(\+\+|\-\-)$/.test(prev.text)
@@ -1237,7 +1269,7 @@ var getSemicolonBetween = function (prev, next) {
             // 这两种分号不存在时efront的解析器可以识别，v8的识别不了，为了兼容追加分号
             // do{}while(); return
             // =function(){}(); return
-            prev.perv?.type === STRAP && prev.prev.text === 'while' || prev.prev?.type === SCOPED
+            pp?.type === STRAP && pp.text === 'while' || pp?.type === SCOPED
         )
         )
     ) {
@@ -1328,7 +1360,7 @@ var createString = function (parsed) {
     var helpcolor = parsed.keepcolor === false;
     var intag = false;
     var run = (o, i, a) => {
-        var prev = o.prev;
+        var prev = getprev(o);
         a: if (prev && lasttype !== SPACE && patchspace && ~(SPACE | COMMENT | STAMP | PIECE | SCOPED) & o.type) {
             if ((QUOTED | SCOPED | STRAP | LABEL | COMMENT | ELEMENT | PROPERTY) & lasttype
                 || prev.type === STAMP && !prev.unary && !prev.needle && !prev.isprop
@@ -1441,7 +1473,7 @@ var createString = function (parsed) {
                     break;
                 }
             case SCOPED:
-                var prev = o.prev;
+                var prev = getprev(o);
                 if (patchspace && !intag && prev && o.type !== QUOTED && (lasttype === STAMP && !prev.unary && !prev.needle
                     || lasttype & ~(SPACE | STAMP | COMMENT) && o.brace
                     || lasttype === STRAP && !/^(this|arguments|import)$/.test(prev.text)
@@ -1456,13 +1488,14 @@ var createString = function (parsed) {
                     }
                     lasttype = SPACE;
                     o.forEach(run);
-                    if (o.prev && o.prev.type === STRAP && /^for$/.test(o.prev.text));
+                    var p = getprev(o);
+                    if (p?.type === STRAP && /^for$/.test(p.text));
                     else if (/^[,;]$/.test(result[result.length - 1]) && autospace && !keepspace) {
                         var last = o.last;
-                        var lp = last && last.prev;
+                        var lp = last && getprev(last);
                         if (!lp) result.pop();
                         else {
-                            var lpp = lp.prev;
+                            var lpp = getprev(lp);
                             if (lp.type === STRAP && lp.text === 'else' || lp.type === SCOPED && lpp && lpp.type === STRAP && /^(while|if|with|for)/.test(lpp.text));
                             else result.pop();
                         }
@@ -1475,6 +1508,7 @@ var createString = function (parsed) {
                 break;
             default:
                 if (o && typeof o === "object") {
+                    var p = getprev(o);
                     if (intag || o.needle || o.type & (EXPRESS | PROPERTY) && (needhead_reg.test(o.text) || lasttype & EXPRESS && needfoot_reg.test(prev?.text))) {
                         if (prev?.isdigit && !/^0[\dxbo]|[mni]$|[e\.]/.test(prev.text) && lasttype & ~(SPACE | COMMENT)) result.push(" ");
                     }
@@ -1484,28 +1518,26 @@ var createString = function (parsed) {
                     ) {
                         if (autospace || prev?.isdigit) result.push(" ");
                     }
-                    else if (o.prev && o.type === STAMP && !/^[,;]/.test(o.text)) {
+                    else if (p && o.type === STAMP && !/^[,;]/.test(o.text)) {
                         if (result[result.length - 1] === " ");
                         else if (o.text === ':') {
-                            var p = o.prev;
                             if ((lasttype === PROPERTY || p && p.isprop || !o.isExpress));
                             else if (autospace) result.push(' ');
                         }
                         else if (lasttype === STAMP) {
-                            var prev = o.prev;
-                            if (autospace) if (!prev.unary || /[\+\-]$/.test(prev.text) && prev.text === o.text) result.push(" ");
+                            if (autospace) if (!p.unary || /[\+\-]$/.test(p.text) && p.text === o.text) result.push(" ");
                         }
-                        else if (/^(\+\+|\-\-)$/.test(o.prev.text) && o.prev.prev) {
+                        else if (/^(\+\+|\-\-)$/.test(p.text) && getprev(p)) {
                             if (o.unary) {
-                                var prev_prev = o.prev.prev;
+                                var pp = getprev(p);
                                 if (
-                                    prev_prev.type === STRAP && !prev_prev.isExpress
-                                    || prev_prev.type & (EXPRESS | VALUE)
+                                    pp.type === STRAP && !pp.isExpress
+                                    || pp.type & (EXPRESS | VALUE)
                                 ) result.push(";");
                             }
                         }
 
-                        else if (!/^(\+\+|\-\-)$/.test(o.text) || o.prev && o.prev.type & (STAMP | STRAP)) {
+                        else if (!/^(\+\+|\-\-)$/.test(o.text) || p.type & (STAMP | STRAP)) {
                             if (patchspace && lasttype !== SPACE && !o.needle) result.push(" ");
                         }
                     }
@@ -1576,13 +1608,13 @@ var isHalfSentence = function (body, i) {
     if (a.type === STRAP && a.text === 'else') return true;
     if (a.type === STAMP && (a.unary || !/^(;|\+\+|\-\-)$/.test(a.text))) return true;
     if (a.type !== SCOPED || a.entry !== "(") return false;
-    a = a.prev;
+    a = getprev(a);
     if (!a || a.type !== STRAP) return false;
     if (a.text === 'while') {
-        var p = a.prev;
-        if (!p || p.type !== SCOPED || p.entry !== '{' || !p.prev) return true;
-        p = p.prev;
-        if (p.type !== STRAP || p.text !== 'do') return true;
+        var p = getprev(a);
+        if (!p || p.type !== SCOPED || p.entry !== '{') return true;
+        p = getprev(p);
+        if (!p || p.type !== STRAP || p.text !== 'do') return true;
         return false;
     }
     return /^(if|for|with)$/.test(a.text);
@@ -1592,8 +1624,8 @@ var splice = function (queue, index, size, ...args) {
     if (index < 0) index += queue.length;
     var p = queue[index];
     var n = queue[index + size - 1];
-    var prev = p && p.prev;
-    var next = n && n.next;
+    var prev = p && getprev(p);
+    var next = n && getnext(n);
     var res = queue.splice(index, size, ...args);
     var previ = queue.lastIndexOf(prev, index);
     var nexti = queue.indexOf(next, index + args.length);
@@ -1601,8 +1633,8 @@ var splice = function (queue, index, size, ...args) {
     if (nexti < 0) nexti = queue.length, next = null;
     else nexti++;
     var changedargs = queue.slice(previ, nexti);
-    var pp = prev && prev.prev;
-    var nn = next && next.next;
+    var pp = prev && getprev(prev);
+    var nn = next && getnext(next);
     relink(changedargs);
     if (pp) changedargs.first.prev = pp, pp.next = changedargs.first;
     else queue.first = changedargs.first;
@@ -1680,20 +1712,20 @@ var canbeDuplicate = function (body) {
 };
 var pickArgument = function (o) {
     var res = [];
-    var t = o && o.prev, p = o;
+    var t = o && getprev(o), p = o;
     while (t && (t.type !== STAMP || !/^[,;]$/.test(t.text))) {
         if (p.isprop) {
-            p = t.prev;
+            p = getprev(t);
             if (!p || !p.isprop) break;
         }
         res.push(t);
         p = t;
-        t = t.prev;
+        t = getprev(t);
     }
     while (o && (o.type !== STAMP || !/^[,;]$/.test(o.text))) {
         res.push(o);
         var n = o;
-        o = o.next;
+        o = getnext(o);
         if (o && o.isprop) {
             if (!n.isprop) break;
         }
@@ -1702,15 +1734,15 @@ var pickArgument = function (o) {
 };
 var pickSentence = function (o) {
     if (!o) return [];
-    if (o && o.type & (SPACE | COMMENT) && o.prev) o = o.prev;
-    if (o && o.type === STAMP && o.prev) o = o.prev;
-    if (o.type === STRAP && /^(in|instanceof|as|of)$/.test(o.text) && o.prev) o = o.prev;
+    if (o && o.type & (SPACE | COMMENT) && getprev(o)) o = getprev(o);
+    if (o && o.type === STAMP && getprev(o)) o = getprev(o);
+    if (o.type === STRAP && /^(in|instanceof|as|of)$/.test(o.text) && getprev(o)) o = getprev(o);
     var h = snapSentenceHead(o);
     var e = h;
     do {
         e = skipAssignment(e);
         if (!e || e.type !== STAMP || e.text !== ',') break;
-        e = e.next;
+        e = getnext(e);
     } while (e);
     var q = o.queue;
     if (q) {
@@ -1721,7 +1753,7 @@ var pickSentence = function (o) {
     var res = [];
     do {
         res.push(h);
-        h = h.next;
+        h = getnext(h);
     } while (h !== e);
     return res;
 };
@@ -1740,7 +1772,7 @@ var pickAssignment = function (n) {
     var values = [];
     while (n && n !== e) {
         values.push(n);
-        n = n.next;
+        n = getnext(n);
     }
     return values;
 }
@@ -1750,7 +1782,7 @@ var insertBefore = function () {
     var index = queue.indexOf(o);
     var os = [].slice.call(arguments, 1);
     queue.splice.apply(queue, [index, 0].concat(os));
-    var prev = o && o.prev, next = o;
+    var prev = o && getprev(o), next = o;
     var desc = { value: queue, configurable: true, enumerable: false }
     for (var o of os) {
         if (prev) prev.next = o;
@@ -1769,7 +1801,7 @@ var insertAfter = function () {
     var index = queue.indexOf(o) + 1;
     var os = [].slice.call(arguments, 1);
     queue.splice.apply(queue, [index, 0].concat(os));
-    var prev = o, next = o && o.next;
+    var prev = o, next = o && getnext(o);
     var desc = { value: queue, configurable: true, enumerable: false }
     for (var o of os) {
         if (prev) prev.next = o;
@@ -1860,7 +1892,7 @@ var isDeclareOnly = function (o) {
         if (!q.kind) break;
         o = q;
     }
-    var n = o.next;
+    var n = getnext(o);
     if (!n) return true;
     if (n.type !== STAMP || /^[,;]$/.test(n.text)) return true;
     return false;

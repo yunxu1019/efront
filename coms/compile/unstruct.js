@@ -1,4 +1,14 @@
-var { SPACE, COMMENT, EXPRESS, STRAP, QUOTED, STAMP, SCOPED, VALUE, LABEL, canbeTemp: _canbeTemp, isEval, createString, skipAssignment, pickSentence, skipSentenceQueue, splice, relink, createExpressList, snapExpressHead, snapExpressFoot } = require("./common");
+var {
+    SPACE, COMMENT, EXPRESS, STRAP, QUOTED, STAMP, SCOPED, VALUE, LABEL,
+    canbeTemp: _canbeTemp, isEval,
+    createString, createScoped,
+    skipAssignment,
+    pickSentence,
+    skipSentenceQueue,
+    splice, relink,
+    createExpressList,
+    snapExpressHead, snapExpressFoot
+} = require("./common");
 var scanner2 = require("./scanner2");
 var returnText = function () { return this.text };
 var NodeNotClone = o => Object.assign(Object.create(null), o, { toString: returnText });
@@ -560,6 +570,7 @@ var _invoke = function (t, getname) {
             remove_end_comma(o);
             var iseval = o.iseval = isEval(o);
             var constStart = 0;
+            var constNames = Object.create(null);
             if (!iseval) {
                 for (var cy = 0; cy < o.length; cy++) {
                     while (cy < o.length && o[cy].type & (SPACE | COMMENT)) cy++;
@@ -567,10 +578,19 @@ var _invoke = function (t, getname) {
                     cy = skipAssignment(o, cy);
                     if (cy === ay || ay >= o.length) continue;
                     var m = o[ay];
-                    if (cy === ay + 1 && (m.type === EXPRESS && (strip || !/[\.\[]/.test(m.text)) || m.type === VALUE || m.type === QUOTED && !m.length)) {
+                    var isexp = m.type === EXPRESS && (strip || !/[\.\[]/.test(m.text));
+                    if (cy === ay + 1 && (isexp || m.type === VALUE || m.type === QUOTED && !m.length)) {
+                        if (isexp) constNames[m.text] = true;
                         continue;
                     }
-                    constStart = cy + 1;
+                    var s = createScoped(cloneNode(o.slice(ay, cy)));
+                    for (var k in s.used) {
+                        if (k in constNames) {
+                            constStart = cy + 1;
+                            break;
+                        }
+                        constNames[k] = true;
+                    }
                 }
             }
             for (var cy = 0; cy < o.length; cy++) {
