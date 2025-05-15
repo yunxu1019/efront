@@ -168,6 +168,7 @@ test(`index > start && result.length < pageSize`, '_ = index > start; if (!_) re
 test(`menus[0][str_name] += [str__v_, version[0], str__v_1][str_join]("")`, `_ = menus[0]; _0 = str__v_; _1 = version[0]; _2 = str__v_1; _0 = [_0, _1, _2]; _0 = _0[str_join](""); _1 = _[str_name], _1 = _1 + _0; _[str_name] = _1`);
 test(`a.b.c += menus[0][str_name] += [str__v_, version[0], str__v_1][str_join]("")`, `_ = menus[0]; _0 = str__v_; _1 = version[0]; _2 = str__v_1; _0 = [_0, _1, _2]; _0 = _0[str_join](""); _1 = _[str_name], _1 = _1 + _0; _[str_name] = _1; _2 = a.b.c, _2 = _2 + _1; a.b.c = _2`);
 test(`menus[0].c += menus[0][str_name] += [str__v_, version[0], str__v_1][str_join]("")`, `_ = menus[0]; _0 = menus[0]; _1 = str__v_; _2 = version[0]; _3 = str__v_1; _1 = [_1, _2, _3]; _1 = _1[str_join](""); _2 = _0[str_name], _2 = _2 + _1; _0[str_name] = _2; _3 = _.c, _3 = _3 + _2; _.c = _3`);
-unstruct.debug = true; r++;
 test(`new Array(2).join("") + 1`, `_0 = new Array(2); _ = _0.join(""), _ + 1`);
 test(`new window.Array(2).join("") + 1`, `_0 = new window.Array(2); _ = _0.join(""), _ + 1`);
+unstruct.debug = true; r++;
+test(`readbuff(h, offset += 2, length)`, `_ = h; _0 = offset + 2; offset = _0; _1 = length; readbuff(_, _0, _1)`);

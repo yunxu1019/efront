@@ -581,9 +581,13 @@ var _invoke = function (t, getname) {
                 var ey = cy;
                 if (ay === ey || ay >= o.length) continue;
                 var m = o.slice(ay, ey);
-                if (m.length === 1 && (m[0].type === EXPRESS && !/[\.\[]/.test(m[0].text) && ay >= constStart || m[0].type === VALUE || m[0].type === QUOTED && !m[0].length)) {
-                    continue;
-                }
+                var isexp = m.length === 1 && (
+                    m[0].type === EXPRESS && !/[\.\[]/.test(m[0].text)
+                    && ay >= constStart// 防止变量的值被后文修改
+                    || m[0].type === QUOTED && !m[0].length
+                    || m[0].type === VALUE
+                );
+                if (isexp) continue;
                 if (!iseval || m[m.length - 1] === o.last) {
                     var q = toqueue(m, getdeepname, 1);
                     if (q.length > 1 && queue.length) {
@@ -820,7 +824,7 @@ var ternary = function (body, getname, ret) {
         else if (ret === 1 && !equcount && canbeOnce(bd)) {
             var name = getnextname(0);
             var r = [{ type: EXPRESS, text: name }, { type: STAMP, text: '=' }, ...bd]
-            r.name = name;
+            r.name = [r[0]];
             explist = [r];
         }
         else {
@@ -863,7 +867,7 @@ var ternary = function (body, getname, ret) {
             var punc = eq.text.slice(0, eq.text.length - 1);
             var bdtmp = [...ass.map(cloneNode), { type: STAMP, text: punc }, ...asn];
             relink(bdtmp);
-            eqused++;
+            if (eqused) eqused++;
             var explist2 = _express(bdtmp, getnextname, true);
             if (isSimpleAssign) {
                 [asn, an = cloneNode(ass)] = popexp(explist2);
