@@ -904,8 +904,18 @@ if (memery.LOCAL_HOSTS) {
  */
 function initServer(port, hostname, hostnames) {
     loading++;
-    var server = this.once("error", showServerError)
+    var server = this;
+    if (!memery.noproxy) {
+        var pickSocks5 = require("./socks5");
+        server.on('connection', pickSocks5);
+        server.on('connect', onConnect);
+        server.on("request", requestListener);
+    }
+    server.once("error", showServerError)
         .on('clientError', function (err, socket) {
+            if (socket.socks5) {
+                return;
+            }
             if (err.code === 'ECONNRESET' || !socket.writable || socket.writableEnded) {
                 return;
             }
@@ -913,15 +923,15 @@ function initServer(port, hostname, hostnames) {
         })
         .once("listening", showServerInfo);
     server.timeout = 30000;
-    server.requestTimeout = memery.istest ? 3600000 : 2000;
-    server.headersTimeout = 100;
+    server.requestTimeout = memery.istest ? 3600000 : 20000;
+    server.headersTimeout = 1000;
     server.maxHeadersCount = 60;
     if (!memery.istest) server.maxRequestsPerSocket = 60;
     server.keepAliveTimeout = 30000;
+
     if (!hostname) server.listen(+port);
     else server.listen(+port, hostname);
     portedServersList.push(server);
-    if (!memery.noproxy) server.on('connect', onConnect);
     var wraphost = function (hostname) {
         if (!hostname) hostname = 'localhost';
         else if (!hosted[hostname]) hosted[hostname] = 0;
@@ -962,7 +972,7 @@ var createHttpsServer = function () {
     delete httpsOptions.key;
     delete httpsOptions.cert;
     Object.assign(httpsOptions, cert);
-    serverh = http2.createSecureServer(httpsOptions, requestListener);
+    serverh = http2.createSecureServer(httpsOptions);
     initServer.call(serverh, HTTPS_PORT || 443);
 };
 
@@ -1010,7 +1020,7 @@ var createCertedServer = function (certlist) {
         httpsOptions.key = c.key || wrapkey(c.private);
         httpsOptions.cert = c.cert;
         try {
-            var serveri = http2.createSecureServer(httpsOptions, requestListener);
+            var serveri = http2.createSecureServer(httpsOptions);
             initServer.call(serveri, +HTTPS_PORT || 443, c.hostname, c.hostnames);
             if (isSingleCert) serverh = serveri;
             serveri.hostname = c.hostname;
@@ -1023,7 +1033,7 @@ var createCertedServer = function (certlist) {
 };
 
 var createHttpServer = function () {
-    server1 = http.createServer(requestListener);
+    server1 = http.createServer();
     initServer.call(server1, HTTP_PORT);
 };
 
