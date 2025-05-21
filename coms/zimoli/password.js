@@ -1,24 +1,59 @@
+
 function password() {
     var element = div();
+    var capslock = null, numhide = null;
+    bind('keydown')(element, function (event) {
+        var which = event.which;
+        switch (which) {
+            case 144/*numlock*/:
+                if (numhide !== null) numhide = !numhide; break;
+            case 20/*capslock*/: if (capslock !== null) capslock = !capslock; break;
+        }
+        if (!numhide && /^Numpad/.test(event.code)) {
+            numhide = which < 96;
+        }
+        if (which >= 65 && which <= 90) {
+            var key = event.key;
+            capslock = event.shiftKey ^ (key >= "A" && key <= "Z");
+        }
+        updatetips();
+    });
     var saved_value = element.value = "";
     var savedKeyCodes = [];
-    element.innerHTML = "<input type=password /><insert></insert><holder></holder>";
-    var [_input, insert, holder] = element.children;
-    var text = document.createTextNode("");
-    element.insertBefore(text, _input);
+    element.innerHTML = "<tips></tips><input type=password /><text><insert></insert></text><holder></holder>";
+    var [tips, _input, text, holder] = element.children;
+    var textNode = document.createTextNode('');
+    text.insertBefore(textNode, text.firstChild);
     var build = function () {
         element.value = String.fromCharCode(...savedKeyCodes);
         if (!savedKeyCodes.length && element.placeholder) {
             element.appendChild(holder);
             holder.innerText = element.placeholder;
-            element.insertBefore(insert, holder);
         } else {
             holder.parentNode === element && element.removeChild(holder);
-            element.appendChild(insert);
         }
-        text.nodeValue = savedKeyCodes.map(e => "●").join("");
-        element.scrollLeft = insert.offsetLeft + insert.offsetWidth + element.clientTop + 2;
+        textNode.nodeValue = savedKeyCodes.map(e => "●").join("");
     };
+    bind('focus')(element, function () {
+        capslock = null;
+        numhide = null;
+        updatetips();
+    });
+    bind('blur')(element, function () {
+        capslock = null;
+        numhide = null;
+        updatetips();
+    })
+    var updatetips = function () {
+        var tip = [];
+        if (capslock) {
+            tip.push(i18n`大写锁定已打开`);
+        }
+        if (numhide) {
+            tip.push(i18n`数字键盘已关闭`);
+        }
+        tips.innerText = tip.join(', ');
+    }
     element.onfocus = function () {
         addClass(element, 'focus');
         saved_value = element.value;
