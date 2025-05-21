@@ -149,6 +149,7 @@ class Program {
     control_reg = /^(if|else|switch|case|do|while|for|loop|break|continue|default|import|from|as|export|try|catch|finally|throw|await|yield|return)$/;
     type_reg = /^(var|let|const|function|fn|func|class|interface|type|struct|enum|impl|local)$/;
     nocase = false
+    lbtype = false;
     keepspace = false;
     lastIndex = 0
     detectLabel(o) {
@@ -171,7 +172,6 @@ class Program {
                     o.isprop = true;
                     break;
                 }
-                if (last.type & (STAMP | STRAP) || last.istype) break;
                 inExpress = true;
                 if (!queue.question) queue.question = 1;
                 else queue.question++;
@@ -206,9 +206,15 @@ class Program {
                     queue.question--;
                     if (last.type === STAMP && last.text === '?') {
                         inExpress = false;
-                        o.istype = true;
-                        last.istype = true;
-                        last.type = EXPRESS;
+                        var lp = last.prev;
+                        if (lp) {
+                            var lpp = lp.prev;
+                            if (lpp?.type === EXPRESS) {
+                                lpp.type = LABEL;
+                            }
+                            lp.needle = true;
+                            last.needle = true;
+                        }
                     }
                     else {
                         inExpress = true;
@@ -239,8 +245,7 @@ class Program {
                 if (!queue.isargl && last.type & (EXPRESS | STRAP | VALUE | QUOTED)) {
                     // label
                     var lp = last.prev;
-                    if (lp && lp.type === STAMP && lp.text === ',') {
-                        o.istype = true;
+                    if (lp && !this.lbtype && lp.type === STAMP && lp.text === ',') {
                         break;
                     }
                     if (!lp || lp.type !== STRAP || !lp.transive || lp.isend) {

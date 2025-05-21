@@ -2,7 +2,7 @@ var { createExpressList, createString } = common;
 var test = function (text) {
     var code = scanner2(text);
     var exps = createExpressList(code);
-    console.log(code.isExpressQueue(),exps.map(createString))
+    console.log(code.isExpressQueue(), exps.map(createString))
 };
 test('a')
 test('a+b=c')
@@ -18,3 +18,8 @@ test('var a')
 test('var a,b,c=1;')
 test('a:')
 test('a`b`,a`aa{s}`,c;')
+test('case 1?2:3:{}case 2:default:``')
+test('a: b,c,d;')
+test('a: var b,c,d;')
+test('a: if(){}')
+test('a: a=1, b: b=2;')

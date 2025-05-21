@@ -9,6 +9,7 @@ go.istype = function (o) {
 };
 
 var typescript = new compile$Javascript;
+typescript.lbtype = false;
 typescript.straps = typescript.straps.concat(
     "interface", "implements", "declare", "module", "namespace",
     "readonly", "private", "asserts", "is",

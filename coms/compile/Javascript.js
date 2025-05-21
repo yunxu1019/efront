@@ -47,6 +47,7 @@ class Javascript extends Program {
     strapexp_reg = /^(new|void|typeof|delete|class|function|await)/;
     forceend_reg = /^(return|yield|break|continue|debugger|async)$/;
     defaultType = EXPRESS;
+    lbtype = true;
 }
 var propresolve_reg = /^(static|get|set|async|readonly|private|pub)$/;
 

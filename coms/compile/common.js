@@ -1121,6 +1121,7 @@ var getDeclared = function (o, kind, queue) {
                     continue;
                 }
                 break;
+            case LABEL:
             case PROPERTY:
                 var n = getnext(o);
                 if (n) {
@@ -1587,8 +1588,14 @@ var createExpressList = function (code) {
     for (var cx = 0, dx = code.length; cx < dx;) {
         var o = code[cx];
         var ex = skipAssignment(code, cx);
-        if (code[ex] && code[ex].type === STAMP && /[,;]/.test(code[ex].text)) {
-            ex++;
+        var c = code[ex];
+        if (c?.type === STAMP) {
+            if (/^[,;]$/.test(c.text)) {
+                ex++;
+            }
+            else if (c.text === ':' && !c.isExpress && c.prev?.type !== PROPERTY) {
+                ex++;
+            }
         }
         if (ex > dx) ex = dx;
         var exp = [];

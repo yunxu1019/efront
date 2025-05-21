@@ -54,6 +54,7 @@ testDetour('0o1ll.a', '0o1ll["a"]')
 var ts = new Javascript;
 ts.straps.push('interface', 'implements', "declare", "module", "readonly", "enum", 'type');
 ts.tags[0].push("{")
+ts.lbtype = false;
 var testTypescript = function (text) {
     var s = scanner2(text, ts);
     return assert(s.toString(), text);
