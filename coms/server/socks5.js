@@ -7,7 +7,6 @@ var connected = new Uint8Array([
     0x5, 0x00, 0x00,
 ]);
 var onShaked = function (buff) {
-    console.log(buff, 'shaked');
     switch (buff[1]) {
         case 0x01:// connect
             var domain = null, domainLength = 0, port = null;
