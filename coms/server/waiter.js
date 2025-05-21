@@ -909,7 +909,6 @@ function initServer(port, hostname, hostnames) {
         var pickSocks5 = require("./socks5");
         server.on('connection', pickSocks5);
         server.on('connect', onConnect);
-        server.on("request", requestListener);
     }
     server.once("error", showServerError)
         .on('clientError', function (err, socket) {
@@ -972,7 +971,7 @@ var createHttpsServer = function () {
     delete httpsOptions.key;
     delete httpsOptions.cert;
     Object.assign(httpsOptions, cert);
-    serverh = http2.createSecureServer(httpsOptions);
+    serverh = http2.createSecureServer(httpsOptions, requestListener);
     initServer.call(serverh, HTTPS_PORT || 443);
 };
 
@@ -1020,7 +1019,7 @@ var createCertedServer = function (certlist) {
         httpsOptions.key = c.key || wrapkey(c.private);
         httpsOptions.cert = c.cert;
         try {
-            var serveri = http2.createSecureServer(httpsOptions);
+            var serveri = http2.createSecureServer(httpsOptions, requestListener);
             initServer.call(serveri, +HTTPS_PORT || 443, c.hostname, c.hostnames);
             if (isSingleCert) serverh = serveri;
             serveri.hostname = c.hostname;
@@ -1033,7 +1032,7 @@ var createCertedServer = function (certlist) {
 };
 
 var createHttpServer = function () {
-    server1 = http.createServer();
+    server1 = http.createServer(requestListener);
     initServer.call(server1, HTTP_PORT);
 };
 
