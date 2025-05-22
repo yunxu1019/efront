@@ -35,6 +35,7 @@ var onShaked = function (buff) {
                     break;
                 default:
                     this.end();
+                    return;
 
             }
             // 创建到目标服务器的连接
