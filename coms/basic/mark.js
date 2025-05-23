@@ -1,64 +1,4 @@
-var _pinyin = null;
-var isABC = a => /^[a-zA-Z]$/.test(a);
-var couple = function (source, marker, pinyin) {
-    var isLike = function () {
-        var is = isABC(s), im = isABC(m);
-        if (is && im) return s.toLowerCase() === m.toLowerCase();
-        if (im) {
-            if (pinyin.py(s).indexOf(m.toLowerCase()) < 0) return false;
-            var py = pinyin.pinyin(s).split('|');
-            var i = 1;
-            var t = c2 + ct;
-            for (var p of py) {
-                if (p.length + t <= marker.length && p.indexOf(marker.slice(t, p.length + t).toLowerCase()) === 0) i = p.length;
-            }
-            c2 += i - 1;
-            dt = setDt();
-            return true;
-        }
-        return false;
-    };
-    var setDt = function () {
-        var d1 = len1 - c1;
-        var d2 = len2 - c2;
-        return d1 > d2 ? d2 : d1;
-    };
-    var len1 = source.length;
-    var len2 = marker.length;
-    var begin1 = len1, begin2 = len2;
-    var end1 = begin1;
-    var end2 = begin2;
-    var run = function () {
-        var cc = c2;
-        var start = 0, end = 0;
-        for (ct = 0, dt = setDt(); ct < dt; ct++) {
-            s = source[c1 + ct];
-            m = marker[c2 + ct];
-            if (s === m || pinyin && isLike()) {
-                end = ct + 1;
-                if (end === dt && c2 + end - cc - start > end2 - begin2) {
-                    begin1 = c1 + start;
-                    begin2 = cc + start;
-                    end2 = c2 + end;
-                    end1 = c1 + end;
-                }
-            } else {
-                if (c2 + end - cc - start > end2 - begin2) {
-                    begin1 = c1 + start;
-                    begin2 = cc + start;
-                    end1 = c1 + end;
-                    end2 = c2 + end;
-                }
-                cc = c2;
-                start = ct + 1;
-            }
-        }
-    };
-    var s, m, ct, dt;
-    for (var c1 = 0, c2 = 0; c1 < len1; c1++) run();
-    for (var c1 = 0, c2 = 1; c2 < len2; c2++) run();
-    return [source.slice(begin1, end1), begin1, begin2, end2];
-};
+"use strict";
 var MARK_PRE1, MARK_PRE2, _PRE1, _PRE2 = _PRE1 = "<b>";
 var MARK_AFT1, MARK_AFT2, _AFT1, _AFT2 = _AFT1 = "</b>";
 var mark = function (source, search) {
@@ -98,7 +38,7 @@ var power_ = function (source, search, func, mp) {
     if (!search || !source) {
         return [0, source];
     }
-    var matchers = couple(source, search, _pinyin);
+    var matchers = couple(source, search);
     var match_text = matchers[0];
     var match_start = matchers[1];
     var search_start = matchers[2];
@@ -243,9 +183,7 @@ mark.setTag1 = setTag1;
 mark.setTag2 = setTag2;
 mark.power = power;
 mark.power2 = power2;
-mark.setPinyin = function (py) {
-    _pinyin = py;
-};
+mark.setPinyin = couple.setPinyin;
 mark.compare = function (a, b) {
     var c = compare(a, b);
     c.power = c.pop();

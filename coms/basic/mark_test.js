@@ -19,3 +19,6 @@ test('盛', 'cheng');
 test('盛', 'sheng');
 test('着火', 'zhaohuo');
 test('着陆', 'zhuolu');
+test('baiplay/白前', 'baiqian');
+test('baiplay/白前', 'baqian');
+test('baiplay/八千', 'baqian');
