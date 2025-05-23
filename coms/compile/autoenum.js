@@ -282,8 +282,8 @@ function enumref(refitem, scoped) {
     }
 }
 function atuoenum(scoped) {
-    var { used } = scoped;
-    for (var k in used) {
+    var { used, caps } = scoped;
+    for (var k in caps) {
         var rs = maplist(used[k]);
         enumref(rs, scoped);
     }
