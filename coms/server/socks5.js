@@ -74,11 +74,11 @@ var pickSock5 = function (buff) {
     }
     if (support !== null) {
         this.once('data', onShaked);
+        this.write(new Uint8Array([version, support]));
     }
     else {
-        support = noAble;
+        this.end(new Uint8Array([version, noAble]));
     }
-    this.write(new Uint8Array([version, support]));
     return false;
 };
 var onConnection = (clientSocket) => {
