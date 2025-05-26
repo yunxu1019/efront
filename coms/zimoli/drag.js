@@ -17,7 +17,6 @@ var getOffset = function (e) {
 };
 
 var getMouse = function (e) {
-    console.log(e)
     return [e.clientX, e.clientY];
 };
 var z;
@@ -63,6 +62,7 @@ function drag(target, initialEvent, preventOverflow, isMovingSource) {
         var saved_height = target.outerHeight;
     }
     var extraClones;
+    var tgz = target.style?.zIndex;
     var mousemove = function (event) {
         if (+event.moveLocked === 1) return;
         if (/resize/i.test(getComputedStyle(document.body).cursor)) return;
@@ -76,10 +76,12 @@ function drag(target, initialEvent, preventOverflow, isMovingSource) {
                 z = zIndex(0) + 1;
                 addZIndex(clone);
                 appendChild(document.body, clone);
+                tgz = null;
             } else {
                 clone = target;
                 extraTargets = [];
                 if (target.style) css(target, { zIndex: z });
+                else tgz = null;
             }
             drag.shadow = clone;
             var [clone_left, clone_top] = getOffset(clone);
@@ -112,6 +114,7 @@ function drag(target, initialEvent, preventOverflow, isMovingSource) {
         if (clone !== target) remove(clone), css(target, { opacity: saved_opacity, filter: saved_filter });
         remove(extraClones);
         extraTargets.map((target, cx) => css(target, extraStyles[cx]));
+        if (tgz != null) css(target, { zIndex: tgz });
         if (saved_delta.ing) target.removeAttribute("dragging"), dispatch("dragend", target);
         drag.target = null;
         saved_delta = null;
@@ -151,9 +154,11 @@ drag.on = function (target, actionTarget = target.dragTarget) {
         var _mousedrag = mousedrag;
         var _touchdrag = touchdrag;
     }
-    onmousedown(actionTarget || target, setZIndex);
-    ontouchstart(actionTarget || target, setZIndex);
-    on("drop")(actionTarget || target, setZIndex);
+    if (actionTarget !== false) {
+        onmousedown(actionTarget || target, setZIndex);
+        ontouchstart(actionTarget || target, setZIndex);
+        on("drop")(actionTarget || target, setZIndex);
+    }
     onmousedown(target, _mousedrag);
     ontouchstart(target, _touchdrag);
 };
