@@ -50,8 +50,19 @@ var safeQuitProcess = function () {
 message.disconnect = function () {
     safeQuitProcess();
 };
-message.deliver = function (a) {
-    return clients.deliver(a[0], a[1], a[2]);
+var pullMessage = async function (client, cid, uid) {
+    var msgs = await message.invoke('receive', [cid, uid]);
+    if (msgs?.length) {
+        client.deliver(uid, msgs);
+    }
+};
+message.deliver = function ([cid, uid]) {
+    var client = clients.get(cid);
+    if (!client) return;
+    var hasU = client.hasUid(uid);
+    if (!hasU) return;
+    pullMessage(client, cid, uid);
+    return true;
 };
 message.addmark = function (a) {
     return clients.addMark(a);
@@ -164,11 +175,7 @@ var care = function (req, res, type) {
         var usr = client.listen(res, userinfo);
         client.refresh();
         var uid = userinfo && userinfo.split("/")[0];
-        message.send('receive', [id, uid], function (msgids) {
-            if (msgids && msgids.length) {
-                client.deliver(uid, msgids);
-            }
-        }, null);
+        pullMessage(client, id, uid);
         if (usr) {
             message.broadcast("putuser", [id, userinfo]);
         }

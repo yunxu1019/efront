@@ -42,6 +42,7 @@ var msgMap = new WeakMap;
 class Client {
     id = '';
     optime = 0;
+    hub = false;
     users = Object.create(null);
     constructor(arg) {
         if (typeof arg === 'string') {
@@ -70,11 +71,25 @@ class Client {
     getMessages(uid) {
         var c = this;
         if (uid) c = this.getUser(uid);
+        if (!c) return;
         var msglist = msgMap.get(c);
         return msglist;
     }
+    pullMessages(uid) {
+        var c = this;
+        if (uid) {
+            c = this.getUser(uid);
+        }
+        if (!c) return;
+        var meglist = msgMap.get(c);
+        msgMap.set(c, []);
+        return meglist;
+    }
+    hasUid(uid) {
+        return uid in this.users;
+    }
     hasUser(u) {
-        return u.id in this.users;
+        return this.hasUid(u.id);
     }
     mapUser(u) {
         var u = this.users[u.id];
@@ -107,8 +122,14 @@ class Client {
     }
     deliver(userid, msgid) {
         var c = this;
-        if (userid) c = c.getUser(userid);
-        if (!c) return;
+        if (userid) {
+            c = c.getUser(userid);
+        }
+        if (!c) {
+            if (!this.hub) return;
+            c = new User(userid);
+            this.putUser(c);
+        }
         var cmsg = msgMap.get(c);
         if (msgid instanceof Array) {
             cmsg.push.apply(cmsg, msgid);

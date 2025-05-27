@@ -28,7 +28,7 @@ message.allsimilar = function () {
 message.receive = function ([cid, uid]) {
     var client = clients.get(cid);
     if (client) {
-        var msgs = client.getMessages(uid);
+        var msgs = client.pullMessages(uid);
         return msgs;
     }
 };

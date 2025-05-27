@@ -99,28 +99,22 @@ if (isDevelop) [
 ].map(a => path.join(__dirname, a)).filter(fs.existsSync).forEach(k => watch(k, run)), watch.start();
 message.quit = end;
 message.broadcast = broadcast;
-message.deliver = function (a) {
+message.deliver = async function (a) {
     var [cid, uid, msgid] = a;
     var client = clients.attach(cid);
     if (!client) return;
-    var msgs = client.getMessages(uid);
-    if (msgs && msgs.length) {
-        client.deliver(uid, msgid);
-        return;
-    }
-    var count = 0;
-    var rest = waiters.length;
+    client.hub = true;
+    client.deliver(uid, msgid);
     client.refresh();
-    waiters.forEach(function (worker) {
-        message.send(worker, 'deliver', [cid, uid, msgid], function (a) {
+    var msgs = client.getMessages(uid);
+    if (msgs?.length === 1) {
+        var count = 0;
+        for (var w of waiters) {
+            var a = await message.invoke(w, 'deliver', [cid, uid]);
             count += +a || 0;
-            rest--;
-            if (!rest && !count) {
-                client.deliver(uid, msgid);
-                client.keep();
-            }
-        }, null);
-    });
+        }
+    }
+    if (!count) client.keep();
 };
 var bindWorker = function (methods) {
     var w = null;
