@@ -21,6 +21,10 @@ testFix(`import "windows.inc"`, 'require("windows.inc")');
 testFix(`import "windows.inc";import "abc.inc";`, 'require("windows.inc"); require("abc.inc");');
 testFix(`import "windows.inc";\r\nimport "abc.inc";`, 'require("windows.inc");\r\nrequire("abc.inc");');
 testFix(`console.log(import.meta)`, `console.log(import_meta)`);
+testFix(`export async function a(){}`, 'exports.a = async function a() {}');
+testFix(`export async function *a(){}`, 'exports.a = async function *a() {}');
+testFix(`export function *a(){}`, 'exports.a = function *a() {}');
+testFix(`export var a = async()=>{}`, 'exports.a = async () => {}');
 var testDetour = function (a, e) {
     var c = scanner2(a);
     c.break();

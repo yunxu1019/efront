@@ -771,7 +771,10 @@ var removeExport = function (c, i, code) {
         }
         return;
     }
-    var [dec, map, o] = getDeclared(n.next, 'export');
+    if (n.type === STRAP && n.text === 'async') n = n.next;
+    var s = n.next;
+    if (s.type === STAMP && s.text === "*") s = s.next;
+    var [dec, map, o] = getDeclared(s, 'export');
     if (/^(class|function)$/.test(n.text)) {
         var exports = used.exports;
         if (!exports) {
