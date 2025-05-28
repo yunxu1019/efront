@@ -51,10 +51,18 @@ message.disconnect = function () {
     safeQuitProcess();
 };
 var pullMessage = async function (client, cid, uid) {
+    client.refresh();
+    await wait(60);
     var msgs = await message.invoke('receive', [cid, uid]);
-    if (msgs?.length) {
-        client.deliver(uid, msgs);
+    if (!msgs?.length) {
+        await wait(180);
+        msgs = await message.invoke('receive', [cid, uid]);
     }
+    if (!msgs?.length) {
+        await wait(260);
+        msgs = await message.invoke('receive', [cid, uid]);
+    }
+    if (msgs?.length) client.deliver(uid, msgs);
 };
 message.deliver = function ([cid, uid]) {
     var client = clients.get(cid);
@@ -145,6 +153,7 @@ var cast = function (req, res, type) {
 };
 
 var care = function (req, res, type) {
+    req.setTimeout(120000);
     var id = type[2];
     if (id) {
         if (clients.length > 40000) {
@@ -172,10 +181,9 @@ var care = function (req, res, type) {
         if (type[3]) {
             userinfo = encode62.packdecode(type[3]);
         }
-        var usr = client.listen(res, userinfo);
-        client.refresh();
-        var uid = userinfo && userinfo.split("/")[0];
         pullMessage(client, id, uid);
+        var usr = client.listen(res, userinfo);
+        var uid = userinfo && userinfo.split("/")[0];
         if (usr) {
             message.broadcast("putuser", [id, userinfo]);
         }
@@ -912,14 +920,14 @@ if (memery.LOCAL_HOSTS) {
 function initServer(port, hostname, hostnames) {
     loading++;
     var server = this;
+    var doConnection = require("./doConnection");
+    server.on('connection', doConnection);
     if (!memery.noproxy) {
-        var pickSocks5 = require("./socks5");
-        server.on('connection', pickSocks5);
         server.on('connect', onConnect);
     }
     server.once("error", showServerError)
         .on('clientError', function (err, socket) {
-            if (socket.socks5) {
+            if (socket.picked) {
                 return;
             }
             if (err.code === 'ECONNRESET' || !socket.writable || socket.writableEnded) {

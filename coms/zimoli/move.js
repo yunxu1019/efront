@@ -94,7 +94,7 @@ function move(offsetLeft, offsetTop, preventOverflow, keepOriginIfPosible) {
     }
     return [offsetLeft, offsetTop];
 }
-move.getPosition = function (target) {
+var getPosition = move.getPosition = function (target) {
     var {
         offsetLeft,
         offsetTop,
@@ -132,7 +132,11 @@ var setPosition = move.setPosition = function (target, [x, y]) {
     var offsetTop = getOffsetLeft(y, offsetHeight, clientHeight);
     move.call(target, offsetLeft, offsetTop, undefined, false);
 };
-
+var setSize = move.setSize = function (target, [w, h]) {
+    var p = getPosition(target);
+    css(target, { width: w, height: h });
+    setPosition(target, p);
+};
 var fixPosition = move.fixPosition = function (target) {
     var computed = getComputedStyle(target);
     var {

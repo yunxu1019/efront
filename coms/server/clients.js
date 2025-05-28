@@ -187,7 +187,7 @@ class Client {
 
 var removedindex = 0;
 var autoremove = function (time) {
-    var delta = 30 * 1000, d = 300;
+    var delta = 60 * 1000, d = 3000;
     for (var cx = removedindex - 1, dx = removedindex - 1000; cx >= dx; cx--) {
         if (cx < 0) {
             break;

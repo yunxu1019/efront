@@ -1,0 +1,270 @@
+<style>
+    & {
+        width: 100%;
+        height: 100%;
+        position: fixed;
+        left: 0;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        background: #111;
+    }
+
+    dv {
+        border: 1px solid;
+        width: 240px;
+        height: 180px;
+        right: 10px;
+        bottom: 10px;
+        display: block;
+        position: absolute;
+        color: #fff9;
+        background: #222;
+        z-index: 1;
+
+        &[full] {
+            z-index: 0 !important;
+            width: auto !important;
+            height: auto !important;
+            left: 0 !important;
+            right: 0 !important;
+            bottom: 0 !important;
+            top: 0 !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            border: none;
+        }
+
+        &:after {
+            display: block;
+            content: "";
+            left: 0;
+            bottom: 0;
+            right: 0;
+            top: 0;
+            position: absolute;
+        }
+
+        >video {
+            display: block;
+            position: absolute;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+        }
+    }
+
+    btn.button {
+        display: block;
+        position: absolute;
+        width: 60px;
+        line-height: 60px;
+        height: 60px;
+        border-radius: 30px;
+        margin: -23px;
+        z-index: 2;
+    }
+
+    [accept] {
+        left: 50%;
+        top: 50%;
+        background: #fff2;
+    }
+
+    [hangup] {
+        left: 50%;
+        bottom: 30px;
+        background: #913;
+    }
+
+    [info],
+    [error] {
+        display: block;
+        position: absolute;
+        top: 50%;
+        z-index: 1;
+        left: 0;
+        right: 0;
+        text-align: center;
+        line-height: 40px;
+        margin-top: -20px;
+        color: #fff;
+    }
+
+    [error] {
+        display: none;
+    }
+
+    &[error] {
+
+        [info],
+        [accept] {
+            display: none;
+        }
+
+        [error] {
+            display: block;
+        }
+    }
+</style>
+<div>
+    <dv full>
+        <video playsinline autoplay webkit-playsinline ondblclick="preventDefault"></video>
+        <span -bind="remoteUser.name"></span>
+    </dv>
+    <dv style="opacity: 0">
+        <video playsinline webkit-playsinline ondblclick="preventDefault"></video>
+        <span></span>
+    </dv>
+    <btn danger hangup @click="hangup">挂断</btn>
+    <btn accept -show="isRemote&&!started" @click="accept()">接听</btn>
+    <span error>${i18n`无法打开媒体设备`}</span>
+    <span info -show="started">
+        <span -bind="status()"></span>
+        &nbsp;<time></time>
+    </span>
+</div>
+<script>
+    // fullscreen.open();
+    var status = function () {
+        return acceptTime ? i18n`通话中` : rejectTime ? i18n`无应答` : i18n`正在呼叫`
+    };
+    var btn = button;
+    var dvs;
+    var callingStart = new Date, acceptTime = 0;
+    var started = false;
+    var interval = 0;
+    var timeNode = document.createTextNode("");
+    var rejectTime = 0;
+    care(this, function ([type, sender, data]) {
+        if (sender !== remoteUser.id) return;
+        switch (type) {
+            case "rtc-close":
+                if (acceptTime) return remove(this);
+                rejectTime = new Date;
+                if (remoteOffer) return remove(this);
+                break;
+            case "rtc-accept":
+                acceptTime = new Date;
+                chatrtc.setAnswer(data);
+                break;
+            case "rtc-didate":
+                chatrtc.addDidate(data);
+                break;
+        }
+    });
+    interval = setInterval(function () {
+        var toNum2 = a => a < 10 ? "0" + a : a;
+        var now = new Date;
+        var time = callingStart;
+        if (acceptTime) time = acceptTime;
+        var time = (new Date - time) / 1000 | 0;
+        if (time > 60 && !acceptTime && !rejectTime) {
+            rejectTime = time;
+        }
+        if (rejectTime && now - rejectTime > 16 * 1000) {
+            remove(page);
+        }
+        var value = [0, 0, 0, 0];
+        if (time >= 86400) {
+            value[0] = time / 86400 | 0;
+            time -= value[0] * 86400;
+        }
+        if (time >= 3600) {
+            value[1] = time / 3600 | 0;
+            time -= value[1] * 3600;
+        }
+        if (time >= 60) {
+            value[2] = time / 60 | 0;
+            time -= value[2] * 60;
+        }
+        value[3] = time;
+        var [date, ...time] = value;
+        if (date) timeNode.nodeValue = i18n`${date}天 ` + time.map(toNum2).join(":");
+        else if (time[0]) timeNode.nodeValue = time.map(toNum2).join(":");
+        else timeNode.nodeValue = time.slice(1).map(toNum2).join(":");
+
+    }, 20);
+    var time = function (elem) {
+        elem.appendChild(timeNode);
+    };
+    on('remove')(this, async function () {
+        await chatrtc.hangup();
+        chatrtc.send = null;
+        fullscreen.close();
+        chatrtc.remote = null;
+        chatrtc.local = null;
+        clearInterval(interval);
+    })
+    var canplay = function () {
+        var dv = this.parentNode;
+        var ratio = Math.min(dv.clientWidth / this.videoWidth, dv.clientHeight / this.videoHeight);
+        if (ratio) {
+            move.setSize(dv, [this.videoWidth * ratio, this.videoHeight * ratio]);
+            dv.style.opacity = 1;
+        }
+    }
+    once('mounted')(this, function () {
+        var [dv1, dv2, hangup, accept] = this.children;
+        dvs = [dv1, dv2];
+        drag.on(dv1, false);
+        drag.on(dv2, false);
+        drag.on(hangup, false);
+        drag.on(accept, false);
+        on("dblclick")(dv1, dblclick);
+        on("dblclick")(dv2, dblclick);
+        var v1 = chatrtc.remote = dv1.firstElementChild;
+        var v2 = chatrtc.local = dv2.firstElementChild;
+        v1.oncanplay = canplay;
+        v2.oncanplay = canplay;
+        if (!isRemote) start();
+    });
+    var accept = async function () {
+        await start();
+        acceptTime = new Date;
+    };
+    var onCandidate = function (candidate) {
+        cast(page, ["didate", candidate]);
+    };
+    var start = async function () {
+        try {
+            if (!remoteOffer) {
+                var offer = await chatrtc.call(onCandidate, remoteOffer);
+                cast(page, ['offer', offer]);
+            }
+            else {
+                var answer = await chatrtc.call(onCandidate, remoteOffer);
+                cast(page, ['accept', answer]);
+            }
+        }
+        catch {
+            page.setAttribute('error', '');
+        }
+        finally {
+            started = true;
+        }
+        render.refresh();
+    }
+    var page = this;
+    var hangup = async function () {
+        cast(page, ['hangup']);
+        remove(page);
+    };
+    var dblclick = function (a) {
+        if (this.hasAttribute('full')) return;
+        var style = this.getAttribute('style');
+        if (dvs.length !== 2) style = '';
+        dvs.forEach(v => {
+            if (v === this) v.setAttribute('full', ''), v.nodrag = true;
+            else v.removeAttribute('full'), v.nodrag = false, v.setAttribute('style', style), canplay.call(v);
+        });
+    };
+    this.onback = e => false;
+    var preventDefault = e => e.preventDefault();
+    var [remoteUser, localUser, remoteOffer] = arguments;
+    var isRemote = !!remoteOffer;
+
+</script>

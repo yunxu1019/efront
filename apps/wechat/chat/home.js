@@ -26,8 +26,8 @@ function download(url) {
 function main() {
     var page = frame$chat(clientInfo);
     link(page, '');
-    care(page, "send", function (msg) {
-        data.from("cast", { id: [page.roomid, page.userid].join('/'), msg });
+    care(page, "send", function ([sendto, msg]) {
+        data.from("cast", { id: [page.roomid, sendto].join("/"), msg });
     });
     care(page, 'pullfile', async function (file) {
         try {

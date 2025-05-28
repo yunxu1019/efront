@@ -1,3 +1,8 @@
+<style>
+    [left] {
+        float: left;
+    }
+</style>
 <div head mount>
     <btn -if="users.length>0" class="menubtn" @click="showList=!showList" type_="showList?'default':'white'">
         <i></i>
@@ -7,6 +12,7 @@
     <template -if="user">
         <span -bind="user.name"></span>
         &nbsp;<span class="id">(<span -bind="user.id"></span>)</span>
+        <a left -if="user.id!==localid" @click="call()">呼叫</a>
     </template>
     <template -elseif="title" -src="title"> </template>
     <close @click="remove()"></close>

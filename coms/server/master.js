@@ -104,15 +104,12 @@ message.deliver = async function (a) {
     var client = clients.attach(cid);
     if (!client) return;
     client.hub = true;
-    client.deliver(uid, msgid);
     client.refresh();
-    var msgs = client.getMessages(uid);
-    if (msgs?.length === 1) {
-        var count = 0;
-        for (var w of waiters) {
-            var a = await message.invoke(w, 'deliver', [cid, uid]);
-            count += +a || 0;
-        }
+    client.deliver(uid, msgid);
+    var count = 0;
+    for (var w of waiters) {
+        var a = await message.invoke(w, 'deliver', [cid, uid]);
+        count += +a || 0;
     }
     if (!count) client.keep();
 };

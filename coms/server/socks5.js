@@ -63,10 +63,10 @@ var onShaked = function (buff) {
             break;
     }
 }
-var pickSock5 = function (buff) {
+var pickSocks5 = function (buff) {
     var version = buff[0];
     if (version !== 0x05) return;
-    this.socks5 = true;
+    this.picked = true;
     var methods = buff.slice(2, 2 + buff[1]);
     var support = null;
     find: for (var m of methods) switch (m) {
@@ -81,10 +81,4 @@ var pickSock5 = function (buff) {
     }
     return false;
 };
-var onConnection = (clientSocket) => {
-    // 处理客户端数据
-    clientSocket.prependOnceListener('data', pickSock5);
-};
-// net.createServer(onConnection).listen(1080);
-
-module.exports = onConnection;
+module.exports = pickSocks5;

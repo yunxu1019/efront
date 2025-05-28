@@ -25,6 +25,10 @@ function msg(elem, { m }, parentScopes) {
             elem.files = files;
             onclick(elem, clickfile);
             break;
+        case "rtc-video":
+            elem.setAttribute('rtc', 'video');
+            elem.innerHTML = "视频通话";
+            break;
         default:
             elem.innerText = m.content;
     }
@@ -122,12 +126,35 @@ function chat(title = '会话窗口') {
             ps.totalunread += msgs.length;
         }
     }
+    var msgTemp = Object.create(null);
     page.push = function (msgs) {
         var { msglist } = ps;
         var userMap = null;
+        var cached = [];
         msgs = msgs.filter(m => {
             if (!m) return false;
-            if (isString(m)) return true;
+            if (isString(m)) {
+                if (/^\|/.test(m)) {
+                    var a = /^\|(\d+)\|(\d+)\|(\d+)\|/.exec(m);
+                    if (a) var [, msgid, total, index] = a;
+                    total = +total, index = +index, msgid = +msgid;
+                    var tmp = msgTemp[msgid];
+                    if (!tmp) {
+                        tmp = msgTemp[msgid] = Array(total);
+                        tmp.count = 0;
+                    }
+                    if (!tmp[index]) {
+                        tmp[index] = m.slice(a.index + a[0].length);
+                        tmp.count++;
+                    }
+                    if (tmp.count === total) {
+                        cached.push(tmp.join(''));
+                        delete msgTemp[msgid];
+                    }
+                    return false;
+                }
+                return true;
+            }
             switch (m.type) {
                 case 'user':
                     if (!userMap) userMap = Object.create(null);
@@ -136,7 +163,8 @@ function chat(title = '会话窗口') {
                     break;
             }
             return false;
-        }).map(m => JSAM.parse(encode62.packdecode(m))).filter(m => {
+        });
+        msgs = msgs.concat(cached).map(m => JSAM.parse(encode62.packdecode(m))).filter(m => {
             if (m.type === 'accept') {
                 ps.pushFile(m.content);
                 return false;
@@ -152,6 +180,22 @@ function chat(title = '会话窗口') {
             var msgMap = Object.create(null);
             for (var m of msgs) {
                 var { sender } = m;
+                if (m.type === 'rtc-video') {
+                }
+                switch (m.type) {
+                    case "rtc-close":
+                    case "rtc-accept":
+                    case "rtc-didate":
+                        if (ps.calling) cast(ps.calling, [m.type, m.sender, m.content]);
+                        continue;
+                    case "rtc-video":
+                        if (ps.calling) {
+                            this.send("rtc-close", i18n`正在通话中..`, m.sender);
+                            continue;
+                        }
+                        ps.call(sender, m.content);
+                        break;
+                }
                 if (sender) {
                     if (!msgMap[sender]) msgMap[sender] = [];
                     msgMap[sender].push(m);
@@ -181,6 +225,25 @@ function chat(title = '会话窗口') {
     page.setAttribute('ng-class', "{showList:showList}");
     var fid = 0;
     var filesMap = Object.create(null);
+    function rtcMessage([type, data]) {
+        switch (type) {
+            case "offer":
+                ps.send('rtc-video', data);
+                break;
+            case "hangup":
+                ps.send('rtc-close', "", ps.remote);
+                break;
+            case "accept":
+                ps.send('rtc-accept', data, ps.remote);
+                break;
+            case "didate":
+                ps.send('rtc-didate', data, ps.remote);
+                break;
+        }
+    }
+    function send1(msg, sendto) {
+        cast(page, 'send', [sendto, msg]);
+    }
     var ps = {
         chat: zimoli$list,
         title,
@@ -188,9 +251,33 @@ function chat(title = '会话窗口') {
         showList: 0,
         users,
         text: '',
+        calling: null,
+        remote: null,
         localid,
         totalunread: 0,
         _user: null,
+        call(remote = this.user, offer) {
+            if (this.calling) return;
+            this.remote = isObject(remote) ? remote.id : remote;
+            if (typeof remote === 'string') {
+                for (var u of this.users) {
+                    if (u.id === remote) {
+                        remote = u;
+                        break;
+                    }
+                }
+            }
+            if (!remote) return;
+            var c = chatRtc(remote, this.localid, offer);
+            this.calling = c;
+
+            on('remove')(c, function () {
+                ps.calling = null;
+                ps.remote = null;
+            })
+            care(c, rtcMessage);
+            popup(c);
+        },
         fileIcon: shapes$file,
         set user(v) {
             if (!v.msglist) v.msglist = []
@@ -252,22 +339,39 @@ function chat(title = '会话窗口') {
             body.resizeCell(textarea, 'top', textarea.clientHeight - targetHeight - 2);
         },
 
-        send(type, content) {
-            if (!content) return;
+        send(type, content, sendto = page.userid) {
             var msg = {
                 type,
                 sender: this.localid,
                 content,
             };
             var data = JSAM.stringify(msg);
-            if (data.length > 2000) {
+            data = encode62.packencode(data);
+            if (data.length > 16000) {
                 return alert("信息太长，无法发送！");
             }
-            if (this.user && this.user.id !== this.localid && type !== "accept") {
+            if (this.user && this.user.id !== this.localid) a: {
+                switch (type) {
+                    case "accept":
+                    case "rtc-close":
+                    case "rtc-accept":
+                    case "rtc-didate":
+                        break a;
+                }
+                if (!content) return;
                 addToMsgList(this.msglist, [msg]);
             }
-            data = encode62.packencode(data);
-            cast(page, "send", data);
+            if (data.length > 2000) {
+                var count = Math.ceil(data.length / 2000);
+                var msgid = Date.now().toString().slice(-8) + "|" + count + "|";
+                for (var cx = 0, ci = 0, dx = data.length; cx < dx;) {
+                    var d = data.slice(cx, cx += 2000);
+                    send1("|" + msgid + ci++ + "|" + d, sendto);
+                }
+            }
+            else {
+                send1(data, sendto);
+            }
             this.body.lastElementChild.focus();
             this.text = '';
         }

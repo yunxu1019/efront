@@ -13,7 +13,7 @@ var fullscreen = {
         return hasTarget();
     }(),
     is() {
-        if(/Android|iPad|iPhone/i.test(navigator.userAgent)){
+        if (/Android|iPad|iPhone/i.test(navigator.userAgent)) {
             return hasTarget();
         }
         if (/chrome/i.test(navigator.userAgent)) {//webkit
@@ -30,6 +30,12 @@ var fullscreen = {
     hasTarget,
     exec(element) {
         requestFullScreen(element);
+    },
+    open() {
+        if (!this.is()) this.change();
+    },
+    close() {
+        this.exit();
     },
     change() {
         if (this.is()) this.exit(alert);
