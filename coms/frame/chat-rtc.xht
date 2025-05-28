@@ -22,6 +22,10 @@
         background: #222;
         z-index: 1;
 
+        >span {
+            position: relative;
+        }
+
         &[full] {
             z-index: 0 !important;
             width: auto !important;
@@ -116,7 +120,7 @@
         <span -bind="remoteUser.name"></span>
     </dv>
     <dv style="opacity: 0">
-        <video playsinline webkit-playsinline ondblclick="preventDefault"></video>
+        <video muted playsinline webkit-playsinline ondblclick="preventDefault"></video>
         <span></span>
     </dv>
     <btn danger hangup @click="hangup">挂断</btn>
@@ -128,6 +132,7 @@
     </span>
 </div>
 <script>
+    var chatrtc = new ChatRTC;
     // fullscreen.open();
     var status = function () {
         return acceptTime ? i18n`通话中` : rejectTime ? i18n`无应答` : i18n`正在呼叫`
