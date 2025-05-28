@@ -130,7 +130,7 @@ function chat(title = '会话窗口') {
     page.push = function (msgs) {
         var { msglist } = ps;
         var userMap = null;
-        var cached = [];
+        var cached = [], cachedi = 0;
         msgs = msgs.filter(m => {
             if (!m) return false;
             if (isString(m)) {
@@ -148,11 +148,12 @@ function chat(title = '会话窗口') {
                         tmp.count++;
                     }
                     if (tmp.count === total) {
-                        cached.push(tmp.join(''));
+                        cached.push([cachedi, tmp.join('')]);
                         delete msgTemp[msgid];
                     }
                     return false;
                 }
+                cachedi++;
                 return true;
             }
             switch (m.type) {
@@ -164,7 +165,10 @@ function chat(title = '会话窗口') {
             }
             return false;
         });
-        msgs = msgs.concat(cached).map(m => JSAM.parse(encode62.packdecode(m))).filter(m => {
+        backEach(cached, function ([i, m]) {
+            msgs.splice(i, 0, m);
+        });
+        msgs = msgs.map(m => JSAM.parse(encode62.packdecode(m))).filter(m => {
             if (m.type === 'accept') {
                 ps.pushFile(m.content);
                 return false;
@@ -190,7 +194,7 @@ function chat(title = '会话窗口') {
                         continue;
                     case "rtc-video":
                         if (ps.calling) {
-                            this.send("rtc-close", i18n`正在通话中..`, m.sender);
+                            ps.send("rtc-close", i18n`正在通话中..`, m.sender);
                             continue;
                         }
                         ps.call(sender, m.content);

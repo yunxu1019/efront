@@ -839,6 +839,17 @@ var data = {
             return datas.concat.apply([], datas);
         }));
     },
+    wait(ref, params, parse) {
+        var response = this.from(ref, params, parse);
+        var loading = response.loading;
+        if (!("timeout" in loading)) {
+            loading.then(function () {
+                response.loading.timeout = 0;
+            });
+        }
+        loading.timeout = 0;
+        return response;
+    },
     from(ref, params, parse) {
         if (params instanceof Function) {
             parse = params;
@@ -933,12 +944,14 @@ var data = {
     asyncInstance(sid, params, parse) {
         // 不同参数的请求互不影响
         if (typeof sid !== "string") throw new Error(i18n`serviceId 只能是字符串`);
-        var p = privates.getApi(sid).then((api) => {
+        var p0 = privates.getApi(sid);
+        var p = p0.then((api) => {
             params = privates.pack(sid, params);
             var p = privates.fromApi(api, params);
             p.loading = response.loading = p.loading;
             return p;
         }, oncatch);
+        p.loading = p0;
         if (isEmpty(params)) p.id = sid;
         var response = this.createResponse(p, parse);
         return response;
