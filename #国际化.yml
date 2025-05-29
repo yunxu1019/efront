@@ -40,6 +40,24 @@
 - zh-CN: 英语
   en:    English
 
+- zh-CN: 无法打开媒体设备
+  en:    Unable to open media device
+
+- zh-CN: 通话中
+  en:    During the call
+
+- zh-CN: 无应答
+  en:    no response
+
+- zh-CN: 正在呼叫
+  en:    Calling in progress
+
+- zh-CN: $1天
+  en:    $1 day
+
+- zh-CN: 正在通话中..
+  en:    In a call
+
 - zh-CN: 大写锁定已打开
   en:    Capitalization lock turned on
 
