@@ -5,19 +5,21 @@ var {
     RTCIceCandidate,
 } = window;
 var port = location.port;
-if (!port) port = /https\:/.test(location.href) ? 443 : 80;
+if (!port) port = /^https\:/.test(location.href) ? 443 : 80;
 var configuration = {
     iceServers: [
         // { urls: "stun:stun.stunprotocol.org:3478" },
         { urls: "stun:" + location.host + ":" + port }
-    ]
+    ],
 };
+
 var enabled = !!RTCPeerConnection;
 class ChatRTC {
     static enabled = enabled;
     enabled = enabled;
     local = null;
     remote = null;
+    channel = null;
     localStream = null;
     /**
      * @type {RTCPeerConnection}
@@ -26,14 +28,6 @@ class ChatRTC {
     candidates = [];
     constructor() {
         this.peerConnection = new RTCPeerConnection(configuration);
-    }
-    async setOffer(offer) {
-        var pc = this.peerConnection;
-        await pc.setRemoteDescription(new RTCSessionDescription(offer));
-        var answer = await pc.createAnswer();
-        await pc.setLocalDescription(answer);
-        flushDidate(this);
-        return answer;
     }
     async setAnswer(answer) {
         await this.peerConnection.setRemoteDescription(new RTCSessionDescription(answer));
@@ -57,20 +51,35 @@ class ChatRTC {
         local.play();
         addTracks(this.peerConnection, localStream);
     }
-    async initChannel() { }
-    async call(ondate, offer) {
+    async createChannel(id, options) {
+        return this.peerConnection.createDataChannel(id, options);
+    }
+    waitChannel() {
+        return new Promise((ok) => {
+            if (this.channel) return ok(this.channel);
+            this.peerConnection.ondatachannel = (event) => {
+                this.channel = event.channel;
+                ok(this.channel);
+            };
+        });
+    }
+    async init(ondate, offer) {
         var peerConnection = this.peerConnection;
-        await this.initMedia();
-        // 处理 ICE 候选
-        peerConnection.remote = this.remote;
         peerConnection.emitDidate = ondate;
         peerConnection.onicecandidate = oncandidate;
-        // 处理远程流
-        peerConnection.ontrack = ontrack;
-        if (offer) return this.setOffer(offer);
+        peerConnection.ondatachannel = event => this.channel = event.channel;
+        if (offer) return takeOffer(this, offer);
         offer = await peerConnection.createOffer();
         await peerConnection.setLocalDescription(offer);
         return offer;
+    }
+    async call(ondate, offer) {
+        await this.initMedia();
+        var peerConnection = this.peerConnection;
+        // 处理 ICE 候选
+        peerConnection.remote = this.remote;
+        peerConnection.ontrack = ontrack;
+        return this.init(ondate, offer);
     };
     async hangup() {
         var { peerConnection, localStream, local, remote } = this;
@@ -82,6 +91,15 @@ class ChatRTC {
         if (remote) remote.srcObject = null;
     };
 }
+async function takeOffer(rtc, offer) {
+    var pc = rtc.peerConnection;
+    await pc.setRemoteDescription(new RTCSessionDescription(offer));
+    var answer = await pc.createAnswer();
+    await pc.setLocalDescription(answer);
+    flushDidate(rtc);
+    return answer;
+}
+
 /**
  * @param {ChatRtc} rtc
  */

@@ -84,6 +84,6 @@ function pickStun(data) {
     response[27] = port & 0xff// ipv4;
     if (ipv4) setIpv6(response, ipv4[1]);
     else setIpv4(response, remoteAddress);
-    return response;
+    this.end(response);
 }
 module.exports = pickStun;

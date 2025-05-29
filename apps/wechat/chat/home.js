@@ -26,6 +26,7 @@ function download(url) {
     };
 }
 
+
 function main() {
     var page = frame$chat(clientInfo);
     link(page, '');

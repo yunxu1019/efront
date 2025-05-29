@@ -105,6 +105,120 @@ var dragpage = {
         render.refresh();
     }
 }
+
+var rtcMap = Object.create(null);
+var getRtc = function (userid) {
+    var rtc = rtcMap[userid];
+    if (!rtc) rtc = rtcMap[userid] = new ChatRTC;
+    return rtc;
+}
+async function pullFileWithRTC(scope, file) {
+    var userid = scope.user.id;
+    var rtc = getRtc(userid);
+    var h = await window.showSaveFilePicker({ suggestedName: file.name });
+    var writable = await h.createWritable();
+    var channel = await rtc.createChannel();
+    channel.binaryType = 'arraybuffer';
+    var writed = 0;
+    var span = document.createElement('div');
+    span.style.textAlign = 'left';
+    span.innerText = '接收' + file.name;
+    var msg = document.createElement('span');
+    msg.style = 'font-size:10px;font-family: Consolas, "Courier New", monospace, sansif;'
+    appendChild(span, msg);
+    var tipbox = alert(span, false);
+    var report = lazy(function () {
+        // <!-- console.log("接收端发送",writed); -->
+        msg.innerText = ` (${size(file.size, 2)}\\${size(writed, 2)})`;
+        var a = new Uint8Array(16);
+        var high = writed / 0x100000000 | 0;
+        var low = writed & 0xffffffff;
+        a[0] = low & 0xff;
+        a[1] = low >>> 8 & 0xff;
+        a[2] = low >>> 16 & 0xff;
+        a[3] = low >>> 24 & 0xff;
+        a[4] = high & 0xff;
+        a[5] = high >>> 8 & 0xff;
+        a[6] = high >>> 16 & 0xff;
+        a[7] = high >>> 24 & 0xff;
+        channel.send(a);
+    }, -60);
+    channel.onopen = async function () {
+        // <!-- console.log('接收端打开') -->
+        report();
+    };
+    channel.onclose = function () {
+        // <!-- console.log('接收端关闭') -->
+        if (writed === file.size) tipbox.setText(`接收完成`, 'success');
+        else tipbox.setText('接收异常', "error");
+    };
+    channel.onerror = function (event) {
+        // <!-- console.log('接收端异常',event) -->
+    };
+    var ondate = function (date) {
+        scope.send("didate", date, userid);
+    };
+    var offer = await rtc.init(ondate);
+    scope.send('accept', { file: file.id, channel: channel.id, offer })
+    channel.onmessage = async function (event) {
+        var buff = new Uint8Array(event.data);
+        writed += buff.length;
+        // <!-- console.log('接收端收到', writed, file.size); -->
+        await writable.write(buff);
+        report();
+        if (writed >= file.size) {
+            writable.close();
+        }
+    }
+}
+/**
+ * @param {File} file
+ */
+async function pushFileWithRTC(scope, file, msg) {
+    var sender = msg.sender;
+    var rtc = getRtc(sender);
+    var reader = file.stream().getReader();
+    var ondate = function (date) {
+        scope.send("didate", date, sender);
+    }
+    var answer = await rtc.init(ondate, msg.offer);
+    scope.send('takeup', answer, sender);
+    var remote = await rtc.waitChannel();
+    remote.binaryType = 'arraybuffer';
+    var writed = 0, reported = 0;
+    var readed = reader.read();
+    var sizeLimit = 65536;
+    remote.onmessage = async function (event) {
+        var [low, high] = new Uint32Array(event.data);
+        reported = high * 0x100000000 + low;
+        // <!-- console.log('发送端收到', size(writed), size(reported)); -->
+        if (reported < writed) return;
+        var readed1 = readed;
+        readed = reader.read();
+        var { done, value } = await readed1;
+        if (done) {
+            if (writed < file.size) console.error('发送未完成', size(file.size), size(writed), value);
+            remote.close();
+            return;
+        }
+        // <!-- console.log("发送",size(value.length)); -->
+        writed += value.length;
+        for (var cx = 0, dx = value.length; cx < dx;) {
+            remote.send(value.slice(cx, cx += sizeLimit));
+        }
+    }
+    remote.onclose = function () {
+        // <!-- console.log("发送端关闭") -->
+    }
+    remote.onerror = function (event) {
+        // <!-- console.log("发送端异常",event) -->
+    }
+    remote.onopen = async function () {
+        // <!-- console.log("发送端打开") -->
+    };
+}
+
+
 function chat(title = '会话窗口') {
     var page = view();
     page.innerHTML = template;
@@ -191,6 +305,14 @@ function chat(title = '会话窗口') {
                     case "rtc-accept":
                     case "rtc-didate":
                         if (ps.calling) cast(ps.calling, [m.type, m.sender, m.content]);
+                        continue;
+                    case "didate":
+                        var rtc = rtcMap[m.sender];
+                        if (rtc) rtc.addDidate(m.content);
+                        continue;
+                    case "takeup":
+                        var rtc = rtcMap[m.sender];
+                        if (rtc) rtc.setAnswer(m.content);
                         continue;
                     case "rtc-video":
                         if (ps.calling) {
@@ -300,9 +422,14 @@ function chat(title = '会话窗口') {
             remove(page);
         },
         async pullFile(f) {
+            if (!f) return;
+            if (f.rtc && ChatRTC.enabled && window.showSaveFilePicker) {
+                return pullFileWithRTC(this, f);
+            }
             cast(page, 'pullfile', f);
         },
         async pushFile(msg) {
+            if (msg.offer && ChatRTC.enabled) return pushFileWithRTC(this, filesMap[msg.file], msg);
             cast(page, 'pushfile', [msg.channel, filesMap[msg.file]]);
         },
         async chooseFile() {
@@ -330,7 +457,7 @@ function chat(title = '会话窗口') {
                     f.icon = canvas.toDataURL();
                     URL.revokeObjectURL(u);
                 }
-                flist.push({ name: f.name, icon: f.icon, size: f.size, id: ++fid, mtime: +f.lastModified });
+                flist.push({ name: f.name, rtc: ChatRTC.enabled, icon: f.icon, size: f.size, id: ++fid, mtime: +f.lastModified });
                 filesMap[fid] = f;
             }
             return this.send('file', flist);
@@ -357,6 +484,8 @@ function chat(title = '会话窗口') {
             if (this.user && this.user.id !== this.localid) a: {
                 switch (type) {
                     case "accept":
+                    case "didate":
+                    case "takeup":
                     case "rtc-close":
                     case "rtc-accept":
                     case "rtc-didate":
