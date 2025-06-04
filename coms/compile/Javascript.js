@@ -3,6 +3,8 @@ var strings = require("../basic/strings");
 var Program = require("./Program");
 var backEach = require("../basic/backEach");
 var parseNumber = require('../basic/parseNumber');
+var removeFromList = require("../basic/removeFromList");
+var patchname = require("./patchname");
 const {
     /*   1 */COMMENT,
     /*   2 */SPACE,
@@ -713,6 +715,7 @@ var removeExport = function (c, i, code) {
         }
         var o = n.first;
         var allexports = [];
+        var exports = used.exports;
         while (o) {
             var name = o, prop = o.text;
             if (from) {
@@ -734,6 +737,15 @@ var removeExport = function (c, i, code) {
             o = n && n.next;
             var exp = scan(`\r\nexports.${prop}=`);
             exp.push(name);
+            var exported = exp.first;
+            var u0 = used[name.tack][0];
+            var kind = u0.kind;
+            exports.push(exported);
+            if (kind === "const") {
+                exported.tack = 'exports';
+                exported.origin = name.tack;
+                exported.kind = kind;;
+            }
             name.isExpress = true;
             allexports.push(exp);
         }
@@ -743,10 +755,10 @@ var removeExport = function (c, i, code) {
             i = ni;
         }
         else {
-            code.splice(i, ni - i);
+            splice(code, i, ni - i);
         }
         for (var exp of allexports) {
-            code.splice(i, 0, ...exp);
+            splice(code, i, 0, ...exp);
         }
         if (!allexports.length) code.exportEmpty = true;
         return;
@@ -809,14 +821,17 @@ var removeExport = function (c, i, code) {
         }
     }
     var oi = code.indexOf(nn, i);
-    if (!code.exportDecs) {
-        code.exportDecs = [];
+    var exportDecs = code.exportDecs;
+    if (!exportDecs) {
+        exportDecs = code.exportDecs = [];
     }
+    var kind = n.text;
     dec.forEach(function rm(d) {
         if (d instanceof Array) return d.forEach(rm);
         for (var a of used[d]) {
             if (a.kind && a.kind !== 'export') continue;
-            if (!a.export) code.exportDecs.push(a), a.export = true;
+            a.kind = kind;
+            if (!a.export) exportDecs.push(a), a.export = true;
         }
     });
     dec.forEach(d => {
@@ -906,22 +921,24 @@ Javascript.prototype.fix = function (code) {
     }
     if (code.exportDecs) {
         var exportDecs = code.exportDecs;
-        delete code.exportDecs;
-        var exports = code.used.exports;
         var used = code.used;
+        var exports = used.exports;
         var envs = code.envs;
         if (!exports) {
-            exports = code.used.exports = [];
+            exports = used.exports = [];
         }
         exportDecs.forEach(e => {
             e.text = 'exports.' + e.text;
             exports.push(e);
-            removeFromList(used[e.tack], e);
-            if (!used[e.tack].length) {
-                delete used[e.tack];
-                delete envs[e.tack];
+            var tack = e.tack;
+            var u = used[tack];
+            if (u[0].kind === 'const') e.kind = 'const';
+            removeFromList(u, e);
+            if (!used[tack].length) {
+                delete used[tack];
+                delete envs[tack];
             }
-            e.origin = e.tack;
+            e.origin = tack;
             e.tack = 'exports';
             if (e.needEqual) {
                 var n = e.next;

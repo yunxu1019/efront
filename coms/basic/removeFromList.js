@@ -8,3 +8,4 @@ function removeFromList(list, item) {
     }
     return count;
 }
+module.exports = removeFromList;

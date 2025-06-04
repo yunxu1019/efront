@@ -63,4 +63,4 @@ function recode(s) {
     s = encode(s);
     return s;
 }
-module.exports = { encode, decode, recode, kicode, uncode };
+export { encode, decode, recode, kicode, uncode };

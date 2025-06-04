@@ -299,7 +299,7 @@ var getFunctionHeadBeforeScoped = function (p) {
     }
     if (p.isprop) return p;
 }
-function snapSentenceHead(o) {
+function snapAssignmentHead(o) {
     // 只检查一级
     while (o && getprev(o)) {
         var p = getprev(o);
@@ -358,7 +358,7 @@ function snapSentenceHead(o) {
             break;
         }
         if (p.type === STRAP) {
-            if (/^(?:new|void|typeof|delete|await|var|let|const|class|function|async)$/.test(p.text)) {
+            if (/^(?:new|void|typeof|delete|await|class|function|async)$/.test(p.text)) {
                 o = p;
                 continue;
             }
@@ -383,7 +383,7 @@ function snapSentenceHead(o) {
             break;
         }
         if (p.type === STAMP) {
-            if (/=>|;/.test(p.text)) {
+            if (/^(=>|;|,)$/.test(p.text)) {
                 break;
             }
             if (/^[\?\:]$/.test(p.text)) {
@@ -407,11 +407,6 @@ function snapSentenceHead(o) {
             continue;
         }
         break;
-    }
-    while (o) {
-        var p = getprev(o);
-        if (!p || p.type !== LABEL) break;
-        o = p;
     }
     return o;
 }
@@ -1228,7 +1223,7 @@ var mapDeclared = function (map, declared) {
     }
     return map;
 };
-var { uncode } = require("../basic/strings");
+import { uncode } from "../basic/strings.js";
 var saveTo = function (used, k, o) {
     k = uncode(k);
     if (!(used[k] instanceof Array)) used[k] = [];
@@ -1593,7 +1588,7 @@ var createExpressList = function (code) {
             if (/^[,;]$/.test(c.text)) {
                 ex++;
             }
-            else if (c.text === ':' && !c.isExpress && c.prev?.type !== PROPERTY) {
+            else if (c.text === ':' && !c.isExpress && getprev(c)?.type !== PROPERTY) {
                 ex++;
             }
         }
@@ -1655,11 +1650,13 @@ var remove = function (o, end) {
     var i = q.indexOf(o);
     var length = 1;
     if (arguments.length === 2) {
-        end = q.indexOf(end, i) + 1;
-        if (end < 0) end = i;
+        var e = q.indexOf(end, i);
+        if (e < 0) end = end ? i : q.length;
+        else end = e + 1;
         length = end - i;
     }
     if (i >= 0) splice(q, i, length);
+    return length;
 };
 var replace = function (o, ...args) {
     var queue = o.queue;
@@ -1739,6 +1736,29 @@ var pickArgument = function (o) {
     }
     return res;
 };
+var snapSentenceHead = function (o) {
+    while (o) {
+        o = snapAssignmentHead(o)
+        var p = getprev(o);
+        if (p?.type === STAMP && p.text === ',') {
+            var pp = getprev(p);
+            if (!pp) break;
+            o = pp;
+            continue;
+        }
+        break;
+    }
+    var p = getprev(o);
+    if (p?.type === STRAP && /^(var|let|const)$/.test(p.text)) {
+        o = p;
+    }
+    while (o) {
+        var p = getprev(o);
+        if (!p || p.type !== LABEL) break;
+        o = p;
+    }
+    return o;
+};
 var pickSentence = function (o) {
     if (!o) return [];
     if (o && o.type & (SPACE | COMMENT) && getprev(o)) o = getprev(o);
@@ -1775,6 +1795,7 @@ var pickExpress = function (o) {
     return os;
 };
 var pickAssignment = function (n) {
+    n = snapAssignmentHead(n);
     var e = skipAssignment(n);
     var values = [];
     while (n && n !== e) {
@@ -1905,7 +1926,7 @@ var isDeclareOnly = function (o) {
     return false;
 }
 
-module.exports = {
+export {
     /*   1 */COMMENT,
     /*   2 */SPACE,
     /*   4 */STRAP,
@@ -1937,6 +1958,7 @@ module.exports = {
     pickArgument,
     pickSentence,
     pickExpress,
+    snapAssignmentHead,
     pickAssignment,
     snapExpressHead,
     snapExpressFoot,

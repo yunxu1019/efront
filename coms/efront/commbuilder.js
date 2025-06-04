@@ -13,8 +13,10 @@ var autoiota = require("../compile/autoiota");
 var autoeval = require("../compile/autoeval");
 var autoenum = require("../compile/autoenum");
 var polyfill = require("../compile/polyfill");
+var autoConst = require("../compile/auto-const");
 var translate = require("../compile/translate");
 var $split = require("../basic/$split");
+var getMaped = require("../compile/getMaped");
 var backEach = require("../basic/backEach");
 var downLevel = require("../compile/downLevel");
 var isbooted = typeof seek === 'function';
@@ -275,6 +277,13 @@ var loadJsBody = function (data, filename, lessdata, commName, className, htmlDa
         }
     }
     if (memery.AUTOEVAL) {
+        if (!memery.proted) {
+            // 这里有阻塞式读取文件的操作，
+            // 数据依赖其他文件
+            // 为防止其他文件变更后页面刷新不及时
+            // 这里仅在没有端口打开时启用
+            code = autoConst.call(this, code, filename, commName);
+        }
         code = autoiota(code);
         code = autoenum(code);
         code = autoeval(code);
@@ -545,27 +554,9 @@ var buildPress2 = function (imported, params, data, args, strs, press) {
 
 var rethink = function (mmap, imported, refname) {
     var rmap = mmap["?"];
-    var nmap = mmap[":"];
-    var refpath = mmap[refname];
-    if (refname) refname = nmap[mmap[refname]];
     var refpath = refname ? $split(refname) : [];
     var realimport = imported.map(m => {
-        var refs = refpath.slice();
-        refs.pop();
-        while (refs.length) {
-            refs.push(m);
-            var r = refs.join("$");
-            if (r in mmap) {
-                r = rmap[mmap[r]];
-                return r;
-            }
-            refs.pop();
-            refs.pop();
-        }
-        if (m in mmap) {
-            var r = rmap[mmap[m]];
-            return r;
-        }
+        m = rmap[getMaped(refpath, mmap, m)] || m;
         return m;
     });
     return realimport;
@@ -1069,7 +1060,7 @@ function commbuilder(buffer, filename, fullpath, watchurls) {
             }
             var timeStart = new Date;
             if (this && this["?"]) {
-                var thisReferedName = this["?"][fullpath] || '';
+                var thisReferedName = this[":"][fullpath] || '';
                 data.imported = rethink(this, data.imported, thisReferedName);
             }
             if (this && this[""]) {

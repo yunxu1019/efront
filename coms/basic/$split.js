@@ -1,13 +1,23 @@
-module.exports = function (p) {
+var split = function (reg, p) {
     var s = [];
+    reg.lastIndex = 0;
+    var lastIndex = 0;
     while (p) {
-        var reg = /[\$\/\\]/g;
-        reg.lastIndex = 1;
+        reg.lastIndex++;
         var m = reg.exec(p);
-        var i = m ? m.index : p.length;
-        s.push(p.slice(0, i));
-        p = p.slice(i + 1);
+        if (!m) {
+            s.push(p.slice(lastIndex, p.length));
+            break;
+        }
+        s.push(p.slice(lastIndex, m.index));
+        lastIndex = m.index + m.length;
     }
     if (m) s.push('');
     return s;
+
+}
+module.exports = function (p) {
+    var s = split(/[\\\/]/g, p);
+    if (s.length > 1) return s;
+    return split(/\$/g, p);
 }

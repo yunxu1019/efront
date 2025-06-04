@@ -1,4 +1,4 @@
-var { QUOTED, unshort } = common;
+var { QUOTED, unshort } = require("./common");
 var patchname = function (prefix, node, alias) {
     if (node.isprop && node.short) {
         unshort(node);
@@ -11,3 +11,4 @@ var patchname = function (prefix, node, alias) {
     if (hasdot) t = "..." + t;
     node.text = t;
 };
+module.exports = patchname;
