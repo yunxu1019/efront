@@ -279,13 +279,12 @@ var loadJsBody = function (data, filename, lessdata, commName, className, htmlDa
         }
     }
     if (memery.AUTOEVAL) {
-        if (!memery.proted) {
-            // 这里有阻塞式读取文件的操作，
-            // 数据依赖其他文件
-            // 为防止其他文件变更后页面刷新不及时
-            // 这里仅在没有端口打开时启用
-            code = autoConst.call(this, code, filename, commName);
-        }
+        // 处理导入式变量时
+        // 有阻塞式读取文件的操作，性能可能下降
+        // 数据依赖其他文件
+        // 为防止其他文件变更后页面刷新不及时
+        // 这里仅在没有端口打开时处理导入式变量
+        code = autoConst.call(this, code, filename, memery.proted);
         code = autoiota(code);
         code = autoenum(code);
         code = autoeval(code);

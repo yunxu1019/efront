@@ -69,20 +69,22 @@ var findConsts = function (text) {
     return vmap;
 };
 var setEnvDefinedConsts = function (used, k, v) {
-    for (var a of used[k]) {
+    var uk = used[k];
+    for (var a of uk) {
         var t = a.text;
         var dots = /^\.+/.exec(t);
         if (dots) t = t.slice(dots[0].length);
         t = t.slice(a.tack.length);
         var comment = { type: COMMENT, text: `/*${k}*/` };
-        // if (t) {
-        //     insertBefore(a, comment, { type: EXPRESS, text: t });
-        // }
-        // else {
-        //     insertBefore(a, comment);
-        // }
-        // a.type = v.type;
-        // a.text = v.text;
+        if (t) {
+            insertBefore(a, comment, { type: EXPRESS, text: t });
+        }
+        else {
+            insertBefore(a, comment);
+        }
+        removeFromList(uk, a);
+        a.type = v.type;
+        a.text = v.text;
     }
 };
 var setMapDefinedConsts = function (u, m) {
@@ -184,19 +186,25 @@ var setRequiredConsts = function (code, fullpath, commap) {
     }
     return code;
 }
-var autoConst = function (code, fullpath) {
+var autoConst = function (code, fullpath, ignoreImported) {
     var vmap = this?.["&"];
-    var { envs, used } = code;
-    if (!vmap) return setRequiredConsts(code, fullpath, this);
+    var { envs, used, envs } = code;
+    if (!vmap) {
+        if (!ignoreImported) return setRequiredConsts(code, fullpath, this);
+        return code;
+    }
     var p = path.dirname(fullpath);
     var mp = vmap[p];
-    if (!mp) return setRequiredConsts(code, fullpath, this);
+    if (!mp) {
+        if (!ignoreImported) return setRequiredConsts(code, fullpath, this);
+        return code;
+    }
     for (var k in envs) {
         if (k === 'require') {
-            setRequiredConsts(code, fullpath, this);
+            if (!ignoreImported) setRequiredConsts(code, fullpath, this);
             continue;
         }
-        if (k in mp) setEnvDefinedConsts(used, k, mp[k]);
+        if (k in mp) setEnvDefinedConsts(used, k, mp[k]), delete envs[k];
     }
     return code;
 };
