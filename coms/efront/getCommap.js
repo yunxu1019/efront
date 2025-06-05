@@ -5,7 +5,7 @@ var fs = require("fs");
 var fsp = fs.promises;
 var path = require("path");
 var 国际化 = require("./国际化");
-var findConsts = require("../compile/auto-const").findConsts;
+var loadConsts = require("../compile/auto-const").loadConsts;
 var memery = require("./memery");
 var readConfig = { withFileTypes: true };
 var readdir = p => fsp.readdir(p, readConfig);
@@ -18,6 +18,7 @@ async function getCommap(appname, deep = 6) {
     var loadermain = path.join(__dirname, "../zimoli/main.js");
     var loadernames = [];
     var cmap = Object.create(null);
+    var constEnvFiles = [];
     for (var c of coms) {
         var rest = [[c, [], null]];
         var map = Object.create(null);
@@ -36,20 +37,8 @@ async function getCommap(appname, deep = 6) {
                     if (map[m] && /\.([cm]?[tj]sx?|xht)$/i.test(map[m])) continue;
                     var p1 = path.join(p, fname);
                     if (/^[\.&]?(const)?(\..+)?\.m?js$/i.test(fname)) {
-                        var data = await fsp.readFile(p1);
-                        var consts = findConsts(String(data));
-                        if (!hasConst) {
-                            hasConst = true;
-                        }
-                        for (var k in consts) {
-                            var v = consts[k];
-                            if (k in constMap) {
-                                if (hasOwnProperty.call(constMap, k) && constMap[k] !== v) {
-                                    console.warn(`路径${`<yellow>${p}</yellow>`}中发现冲突常量${`<red>${k}</red>`}`);
-                                }
-                            }
-                            constMap[k] = v;
-                        }
+                        constEnvFiles.push([p, p1, constMap]);
+                        hasConst = true;
                     }
                     map[m] = p1;
                     if (p1 === loadermain) {
@@ -100,6 +89,21 @@ async function getCommap(appname, deep = 6) {
         writable: false,
         value: await 国际化(coms.concat(mixin(env.PAGE_PATH, env.PAGE).map(a => path.join.apply(path, a)).filter(a => fs.existsSync(a))), memery.I18NNAME)
     });
+    for (var [p, p1, constMap] of constEnvFiles) {
+        var consts = loadConsts(p1, res);
+        if (!hasConst) {
+            hasConst = true;
+        }
+        for (var k in consts) {
+            var v = consts[k];
+            if (k in constMap) {
+                if (hasOwnProperty.call(constMap, k) && constMap[k] !== v) {
+                    console.warn(i18n`路径${`<yellow>${p}</yellow>`}中发现冲突常量${`<red>${k}</red>`}`);
+                }
+            }
+            constMap[k] = v;
+        }
+    }
     return res;
 }
 module.exports = getCommap;

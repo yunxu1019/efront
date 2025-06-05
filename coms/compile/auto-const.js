@@ -52,9 +52,7 @@ var getAssignedConst = function (a, used) {
     return nn;
 
 }
-var findConsts = function (text) {
-    var code = scanner2(text);
-    code.fix();
+var findConsts = function (code) {
     var consts = getExported(code);
     if (!consts) return;
     autoiota(code);
@@ -82,20 +80,54 @@ var setEnvDefinedConsts = function (used, k, v) {
         else {
             insertBefore(a, comment);
         }
-        removeFromList(uk, a);
         a.type = v.type;
         a.text = v.text;
     }
 };
-var setMapDefinedConsts = function (u, m) {
-
+var setMapDefinedConsts = function (used, k, consts) {
+    var u = used[k];
+    if (!u) return;
+    for (var o of u) {
+        var exp = pickAssignment(o);
+        var e = exp[exp.length - 1];
+        if (!isSimpleEqual(exp, o)) continue;
+        if (e !== o) {
+            if (e.prev !== o) continue;
+            if (o.text !== k) continue;
+            var t = null;
+            switch (e.type) {
+                default: continue;
+                case EXPRESS:
+                    t = e.text;
+                    t = t.replace(/^\./, '');
+                    if (/[\.\[]/.test(t)) continue;
+                    break;
+                case SCOPED:
+                    if (e.entry !== "[" || e.first !== e.last) continue;
+                    var t = getOnlyString(e);
+                    break;
+            }
+            if (!t || !(t in consts)) continue;
+            var c = consts[t];
+            o.type = c.type;
+            o.text = c.text;
+            if (c.isdigit) o.isdigit = true;
+            remove(e);
+            continue;
+        }
+        set1Equal(exp, consts, used);
+    }
 };
 var getMaped = require("./getMaped");
 var maped = Object.create(null);
-var loadConsts = function (fullpath) {
+var loadConsts = function (fullpath, commap) {
     if (fullpath in maped) return maped[fullpath];
+    maped[fullpath] = null;
     var data = fs.readFileSync(fullpath);
-    var consts = findConsts(String(data));
+    var code = scanner2(String(data));
+    code.fix();
+    autoConst.call(commap, code, fullpath);
+    var consts = findConsts(code);
     maped[fullpath] = consts;
     return consts;
 };
@@ -113,11 +145,42 @@ var getCopy = function (o) {
     return a;
 }
 
-var setRequiredConsts = function (code, fullpath, commap) {
-    var mmap = commap["?"]
-    if (!mmap) return code;
-    var url = mmap[fullpath];
-    var upath = split(url);
+var set1Equal = function (exp, consts, used) {
+    var f = exp[0];
+    if (f.type === SCOPED && f.entry === "{") {
+        var o = f.first;
+        var collected = [];
+        while (o) {
+            var exp = pickArgument(o);
+            var e = exp[exp.length - 1].next;
+            if (exp.length === 1) a: {
+                var t = o.text;
+                if (/[\.\[]/.test(t)) break a;
+                if (!(t in consts)) break a;
+                remove(o, e);
+                o.kind = 'const';
+                var eq = { type: STAMP, text: '=' };
+                o.equal = eq;
+                o.type = EXPRESS;
+                delete o.short;
+                collected.push(o, eq, getCopy(consts[t]), { type: STAMP, text: ',' });
+                var name = o.origin || o.tack;
+                var u = used[name];
+                removeFromList(u, o);
+                u.unshift(o);
+            }
+            if (e?.type === STAMP && e.text === ',') e = e.next;
+            o = e;
+        }
+        insertBefore(f, ...collected);
+    }
+};
+var isSimpleEqual = function (exp, o) {
+    var f = exp[0];
+    var eq = f.equal;
+    return eq === f.next && eq?.next === o;
+}
+var setRequiredConsts = function (code, upath, commap) {
     var requires = code.used.require;
     if (!requires) return code;
     var used = code.used;
@@ -128,9 +191,10 @@ var setRequiredConsts = function (code, fullpath, commap) {
         if (!t) continue;
         var p = getMaped(upath, commap, t);
         if (!p) continue;
-        var consts = loadConsts(p);
+        var consts = loadConsts(p, commap);
         if (!consts) continue;
         var exp = pickAssignment(r);
+        if (!isSimpleEqual(exp, r)) continue;
         var e = exp[exp.length - 1];
         if (e !== q) {
             if (e.prev !== q) continue;
@@ -153,60 +217,44 @@ var setRequiredConsts = function (code, fullpath, commap) {
         }
         var f = exp[0];
         if (f.type === EXPRESS) {
-            setMapDefinedConsts(f.text, consts);
+            setMapDefinedConsts(used, f.text, consts);
             continue;
         }
-        if (f.type === SCOPED && f.entry === "{") {
-            var o = f.first;
-            var collected = [];
-            while (o) {
-                var exp = pickArgument(o);
-                var e = exp[exp.length - 1].next;
-                if (exp.length === 1) a: {
-                    var t = o.text;
-                    if (/[\.\[]/.test(t)) break a;
-                    if (!(t in consts)) break a;
-                    remove(o, e);
-                    o.kind = 'const';
-                    var eq = { type: STAMP, text: '=' };
-                    o.equal = eq;
-                    o.type = EXPRESS;
-                    delete o.short;
-                    collected.push(o, eq, getCopy(consts[t]), { type: STAMP, text: ',' });
-                    var name = o.origin || o.tack;
-                    var u = used[name];
-                    removeFromList(u, o);
-                    u.unshift(o);
-                }
-                if (e?.type === STAMP && e.text === ',') e = e.next;
-                o = e;
-            }
-            insertBefore(f, ...collected);
-        }
+        set1Equal(exp, consts, used);
     }
     return code;
 }
+
 var autoConst = function (code, fullpath, ignoreImported) {
     var vmap = this?.["&"];
     var { envs, used, envs } = code;
-    if (!vmap) {
-        if (!ignoreImported) return setRequiredConsts(code, fullpath, this);
-        return code;
-    }
     var p = path.dirname(fullpath);
-    var mp = vmap[p];
-    if (!mp) {
-        if (!ignoreImported) return setRequiredConsts(code, fullpath, this);
-        return code;
-    }
-    for (var k in envs) {
-        if (k === 'require') {
-            if (!ignoreImported) setRequiredConsts(code, fullpath, this);
+    var mp = vmap?.[p];
+    if (mp) {
+        for (var k in envs) if (k in mp) {
+            setEnvDefinedConsts(used, k, mp[k]);
+            delete envs[k];
+            delete used[k];
             continue;
         }
-        if (k in mp) setEnvDefinedConsts(used, k, mp[k]), delete envs[k];
+    }
+    var mmap = this?.["?"];
+    if (!mmap) return code;
+    var url = mmap[fullpath];
+    var upath = split(url);
+    if (ignoreImported) return code;
+    for (var k in envs) {
+        if (k === 'require') {
+            setRequiredConsts(code, upath, this);
+            continue;
+        }
+        p = getMaped(upath, this, k);
+        if (!p) continue;
+        var consts = loadConsts(p, this);
+        if (!consts) continue;
+        setMapDefinedConsts(used, k, consts)
     }
     return code;
 };
-autoConst.findConsts = findConsts;
+autoConst.loadConsts = loadConsts;
 module.exports = autoConst;
