@@ -17,7 +17,6 @@ var split = function (reg, p) {
 
 }
 module.exports = function (p) {
-    var s = split(/[\\\/]/g, p);
-    if (s.length > 1) return s;
-    return split(/\$/g, p);
+    var s = split(/[\\\/\$]/g, p);
+    return s;
 }
