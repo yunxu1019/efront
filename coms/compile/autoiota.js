@@ -1,4 +1,4 @@
-var { skipAssignment, createString, createScoped, relink, STRAP, STAMP, SCOPED, EXPRESS, VALUE, SPACE, COMMENT } = require("./common");
+var { skipAssignment, createString, createScoped, splice, relink, STRAP, STAMP, SCOPED, EXPRESS, VALUE, SPACE, COMMENT } = require("./common");
 var backEach = require("../basic/backEach");
 var scanner2 = require("./scanner2");
 
@@ -6,7 +6,7 @@ var removeNew = function (a, ai) {
     var p = a.prev;
     if (p && p.type === STRAP && p.text === 'new') {
         ai = a.queue.lastIndexOf(p, ai);
-        a.queue.splice(ai, 1);
+        splice(a.queue, ai, 1);
     }
     return ai;
 };
@@ -60,6 +60,7 @@ var assignIota = function (v) {
     ppmap.forEach((ppm, i) => {
         if (!ppm) return;
         var eq = { type: STAMP, text: '=' };
+        ppm[0].equal = eq;
         if (vmap[i]) res.push(...ppm, eq, ...vmap[i]);
         else if (ppval[i]) res.push(...ppm, eq, ...ppval[i]);
         else res.push(...ppm);
@@ -68,8 +69,7 @@ var assignIota = function (v) {
     res.pop();
     var ppi = p.queue.indexOf(pp);
     var vi = p.queue.indexOf(v, ppi);
-    p.queue.splice(ppi, vi - ppi + 1, ...res);
-    relink(p.queue);
+    splice(p.queue, ppi, vi - ppi + 1, ...res);
 }
 var arrayFillMap = function (a, i, as) {
     if (a.text !== 'Array' || !a.next) return;
@@ -89,20 +89,17 @@ var arrayFillMap = function (a, i, as) {
         var ni = a.queue.indexOf(n);
         var nnni = a.queue.indexOf(nnn, ni);
         if (!f) {
-            a.queue.splice(n + 1, nnni - ni);
-            relink(a.queue);
+            splice(a.queue, n + 1, nnni - ni);
             return;
         }
-        a.queue.splice(ni, nnni - ni);
+        splice(a.queue, ni, nnni - ni);
         nnn.unshift({ type: STAMP, text: ',' });
         nnn.unshift.apply(nnn, n);
         a.text = "ArrayFill";
-        as.splice(i, 1);
+        splice(as, i, 1);
         if (!this.envs.ArrayFill) this.envs.ArrayFill = true;
         if (!this.used.ArrayFill) this.used.ArrayFill = [];
         this.used.ArrayFill.push(a);
-        relink(nnn);
-        relink(a.queue);
         return;
     }
     var ai = a.queue.indexOf(a);

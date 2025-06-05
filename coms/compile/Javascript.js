@@ -759,6 +759,7 @@ var removeExport = function (c, i, code) {
         }
         for (var exp of allexports) {
             splice(code, i, 0, ...exp);
+            i += exp.length;
         }
         if (!allexports.length) code.exportEmpty = true;
         return;
@@ -931,10 +932,9 @@ Javascript.prototype.fix = function (code) {
             e.text = 'exports.' + e.text;
             exports.push(e);
             var tack = e.tack;
-            var u = used[tack];
-            if (u[0].kind === 'const') e.kind = 'const';
-            removeFromList(u, e);
-            if (!used[tack].length) {
+            var ud = used[tack];
+            removeFromList(ud, e);
+            if (!ud.length) {
                 delete used[tack];
                 delete envs[tack];
             }

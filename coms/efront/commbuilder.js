@@ -1,4 +1,6 @@
 "use strict";
+var { COMMENT, SCOPED, STAMP, STRAP, QUOTED, EXPRESS, SCOPED, SPACE } = require("../compile/common");;
+
 var scanner2 = require("../compile/scanner2");
 var breakcode = require("../compile/breakcode");
 var strings = require("../basic/strings");
@@ -305,7 +307,7 @@ var loadJsBody = function (data, filename, lessdata, commName, className, htmlDa
         Object.keys(undeclares).forEach(k => {
             for (var u of allVariables[k]) {
                 var p = u.prev;
-                if (p && p.type === code.STRAP && p.text === 'typeof') {
+                if (p && p.type === STRAP && p.text === 'typeof') {
                     if (typeofs.indexOf(u.text) < 0) typeofs.push(u.text);
                 };
             }
@@ -361,7 +363,7 @@ var loadJsBody = function (data, filename, lessdata, commName, className, htmlDa
     var code_body = code;
     if (code.isExpressQueue()) {
         //如果整个函数只有一个表达式或一个变量，直接反回其本身
-        while (code_body.length && (code_body[code_body.length - 1].type === code_body.SPACE || code_body[code_body.length - 1].type === code_body.STAMP && /[,;]/.test(code_body[code_body.length - 1].text))) {
+        while (code_body.length && (code_body[code_body.length - 1].type === SPACE || code_body[code_body.length - 1].type === code_body.STAMP && /[,;]/.test(code_body[code_body.length - 1].text))) {
             code_body.pop();
         }
         if (!code_body.length && code_body.exportEmpty) {
@@ -369,25 +371,25 @@ var loadJsBody = function (data, filename, lessdata, commName, className, htmlDa
         }
         code.forEach(c => c.isExpress = true);
         if (hasless) code_body.unshift(
-            { type: code_body.EXPRESS, text: cless_var },
+            { type: EXPRESS, text: cless_var },
             code.relink(Object.assign(
                 code_body.splice(0, code_body.length).concat(
-                    { type: code_body.STAMP, text: ',' },
+                    { type: STAMP, text: ',' },
                     {
-                        type: code_body.QUOTED,
+                        type: QUOTED,
                         text: JSON.stringify(lessdata),
                     },
-                    { type: code_body.STAMP, text: ',' },
+                    { type: STAMP, text: ',' },
                     {
-                        type: code_body.QUOTED,
+                        type: QUOTED,
                         text: JSON.stringify(className)
                     }
-                ), { type: code_body.SCOPED, isExpress: true, entry: "(", leave: ")" }))
+                ), { type: SCOPED, isExpress: true, entry: "(", leave: ")" }))
         ), code_body.first = code_body[0];
 
         code_body.splice(
             code_body.indexOf(code_body.first), 0,
-            { type: code_body.STRAP, text: "return", transive: true }
+            { type: STRAP, text: "return", transive: true }
         );
         code.relink();
 
@@ -399,22 +401,22 @@ var loadJsBody = function (data, filename, lessdata, commName, className, htmlDa
         }
         if (commName) {
             code_body.push(
-                { type: code_body.SPACE, text: "\r\n" },
-                { type: code_body.STRAP, text: "return", transive: true }
+                { type: SPACE, text: "\r\n" },
+                { type: STRAP, text: "return", transive: true }
             )
             if (hasless) {
                 code_body.push(
                     { type: code_body.EXPRESS, text: cless_var },
                     code.relink(Object.assign([
-                        { type: code_body.EXPRESS, text: commName },
-                        { type: code_body.STAMP, text: ',' },
-                        { type: code_body.QUOTED, text: JSON.stringify(lessdata) },
-                        { type: code_body.STAMP, text: ',' },
-                        { type: code_body.QUOTED, text: JSON.stringify(className) },
+                        { type: EXPRESS, text: commName },
+                        { type: STAMP, text: ',' },
+                        { type: QUOTED, text: JSON.stringify(lessdata) },
+                        { type: STAMP, text: ',' },
+                        { type: QUOTED, text: JSON.stringify(className) },
                     ], {
                         entry: "(",
                         isExpress: true,
-                        type: code_body.SCOPED,
+                        type: SCOPED,
                         leave: ")"
                     })),
                 )
@@ -491,11 +493,11 @@ var loadJsBody = function (data, filename, lessdata, commName, className, htmlDa
     globals = Object.keys(globalsmap);
     var required_map = {}, required_paths = [];
     if (required instanceof Array) required.forEach(({ next }, cx) => {
-        if (!next || next.type !== code_body.SCOPED || next.entry !== "(") return;
+        if (!next || next.type !== SCOPED || next.entry !== "(") return;
         var r = next.first;
         var rn = r.next;
-        if (rn && (rn.type !== code_body.STAMP || rn.text !== ',')) return;
-        if (r.type !== code_body.QUOTED || r.length || r.text[0] === '/') return;
+        if (rn && (rn.type !== STAMP || rn.text !== ',')) return;
+        if (r.type !== QUOTED || r.length || r.text[0] === '/') return;
         r.value = strings.decode(r.text).replace(/[\\]+/g, '/');
         if (!required_map[r.value]) {
             required_map[r.value] = required_paths.length;
@@ -790,7 +792,7 @@ async function getXhtPromise(xhtdata, filename, fullpath, watchurls, extraJs, ex
         var jsvars = Object.assign({}, jscope.vars, scoped.vars);
         var jsenvs = jscope.envs;
         for (var k in jsvars) if (k in jsenvs) delete jsenvs[k];
-        var { COMMENT, SCOPED, STAMP, STRAP, scoped } = jscode;
+        var { scoped } = jscode;
         var prefunc = require('../compile/prefunc');
         var unvar = function (o) {
             if (o.type !== STRAP || !/^(var|const|let)$/.test(o.text)) return;

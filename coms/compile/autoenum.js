@@ -1,4 +1,4 @@
-var { skipAssignment, snapSentenceHead, snapExpressFoot, EXPRESS, SPACE, SCOPED, QUOTED, VALUE, STRAP, STAMP, number_reg, createString } = require("./common");
+var { skipAssignment, snapSentenceHead, snapExpressFoot, pickAssignment, EXPRESS, SPACE, SCOPED, QUOTED, VALUE, STRAP, STAMP, number_reg, createString } = require("./common");
 var strings = require("../basic/strings");
 
 var createRefId = function (o) {
@@ -59,6 +59,8 @@ var ignore = Symbol("ignore");
 var maplist = function (u) {
     var map = Object.create(null);
     for (var o of u) {
+        if (o.maped) continue;
+        o.maped = true;
         var r = createRefId(o);
         if (!map[r]) {
             map[r] = [];

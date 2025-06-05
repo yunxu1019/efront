@@ -1,6 +1,6 @@
 var isConst = a => a.kind === 'const';
 var autoiota = require("./autoiota");
-var autoenum = require("./autoenum");
+var removeFromList = require("../basic/removeFromList");
 var scanner2 = require("./scanner2");
 var strings = require("../basic/strings");
 var split = require("../basic/$split");
@@ -106,7 +106,9 @@ var getOnlyString = function (q) {
     return t;
 };
 var getCopy = function (o) {
-    return { type: o.type, text: o.text };
+    var a = { type: o.type, text: o.text };
+    if (o.isdigit) a.isdigit = true;
+    return a;
 }
 
 var setRequiredConsts = function (code, fullpath, commap) {
@@ -116,6 +118,7 @@ var setRequiredConsts = function (code, fullpath, commap) {
     var upath = split(url);
     var requires = code.used.require;
     if (!requires) return code;
+    var used = code.used;
     for (var r of requires) {
         var q = r.next;
         if (q?.type !== SCOPED || q.entry !== '(') continue;
@@ -162,7 +165,16 @@ var setRequiredConsts = function (code, fullpath, commap) {
                     if (/[\.\[]/.test(t)) break a;
                     if (!(t in consts)) break a;
                     remove(o, e);
-                    collected.push(o, { type: STAMP, text: '=' }, getCopy(consts[t]), { type: STAMP, text: ',' });
+                    o.kind = 'const';
+                    var eq = { type: STAMP, text: '=' };
+                    o.equal = eq;
+                    o.type = EXPRESS;
+                    delete o.short;
+                    collected.push(o, eq, getCopy(consts[t]), { type: STAMP, text: ',' });
+                    var name = o.origin || o.tack;
+                    var u = used[name];
+                    removeFromList(u, o);
+                    u.unshift(o);
                 }
                 if (e?.type === STAMP && e.text === ',') e = e.next;
                 o = e;
