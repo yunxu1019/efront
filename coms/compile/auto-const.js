@@ -177,6 +177,7 @@ var set1Equal = function (exp, consts, used) {
 };
 var isSimpleEqual = function (exp, o) {
     var f = exp[0];
+    if (!f) return false;
     var eq = f.equal;
     return eq === f.next && eq?.next === o;
 }
