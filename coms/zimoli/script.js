@@ -15,7 +15,7 @@ function script(url, judger) {
         clear();
         if (!needcallback || needcallback > 1000) return;
         var res = seek(window, judger);
-        if (res !== undefined){
+        if (res !== undefined) {
             if (res && res.then instanceof Function) {
                 var proto = Object.getPrototypeOf instanceof Function ? Object.getPrototypeOf(res) : res.__proto__;
                 if (Object.setPrototypeOf instanceof Function) Object.setPrototypeOf(res, null);
@@ -24,7 +24,7 @@ function script(url, judger) {
                     var _then = res.then;
                     res.then = null;
                     if (res.then) _then = null;
-    
+
                 }
                 resolve(res.then instanceof Function ? null : res);
                 if (proto) {
@@ -36,7 +36,7 @@ function script(url, judger) {
                 resolve(res);
             }
             return ok(res);
-        } 
+        }
         requestAnimationFrame(onload);
         needcallback++;
     };
@@ -60,8 +60,8 @@ function script(url, judger) {
         if (f instanceof Function) oh = f;
         return script;
     };
-    script.then = function (f) {
-        return promise.then(f);
+    script.then = function (f1, f2) {
+        return promise.then(f1, f2);
     };
     script.catch = function (f) {
         return promise.catch(f);
