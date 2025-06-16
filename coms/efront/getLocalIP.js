@@ -4,9 +4,9 @@ module.exports = function () {
     var networkInterfaces = os.networkInterfaces();
     var ips = [];
     for (var k in networkInterfaces) {
-        var connections = networkInterfaces[k];
-        connections.forEach(function (connection) {
-            if (!/(?:0+:){5}(?:0+)/.test(connection.mac) && connection.family === "IPv4") ips.push(connection.address);
+        var faces = networkInterfaces[k];
+        faces.forEach(function (f) {
+            if (!f.internal && f.family === "IPv4") ips.push(f.address);
         });
     }
     return ips.join("|");
