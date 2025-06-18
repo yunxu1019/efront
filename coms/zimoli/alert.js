@@ -93,7 +93,7 @@ function alert() {
             if (!isMounted(container)) popup(container);
         });
         if (!isMounted(elem)) appendChild(container, elem);
-        waitclose(autoclose, 400);
+        waitclose(autoclose, 900);
         return elem;
     };
     var elem = setContent();
