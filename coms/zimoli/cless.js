@@ -59,7 +59,7 @@ function cless(commFactory, innerCss, className) {
         } else {
             stylesheet.innerHTML = innerCss;
         }
-        if (!stylesheet.parentNode) appendChild(head, stylesheet);
+        if (stylesheet.parentNode !== head) appendChild(head, stylesheet);
     }
     return _create(commFactory, className, _create);
 }
