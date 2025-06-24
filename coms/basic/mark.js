@@ -86,7 +86,7 @@ var power_ = function (source, search, func, mp) {
         else if (ap >= p) {
             p += ap / source.length / search.length * .01 - .2;
         }
-        return [p, concat1(match_text_pre, match_text, match_text_aft)];
+        return [p, concat1(match_text_pre, match_text, match_text_aft, searchText)];
     }
     return [0, source];
 };
