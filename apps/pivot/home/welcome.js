@@ -8,6 +8,7 @@ function main() {
         filterTime,
         memeryUsed: 0,
         memery: [0, 1],
+        maxRss: 0,
         platform: i18n`未知`,
         arch: i18n`未知`,
         nodeVersion: i18n`未知`,
@@ -30,12 +31,14 @@ function main() {
     renderWithDefaults(page, scope);
     (function (a) {
         var [mr, mt] = a.memery;
-        scope.memeryUsed = mt - mr;
         scope.memery = a.memery;
         scope.nodeVersion = a.nodeVersion;
         scope.platform = a.platform;
         scope.arch = a.arch;
         scope.usercode = a.userid;
+        var rss = scope.maxRss = [].concat(a.maxRSS).map(a => a * 1024);
+        rss.summary = sum(rss);
+        scope.memeryUsed = mt - mr - rss.summary;
     }(serverStatus));
     return page;
 }

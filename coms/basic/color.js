@@ -109,7 +109,7 @@ function rotate_rgb(RGBA, theta) {
 	[r, g, b] = rgb4h(r, g, b, h);
 	[r, g, b] = rgb4s(r, g, b, s);
 	[r, g, b] = rgb4v(r, g, b, v);
-	return [r, g, b];
+	return [r, g, b, a];
 	// var s = rgb2s(r, g, b);
 	// var v = rgb2v(r, g, b);
 	// var u = sqrt(3) / 3;

@@ -1,46 +1,95 @@
 <style>
     & {
+        outline-offset: -3px;
+        outline: 1px solid #3ae;
         display: inline-block;
         min-width: 60px;
         height: 14px;
-        color: #3ae;
-        border: 3px double;
-        background: #f2f2f2;
+        border: 1px solid;
+        background: #eee1;
         position: relative;
         border-radius: 4px;
+        overflow: hidden;
+        white-space: nowrap;
     }
-    
+
     &[danger] {
-        color: #c24;
+        outline: 1px solid #c24;
+
+        >[value] {
+            color: #c243;
+            @bgimg(#c24, #fff);
+        }
     }
-    
+
     >div {
+        vertical-align: top;
+        display: inline-block;
         position: relative;
-        border-top: 7px solid;
+        border-top: 11px solid;
         border-bottom: 1px solid;
-        border-left: 2px solid;
-        border-right: 2px solid;
         height: 100%;
+
+        &:first-child {
+            border-radius: 4px 0 0 4px;
+        }
+    }
+
+    @bgimg(@line, @back) {
+        background-image: linear-gradient(58deg, @back, 50%, @line, 50%, @line, 53%, @back, 53%, @back);
+    }
+
+    >[value] {
+        @bgimg(#3ae, #fff);
+        background-size: 10px 16px;
+        background-position: 0 0;
+        background-repeat: repeat;
+        background-clip: border-box;
+        color: #3ae2;
+    }
+
+    >[state] {
+        background-clip: content-box;
+        background-color: #6ca;
     }
 </style>
 <div>
-    <div -style="{width:value}"></div>
+    <div value -style="{width:value}"></div>
+    <div state -repeat="(s,i) in state" -style="{width:s,color:color.rotate('#f003',i)}"></div>
 </div>
 <script>
-    var { total, current } = this;
-    var calc = function () {
+    var { total, current, pending } = this;
+    var calc = function (current) {
         var v = (current / total * 10000 + .5) | 0;
         if (v < 0) v = 0;
         if (v > 10000) v = 10000;
         return v / 100 + "%";
     };
-    var value = calc();
+    var calcAll = function (pending) {
+        var res = [].concat(pending);
+        var s = sum(res);
+        res = res.map(calc);
+        res.summary = calc(s);
+        return res;
+    };
+    var state = calcAll(pending);
+    var value = calc(current);
     Object.defineProperties(this, {
+        pending: {
+            set(v) {
+                pending = v;
+                state = calcAll(pending);
+            },
+            get() {
+                return pending;
+            }
+        },
         total: {
             set(v) {
                 if (total === v) return;
                 total = v;
-                value = calc();
+                value = calc(current);
+                state = calcAll(pending);
             },
             get() {
                 return total;
@@ -50,7 +99,7 @@
             set(v) {
                 if (current === v) return;
                 current = v;
-                value = calc();
+                value = calc(current);
             },
             get() {
                 return current;

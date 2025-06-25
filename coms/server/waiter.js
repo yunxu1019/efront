@@ -78,6 +78,12 @@ message.addmark = function (a) {
 message.getClients = function () {
     return clients.map(c => ({ id: c.id, optime: c.optime }));
 };
+message.invokeAll = function (k, params) {
+    return message.invoke('invokeAll', [k, params]);
+};
+message.maxrss = function () {
+    return process.resourceUsage?.().maxRSS;
+}
 message.putuser = function ([clientid, usr]) {
     clients.putUser(clientid, usr);
 };
@@ -294,6 +300,7 @@ var doOptions = async function (req, res, type) {
     if (needLogin) switch (type[1]) {
         case "status":
             res.end(JSON.stringify({
+                maxRSS: await message.invokeAll("maxrss"),
                 uptime: await message.invoke("uptime"),
                 memery: [require('os').freemem(), require("os").totalmem()],
                 arch: require('os').arch(),

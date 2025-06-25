@@ -60,9 +60,11 @@
             ${i18n`内存`}:
         </span>
         <span>
-            <progbar danger:="memery[0]/memery[1]<.05" :current="memeryUsed" :total="memery[1]"></progbar>
+            <progbar danger:="memery[0]/memery[1]<.05" :pending="maxRss" :current="memeryUsed" :total="memery[1]">
+            </progbar>
             <div>
                 <span -bind="size(memery[1])"></span> \
+                <span style="color:#292" -bind="size(maxRss.summary)"></span> +
                 <span -bind="size(memery[0])"></span>
             </div>
         </span>

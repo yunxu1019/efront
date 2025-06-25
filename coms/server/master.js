@@ -113,6 +113,17 @@ message.deliver = async function (a) {
     }
     if (!count) client.keep();
 };
+message.invokeAll = async function ([a, params]) {
+    if (!process.resourceUsage) return;
+    var res = [process.resourceUsage().maxRSS];
+    console.log(a, 'invokeAll')
+    for (var w of waiters) {
+        var r = await message.invoke(w, a, params);
+        res.push(r);
+    }
+    console.log(res);
+    return res;
+};
 var bindWorker = function (methods) {
     var w = null;
     methods.forEach(m => {
