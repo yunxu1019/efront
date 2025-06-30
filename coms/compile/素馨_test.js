@@ -17,6 +17,25 @@ test(`a{ &[b]:nth-child(1){a:1}}`, `a[b]:nth-child(1){a:1;}`);
 test(`a,b{c{a:1}}`, `a c,b c{a:1;}`);
 test(`@media(){div{a:1}}`, `@media(){div{a:1;}}`);
 test(`@keyframes a{%1{a:1}}`, `@keyframes a{%1{a:1;}}`);
+test(`
+@keyframes ltr{ 0%{-x:0}}
+b{
+    @keyframes ltr{
+        100% {
+            -x: -15px;
+        }
+    }
+    animation:ltr 2s linear 0s;
+}
+a{
+    @keyframes ltr {
+        100% {
+            -x: 15px;
+        }
+    }
+    animation:ltr 2s linear 0s;
+}
+`, `@keyframes ltr{0%{-x:0;}}\r\n@keyframes ltr0{0%{-x:0;}100%{-x:-15px;}}b{animation:ltr0 2s linear 0s;}\r\n@keyframes ltr1{0%{-x:0;}100%{-x:15px;}}a{animation:ltr1 2s linear 0s;}`);
 test(`@media screen and (max-width: 200px){@keyframes a{%1{a:1}}}`, `@media screen and (max-width: 200px){@keyframes a{%1{a:1;}}}`);
 test(`@a:1`, ``);
 test(`@a:1;a{a:@a}`, `a{a:1;}`);

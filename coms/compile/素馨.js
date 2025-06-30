@@ -439,6 +439,16 @@ var getFromScopeList = function (name, varsList, value = name) {
 };
 var removeSelectorSpace = a => a.trim().replace(/\s*([\+~\>])\s*/g, "$1");
 var fixBase = function (b, a) {
+    if (/@keyframes\s/i.test(a)) {
+        var bs = [];
+        splitParams(b).forEach(b => {
+            b.replace(/@{@[^\}]+}/g, a => {
+                if (bs.indexOf(a) < 0) bs.push(a)
+            });
+        });
+        bs.push(`@{${a}}`);
+        return bs.join(" ");
+    }
     return splitParams(a).map(a => {
         if (presets.test(a)) a = `@{${a}}`;
         var replaced = false;
@@ -506,7 +516,7 @@ var Method = function () {
     vlist.pop();
     return body;
 }
-var vlist = [], mlist = [macros], clist = [], base = "";
+var vlist = [], mlist = [macros], clist = [], base = "", kfmap = null;
 var killneg = function (v, n) {
     if (n === "-") {
         if (/^\-/.test(v)) {
@@ -573,10 +583,32 @@ var eval2 = function (props) {
     var rest = [];
     var result = [];
     var methods = Object.create(null);
-    mlist.push(methods);
     if (props.maps) clist.push(props.maps);
 
     for (var { p: k, v: p } of props) {
+        var kfname;
+        if (kfname = /^@keyframes\s+([^\s\{\[\]\}\(\)\,\;]+)/i.exec(k)) {
+            kfname = kfname[1];
+            var ps = getFromScopeList(kfname, mlist);
+            if (ps) ps = kfmap[ps];
+            if (kfname in kfmap) {
+                var tmp = kfname;
+                var i = 0;
+                while (tmp + i in kfmap) i++;
+                tmp = tmp + i;
+                methods[kfname] = tmp;
+                kfmap[tmp] = p.used;
+                kfname = tmp;
+            }
+            else {
+                kfmap[kfname] = p.used;
+                methods[kfname] = kfname;
+            }
+            if (ps) p.used.unshift(...ps);
+            p.base = fixBase(base, `@keyframes ${kfname}`);
+            p.rooted = true;
+            continue;
+        }
         if (p.used) {
             var match = /^([@\.#][^\s,]+)\s*\(([\s\S]*?)\)\s*$/.exec(k);
             if (!match) continue;
@@ -594,14 +626,17 @@ var eval2 = function (props) {
             p.isMethod = true;
         }
     }
+    mlist.push(methods);
     for (var { p: k, v: p } of props) {
         if (p.isMethod) continue;
         if (p.used) {
             k = calcvars(k);
             k = removeSelectorSpace(k);
-            if (base && !p.rooted) p.base = fixBase(base, k);
+            var pvars = p.vars;
+            var vars = pvars ? Object.assign(Object.create(null), pvars) : null;
+            if (p.rooted);
+            else if (base) p.base = fixBase(base, k);
             else p.base = presets.test(k) ? `@{${k}}` : k;
-            var vars = shallowClone(p.vars);
             if (vars) vlist.push(vars);
             initvars(vars);
             var value = evalthis(p);
@@ -612,6 +647,9 @@ var eval2 = function (props) {
         else if (p.length) {
             k = calcvars(k);
             p = calcvars(p.join(" "));
+            if (/^animation(\-name)?$/i.test(k)) {
+                p = p.replace(/^\S+/, a => getFromScopeList(a, mlist, a));
+            }
             p = replace_punc(seprateFunc(p).map(evalproc).join(''));
             result.push(k, ":", p, ';');
         }
@@ -640,8 +678,10 @@ function evalscoped(scoped, scopeName = '') {
     if (and) and.forEach(a => extend(vars, a.vars));
     vlist.push(vars);
     clist.push(smaps);
+    kfmap = Object.create(null);
     initvars(vars);
     var result = eval2(scoped, [vars]);
+    kfmap = null;
     vlist.pop();
     clist.pop();
     base = _base;
