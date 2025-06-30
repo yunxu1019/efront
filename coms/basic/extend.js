@@ -10,7 +10,8 @@ var extend = Object.assign || function (o1) {
     for (var cx = 1, dx = arguments.length; cx < dx; cx++) {
         var o2 = arguments[cx];
         for (var k in o2) {
-            if (hasOwnProperty.call(o2, k)) o1[k] = o2[k];
+            if (!hasOwnProperty.call(o2, k)) break;
+            o1[k] = o2[k];
         }
     }
     return o1;

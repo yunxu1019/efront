@@ -1,7 +1,3 @@
-var hasOwnProperty = {}.__proto__ === Object.prototype ? function (k) {
-    var proto = this.__proto__;
-    return k in this && (!proto || !(k in proto));
-} : Object.prototype.hasOwnProperty;
 var setPrototypeOf = Object.setPrototypeOf;
 var wrapMethod = function (f) {
     return function () {

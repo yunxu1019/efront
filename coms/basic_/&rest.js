@@ -10,10 +10,9 @@ function rest_(o, keys) {
     for (var k of keys) map[k] = true;
     var res = {};
     for (var k in o) {
-        if (hasOwnProperty.call(o, k)) {
-            if (k in map) continue;
-            res[k] = o[k];
-        }
+        if (!hasOwnProperty.call(o, k)) break;
+        if (k in map) continue;
+        res[k] = o[k];
     }
     if (typeof Object.getOwnPropertySymbols === 'function') {
         for (var k of Object.getOwnPropertySymbols(o)) {

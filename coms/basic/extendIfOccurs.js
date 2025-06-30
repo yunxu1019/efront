@@ -5,7 +5,7 @@ function extendIfOccurs(o1) {
     o1 = Object(o1);
     var ks = [];
     for (var k in o1) {
-        if (!hasOwnProperty.call(o1, k)) continue;
+        if (!hasOwnProperty.call(o1, k)) break;
         var f = getOwnPropertyDescriptor(o1, k);
         if (!f.writable && !f.set) continue;
         ks.push(k);
