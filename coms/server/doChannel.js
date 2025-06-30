@@ -70,12 +70,14 @@ async function doChannel(req, res) {
     switch (req.method.toLowerCase()) {
         case "get":
             waiters[id] = res;
+            res.socket.setTimeout(600000);
             if (!await message.invoke('set-waiter', id)) {
                 error(403, i18n`通道不存在！`);
             };
             break;
         case "post":
             senders[id] = [req, res];
+            req.socket.setTimeout(600000);
             req.pause();
             if (!
                 await message.invoke("set-sender", id)
