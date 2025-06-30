@@ -700,7 +700,7 @@ var renderLessData = function (data, lesspath, commName, watchurls, className) {
             var hasOwnProperty = keyframeMap.hasOwnProperty;
 
             var kprefix = className.replace(/\-$/, '') + "-";
-            lessData = lessData.replace(/@keyframes\s+([^\(\)\{\}\s]+)/, function (_, a) {
+            lessData = lessData.replace(/@keyframes\s+([^\(\)\{\}\s]+)/ig, function (_, a) {
                 a = keyframeMap[a] = kprefix + a;
                 return "@keyframes " + a;
             }).replace(/\{([^\{\}]+)\}/g, function (_, c) {
