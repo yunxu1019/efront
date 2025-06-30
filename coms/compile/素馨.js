@@ -9,6 +9,7 @@ class 素玉 extends Program {
     quotes = this.quotes.slice(0, 2).concat();
     keepspace = true;
     scopes = [["(", ")"], ["{", "}"]];
+    setType() { }
 }
 
 var rarg = new 素玉;
@@ -338,19 +339,19 @@ class 素心 extends Program {
 
 var setVarsUsed = function (s) {
     var vars = null, used = null;
-    for (var cx = s.length - 1; cx >= 0; cx--) {
+    for (var cx = 0, dx = s.length; cx < dx; cx++) {
         var { p: k, v } = s[cx];
         if (/^\-\-|^@[^\{]/.test(k) && !("used" in v) && v.length) {
             if (!vars) vars = Object.create(null);
             vars[k] = v.join(" ");
             s.splice(cx, 1);
+            cx--; dx--;
         }
         else {
             if (!used) used = [];
             used.push({ p: k, v });
         }
     }
-    if (used) used.reverse();
     s.used = used;
     s.vars = vars;
 };
