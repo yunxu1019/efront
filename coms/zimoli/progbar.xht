@@ -11,6 +11,7 @@
         border-radius: 4px;
         overflow: hidden;
         white-space: nowrap;
+        cursor: pointer;
     }
 
     &[danger] {
@@ -18,7 +19,7 @@
 
         >[value] {
             color: #c243;
-            @bgimg(#c24, #fff);
+            @pending(#c24, #fff);
         }
     }
 
@@ -35,30 +36,42 @@
         }
     }
 
-    @bgimg(@line, @back) {
-        background-image: linear-gradient(58deg, @back, 50%, @line, 50%, @line, 53%, @back, 53%, @back);
-    }
+    @import "pending.less";
 
     >[value] {
-        @bgimg(#3ae, #fff);
-        background-size: 10px 16px;
-        background-position: 0 0;
-        background-repeat: repeat;
+        @pending(#0004, #fff3);
+        background-position-x: right;
         background-clip: border-box;
         color: #3ae2;
+
+        &:last-child {
+            border-radius: inherit;
+        }
     }
 
     >[state] {
         background-clip: content-box;
         background-color: #6ca;
     }
+
+    >span {
+        position: absolute;
+        display: block;
+        left: 0;
+        top: 0;
+        bottom: 0;
+        z-index: 1;
+        text-align: center;
+        right: 0;
+    }
 </style>
 <div>
+    <span #text></span>
     <div value -style="{width:value}"></div>
     <div state -repeat="(s,i) in state" -style="{width:s,color:color.rotate('#f003',i)}"></div>
 </div>
 <script>
-    var { total, current, pending } = this;
+    var { total, current, pending = [] } = this;
     var calc = function (current) {
         var v = (current / total * 10000 + .5) | 0;
         if (v < 0) v = 0;
@@ -75,6 +88,14 @@
     var state = calcAll(pending);
     var value = calc(current);
     Object.defineProperties(this, {
+        innerText: {
+            set(v) {
+                text.innerText = v;
+            },
+            get() {
+                return text.innerText;
+            },
+        },
         pending: {
             set(v) {
                 pending = v;
