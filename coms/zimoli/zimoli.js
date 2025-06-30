@@ -454,8 +454,9 @@ var createEmptyHistory = function (emptyState, allowForward = true) {
     h.wardable = allowForward;
     return h;
 }
-var zimoliid = 0, zimoliad = 0;
+var zimoliid = 0, zimoliad = 0, zimolicd = 0;
 function zimoli(pagepath, args, history_name, oldpagepath) {
+    zimolicd = 1;
     if (arguments.length === 0) {
         if (zimoliid !== zimoliad) return;
         history_name = current_history;
@@ -722,6 +723,7 @@ var _switch = zimoli.switch = function (history_name = default_history, target_b
     else {
         if (isString(history_name)) {
             current_history = history_name = history_name.replace(/\/$/, '') + "/";
+            if (!zimolicd) default_history = current_history;
         }
         if (target_body) body = target_body;
     }
@@ -736,7 +738,7 @@ var _switch = zimoli.switch = function (history_name = default_history, target_b
         if (!history[current_history]) root_path = (history[current_history] = createEmptyHistory(emptyState))[0];
         else {
             var _history = history[current_history];
-            if (_history.index === 0) root_path = _history[0] = emptyState;
+            if (_history.index === 0 && _history.length <= 1) root_path = _history[0] = emptyState;
         }
     }
 };
