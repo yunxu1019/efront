@@ -1,6 +1,3 @@
-- zh-CN: 路径$1中发现冲突常量$2
-  en:    Conflict constant $2 found in path $1
-
 - zh-CN: 英文
   en:    English
 
@@ -42,6 +39,18 @@
 
 - zh-CN: 禁用
   en:    Disable
+
+- zh-CN: 无法下载！
+  en:    Cannot download!
+
+- zh-CN: 可以通过浏览器访问打开的端口以查看文件
+  en:    Open ports can be accessed through a browser to view files
+
+- zh-CN: 启动文件服务器
+  en:    Start the file server
+
+- zh-CN: 路径$1中发现冲突常量$2
+  en:    Conflict constant $2 found in path $1
 
 - zh-CN: 无法打开媒体设备
   en:    Unable to open media device
