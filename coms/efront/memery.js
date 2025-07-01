@@ -184,6 +184,9 @@ var _ifempty = {
     get islive() {
         return !!memery.LIVEMODE;
     },
+    get fileroot() {
+        return memery.webroot;
+    },
     get DATA_PATH() {
         return path.join(require('os').homedir(), ".efront");
     }
@@ -331,14 +334,15 @@ var memery = module.exports = {
         if (!indexreg) indexreg = new RegExp(`(${/(?:[\/\\]|^)/.source + str2array(this.INDEX_NAME).join("|")})(${/\./.source + str2array(this.INDEX_EXTENSIONS).map(a => a.replace(/^\./, '')).join("|")})$`, 'i')
         return indexreg;
     },
+    fileroot: undefined,
     get webroot() {
         return this.islive ? this.PAGE_PATH : this.PUBLIC_PATH;
     },
 };
 var isHandled = require('../basic/isHandled');
 Object.keys(memery).forEach(function (key) {
-    if (!(key in _ifempty)) return;
-    _memery[key] = memery[key];
+    if (!(key in _ifempty || key in _memery)) return;
+    var setted = memery[key];
     Object.defineProperty(memery, key, {
         get() {
             var value = _memery[key];
@@ -349,5 +353,6 @@ Object.keys(memery).forEach(function (key) {
             _memery[key] = value;
         }
     })
+    if (isHandled(setted)) _memery[key] = setted;
 });
 Object.keys(fixme).forEach(fixpath);

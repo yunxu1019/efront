@@ -8,6 +8,15 @@ var getStable = e => {
     if (!a) return;
     return !$scoped.get(a).d.pending;
 };
+var pointerFile = e => {
+    var a = getActive(e);
+    if (!a || a.pending) return;
+    var s = $scoped.get(a);
+    var d = s.d;
+    var ps = getPageScope(a);
+    if (ps.selected.length > 1) return;
+    return !d.isfolder && !d.pending;
+}
 var getSelected = function (d) {
     var p = getPageScope(d);
     return p.selected;
@@ -75,6 +84,15 @@ return () => [
             var scope = getPageScope(d);
             if (scope.selected.length !== 1) return d;
             scope.open(scope.selected[0]);
+        }
+    },
+    {
+        name: i18n`下载` + `(D)`,
+        hotkey: "Ctrl + S",
+        when: pointerFile,
+        async do(d) {
+            var $scope = getPageScope(d);
+            for (var s of $scope.selected) await $scope.download("/" + $scope.pathlist.concat(s.name).join("/"));
         }
     },
     {

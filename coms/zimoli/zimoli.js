@@ -171,11 +171,11 @@ var getpgpath = function (pagepath) {
             for (var m of mparams) argobj[m] = params.pop();
             if (params.length) argobj[m] += "/" + params.reverse().join("/");
         }
-        pagepath = realmaped[pagepath] || pagepath;
-        return [pagepath, argobj];
+        var realpath = realmaped[pagepath] || pagepath;
+        return [realpath, argobj, pagepath];
     }
-    pagepath = realmaped[pagepath] || pagepath;
-    return [pagepath];
+    var realpath = realmaped[pagepath] || pagepath;
+    return [realpath, null, pagepath];
 };
 function createState(pgpath) {
     var [pgpath] = getpgpath(pgpath);
@@ -346,7 +346,7 @@ function create(pagepath, args, from, needroles, zimolidata) {
         if (!isHandled(needroles)) needroles = zimolidata.roles;
     }
     if (typeof pagepath === 'string') {
-        var [pgpath, args0] = getpgpath(pagepath);
+        var [pgpath, args0, bspath] = getpgpath(pagepath);
         var page_object = page_generators[pgpath];
         if (!isEmpty(args0)) page_object.state.data = args, args = args0;
     }
@@ -357,6 +357,9 @@ function create(pagepath, args, from, needroles, zimolidata) {
             throw new Error(i18n`调用create前请确保prepare执行完毕:${pgpath}`);
         }
         var { pg, "with": _with_elements, state, onback: _pageback_listener, roles } = page_object;
+        state.realpath = pgpath;
+        state.basepath = bspath;
+        state.pagepath = pagepath;
     }
     else if (isFunction(pgpath)) {
         var pg = pgpath;
@@ -379,6 +382,9 @@ function create(pagepath, args, from, needroles, zimolidata) {
         _pageback_listener = handler;
     };
     var _page = pg.call(state, args, from);
+    _page.realpath = state.realpath;
+    _page.basepath = state.basepath;
+    _page.pagepath = pagepath;
     if (undefined === args || null === args) args = {};
     if (_page) {
         var page_with = _with_elements.splice(_with_length, _with_elements.length - _with_length);

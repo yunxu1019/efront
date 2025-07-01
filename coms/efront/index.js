@@ -588,6 +588,23 @@ var commands = {
         var ported = await wait(function () { return memery.proted }, 200);
         if (ported) showHelpLine(i18n`可以通过浏览器访问打开的端口以查看文档`);
     },
+    async file() {
+        memery.WAITER_NUMBER = 1;
+        memery.islive = !memery.COOKMODE;
+        setAppnameAndPorts(arguments);
+        // 文档
+        memery.fileroot = process.cwd();
+        setenv({
+            page_path: path.join(__dirname, '../../apps/文件系统'),
+            coms: 'docs,zimoli,basic,third-party',
+            page: './',
+        });
+        memery.PUBLIC_PATH = memery.PAGE_PATH;
+        require("./setupenv");
+        require("../server/main");
+        var ported = await wait(function () { return memery.proted }, 200);
+        if (ported) showHelpLine(i18n`可以通过浏览器访问打开的端口以查看文件`);
+    },
     demo() {
         memery.WAITER_NUMBER = 1;
         memery.islive = !memery.COOKMODE;

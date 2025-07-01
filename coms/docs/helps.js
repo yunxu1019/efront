@@ -6,6 +6,7 @@ var helps = [
     ["f", i18n`显示efront的安装路径`, "path", "--path"],
     ["f", i18n`显示帮助信息`, "help", "-h", "--help", "help COMMAND", "-h COMMAND", "--help COMMAND"],
     ["f", i18n`启动文档服务器`, "docs"],
+    ["f", i18n`启动文件服务器`, "file|fs|filesystem|wj|文件系统"],
     ["f", i18n`查看efront自身占用的内存`, "memery", "memory", "-m", "--memery", "--memory"],
     ["m", i18n`启动示例项目服务器`, "demo", "demo SRCNAME"],
     ["m", i18n`创建应用，项目目录允许创建第二个应用`, "init", "from SRCNAME", "init APPNAME", "init APPNAME from SRCNAME", "from SRCNAME init APPNAME"],

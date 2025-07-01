@@ -75,17 +75,19 @@ function main(path) {
     var ps = $scoped.get(page);
     extend(ps, {
         pathlist: path ? path.split('/') : [],
-        read(from, start, size) {
-            var authorization = data.getSource(data.getInstance("base").base);
-            var xhr = cross("get", from.url, { authorization: authorization });
-            var end = start + size - 1;
-            xhr.setRequestHeader('range', `bytes=${start}-${end}`);
-            xhr.send();
-            return xhr;
+        async download(from) {
+            var res = await data.from('folder', { opt: "get", path: encode62.packencode(from) });
+            var frame = document.createElement("iframe");
+            css(frame, "pointer-events:none;opacity:0;display:none");
+            document.body.appendChild(frame);
+            frame.src = res;
+            setTimeout(function () {
+                remove(frame);
+            }, 20000);
         },
         load(p, force) {
             if (!force) {
-                location.href = "#/wow/root" + p;;
+                location.href = "#" + page.basepath + p;;
                 return { then() { } };
             }
             var base = data.getInstance("base").base;

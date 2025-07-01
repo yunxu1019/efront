@@ -94,15 +94,11 @@ message.send('addmark', clients.getMark()[0]);
 message.reloadUserdata = function () {
     userdata.reload();
 };
-message.setauth = function ([auth, data]) {
-    if (typeof data === 'string') {
-        data = Buffer.from(data);
-        data.mime = "application/octet-stream";
-    }
-    doGet.setAuth(auth, data);
+message.setauth = function ([auth, data, refpath]) {
+    doGet.setAuth(auth, data, refpath);
 };
-var setAuth = function (auth, data) {
-    message.broadcast("setauth", [auth, data]);
+var setAuth = function (auth, data, refpath) {
+    message.broadcast("setauth", [auth, data, refpath]);
     setTimeout(function (auth) {
         message.broadcast("setauth", [auth, null]);
     }.bind(null, auth), 120000/*两分钟*/);
@@ -450,8 +446,15 @@ var doOptions = async function (req, res, type) {
             return;
         case "file":
             try {
-                var data = await doFolder(type[2], type[3]);
-                res.end(data);
+                if (type[2] === "get") {
+                    var auth = "/" + Math.random().toString().slice(1);
+                    setAuth(auth, null, type[3]);
+                    res.end(auth);
+                }
+                else {
+                    var data = await doFolder(type[2], type[3]);
+                    res.end(data);
+                }
             } catch (e) {
                 res.writeHead(e.status || 500, utf8error);
                 res.end(String(e));

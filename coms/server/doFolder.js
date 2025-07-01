@@ -1,24 +1,15 @@
 
 var path = require("path");
 var fs = require("fs");
-var root = require("../efront/memery").webroot;
+var fsp = fs.promises;
+var root = require("../efront/memery").fileroot;
 var Task = require("../basic/Task");
 var { Transform } = require("stream");
 var stat = function (fullpath) {
-    return new Promise(function (ok, oh) {
-        fs.stat(fullpath, function (error, stats) {
-            if (error) return oh(error);
-            ok(stats);
-        })
-    });
+    return fsp.stat(fullpath);
 };
 var readdir = function (filepath) {
-    return new Promise(function (ok, oh) {
-        fs.readdir(filepath, { withFileTypes: true }, function (error, names) {
-            if (error) return oh(error);
-            ok(names);
-        })
-    });
+    return fsp.readdir(filepath, { withFileTypes: true });
 };
 async function doCopy(from, to) {
     if (fs.existsSync(to)) throw i18n`目标文件已存在`;
@@ -38,10 +29,10 @@ async function doCopy(from, to) {
         }.bind(task)
     })
     var load = async function ([from, to]) {
-        var stats = stat(from);
+        var stats = await stat(from);
         task.total = stats.size;
         task.loaded = 0;
-        if ((await stat(from)).isDirectory()) {
+        if (stats.isDirectory()) {
             if (this.aboted) return;
             await doAdd(to);
             if (this.aboted) return;
@@ -76,37 +67,28 @@ async function doList(fullpath) {
 }
 
 function doAdd(filepath) {
-    return new Promise(function (ok, oh) {
-        fs.mkdir(filepath, { recursive: true }, function (error) {
-            if (error) return oh(error);
-            ok();
-        });
-    })
+    return fsp.mkdir(filepath, { recursive: true });
+}
+
+async function doGet(filepath) {
+    var stats = await stat(filepath);
+    var size = stats.size;
+    var stream = fs.createReadStream(filepath);
+    stream.name = path.basename(filepath);
+    stream.size = size;
+    return stream;
 }
 
 function doMove(p1, p2) {
-    return new Promise(function (ok, oh) {
-        fs.rename(p1, p2, function (error) {
-            if (error) return oh(error);
-            ok();
-        });
-    });
+    return fsp.rename(p1, p2,);
 }
 
-function doDelete(p1) {
-    return new Promise(function (ok, oh) {
-        fs.stat(p1, function (error, stats) {
-            if (error) return oh(error);
-            var cb = function (error) {
-                if (error) return oh(error);
-                ok();;
-            }
-            if (stats.isFile()) fs.unlink(p1, cb);
-            else if (stats.isSymbolicLink()) fs.unlink(p1, cb);
-            else if (fs.rm) fs.rm(p1, { recursive: true }, cb);
-            else fs.rmdir(p1, { recursive: true }, cb)
-        })
-    });
+async function doDelete(p1) {
+    var stats = await stat(p1);
+    if (stats.isFile()) await fsp.unlink(p1);
+    else if (stats.isSymbolicLink()) await fsp.unlink(p1);
+    else if (fsp.rm) await fsp.rm(p1, { recursive: true });
+    else await fsp.rmdir(p1, { recursive: true });
 }
 
 function wrapPath(pathname) {
@@ -116,7 +98,7 @@ function wrapPath(pathname) {
         throw e400;
     }
     pathname = path.normalize(pathname);
-    pathname = pathname.replace(/^[\.\/\\]+/, '');
+    pathname = pathname.replace(/^([\.]*[\/\\])+/, '');
     pathname = path.join(root, pathname);
     return pathname;
 }
@@ -129,7 +111,7 @@ function doFolder(type, pathname) {
         if (to) to = wrapPath(to);
         var du = doFolder[type];
         var p = du(from, to);
-        if (du !== doList) {
+        if (du !== doList && du !== doGet) {
             var notify = function () {
                 doFile.notify(from);
                 if (to) doFile.notify(to);
@@ -143,6 +125,7 @@ function doFolder(type, pathname) {
 doFolder.list = doList;
 doFolder.add = doAdd;
 doFolder.del = doDelete;
+doFolder.get = doGet;
 doFolder.mv = doFolder.move = doFolder.mov = function (from, to) {
     if (!to) throw e400;
     return doMove(from, to);

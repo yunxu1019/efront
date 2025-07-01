@@ -5,6 +5,7 @@ var { Http2ServerRequest, Http2ServerResponse } = require("http2");
 var filebuilder = require("../efront/filebuilder").bind(await require("../efront/getCommap")());
 var checkAccess = require("./checkAccess");
 var doFile = require("./doFile");
+var doFolder = require("./doFolder");
 var doCross = require("./doCross");
 var memery = require("../efront/memery");
 var transfer = require("./transfer");
@@ -226,7 +227,26 @@ var doGet = module.exports = async function (req, res) {
 doGet.reset = function () {
     filecache.reset();
 };
-doGet.setAuth = function (auth, data) {
+function File(refpath) {
+    this.authpath = refpath;
+}
+File.prototype.pipe = async function (res) {
+    var data = await doFolder("get", this.authpath);
+    res.writeHead(200, {
+        "Content-Length": data.size,
+        "Content-Disposition": "attachment;filename=" + encodeURIComponent(data.name),
+        "Content-Type": "application/octet-stream",
+    });
+    data.pipe(res);
+}
+doGet.setAuth = function (auth, data, refpath) {
+    if (typeof data === 'string') {
+        data = Buffer.from(data);
+        data.mime = "application/octet-stream";
+    }
+    else if (typeof refpath === 'string') {
+        data = new File(refpath);
+    }
     if (isHandled(data)) {
         if (!authcache) authcache = Object.create(null);
         if (auth in authcache) return;
@@ -245,7 +265,15 @@ doGet.setAuth = function (auth, data) {
 doGet.hasAuth = function (url) {
     return authcache && url in authcache;
 };
-doGet.auth = function (req, res) {
+doGet.auth = async function (req, res) {
     var url = req.url;
-    response(authcache[url], url, req, res);
+    var data = authcache[url];
+    if (data instanceof File) {
+        try {
+            return await data.pipe(res);
+        } catch (e) {
+            data = e;
+        }
+    }
+    response(data, url, req, res);
 };

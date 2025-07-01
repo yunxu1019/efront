@@ -39,6 +39,7 @@ e.delete = function () { alert(i18n`无法删除！`) }
 e.mov = function () { alert(i18n`无法移动！`) }
 e.copy = function () { alert(i18n`无法复制！`) }
 e.read = function () { alert(i18n`无法读取文件内容！`) }
+e.download = function () { alert(i18n`无法下载！`) }
 e.rename = function () { alert(i18n`无法重命名！`) }
 e.upload = function () { alert(i18n`添加失败！`) }
 e.getToken = function () { }
