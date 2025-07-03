@@ -53,6 +53,14 @@ async function getCommap(appname, deep = 6) {
         }
         extendIfNeeded(res, map);
     }
+    if (res['zimoli'] || res["zimoli$zimoli"]) {
+        delete res['state'];
+        delete res['login'];
+        delete res['prepare'];
+        delete res['upwith'];
+        delete res['go'];
+        delete res['login'];
+    }
     if (loadernames.length) a: {
         for (var loadername of loadernames) {
             if (res[loadername] === loadermain) break a;

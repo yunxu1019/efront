@@ -382,11 +382,11 @@ function create(pagepath, args, from, needroles, zimolidata) {
         _pageback_listener = handler;
     };
     var _page = pg.call(state, args, from);
-    _page.realpath = state.realpath;
-    _page.basepath = state.basepath;
-    _page.pagepath = pagepath;
     if (undefined === args || null === args) args = {};
     if (_page) {
+        _page.realpath = state.realpath;
+        _page.basepath = state.basepath;
+        _page.pagepath = pagepath;
         var page_with = _with_elements.splice(_with_length, _with_elements.length - _with_length);
         if (_page.with && _page.with !== _with_elements) {
             page_with = page_with.concat(_page.with);

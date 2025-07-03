@@ -1,4 +1,5 @@
-user.loginPath = "frame$login";
+pivot$login;
+user.loginPath = "pivot$login";
 cross.addReform(relogin(user.loginPath));
 data.setConfig(`
 / authorization=:
