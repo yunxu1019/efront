@@ -7,7 +7,8 @@ i18n.setReloader(function () {
     zimoli.reload(false);
 });
 data.loadConfig("api.yml");
-user.loginPath = 'frame$login';
+user.loginPath = 'pivot$login';
+pivot$login;
 cross.addReform(relogin(user.loginPath))
 data.setReporter(function (m, t) {
     alert(m, t);
