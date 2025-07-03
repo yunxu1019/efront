@@ -83,7 +83,7 @@
                     remove(page);
                 } else {
                     user.login({});
-                    go('/main');
+                    zimoli.reload();
                 }
             } catch (e) {
                 console.log(e);

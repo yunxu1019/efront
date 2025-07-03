@@ -590,12 +590,16 @@ var commands = {
     },
     async file() {
         memery.WAITER_NUMBER = 1;
+        var publicPath = 'public';
+        // <!--
+        publicPath = 'apps';
         memery.islive = !memery.COOKMODE;
+        // -->
         setAppnameAndPorts(arguments);
         // 文档
         memery.fileroot = process.cwd();
         setenv({
-            page_path: path.join(__dirname, '../../apps/文件系统'),
+            page_path: path.join(__dirname, '../..', publicPath, '文件系统'),
             coms: 'docs,zimoli,basic,third-party',
             page: './',
         });

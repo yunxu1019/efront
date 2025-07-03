@@ -169,7 +169,7 @@ var buildreload = function (buff) {
         return `<script>\r\n-${efronthook.toString()};\r\n`
     });
     if (!replaced) data = data.replace(/(["'`])POST\1\s*,\s*(['`"])comm\/main\2/i, "$1PURGE$1, $2comm/main$2");
-    data = data.replace(/(<\/head)/i, `\r\n<script async>\r\n-${liveload()}();\r\n</script>\r\n$1`);
+    if (memery.islive) data = data.replace(/(<\/head)/i, `\r\n<script async>\r\n-${liveload()}();\r\n</script>\r\n$1`);
     buff = Buffer.from(data);
     return buff;
 };

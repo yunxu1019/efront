@@ -10,7 +10,7 @@
     "efront": "tools/run-efront.bat"
   },
   "scripts": {
-    "prepack": "node tools/build-efront.js --node --no-target"
+    "prepack": "node tools/build-efront.js --node --no-target&node public/efront build 文件系统.html"
   },
   "repository": {
     "type": "git",
