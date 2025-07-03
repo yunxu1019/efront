@@ -47,6 +47,7 @@ function contextmenu(target, menuItems) {
         start(event) {
             if (event.defaultPrevented || event.type === 'mousedown') return;
             clearTimeout(menuHandle);
+            if (tm) remove(tm);
             menuHandle = setTimeout(function () {
                 var e = createEvent("contextmenu", true);
                 e.clientX = event.clientX;
@@ -77,8 +78,15 @@ function contextmenu(target, menuItems) {
         if (document.activeElement === this) return;
         _remove(this);
     }, 60);
+    var lastMenuTime = 0;
     on("contextmenu")(target, function (event) {
         if (event.defaultPrevented) return;
+        var now = +new Date;
+        if (lastMenuTime + 300 > now) {
+            event.preventDefault();
+            return;
+        }
+        lastMenuTime = now;
         event.preventDefault();
         if (tm) remove(tm), tm = null;
         tm = showContext(event);
