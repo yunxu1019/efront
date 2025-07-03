@@ -148,12 +148,17 @@ function ybox(generator) {
         var wheelTime = 0;
         onmousewheel(_box, function (event) {
             event.preventDefault();
-            if (event.timeStamp - wheelTime > 40 && Math.abs(event.deltaY) < 12) {
-                wheelTime = event.timeStamp;
+            var isNew = event.timeStamp - wheelTime > 120;
+            wheelTime = event.timeStamp;
+            var absY = Math.abs(event.deltaY);
+            if (isNew && absY < 12) {
                 return;
             }
             if (event.moveLocked) return;
             var deltay = -event.deltaY;
+            if (isNew && absY > 80 && (absY | 0) === absY) {
+                deltay /= 3;
+            }
             if (!deltay && _box.bindX) deltay = -event.deltaX;
             event.moveLocked = true;
             var box;
