@@ -129,7 +129,7 @@ function createLRC(lrc) {
     krcList.rows = saved_rows;
     return krcList;
 }
-
+var metadata = hookmedia() || document;
 function setClass(krcList, index) {
     var ele = krcList[index];
     krcList.slice(0, index).map(function (a, cx, arr) {
@@ -139,7 +139,8 @@ function setClass(krcList, index) {
     removeClass(ele, "after before after-active before-active");
     addClass(krcList[index - 1], 'before-active');
     addClass(ele, "active");
-    if (ele.innerText) document.title = ele.innerText;
+    if (ele.innerText) metadata.title = ele.innerText;
+    else metadata.title = '';
     krcList.slice(index + 1).map(function (a) {
         removeClass(a, "before active after-active before-active");
         addClass(a, "after");

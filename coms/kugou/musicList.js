@@ -16,6 +16,8 @@ var isSameSong = function (m1, m2) {
         m1.url && String(m1.url).replace(/#[\s\S]*$/, '') === String(m2.url).replace(/#[\s\S]*$/, '');
 };
 
+var metadata = hookmedia();
+
 function addMethod(name, func) {
     Object.defineProperty(musicList, name, {
         value: func,
@@ -28,6 +30,13 @@ addMethod("setActive", function (m) {
             actived.activate = false;
         }
         actived = m;
+    }
+    if (actived && metadata) {
+        metadata.title = actived.songName || actived.name || actived.title;
+        metadata.artist = actived.singerName || actived.singer;
+        metadata.artwork = [{
+            src: actived.avatar
+        }]
     }
 });
 addMethod("remove", function (music) {
