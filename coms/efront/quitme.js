@@ -1,5 +1,5 @@
 var readline = require("readline");
-var exit, rl;
+var exits = [], rl;
 var remove = function () {
     if (rl) {
         var _rl = rl;
@@ -8,29 +8,32 @@ var remove = function () {
         });
         rl = null;
     }
-};
-if (require("../message").isPrimary) {
-    if (process.stdin.isTTY) {
-        rl = readline.createInterface({
-            input: process.stdin,
-            output: process.stdout
-        });
-        rl.addListener("SIGINT", function () {
-            rl.close();
-            if (exit instanceof Function) {
-                exit();
-            } else {
-                process.exit();
-            }
-        });
+    if (exits.length) {
+        for (var exit of exits) exit();
     }
-    module.exports = function (a) {
-        exit = a;
-        if (!exit) {
-            remove();
+};
+var hook = function () {
+    hook = function () { };
+    if (require("../message").isPrimary) {
+        if (process.stdin.isTTY) {
+            rl = readline.createInterface({
+                input: process.stdin,
+                output: process.stdout
+            });
+            rl.addListener("SIGINT", remove);
         }
-    };
-} else {
-    process.on("SIGINT", function () { });
-    process.on("SIGTERM", function () { });
+        else {
+            process.on("SIGINT", remove);
+            process.on("SIGTERM", remove);
+        }
+    }
 }
+module.exports = function (a) {
+    if (!a) {
+        remove();
+    }
+    else {
+        hook();
+        exits.push(a);
+    }
+};

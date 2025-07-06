@@ -1,6 +1,6 @@
 "use strict";
 var { COMMENT, SCOPED, STAMP, STRAP, QUOTED, EXPRESS, SCOPED, SPACE } = require("../compile/common");;
-
+var showMemery = require("./showMemery");
 var scanner2 = require("../compile/scanner2");
 var breakcode = require("../compile/breakcode");
 var strings = require("../basic/strings");
@@ -1019,6 +1019,7 @@ function getScriptPromise(data, filename, fullpath, watchurls) {
     return p;
 }
 function commbuilder(buffer, filename, fullpath, watchurls) {
+    showMemery();
     filename = String(filename || '');
     fullpath = String(fullpath || "");
     var compress = commbuilder.compress;
@@ -1088,6 +1089,7 @@ function commbuilder(buffer, filename, fullpath, watchurls) {
             data.path = fullpath;
             data.time = new Date - timeStart + (watchurls.time || 0) + (promise.time || 0);
             clear_console();
+            showMemery();
             return data;
         });
     }
