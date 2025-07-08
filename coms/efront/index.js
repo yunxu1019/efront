@@ -261,7 +261,7 @@ var commands = {
             console.error(i18n`请输入目标路径！`);
             return;
         }
-        require("../build/pack")(readfrom, writeto);
+        require("../pkware/enpack")(readfrom, writeto, 2);
     },
     sign(filepath, mask) {
         var data = fs.readFileSync(filepath).toString();
@@ -315,10 +315,10 @@ var commands = {
             console.error(i18n`请输入目标路径！`);
             return;
         }
-        require("../build/packexe")(readfrom, writeto);
+        require("../pkware/packexe")(readfrom, writeto);
     },
     unpack(readfrom, writeto) {
-        require("../build/unpack")(readfrom, writeto);
+        require("../pkware/unpack")(readfrom, writeto);
     },
     async each(args, run) {
         await detectEnvironment();

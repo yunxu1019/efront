@@ -7,3 +7,6 @@ const normal_nocode3 = 5;
 const repeat_huffman = 6;
 const other_compress = 7;
 const range_compress = 1;
+const rang2_compress = 2;
+const range_textress = 3;
+const bcj21_comresss = 4;

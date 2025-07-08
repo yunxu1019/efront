@@ -2,8 +2,8 @@ var fs = require("fs");
 var path = require("path");
 var decodeUTF16 = require("../basic/decodeUTF16");
 var decodeLEB128 = require("../basic/decodeLEB128");
-var decodePack = require("../basic/decodePack");
-var finish = require("./finish");
+var decodePack = require("../pkware/decodePack");
+var finish = require("../build/finish");
 var readbuff = function (h, offset, length) {
     var buff = new Uint8Array(length);
     return new Promise(function (ok, oh) {

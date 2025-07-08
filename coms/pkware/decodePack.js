@@ -1,6 +1,3 @@
-"include ./encodePack.h";
-var readBinary = require("./readBinary");
-var decodeRange = require("./decodeRange");
 function decodeFlat(buff, start = 0) {
     var tcount = buff[start];
     var total = 0;
@@ -83,8 +80,12 @@ function fromhuff(buff, result = [], scanstart, type) {
     return bitoffset;
 }
 
-function inflate(buff) {
+function inflate(buff, type) {
     var result = [];
+    var c1 = () => buff[++cx] << 9 | buff[++cx] << 4 | buff[++cx];;
+    var c2 = () => buff[++cx] << 8 | buff[++cx];
+    var gc = type === range_compress ? c1 : c2;
+    console.log(type)
     for (var cx = 0, dx = buff.length; cx < dx; cx++) {
         var b = buff[cx];
         if (b < 256) {
@@ -92,7 +93,7 @@ function inflate(buff) {
         }
         else {
             b = ((b & 0x7f) << 8 | buff[++cx]) + 1;
-            var c = buff[++cx] << 9 | buff[++cx] << 4 | buff[++cx];
+            var c = gc();
             var s = result.length - c - b;
             var code = result.slice(s, s + b);
             while (code.length) {
@@ -118,7 +119,6 @@ function readint(buff) {
     }
     return n;
 }
-var concatByte = require("./concatByte");
 function unpack(buff) {
     if (buff.length < 2) return buff;
     var result = [];
@@ -127,16 +127,18 @@ function unpack(buff) {
         var type = buff[byteoffset + 1] >> 5;
         switch (type) {
             case normal_huffman:
+                console.log(type, 'huf')
                 var res = [];
                 var bitoffset = fromhuff(buff, res, byteoffset);
                 result.push(new Uint8Array(res));
                 byteoffset = bitoffset + 7 >> 3;
                 break;
             case repeat_huffman:
+                console.log(type, 'rep')
                 var res = [];
                 var bitoffset = fromhuff(buff, res, byteoffset, type);
                 res = new Uint16Array(res);
-                res = inflate(res);
+                res = inflate(res, range_compress);
                 res = new Uint8Array(res);
                 result.push(res);
                 var tempoffset = bitoffset + 7 >> 3;
@@ -182,14 +184,16 @@ function unpack(buff) {
                 count = readint(count);
                 switch (type1) {
                     case range_compress:
+                    case rang2_compress:
                         var res = buff.slice(byteoffset, byteoffset += count);
                         res = decodeRange(res);
                         res = new Uint16Array(res);
-                        res = inflate(res);
+                        res = inflate(res, type1);
                         res = new Uint8Array(res);
                         result.push(res);
                         break;
                     default:
+                        console.log(type1);
                         throw new Error(i18n`编码异常！`);
                 }
                 break;
@@ -197,7 +201,7 @@ function unpack(buff) {
                 throw new Error(i18n`数据异常！`);
         }
     } while (byteoffset + 1 < buff.length);
-    result = concatByte(result);
+    result = concatTypedArray(result);
     return result;
 }
 module.exports = unpack;

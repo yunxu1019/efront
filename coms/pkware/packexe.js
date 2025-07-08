@@ -1,7 +1,15 @@
 var fs = require("fs");
+var fsp = fs.promises;
 var pack = require("./pack");
 var memery = require("../efront/memery");
 var exepath = require("path").join(__dirname, "../../data/packexe-setup.sfx");
+var readPE = async function (fullpath) {
+    var data = await fsp.readFile(fullpath);
+    var offset = data.readInt32LE(0x3c);
+    var flag = String(data.subarray(offset, offset + 4));
+    if (flag !== "PE\0\0") throw new Error("PE文件异常！");
+    return [data.subarray(0, offset), offset, data.subarray(offset, data.length)];
+}
 var createUTF16Buffer = function (str) {
     var dest = [];
     for (var s of str) {
@@ -46,21 +54,17 @@ var replaceTitle = function (sfxdata, TITLE) {
     namedata.copy(sfxdata, j);
     return sfxdata;
 }
-function packexe(readfrom, writeto) {
-    fs.open(writeto, 'w+', function (error, hd) {
-        if (error) return console.error(error);
-        fs.readFile(exepath, function (error, data) {
-            if (error) return console.error(error);
-            if ((data[data.length - 4] | data[data.length - 3] | data[data.length - 2] | data[data.length - 1]) !== 0) {
-                data = Buffer.concat(data, new Uint8Array(4));
-            }
-            var title = memery.TITLE || writeto;
-            replaceTitle(data, title);
-            fs.write(hd, data, function (error) {
-                if (error) return console.error(error);
-                pack(readfrom, hd, 1);
-            });
-        });
-    });
+async function packexe(readfrom, writeto) {
+    var [doshead, offset, pedata] = await readPE(exepath);
+    var hd = await fsp.open(writeto, 'w');
+    if ((doshead[doshead.length - 4] | doshead[doshead.length - 3] | doshead[doshead.length - 2] | doshead[doshead.length - 1]) !== 0) {
+        doshead = Buffer.concat(doshead, new Uint8Array(4));
+    }
+    var title = memery.TITLE || writeto;
+    replaceTitle(pedata, title);
+    await hd.write(doshead);
+    await hd.write(pedata);
+    await pack(readfrom, hd, 0);
+    await hd.close();
 }
 module.exports = packexe;

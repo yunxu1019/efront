@@ -11,5 +11,3 @@ function concatTypedArray(buffs) {
     }
     return res;
 }
-
-module.exports = concatTypedArray;
