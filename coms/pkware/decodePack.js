@@ -127,14 +127,12 @@ function unpack(buff) {
         var type = buff[byteoffset + 1] >> 5;
         switch (type) {
             case normal_huffman:
-                console.log(type, 'huf')
                 var res = [];
                 var bitoffset = fromhuff(buff, res, byteoffset);
                 result.push(new Uint8Array(res));
                 byteoffset = bitoffset + 7 >> 3;
                 break;
             case repeat_huffman:
-                console.log(type, 'rep')
                 var res = [];
                 var bitoffset = fromhuff(buff, res, byteoffset, type);
                 res = new Uint16Array(res);

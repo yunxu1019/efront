@@ -1,6 +1,7 @@
+var min = Math.min;
 function repeat(buff, readstart = 0) {
     var s = buff[readstart], f = [s], c = 0;
-    for (var cx = readstart + 1, dx = buff.length; cx < dx; cx++) {
+    for (var cx = readstart + 1, dx = min(buff.length, s === 0x80 ? 2819 : 0x1fff); cx < dx; cx++) {
         if (buff[cx] !== s) break;
     }
     var length = cx - readstart;
