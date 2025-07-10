@@ -9,4 +9,4 @@ const other_compress = 7;
 const range_compress = 1;
 const rang2_compress = 2;
 const range_textress = 3;
-const bcj21_comresss = 4;
+const normal_deflate = 4;

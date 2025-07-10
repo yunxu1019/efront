@@ -1,3 +1,5 @@
+var inflateRawSync = require("./inflate");
+// var inflateRawSync = require("zlib").inflateRawSync;
 function decodeFlat(buff, start = 0) {
     var tcount = buff[start];
     var total = 0;
@@ -181,6 +183,11 @@ function unpack(buff) {
                 var count = buff.slice(byteoffset += 2, byteoffset += size);
                 count = readint(count);
                 switch (type1) {
+                    case normal_deflate:
+                        var res = buff.slice(byteoffset, byteoffset += count);
+                        res = inflateRawSync(res);
+                        result.push(new Uint8Array(res));
+                        break;
                     case range_compress:
                     case rang2_compress:
                         var res = buff.slice(byteoffset, byteoffset += count);

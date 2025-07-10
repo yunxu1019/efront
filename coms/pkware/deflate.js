@@ -1,0 +1,1 @@
+"use ../third-party/deflate.js"

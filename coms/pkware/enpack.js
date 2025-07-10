@@ -13,7 +13,7 @@ var createInfo = function ([p, size]) {
     }
     return [(name.length << 1) + +nametype, size, name];
 };
-async function pack(readfrom, writeto, type) {
+async function enpack(readfrom, writeto, type) {
     var handle = writeto;
     if (typeof writeto === 'string') handle = await fsp.open(writeto, 'w');
     var totalSize = 0;
@@ -70,4 +70,4 @@ async function pack(readfrom, writeto, type) {
     if (typeof writeto === 'string') await handle.close(), finish(new Date - startTime);
     return distSize;
 }
-module.exports = pack;
+module.exports = enpack;

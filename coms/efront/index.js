@@ -261,7 +261,7 @@ var commands = {
             console.error(i18n`请输入目标路径！`);
             return;
         }
-        require("../pkware/enpack")(readfrom, writeto, 2);
+        require("../pkware/enpack")(readfrom, writeto, 4);
     },
     sign(filepath, mask) {
         var data = fs.readFileSync(filepath).toString();

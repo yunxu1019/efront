@@ -1,20 +1,22 @@
 function pack0(buff, result) {
-    var length = buff.length;
-    if (length < 8192 && result.length - length > 2) {
+    var blength = buff.length;
+    var rlength = result.length;
+    var dlength = rlength - blength;
+    if (blength < 8192 && dlength > 2) {
         result = concatTypedArray([
-            [length >> 5, normal_nocode1 << 5 | length & 0x1f],
+            [blength >> 5, normal_nocode1 << 5 | blength & 0x1f],
             buff
         ]);
     }
-    else if (length < 8192 << 8 && result.length - length > 3) {
+    else if (blength < 8192 << 8 && dlength > 3) {
         result = concatTypedArray([
-            [length >> 13, normal_nocode2 << 5 | length >> 8 & 0x1f, length & 0xff],
+            [blength >> 13, normal_nocode2 << 5 | blength >> 8 & 0x1f, blength & 0xff],
             buff
         ]);
     }
-    else if (length < 8192 << 16 && result.length - length > 4) {
+    else if (blength < 8192 << 16 && dlength > 4) {
         result = concatTypedArray([
-            [length >> 21, normal_nocode3 << 5 | length >> 16 & 0x1f, length >> 8 & 0xff, length & 0xff],
+            [blength >> 21, normal_nocode3 << 5 | blength >> 16 & 0x1f, blength >> 8 & 0xff, blength & 0xff],
             buff
         ]);
     }
