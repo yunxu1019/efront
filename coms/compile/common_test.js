@@ -43,3 +43,4 @@ testPickSentence(`if(a)try{}catch{} else if(a);`, 0, "if (a) try {} catch {} els
 assert(common.createString(common.pickArgument(scanner2(`a={a:1,c:d}`)[2][4])), 'c: d')
 assert(common.createString(common.pickArgument(scanner2(`a=class{a=1\r\nc=d}`)[3][4])), 'c = d')
 assert(common.createString(common.pickArgument(scanner2(`(a=1,c=d)`)[0][4])), 'c = d')
+assert(scanner2(`for (let len of codeLengths) if (len) count[len]++;`).envs, { len: undefined })

@@ -220,6 +220,10 @@ var fixType = function (o) {
                     type = EXPRESS;
                     break;
                 }
+                if (last.type === EXPRESS && last === queue[queue.length - 1]) {
+                    type = STRAP;
+                    break;
+                }
                 var qp = queue.prev;
                 if (qp?.type === STRAP && qp.text === 'await') qp = qp.prev;
                 if (qp?.type === STRAP && qp.text === 'for') type = STRAP;

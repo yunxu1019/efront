@@ -894,24 +894,15 @@ var createScoped = function (parsed, wash) {
                     }
                 }
                 else {
+                    var a = skipAssignment(o);
                     do {
                         if (o.type === STAMP && o.text === ";") break;
                         o = run(o, 0);
                         if (!o) break;
                         var n = getnext(o);
                         if (!n) break;
-                        var e = o;
-                        var p = getprev(o);
-                        if (o.type === STAMP && /^(\+\+|\-\-)$/.test(o.text) && p?.type === EXPRESS
-                            || (VALUE | QUOTED | SCOPED) & o.type
-                            || EXPRESS === o.type && !needfoot_reg.test(o.text)) {
-                            if ((VALUE | QUOTED | PROPERTY | LABEL) & n.type) break;
-                            if (EXPRESS === n.type && !/^[\.\[]/.test(n.text)) break;
-                            if (n.type === SCOPED && n.brace) break;
-                            if (n.type === STRAP && !n.isExpress) break;
-                        }
                         o = n;
-                    } while (o);
+                    } while (o && o !== a);
                 }
                 var map = isFunction ? vars : lets;
                 var keepscope = !!scoped.body || !!scoped.head;
