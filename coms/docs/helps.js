@@ -42,6 +42,7 @@ var helps = [
     ["-", i18n`从可执行文件的扫描路径中移除指定的路径`, "pathxrm PATHNAME"],
     ["-", i18n`设置远程访问的密码`, "password"],
     ["-", i18n`创建windows平台的一键安装包`, "packwin|packexe PUBLIC_PATH PACKAGE_PATH"],
+    ["-", i18n`压缩到zip文件`, "packzip|zip PUBLIC_PATH PACKAGE_PATH"],
     ["-", i18n`从压缩文件提取源文件`, "unpack PACKAGE_PATH PUBLIC_PATH"]
 ];
 helps.forEach((h, cx) => {

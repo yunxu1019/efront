@@ -256,11 +256,11 @@ var transform = function (readfrom, writeto, run) {
 
 }
 var commands = {
+    packzip(readfrom, writeto) {
+        require("../pkware/enpack")(readfrom, writeto, -1);
+    },
     pack(readfrom, writeto) {
-        if (!writeto) {
-            console.error(i18n`请输入目标路径！`);
-            return;
-        }
+        if (/\.zip$/i.test(writeto)) return this.packzip(readfrom, writeto);
         require("../pkware/enpack")(readfrom, writeto, 4);
     },
     sign(filepath, mask) {

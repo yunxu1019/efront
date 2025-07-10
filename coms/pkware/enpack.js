@@ -14,6 +14,14 @@ var createInfo = function ([p, size]) {
     return [(name.length << 1) + +nametype, size, name];
 };
 async function enpack(readfrom, writeto, type) {
+    if (!writeto) {
+        console.error(i18n`请输入目标路径！`);
+        return;
+    }
+    var getPath = function (fullpath) {
+        return path.relative(readfrom, fullpath).replace(/\\/g, '/');
+    };
+    var isZip = type === -1;
     var handle = writeto;
     if (typeof writeto === 'string') handle = await fsp.open(writeto, 'w');
     var totalSize = 0;
@@ -27,9 +35,17 @@ async function enpack(readfrom, writeto, type) {
         var file = queue.pop();
         var stats = await fsp.stat(file);
         if (stats.isDirectory()) {
-            files.push([file, 0]);
-            var names = await fsp.readdir(file);
-            var list = names.map(n => path.join(file, n));
+            let names = await fsp.readdir(file, { withFileTypes: true });
+            let list = names.map(n => path.join(file, n.name));
+            file = getPath(file);
+            if (isZip) {
+                if (names.length === 0 && file) {
+                    var pressed = packZip([], file + "/", distSize);
+                    distSize += pressed.length;
+                    files.push(pressed.central);
+                }
+            }
+            else files.push([file, 0]);
             var max = 0, maxi = 0;
             for (var cx = 0, dx = list.length; cx < dx; cx++) {
                 let fsize = fs.statSync(list[cx]).size;
@@ -44,25 +60,28 @@ async function enpack(readfrom, writeto, type) {
         }
         else {
             var data = await fsp.readFile(file);
+            file = getPath(file);
             totalSize += data.length;
-            var pressed = encodePack(data, type);
+            var pressed = isZip ? packZip(data, file, distSize, stats) : encodePack(data, type);
             distSize += pressed.length;
-            await handle.write(new Uint8Array(pressed));
-            files.push([file, pressed.length + 1]);
+            await handle.write(pressed);
+            files.push(isZip ? pressed.central : [file, pressed.length + 1]);
         }
     }
-    files.forEach(a => a[0] = path.relative(readfrom, a[0]));
-    var infos = files.map(createInfo);
-    var index = [];
-    var names = infos.map(([length, size, name]) => {
-        index.push(length, size);
-        return name;
-    });
-    names = [].concat.apply([], names);
-    var a = encodeLEB128(index);
-    var b = encodeLEB128([a.length]).reverse();
-    names.push.apply(names, a);
-    names.push.apply(names, b);
+    if (isZip) var names = packZip.packCentral(files, distSize);
+    else {
+        var infos = files.map(createInfo);
+        var index = [];
+        names = infos.map(([length, size, name]) => {
+            index.push(length, size);
+            return name;
+        });
+        names = [].concat.apply([], names);
+        var a = encodeLEB128(index);
+        var b = encodeLEB128([a.length]).reverse();
+        names.push.apply(names, a);
+        names.push.apply(names, b);
+    }
     totalSize += names.length;
     distSize += names.length;
     console.info(i18n`原始数据大小为${size(totalSize)}，目标文件大小为${size(distSize)}，压缩率为${percent(distSize / totalSize)}\r\n`);

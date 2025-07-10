@@ -4,15 +4,15 @@ var decodeUTF16 = require("../basic/decodeUTF16");
 var decodeLEB128 = require("../basic/decodeLEB128");
 var decodePack = require("../pkware/decodePack");
 var finish = require("../build/finish");
-var readbuff = function (h, offset, length) {
+var fsp = fs.promises;
+/**
+ * @param {fs.promises.FileHandle} h
+ */
+var readbuff = async function (h, offset, length) {
     var buff = new Uint8Array(length);
-    return new Promise(function (ok, oh) {
-        fs.read(h, buff, 0, length, offset, function (error, readed, buff) {
-            if (error) return oh(error);
-            if (readed < buff.length) buff = buff.slice(0, readed);
-            ok(buff);
-        });
-    });
+    var readed = await h.read(buff, 0, length, offset);
+    if (readed.bytesRead < buff.length) buff = buff.slice(0, readed.bytesRead);
+    return buff;
 };
 var readindex = async function (h, end) {
     var buff = await readbuff(h, end - 8, 8);
@@ -48,55 +48,60 @@ var readindex = async function (h, end) {
         datasize: datatotal
     };
 };
-function pack(readfrom, writeto) {
-    var writeFile = function (name, data, isFolder) {
+async function unpack(readfrom, writeto) {
+    var writeFile = async function (name, data, isFolder, checkFolder) {
+        console.info(i18n`正在写入 ${name}`);
         var p = path.join(writeto, name);
-        return new Promise(function (ok, oh) {
-            if (isFolder) {
-                if (fs.existsSync(p)) return ok();
-                fs.mkdir(p, { recursive: true }, function (error) {
-                    if (error) return oh(error);
-                    ok();
-                })
-            } else {
-                data = decodePack(data);
-                fs.writeFile(p, new Uint8Array(data), function (error) {
-                    if (error) return oh(error);
-                    ok();
-                });
+        var exists = fs.existsSync(p);
+        if (exists) {
+            var stat = await fsp.stat(p);
+            if (stat.isDirectory() ^ isFolder) {
+                await fsp.unlink(p);
+                exists = false;
             }
-        });
-    };
-    var handle, size;
-    var startTime = new Date;
-    new Promise(function (ok, oh) {
-        var run = async function (error, hd) {
-            if (error) return oh(error);
-            handle = hd;
-            var { files, dataoffset, nameoffset } = await readindex(handle, size);
-            for (var cx = 0, dx = files.length; cx < dx; cx++) {
-                var [nametype, namelength, isFolder, datasize] = files[cx];
-                var name = await readbuff(handle, nameoffset, namelength);
-                if (+nametype === 1) {
-                    name = decodeUTF16(name);
-                } else {
-                    name = String.fromCharCode.apply(null, name);
-                }
-                nameoffset += namelength;
-                var data = await readbuff(handle, dataoffset, datasize);
-                console.info(i18n`正在写入 ${name}`);
-                dataoffset += data.length;
-                await writeFile(name, data, isFolder);
-            }
-            ok();
         }
-        fs.stat(readfrom, function (error, stats) {
-            if (error) return oh(error);
-            size = stats.size;
-            fs.open(readfrom, 'r+', run);
-        });
-    }).then(function () {
-        finish(new Date - startTime);
-    }, console.error);
+        if (isFolder) {
+            if (!exists) await fsp.mkdir(p, { recursive: true });
+        }
+        else {
+            await fsp.writeFile(p, new Uint8Array(data));
+        }
+    };
+    var stats = await fsp.stat(readfrom);
+    var handle = await fsp.open(readfrom);
+    var size = stats.size;
+    var startTime = new Date;
+    var readout = function (index, size) {
+        if (index < 0) index += size;
+        return readbuff(handle, index, size);
+    }
+    var iszip = await unzip.isZip(readout);
+    if (iszip) {
+        var files = await unzip.readEntries(readout, size);
+        for (var f of files) {
+            var buffer = await f.readToBuffer();
+            if (!f.isFolder()) await writeFile(path.dirname(f.name), buffer, true, true);
+            await writeFile(f.name, buffer, f.isFolder(), true);
+        }
+    }
+    else {
+        var { files, dataoffset, nameoffset } = await readindex(handle, size);
+        for (var cx = 0, dx = files.length; cx < dx; cx++) {
+            var [nametype, namelength, isFolder, datasize] = files[cx];
+            var name = await readbuff(handle, nameoffset, namelength);
+            if (+nametype === 1) {
+                name = decodeUTF16(name);
+            } else {
+                name = String.fromCharCode.apply(null, name);
+            }
+            nameoffset += namelength;
+            var data = await readbuff(handle, dataoffset, datasize);
+            dataoffset += data.length;
+            data = decodePack(data);
+            await writeFile(name, data, isFolder);
+        }
+    }
+    await handle.close();
+    finish(new Date - startTime);
 }
-module.exports = pack;
+module.exports = unpack;

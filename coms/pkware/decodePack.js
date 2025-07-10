@@ -1,5 +1,4 @@
-var inflateRawSync = require("./inflate");
-// var inflateRawSync = require("zlib").inflateRawSync;
+var inflateRawSync = require("zlib").inflateRawSync;
 function decodeFlat(buff, start = 0) {
     var tcount = buff[start];
     var total = 0;

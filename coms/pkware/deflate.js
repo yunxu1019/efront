@@ -1,1 +1,1 @@
-"use ../third-party/deflate.js"
+require("zlib").deflateRawSync;
