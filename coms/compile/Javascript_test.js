@@ -59,9 +59,9 @@ var ts = new Javascript;
 ts.straps.push('interface', 'implements', "declare", "module", "readonly", "enum", 'type');
 ts.tags[0].push("{")
 ts.lbtype = false;
-var testTypescript = function (text) {
+var testTypescript = function (text, exp = text) {
     var s = scanner2(text, ts);
-    return assert(s.toString(), text);
+    return assert(s.toString(), exp);
 }
 testTypescript(`const strict: Omit<typeof assert, 'equal' | 'notEqual' | 'deepEqual' | 'notDeepEqual' | 'ok' | 'strictEqual' | 'deepStrictEqual' | 'ifError' | 'strict'> & {
     (value: unknown, message?: string | Error): asserts value;
@@ -124,6 +124,7 @@ a ? function () {} : function () {}
 declare module 'buffer' {}
 a <= 1;
 `)
+testTypescript(`;(t=~~t)<0?(t+=r)<0&&(t=0):t>r&&(t=r)`, "; (t = ~~t) < 0 ? (t += r) < 0 && (t = 0) : t > r && (t = r)")
 testTypescript(`
     var a: TypeA
     var a: TypeA, b: TypeB

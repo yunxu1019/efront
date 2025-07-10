@@ -852,7 +852,7 @@ class Program {
                     }
                 }
                 else if (stamp_reg.test(m) && last) {
-                    if (last.type === STAMP && m === last.text) break test;
+                    if (last.type === STAMP && last === cache_stamp && powermap.hasOwnProperty(last.text + m)) break test;
                     if (last.istype || last.isprop || last.isargl) {
                         isTypeTag = true;
                     }
@@ -891,6 +891,10 @@ class Program {
                         case EXPRESS:
                             break test;
                         case SCOPED:
+                            if (last.isExpress && powermap[m] <= powermap["++"]) {
+                                break test;
+                            }
+                            console.log(last.isExpress, queue.inExpress, last.entry, last.prev?.text, m);
                             if (queue.inExpress && !iscomment) break test;
                             break;
                         case STAMP:
@@ -952,6 +956,7 @@ class Program {
                 continue;
             }
             if (space_reg.test(m)) {
+                if (cache_stamp) push_stamp();
                 if (/[\r\n\u2028\u2029]/.test(m)) {
                     if (last && last.isend === false) {
                         last.isend = true;
@@ -1109,6 +1114,15 @@ class Program {
                         }
                     }
                     if (!last || last.type !== STRAP && last.isExpress || last.transive) queue.inExpress = true;
+                    else if (last.type === STAMP) {
+                        if (last.text === "*") {
+                            var lp = last.prev;
+                            if (lp.type !== STRAP || !/^(async|function)$/.test(lp.text)) queue.inExpress = true;
+                        }
+                        else {
+                            queue.inExpress = true;
+                        }
+                    }
                     scope.isExpress = queue.inExpress;
                     scope.inExpress = true;
                 }
@@ -1159,7 +1173,7 @@ class Program {
             var last = queue.last || queue;
             console.warn(
                 "代码异常结束", createString(origin.slice(0, 30)),
-                `\r\n - 祖先标记: ${parents.slice(1).map(p => `<red2>${p.tag || p.text || ""}${p.entry || ""}</red2><gray>${p.row}:${p.col}</gray>`).join('')}`,
+                `\r\n - 祖先标记: ${parents.slice(1).map(p => `${p.entry || ""}<red2>${p.tag || p.text || ""}</red2><gray>${p.row}:${p.col}</gray>`).join('')}`,
                 `\r\n - 内层入口: <yellow>${this.mindpath}</yellow>:${last.row}:${last.col} ${last.text || last.entry}`,
                 `\r\n ----- 快照: ${createString(pickAssignment(queue.last || queue))}`,
             );
