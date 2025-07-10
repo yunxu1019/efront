@@ -34,7 +34,7 @@ addMethod("setActive", function (m) {
     if (actived && metadata) {
         metadata.title = actived.songName || actived.name || actived.title;
         metadata.artist = actived.singerName || actived.singer;
-        metadata.artwork = [{
+        if (actived.avatar) metadata.artwork = [{
             src: actived.avatar
         }]
     }
