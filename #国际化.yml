@@ -40,6 +40,15 @@
 - zh-CN: 禁用
   en:    Disable
 
+- zh-CN: 压缩算法不支持
+  en:    Compression algorithm not supported
+
+- zh-CN: 数据解码异常！
+  en:    Data decoding exception!
+
+- zh-CN: 压缩到zip文件
+  en:    Compress to zip file
+
 - zh-CN: 无法下载！
   en:    Cannot download!
 
