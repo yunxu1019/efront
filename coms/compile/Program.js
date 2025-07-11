@@ -894,7 +894,6 @@ class Program {
                             if (last.isExpress && powermap[m] <= powermap["++"]) {
                                 break test;
                             }
-                            console.log(last.isExpress, queue.inExpress, last.entry, last.prev?.text, m);
                             if (queue.inExpress && !iscomment) break test;
                             break;
                         case STAMP:
