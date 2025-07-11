@@ -1,6 +1,6 @@
 var fs = require("fs");
 var fsp = fs.promises;
-var pack = require("./pack");
+var finish = require('../build/finish');
 var memery = require("../efront/memery");
 var exepath = require("path").join(__dirname, "../../data/packexe-setup.sfx");
 var readPE = async function (fullpath) {
@@ -8,7 +8,7 @@ var readPE = async function (fullpath) {
     var offset = data.readInt32LE(0x3c);
     var flag = String(data.subarray(offset, offset + 4));
     if (flag !== "PE\0\0") throw new Error("PE文件异常！");
-    return [data.subarray(0, offset), offset, data.subarray(offset, data.length)];
+    return [data.subarray(0, offset), data.subarray(offset, data.length)];
 }
 var createUTF16Buffer = function (str) {
     var dest = [];
@@ -54,17 +54,23 @@ var replaceTitle = function (sfxdata, TITLE) {
     namedata.copy(sfxdata, j);
     return sfxdata;
 }
-async function packexe(readfrom, writeto) {
-    var [doshead, offset, pedata] = await readPE(exepath);
-    var hd = await fsp.open(writeto, 'w');
-    if ((doshead[doshead.length - 4] | doshead[doshead.length - 3] | doshead[doshead.length - 2] | doshead[doshead.length - 1]) !== 0) {
-        doshead = Buffer.concat(doshead, new Uint8Array(4));
+var patchZero = function (patchdata) {
+    if ((patchdata[patchdata.length - 4] | patchdata[patchdata.length - 3] | patchdata[patchdata.length - 2] | patchdata[patchdata.length - 1]) !== 0) {
+        patchdata = concatTypedArray([patchdata, new Uint8Array(4)]);
     }
+    return patchdata;
+}
+async function packexe(readfrom, writeto) {
+    var startTime = new Date;
+    var [doshead, pedata] = await readPE(exepath);
+    var hd = await fsp.open(writeto, 'w');
     var title = memery.TITLE || writeto;
     replaceTitle(pedata, title);
+    pedata = patchZero(pedata);
     await hd.write(doshead);
     await hd.write(pedata);
-    await pack(readfrom, hd, 0);
+    await enpack(readfrom, hd, 0);
     await hd.close();
+    finish(new Date - startTime);
 }
 module.exports = packexe;

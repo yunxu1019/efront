@@ -86,7 +86,6 @@ function inflate(buff, type) {
     var c1 = () => buff[++cx] << 9 | buff[++cx] << 4 | buff[++cx];;
     var c2 = () => buff[++cx] << 8 | buff[++cx];
     var gc = type === range_compress ? c1 : c2;
-    console.log(type)
     for (var cx = 0, dx = buff.length; cx < dx; cx++) {
         var b = buff[cx];
         if (b < 256) {

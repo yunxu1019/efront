@@ -1,4 +1,4 @@
-var result, buff_slice;
+var result, buff_slice, result_index;
 var cache = null, cacheLength = 0, cacheLimit = 32768, lengthLimit = 32768;
 var min = Math.min;
 var buff_length = 0;
@@ -57,7 +57,7 @@ function scan(buff, compress_method) {
     buff_slice = buff;
     buff_length = buff.length;
     cache = [], cacheLength = 0;
-    var is5 = compress_method === range_compress;
+    var is5 = compress_method === range_compress || compress_method == null;
     var setResultB = is5 ? setResult5 : setResult4;
     result = new Uint16Array(buff.length), result_index = 0;
     cx = 0;

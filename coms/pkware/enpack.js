@@ -31,21 +31,21 @@ async function enpack(readfrom, writeto, type) {
     var total = 1, index = 0;
     var startTime = new Date;
     while (queue.length) {
-        console.info(i18n`正在处理(${++index}/${total}): ${file}`);
         var file = queue.pop();
+        var name = getPath(file);
+        console.info(i18n`正在处理(${++index}/${total}): ${name}`);
         var stats = await fsp.stat(file);
         if (stats.isDirectory()) {
             let names = await fsp.readdir(file, { withFileTypes: true });
             let list = names.map(n => path.join(file, n.name));
-            file = getPath(file);
             if (isZip) {
-                if (names.length === 0 && file) {
-                    var pressed = packZip([], file + "/", distSize);
+                if (names.length === 0 && name) {
+                    var pressed = packZip([], name + "/", distSize);
                     distSize += pressed.length;
                     files.push(pressed.central);
                 }
             }
-            else files.push([file, 0]);
+            else files.push([name, 0]);
             var max = 0, maxi = 0;
             for (var cx = 0, dx = list.length; cx < dx; cx++) {
                 let fsize = fs.statSync(list[cx]).size;
@@ -60,12 +60,11 @@ async function enpack(readfrom, writeto, type) {
         }
         else {
             var data = await fsp.readFile(file);
-            file = getPath(file);
             totalSize += data.length;
-            var pressed = isZip ? packZip(data, file, distSize, stats) : encodePack(data, type);
+            var pressed = isZip ? packZip(data, name, distSize, stats) : encodePack(data, type);
             distSize += pressed.length;
             await handle.write(pressed);
-            files.push(isZip ? pressed.central : [file, pressed.length + 1]);
+            files.push(isZip ? pressed.central : [name, pressed.length + 1]);
         }
     }
     if (isZip) var names = packZip.packCentral(files, distSize);
