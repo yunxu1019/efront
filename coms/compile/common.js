@@ -886,23 +886,20 @@ var createScoped = function (parsed, wash) {
                 else if (isArraw) {
                     var n = skipAssignment(o);
                     scoped.arraw = o;
-                    var u = o;
                     while (o !== n) {
                         var n1 = run(o, 0);
-                        if (o === n1 || n1 && n1.entry === '{') o = getnext(n1);
+                        if (n1 === o || n1?.entry === "{") o = getnext(n1);
                         else o = n1;
                     }
                 }
                 else {
-                    var a = skipAssignment(o);
-                    do {
-                        if (o.type === STAMP && o.text === ";") break;
-                        o = run(o, 0);
-                        if (!o) break;
-                        var n = getnext(o);
-                        if (!n) break;
-                        o = n;
-                    } while (o && o !== a);
+                    var n = skipAssignment(o);
+                    var n1 = o;
+                    while (n1 && n1 !== n) {
+                        o = n1;
+                        n1 = run(n1, 0);
+                        if (n1) n1 = getnext(n1);
+                    }
                 }
                 var map = isFunction ? vars : lets;
                 var keepscope = !!scoped.body || !!scoped.head;
