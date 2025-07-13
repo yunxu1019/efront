@@ -49,7 +49,7 @@ var readindex = async function (h, end) {
     };
 };
 async function unpack(readfrom, writeto) {
-    var writeFile = async function (name, data, isFolder, checkFolder) {
+    var writeFile = async function (name, data, isFolder, f) {
         console.info(i18n`正在写入 ${name}`);
         var p = path.join(writeto, name);
         var exists = fs.existsSync(p);
@@ -64,7 +64,16 @@ async function unpack(readfrom, writeto) {
             if (!exists) await fsp.mkdir(p, { recursive: true });
         }
         else {
+            if (f) {
+                var p1 = path.dirname(p);
+                if (!fs.existsSync(p1));
+                await fsp.mkdir(p1, { recursive: true });
+            }
             await fsp.writeFile(p, new Uint8Array(data));
+            if (f) {
+                await fsp.utimes(p, new Date, f.mtime);
+                await fsp.chmod(p, f.mode);
+            }
         }
     };
     var stats = await fsp.stat(readfrom);
@@ -81,7 +90,7 @@ async function unpack(readfrom, writeto) {
         for (var f of files) {
             var buffer = await f.readToBuffer();
             if (!f.isFolder()) await writeFile(path.dirname(f.name), buffer, true, true);
-            await writeFile(f.name, buffer, f.isFolder(), true);
+            await writeFile(f.name, buffer, f.isFolder(), f);
         }
     }
     else {
