@@ -122,6 +122,7 @@ function readint(buff) {
 function unpack(buff) {
     if (buff.length < 2) return buff;
     var result = [];
+    var mtime, mode;
     var byteoffset = 0;
     do {
         var type = buff[byteoffset + 1] >> 5;
@@ -180,20 +181,25 @@ function unpack(buff) {
                 var type1 = buff[byteoffset];
                 var count = buff.slice(byteoffset += 2, byteoffset += size);
                 count = readint(count);
+                var res = buff.slice(byteoffset, byteoffset += count);
                 switch (type1) {
                     case normal_deflate:
-                        var res = buff.slice(byteoffset, byteoffset += count);
                         res = inflateRawSync(res);
                         result.push(new Uint8Array(res));
                         break;
                     case range_compress:
                     case rang2_compress:
-                        var res = buff.slice(byteoffset, byteoffset += count);
                         res = decodeRange(res);
                         res = new Uint16Array(res);
                         res = inflate(res, type1);
                         res = new Uint8Array(res);
                         result.push(res);
+                        break;
+                    case mtime_stamp:
+                        mtime = new Date(decodeLEB128(res)[0]);
+                        break;
+                    case access_mode:
+                        mode = decodeLEB128(res)[0];
                         break;
                     default:
                         console.log(type1);
@@ -205,6 +211,8 @@ function unpack(buff) {
         }
     } while (byteoffset + 1 < buff.length);
     result = concatTypedArray(result);
+    result.mtime = mtime;
+    result.mode = mode;
     return result;
 }
 module.exports = unpack;

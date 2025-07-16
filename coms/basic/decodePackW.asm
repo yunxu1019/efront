@@ -1,6 +1,7 @@
 .data
 errortext db "数据异常"
 errortitle db "错误"
+errorcode db "编码错误"
 normal_huffman equ 0
 normal_repeat1 equ 1
 normal_repeat2 equ 2
@@ -8,6 +9,10 @@ normal_nocode1 equ 3
 normal_nocode2 equ 4
 normal_nocode3 equ 5
 repeat_huffman equ 6
+other_compress equ 7
+    normal_nocode4 equ 3
+    mtime_stamp equ 5;
+    access_mode equ 6;
 
 .code
 
@@ -480,7 +485,7 @@ memcopy proc start,len,dist
 memcopy endp 
 
 unpack proc start,len,dsth,passed
-    local writed,buff,bufflen,byteoffset,decoded,count,to
+    local writed,buff,bufflen,byteoffset,decoded,count,to,type1
     local passed0
     mov writed,0
     mov eax,len
@@ -622,6 +627,45 @@ unpack proc start,len,dsth,passed
             add ecx,4
             add ecx,count
             mov to,ecx
+        .elseif eax==other_compress
+            movzx eax,byte ptr[ecx]
+            mov type1,eax
+            xor eax, eax
+            mov al, byte ptr[ecx+1];
+            and al, 01fh;
+            .if eax>4
+                invoke MessageBox,NULL,offset errortext,offset errortitle,MB_OK
+                invoke ExitProcess,1
+            .endif
+            xor ebx,ebx
+            add ecx,2
+            .while eax>0
+                shl ebx,8
+                mov bl,byte ptr[ecx]
+                inc ecx
+                dec eax
+            .endw
+            mov count,ebx
+            mov to,ecx
+            mov eax,type1;
+            .if eax == normal_nocode4
+                invoke GlobalAlloc,GMEM_FIXED or GMEM_ZEROINIT,count
+                mov decoded,eax
+                mov ecx,to
+                invoke memcopy,ecx,count,decoded
+                mov ecx,to
+                add ecx,count
+            .elseif eax == mtime_stamp;暂不支持
+                add ecx,count
+            .elseif eax == access_mode;暂不支持
+                add ecx,count
+            .else
+                invoke MessageBox,NULL,offset errorcode, offset errortitle,MB_OK
+                invoke ExitProcess,1
+            .endif
+            mov ecx,to
+            add ecx,count
+            mov to, ecx
         .else
             invoke MessageBox,NULL,offset errortext,offset errortitle,MB_OK
             invoke ExitProcess,1

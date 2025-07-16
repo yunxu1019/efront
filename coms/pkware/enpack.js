@@ -64,7 +64,16 @@ async function enpack(readfrom, writeto, type) {
             var pressed = isZip ? packZip(data, name, distSize, stats) : encodePack(data, type);
             distSize += pressed.length;
             await handle.write(pressed);
-            files.push(isZip ? pressed.central : [name, pressed.length + 1]);
+            var plength = pressed.length;
+            if (!isZip) {
+                var extra = concatTypedArray([
+                    packPiece(mtime_stamp, encodeLEB128([+stats.mtime])),
+                    packPiece(access_mode, encodeLEB128([stats.mode])),
+                ]);
+                plength += extra.length;
+                await handle.write(extra);
+            };
+            files.push(isZip ? pressed.central : [name, plength + 1]);
         }
     }
     if (isZip) var names = packZip.packCentral(files, distSize);

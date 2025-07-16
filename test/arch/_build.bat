@@ -7,7 +7,7 @@ if "%filepath:~1,-1%"==%filepath% set filepath=%filepath:~1,-1%
 set filename=%filepath:~0,-3%
 if exist "%filename%tmp" del "%filename%tmp"
 cd ..\..\
-call efront build "test\arch\%filename%asm"
+call efront  --coms=pkware,reptile,basic build  "test\arch\%filename%asm"
 cd test\arch\
 copy ..\..\public\"%filename%asm" "%filename%tmp"
 set masm32=\prog\masm32

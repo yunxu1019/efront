@@ -1,6 +1,9 @@
 
 var deflateRawSync = require("./deflate");
 // var deflateRawSync = require("zlib").deflateRawSync;
+/**
+ * @param {Buffer} buff
+ */
 module.exports = function (buff, type) {
     switch (type) {
         case 0:

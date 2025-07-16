@@ -64,15 +64,10 @@ async function unpack(readfrom, writeto) {
             if (!exists) await fsp.mkdir(p, { recursive: true });
         }
         else {
-            if (f) {
-                var p1 = path.dirname(p);
-                if (!fs.existsSync(p1));
-                await fsp.mkdir(p1, { recursive: true });
-            }
             await fsp.writeFile(p, new Uint8Array(data));
             if (f) {
-                await fsp.utimes(p, new Date, f.mtime);
-                await fsp.chmod(p, f.mode);
+                if (f.mtime) await fsp.utimes(p, new Date, f.mtime);
+                if (f.mode) await fsp.chmod(p, f.mode);
             }
         }
     };
@@ -89,7 +84,7 @@ async function unpack(readfrom, writeto) {
         var files = await unzip.readEntries(readout, size);
         for (var f of files) {
             var buffer = await f.readToBuffer();
-            if (!f.isFolder()) await writeFile(path.dirname(f.name), buffer, true, true);
+            if (!f.isFolder()) await writeFile(path.dirname(f.name), buffer, true);
             await writeFile(f.name, buffer, f.isFolder(), f);
         }
     }
@@ -107,7 +102,7 @@ async function unpack(readfrom, writeto) {
             var data = await readbuff(handle, dataoffset, datasize);
             dataoffset += data.length;
             data = decodePack(data);
-            await writeFile(name, data, isFolder);
+            await writeFile(name, data, isFolder, data);
         }
     }
     await handle.close();
