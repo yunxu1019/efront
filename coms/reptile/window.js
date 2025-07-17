@@ -17,11 +17,14 @@ else {
         'Int32Array', 'Float32Array', 'Float64Array',
         'Map', 'Set', 'Proxy',
         'WeakMap', 'Reflect', 'console',
+        "WebAssembly",
         'Math', 'JSON', 'NaN',
         'Infinity', 'isNaN', 'isFinite',
         'parseInt', 'parseFloat', 'decodeURI',
         'encodeURI', 'decodeURIComponent', 'encodeURIComponent',
         'document', 'navigator', 'process',
+        "BigUint64Array",
+        "i18n",
         'BigInt64Array', 'Buffer', 'Intl',
         'BigInt', 'Symbol', 'SharedArrayBuffer',
         'escape', 'unescape', 'clearImmediate',
@@ -34,4 +37,5 @@ else {
     });
     window.globalThis = window.global = window.top = window.window = window;
     module.exports = window;
+for(var k in global)if((!(k in window)))console.log(k)
 }

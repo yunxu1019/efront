@@ -124,7 +124,8 @@ buffer2  word MAX_PATH dup(?)
 program dw "ProgramFiles",0
 program64 dw "ProgramW6432",0
 folderTitle dw "选择安装目录",0
-szErrOpenFile dw '无法打开源文件！'
+szErrOpenFile dw '无法打开源文件！',0
+szErrNoPack dw '数据缺失',0
 szErrCreateFile dw '创建文件失败！',0
 hiddensetup dd 0
 hiddenmark dw "/s"
@@ -154,6 +155,14 @@ datacache dd 36000 dup(?)
 datawrite dd 36000 dup(?)
 unableMessage dw "当前安装程序无法在您的操作系统运行！",0
 unableTitle dw "错误",0
+hFile dd ?           ; 文件句柄
+hMap dd ?            ; 文件映射句柄
+pMem dd ?            ; 映射内存的起始地址
+dPackEnd dd ?
+pFileEnd dd ?
+lastSectionOffset dd ?
+hasPack dd 0
+fileAlignment dd 1
 ;
 ;
 ;
@@ -198,22 +207,91 @@ setupstart proc
 setupstart endp
 
 opensetup proc
-    local @hFile
     local filename[MAX_PATH]:WORD
     invoke GetModuleFileName ,0,addr filename, sizeof filename
     invoke CreateFile,addr filename,GENERIC_READ,FILE_SHARE_READ,0,OPEN_EXISTING,FILE_ATTRIBUTE_NORMAL,0
-    .if eax==INVALID_HANDLE_VALUE
+    cmp eax,INVALID_HANDLE_VALUE
+    jz error
+    mov hFile,eax
+    ; 2. 创建文件映射对象 (CreateFileMapping)
+    invoke CreateFileMapping, hFile, NULL, PAGE_READONLY, 0, 0, NULL
+    test eax, eax
+    jz error
+    mov hMap, eax
+    ; 3. 映射文件到内存 (MapViewOfFile)
+    invoke MapViewOfFile, hMap, FILE_MAP_READ, 0, 0, 0
+    test eax, eax
+    jz error
+    mov pMem, eax
+    local peOffset,sectionCount,sizeOfOptionalHeader
+    local optionalHeaderOffset
+    local sectionTable
+    mov esi,pMem
+    mov eax,[esi+3ch]
+    mov peOffset,eax
+    mov ebx,eax
+    movzx eax,word ptr[esi+ebx+6];
+    mov sectionCount,eax
+    movzx eax,word ptr[esi+ebx+20]
+    mov sizeOfOptionalHeader,eax
+    mov eax,[esi+ebx+60]
+    mov fileAlignment,eax
+    mov eax,peOffset
+    add eax,24
+    mov optionalHeaderOffset,eax
+    add eax,sizeOfOptionalHeader
+    mov sectionTable,eax
+    mov eax,sectionCount
+    dec eax
+    imul eax,40
+    add eax,sectionTable
+    mov lastSectionOffset,eax
+    local lastVirtualAddress
+    local lastRawOffset
+    local lastRawSize
+    local dataPackSize
+    mov ebx,lastSectionOffset
+    mov hasPack,1
+    mov eax,[esi+ebx]
+    cmp dword ptr[esi+ebx],6361702eh;".pac"
+    jz @f
+    mov hasPack,0
+    @@:
+
+    mov eax,[esi+ebx+12];
+    mov lastVirtualAddress,eax
+    mov eax,[esi+ebx+20];
+    mov lastRawOffset,eax
+    mov eax,[esi+ebx+16]
+    mov lastRawSize,eax
+    mov eax,[esi+ebx+8]
+    mov dataPackSize,eax
+    add eax,lastRawOffset
+    mov dPackEnd,eax
+    invoke SetFilePointer,hFile,-1,NULL,FILE_END
+    add eax,1
+    mov pFileEnd,eax
+    sub dPackEnd,eax
+    ret
+    error:
         invoke MessageBox,hWinMain,addr szErrOpenFile,NULL,MB_OK or MB_ICONEXCLAMATION
-        ret
-    .endif
-    mov @hFile,eax
+        invoke ExitProcess,1
     ret
 opensetup endp
+closesetup proc
+    ; 6. 清理资源
+    invoke UnmapViewOfFile, pMem
+    invoke CloseHandle, hMap
+    invoke CloseHandle, hFile
+    ret
+closesetup endp
 
 readcount proc h
     local buff[8]:byte,readed,b
     mov readed,0
-    invoke SetFilePointer,h,-8,NULL,FILE_END
+    mov eax,dPackEnd
+    sub eax,8
+    invoke SetFilePointer,h,eax,NULL,FILE_END
     lea esi,buff
     invoke ReadFile,h,esi,sizeof buff,addr readed,0
     mov ecx,readed
@@ -352,9 +430,10 @@ readindex proc h
     local buffleng,listleng,nameleng,dataleng,nametype,isfolder
     local readed
     local temp
-    invoke readcount,h
+    invoke readcount,hFile
     mov count,eax
-    mov eax,-8
+    mov eax,dPackEnd
+    sub eax,8
     add eax,ecx
     sub eax,count
     mov buffstart,eax
@@ -552,11 +631,15 @@ folderpath proc p,s,d
 folderpath endp
 
 programinit proc
-    local h
     local filename[MAX_PATH]:WORD
     invoke opensetup
-    mov h,eax
-    invoke readcount,h
+    .if !hasPack
+        invoke lstrcpy,addr onekey1,addr szErrNoPack
+        lea eax,buffer2;
+        mov dword ptr [eax],0
+        ret
+    .endif
+    invoke readcount,hFile
     .if !eax
         invoke GetModuleFileName,0,addr filename,sizeof filename
         invoke foldersize,addr filename
@@ -573,23 +656,26 @@ programinit proc
     .else 
         mov isuninstall,0
     .endif
-    invoke CloseHandle,h
+    invoke closesetup
     ret
 programinit endp
 
 _Extract proc lParam
-    local h,e,nametype,nameleng,isfolder,dataleng
+    local e,nametype,nameleng,isfolder,dataleng
     local flash:FLASHWINFO
     local delta
     local writed
     local hdata,readed,hdst
+    .if !hasPack
+        invoke MessageBox, NULL, szErrNoPack, unableTitle, NULL
+        ret
+    .endif
     .if isuninstall
         invoke unregister
     .endif
     mov writed,0
     invoke opensetup
-    mov h,eax
-    invoke readindex,h
+    invoke readindex,hFile
     .if isuninstall
         mov ecx,filecount
         shl ecx,4
@@ -633,7 +719,7 @@ _Extract proc lParam
             sub eax,nameleng
             mov nameoffset,eax
         .endif
-        invoke writenano,h,nametype,nameleng,isfolder,dataleng
+        invoke writenano,hFile,nametype,nameleng,isfolder,dataleng
         .if !isuninstall
             mov eax,nameoffset
             add eax,nameleng
@@ -650,36 +736,60 @@ _Extract proc lParam
     .endw
 
     .if !isuninstall && uninstallSize
-        invoke GlobalAlloc,GMEM_FIXED or GMEM_ZEROINIT,uninstallSize
+        local uninstallFileSize,uninstallTrimSize,uninstallTrimRest
+        xor edx,edx
+        mov eax,uninstallSize
+        add eax,dPackEnd
+        mov uninstallTrimSize,eax
+        add eax,fileAlignment
+        dec eax
+        idiv fileAlignment
+        imul fileAlignment
+        mov uninstallFileSize,eax
+        invoke GlobalAlloc,GMEM_FIXED or GMEM_ZEROINIT,uninstallFileSize
         mov hdata,eax
-        invoke SetFilePointer,h,0,NULL,FILE_BEGIN
-        mov ecx,uninstallSize
+        invoke SetFilePointer,hFile,0,NULL,FILE_BEGIN
+        mov ecx,uninstallRest
+        sub ecx,dPackEnd
+        mov uninstallTrimRest,ecx
+        mov ecx,uninstallTrimSize
         sub ecx,1
-        add ecx,uninstallRest
-        invoke ReadFile,h,hdata,ecx,addr readed,0
-        invoke SetFilePointer,h,uninstallRest,NULL,FILE_END
+        add ecx,uninstallTrimRest
+        invoke ReadFile,hFile,hdata,ecx,addr readed,0
+        mov ecx,uninstallRest
+        invoke SetFilePointer,hFile,ecx,NULL,FILE_END
         mov ecx,0
-        sub ecx,uninstallRest
+        sub ecx,uninstallTrimRest
         mov ebx,hdata
-        add ebx,uninstallSize
-        add ebx,uninstallRest
+        add ebx,uninstallTrimSize
+        add ebx,uninstallTrimRest
         dec ebx
-        invoke ReadFile,h,ebx,ecx,addr readed,0
-        mov ecx,uninstallSize
+        invoke ReadFile,hFile,ebx,ecx,addr readed,0
+        mov ecx,uninstallTrimSize
         dec ecx
         add ecx,hdata
         mov BYTE ptr[ecx],0
         invoke initnano
         invoke lstrcpy,eax,addr uninstallName
+        mov ebx,hdata
+        add ebx,lastSectionOffset
+        mov eax,20250717h
+        mov eax,uninstallTrimSize
+        sub eax,[ebx+20]
+        mov [ebx+8],eax
+        mov eax,uninstallFileSize
+        sub eax,[ebx+20]
+        mov [ebx+16],eax
+
         invoke CreateFile,addr namecache,GENERIC_WRITE,FILE_SHARE_READ,0,CREATE_ALWAYS,FILE_ATTRIBUTE_NORMAL,0
         mov hdst,eax
-        invoke WriteFile,hdst,hdata,uninstallSize,addr writed,NULL
+        invoke WriteFile,hdst,hdata,uninstallFileSize,addr writed,NULL
         mov uninstallSize,0
         invoke processed,0
         invoke GlobalFree,hdata
         invoke CloseHandle,hdst
     .endif
-    invoke CloseHandle,h
+    invoke closesetup
     .if !isuninstall
         invoke ShellExecute,NULL,addr shellOperator,addr assocname,NULL,addr folder,SW_HIDE
     .endif
@@ -744,6 +854,9 @@ folderfind proc mark
 folderfind endp
 folderinit proc
     local bufferat
+    .if !hasPack
+        ret
+    .endif
     invoke lstrcpy,offset buffer,offset buffer2
     invoke foldersize,offset buffer
     add eax,offset buffer
@@ -1112,7 +1225,9 @@ drawclose proc @gp
     ret
 drawclose endp
 drawsetup proc @gp
-    .if m_current==offset setup
+    .if !hasPack
+        invoke _DrawButton,@gp,setup,0ff434644h,0ffc2c4c6h,2,0ffc2c4c6h
+    .elseif m_current==offset setup
         .if m_actived||(setup.text==offset onekey2)
             invoke _DrawButton,@gp,setup,0ff325614h,0ff629436h,2,0ff629436h
         .else
@@ -1506,6 +1621,8 @@ _LeftUp proc hWnd
     .if eax
     .elseif m_current==offset close
         invoke SendMessage,hWnd,WM_CLOSE,NULL,NULL
+    .elseif !hasPack
+        ret
     .elseif m_current==offset setup
         .if setup.text==offset onekey1
             mov setup.text,offset onekey2

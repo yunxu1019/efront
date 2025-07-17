@@ -9,10 +9,35 @@ var fsp = fs.promises;
  * @param {fs.promises.FileHandle} h
  */
 var readbuff = async function (h, offset, length) {
-    var buff = new Uint8Array(length);
+    var buff = Buffer.alloc(length);
     var readed = await h.read(buff, 0, length, offset);
-    if (readed.bytesRead < buff.length) buff = buff.slice(0, readed.bytesRead);
+    if (readed.bytesRead < buff.length) buff = buff.subarray(0, readed.bytesRead);
     return buff;
+};
+var readUInt16LE = async function (h, offset) {
+    var a = await readbuff(h, offset, 2);
+    return a.readUInt16LE(0);
+};
+var readUInt32LE = async function (h, offset) {
+    var a = await readbuff(h, offset, 4);
+    return a.readUInt32LE(0);
+};
+var getPackedEnd = async function (h, size) {
+    var a = await readbuff(h, 0, 2);
+    if (String(a) !== "MZ") return size;
+    var peOffset = await readUInt32LE(h, 0x3c);
+    var flag = await readbuff(h, peOffset, 4);
+    if (String(flag) !== "PE\0\0") return size;
+    var sectionCount = await readUInt16LE(h, peOffset + 6);
+    const sizeOfOptionalHeader = await readUInt16LE(h, peOffset + 20);
+    const optionalHeaderOffset = peOffset + 4 + 20; // 签名 (4) + FileHeader (20)
+    const sectionTable = optionalHeaderOffset + sizeOfOptionalHeader;
+    var lastSectionOffset = sectionTable + (sectionCount - 1) * 40;
+    var sectionName = await readbuff(h, lastSectionOffset, 8);
+    if (String(sectionName) !== ".pack\0\0\0") return size;
+    const dataSize = await readUInt32LE(h, lastSectionOffset + 8);
+    const lastRawOffset = await readUInt32LE(h, lastSectionOffset + 20);
+    return lastRawOffset + dataSize;
 };
 var readindex = async function (h, end) {
     var buff = await readbuff(h, end - 8, 8);
@@ -89,6 +114,7 @@ async function unpack(readfrom, writeto) {
         }
     }
     else {
+        size = await getPackedEnd(handle, size);
         var { files, dataoffset, nameoffset } = await readindex(handle, size);
         for (var cx = 0, dx = files.length; cx < dx; cx++) {
             var [nametype, namelength, isFolder, datasize] = files[cx];
@@ -96,7 +122,7 @@ async function unpack(readfrom, writeto) {
             if (+nametype === 1) {
                 name = decodeUTF16(name);
             } else {
-                name = String.fromCharCode.apply(null, name);
+                name = String(name);
             }
             nameoffset += namelength;
             var data = await readbuff(handle, dataoffset, datasize);

@@ -182,7 +182,11 @@ function unpack(buff) {
                 var count = buff.slice(byteoffset += 2, byteoffset += size);
                 count = readint(count);
                 var res = buff.slice(byteoffset, byteoffset += count);
+                byteoffset += count;
                 switch (type1) {
+                    case normal_nocode4:
+                        result.push(res);
+                        break;
                     case normal_deflate:
                         res = inflateRawSync(res);
                         result.push(new Uint8Array(res));

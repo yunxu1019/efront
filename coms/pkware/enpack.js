@@ -62,7 +62,6 @@ async function enpack(readfrom, writeto, type) {
             var data = await fsp.readFile(file);
             totalSize += data.length;
             var pressed = isZip ? packZip(data, name, distSize, stats) : encodePack(data, type);
-            distSize += pressed.length;
             await handle.write(pressed);
             var plength = pressed.length;
             if (!isZip) {
@@ -73,6 +72,7 @@ async function enpack(readfrom, writeto, type) {
                 plength += extra.length;
                 await handle.write(extra);
             };
+            distSize += plength;
             files.push(isZip ? pressed.central : [name, plength + 1]);
         }
     }

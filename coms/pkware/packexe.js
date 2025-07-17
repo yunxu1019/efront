@@ -3,12 +3,58 @@ var fsp = fs.promises;
 var finish = require('../build/finish');
 var memery = require("../efront/memery");
 var exepath = require("path").join(__dirname, "../../data/packexe-setup.sfx");
-var readPE = async function (fullpath) {
+/**
+ * @param {Buffer} buff 
+ */
+function addSection(buff, dataSize, sectionName) {
+    const peOffset = buff.readUInt32LE(0x3C);
+    const sectionCount = buff.readUInt16LE(peOffset + 6);
+    const sizeOfOptionalHeader = buff.readUInt16LE(peOffset + 20);
+    const fileAlignment = buff.readUInt32LE(peOffset + 60);
+    const sectionAlignment = buff.readUInt32LE(peOffset + 56);
+    const optionalHeaderOffset = peOffset + 4 + 20; // 签名 (4) + FileHeader (20)
+    const sectionTable = optionalHeaderOffset + sizeOfOptionalHeader;
+    // 计算新节大小和对齐
+    const rawSize = Math.ceil(dataSize / fileAlignment) * fileAlignment;
+
+    // 获取最后一个节的信息
+    var lastSectionOffset = sectionTable + (sectionCount - 1) * 40;
+    const lastVirtualAddress = buff.readUInt32LE(lastSectionOffset + 12);
+    const lastRawOffset = buff.readUInt32LE(lastSectionOffset + 20);
+    const lastRawSize = buff.readUInt32LE(lastSectionOffset + 16);
+
+    // 计算新节的地址和偏移
+    const newVirtualAddress = Math.ceil((lastVirtualAddress + lastRawSize) / sectionAlignment) * sectionAlignment;
+    const newRawOffset = Math.ceil((lastRawOffset + lastRawSize) / fileAlignment) * fileAlignment;
+
+    // 更新 NumberOfSections
+    buff.writeUInt16LE(sectionCount + 1, peOffset + 6);
+    lastSectionOffset += 40;
+    // 创建新节表项
+    buff.write(sectionName, lastSectionOffset, 8, 'ascii');
+    buff.writeUInt32LE(dataSize, lastSectionOffset + 8);
+    buff.writeUInt32LE(newVirtualAddress, lastSectionOffset + 12);
+    buff.writeUInt32LE(rawSize, lastSectionOffset + 16);
+    buff.writeUInt32LE(newRawOffset, lastSectionOffset + 20);
+    buff.writeUInt32LE(0x0E000000, lastSectionOffset + 36);
+    // 更新 SizeOfImage
+    const newSizeOfImage = Math.ceil((newVirtualAddress + rawSize) / sectionAlignment) * sectionAlignment;
+    buff.writeUInt32LE(newSizeOfImage, peOffset + 80);
+    return lastSectionOffset + 40;
+}
+
+var readPE = async function (fullpath, title) {
     var data = await fsp.readFile(fullpath);
     var offset = data.readInt32LE(0x3c);
     var flag = String(data.subarray(offset, offset + 4));
     if (flag !== "PE\0\0") throw new Error("PE文件异常！");
-    return [data.subarray(0, offset), data.subarray(offset, data.length)];
+    replaceTitle(data, title);
+    data = patchZero(data);
+    const fileAlignment = data.readUInt32LE(offset + 60);
+    var ratio = data.length / fileAlignment;
+    if ((ratio | 0) !== ratio) throw new Error("pe文件无法对齐");
+    data.fileAlignment = fileAlignment;
+    return data;
 }
 var createUTF16Buffer = function (str) {
     var dest = [];
@@ -60,16 +106,19 @@ var patchZero = function (patchdata) {
     }
     return patchdata;
 }
+var alignData = function (length, align) {
+    var newLength = Math.ceil(length / align) * align - length;
+    return new Uint8Array(newLength);
+}
 async function packexe(readfrom, writeto) {
     var startTime = new Date;
-    var [doshead, pedata] = await readPE(exepath);
+    var pedata = await readPE(exepath, memery.TITLE || writeto);
     var hd = await fsp.open(writeto, 'w');
-    var title = memery.TITLE || writeto;
-    replaceTitle(pedata, title);
-    pedata = patchZero(pedata);
-    await hd.write(doshead);
     await hd.write(pedata);
-    await enpack(readfrom, hd, 0);
+    var size = await enpack(readfrom, hd, 0);
+    await hd.write(alignData(size, pedata.fileAlignment));
+    var updateEnd = addSection(pedata, size, '.pack');
+    await hd.write(pedata, 0, updateEnd, 0);
     await hd.close();
     finish(new Date - startTime);
 }
