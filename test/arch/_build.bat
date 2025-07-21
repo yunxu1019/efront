@@ -11,8 +11,13 @@ call efront  --coms=pkware,reptile,basic build  "test\arch\%filename%asm"
 cd test\arch\
 copy ..\..\public\"%filename%asm" "%filename%tmp"
 set masm32=\prog\masm32
-set include=%masm32%\include;%masm32%\macros
-set lib=%masm32%\lib;
+set vc=D:\prog\vs2010\VC
+set z7="D:\work\7zip\"
+@REM set lz="%z7%C\Util\LzmaLib\Release"
+set lz="%z7%bin"
+set include=%z7%\bin;%masm32%\include;%masm32%\macros;%vc%\include
+@REM set lib=%vc%\lib;%masm32%\lib;%z7%\bin;
+set lib=%vc%\lib;%masm32%\lib;%lz%
 set bin=%masm32%\bin
 set efrontasm=..\..\coms\arch
 if not defined ml64 goto :x86
@@ -28,7 +33,7 @@ if exist "%filename%rc" (
     %bin%\rc /c 65001 /r "%filename%tmp"
 )
 if exist "%filename%res" (
-    %bin%\link /subsystem:windows "%filename%obj" "%filename%res"
+    %bin%\link /subsystem:windows "%filename%obj" "%filename%res" /LIBPATH:D:\work\7zip\bin 
     goto :end
 )
 %bin%\link /subsystem:windows "%filename%obj"

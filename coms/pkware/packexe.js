@@ -115,7 +115,7 @@ async function packexe(readfrom, writeto) {
     var pedata = await readPE(exepath, memery.TITLE || writeto);
     var hd = await fsp.open(writeto, 'w');
     await hd.write(pedata);
-    var size = await enpack(readfrom, hd, 0);
+    var size = await enpack(readfrom, hd, 7);
     await hd.write(alignData(size, pedata.fileAlignment));
     var updateEnd = addSection(pedata, size, '.pack');
     await hd.write(pedata, 0, updateEnd, 0);

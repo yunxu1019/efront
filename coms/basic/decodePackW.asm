@@ -1,7 +1,12 @@
 .data
+; LzmaLib.inc 
+LzmaCompress PROTO :PTR BYTE, :PTR DWORD, :PTR BYTE, :DWORD, :PTR BYTE, :PTR DWORD, :DWORD
+LzmaUncompress PROTO :PTR BYTE, :PTR DWORD, :PTR BYTE, :PTR DWORD, :PTR BYTE, :DWORD
+includelib LzmaLib.lib
 errortext db "数据异常"
 errortitle db "错误"
 errorcode db "编码错误"
+lzmaProps db  93, 0, 0, 1, 0 ; 与js/wasm保持一致
 normal_huffman equ 0
 normal_repeat1 equ 1
 normal_repeat2 equ 2
@@ -13,7 +18,7 @@ other_compress equ 7
     normal_nocode4 equ 3
     mtime_stamp equ 5;
     access_mode equ 6;
-
+    lzma_3rd_party equ 7;
 .code
 
 fill proc start,leng,a
@@ -629,6 +634,7 @@ unpack proc start,len,dsth,passed
             mov to,ecx
         .elseif eax==other_compress
             movzx eax,byte ptr[ecx]
+            local srclen,clen
             mov type1,eax
             xor eax, eax
             mov al, byte ptr[ecx+1];
@@ -645,6 +651,7 @@ unpack proc start,len,dsth,passed
                 inc ecx
                 dec eax
             .endw
+            mov clen,ebx
             mov count,ebx
             mov to,ecx
             mov eax,type1;
@@ -652,19 +659,32 @@ unpack proc start,len,dsth,passed
                 invoke GlobalAlloc,GMEM_FIXED or GMEM_ZEROINIT,count
                 mov decoded,eax
                 mov ecx,to
-                invoke memcopy,ecx,count,decoded
+                invoke memcopy,ecx,clen,decoded
                 mov ecx,to
-                add ecx,count
+                add ecx,clen
+            .elseif eax == lzma_3rd_party
+                mov ecx,to
+                mov eax,20250722h
+                mov eax,[ecx]
+                mov count,eax
+                invoke GlobalAlloc,GMEM_FIXED or GMEM_ZEROINIT,count
+                mov decoded,eax
+                mov ecx,to
+                add ecx,4
+                mov eax,clen
+                sub eax,4
+                mov srclen,eax
+                invoke LzmaUncompress,decoded,addr count,ecx,addr srclen,addr lzmaProps,5
             .elseif eax == mtime_stamp;暂不支持
-                add ecx,count
+                mov count,0
             .elseif eax == access_mode;暂不支持
-                add ecx,count
+                mov count,0
             .else
                 invoke MessageBox,NULL,offset errorcode, offset errortitle,MB_OK
                 invoke ExitProcess,1
             .endif
             mov ecx,to
-            add ecx,count
+            add ecx,clen
             mov to, ecx
         .else
             invoke MessageBox,NULL,offset errortext,offset errortitle,MB_OK

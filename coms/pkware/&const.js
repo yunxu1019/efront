@@ -12,3 +12,4 @@ const normal_nocode4 = 3;
 const normal_deflate = 4;
 const mtime_stamp = 5;
 const access_mode = 6;
+const lzma_3rd_party = 7;

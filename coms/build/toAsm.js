@@ -136,6 +136,9 @@ function toAsm(a) {
             // protos[p.name] = `${p.name} PROTO ${serialize(p.params, ",", "")}`;
             return `${p.row}${locals}\r\n${codes.join("\r\n")}\r\n${p.name} end${p.type[0]}`;
         }
+        else if (p.type === 'proto') {
+            protos[p.name] = p.row;
+        }
         else {
             protos[p.name] = `${p.name} ${p.type}\r\n    ${p.codes.join("\r\n    ")}\r\n${p.name} ends`;
         }

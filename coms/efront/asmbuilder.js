@@ -35,6 +35,7 @@ function leavequeue() {
     type = type.toLowerCase();
     switch (type) {
         case "proc":
+        case "proto":
         case "struct":
 
             procs.push({
@@ -104,7 +105,7 @@ function readrow(row) {
     }
     row = prefixrow + row;
     prefixrow = '';
-    var match = /^(\w+)\s+(proc|struct|macro|endm|ends|endp)(?:\s+|,|$)/i.exec(row);
+    var match = /^(\w+)\s+(proc|struct|macro|endm|ends|endp|proto)(?:\s+|,|$)/i.exec(row);
     if (match) {
         if (/^end/i.test(match[2])) {
             leavequeue();
@@ -116,6 +117,10 @@ function readrow(row) {
             locals = temp;
             temp = '';
         }
+        if (/^proto$/i.test(match[2])) {
+            leavequeue();
+        }
+
         return;
     }
     var match = /^local\s+/.exec(row);

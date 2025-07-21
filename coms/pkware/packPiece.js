@@ -1,8 +1,11 @@
 function int(n) {
     var dist = [];
+    if (n > 0xffffffff) {
+        throw new Error("数据过大");
+    }
     while (n > 0) {
         dist.push(n & 0xff);
-        n = n / 256 | 0;
+        n >>>= 8;
     }
     dist.reverse();
     return dist;

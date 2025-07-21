@@ -1,4 +1,5 @@
 var inflateRawSync = require("zlib").inflateRawSync;
+var lzmaDecompress = require("./lzma").decompress;
 function decodeFlat(buff, start = 0) {
     var tcount = buff[start];
     var total = 0;
@@ -182,8 +183,11 @@ function unpack(buff) {
                 var count = buff.slice(byteoffset += 2, byteoffset += size);
                 count = readint(count);
                 var res = buff.slice(byteoffset, byteoffset += count);
-                byteoffset += count;
                 switch (type1) {
+                    case lzma_3rd_party:
+                        res = lzmaDecompress(res);
+                        result.push(new Uint8Array(res));
+                        break;
                     case normal_nocode4:
                         result.push(res);
                         break;

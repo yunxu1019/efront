@@ -11,7 +11,7 @@ else {
         'Date', 'Promise', 'Function',
         'RegExp', 'Object', 'String',
         'Array', 'Number', 'Boolean',
-        'Error', 'TypeError', 'Uint8Array',
+        'Error', 'TypeError', 'Uint8Array',"DataView",
         'Uint16Array', 'Uint32Array', 'Uint8ClampedArray',
         'ArrayBuffer', 'Int8Array', 'Int16Array',
         'Int32Array', 'Float32Array', 'Float64Array',
