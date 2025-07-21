@@ -763,7 +763,10 @@ var commands = {
             for (var p in newmap) tempmap[newmap[p]] = true;
             pathmap = Object.assign(tempmap, pathmap);
         }
-        var value = Object.keys(pathmap).join(delimiter);
+        var value = Object.keys(pathmap).map(a => {
+            if (/\s/.test(a)) return `"${a}"`;
+            return a;
+        }).join(delimiter);
         reg.set("path", value, false);
         Promise.resolve().then(showres);
     },
