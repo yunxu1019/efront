@@ -893,7 +893,7 @@ var createScoped = function (parsed, wash) {
                     }
                 }
                 else {
-                    var n = skipAssignment(o);
+                    var n = skipSentenceQueue(o);
                     var n1 = o;
                     while (n1 && n1 !== n) {
                         o = n1;
