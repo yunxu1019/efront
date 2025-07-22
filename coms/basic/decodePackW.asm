@@ -1,14 +1,12 @@
 .data
 ; LzmaLib.inc 
-LzmaCompress PROTO :PTR BYTE, :PTR DWORD, :PTR BYTE, :DWORD, :PTR BYTE, :PTR DWORD, :DWORD
-LzmaUncompress PROTO :PTR BYTE, :PTR DWORD, :PTR BYTE, :PTR DWORD, :PTR BYTE, :DWORD
-includelib LzmaLib.lib
+LzmaUncompress PROTO :PTR BYTE, :PTR DWORD, :PTR BYTE, :PTR DWORD
+includelib LzmaLib.lib; https://github.com/yunxu1019/7zip 编译命令为 wasm\build-lib.bat
 include windows.inc
 includelib Kernel32.lib
 errortext db "数据异常"
 errortitle db "错误"
 errorcode db "编码错误"
-lzmaProps db  93, 0, 0, 1, 0 ; 与js/wasm保持一致
 mtime FILETIME <0,0>
 normal_huffman equ 0
 normal_repeat1 equ 1
@@ -723,7 +721,7 @@ unpack proc start,len,dsth,passed
                 mov eax,clen
                 sub eax,4
                 mov srclen,eax
-                invoke LzmaUncompress,decoded,addr count,ecx,addr srclen,addr lzmaProps,5
+                invoke LzmaUncompress,decoded,addr count,ecx,addr srclen
             .elseif eax == mtime_stamp;
                 mov eax,20250722h
                 mov eax,clen
