@@ -3,10 +3,13 @@
 LzmaCompress PROTO :PTR BYTE, :PTR DWORD, :PTR BYTE, :DWORD, :PTR BYTE, :PTR DWORD, :DWORD
 LzmaUncompress PROTO :PTR BYTE, :PTR DWORD, :PTR BYTE, :PTR DWORD, :PTR BYTE, :DWORD
 includelib LzmaLib.lib
+include windows.inc
+includelib Kernel32.lib
 errortext db "数据异常"
 errortitle db "错误"
 errorcode db "编码错误"
 lzmaProps db  93, 0, 0, 1, 0 ; 与js/wasm保持一致
+mtime FILETIME <0,0>
 normal_huffman equ 0
 normal_repeat1 equ 1
 normal_repeat2 equ 2
@@ -489,6 +492,53 @@ memcopy proc start,len,dist
     ret
 memcopy endp 
 
+
+; 输入：EDX:EAX = JavaScript时间戳（64位毫秒值）
+; 输出：EDX:EAX = Windows FileTime（64位）
+jsDateToFileTime proc
+    push ebx
+    push ecx
+    push esi
+    push edi
+    
+    ; 保存原始输入值
+    mov ebx, eax    ; 低32位
+    mov ecx, edx    ; 高32位
+    ; 乘以10000 (0x2710)
+    ; 先计算低32位 * 10000
+    mov eax, ebx
+    mov edx, 10000
+    mul edx         ; EDX:EAX = EBX * 10000
+    mov esi, eax    ; 保存乘积低32位
+    mov edi, edx    ; 保存乘积高32位
+    
+    ; 再计算高32位 * 10000
+    mov eax, ecx
+    mov edx, 10000
+    mul edx         ; EDX:EAX = ECX * 10000
+    add edi, eax    ; 累加到乘积高32位
+    
+; 19db1ded53e8000
+    ; 加上基准差值低32位
+    add esi, 0d53e8000h
+    adc edi, 0
+    
+    ; 加上基准差值高32位
+    mov eax, 019db1deh
+    add edi, eax
+    
+    ; 返回结果
+    mov eax, esi    ; 低32位
+    mov edx, edi    ; 高32位
+    
+    pop edi
+    pop esi
+    pop ecx
+    pop ebx
+    ret
+jsDateToFileTime endp
+
+
 unpack proc start,len,dsth,passed
     local writed,buff,bufflen,byteoffset,decoded,count,to,type1
     local passed0
@@ -664,7 +714,6 @@ unpack proc start,len,dsth,passed
                 add ecx,clen
             .elseif eax == lzma_3rd_party
                 mov ecx,to
-                mov eax,20250722h
                 mov eax,[ecx]
                 mov count,eax
                 invoke GlobalAlloc,GMEM_FIXED or GMEM_ZEROINIT,count
@@ -675,7 +724,35 @@ unpack proc start,len,dsth,passed
                 sub eax,4
                 mov srclen,eax
                 invoke LzmaUncompress,decoded,addr count,ecx,addr srclen,addr lzmaProps,5
-            .elseif eax == mtime_stamp;暂不支持
+            .elseif eax == mtime_stamp;
+                mov eax,20250722h
+                mov eax,clen
+                mov ecx,to
+                push edx
+                xor ebx,ebx
+                push esi
+                xor edx,edx
+                .while eax>0
+                    dec eax
+                    push eax
+                    mov esi,edx
+                    shld edx,ebx,7
+                    shl ebx,7
+                    mov al,[ecx+eax]
+                    shl al,1
+                    mov bl,al
+                    pop eax
+                .endw
+                mov eax,esi
+                shrd ebx,edx,1
+                pop esi
+                shl eax,7;
+                rcr edx,1
+                mov eax,ebx
+                call jsDateToFileTime
+                mov mtime.dwHighDateTime,edx
+                mov mtime.dwLowDateTime,eax
+                pop edx
                 mov count,0
             .elseif eax == access_mode;暂不支持
                 mov count,0
@@ -731,7 +808,9 @@ decodePackW proc srch,start,len,dsth,passed
     mov eax,95577h
     mov eax,DWORD ptr[ecx]
     shr eax,5
+    invoke GetSystemTimeAsFileTime,offset mtime
     invoke unpack,buff,len,dsth,passed
+    invoke SetFileTime,dsth,NULL,NULL,offset mtime
     invoke GlobalFree,buff
     ret
 decodePackW endp

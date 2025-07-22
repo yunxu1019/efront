@@ -368,7 +368,6 @@ initnano proc
 initnano endp
 writenano proc h,nametype,nameleng,isfolder,dataleng
     local namebuff,namereaded,hdst,fsize
-    local namecode,databuff,datareaded
     mov eax,95555h
     invoke GlobalAlloc,GMEM_FIXED or GMEM_ZEROINIT,nameleng
     mov namebuff,eax
@@ -392,7 +391,6 @@ writenano proc h,nametype,nameleng,isfolder,dataleng
         .if isuninstall
             invoke DeleteFile,addr namecache
         .else
-            mov databuff,eax
             invoke CreateFile,addr namecache,GENERIC_WRITE,FILE_SHARE_READ,0,CREATE_ALWAYS,FILE_ATTRIBUTE_NORMAL,0
             .if eax==INVALID_HANDLE_VALUE
                 ret
@@ -403,7 +401,6 @@ writenano proc h,nametype,nameleng,isfolder,dataleng
         .endif
     .endif
     invoke GlobalFree,namebuff
-    invoke GlobalFree,namecode
     ret
 writenano endp
 
