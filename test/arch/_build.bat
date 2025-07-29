@@ -25,7 +25,7 @@ echo "%bin%\%ml64%"
 call "%bin%\%ml64%" /c "%filename%tmp"
 goto :mlend
 :x86
-call %bin%\ml /c /coff "%filename%tmp"
+call %vc%\bin\ml /c /coff "%filename%tmp"
 :mlend
 if not %errorlevel% equ 0 exit /b
 if exist "%filename%rc" (
@@ -33,7 +33,7 @@ if exist "%filename%rc" (
     %bin%\rc /c 65001 /r "%filename%tmp"
 )
 if exist "%filename%res" (
-    %bin%\link /NODEFAULTLIB:msvcrt.lib /DEFAULTLIB:libcmt.lib /subsystem:windows "%filename%obj" "%filename%res"
+    %vc%\bin\link /WX /STACK:20000000 /heap:200000000,200000000 /subsystem:windows "%filename%obj" "%filename%res"
     goto :end
 )
 %bin%\link /subsystem:windows "%filename%obj"
