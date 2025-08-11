@@ -30,13 +30,21 @@ var fixContainer = function (elem, ipt) {
     move.fixPosition(elem);
 };
 function prompt() {
-    var msg = i18n`请输入`, check, ipt;
+    var msg, check, ipt;
     var opts = [];
     var submit = null;
     var wrap = false;
     var value = '';
+    var attrs = {
+        type: null,
+        max: null,
+        min: null,
+        step: null,
+        maxLength: null,
+    };
     for (var arg of arguments) {
         if (isNode(arg)) ipt = arg;
+        else if (msg && typeof arg === 'string' || typeof arg === 'integer') value = arg;
         else if (typeof arg === 'string') msg = arg;
         else if (isArray(arg)) opts = arg;
         else if (isFunction(arg) || arg instanceof RegExp) check = arg;
@@ -46,9 +54,13 @@ function prompt() {
             if (isFunction(arg.submit)) submit = arg;
             if (isString(arg.msg || arg.title)) msg = arg.msg || arg.title;
             if (isHandled(arg.value)) value = arg.value;
+            for (var k in attrs) {
+                if (k in arg) attrs[k] = arg[k];
+            }
             if (arg.multiple || arg.wrap) wrap = true;
         }
     }
+    if (!msg) msg = i18n`请输入`;
     if (!ipt) {
         if (wrap) {
             ipt = document.createElement('div');
@@ -60,6 +72,9 @@ function prompt() {
     }
     else {
         ipt.setAttribute('textarea', '');
+    }
+    for (var k in attrs) {
+        if (isHandled(attrs[k])) ipt.setAttribute(k, attrs[k]);
     }
     var tip = document.createElement("tip");
     var buttons = [isNode(opts[0]) ? opts[0] : button(opts[0] || i18n`确认`), isNode(opts[1]) ? opts[1] : button(opts[1] || i18n`取消`, 'white')];
