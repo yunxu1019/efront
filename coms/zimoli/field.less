@@ -6,9 +6,11 @@
     padding: 8px 0;
     border-bottom: 1px solid #0001;
 }
-&:empty{
+
+&:empty {
     display: none;
 }
+
 >.head,
 >.foot {
     padding: 2px 16px;
@@ -60,9 +62,12 @@ model {
         margin: 10px 0;
     }
 
+    &:not(input, textarea, .input, select, .select) {
+        padding: 2px 16px;
+    }
+
     min-height: 30px;
     vertical-align: top;
-    padding: 2px 16px;
     height: 100%;
     display: inline-block;
     width: 100%;

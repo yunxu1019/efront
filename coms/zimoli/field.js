@@ -12,8 +12,10 @@ var reshape = function () {
                 paddingLeft: left,
                 paddingTop: ""
             });
+            this.removeAttribute('break');
         }
         else {
+            this.setAttribute('break', '');
             var top = head.offsetHeight + 1;
             css(head, {
                 marginRight: '',
@@ -27,7 +29,6 @@ var reshape = function () {
     }
     if (!body) body = head;
     if (foot && body) {
-        console.log(foot)
         var right = foot.offsetWidth + 1;
         if (isInlineBlock && right < (this.break || body.offsetWidth >> 2)) {
             css(foot, {
