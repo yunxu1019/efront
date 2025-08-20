@@ -1,6 +1,7 @@
 "use strict";
 var strings = require("../basic/strings");
 var Program = require("./Program");
+var Node = require("./Node");
 var backEach = require("../basic/backEach");
 var parseNumber = require('../basic/parseNumber');
 var removeFromList = require("../basic/removeFromList");
@@ -359,7 +360,7 @@ var scan = function (data) {
     return js.exec(data);
 };
 var detourTemplate = function (raw, params) {
-    var spliter = { text: ",", type: STAMP };
+    var spliter = new Node({ text: ",", type: STAMP });
     var template = scan(`&extend([],{["raw"]:[]})`);
     rootenvs["&extend"] = true;
     var str0 = template[1].first;
@@ -692,7 +693,7 @@ var removeImport = function (c, i, code) {
             delete vars[dn];
         });
     });
-    var u = { type: EXPRESS, text: name };
+    var u = new Node({ type: EXPRESS, text: name });
     _splice_keepspace(code, i + 1, oi - i - 1, u);
     used[name].push(u);
     return u;

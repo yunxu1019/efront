@@ -19,6 +19,7 @@ const {
 } = require("./common");
 var combine = require("../basic/combine");
 var sortRegster = require("../basic/sortRegister");
+var Node = require("./Node");
 var createQuotedMap = function (entry) {
     var map = {};
     var end = {};
@@ -38,7 +39,7 @@ var createQuotedMap = function (entry) {
 var stringsFromRegExp = function (reg) {
     // 只处理有限长度无嵌套无分支的表达式
     var source = reg.source;
-    var queue = [];
+    var queue = Node([]);
     for (var cx = 0, dx = source.length; cx < dx; cx++) {
         var s = source[cx];
         if (source[cx] === "\\") {
@@ -81,12 +82,12 @@ var setObject = function (o) {
             continue;
         }
         if (m.type === LABEL) {
-            o.splice(cx, 0, o[++cx].prev = m.next = m.next.prev = {
+            o.splice(cx, 0, o[++cx].prev = m.next = m.next.prev = new Node({
                 prev: m,
                 text: ':',
                 type: STAMP,
                 next: m.next,
-            });
+            }));
             m.type = PROPERTY;
             m.text = m.text.replace(/\:$/, '');
             m.isprop = true;
@@ -108,6 +109,7 @@ var setObject = function (o) {
 var spaceDefined = require("../basic/spaces");
 
 var powermap = require("./powermap");
+const { ret } = require("../../../yueji/coms/x86");
 class Program {
     quotes = [
         [/'/, /'/, /\\[\s\S]/],
@@ -310,7 +312,7 @@ class Program {
         if (!this.entry_reg) this.commit();
         var index = this.lastIndex;
         this.lastIndex = text.length;
-        var parents = [];
+        var parents = Node([]);
         var lasttype;
         var Code = this.Code;
         var queue = new Code();
@@ -352,7 +354,7 @@ class Program {
                 if (scope.text) setRows(scope.text);
             }
             var last = queue.last;
-            Object.defineProperty(scope, 'queue', { value: queue, enumerable: false, configurable: true });
+            scope.queue = queue;
             scope.prev = last;
             if (!(scope.type & (COMMENT | SPACE))) {
                 var keeplast = program.setType(scope) === false;
@@ -473,7 +475,7 @@ class Program {
                 return;
             }
 
-            var scope = {
+            var scope = new Node({
                 type,
                 start,
                 end,
@@ -481,7 +483,7 @@ class Program {
                 col: start - colstart,
                 isExpress: queue.inExpress,
                 text: m
-            };
+            });
             lasttype = type;
             if (type === STAMP) {
                 cache_stamp = scope;
@@ -512,7 +514,7 @@ class Program {
                 if (queue.tag_entry !== qtag) return;
                 var p = queue;
                 var pi = parents.length;
-                var ps = [];
+                var ps = Node([]);
                 for (var cx = 0, dx = parents.length; cx < dx; cx++) {
                     if (parents[cx].tag) break;
                 }
@@ -523,7 +525,7 @@ class Program {
                 if (!p.tag) {
                     if (queue.waitTag) return;
                     pi++;
-                    var scope = [];
+                    var scope = Node([]);
                     scope.entry = queue.tag_entry;
                     scope.tag_leave = queue.tag_leave;
                     scope.tag = tag;
@@ -586,13 +588,13 @@ class Program {
             return istype;
         };
         var undefTag = () => {
-            var scope = {
+            var scope = new Node({
                 type: STAMP,
                 text: queue.entry,
                 col: queue.col,
                 row: queue.row,
                 start: queue.start,
-            };
+            });
             if (queue[0]) {
                 queue.splice(0, queue.length);
                 start = index = queue[0].start;
@@ -646,7 +648,7 @@ class Program {
             return false;
         };
         var push_quote = function () {
-            var scope = [];
+            var scope = Node([]);
             scope.entry = m;
             scope.type = SCOPED;
             scope.inExpress = true;
@@ -765,7 +767,7 @@ class Program {
                         if (mi === 0) {
                             if (queue.waitTag) continue;
                             push_piece();
-                            var scope = [];
+                            var scope = Node([]);
                             scope.entry = m;
                             scope.type = QUOTED;
                             if (queue.istype) scope.istype = queue.istype;
@@ -805,7 +807,7 @@ class Program {
                         }
                         if (queue.tag && !queue.inTag) continue;
                         push_piece();
-                        var scope = [];
+                        var scope = Node([]);
                         scope.entry = m;
                         if (queue.istype) scope.istype = true;
                         scope.type = QUOTED;
@@ -901,7 +903,7 @@ class Program {
                             break;
                     }
                 }
-                var scope = [];
+                var scope = Node([]);
                 scope.type = iscomment ? COMMENT : QUOTED;
                 if (isTypeTag && scope.type === QUOTED) scope.istype = isTypeTag;
                 scope.isExpress = queue.inExpress;
@@ -1048,7 +1050,7 @@ class Program {
                         if (last.isExpress && !last.istype) break scope;
                     }
                 }
-                var scope = [];
+                var scope = Node([]);
                 scope.entry = m;
                 scope.type = SCOPED;
                 scope.start = match.index;
