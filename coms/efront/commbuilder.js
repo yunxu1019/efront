@@ -785,7 +785,8 @@ async function getXhtPromise(xhtdata, filename, fullpath, watchurls, extraJs, ex
     htmltext = compile$wraphtml(htmltext);
     var jsused = jscope.used;
     var async = jscope.async ? 'async ' : '';
-    var scope = Object.keys(Object.assign({}, scoped.vars, scoped.envs)).filter(e => e in this || e in jsused);
+    var xused = scoped.used;
+    var scope = Object.keys(Object.assign({}, scoped.vars, scoped.envs)).filter(e => e in this || e in jsused || e in xused && xused[e].length > 0);
     if (scope.length) {
         var htcode = scanner2(htmltext);
         var jsvars = Object.assign({}, jscope.vars, scoped.vars);

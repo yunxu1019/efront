@@ -81,7 +81,9 @@ var fixElement = function (o) {
                 }
                 ps = ps.slice(cx);
                 if (!ps.length);
-                else if (ps.length === 1) push(ps[0]);
+                else if (ps.length === 1) {
+                    push(ps[0]);
+                }
                 else {
                     ps.type = QUOTED;
                     ps.entry = '"';
@@ -91,9 +93,22 @@ var fixElement = function (o) {
             })
         }
         else {
+            if (a.type === QUOTED) {
+                if (a.length === 1 && a[0].type === PIECE) {
+                    a = new Node({
+                        type: QUOTED,
+                        start: a.start,
+                        end: a.end,
+                        col: a.col,
+                        row: a.row,
+                        text: createString([a]),
+                    });
+                }
+            }
             push(a);
         }
     });
+    relink(attributes);
     o.attributes = attributes;
 }
 
@@ -115,10 +130,10 @@ var replaceISO8859 = function (data) {
     return String(data).replace(/<\!--([\s\S]*)--\>$/g, '$1').replace(/&\w+;/g, a => iso8859[a] || a).replace(/&#(\d+);/g, (_, a) => String.fromCodePoint(a))
 };
 var parseExpress = function (data, mayberepeat) {
-    data = "=" + replaceISO8859(data);
     if (mayberepeat && /\s+(in|of)\s+/.test(data)) {
-        data = data.split(/\s+(in|of)\s+/).pop();
+        data = `for(var ${data});`;
     }
+    else data = "=" + replaceISO8859(data);
     p.lastIndex = 0;
     return p.exec(data);
 };
@@ -127,11 +142,12 @@ var toCamelCase = function (a) {
     return a.replace(/\-([\s\S])/g, (_, a) => a.toUpperCase());
 }
 
-class Node { }
+var isDynamic = a => /^(on|@|\-|_|\.|#|\:|\+|\*|\?|&|\$|\S+\-)|(@|\-|_|\.|#|\:|\+|\*|\?|&|\$)$/i.test(a);
 
 Html.prototype.createScoped = function (code) {
     var used = Object.create(null);
     var vars = Object.create(null);
+    var rootvars = vars;
     var scriptNodes = [], styleNodes = [], tempNodes = [];
     var inScript = false;
     var noTag = true;
@@ -144,11 +160,13 @@ Html.prototype.createScoped = function (code) {
                 if (!/^(script|style)$/i.test(c.tagName)) {
                     fixElement(c);
                     noTag = false;
+                    var _vars = vars;
+                    vars = Object.create(_vars);
                     if (c.attributes) c.attributes.forEach(run);
                     noTag = true;
                     if (!used[v]) used[v] = [];
-                    used[v].push(c);
                     c.forEach(run);
+                    vars = _vars;
                 }
                 else {
                     if (c.tagName === 'SCRIPT') {
@@ -171,18 +189,18 @@ Html.prototype.createScoped = function (code) {
                         var nn = c.next.next;
                         if (!nn || nn.length > 0) return;
                         if (nn.type === EXPRESS || nn.type === QUOTED) {
-                            vars[strings.decode(createString([nn]))] = true;
+                            rootvars[strings.decode(createString([nn]))] = true;
                         }
                     }
                 }
                 else {
                     if (/^\#/.test(c.text)) {
                         var id = c.text.slice(1);
-                        vars[toCamelCase(id)] = true;
+                        rootvars[toCamelCase(id)] = true;
                     }
                     else if (/\#$/.test(c.text)) {
                         var id = c.text.slice(0, c.text.length - 1);
-                        vars[toCamelCase(id)] = true;
+                        rootvars[toCamelCase(id)] = true;
                     }
                 }
                 break;
@@ -195,22 +213,33 @@ Html.prototype.createScoped = function (code) {
                 }
                 if (noTag || !c.text) break;
                 var t = strings.decode(c.text);
-                var p = t.prev;
+                var p = c.prev;
                 var pp = p && p.prev;
-                var mayberepeat = p && pp && p.type === STAMP && p.text === "=" && /\-(src|repeat|for|each|foreach)$/i.test(pp.text)
-                t = parseExpress(t, mayberepeat);
-                var envs = createScoped(t).envs;
-                for (var k in envs) {
-                    if (!used[k]) used[k] = [];
+                if (pp && isDynamic(pp.text)) {
+                    var mayberepeat = p && pp && p.type === STAMP && p.text === "=" && /[\:\-\_@\&\*\?\#\+\.\$](src|repeat|for|each|foreach)$/i.test(pp.text)
+                    t = parseExpress(t, mayberepeat);
+                    var s = createScoped(t);
+                    var envs = s.envs;
+                    for (var k in s.vars) vars[k] = true;
+                    for (var k in envs) {
+                        if (!vars[k]) {
+                            if (!used[k]) used[k] = [];
+                            used[k].push(...s.used[k]);
+                        }
+                    }
                 }
                 break;
             case EXPRESS:
                 if (inScript || noTag) break;
                 var t = c.text;
                 t = parseExpress(t);
-                var envs = createScoped(t).envs;
+                var s = createScoped(t);
+                var envs = s.envs;
                 for (var k in envs) {
-                    if (!used[k]) used[k] = [];
+                    if (!vars[k]) {
+                        if (!used[k]) used[k] = [];
+                        used[k].push(...s.used[k]);
+                    }
                 }
                 break;
         }
