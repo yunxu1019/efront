@@ -109,7 +109,7 @@ var setObject = function (o) {
 var spaceDefined = require("../basic/spaces");
 
 var powermap = require("./powermap");
-const { ret } = require("../../../yueji/coms/x86");
+
 class Program {
     quotes = [
         [/'/, /'/, /\\[\s\S]/],
