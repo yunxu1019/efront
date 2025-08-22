@@ -160,7 +160,7 @@ var loadUseBody = async function (source, fullpath, watchurls) {
         if (/\.h$/i.test(realPath)) {
             return data;
         }
-        if (!/\.([jt]sx?)$/.test(realPath)) {
+        if (!/\.([mc]?[jt]sx?)$/.test(realPath)) {
             return `var ${realName}=${JSON.stringify(data)}`;
         }
         data = data.toString();

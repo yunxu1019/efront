@@ -31,7 +31,7 @@ var filecache = new Cache(SERVER_ROOT_PATH, function (data, filename, fullpath) 
             }));
         }
     }
-    if (memery.TRANSFER && /\.(m?[tj]sx?|html?|json|css|less)$/i.test(fullpath)) {
+    if (memery.TRANSFER && /\.([mc]?[tj]sx?|html?|json|css|less)$/i.test(fullpath)) {
         data = Buffer.from(transfer(data));
     }
     var data = filebuilder(data, filename, fullpath);
