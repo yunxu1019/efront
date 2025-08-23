@@ -15,7 +15,7 @@ function Node(o) {
         });
         t[types[o.type]] = o.text;
     }
-    else Object.assign(t, o);
+    Object.assign(t, o);
     return t;
 }
 var node_props = [
