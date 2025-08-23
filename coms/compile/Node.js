@@ -41,16 +41,25 @@ defineProperty(Node, 'debug', {
         node_props.forEach(debug ? def : del, Node.prototype);
     }
 });
+
 var def = function (k) {
     var k1 = Symbol(k);
+    var set = function (v) {
+        defineProperty(this, k1, { configurable: true, writable: true, enumerable: false, value: v });
+    };
     defineProperty(this, k, {
         configurable: true, enumerable: false,
         get() {
             return this[k1];
         },
-        set(v) {
-            defineProperty(this, k1, { configurable: true, writable: true, enumerable: false, value: v })
-        }
+        set: k === 'type' ? function (v) {
+            delete this[types[this[k1]]];
+            set.call(this, v);
+            this[types[v]] = this.text;
+        } : k === 'text' ? function (v) {
+            set.call(this, v);
+            this[types[this.type]] = v;
+        } : set,
     });
 };
 var del = function (k) {

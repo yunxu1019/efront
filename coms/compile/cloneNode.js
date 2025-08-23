@@ -1,10 +1,11 @@
 var { VALUE, QUOTED, EXPRESS, STRAP, relink } = require("./common");
 var Node = require("./Node");
+var cloneChild = o => cloneNode(o);
 var cloneNode = function (o, keep) {
     var c = o;
     if (c instanceof Array && !c.text) {
         if (keep) return c;
-        c = c.map(cloneNode);
+        c = c.map(cloneChild);
         c.entry = o.entry;
         c.leave = o.leave;
         c.type = o.type;
