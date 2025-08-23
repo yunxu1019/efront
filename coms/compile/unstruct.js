@@ -305,13 +305,29 @@ var getCondition = function (o, unblock, not_) {
     if (not_) not = !not;
     if (f && f === o.last) {
         if (f.type & (EXPRESS | VALUE)) {
-            n = cloneNode(f);
+            n = f;
         }
         if (not && n) {
             if (f.type === VALUE) {
-                n = String(eval("!" + f.text));
+                if (f.isdigit) {
+                    n = cloneNode(String(eval("!" + f.text)));
+                }
+                else switch (f.text) {
+                    case "true":
+                    case "Infinity":
+                    case "-Infinity":
+                        n = cloneNode("false");
+                        break;
+                    case "NaN":
+                    case "null":
+                    case "undefined":
+                        n = cloneNode("true");
+                        break;
+                    default:
+                        n = rescan.keep`!${f}`;
+                }
             }
-            else n = rescan`!${n}`;
+            else n = rescan.keep`!${n}`;
         }
     }
     if (!n) {
@@ -323,9 +339,9 @@ var getCondition = function (o, unblock, not_) {
             n = ret_;
         }
         else n = n.name;
-        if (not) n = rescan`!${n}`;
+        if (not) n = rescan.keep`!${n}`;
     }
-    return cloneNode(n);
+    return n;
 }
 var _while = function (body, cx, unblock, result) {
     var o = body[cx];
