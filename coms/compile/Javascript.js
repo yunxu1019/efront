@@ -888,10 +888,20 @@ Javascript.prototype.fix = function (code) {
     }, this);
     if (code.exportStars) {
         var exportStars = code.exportStars;
-        if (!code.exportDefault) code.push(...scan(`\r\nexports.default=undefined`));
+        if (code.last.type !== STAMP || code.last.text !== ";") code.push({ text: ",", type: STAMP });
+        if (!code.exportDefault) code.push(...scan(`\r\nexports.default=undefined;`));
+        var extused = [];
         exportStars.forEach(u => {
-            code.push(...scan(`\r\nextendIfNeeded(exports,${u.text})`));
+            var a = scan(`\r\n&extendIfNeeded(exports,${u.text});`)
+            extused.push(a[1]);
+            code.push(a[0], a[1], a[2], a[3]);
+            code.used[u.text].push(a[2][2]);
+            code.used.exports.push(a[2][0]);
         });
+        if (extused.length) {
+            code.used["&extendIfNeeded"] = extused;
+            code.envs["&extendIfNeeded"] = true;
+        }
         delete code.exportStars;
         delete code.exportDefault;
     }
