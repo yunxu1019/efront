@@ -857,8 +857,9 @@ var wrapRequire = function (n, i, code) {
     used.require.push(q[0]);
     var cs = code.splice(ni, nsi - ni, ...q);
     q[1].push.apply(q[1], cs);
-    relink(q[1]);
-    setqueue(q[1]);
+    cs = q[1];
+    relink(cs);
+    setqueue(cs);
     return q;
 };
 
@@ -925,7 +926,7 @@ Javascript.prototype.fix = function (code) {
                 remove(m.next, s);
             }
             if (/^import\.meta($|\.)/.test(m.text)) {
-                m.text = m.text.replace(/\./, '_');
+                m.text = m.text.replace(/^import\.meta/, '\\import');
                 return true;
             }
             m.text = m.text.replace(/^import/g, 'require');
@@ -933,7 +934,7 @@ Javascript.prototype.fix = function (code) {
         });
         delete code.used.import;
         delete code.envs.import;
-        if (imports.length) code.used["import_meta"] = imports, code.envs["import_meta"] = true;
+        if (imports.length) code.used["\\import"] = imports, code.envs["\\import"] = true;
     }
     if (code.exportDecs) {
         var exportDecs = code.exportDecs;

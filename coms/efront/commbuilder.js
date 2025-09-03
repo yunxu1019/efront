@@ -1,5 +1,5 @@
 "use strict";
-var { COMMENT, SCOPED, STAMP, STRAP, QUOTED, VALUE, EXPRESS, SCOPED, SPACE } = require("../compile/common");;
+var { COMMENT, SCOPED, STAMP, STRAP, QUOTED, insertAfter, VALUE, EXPRESS, SCOPED, SPACE } = require("../compile/common");;
 var showMemery = require("./showMemery");
 var scanner2 = require("../compile/scanner2");
 var breakcode = require("../compile/breakcode");
@@ -490,13 +490,27 @@ var loadJsBody = function (data, fullpath, lessdata, commName, className, htmlDa
     var globals = Object.keys(undeclares);
     globals.forEach(g => globalsmap[g] = g);
     globals = Object.keys(globalsmap);
-    if (required instanceof Array) required = required.map(({ next }, cx) => {
-        if (!next || next.type !== SCOPED || next.entry !== "(") return;
-        var r = next.first;
+    if (required instanceof Array) required = required.map(({ next: c }, cx) => {
+        if (!c || c.type !== SCOPED || c.entry !== "(") return;
+        var r = c.first;
         var rn = r.next;
         if (rn && (rn.type !== STAMP || rn.text !== ',')) return;
         if (r.type !== QUOTED || r.length || r.text[0] === '/') return;
-        r.value = strings.decode(r.text).replace(/[\\]+/g, '/');
+        var text = strings.decode(r.text);
+        if (r === c.last) {
+            var text1 = text.replace(/[\?#][\s\S]*$/, "");
+            if (text1 !== text) {
+                r.text = strings.encode(text1);
+                insertAfter(r,
+                    { type: STAMP, text: ',' },
+                    {
+                        type: QUOTED,
+                        text: strings.encode(text.slice(text1.length))
+                    });
+                text = text1;
+            }
+        }
+        r.value = text.replace(/[\\]+/g, '/');
         return r;
     }).filter(a => !!a);
     var params = globals.map(g => globalsmap[g]);
@@ -597,7 +611,7 @@ var buildResponse = function ({ imported, prequoted, params, data, required, occ
     }
     else {
         if (params.length > 0) {
-            for (var p in occurs) if (/^[@#%\^&\?]/.test(p)) {
+            for (var p in occurs) if (/^[@#%\^&\?\\]/.test(p)) {
                 [params, data, occurs] = revarCode(params, data);
                 break;
             }

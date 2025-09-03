@@ -254,7 +254,7 @@ var hasOwnProperty = {}.hasOwnProperty;
 "use ./#decrypt.js";
 var loadModule = function (url, then, prebuilds = {}) {
     var name = url.replace(/[\*~][\s\S]*$/, '');
-    if (/^(?:module|exports|define|import_meta|require|window|global|undefined)$/.test(name)) return then();
+    if (/^(?:module|exports|define|\\import|require|window|global|undefined)$/.test(name)) return then();
     if ((hasOwnProperty.call(prebuilds, url)) || hasOwnProperty.call(modules, url) || (!hasOwnProperty.call(forceRequest, name) && !/^on/.test(name) && window[name] !== null && window[name] !== void 0)
     ) return then();
     preLoad(url);
@@ -432,14 +432,16 @@ function resolve(r1, base, prefix = '') {
     return r2;
 
 }
-function Meta(url) {
-    this.url = url;
+
+function Meta(url, fix) {
+    this.path = url;
+    this.url = url + fix;
 }
 Meta.prototype.resolve = function (url) {
-    return resolve(url, this.url);
+    return resolve(url, this.path);
 }
 
-var createModule = function (exec, originNames, compiledNames, prebuilds = {}) {
+var createModule = function (exec, originNames, compiledNames, prebuilds = {}, argfix) {
     var module = {};
     var exports = module.exports = {};
     var isModuleInit = false;
@@ -452,23 +454,25 @@ var createModule = function (exec, originNames, compiledNames, prebuilds = {}) {
         }
         if (argName === "module") {
             isModuleInit = true;
+            exec[argfix] = exports;
             return module;
         }
         if (argName === "exports") {
             isModuleInit = true;
+            exec[argfix] = exports;
             return exports;
         }
-        if (argName === 'import_meta') {
-            return new Meta(exec.file);
+        if (argName === '\\import') {
+            return new Meta(exec.file, argfix);
         }
         if (/^(?:window|global(This)?|undefined)$/.test(argName)) return window[argName];
         if (argName === "require") {
             var r1 = window.require;
-            let r = function (refer) {
+            let r = function (refer, argfix = '') {
                 if (refer.length) return r1(refer);
                 var mod = required[refer];
-                if ("created" in mod) return mod.created;
-                var c = mod.created = createModule(mod, mod.args || [], mod.argNames, prebuilds);
+                if (argfix in mod) return mod[argfix];
+                var c = mod[argfix] = createModule(mod, mod.args || [], mod.argNames, prebuilds, argfix);
                 return c;
             };
             for (let k in r1) r[k] = r1[k];

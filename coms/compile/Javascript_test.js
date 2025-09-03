@@ -20,7 +20,7 @@ testFix(`import("a")`, 'require("a")');
 testFix(`import "windows.inc"`, 'require("windows.inc")');
 testFix(`import "windows.inc";import "abc.inc";`, 'require("windows.inc"); require("abc.inc");');
 testFix(`import "windows.inc";\r\nimport "abc.inc";`, 'require("windows.inc");\r\nrequire("abc.inc");');
-testFix(`console.log(import.meta)`, `console.log(import_meta)`);
+testFix(`console.log(import.meta)`, `console.log(\\import)`);
 testFix(`export async function a(){}`, 'exports.a = async function a() {}');
 testFix(`export async function *a(){}`, 'exports.a = async function *a() {}');
 testFix(`export function *a(){}`, 'exports.a = function *a() {}');

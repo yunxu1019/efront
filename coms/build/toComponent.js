@@ -308,8 +308,10 @@ function toComponent(responseTree, isWebProject) {
                 return destMap[realkey];
             }
             if (!isFinite(index)) {
-                if (memery.EMIT) console.warn(i18n`编译异常`, module_key, a);
-                saveOnly(a, a);
+                var i = a;
+                if (a === "\\import") i = `[${getEncodedIndex("url")},function(b){return function(a,c){return c={},c[b]=a,c}}]`;
+                else if (memery.EMIT) console.warn(i18n`编译异常`, module_key, a);
+                saveOnly(i, a);
                 index = destMap[a];
             }
             return index;
@@ -574,16 +576,17 @@ function toComponent(responseTree, isWebProject) {
     var realize = `
     if (!(a instanceof A)) ${encoded ? `R = function () {${decoder}}` : `return T[c + 1] = function () { return a }`};${hasRequire ? `
     else if(!a[m]) R = ${has_outside_require ? `function(){
-        var r = function (i) { return i[m] ? s[${getEncodedIndex("require", "builtin") - 1}](i) : T[i]() };
+        var r = function (i, a) { return i[m] ? s[${getEncodedIndex("require", "builtin") - 1}](i) : T[i](a) };
         r[T[${getEncodedIndex(`cache`)}]()] = s[${getEncodedIndex('require', "builtin") - 1}][T[${getEncodedIndex('cache')}]()];
         r[T[${getEncodedIndex(`resolve`)}]()] = s[${getEncodedIndex('require', "builtin") - 1}][T[${getEncodedIndex('resolve')}]()];
         return r;
-    }`: `function (){ return function (i) { return T[i]() } }`};` : ""}
-    else R = function (Q) {${outsideAsync ? `
+    }`: `function (){ return function (i, a) { return T[i](a) } }`};` : ""}
+    else R = function (Q, A) {${outsideAsync ? `
         var C = [];` : ''}
         if (E === c + 1 || M === c + 1) return s[c][0];
         var r = s[${getEncodedIndex(`/${freg.source}/`, 'regexp') - 1}], I, g = [], i, k = a[m] - 1, f = a[k], l = r[e](f);
-        for (i = 0; i < k; i++) g[i] = ${responseTree.module || responseTree.exports ? `a[i] === M ? (I = I || {}, I[B] = Q, I) : a[i] === E ? (I = I || {}, I[B] = Q) : ` : ''}a[i] ? T[a[i]]() : T[0]${outsideAsync ? `, g[i] && g[i][N] instanceof P && C[T[${getEncodedIndex("push")}]()](i, g[i])` : ''};
+        for (i = 0; i < k; i++) g[i] = ${responseTree.module || responseTree.exports ? `a[i] === M ? (I = I || {}, I[B] = Q, I) : a[i] === E ? (I = I || {}, I[B] = Q) : ${destMap["\\import"] ? `a[i] === ${destMap["\\import"]}?T[a[i]]()(A):` : ""
+            }` : ''}a[i] ? T[a[i]]() : T[0]${outsideAsync ? `, g[i] && g[i][N] instanceof P && C[T[${getEncodedIndex("push")}]()](i, g[i])` : ''};
         if (l) l = l[1][q](','), g = g[o]([l]);${outsideAsync ? `
         if (C[m]) return T[${getEncodedIndex(`Promise`, 'global')}]()[T[${getEncodedIndex("all")}]()](C)[N](function (G) {
             for (i = 0; i < G[m]; i++)g[G[i++]] = G[i];
@@ -596,9 +599,14 @@ function toComponent(responseTree, isWebProject) {
             : "I ? I[B] : r"
         }
     };
-    return T[c + 1] = function (S) {
-        T[c + 1] = function () { return S };
-        return S = {}, S = R(S)${outsideAsync ? `, S && S[N] instanceof P && S[N](function (s) { S = s }), S` : ''};
+    return T[c + 1] = function (a, S) {
+        if(!a) a = '';
+        S = {};
+        T[c + 1] = function (a) {
+            if(a in S) return S[a];
+            return S[a]=R(S[a]={},a)${outsideAsync ? `, S[a] && S[a][N] instanceof P && S[a][N](function (s) { S[a] = s }), S[a]` : ''}
+        };
+        return T[c + 1](a);
     }`;
     var declears = scanner2(realize).envs;
     declears = Object.keys(declears).filter(k => !/^[acs]$/.test(k)).map(k => {
