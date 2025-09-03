@@ -710,6 +710,11 @@ var createScoped = function (parsed, wash) {
                                 o = getnext(o);
                                 o.isExpress = p?.isExpress;
                             }
+                            if (n.isprop) {
+                                var nn = n.next;
+                                if (nn.type === STAMP && /^[\:\=]$/.test(nn.text)) break;
+                            }
+
                         case "catch":
                             if (s === 'catch') isCatch = true;
                         case "class":
@@ -788,7 +793,6 @@ var createScoped = function (parsed, wash) {
                 vars = Object.create(null);
                 scoped = [];
                 var isExpress = o.isExpress;
-
                 if (isFunction || isArraw) {
                     scoped.used = used;
                     scoped.vars = vars;

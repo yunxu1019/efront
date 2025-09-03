@@ -44,3 +44,9 @@ assert(common.createString(common.pickArgument(scanner2(`a={a:1,c:d}`)[2][4])), 
 assert(common.createString(common.pickArgument(scanner2(`a=class{a=1\r\nc=d}`)[3][4])), 'c = d')
 assert(common.createString(common.pickArgument(scanner2(`(a=1,c=d)`)[0][4])), 'c = d')
 assert(scanner2(`for (let len of codeLengths) if (len) count[len]++;`).envs, { len: undefined })
+function testCreateScope(code) {
+    code = scanner2(code);
+    common.createScoped(code);
+}
+
+testCreateScope(`class a{ static barch = new arch('b')}`)
