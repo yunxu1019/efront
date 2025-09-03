@@ -34,12 +34,16 @@ async function getCommap(appname, deep = 6) {
                     n.push(fn);
                     var m = n.join('$');
                     n.pop();
-                    if (map[m] && /\.([cm]?[tj]sx?|xht)$/i.test(map[m])) continue;
                     var p1 = path.join(p, fname);
+                    var m1 = m + fname.slice(fn.length);
+                    if (m1 !== m && !map[m1]) {
+                        map[m1] = p1;
+                    }
                     if (/^[\.&]?(const)?(\..+)?\.m?js$/i.test(fname)) {
                         constEnvFiles.push([p, p1, constMap]);
                         hasConst = true;
                     }
+                    if (map[m] && /\.([cm]?[tj]sx?|xht)$/i.test(map[m])) continue;
                     map[m] = p1;
                     if (p1 === loadermain) {
                         loadernames.push(m);

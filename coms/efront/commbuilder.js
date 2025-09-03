@@ -1,5 +1,5 @@
 "use strict";
-var { COMMENT, SCOPED, STAMP, STRAP, QUOTED, EXPRESS, SCOPED, SPACE } = require("../compile/common");;
+var { COMMENT, SCOPED, STAMP, STRAP, QUOTED, VALUE, EXPRESS, SCOPED, SPACE } = require("../compile/common");;
 var showMemery = require("./showMemery");
 var scanner2 = require("../compile/scanner2");
 var breakcode = require("../compile/breakcode");
@@ -237,12 +237,12 @@ var removePrequoted = function (code) {
 if (typeof i18n === 'undefined') var show_building = console.info.bind(console, '编译');
 else show_building = console.info.bind(console, i18n`编译`);
 var clear_console = require("../basic/lazy")(console.type, 60);
-var loadJsBody = function (data, filename, lessdata, commName, className, htmlData) {
-    if (data.length > 0x200) show_building(filename);
+var loadJsBody = function (data, fullpath, lessdata, commName, className, htmlData) {
+    if (data.length > 0x200) show_building(fullpath);
     data = trimNodeEnvHead(data);
     data = data.replace(/\bDate\(\s*(['"`])(.*?)\1\s*\)/g, (match, quote, dateString) => `Date(${+new Date(dateString)})`);
     var destpaths = commbuilder.prepare === false ? [] : getRequiredPaths(data);
-    var code = scanner2(data, filename, 'js');
+    var code = scanner2(data, fullpath, 'js');
     var hasExport = code.export || !code.first;
     var prequoted = removePrequoted(code);
     code.fix();
@@ -284,7 +284,7 @@ var loadJsBody = function (data, filename, lessdata, commName, className, htmlDa
         // 数据依赖其他文件
         // 为防止其他文件变更后页面刷新不及时
         // 这里仅在没有端口打开时处理导入式变量
-        code = autoConst.call(this, code, filename, memery.proted);
+        code = autoConst.call(this, code, fullpath, memery.proted);
         code = autoiota(code);
         code = autoenum(code);
         code = autoeval(code);
@@ -356,7 +356,7 @@ var loadJsBody = function (data, filename, lessdata, commName, className, htmlDa
             prepareCodeBody = scanner2(`prepare(${stringifiedpaths});`);
         }
         else {
-            console.warn(i18n`将不处理此文件的页面自动预载<gray>${filename}</gray>`);
+            console.warn(i18n`将不处理此文件的页面自动预载<gray>${fullpath}</gray>`);
         }
     }
     var code_body = code;
@@ -423,9 +423,9 @@ var loadJsBody = function (data, filename, lessdata, commName, className, htmlDa
                 code_body.push({ type: code_body.EXPRESS, text: commName });
             }
         } else {
-            if (!/\bmain|\bindex|\_test\b|\.(jsp|asp|php)$/i.test(path.basename(filename))) {
-                if (filename.length > 48) {
-                    filename = ".." + filename.slice(filename.length - 46);
+            if (!/\bmain|\bindex|\_test\b|\.(jsp|asp|php)$/i.test(path.basename(fullpath))) {
+                if (fullpath.length > 48) {
+                    fullpath = ".." + fullpath.slice(fullpath.length - 46);
                 }
             }
         }
@@ -490,14 +490,27 @@ var loadJsBody = function (data, filename, lessdata, commName, className, htmlDa
     var globals = Object.keys(undeclares);
     globals.forEach(g => globalsmap[g] = g);
     globals = Object.keys(globalsmap);
-    var required_map = {}, required_paths = [];
-    if (required instanceof Array) required.forEach(({ next }, cx) => {
+    if (required instanceof Array) required = required.map(({ next }, cx) => {
         if (!next || next.type !== SCOPED || next.entry !== "(") return;
         var r = next.first;
         var rn = r.next;
         if (rn && (rn.type !== STAMP || rn.text !== ',')) return;
         if (r.type !== QUOTED || r.length || r.text[0] === '/') return;
         r.value = strings.decode(r.text).replace(/[\\]+/g, '/');
+        return r;
+    }).filter(a => !!a);
+    var params = globals.map(g => globalsmap[g]);
+    if (this && this["?"]) {
+        var thisReferedName = this[":"][fullpath] || '';
+        globals = rethink(this, globals, thisReferedName);
+        if (required instanceof Array) {
+            var required_paths = required.map(r => r.value);
+            required_paths = rethink(this, required_paths, thisReferedName);
+            required.forEach((r, i) => r.value = required_paths[i]);
+        }
+    }
+    var required_map = {}, required_paths = [];
+    if (required instanceof Array) required.forEach((r, i) => {
         if (!required_map[r.value]) {
             required_map[r.value] = required_paths.length;
             required_paths.push(r.value);
@@ -505,11 +518,12 @@ var loadJsBody = function (data, filename, lessdata, commName, className, htmlDa
         if (commbuilder.compress !== false) {
             r.value = required_map[r.value];
             r.text = String(r.value);
+            r.type = VALUE;
+            r.isdigit = true;
         }
-    })
+    });
     code_body.helpcode = memery.HELPCODE;
     data = code_body.toString();
-    var params = globals.map(g => globalsmap[g]);
     return {
         imported: globals,
         required: required_paths,
@@ -1062,10 +1076,6 @@ function commbuilder(buffer, filename, fullpath, watchurls) {
                 commbuilder.typeofMap[fullpath] = data.typeofs;
             }
             var timeStart = new Date;
-            if (this && this["?"]) {
-                var thisReferedName = this[":"][fullpath] || '';
-                data.imported = rethink(this, data.imported, thisReferedName);
-            }
             if (this && this[""]) {
                 var codes = [];
                 backEach(data.imported, (m, i, imported) => {
