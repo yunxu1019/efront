@@ -119,7 +119,7 @@ var responseFromCache = function (data) {
     if (data instanceof Buffer || data instanceof Function) return data;
     if (typeof data === "string") {
         if (/\/$/.test(data)) return console.error(i18n`路径${data}未找到入口文件`);
-        data = commbuilder(`require("${data}")`, 'index.js', 'index.js', []);
+        data = commbuilder(`require("${data}")`, '.js', '.js', []);
         return data;
     }
     return data;

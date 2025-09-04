@@ -520,7 +520,10 @@ var loadJsBody = function (data, fullpath, lessdata, commName, className, htmlDa
         if (required instanceof Array) {
             var required_paths = required.map(r => r.value);
             required_paths = rethink(this, required_paths, thisReferedName);
-            required.forEach((r, i) => r.value = required_paths[i]);
+            required.forEach((r, i) => {
+                r.value = required_paths[i];
+                r.text = strings.encode(required_paths[i]);
+            });
         }
     }
     var required_map = {}, required_paths = [];
