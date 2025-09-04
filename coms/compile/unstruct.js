@@ -226,7 +226,7 @@ var _switch = function (body, cx, unblock, result, getname) {
         q = tmp.shift();
         block = tmp.shift();
         if (default_r === q) cy = default_r.index;
-        q.push({ type: VALUE, text: String(result.length - cy) }, { type: STAMP, text: "," }, { type: VALUE, text: '0' });
+        q.push({ type: VALUE, isdigit: true, text: String(result.length - cy) }, { type: STAMP, text: "," }, { type: VALUE, isdigit: true, text: '0' });
         relink(q);
         unblock(block);
         ifpatch(result);
@@ -1191,7 +1191,7 @@ var poplabel = function (result) {
                 if (r.indexOf(b) >= 0) { break }
             }
             if (cx < 0) throw console.log(result.map(r => createString(r)), e.text, createString([b.prev, b])), i18n`break语句异常`;
-            end.push({ type: VALUE, text: b.continue ? b.continue.contat - cx : result.length - cx }, { type: STAMP, text: "," }, { type: VALUE, text: "0" });
+            end.push({ type: VALUE, isdigit: true, text: String(b.continue ? b.continue.contat - cx : result.length - cx) }, { type: STAMP, text: "," }, { type: VALUE, isdigit: true, text: "0" });
             relink(end);
         }
     }
