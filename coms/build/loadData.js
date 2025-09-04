@@ -1,7 +1,5 @@
 "use strict";
 var path = require('path');
-var getBuildRoot = require("./getBuildRoot");
-var getDependence = require("./getDependence");
 var memery = require("../efront/memery");
 var compile = require("./compile");
 var { include_required, rest_coms } = require("./environment");
