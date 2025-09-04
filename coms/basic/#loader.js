@@ -440,10 +440,11 @@ function Meta(url, fix) {
 Meta.prototype.resolve = function (url) {
     return resolve(url, this.path);
 }
-
+function Exports() { }
 var createModule = function (exec, originNames, compiledNames, prebuilds = {}, argfix) {
+    if (argfix in exec) return exec[argfix];
     var module = {};
-    var exports = module.exports = {};
+    var exports = module.exports = exec[argfix] || new Exports;
     var isModuleInit = false;
     var required = exec.required;
     if (required) required = required.map(a => loadedModules[keyprefix + a]);
@@ -454,12 +455,12 @@ var createModule = function (exec, originNames, compiledNames, prebuilds = {}, a
         }
         if (argName === "module") {
             isModuleInit = true;
-            exec[argfix] = exports;
+            if (argfix != null) exec[argfix] = exports;
             return module;
         }
         if (argName === "exports") {
             isModuleInit = true;
-            exec[argfix] = exports;
+            if (argfix != null) exec[argfix] = exports;
             return exports;
         }
         if (argName === '\\import') {
@@ -468,9 +469,10 @@ var createModule = function (exec, originNames, compiledNames, prebuilds = {}, a
         if (/^(?:window|global(This)?|undefined)$/.test(argName)) return window[argName];
         if (argName === "require") {
             var r1 = window.require;
-            let r = function (refer, argfix = '') {
+            let r = function (refer, argfix) {
                 if (refer.length) return r1(refer);
                 var mod = required[refer];
+                argfix = argfix || '';
                 if (argfix in mod) return mod[argfix];
                 var c = mod[argfix] = createModule(mod, mod.args || [], mod.argNames, prebuilds, argfix);
                 return c;
@@ -518,7 +520,7 @@ var createModule = function (exec, originNames, compiledNames, prebuilds = {}, a
     if (!argsPromises.length) {
         return exec.apply(_this, argsList);
     }
-    return Promise.all(argsList).then(function (args) {
+    else return Promise.all(argsList).then(function (args) {
         return exec.apply(_this, args);
     });
 };
@@ -634,13 +636,13 @@ var init = function (url, then, prebuilds, keeppage) {
 
         if (!args || !args.length) {
             var created = module.call(window);
-            then(module.created = modules[url] = created);
+            then(modules[url] = module[''] = created);
             return;
         }
         var filteredArgs = prebuilds ? args.filter(a => !hasOwnProperty.call(prebuilds, a)) : args;
 
-        var saveAsModule = keeppage || filteredArgs.length === args.length;
-        if (saveAsModule) {
+        keeppage = keeppage || filteredArgs.length === args.length;
+        if (keeppage) {
             if (penddings[key]) {
                 penddings[key].then(then);
                 return;
@@ -656,18 +658,18 @@ var init = function (url, then, prebuilds, keeppage) {
             then(created);
             return;
         }
-        var created = createModule(module, args, module.argNames, prebuilds);
+        var created = createModule(module, args, module.argNames, prebuilds, keeppage ? '' : null);
         if (isThenable(created)) {
-            if (saveAsModule) {
+            if (keeppage) {
                 penddings[key] = created;
                 created.then(function (res) {
                     delete penddings[key];
-                    then(modules[url] = res);
+                    then(modules[url] = module[""] = res);
                 });
                 return;
             }
         } else {
-            if (saveAsModule) module.created = modules[url] = created;
+            if (keeppage) module[''] = modules[url] = created;
         }
         then(created);
     }, prebuilds);

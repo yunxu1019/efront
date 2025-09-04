@@ -255,7 +255,16 @@ function toComponent(responseTree, isWebProject) {
         var code_blocks = scanner(module_string);
         var argList = module_body.slice(0, module_body.length >> 1)
         var hasRequire = argList.indexOf('require') >= 0 || argList.indexOf('init') >= 0 || argList.indexOf('popup') >= 0;
-        var requireReg = new RegExp(`(?<=\\b(?:${argList.filter(a => /^(require|init|popup)$/.test(a))})\\s*\\(\\s*)['"\`]`, 'gy');
+        var requireTestReg = new RegExp(`${/[\+\-\&\*\<\>\/\(\)\s\[\]\{\}\!\%\^\=\?\:\;\,\'\"\`\~]/.source}(${argList.filter(a => /^(require|init|popup)$/.test(a)).join('|')})$`);
+        var findRequire = function (string, end) {
+            var i = end - 1;
+            while (/^\s+$/.test(string.charAt(i))) i--;
+            if (string.charAt(i) !== '(') return;
+            i--;
+            while (/^\s+$/.test(string.charAt(i))) i--;
+            var s = string.slice(i - 7, i + 1);
+            if (requireTestReg.test(s)) return true;
+        }
         var replaceMatchedString = function (block) {
             if (block.type === block.template_quote_scanner) {
                 var { start, end } = block;
@@ -275,8 +284,7 @@ function toComponent(responseTree, isWebProject) {
             var block_string = module_string.slice(block.start, block.end);
             if (block.type === block.single_quote_scanner || block.type === block.double_quote_scanner) {
                 if (hasRequire) {
-                    requireReg.lastIndex = block.start;
-                    var isRequire = !!requireReg.exec(module_string);
+                    var isRequire = !!findRequire(module_string, block.start);
                 }
                 var padStart = /^[\(\[\s]$/.test(module_string.charAt(block.start - 1)) ? "" : " ";
                 var padEnd = /^[\[\(\.\s\,\;\]\)]$/.test(module_string.charAt(block.end)) ? "" : ' ';
@@ -495,7 +503,6 @@ function toComponent(responseTree, isWebProject) {
                 result.splice(cx, 1);
                 continue;
             }
-            if (!responseTree[k].data) console.log(k, responseTree[k]);
             if (ok || circle_result) {
                 result.splice(cx, 1);
                 var startTime = new Date;
@@ -510,7 +517,7 @@ function toComponent(responseTree, isWebProject) {
                 public_index = dest.length;
                 PUBLIC_APP = circle_result[0];
             }
-            circle_result.forEach(k => saveOnly('""', k));
+            circle_result.forEach(k => saveOnly(`""`, k));
             console.warn(
                 i18n`存在环形引用：${`[${circle_result.join('|')}]`}`
             );
@@ -518,7 +525,7 @@ function toComponent(responseTree, isWebProject) {
         last_result_length = result.length;
     }
     if (!circle_result) {
-        PUBLIC_APP = circle_result ? circle_result[0] : k;
+        PUBLIC_APP = k;
         public_index = dest.length - 1;
     }
     var freg = /^function[^\(]*?\(([^\)]+?)\)/;
@@ -576,11 +583,11 @@ function toComponent(responseTree, isWebProject) {
     var realize = `
     if (!(a instanceof A)) ${encoded ? `R = function () {${decoder}}` : `return T[c + 1] = function () { return a }`};${hasRequire ? `
     else if(!a[m]) R = ${has_outside_require ? `function(){
-        var r = function (i, a) { return i[m] ? s[${getEncodedIndex("require", "builtin") - 1}](i) : T[i](a) };
+        var r = function (i, a) { a = a || ""; return i[m] ? s[${getEncodedIndex("require", "builtin") - 1}](i) : a in T[i] ? T[i][a] : T[i](a) };
         r[T[${getEncodedIndex(`cache`)}]()] = s[${getEncodedIndex('require', "builtin") - 1}][T[${getEncodedIndex('cache')}]()];
         r[T[${getEncodedIndex(`resolve`)}]()] = s[${getEncodedIndex('require', "builtin") - 1}][T[${getEncodedIndex('resolve')}]()];
         return r;
-    }`: `function (){ return function (i, a) { return T[i](a) } }`};` : ""}
+    }`: `function (){ return function (i, a) { return a in T[i] ? T[i][a] : T[i](a) } }`};` : ""}
     else R = function (Q, A) {${outsideAsync ? `
         var C = [];` : ''}
         if (E === c + 1 || M === c + 1) return s[c][0];
@@ -600,13 +607,12 @@ function toComponent(responseTree, isWebProject) {
         }
     };
     return T[c + 1] = function (a, S) {
-        if(!a) a = '';
-        S = {};
-        T[c + 1] = function (a) {
+        a = a || '';
+        S = T[c + 1] = function (a) {
             if(a in S) return S[a];
             return S[a]=R(S[a]={},a)${outsideAsync ? `, S[a] && S[a][N] instanceof P && S[a][N](function (s) { S[a] = s }), S[a]` : ''}
         };
-        return T[c + 1](a);
+        return S(a);
     }`;
     var declears = scanner2(realize).envs;
     declears = Object.keys(declears).filter(k => !/^[acs]$/.test(k)).map(k => {

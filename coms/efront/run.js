@@ -23,7 +23,7 @@ function fromComponent(env, base) {
     var resolve_options = Object.assign({}, resolve_config, { paths: [pathname].concat(resolve_config.paths) });
     var requestInternet = fromInternet("");
     var request = async function (url, onsuccess, onerror) {
-        var origin_url=url;
+        var origin_url = url;
         var isdestroied = false;
         if (/^https?\:\/\//i.test(url)) {
             return requestInternet(url, onsuccess, onerror);
@@ -205,7 +205,8 @@ module.exports = async function (mainpath, args) {
     resolve_config.paths = env.COMS_PATH.split(',');
     var location = Object.freeze({
         pathname,
-        reload() {
+        async reload() {
+            var getCommap = require("./getCommap");
             unload();
             var window = efront();
             var getLoader;
@@ -214,6 +215,8 @@ module.exports = async function (mainpath, args) {
             } else {
                 getLoader = fromComponent.bind(window, env, '/');
             }
+            var map = await getCommap(env.APP);
+            appname = map["?"][fullpath];
             window.location = location;
             window.startPath = appname;
             window.process = process;
