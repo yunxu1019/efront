@@ -63,7 +63,6 @@ async function getCommap(appname, deep = 6) {
         delete res['prepare'];
         delete res['upwith'];
         delete res['go'];
-        delete res['login'];
     }
     if (loadernames.length) a: {
         for (var loadername of loadernames) {
@@ -80,6 +79,7 @@ async function getCommap(appname, deep = 6) {
     // ser fullpath:name
     for (var k in res) {
         var v = res[k];
+        if (!/\.[^\.\\\/]+$/.test(ser[v]) && /\.[^\.\\\/]+$/.test(k)) continue;
         if (v in ser && ser[v].length <= k.length) continue;
         ser[v] = k;
     }
