@@ -310,7 +310,7 @@ var loadModule = function (url, then, prebuilds = {}) {
             mod.args = args;
             mod.argNames = argNames;
             mod.strs = strs;
-            var loadingCount = 0;
+            var loadedCount = 0;
             if (required) {
                 required = required.split(';').filter(a => !!a);
                 if (afterfix) required = required.map(r => r + afterfix);
@@ -321,13 +321,13 @@ var loadModule = function (url, then, prebuilds = {}) {
             args = args.concat(required);
             var _errored = [];
             var response = function (error) {
-                loadingCount++;
+                loadedCount++;
                 if (error) {
                     if (!errored[error]) errored[error] = [];
                     errored[error].push(key);
                     if (_errored.indexOf(error) < 0) _errored.push(error);
                 }
-                if (loadingCount === args.length) {
+                if (loadedCount === args.length) {
                     if (_errored.length) loadedModules[key].error = _errored;
                     flushTree(loadedModules, key, mod);
                 }
@@ -338,6 +338,13 @@ var loadModule = function (url, then, prebuilds = {}) {
                 loadedModules[key].args = mod.args;
                 loadedModules[key].mod = mod;
                 for (var moduleName of args) {
+                    if (moduleName === url) {
+                        // <!--
+                        // console.log(`检查到自我引用的代码 %c>> ${url} <<%c `, "color:#c46", 'color:');
+                        // -->
+                        response();
+                        continue;
+                    }
                     loadModule(moduleName, response, prebuilds);
                 }
             }
@@ -445,7 +452,8 @@ var createModule = function (exec, originNames, compiledNames, prebuilds = {}, a
     if (argfix in exec) return exec[argfix];
     var module = {};
     var exports = module.exports = exec[argfix] || new Exports;
-    var isModuleInit = false;
+    var isModuleInit = originNames.indexOf('module') >= 0 || originNames.indexOf("exports") >= 0;
+    if (isModuleInit) if (argfix != null) exec[argfix] = exports;
     var required = exec.required;
     if (required) required = required.map(a => loadedModules[keyprefix + a]);
     var argsList = originNames.map(function (aName) {
@@ -454,14 +462,13 @@ var createModule = function (exec, originNames, compiledNames, prebuilds = {}, a
             return prebuilds[argName];
         }
         if (argName === "module") {
-            isModuleInit = true;
-            if (argfix != null) exec[argfix] = exports;
             return module;
         }
         if (argName === "exports") {
-            isModuleInit = true;
-            if (argfix != null) exec[argfix] = exports;
             return exports;
+        }
+        if (argName === exec.file) {
+            return isModuleInit ? exports : exec;
         }
         if (argName === '\\import') {
             return new Meta(exec.file, argfix);
@@ -474,6 +481,7 @@ var createModule = function (exec, originNames, compiledNames, prebuilds = {}, a
                 var mod = required[refer];
                 argfix = argfix || '';
                 if (argfix in mod) return mod[argfix];
+                if (mod === exec) return exports;
                 var c = mod[argfix] = createModule(mod, mod.args || [], mod.argNames, prebuilds, argfix);
                 return c;
             };

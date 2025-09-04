@@ -403,6 +403,7 @@ var loadJsBody = function (data, fullpath, lessdata, commName, className, htmlDa
                 { type: SPACE, text: "\r\n" },
                 { type: STRAP, text: "return", transive: true }
             )
+            code_body.push({ type: EXPRESS, text: commName }, { type: STAMP, text: '=' });
             if (hasless) {
                 code_body.push(
                     { type: code_body.EXPRESS, text: cless_var },
@@ -422,6 +423,7 @@ var loadJsBody = function (data, fullpath, lessdata, commName, className, htmlDa
             } else {
                 code_body.push({ type: code_body.EXPRESS, text: commName });
             }
+            code.relink(code_body);
         } else {
             if (!/\bmain|\bindex|\_test\b|\.(jsp|asp|php)$/i.test(path.basename(fullpath))) {
                 if (fullpath.length > 48) {
@@ -515,14 +517,14 @@ var loadJsBody = function (data, fullpath, lessdata, commName, className, htmlDa
     }).filter(a => !!a);
     var params = globals.map(g => globalsmap[g]);
     if (this && this["?"]) {
-        var thisReferedName = this[":"][fullpath] || '';
-        globals = rethink(this, globals, thisReferedName);
+        globals = rethink(this, globals, fullpath);
         if (required instanceof Array) {
             var required_paths = required.map(r => r.value);
-            required_paths = rethink(this, required_paths, thisReferedName);
+            required_paths = rethink(this, required_paths, fullpath);
             required.forEach((r, i) => {
-                r.value = required_paths[i];
-                r.text = strings.encode(required_paths[i]);
+                var p = required_paths[i];
+                r.value = p;
+                r.text = strings.encode(p);
             });
         }
     }
@@ -583,12 +585,13 @@ var buildPress2 = function (imported, params, data, args, strs, press) {
     data = code.toString();
     return [params, data];
 };
-
-var rethink = function (mmap, imported, refname) {
+var rethink = function (mmap, imported, fullpath) {
     var rmap = mmap["?"];
+    var refname = rmap[fullpath] || '';
     var refpath = refname ? $split(refname) : [];
     var realimport = imported.map(m => {
-        m = rmap[getMaped(refpath, mmap, m)] || m;
+        var a = getMaped(refpath, mmap, m);
+        if (a !== fullpath) m = rmap[a] || m;
         return m;
     });
     return realimport;
