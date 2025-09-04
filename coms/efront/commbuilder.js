@@ -941,7 +941,7 @@ async function getXhtPromise(xhtdata, filename, fullpath, watchurls, extraJs, ex
     ${xhtrender}
     return elem;
     }`;
-    var res = loadJsBody.call(this, xht, filename, styles, commName, className)
+    var res = loadJsBody.call(this, xht, fullpath, styles, commName, className)
     watchurls.time += +timer;
     return res;
 }
@@ -1024,7 +1024,7 @@ function getHtmlPromise(data, filename, fullpath, watchurls) {
         }
     }).then(() => {
         var timeStart = new Date;
-        var data = loadJsBody.call(this, jsData, filename, lessData, commName, className);
+        var data = loadJsBody.call(this, jsData, fullpath, lessData, commName, className);
         time += new Date - timeStart;
         promise.time = time;
         return data;
@@ -1132,7 +1132,7 @@ commbuilder.parse = function (data, filename = 'main', fullpath = './main.js', c
     if (/\.(?:pem|html?|xml|glsl|txt|log)$/i.test(fullpath)) data = `return ${strings.encode(data)}`;
     else if (/\.(?:json)$/i.test(fullpath)) data = `return ` + data;
     else if (/\.[mc]?[tj]sx?$/i.test(fullpath)) data = replaceIncludes(data);
-    var res = loadJsBody.call(this, data, filename, null, commName, lessName, className);
+    var res = loadJsBody.call(this, data, fullpath, null, commName, lessName, className);
     [res.params, res.data, res.occurs] = revarCode(res.params, res.data);
     if (savedCompress === undefined) delete commbuilder.compress;
     else commbuilder.compress = savedCompress;
