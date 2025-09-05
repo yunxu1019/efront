@@ -255,7 +255,7 @@ function toComponent(responseTree, isWebProject) {
         var code_blocks = scanner(module_string);
         var argList = module_body.slice(0, module_body.length >> 1)
         var hasRequire = argList.indexOf('require') >= 0 || argList.indexOf('init') >= 0 || argList.indexOf('popup') >= 0;
-        var requireTestReg = new RegExp(`${/[\+\-\&\*\<\>\/\(\)\s\[\]\{\}\!\%\^\=\?\:\;\,\'\"\`\~]/.source}(${argList.filter(a => /^(require|init|popup)$/.test(a)).join('|')})$`);
+        var requireTestReg = new RegExp(`${efront$punkreg.source}(${argList.filter(a => /^(require|init|popup)$/.test(a)).join('|')})$`);
         var findRequire = function (string, end) {
             var i = end - 1;
             while (/^\s+$/.test(string.charAt(i))) i--;

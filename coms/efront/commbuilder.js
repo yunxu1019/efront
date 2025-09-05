@@ -1126,7 +1126,7 @@ function commbuilder(buffer, filename, fullpath, watchurls) {
     }
     return promise1 || data;
 }
-commbuilder.parse = function (data, filename = 'main', fullpath = './main.js', compress, breakcode = false) {
+commbuilder.parse = function (data, filename = 'main', fullpath = './main.js', compress, breakcode = 0) {
     var savedflag = breakflag;
     breakflag = !!breakcode;
     var savedCompress = commbuilder.compress;
@@ -1136,7 +1136,7 @@ commbuilder.parse = function (data, filename = 'main', fullpath = './main.js', c
     else if (/\.(?:json)$/i.test(fullpath)) data = `return ` + data;
     else if (/\.[mc]?[tj]sx?$/i.test(fullpath)) data = replaceIncludes(data);
     var res = loadJsBody.call(this, data, fullpath, null, commName, lessName, className);
-    [res.params, res.data, res.occurs] = revarCode(res.params, res.data);
+    if (breakcode || breakcode === 0) [res.params, res.data, res.occurs] = revarCode(res.params, res.data);
     if (savedCompress === undefined) delete commbuilder.compress;
     else commbuilder.compress = savedCompress;
     breakflag = savedflag;
