@@ -148,7 +148,8 @@ var buildjsp = function (buff, realpath) {
         return queue.call(splited, function (str) {
             if (terminate && isHandled(str)) throw new Error('脚本异常！');
             if (str instanceof Function) {
-                return invokeFunction(str, pb);
+                if (str.imported) return invokeFunction(str, pb);
+                return str(context);
             }
             return str;
         }).then(function (array) {
