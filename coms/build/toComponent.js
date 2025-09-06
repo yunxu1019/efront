@@ -255,14 +255,14 @@ function toComponent(responseTree, isWebProject) {
         var code_blocks = scanner(module_string);
         var argList = module_body.slice(0, module_body.length >> 1)
         var hasRequire = argList.indexOf('require') >= 0 || argList.indexOf('init') >= 0 || argList.indexOf('popup') >= 0;
-        var requireTestReg = new RegExp(`${efront$punkreg.source}(${argList.filter(a => /^(require|init|popup)$/.test(a)).join('|')})$`);
+        var requireTestReg = new RegExp(`(^|${efront$punkreg.source})\\s*(${argList.filter(a => /^(require|init|popup)$/.test(a)).join('|')})$`);
         var findRequire = function (string, end) {
             var i = end - 1;
             while (/^\s+$/.test(string.charAt(i))) i--;
             if (string.charAt(i) !== '(') return;
             i--;
             while (/^\s+$/.test(string.charAt(i))) i--;
-            var s = string.slice(i - 7, i + 1);
+            var s = string.slice(i > 7 ? i - 7 : 0, i + 1);
             if (requireTestReg.test(s)) return true;
         }
         var replaceMatchedString = function (block) {
