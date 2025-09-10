@@ -227,7 +227,6 @@ Html.prototype.createScoped = function (code) {
                     t = parseExpress(t, mayberepeat);
                     var s = createScoped(t);
                     var envs = s.envs;
-                    if (envs.f) console.log(c.text, s.envs);
                     for (var k in s.vars) vars[k] = true;
                     for (var k in envs) {
                         if (!vars[k]) {
