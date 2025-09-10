@@ -429,7 +429,7 @@ var ifset = function (shouldMount) {
         var c = elements[cx];
         if (cx === shouldMount) {
             var e = c.$template;
-            if (c.nextSibling !== e) appendChild.after(c, e);
+            if (c.nextSibling !== e || e.removeTimer) appendChild.after(c, e);
             if (renderIds.get(e) < 0) {
                 renderIds.set(e, this.$id);
                 e = c.$template = render(e);

@@ -20,13 +20,20 @@ function _onappend(node, append = createEvent("append"), mount = createEvent("mo
     dispatch(node, mount);
 }
 
+var unremove = function (o) {
+    if (o.removeTimer) {
+        clearTimeout(o.removeTimer);
+        delete o.removeTimer;
+    }
+}
+
 function appendChild(parent, obj, transition) {
     var children = getArgsChildren(arguments);
     if (parent.appendChild) {
         for (var cx = 0, dx = children.length; cx < dx; cx++) {
             var o = release(children[cx]);
             if (!o) continue;
-            if (o.removeTimer) clearTimeout(o.removeTimer);
+            unremove(o);
             if (hasEnterStyle(o) && transition !== false) {
                 isFunction(appendChild.transition) && appendChild.transition(o);
             }
@@ -44,7 +51,7 @@ function insertBefore(alreadyMounted, obj, transition) {
     for (var cx = 0, dx = children.length; cx < dx; cx++) {
         var o = release(children[cx]);
         if (!o) continue;
-        if (o.removeTimer) clearTimeout(o.removeTimer);
+        unremove(o);
         parent.insertBefore(o, alreadyMounted);
         o.with && insertBefore(alreadyMounted, o.with, transition);
         if (isMounted(parent)) _onappend(o);
@@ -64,7 +71,7 @@ function insertAfter(alreadyMounted, obj, transition) {
     for (var cx = 0, dx = children.length; cx < dx; cx++) {
         var o = release(children[cx]);
         if (!o) continue;
-        if (o.removeTimer) clearTimeout(o.removeTimer);
+        unremove(o);
         parent.insertBefore(o, nextSibling);
         o.with && insertBefore(nextSibling, o.with, transition);
         if (isMounted(parent)) _onappend(o);

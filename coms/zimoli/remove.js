@@ -5,11 +5,13 @@ function remove(node, transition) {
         node = args[cx];
         if (!node) continue;
         if (node.removeTimer) clearTimeout(node.removeTimer);
+        delete node.removeTimer;
         if (hasLeaveStyle(node) && transition !== false && isFunction(remove.transition)) {
             var duration = remove.transition(node, true);
             if (duration) {
                 node.removeTimer = setTimeout(function (node) {
                     return function () {
+                        delete node.removeTimer;
                         remove(node, false);
                     };
                 }(node), +duration || 100);
