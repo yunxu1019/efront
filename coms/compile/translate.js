@@ -163,7 +163,6 @@ function translate([imap, supports], code) {
                             var a = scanner2(`[]`);
                             v.map(function (o) {
                                 var name = o.name;
-                                if (!name) return o;
                                 if (!name) return scanner2(`(${JSON.stringify(o)})`)[0];
                                 delete o.name;
                                 name = ctn('i18n' + getm(name, t.nodup, t.warn), t);
