@@ -227,6 +227,7 @@ Html.prototype.createScoped = function (code) {
                     t = parseExpress(t, mayberepeat);
                     var s = createScoped(t);
                     var envs = s.envs;
+                    if (envs.f) console.log(c.text, s.envs);
                     for (var k in s.vars) vars[k] = true;
                     for (var k in envs) {
                         if (!vars[k]) {
@@ -234,11 +235,11 @@ Html.prototype.createScoped = function (code) {
                             used[k].push(...s.used[k]);
                         }
                     }
+                    for (var k in vars) delete used[k];
                 }
                 break;
             case EXPRESS:
                 if (inScript || noTag) break;
-                if (/danger/.test(c.text)) console.log(c?.text, run.caller, createString(c.queue), used.danger)
                 if (c.queue.type === QUOTED) break;
                 var t = c.text;
                 t = parseExpress(t);
