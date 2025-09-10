@@ -9,7 +9,7 @@ function password() {
                 if (numhide !== null) numhide = !numhide; break;
             case 20/*capslock*/: if (capslock !== null) capslock = !capslock; break;
         }
-        if (!numhide && /^Numpad/.test(event.code)) {
+        if (!numhide && /^Numpad/.test(event.code) && which !== 13) {
             numhide = which < 96;
         }
         if (which >= 65 && which <= 90) {
