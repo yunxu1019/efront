@@ -11,8 +11,9 @@ function marker(e) {
     if (!e) e = document.createElement("marker");
     on("changes")(e, function () {
         remove(e.childNodes);
-        if (isEmpty(this.source)) return;
-        var source = mark(this.source, this.search, wrap);
+        var source = this.source;
+        if (isEmpty(source)) source = '';
+        else if (typeof source === 'string') source = mark(source, this.search, wrap);
         if (isArray(source)) appendChild(this, source);
         else this.innerText = source;
     });
