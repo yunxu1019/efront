@@ -150,7 +150,7 @@ var adapter = function (data, url, req, res) {
         return response(data, url, req, res);
     }
     if (data instanceof Error) {
-        res.writeHead(404, utf8);
+        res.writeHead(data.httpCode || 403, utf8);
         return res.end(String(data));
     }
     if (data instanceof Promise) {

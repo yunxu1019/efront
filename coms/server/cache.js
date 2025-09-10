@@ -476,7 +476,7 @@ var seekAsync = async function (directs, keeys, match, findPackage) {
 }
 
 var isValidData = function (data) {
-    if (data instanceof Buffer || data instanceof Function || data instanceof Array) return true;
+    if (data instanceof Buffer || data instanceof Function || data instanceof Array || data instanceof Error) return true;
 };
 var getPackageMain = function (url, data, map) {
     if (!data instanceof PackageData) return;

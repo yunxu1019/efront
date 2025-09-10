@@ -34,6 +34,7 @@ module.exports = async function (req, res) {
         }
         if (!(result instanceof Buffer || result instanceof Function)) {
             try {
+                type = 403;
                 result = String(result);
             } catch {
                 type = 500;
@@ -51,6 +52,10 @@ module.exports = async function (req, res) {
                 res.end(result);
                 break;
             case "page":
+                res.end(result);
+                break;
+            case 403:
+                res.writeHead(403, utf8err);
                 res.end(result);
                 break;
             case 404: e404(); break;
