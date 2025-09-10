@@ -82,7 +82,15 @@ var fixElement = function (o) {
                 ps = ps.slice(cx);
                 if (!ps.length);
                 else if (ps.length === 1) {
-                    push(ps[0]);
+                    if (ps[0].type === SCOPED) {
+                        push(ps[0]);
+                    }
+                    else {
+                        push(new Node({
+                            type: QUOTED,
+                            text: strings.encode(ps[0].text)
+                        }));
+                    }
                 }
                 else {
                     ps.type = QUOTED;
@@ -206,7 +214,6 @@ Html.prototype.createScoped = function (code) {
                 break;
             case QUOTED:
             case PIECE:
-
                 if (c.length) {
                     c.forEach(run);
                     break;
@@ -231,6 +238,8 @@ Html.prototype.createScoped = function (code) {
                 break;
             case EXPRESS:
                 if (inScript || noTag) break;
+                if (/danger/.test(c.text)) console.log(c?.text, run.caller, createString(c.queue), used.danger)
+                if (c.queue.type === QUOTED) break;
                 var t = c.text;
                 t = parseExpress(t);
                 var s = createScoped(t);
