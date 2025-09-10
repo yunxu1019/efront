@@ -587,7 +587,8 @@ var buildPress2 = function (imported, params, data, args, strs, press) {
 };
 var rethink = function (mmap, imported, fullpath) {
     var rmap = mmap["?"];
-    var refname = rmap[fullpath] || '';
+    var fmap = mmap[":"];
+    var refname = fmap[fullpath] || '';
     var refpath = refname ? $split(refname) : [];
     var realimport = imported.map(m => {
         var a = getMaped(refpath, mmap, m);
