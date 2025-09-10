@@ -5,7 +5,7 @@
 <div class="body">
     <item>
         <label>原始价格：</label>
-        <span v-model="(+price).toFixed(2)"></span>元
+        <span -bind="(+price).toFixed(2)"></span>元
     </item>
     <item>
         <label>支付渠道：</label>
@@ -22,7 +22,7 @@
     <item ng-if="+paytype">
         <label>应支付：</label>
         <span style="color: red;">
-            <span v-model=finalpay></span>元
+            <span -bind=finalpay></span>元
         </span>
     </item>
     <item ng-if="+paytype">

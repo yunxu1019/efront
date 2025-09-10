@@ -51,7 +51,7 @@ ACQ.MERCHANT_PERM_RECEIPT_DAY_LIMIT	超过单日累计收款额度	联系支付�
         return a;
     }
     var amount = request.id;
-    if (!/^(\d+)(\.\d+)?$/.test(amount)) amount = encode62.packdecode(request.id);
+    if (!/^(\d+)(\.\d+)?$/.test(amount)) amount = crypt$encode62.packdecode(request.id);
     var [amount, subject = '网页扫码支付'] = amount.split(',');
     var trade_no = createId();
     if (!+amount) return forbidden("参数异常");
