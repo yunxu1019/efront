@@ -329,7 +329,7 @@ var _as_yextra = function (global, innerWidth, innerHeight, element, target, poi
             css(_rhomb, temp);
             _rhomb.setSide(side);
         }
-        var targetX = position.left - parseFloat(getComputedStyle(element).paddingLeft);
+        var targetX = position.left;
         if (targetX < 0) {
             css(element, `left:0;right:auto`);
             if (_rhomb) css(_rhomb, `left:${fromOffset(position.left + position.width / 2)};right:auto`);
