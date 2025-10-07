@@ -625,7 +625,7 @@ var commands = {
     },
     async create(srcname, appname) {
         var folders = await fsp.readdir(process.cwd());
-        var names = ["_envs", "coms", "apps", "pages", 'public'];
+        var names = ["_envs", "coms", "页面", "组件", "应用", "依赖", "app", "page", "apps", "pages", 'public'];
         if (folders.length === 1) {
             if (!~names.indexOf(folders[0])) {
                 throw new Error(i18n`请在空目录或efront目录执行创建操作!`);
@@ -647,7 +647,7 @@ var commands = {
             envs_path: './_envs',
             coms_path: './coms',
             page_path: "./apps"
-        })
+        }, false)
         require("./setupenv");
         await require("../build/create")(srcname, appname);
     },
@@ -662,7 +662,7 @@ var commands = {
                 page_path: path.join(distpath, 'pages'),
                 public_path: path.join(distpath, 'public'),
                 coms_path: path.join(distpath, 'coms'),
-            });
+            }, false);
             await require("../build/create")(srcname || 'blank', '');
         };
         if (!appname) {

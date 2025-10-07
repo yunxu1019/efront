@@ -42,7 +42,8 @@ async function from(srcname = 'blank', destname = memery.APP) {
         };
         fs.writeFileSync(packagepath, JSON.stringify(jsondata, null, 4));
     }
-    await copy(path.join(__dirname, `../../apps/${srcname}`), path.join(PAGE_PATH, destname));
+    var copied = await copy(path.join(__dirname, `../../apps/${srcname}`), path.join(PAGE_PATH, destname));
+    if (!copied) return;
     var names = await fsp.readdir(path.join(PAGE_PATH, destname));
     var hasindex = false;
     for (var n of names) {
@@ -63,17 +64,21 @@ function copyIfExists(src, dst) {
 }
 async function copy(src, dst) {
     var rest = [src, dst];
+    if (fs.existsSync(dst)) {
+        console.error(i18n`目标路径已存在：${dst}`);
+        return false;
+    }
+    else if (!fs.existsSync(path.dirname(dst))) {
+        console.error(i18n`目标路径无法创建！`);
+        return false;
+    } else if (!fs.existsSync(src)) {
+        console.error(i18n`源路径不存在：${src}`);
+        return false;
+    }
     while (rest.length) {
         dst = rest.pop();
         src = rest.pop();
-        if (fs.existsSync(dst)) {
-            console.error(i18n`目标路径已存在：${dst}`);
-        } else if (!fs.existsSync(path.dirname(dst))) {
-            console.error(i18n`目标路径无法创建！`);
-        } else if (!fs.existsSync(src)) {
-            console.error(i18n`源路径不存在：${src}`);
-        }
-        else try {
+        try {
             var stats = fsp.stat(src);
             stats.catch(_ => console.error(i18n`无法读取源路径：${src}`));
             stats = await stats;
@@ -96,4 +101,5 @@ async function copy(src, dst) {
             }
         } catch { }
     }
+    return true;
 }
