@@ -2282,7 +2282,7 @@
   en:    "You may open the port opened to view the demo: $1"
 
 - zh-CN: 请在空目录或efront目录执行创建操作!
-  en:    Please perform the creation operation in an empty or front directory!
+  en:    Please perform the creation operation in an empty or efront directory!
 
 - zh-CN: 当前文件夹不为空！
   en:    The current folder is not empty!
@@ -2399,7 +2399,7 @@
   en:    Connect to an efront server and obtain the Dash
 
 - zh-CN: 用一个连接号登录本机的efront服务器，接收并打印消息
-  en:    Log in to the front server of the local machine with a Dash to receive and print messages
+  en:    Log in to the efront server of the local machine with a Dash to receive and print messages
 
 - zh-CN: 向一个连接号发送消息
   en:    Send a message to a Dash
@@ -2408,7 +2408,7 @@
   en:    Check for External variable in a file or folder
 
 - zh-CN: 执行按efront方式加载的代码
-  en:    Executing code loaded in front mode
+  en:    Executing code loaded in efront mode
 
 - zh-CN: 查找含有指定的外部变量的文件
   en:    Find the file containing the specified External variable
