@@ -27,6 +27,7 @@ module.exports = async function (req, res) {
         res.writeHead(404, utf8err);
         res.end(i18n[getHeader(req.headers, "accept-language")]`未没找到匹配的资源：${url}`);
     };
+    if (env.APP) url = url.slice(("/" + env.APP).replace(/[\.\\\/]+$/, '').length);
     finalpacker.call(env, url, async function (result, type) {
         if (result instanceof Array) {
             req.args = result;
