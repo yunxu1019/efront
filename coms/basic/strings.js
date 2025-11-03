@@ -45,8 +45,22 @@ function uncode(s) {
     return s.replace(/\\u(?:\{[0-9a-f]+\}|[0-9a-f]{4})/ig, esc);
 }
 function kicode(s) {
-    return s.replace(/\\(?:u\{[0-9a-f]+\}|u[0-9a-f]{4}|x[0-9a-f]{2}|([0-7]{1,3}|[\s\S]))/ig, (a, b) => {
-        if (!b) return esc(a);
+    var t = [];
+    return s.replace(/\\(?:u\{[0-9a-f]+\}|u[0-9a-f]{4}|x[0-9a-f]{2}|([0-7]{1,3}|[\s\S]))/ig, (a, b, i) => {
+        if (!b) {
+            if (/^\\x/.test(a)) {
+                b = parseInt(a.slice(2, 4), 16);
+                t.push(b);
+                i += a.length;
+                if (!/^\\x[0-9a-f]{2}$/i.test(s.slice(i, i + 4))) {
+                    b = decodeUTF8(t);
+                    t = [];
+                    return b;
+                }
+                return "";
+            }
+            return esc(a);
+        }
         if (unescapeMap.hasOwnProperty(a)) return unescapeMap[a];
         if (/^[0-7]+$/.test(b)) return String.fromCharCode(parseInt(b, 8));
         return b;
