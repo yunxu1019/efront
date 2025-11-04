@@ -752,8 +752,8 @@ var renderLessData = function (data, lesspath, commName, watchurls, className) {
 };
 
 function prepare(filename, fullpath) {
-    var commName = fullpath.match(/(?:^|[^\w\u3000-\uffff])([\$_\w\u3000-\uffff][\w\u3000-\uffff]*?)(\.[^\.]*)?$/i);
-    if (!commName) console.warn(i18n`文件名无法生成导出变量！`, fullpath);
+    var commName = fullpath.match(/(?:^|[\\\/\[\]\(\)\{\}])([#@%&\?\^\:\$\-_\w\u3000-\uffff][\-\w\u3000-\uffff]*?)(\.[^\.]*)?$/i);
+    if (!commName && !/^\.js$/i.test(filename)) console.warn(i18n`文件名无法生成导出变量！`, fullpath, filename);
     commName = commName && commName[1];
     var className = filename.replace(/[\\\/\:\.]+/g, "-");
     if (!/\-/.test(className)) className += "- " + className;
