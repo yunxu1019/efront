@@ -12,8 +12,13 @@ function copyCaped(copyto, caped) {
 function SliceRange(from, to) {
     checkRange(from, to);
     if (!this || this.constructor !== SliceRange) return new SliceRange(from, to);
-    this[0] = [from, to];
-    this.length = 1;
+    if (from < to) {
+        this[0] = [from, to];
+        this.length = 1;
+    }
+    else {
+        this.length = 0;
+    }
 }
 
 SliceRange.prototype.delete = function (from, to) {
@@ -39,6 +44,7 @@ SliceRange.prototype.delete = function (from, to) {
 
 SliceRange.prototype.add = function (from, to) {
     checkRange(from, to);
+    if (from === to) return;
     var caped = [];
     var pushed = false;
     for (var cx = 0, dx = this.length; cx < dx; cx++) {
