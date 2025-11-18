@@ -10,7 +10,6 @@ function copyCaped(copyto, caped) {
 }
 // 包含from不包含to，步进单位是1
 function SliceRange(from, to) {
-    console.log(from, to)
     checkRange(from, to);
     if (!this || this.constructor !== SliceRange) return new SliceRange(from, to);
     this[0] = [from, to];
@@ -24,11 +23,15 @@ SliceRange.prototype.delete = function (from, to) {
         var [m, n] = this[cx];
         delete this[cx];
         if (m >= from && n <= to) continue;
+        if (n < from || m > to) {
+            caped.push([m, n]);
+            continue;
+        }
         if (m < from) {
             caped.push([m, from]);
         }
         if (n > to) {
-            caped.push([to + 1, n]);
+            caped.push([to, n]);
         }
     }
     copyCaped(this, caped);
@@ -53,13 +56,15 @@ SliceRange.prototype.add = function (from, to) {
             caped.push([m, n]);
             continue;
         }
-        if (m <= from) {
-            from = m;
+        if (m >= from) {
+            m = from;
         }
-        if (n >= to) {
-            caped.push([from, to]);
-            pushed = true;
+        if (n <= to) {
+            n = to;
         }
+        from = m, to = n;
     }
+    if (!pushed) caped.push([from, to]);
     copyCaped(this, caped);
 }
+SliceRange.prototype[Symbol.iterator] = Array.prototype[Symbol.iterator];
