@@ -27,6 +27,7 @@ var setLogger = message.isPrimary ? function (name, logger) {
 [
     "begin",
     "end",
+    "clear",
     "time",
     "type",
     "line",
@@ -54,5 +55,10 @@ var setLogger = message.isPrimary ? function (name, logger) {
     }
     setLogger(log, logger);
 });
+var log = console.log;
+console.log = function () {
+    console.clear();
+    log.apply(this, arguments);
+};
 console.setLogger = setLogger;
 console.format = colored.render;
