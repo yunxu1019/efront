@@ -877,6 +877,206 @@ Javascript.prototype.newVar = function (used, string_template) {
     used[name] = [];
     return name;
 }
+var newSpreadDeclared = false;
+var newSpread = function (code) {
+    var c = code.first;
+    while (c) {
+        var n = c.next, q = null;
+        if (c.type === STRAP && c.text === "new") {
+            var t = snapExpressFoot(c);
+            if (n) do {
+                if (n.type === SCOPED) {
+                    if (n.entry === '{') break;
+                    if (n.entry === "(") {
+                        q = n;
+                        break;
+                    }
+                }
+                if (n === t) break;
+                n = n.next;
+            } while (n);
+            if (q) {
+                convertNewSpread(c, q);
+                c = q;
+                continue;
+            }
+            c = c.next;
+            continue;
+        }
+        if (c.type & (SCOPED | QUOTED) && c.length) {
+            newSpread(c);
+        }
+        c = n;
+    }
+};
+var convertNewSpread = function (c, q) {
+    var qf = q.first;
+    if (!qf) return;
+    if (qf.text !== "...") return;
+    var qfn = qf.next;
+    if (qfn.type !== SCOPED || qfn.entry !== "{" || qfn !== q.last) return;
+    var qfi = q.indexOf(qf);
+    var qni = q.indexOf(qfn, qfi);
+    splice(q, qfi, qni + 1 - qfi);
+    var o = qfn.first;
+    if (!o) {
+        splice(q, qfi, 0, ...qfn);
+        setqueue(q);
+        return;
+    }
+    var nq = [];
+    var dist = nq;
+    var pushProps = function (qfn) {
+        var inProperty = true;
+        var doted = function () {
+            var ext = scan(`&extend("\\new",)`);
+            nq.push(ext[0], ext[1]);
+            dist = ext[1];
+            inProperty = false;
+        }
+        var defines = Object.create(null);
+        var get = false, set = false, async = null, aster = null, name;
+        for (var o of qfn) {
+            if (o.type === STAMP && o.text === ',') {
+                inProperty = true;
+                get = false, set = false, async = false, aster = false;
+                name = undefined;
+                if (dist !== nq) relink(dist), setqueue(dist), dist = nq;
+                nq.push(o);
+                continue;
+            }
+            if (!inProperty) {
+                dist.push(o);
+                continue;
+            }
+            if (o.type & (STRAP | STAMP)) {
+                switch (o.text) {
+                    case "get": get = true; break;
+                    case "set": set = true; break;
+                    case "async": async = o; break;
+                    case "*": aster = o; break;
+                    case "...":
+                        doted();
+                        break;
+                    case ":":
+                        inProperty = false;
+                        nq.push(
+                            { type: EXPRESS, text: "\\new" },
+                            name,
+                            { type: STAMP, text: '=' }
+                        );
+                        break;
+                }
+                continue;
+            }
+            if (o.type & (PROPERTY | EXPRESS)) {
+                if (/^\.\.\./.test(o.text)) {
+                    o.text = o.text.slice(3);
+                    doted();
+                    dist.push(o);
+                    continue;
+                }
+                if (o.short) {
+                    delete o.short;
+                    nq.push(
+                        { type: EXPRESS, text: "\\new." + o.text },
+                        { type: STAMP, text: "=" },
+                        o
+                    );
+                }
+                else {
+                    o.type = EXPRESS;
+                    o.text = "." + o.text;
+                    name = o;
+                }
+                continue;
+            }
+            if (o.type === SCOPED) {
+                if (o.entry = "[") {
+                    name = o;
+                    continue;
+                }
+                if (o.entry = "(") {
+                    if (get || set) {
+                        var key = name.type !== SCOPED || name.first === name.last ? createString(name) : null;
+                        dist = key ? defines[key] : null;
+                        if (!dist) {
+                            dist = scan(`&defineProperty(\\new,,{})`);
+                            nq.push(dist[0], dist[1]);
+                            if (name.type === SCOPED) {
+                                if (name.first === name.last) dist[1].splice(2, 0, ...name);
+                                else {
+                                    name.entry = "(";
+                                    name.leave = ")";
+                                    dist[1].splice(2, 0, name);
+                                    relink(dist[1]);
+                                    setqueue(dist[1]);
+                                }
+                            }
+                            dist = dist[1].last;
+                            if (key) defines[key] = dist;
+                        }
+                        if (dist.length) {
+                            dist.push({ type: STAMP, text: ',' });
+                        }
+                        if (get) {
+                            dist.push(
+                                { type: PROPERTY, text: "get" }
+                            );
+                        }
+                        if (set) {
+                            dist.push(
+                                { type: PROPERTY, text: "set" }
+                            )
+                        }
+                        dist.push(
+                            { type: STAMP, text: ":" },
+                        )
+                    }
+                    else {
+                        nq.push(
+                            { type: EXPRESS, text: '\\new' },
+                            name,
+                            { type: STAMP, text: "=" }
+                        );
+                    }
+                    if (async) dist.push(async);
+                    dist.push(
+                        { type: STRAP, text: "function" },
+                    )
+                    if (aster) dist.push(aster);
+                    inProperty = false;
+                    continue;
+                }
+            }
+            if (o.type & (COMMENT | SPACE)) {
+                nq.push(o);
+                continue;
+            }
+            throw new Error('代码结构异常！');
+        }
+    }
+    pushProps(qfn);
+    var i = nq.length - 1;
+    while (i > 0 && nq[i].type & (COMMENT | SPACE)) i--;
+    var nqe = nq[i];
+    if (nqe.type !== STAMP || nqe.text !== ',') nq.push({ type: STAMP, text: ',' });
+    newSpreadDeclared = true;
+    var cq = c.queue;
+    var ci = cq.indexOf(c);
+    var qi = cq.indexOf(q, ci);
+    var cn = splice(cq, ci, qi - ci);
+    splice(q, 0, 0, { type: EXPRESS, text: "\\new" }, { type: STAMP, text: "=" }, ...cn, { type: STAMP, text: ',' }, ...nq, { type: EXPRESS, text: '\\new' });
+    relink(q);
+    setqueue(q);
+};
+Javascript.prototype.newSpread = function (code) {
+    newSpreadDeclared = false;
+    newSpread(code);
+    if (newSpreadDeclared) {
+        splice(code, code.length, 0, { type: STRAP, text: 'var' }, { type: EXPRESS, text: "\\new" }, { type: STAMP, text: ";" });
+    }
+};
 Javascript.prototype.fix = function (code) {
     var hasExport = false;
     backEach(code, function (o, i) {

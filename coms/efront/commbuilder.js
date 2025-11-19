@@ -245,6 +245,7 @@ var loadJsBody = function (data, fullpath, lessdata, commName, className, htmlDa
     var code = scanner2(data, fullpath, 'js');
     var hasExport = code.export || !code.first;
     var prequoted = removePrequoted(code);
+    code.newSpread();
     code.fix();
     if (this && this["#"]) {
         translate(this["#"], code);
