@@ -16,7 +16,7 @@
     var parseName = function (k) {
         var icon, name, hotkey;
         if (/(^|\s+)\./.test(k)) {
-            k = k.replace(/(?:^|\s+)\.([^\s,"'`]+)/, (_, m) => {
+            k = k.replace(/(^\s*\.[^\s,"'`]+\s*|\s+\.[^\s,"'`]+)/, (_, m) => {
                 icon = m;
                 return '';
             });
@@ -41,7 +41,7 @@
         }
         if (!name) name = k;
         var item = {};
-        if (icon) item.icon = icon.replace(/\./g, ' ');
+        if (icon) item.icon = icon.replace(/\./g, ' ').trim();
         item.name = name;
         if (hotkey) {
             hotkey = hotkey.split(',');
