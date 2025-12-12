@@ -901,16 +901,16 @@ async function getXhtPromise(xhtdata, filename, fullpath, watchurls, extraJs, ex
     }
     if (attributes) attributes = attributes.map(a => `elem.setAttribute("${a.name}",${a.value ? strings.recode(a.value) : '""'})`).join("\r\n");
     else attributes = '';
-    var creator = 'document.createElement(';
+    var createElement = 'document.createElement(';
     switch ((tagName || commName).toLowerCase()) {
         case "svg":
-            creator = 'document.createElementNS("http://www.w3.org/2000/svg",';
+            createElement = 'document.createElementNS("http://www.w3.org/2000/svg",';
             break;
         case "math":
-            creator = 'document.createElementNS("http://www.w3.org/1998/Math/MathML",';
+            createElement = 'document.createElementNS("http://www.w3.org/1998/Math/MathML",';
             break;
         default:
-            creator = 'document.createElement(';
+            createElement = 'document.createElement(';
     }
     if (htmltext !== '``' || attributes || tagName && jsvars[tagName] || commName && jsvars[commName]) {
         var xhtrender = `elem.innerHTML=template;render(elem,scope);`;
@@ -919,8 +919,9 @@ async function getXhtPromise(xhtdata, filename, fullpath, watchurls, extraJs, ex
             : `var [template,scope]=${xhtmain}.apply(elem,arguments);${xhtrender}`;
     }
     else xhtrender = `${xhtmain}.apply(elem,arguments)`;
+    var entryName = commName.replace(/\-(\w)/g, (_, a) => a.toUpperCase());
     var createElement = `var elem = arguments[0];
-    if(!isElement(elem)) elem = ${creator}"${tagName || commName}");
+    if(!isElement(elem)) elem = ${createElement}"${tagName || commName}");
     if(!elem.$constructors)elem.$constructors=[${xhtmain}];
     else if(elem.$constructors.indexOf(${xhtmain})>=0)return elem;
     else elem.$constructors.push(${xhtmain});`;
@@ -930,7 +931,7 @@ async function getXhtPromise(xhtdata, filename, fullpath, watchurls, extraJs, ex
     ${scripts}
     return [${htmltext},${xhtmain}];
     };
-    function ${commName}(){
+    function ${entryName}(){
     ${createElement}
     ${attributes}
     ${xhtrender}
@@ -940,7 +941,7 @@ async function getXhtPromise(xhtdata, filename, fullpath, watchurls, extraJs, ex
     ${scripts}
     return ${htmltext};
     }
-    function ${commName}(){
+    function ${entryName}(){
     ${createElement}
     ${attributes}
     ${xhtrender}
