@@ -102,6 +102,9 @@ class Code extends Array {
         var last = skipSentenceQueue(this.first);
         return this.last === last || !last;
     }
+    newSpread() {
+        return this.program.newSpread(this);
+    }
     fix() {
         return this.program.fix(this);
     }
