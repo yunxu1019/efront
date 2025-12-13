@@ -36,7 +36,7 @@ var fire = function () {
 var server;
 module.exports = {
     run() {
-        if (!server) server = createServer(), qui;
+        if (!server) server = createServer();
         if (server.listening) return;
         server.timeout = 0;
         server.listen(memery.WATCH_PORT);
