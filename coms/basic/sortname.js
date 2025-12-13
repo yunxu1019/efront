@@ -84,6 +84,8 @@ var parse干支 = function (a) {
     return (12 + g - z) % 12 / 2 * 10 + g + 1;
 };
 var compare = function (a, b) {
+    if (a.name) a = a.name;
+    if (b.name) b = b.name;
     for (var cx1 = a.length - 1, cx2 = b.length - 1; cx1 >= 0 && cx2 >= 0; cx1--, cx2--) {
         while (/[\s\u00a0]/.test(a[cx1])) cx1--;
         while (/[\s\u00a0]/.test(b[cx2])) cx2--;

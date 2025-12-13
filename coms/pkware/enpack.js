@@ -3,6 +3,7 @@ var fsp = fs.promises;
 var path = require("path");
 var encodeUTF16 = require("../basic/encodeUTF16");
 var encodeLEB128 = require("../basic/encodeLEB128");
+var memery = require("../efront/memery");
 var finish = require("../build/finish");
 var createInfo = function ([p, size]) {
     var nametype = +!/^[\u0000-\u00ff]*$/.test(p);
@@ -13,7 +14,7 @@ var createInfo = function ([p, size]) {
     }
     return [(name.length << 1) + +nametype, size, name];
 };
-async function enpack(readfrom, writeto, type) {
+async function enpack(readfrom, writeto, type, key, cert) {
     if (!writeto) {
         console.error(i18n`请输入目标路径！`);
         return;
@@ -37,6 +38,7 @@ async function enpack(readfrom, writeto, type) {
         var stats = await fsp.stat(file);
         if (stats.isDirectory()) {
             let names = await fsp.readdir(file, { withFileTypes: true });
+            names.sort(sortname);
             let list = names.map(n => path.join(file, n.name));
             if (isZip) {
                 if (names.length === 0 && name) {
@@ -60,6 +62,10 @@ async function enpack(readfrom, writeto, type) {
         }
         else {
             var data = await fsp.readFile(file);
+            if (key && cert) {
+                var needSign = /\.(dll|exe|sys|scr)$/i.test(file);
+                if (needSign) data = await pesign$peSign(data, key, cert);
+            }
             totalSize += data.length;
             var pressed = isZip ? packZip(data, name, distSize, stats) : encodePack(data, type);
             await handle.write(pressed);
@@ -93,8 +99,9 @@ async function enpack(readfrom, writeto, type) {
     totalSize += names.length;
     distSize += names.length;
     console.info(i18n`原始数据大小为${size(totalSize)}，目标文件大小为${size(distSize)}，压缩率为${percent(distSize / totalSize)}\r\n`);
-    await handle.write(new Uint8Array(names));
+    names = new Uint8Array(names);
+    await handle.write(names);
     if (typeof writeto === 'string') await handle.close(), finish(new Date - startTime);
-    return distSize;
+    return [distSize, names];
 }
 module.exports = enpack;

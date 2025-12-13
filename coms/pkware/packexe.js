@@ -40,7 +40,9 @@ function addSection(buff, dataSize, sectionName) {
     // 更新 SizeOfImage
     const newSizeOfImage = Math.ceil((newVirtualAddress + rawSize) / sectionAlignment) * sectionAlignment;
     buff.writeUInt32LE(newSizeOfImage, peOffset + 80);
-    return lastSectionOffset + 40;
+    buff.writeUInt32LE(newSizeOfImage, optionalHeaderOffset + 128);
+    var patchdata = new Uint8Array(rawSize - dataSize)
+    return [lastSectionOffset + 40, patchdata];
 }
 
 var readPE = async function (fullpath, title) {
@@ -110,14 +112,67 @@ var alignData = function (length, align) {
     var newLength = Math.ceil(length / align) * align - length;
     return new Uint8Array(newLength);
 }
-async function packexe(readfrom, writeto) {
+async function packexe(readfrom, writeto, key, cert) {
     var startTime = new Date;
     var pedata = await readPE(exepath, memery.TITLE || writeto);
-    var hd = await fsp.open(writeto, 'w');
+    var hd = await fsp.open(writeto, 'w+');
     await hd.write(pedata);
-    var size = await enpack(readfrom, hd, 7);
-    await hd.write(alignData(size, pedata.fileAlignment));
-    var updateEnd = addSection(pedata, size, '.pack');
+    if (!cert && !key) {
+        cert = memery.CERT_PATH;
+        key = memery.KEY_PATH;
+    }
+    if (!cert && key || !key && cert) {
+        var keydir = key || cert;
+        var path = require("path");
+        var keypre = path.basename(keydir).replace(/(key|cert|密钥|证书)\.pem$/i, '');
+        try {
+            var stat = await fsp.stat(keydir);
+            if (!stat.isDirectory()) {
+                keydir = path.dirname(keydir);
+            }
+        } catch {
+            keydir = path.dirname(keydir);
+        }
+        var names = await fsp.readdir(keydir, { withFileTypes: true });
+        for (var n of names) {
+            if (!n.isFile()) continue;
+            if (n.name.slice(0, keypre.length) !== keypre) continue;
+            if (/((?:private-)?key|密钥|私钥)\.pem$/i.test(n.name)) key = path.join(keydir, n.name);
+            if (/(cert|证书)\.pem$/i.test(n.name)) cert = path.join(keydir, n.name);
+        }
+    }
+    if (typeof cert === 'string') {
+        cert = await pesign$getCert(cert);
+    }
+    if (typeof key === 'string') {
+        key = await pesign$getCert(key);
+    }
+    var [size, names] = memery.SIGNITEMS
+        ? await enpack(readfrom, hd, 7, key, cert)
+        : await enpack(readfrom, hd, 7);
+    if (key && cert) {
+        var newpe = Buffer.concat([pedata, names]);
+        var [updateEnd, patchend] = addSection(newpe, names.length, '.pack');
+        newpe = Buffer.concat([newpe, patchend]);
+        var subpe = await pesign$peSign(newpe, key, cert);
+        var subsize = Buffer.alloc(8);
+        subsize.writeUInt32LE(subpe.checksum, 0);
+        subpe = subpe.subarray(newpe.length, subpe.length);
+        await hd.write(subpe);
+        subsize.writeUInt32LE(subpe.length, 4);
+        await hd.write(subsize);
+        size += subpe.length + 8;
+    }
+    var [updateEnd, patchend] = addSection(pedata, size, '.pack');
+    await hd.write(patchend);
+    if (key && cert) {
+        var peinfo = pesign$parsePE(pedata);
+        peinfo.certTableOffset = pedata.length + size + patchend.length;
+        var hash = await pesign$calcPeHash(pedata, peinfo, hd);
+        var cert1 = await pesign$hashSign(hash, key, cert, pedata, peinfo);
+        await hd.write(cert1);
+        await pesign$updateChecksum(pedata, peinfo, hd);
+    }
     await hd.write(pedata, 0, updateEnd, 0);
     await hd.close();
     finish(new Date - startTime);

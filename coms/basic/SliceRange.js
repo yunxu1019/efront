@@ -41,7 +41,17 @@ SliceRange.prototype.delete = function (from, to) {
     }
     copyCaped(this, caped);
 };
-
+SliceRange.prototype.split = function (maxSize) {
+    var caped = [];
+    for (var cx = 0, dx = this.length; cx < dx; cx++) {
+        var [m, n] = this[cx];
+        while (n - m > maxSize) {
+            caped.push([m, m += maxSize]);
+        }
+        if (n > m) caped.push([m, n]);
+    }
+    copyCaped(this, caped);
+};
 SliceRange.prototype.add = function (from, to) {
     checkRange(from, to);
     if (from === to) return;

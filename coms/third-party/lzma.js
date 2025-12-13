@@ -1,4 +1,4 @@
-
+var URL = this.URL;
 var Module = typeof Module != "undefined" ? Module : {};
 var quit_ = (status, toThrow) => { throw toThrow };
 var scriptDirectory = "";
@@ -19,8 +19,6 @@ readAsync = async (filename, binary = true) => {
     var ret = fs.readFileSync(filename, binary ? undefined : "utf8");
     return ret
 };
-if (process.argv.length > 1) { thisProgram = process.argv[1].replace(/\\/g, "/") }
-arguments_ = process.argv.slice(2);
 if (typeof module != "undefined") { module["exports"] = Module }
 quit_ = (status, toThrow) => {
     process.exitCode = status;
@@ -45,7 +43,6 @@ function preRun() {
     callRuntimeCallbacks(onPreRuns)
 }
 function initRuntime() {
-    runtimeInitialized = true;
     wasmExports["c"]()
 }
 function postRun() {

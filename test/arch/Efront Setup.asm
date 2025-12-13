@@ -135,6 +135,11 @@ findmark dw "*.*"
 folder_rect real4 20,320,440,21
 hWinMain dd 0
 bitmap dd 0
+checkSumOffset dd 64
+checkSum dd 0
+certDirOffset dd 128
+certTableSize dd 0
+pSizeOfImage dd 80
 .data?
 logoline real4 14400 dup(?)
 shcore dd ?
@@ -149,6 +154,8 @@ dataindex dd 0
 datapassed dd 0
 nametotal dd ?
 dataoffset dd ?
+sfxend dd ?
+sfxset dd ?
 nameoffset dd ?
 namecache dd MAX_PATH dup(?)
 datacache dd 36000 dup(?)
@@ -163,6 +170,7 @@ pFileEnd dd ?
 lastSectionOffset dd ?
 hasPack dd 0
 fileAlignment dd 1
+sectionAlignment dd 1
 ;
 ;
 ;
@@ -223,25 +231,34 @@ opensetup proc
     test eax, eax
     jz error
     mov pMem, eax
-    local peOffset,sectionCount,sizeOfOptionalHeader
+    local peOffset,numberOfSections,sizeOfOptionalHeader
     local optionalHeaderOffset
     local sectionTable
+    
     mov esi,pMem
     mov eax,[esi+3ch]
     mov peOffset,eax
     mov ebx,eax
     movzx eax,word ptr[esi+ebx+6];
-    mov sectionCount,eax
+    mov numberOfSections,eax
     movzx eax,word ptr[esi+ebx+20]
     mov sizeOfOptionalHeader,eax
     mov eax,[esi+ebx+60]
     mov fileAlignment,eax
+    mov eax,[esi+ebx+56]
+    mov sectionAlignment,eax
+    mov pSizeOfImage,80
     mov eax,peOffset
+    add pSizeOfImage,eax
     add eax,24
     mov optionalHeaderOffset,eax
+    mov checkSumOffset,64
+    add checkSumOffset,eax
+    mov certDirOffset,128
+    add certDirOffset,eax
     add eax,sizeOfOptionalHeader
     mov sectionTable,eax
-    mov eax,sectionCount
+    mov eax,numberOfSections
     dec eax
     imul eax,40
     add eax,sectionTable
@@ -256,8 +273,12 @@ opensetup proc
     cmp dword ptr[esi+ebx],6361702eh;".pac"
     jz @f
     mov hasPack,0
+    ret
     @@:
-
+    mov ebx,certDirOffset
+    mov eax,[esi+ebx+4]
+    mov certTableSize,eax
+    mov ebx,lastSectionOffset
     mov eax,[esi+ebx+12];
     mov lastVirtualAddress,eax
     mov eax,[esi+ebx+20];
@@ -288,22 +309,40 @@ closesetup endp
 
 readcount proc h
     local buff[8]:byte,readed,b
+    push esi
     mov readed,0
     mov eax,dPackEnd
     sub eax,8
     invoke SetFilePointer,h,eax,NULL,FILE_END
     lea esi,buff
-    invoke ReadFile,h,esi,sizeof buff,addr readed,0
-    mov ecx,readed
-    .if isuninstall
-        dec ecx
+    invoke ReadFile,h,esi,8,addr readed,0
+    .if certTableSize>0
+        .if  byte ptr [esi+7] != 0;
+            mov isuninstall,1
+            jne @F
+        .else
+            mov isuninstall,0
+        .endif 
+        mov eax,dword ptr [esi];
+        mov checkSum,eax
+        mov eax,dword ptr [esi+4];
+        mov certTableSize,eax
+        mov eax,dPackEnd
+        sub eax,8
+        sub eax,certTableSize
+        mov dPackEnd,eax
+        sub eax,8
+        invoke SetFilePointer,h,eax,NULL,FILE_END
+        invoke ReadFile,h,esi,8,addr readed,0
     .endif
+    @@:
+    mov ecx,readed
     mov eax,0
     mov ebx,0
     mov edx,0
     .while ecx>0
         dec ecx
-        mov al,BYTE ptr buff[ecx]
+        mov al,BYTE ptr [esi+ecx]
         push ecx
         mov b,eax
         and eax,01111111b
@@ -317,6 +356,7 @@ readcount proc h
         add edx,7
     .endw
     mov eax,ebx
+    pop esi
     ret
 readcount endp
 atow proc srcstart,srcleng,dststart
@@ -504,11 +544,16 @@ readindex proc h
     mov filecount,edx
     mov eax,buffstart
     sub eax,nametotal
-
+    ; [pfx-][-data-][-name-][-cert1-][-cert2-]
     mov nameoffset,eax
     mov uninstallRest,eax
     sub eax,datatotal
     mov dataoffset,eax
+    add eax,pFileEnd
+    mov sfxend,eax
+    mov eax,dPackEnd
+    sub eax,nameoffset
+    mov sfxset,eax
     invoke SetFilePointer,h,dataoffset,NULL,FILE_END
     add eax,1
     sub eax,uninstallRest
@@ -637,7 +682,7 @@ programinit proc
         ret
     .endif
     invoke readcount,hFile
-    .if !eax
+    .if isuninstall
         invoke GetModuleFileName,0,addr filename,sizeof filename
         invoke foldersize,addr filename
         lea ebx,filename
@@ -649,9 +694,6 @@ programinit proc
         invoke lstrcpy,addr buffer2,addr filename;
         invoke lstrcpy,addr onekey1,addr onekey4
         invoke lstrcpy,addr onekey2,addr onekey5
-        mov isuninstall,1
-    .else 
-        mov isuninstall,0
     .endif
     invoke closesetup
     ret
@@ -735,39 +777,44 @@ _Extract proc lParam
     .if !isuninstall && uninstallSize
         local uninstallFileSize,uninstallTrimSize,uninstallTrimRest
         xor edx,edx
-        mov eax,uninstallSize
-        add eax,dPackEnd
+        mov eax,sfxend
+        add eax,sfxset
         mov uninstallTrimSize,eax
         add eax,fileAlignment
         dec eax
         idiv fileAlignment
         imul fileAlignment
         mov uninstallFileSize,eax
-        invoke GlobalAlloc,GMEM_FIXED or GMEM_ZEROINIT,uninstallFileSize
+        add eax,certTableSize
+        invoke GlobalAlloc,GMEM_FIXED or GMEM_ZEROINIT,eax
         mov hdata,eax
         invoke SetFilePointer,hFile,0,NULL,FILE_BEGIN
-        mov ecx,uninstallRest
-        sub ecx,dPackEnd
-        mov uninstallTrimRest,ecx
-        mov ecx,uninstallTrimSize
-        sub ecx,1
-        add ecx,uninstallTrimRest
+        mov ecx,sfxend
         invoke ReadFile,hFile,hdata,ecx,addr readed,0
         mov ecx,uninstallRest
         invoke SetFilePointer,hFile,ecx,NULL,FILE_END
-        mov ecx,0
-        sub ecx,uninstallTrimRest
+        mov ecx,sfxset
         mov ebx,hdata
-        add ebx,uninstallTrimSize
-        add ebx,uninstallTrimRest
-        dec ebx
+        add ebx,sfxend
         invoke ReadFile,hFile,ebx,ecx,addr readed,0
-        mov ecx,uninstallTrimSize
-        dec ecx
-        add ecx,hdata
-        mov BYTE ptr[ecx],0
+        mov ecx,dPackEnd
+        invoke SetFilePointer,hFile,ecx,NULL,FILE_END
+        mov ebx,hdata
+        add ebx,uninstallFileSize
+        mov ecx,certTableSize
+        invoke ReadFile,hFile,ebx,ecx,addr readed,0
         invoke initnano
         invoke lstrcpy,eax,addr uninstallName
+        mov ebx,hdata
+        add ebx,checkSumOffset
+        mov eax,checkSum
+        mov [ebx],eax
+        mov eax,uninstallFileSize
+        mov ebx,hdata
+        add ebx,certDirOffset
+        mov [ebx],eax
+        mov eax,certTableSize
+        mov [ebx+4],eax
         mov ebx,hdata
         add ebx,lastSectionOffset
         mov eax,20250717h
@@ -777,10 +824,22 @@ _Extract proc lParam
         mov eax,uninstallFileSize
         sub eax,[ebx+20]
         mov [ebx+16],eax
+        xor edx,edx
+        mov eax,[ebx+12]
+        add eax,sfxset
+        add eax,sectionAlignment
+        dec eax
+        idiv sectionAlignment
+        imul sectionAlignment
+        mov ebx,hdata
+        add ebx,pSizeOfImage
+        mov [ebx],eax
 
         invoke CreateFile,addr namecache,GENERIC_WRITE,FILE_SHARE_READ,0,CREATE_ALWAYS,FILE_ATTRIBUTE_NORMAL,0
         mov hdst,eax
-        invoke WriteFile,hdst,hdata,uninstallFileSize,addr writed,NULL
+        mov ecx,uninstallFileSize
+        add ecx,certTableSize
+        invoke WriteFile,hdst,hdata,ecx,addr writed,NULL
         mov uninstallSize,0
         invoke processed,0
         invoke GlobalFree,hdata

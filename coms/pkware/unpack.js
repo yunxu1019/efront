@@ -32,12 +32,16 @@ var getPackedEnd = async function (h, size) {
     const sizeOfOptionalHeader = await readUInt16LE(h, peOffset + 20);
     const optionalHeaderOffset = peOffset + 4 + 20; // 签名 (4) + FileHeader (20)
     const sectionTable = optionalHeaderOffset + sizeOfOptionalHeader;
+    const certDirOffset = optionalHeaderOffset + 128;
+    var certTableSize = await readUInt32LE(h, certDirOffset);
     var lastSectionOffset = sectionTable + (sectionCount - 1) * 40;
     var sectionName = await readbuff(h, lastSectionOffset, 8);
     if (String(sectionName) !== ".pack\0\0\0") return size;
     const dataSize = await readUInt32LE(h, lastSectionOffset + 8);
     const lastRawOffset = await readUInt32LE(h, lastSectionOffset + 20);
-    return lastRawOffset + dataSize;
+    if (certTableSize > 0) var certpackedSize = await readUInt32LE(h, lastRawOffset + dataSize - 4) + 8;
+    else certpackedSize = 0;
+    return lastRawOffset + dataSize - certpackedSize;
 };
 var readindex = async function (h, end) {
     var buff = await readbuff(h, end - 8, 8);

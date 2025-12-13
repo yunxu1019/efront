@@ -310,12 +310,12 @@ var commands = {
             }, console.error);
         });
     },
-    packexe(readfrom, writeto) {
+    packexe(readfrom, writeto, key, cert) {
         if (!writeto) {
             console.error(i18n`请输入目标路径！`);
             return;
         }
-        require("../pkware/packexe")(readfrom, writeto);
+        require("../pkware/packexe")(readfrom, writeto, key, cert);
     },
     unpack(readfrom, writeto) {
         require("../pkware/unpack")(readfrom, writeto);

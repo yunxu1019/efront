@@ -57,32 +57,7 @@ var request = async function (id, params) {
     var account = await data1.from(id, params);
     return account;
 };
-var ASN1 = function (type) {
-    var length = 0;
-    var bytesarr = [];
-    for (var cx = 1, dx = arguments.length; cx < dx; cx++) {
-        var bytes = arguments[cx];
-        if (bytes.constructor !== Array) {
-            bytes = Array.apply(null, bytes);
-        }
-        bytesarr.push(bytes);
-        length += bytes.length;
-    }
-    var asn1 = [type];
-    if (length > 127) {
-        var nums = [];
-        while (length > 0) {
-            nums.unshift(length & 0xff);
-            length = length >>> 8;
-        }
-        asn1.push(0x80 | nums.length, ...nums);
-    }
-    else {
-        asn1.push(length);
-    }
-    asn1 = asn1.concat(...bytesarr);
-    return asn1;
-};
+
 var packUint = function (bytes) {
     if (bytes[0] & 0x80) {
         return ASN1(0x02, [0], bytes);
