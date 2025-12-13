@@ -63,7 +63,8 @@ export var bitString = function (bytes) {
 export var octetString = ASN1.octet = function (bytes) {
     return ASN1(OCTETSTRING, bytes);
 };
-export var oid = function (oid) {
+export var oid = function () {
+    var [oid] = arguments;
     if (typeof oid === 'string') oid = oid.split('.').map(a => +a);
     if (typeof oid === 'number') oid = Array.prototype.slice.call(arguments, 0, arguments.length);
     var first = 40 * oid[0] + oid[1];
