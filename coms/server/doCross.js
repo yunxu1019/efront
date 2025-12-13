@@ -62,10 +62,7 @@ const headerCharRegex = /[^\t\x20-\x7e\x80-\xff]/;
 function checkIsHttpToken(val) {
     return tokenRegExp.test(val);
 }
-var isRing = function (req) {
-    var socket = req.socket;
-    return socket.localAddress === socket.remoteAddress;
-};
+
 /**
  * 
  * @param {Http2ServerRequest} req 
@@ -95,7 +92,8 @@ async function cross(req, res, referer) {
         if (cross.referer.test(req.referer) && !headers.referer) {
             headers.referer = hostpath + parseUrl(req.referer, false).realpath;
         } else if (req.referer || getHeader(_headers, 'origin') === 'null') {
-            headers.referer = hostpath;
+            if (referer !== 0) headers.referer = hostpath;
+            else headers.referer = req.referer;
         }
     }
     catch (e) {

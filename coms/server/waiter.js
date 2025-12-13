@@ -710,7 +710,7 @@ var requestListener = async function (req, res) {
             }
             var ipv4 = req.socket.localAddress.replace(/^\:\:ffff\:/, '');
             if (/^\d+(\.\d+){3}$/.test(ipv4) && ipv4 === host);
-            else if (req.socket.localAddress !== req.socket.remoteAddress) {
+            else if (!isRing(req)) {
                 req.url = req.protocol + '//' + host + req.url;
                 return doCross(req, res, 0);
             }
