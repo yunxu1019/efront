@@ -13,7 +13,7 @@ async function updateChecksum(pehead, peInfo, pehandle) {
         }
         if (dx < to) sum += piece[dx];
     };
-    if (pehandle) {
+    if (!pehandle) {
         addsum(pehead);
     }
     else {
