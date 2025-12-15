@@ -601,11 +601,7 @@ function toComponent(responseTree, isWebProject) {
             r = f[y](I ? I[B] : T[0], g);
             return I ? I[B] : r;
         });`: ""}
-        r = f[y](I ? I[B] : T[0], g);
-        return ${outsideAsync ?
-            `I && r && r[N] instanceof P ? r[N](function () { return I[B] }) : I ? I[B] : r`
-            : "I ? I[B] : r"
-        }
+        return f[y](I ? I[B] : T[0], g);
     };
     return T[c + 1] = function (a, S) {
         a = a || '';
