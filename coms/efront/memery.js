@@ -301,7 +301,7 @@ var memery = module.exports = {
     AUTOEVAL: get("AUTOEVAL, AUTOENUM, EVAL, ENUM"),
     RECORD: getdirpath("RECORD_PATH,RECORD"),
     TRANSFORM_PIXEL: get("TRANSFORM_PIXEL", false),
-    SIGNITEMS: getdirpath("SIGNITEMS", false),// 目前仅用在签名exe，不用于服务器
+    SIGNITEMS: get("SIGNITEMS", false),// 目前仅用在签名exe，不用于服务器
     CERT_PATH: getdirpath("CERT_PATH"),// 目前仅用在签名exe，不用于服务器
     KEY_PATH: getdirpath("CERT_PATH"),// 目前仅用在签名exe，不用于服务器
     PFX_PATH: getdirpath("PFX_PATH, PATH.SSL_PFX"),// 目前仅用于服务器

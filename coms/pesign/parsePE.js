@@ -29,8 +29,8 @@ function parsePE(buffer) {
     const isPE32Plus = magic === 0x020B;
     if (!isPE32 && !isPE32Plus) throw new Error('Unsupported PE magic');
 
-    const numberOfRvaOffset = isPE32 ? 92 : 100;
-    const dataDirOffset = optionalStart + (isPE32 ? 96 : 104);
+    const numberOfRvaOffset = isPE32 ? 92 : 108;
+    const dataDirOffset = optionalStart + (isPE32 ? 96 : 112);
     const checksumOffset = optionalStart + 64;
 
     const numberOfRvaAndSizes = optionalHeader.readUInt32LE(numberOfRvaOffset);
