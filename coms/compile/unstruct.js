@@ -821,14 +821,17 @@ var ternary = function (body, getname, ret) {
                 }
                 pushstep(d, stepReturn(1, 0, d));
                 pushstep(c, stepReturn(d.length + 1, 0, c));
+                var qe = new Node({
+                    type: VALUE,
+                    text: "1",
+                    isdigit: true,
+                });
                 pushstep(explist, rescan.keep`if (${getCondition(b, function (b) {
                     b = ternary(b, getnextname, true);
                     for (var b of b) pushstep(explist, b);
                     return b;
-                }, true)}) return [1, 0]`);
-                var q = explist[explist.length - 1];
+                }, true)}) return [${qe}, 0]`);
                 var qi = explist.length - 1;
-                var qe = q[q.length - 1];
                 if (c.length) {
                     pushstep(explist, c[0]);
                     explist.push(...c.slice(1));

@@ -12,9 +12,9 @@ function test(codetext, expect, ret = false) {
 test('var o = loaded[f.name] = f.isFile() ? new File(p, rebuild, limit) : new Directory(p, rebuild, limit)', "_ = f.name; _0 = f.isFile(); if (!_0) return [1, 0]; _0 = new File(p, rebuild, limit); loaded[_] = _0; o = _0; return [2, 0];\r\n _0 = new Directory(p, rebuild, limit); loaded[_] = _0; o = _0; return [1, 0]");
 test('a+b', "a + b");
 test('var a = b', "a = b");
-test('if(this){}',`if (!this) return [1, 0]; return [1, 0]`);
-test('if(!this){}',`if (this) return [1, 0]; return [1, 0]`);
-test('if(arguments){}',`if (!arguments) return [1, 0]; return [1, 0]`);
+test('if(this){}', `if (!this) return [1, 0]; return [1, 0]`);
+test('if(!this){}', `if (this) return [1, 0]; return [1, 0]`);
+test('if(arguments){}', `if (!arguments) return [1, 0]; return [1, 0]`);
 test('a | c & b', "_ = c & b, a | _");
 test('a + !c', "_ = !c, a + _");
 test('a + b * c', "_ = b * c, a + _");
@@ -71,6 +71,7 @@ test("for(var a in b) a.push()", "for (var a in b) a.push()", true);
 test("for(;;)", "return [0, 0]", true);
 test("for(a in b)", "for (a in b)", true);
 test("for(a of b)", "for (a of b)", true);
+test(`var [size, names] = memery.SIGNITEMS? await enpack(readfrom, hd, 7, key, cert) : await enpack(readfrom, hd, 7);`, 'if (!memery.SIGNITEMS) return [2, 0]; _ = enpack(readfrom, hd, 7, key, cert); return [_, 1];\r\n _ = @; [size, names] = _; return [3, 0];\r\n _ = enpack(readfrom, hd, 7); return [_, 1];\r\n _ = @; [size, names] = _; return [1, 0] ', true)
 test("for await(a of b)", "for await (a of b)", true);
 test("for(a = os[Symbol.iterator] || os[Symbol.asyncIterator] || Array.prototype[Symbol.iterator], a = a.call(os), b = a.next(); !b.done && (o = b.value, true); b = a.next())", "_ = Symbol.iterator; _ = os[_]; if (_) return [1, 0]; _ = Symbol.asyncIterator; _ = os[_]; if (_) return [1, 0]; _ = Symbol.iterator; _ = Array.prototype[_];\r\n a = _; a = a.call(os); b = a.next(); return [1, 0];\r\n _ = !b.done; if (!_) return [1, 0]; o = b.value; _ = true;\r\n if (!_) return [1, 0]; b = a.next(); return [-1, 0]", true);
 test("for(a=0;a<1;a++)if(a==0)continue\r\n else a=1", `a = 0; return [1, 0];\r\n _ = a < 1; if (!_) return [2, 0]; _ = a == 0; if (_) return [1, 0]; a = 1; return [1, 0];\r\n _ = a++; return [-1, 0]`, true);
@@ -157,7 +158,7 @@ test(`c=b+ !a`, "_ = !a, c = b + _");
 test(`do {var loadcount = 0;} while (loadcount !== 0);`, `loadcount = 0; _ = loadcount !== 0; if (_) return [0, 0]`);
 test("if(a)try{a}catch{};a;", 'if (!a) return [4, 0]; return [1, 7];\r\n a; return [0, 9];\r\n return [1, 9];\r\n return [1, 0];\r\n a');
 test("url = (o===void 0||o===null?void 0:o.url)", '_ = void 0, _ = o === _; if (_) return [1, 0]; _ = o === null;\r\n if (!_) return [1, 0]; _ = void 0; return [2, 0];\r\n _ = o.url; return [1, 0];\r\n url = _', true);
-test("p ? (ishttps ? `https` : `http`).toUpperCase() + i18n`端口` + (ishttps ? ': ' : ':  ') + p : ''", "if (!p) return [1, 0]; if (!ishttps) return [1, 0]; _1 = `https`; return [2, 0];\r\n _1 = `http`; return [1, 0];\r\n _ = _1.toUpperCase(); _0 = i18n`端口`, _ = _ + _0; if (!ishttps) return [1, 0]; _2 = ': '; return [2, 0];\r\n _2 = ':  '; return [1, 0];\r\n _0 = _2, _ = _ + _0, _ = _ + p; return [2, 0];\r\n ''; return [1, 0]")
+test("p ? (ishttps ? `https` : `http`).toUpperCase() + i18n`端口` + (ishttps ? ': ' : ':  ') + p : ''", "if (!p) return [5, 0]; if (!ishttps) return [1, 0]; _1 = `https`; return [2, 0];\r\n _1 = `http`; return [1, 0];\r\n _ = _1.toUpperCase(); _0 = i18n`端口`, _ = _ + _0; if (!ishttps) return [1, 0]; _2 = ': '; return [2, 0];\r\n _2 = ':  '; return [1, 0];\r\n _0 = _2, _ = _ + _0, _ = _ + p; return [2, 0];\r\n ''; return [1, 0]")
 r++// test("if(a)else {}",'')
 test("if(a){if(b){c}d}else{e}", `if (!a) return [2, 0]; if (!b) return [1, 0]; c; return [1, 0];\r\n d; return [2, 0];\r\n e; return [1, 0]`)
 test("if(a){if(b){c}else{d}}else{e}", `if (!a) return [3, 0]; if (!b) return [1, 0]; c; return [2, 0];\r\n d; return [1, 0];\r\n return [2, 0];\r\n e; return [1, 0]`)
