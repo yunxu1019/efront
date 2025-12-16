@@ -3,6 +3,7 @@ var noAuth = 0;
 var gssApi = 1;
 var upPair = 2;
 var noAble = 0xff;
+const VERSION = 0x05;
 var connected = new Uint8Array([
     0x5, 0x00, 0x00,
 ]);
@@ -46,10 +47,10 @@ var onShaked = function (buff) {
             target.on('error', (error) => {
                 switch (error.code) {
                     case "ECONNREFUSED":
-                        this.end(new Uint8Array([version, 0x05]));
+                        this.end(new Uint8Array([VERSION, 0x05]));
                         break;
                     default:
-                        this.end(new Uint8Array([version, 0x04]));
+                        this.end(new Uint8Array([VERSION, 0x04]));
                         break;
                 }
             })
@@ -65,7 +66,7 @@ var onShaked = function (buff) {
 }
 var pickSocks5 = function (buff) {
     var version = buff[0];
-    if (version !== 0x05) return;
+    if (version !== VERSION) return;
     this.picked = true;
     var methods = buff.slice(2, 2 + buff[1]);
     var support = null;

@@ -66,7 +66,7 @@ module.exports = async function (variables, rootpath) {
             if (!/\.[cm]?[jt]sx?$/i.test(fullpath)) continue;
             var data = await readFile(fullpath);
             try {
-                if (!/\.[mc]?js$/i.test(fullpath)) data = await compile$coffee(fullpath, data);
+                if (!/\.[mc]?js$/i.test(fullpath)) data = await efront$coffee(fullpath, data);
             } catch {
                 continue;
             }
