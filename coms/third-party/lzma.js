@@ -1,7 +1,6 @@
 var URL = this.URL;
 var WebAssembly = this.WebAssembly;
 var Module = typeof Module != "undefined" ? Module : {};
-var quit_ = (status, toThrow) => { throw toThrow };
 var scriptDirectory = "";
 function locateFile(path) {
     if (Module["locateFile"]) { return Module["locateFile"](path, scriptDirectory) }
@@ -20,8 +19,7 @@ readAsync = async (filename, binary = true) => {
     var ret = fs.readFileSync(filename, binary ? undefined : "utf8");
     return ret
 };
-if (typeof module != "undefined") { module["exports"] = Module }
-quit_ = (status, toThrow) => {
+var quit_ = (status, toThrow) => {
     process.exitCode = status;
     throw toThrow
 }
@@ -282,3 +280,4 @@ preInit();
 run();
 
 
+return Module;
