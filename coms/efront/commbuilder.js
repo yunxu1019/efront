@@ -425,12 +425,6 @@ var loadJsBody = function (data, fullpath, lessdata, commName, className, htmlDa
                 code_body.push({ type: code_body.EXPRESS, text: commName });
             }
             code.relink(code_body);
-        } else {
-            if (!/\bmain|\bindex|\_test\b|\.(jsp|asp|php)$/i.test(path.basename(fullpath))) {
-                if (fullpath.length > 48) {
-                    fullpath = ".." + fullpath.slice(fullpath.length - 46);
-                }
-            }
         }
     }
     if (templateName) {
