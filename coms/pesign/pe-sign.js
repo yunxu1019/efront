@@ -17,7 +17,7 @@ async function peSign(pedata, privateKey, cert) {
             return pedata;
         }
         let r = new SliceRange(0, pedata.length);
-        r.delete(certTableOffset, pedata.length);
+        r.delete(certTableOffset, certTableOffset + certTableSize);
         pedata.writeUInt32LE(0, certDirOffset + 4);
         pedata.writeUInt32LE(0, certDirOffset);
         let pedata1 = [];

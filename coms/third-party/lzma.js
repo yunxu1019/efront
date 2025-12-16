@@ -1,4 +1,5 @@
 var URL = this.URL;
+var WebAssembly = this.WebAssembly;
 var Module = typeof Module != "undefined" ? Module : {};
 var quit_ = (status, toThrow) => { throw toThrow };
 var scriptDirectory = "";
