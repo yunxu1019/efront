@@ -933,8 +933,8 @@ var createScoped = function (parsed, wash) {
                     mergeTo(_used, used);
                     if (scoped.length) _scoped.push(scoped);
                 }
-                if (isArraw) {
-                    scoped.isArraw = true;
+                if (isArraw) scoped.isArraw = isArraw;
+                if (isArraw || vars !== lets) {
                     if (!thisscope.insett && used.this) thisscope.insett = true;
                     if (!argscope.inseta && used.arguments) argscope.inseta = true;
                 }
