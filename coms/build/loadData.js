@@ -2,10 +2,13 @@
 var path = require('path');
 var memery = require("../efront/memery");
 var compile = require("./compile");
-var { include_required, rest_coms } = require("./environment");
+var { include_required, pages_root, rest_coms } = require("./environment");
 var isRest = rest_coms ? function (restcoms, p) {
     return getPathIn(restcoms, p);
 }.bind(null, rest_coms.map(r => path.join(r[0], r[1]))) : function () { return false };
+var isOutside = function (r) {
+    return !r || !getPathIn(pages_root, r);
+};
 function build(pages_root, lastBuiltTime, dest_root) {
     var responseTree = Object.create(null);
     var filterMap = Object.create(null);
@@ -59,7 +62,8 @@ function build(pages_root, lastBuiltTime, dest_root) {
                 if (a in dependenceMap) arr[i] = dependenceMap[a];
             });
             var required = (a.require || []).filter(filter);
-            if (!include_required) return a.map(k => deps[k] = true);
+            var outside = isOutside(datas[i].realpath);
+            if (!include_required && !outside) return a.map(k => deps[k] = true);
             var required2 = required.map(r => /^\./.test(r) ? path.join(a.dirname, r) : r);
             var required3 = await getBuildRoot(required2, true);
             var map = a.requiredMap;
@@ -71,7 +75,6 @@ function build(pages_root, lastBuiltTime, dest_root) {
                 deps[k] = true;
                 if (isrest) restRequired[k] = true;
             });
-
         });
         await Promise.all(reqs);
         return Object.keys(deps);
