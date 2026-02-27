@@ -56,11 +56,12 @@ var createRefId = function (o) {
     return ids.join('');
 }
 var ignore = Symbol("ignore");
+var mapkey = null;
 var maplist = function (u) {
     var map = Object.create(null);
     for (var o of u) {
-        if (o.maped) continue;
-        o.maped = true;
+        if (o[mapkey]) continue;
+        o[mapkey] = true;
         var r = createRefId(o);
         if (!map[r]) {
             map[r] = [];
@@ -285,9 +286,15 @@ function enumref(refitem, scoped) {
 }
 function atuoenum(scoped) {
     var { used, caps } = scoped;
+    mapkey = Symbol('enumed');
     for (var k in caps) {
         var rs = maplist(used[k]);
         enumref(rs, scoped);
+    }
+    for (var k in caps) {
+        for (var o of used[k]) {
+            delete o[mapkey];
+        }
     }
 }
 var enumtype = 0;
