@@ -181,7 +181,21 @@ function inCondition(o) {
     return incondition;
 
 }
-
+var noVarOutOfFor = function (os, qq, sb, su) {
+    if (qq === sb) return true;
+    if (enumtype & REFMOVE) return false;
+    var [o] = os;
+    var us = su[o.tack];
+    if (!us) return false;
+    var otext = o.text;
+    var c = 0;
+    for (var u of us) {
+        if (u.text === otext) {
+            c++;
+        }
+    }
+    return c === os.length;
+};
 function enumref(refitem, scoped) {
     if (enumtype === REFMOVE) {
         var c = 0;
@@ -205,7 +219,7 @@ function enumref(refitem, scoped) {
                 if (o.queue.kind) break;
                 var q = o.queue;
                 if (q !== scoped.body) {
-                    if (q.entry === '(' && q.queue === scoped.body) {
+                    if (q.entry === '(' && noVarOutOfFor(os, q.queue, scoped.body, scoped.used)) {
                         var qp = q.prev;
                         if (qp?.type === EXPRESS) qp = qp.prev;
                         if (qp && qp.type === STRAP && qp.text === "await") qp = qp.prev;
