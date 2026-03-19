@@ -3,7 +3,7 @@ async function link(id, page) {
         id = await data.from("link");
     }
     if (!page.name) $scoped.get(page).title = `会话窗口(<span nodrag>${id}</span>)`;
-    page.roomid = id;
+    page.clientid = id;
     var removed = false;
     on("remove")(page, function () {
         removed = true;
@@ -21,8 +21,8 @@ function main(params) {
     else id = params;
     var page = frame$chat(name);
     if (name) page.name = name;
-    care(page, 'send', function (msg) {
-        data.from("cast", { id: page.roomid, msg });
+    care(page, 'send', function ([sendto, msg]) {
+        data.from("cast", { id: sendto, msg });
     });
     link(id, page);
     return page;

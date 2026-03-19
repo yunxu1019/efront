@@ -25,6 +25,36 @@
     max-height: 100%;
 }
 
+.fade {
+    filter: grayscale(1);
+    opacity: .5;
+}
+
+.qrcode {
+    position: relative;
+    height: 0;
+    overflow: visible;
+    z-index: 2;
+    padding: 0;
+    width: 100%;
+    text-align: center;
+    margin-bottom: -52px;
+
+    >p {
+        background: #fff;
+    }
+
+    >canvas {
+        background: #fff;
+        border: 10px solid #fff;
+        image-rendering: pixelated;
+        display: block;
+        margin: 52px auto 10px auto;
+        width: 256px;
+        height: 256px;
+    }
+}
+
 >list {
     width: @leftwidth;
     position: absolute;

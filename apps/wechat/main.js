@@ -1,3 +1,9 @@
+var rid = /\?(\w+)$/.exec(location.href)?.[1];
+if (rid) {
+    data.patchInstance("clientInfo", {
+        rid
+    }, 0);
+}
 var page = new maps(Object.assign({
     center: [/*兰考*/114.834364, 34.82138],
     zoom: 3,

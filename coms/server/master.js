@@ -100,19 +100,22 @@ if (isDevelop) [
 message.quit = end;
 message.broadcast = broadcast;
 message.deliver = async function (a) {
-    var [cid, uid, msgid] = a;
+    var [cid, msg] = a;
+    clients.deliver(cid, msg);
+};
+clients.deliver = async function (cid, msg) {
     var client = clients.attach(cid);
     if (!client) return;
     client.hub = true;
     client.refresh();
-    client.deliver(uid, msgid);
+    client.deliver(msg);
     var count = 0;
     for (var w of waiters) {
-        var a = await message.invoke(w, 'deliver', [cid, uid]);
+        var a = await message.invoke(w, 'deliver', cid);
         count += +a || 0;
     }
     if (!count) client.keep();
-};
+}
 message.invokeAll = async function ([a, params]) {
     if (!process.resourceUsage) return;
     var res = [process.resourceUsage().maxRSS];

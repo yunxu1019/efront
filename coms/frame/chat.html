@@ -9,17 +9,17 @@
         <i></i>
         <i></i>
     </btn>
-    <template -if="user">
-        <span -bind="user.name"></span>
-        &nbsp;<span class="id">(<span -bind="user.id"></span>)</span>
-        <a left -if="user.id!==localid" @click="call()">呼叫</a>
+    <template -if="remoteUser">
+        <span -bind="remoteUser.name"></span>
+        &nbsp;<span class="id">(<span -bind="remoteUser.id"></span>)</span>
+        <a left -if="rid!==cid" disabled_="!!remoteUser.shaking" @click="call()">呼叫</a>
     </template>
     <template -elseif="title" -src="title"> </template>
     <close @click="remove()"></close>
 </div>
 <list -if="users.length>0" -src="u in users">
-    <btn class="user" @click="user=u" type_="u===user?'default':'white'">
-        <avatar -if="user.icon" -style="{'background-image':'url(\'icons/'+u.icon+'.ico\')'}"></avatar>
+    <btn class="user" @click="remoteUser=u" type_="u===remoteUser?'default':'white'" -class="{fade:u.shaking}">
+        <avatar -if="u.icon" -style="{'background-image':'url(\'icons/'+u.icon+'.ico\')'}"></avatar>
         <avatar -else>
         </avatar>
         <span -text="u.name"></span>&nbsp;
@@ -29,9 +29,17 @@
         <div>
             <span class="id" -text="u.id"></span>
         </div>
-        <span class="local" -if="u.id===localid">本机</span>
+        <span class="local" -if="cid&&u.cid===cid">本机</span>
     </btn>
 </list>
+
+<div .qrcode -if="rid===cid">
+    <canvas @append="qr(this)"></canvas>
+    <p>扫码以开启<a target="_blank" href_="linkurl" @click="event.preventDefault();cplink()">公网会话</a></p>
+    <p @click="autoAllow=!autoAllow">
+        <checker -model="autoAllow"></checker>自动允许会话请求
+    </p>
+</div>
 <grid #body disabled>
     <chat -src="m in msglist">
         <padding>
@@ -40,15 +48,16 @@
         </padding>
     </chat>
     <div textarea @mousedown="this.firstChild.focus()">
-        <div @keydown.alt.enter="send('html',text)" contenteditable="true" -model="text"></div>
+        <div @keydown.alt.enter="send('html',text)" contenteditable@="rid!==cid" -model="text"></div>
     </div>
 </grid>
-<div foot>
-    <a class="file" @click="chooseFile()" -if="user">
+
+<div foot -style="{opacity:rid===cid?0.2:1}">
+    <a disabled_="rid===cid||!!remoteUser?.shaking" class="file" @click="chooseFile()" -if="remoteUser">
         <template -src="fileIcon"></template>
         <span>
             ${i18n`文件`}
         </span>
     </a>
-    <a @click="send('html',text);">${i18n`发送`}</a>
+    <a disabled_="rid===cid||!!remoteUser?.shaking" @click="send('html',text);">${i18n`发送`}</a>
 </div>

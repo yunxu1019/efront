@@ -25,10 +25,10 @@ message.allsimilar = function () {
     return JSAM.stringify(similar.all());
 };
 
-message.receive = function ([cid, uid]) {
+message.receive = function (cid) {
     var client = clients.get(cid);
     if (client) {
-        var msgs = client.pullMessages(uid);
+        var msgs = client.pullMessages();
         return msgs;
     }
 };

@@ -40,6 +40,18 @@
 - zh-CN: 禁用
   en:    Disable
 
+- zh-CN: 复制失败!
+  en:    Copy failed!
+
+- zh-CN: 允许
+  en:    allow
+
+- zh-CN: 不允许
+  en:    not allowed
+
+- zh-CN: 是否允许来自$1($2)的公网会话？
+  en:    Will you allow public network sessions from $1 ($2)?
+
 - zh-CN: 压缩算法不支持
   en:    Compression algorithm not supported
 

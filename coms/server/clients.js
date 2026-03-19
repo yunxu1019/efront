@@ -32,9 +32,13 @@ class User {
      */
     type = 'user';
     constructor(userstr) {
-        var [id, name] = userstr.split(',');
+        var [id, name, cid] = userstr.split(',');
         this.id = id;
         if (!isEmpty(name)) this.name = name;
+        if (cid) this.cid = cid;
+    }
+    toString() {
+        return [this.id, this.name, this.cid].join(',')
     }
 }
 var resMap = new WeakMap;
@@ -64,52 +68,19 @@ class Client {
             indexedKeepingClients.splice(index, 1);
         }
     }
-    removeUser(u) {
-        if (!this.hasUser(u)) return;
-        delete this.users[u.id];
-    }
-    getMessages(uid) {
+
+    pullMessages() {
         var c = this;
-        if (uid) c = this.getUser(uid);
-        if (!c) return;
-        var msglist = msgMap.get(c);
-        return msglist;
-    }
-    pullMessages(uid) {
-        var c = this;
-        if (uid) {
-            c = this.getUser(uid);
-        }
         if (!c) return;
         var meglist = msgMap.get(c);
         msgMap.set(c, []);
         return meglist;
     }
-    hasUid(uid) {
-        return uid in this.users;
-    }
-    hasUser(u) {
-        return this.hasUid(u.id);
-    }
-    mapUser(u) {
-        var u = this.users[u.id];
-        if (u.name !== u.name) {
-            u.name = u.name;
-        }
-        Object.assign(this.users[u.id], u);
-    }
-    putUser(user) {
-        this.users[user.id] = user;
-        msgMap.set(user, []);
-    }
-    /**
-     * @returns {User}
-     */
     getUser(uid) {
         return this.users[uid];
     }
-    getUserList() {
-        return Object.keys(this.users).map(k => this.users[k]);
+    putUser(user) {
+        this.users[user.id] = user;
     }
     refresh() {
         this.removeIndex();
@@ -120,16 +91,8 @@ class Client {
         this.optime += time;
         saveToOrderedArray(indexedKeepingClients, this, byOptime);
     }
-    deliver(userid, msgid) {
+    deliver(msgid) {
         var c = this;
-        if (userid) {
-            c = c.getUser(userid);
-        }
-        if (!c) {
-            if (!this.hub) return;
-            c = new User(userid);
-            this.putUser(c);
-        }
         var cmsg = msgMap.get(c);
         if (msgid instanceof Array) {
             cmsg.push.apply(cmsg, msgid);
@@ -148,25 +111,11 @@ class Client {
         }
     }
     listen(res, ustr) {
-        var c;
+        var c = this;
         if (ustr) {
             var u = new User(ustr);
-            if (!this.hasUser(u)) {
-                this.putUser(u);
-                c = u;
-            }
-            else {
-                c = this.getUser(u.id);
-                Object.assign(c, u);
-            }
-            if (/,$/.test(ustr)) {
-                res.writeHead(201);
-                res.end(JSON.stringify(Object.keys(this.users).map(k => this.users[k])));
-                return true;
-            }
-        }
-        else {
-            c = this;
+            u.cid = this.id;
+            this.user = u;
         }
         if (!resMap.has(c)) {
             resMap.set(c, []);
@@ -178,7 +127,7 @@ class Client {
             return;
         }
         cres.push(res);
-        return u && u.name;
+        return u;
     }
     valueOf() {
         return this.id;
@@ -195,14 +144,7 @@ var autoremove = function (time) {
         var client = clients[cx];
         if (!client) continue;
 
-        var users = client.users;
         if (client.optime + delta < time) {
-            for (var k in users) {
-                var u = resMap.get(users[k]);
-                if (u) {
-                    client.deliver(k);
-                }
-            }
             if (resMap.has(client)) {
                 client.deliver();
                 continue;
@@ -210,17 +152,8 @@ var autoremove = function (time) {
             clients.splice(cx, 1)[0].removeIndex();
         } else {
             if (client.optime + d < time) {
-                var rusers = [];
-                for (var k in users) {
-                    var u = users[k];
-                    if (!resMap.has(u)) {
-                        delete users[k];
-                        u.deleted = true;
-                        rusers.push(u);
-                    }
-                }
-                if (rusers.length) for (var k in users) {
-                    client.deliver(k, rusers);
+                if (client.nid) {
+                    clients.deliver(client.nid, { type: 'user', cid: client.id, deleted: true });
                 }
             }
             if (msgMap.has(client)) {
@@ -266,20 +199,17 @@ var methods = {
         var client = new Client(config);
         return client;
     },
-    attach(clientid, checkmark) {
-        var client = this.get(clientid);
-        if (client) return client;
-        if (checkmark !== false && !checkId(clientid)) return;
-        client = this.create(clientid);
-        saveToOrderedArray(clients, client);
-        return client;
-    },
-    deliver(clientid, userid, message) {
+    attach(clientid, nid) {
         var client = this.get(clientid);
         if (client) {
-            return client.deliver(userid, message);
+            if (nid === client.nid) return client;
+            return;
         }
-        return false;
+        if (nid !== false && !checkId(clientid)) return;
+        client = this.create(clientid);
+        client.nid = nid;
+        saveToOrderedArray(clients, client);
+        return client;
     },
     detach(clientid) {
         var index = getIndexFromOrderedArray(clients, clientid);
@@ -296,21 +226,27 @@ var methods = {
     checkId,
     getType,
     putUser(clientid, usr) {
-        var client = this.get(clientid);
-        if (client) {
-            var u = new User(usr);
-            if (!client.hasUser(u)) {
-                client.putUser(u);
-            }
-            else {
-                var user = client.getUser(u.id);
-                Object.assign(user, u);
-            }
-            var users = Object.keys(client.users).map(k => client.users[k]);
-            for (var user of users) {
-                if (user.id !== u.id) client.deliver(user.id, u);
+        var u = new User(usr);
+        var client = this.attach(clientid, false);
+        var u0 = client.getUser(u.id);
+        if (u0) {
+            if (u.cid === u0.cid) {
+                Object.assign(u0, u)
+                client.keep();
+                return;
             }
         }
+        var users = client.users;
+        client.putUser(u);
+        var u1s = [];
+        for (var uid in users) {
+            var u1 = users[uid];
+            if (u1.id !== u.id) {
+                clients.deliver(u1.cid, u);
+                u1s.push(u1);
+            }
+        }
+        clients.deliver(u.cid, u1s);
     },
     getMark() {
         return markList;

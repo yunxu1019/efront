@@ -50,26 +50,25 @@ var safeQuitProcess = function () {
 message.disconnect = function () {
     safeQuitProcess();
 };
-var pullMessage = async function (client, cid, uid) {
+var pullMessage = async function (client) {
+    var cid = client.id;
     client.refresh();
     await wait(60);
-    var msgs = await message.invoke('receive', [cid, uid]);
+    var msgs = await message.invoke('receive', cid);
     if (!msgs?.length) {
         await wait(180);
-        msgs = await message.invoke('receive', [cid, uid]);
+        msgs = await message.invoke('receive', cid);
     }
     if (!msgs?.length) {
         await wait(260);
-        msgs = await message.invoke('receive', [cid, uid]);
+        msgs = await message.invoke('receive', cid);
     }
-    if (msgs?.length) client.deliver(uid, msgs);
+    if (msgs?.length) client.deliver(msgs);
 };
-message.deliver = function ([cid, uid]) {
+message.deliver = function (cid) {
     var client = clients.get(cid);
     if (!client) return;
-    var hasU = client.hasUid(uid);
-    if (!hasU) return;
-    pullMessage(client, cid, uid);
+    pullMessage(client);
     return true;
 };
 message.addmark = function (a) {
@@ -84,8 +83,8 @@ message.invokeAll = function (k, params) {
 message.maxrss = function () {
     return process.resourceUsage?.().maxRSS;
 }
-message.putuser = function ([clientid, usr]) {
-    clients.putUser(clientid, usr);
+message.putuser = function ([nid, usr]) {
+    clients.putUser(nid, usr);
 };
 message.send('getmark', null, function (markList) {
     markList.forEach(clients.addMark, clients);
@@ -141,17 +140,16 @@ var cast = function (req, res, type) {
             return;
         }
         var [cid, uid] = id.split("/");
-        if (clients.getType(cid) === 1) {// 自动转换到 localIp
-            if (!clients.checkId(cid)) return;
-            cid = remoteNetid(req);
-        }
         try {
             msgid = decodeURIComponent(msgid);
         } catch (e) {
             msgid = unescape(msgid);
         }
-        message.send("deliver", [cid, uid, msgid]);
+        clients.deliver(cid, msgid);
     }
+};
+clients.deliver = function (cid, msg) {
+    message.send("deliver", [cid, msg]);
 };
 
 var care = function (req, res, type) {
@@ -167,8 +165,9 @@ var care = function (req, res, type) {
         var client = null;
         if (ct === 1) {// 自动转换到 localIp
             if (clients.checkId(id)) {
-                id = remoteNetid(req);
-                client = clients.attach(id, false);
+                var nid = remoteNetid(req);
+                client = clients.attach(id, nid);
+                id = nid;
             }
         }
         else {
@@ -183,12 +182,9 @@ var care = function (req, res, type) {
         if (type[3]) {
             userinfo = encode62.packdecode(type[3]);
         }
-        pullMessage(client, id, uid);
+        pullMessage(client);
         var usr = client.listen(res, userinfo);
-        var uid = userinfo && userinfo.split("/")[0];
-        if (usr) {
-            message.broadcast("putuser", [id, userinfo]);
-        }
+        if (nid && usr) message.broadcast("putuser", [nid, String(usr)]);
     } else {
         res.writeHead(403, utf8error);
         res.end();

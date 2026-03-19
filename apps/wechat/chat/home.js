@@ -1,19 +1,37 @@
-async function link(page, id) {
-    if (!id) id = await data.from("link");
-    page.roomid = id;
+async function link(page, id = clientInfo.cid) {
+    console.log(id)
+    if (!id) {
+        id = await data.from("link");
+        data.patchInstance("clientInfo", { cid: id }, 0);
+    }
+    page.clientid = id;
     var runing = true;
     on('remove')(page, function () {
         if (req.abort) req.abort();
         runing = false;
     });
-    var req = data.wait("care", { id, userid: encode62.packencode([page.localid, clientInfo.name, ''].join(',')) })
+    if (clientInfo.rid) {
+        page.push([{ type: "user", name: clientInfo.rid, cid: clientInfo.rid, shaking: true }]);
+        page.send({
+            cid: id,
+            name: clientInfo.name,
+            id: clientInfo.id,
+            icon: clientInfo.icon,
+            shake: true,
+        }, "user");
+    }
+    page.push([{ type: "user", id: clientInfo.id, cid: id, name: clientInfo.name }]);
+    var req = data.wait("care", { id, userid: encode62.packencode([clientInfo.id, clientInfo.name, ''].join(',')) });
     do {
         try {
             var msg = await req;
-            page.push(msg);
-            req = data.wait("care", { id, userid: encode62.packencode(page.localid) });
+            if (msg) page.push(msg);
+            req = data.wait("care", { id });
         }
-        catch { }
+        catch (e) {
+            req = null;
+            await wait(2000);
+        }
     } while (runing);
 }
 function download(url) {
@@ -29,10 +47,10 @@ function download(url) {
 
 function main() {
     var page = frame$chat(clientInfo);
-    link(page, '');
     care(page, "send", function ([sendto, msg]) {
-        data.from("cast", { id: [page.roomid, sendto].join("/"), msg });
+        data.from("cast", { id: sendto, msg });
     });
+    link(page);
     care(page, 'pullfile', async function (file) {
         try {
             var xhr = await cross("put", `/(${file.size})`);

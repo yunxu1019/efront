@@ -33,20 +33,24 @@ function msg(elem, { m }, parentScopes) {
             elem.innerText = m.content;
     }
 }
-var userManager = function (users, map) {
-    for (var cx = 0, dx = users.length; cx < dx; cx++) {
+var userManager = function (users, map, page) {
+    for (var cx = users.length - 1; cx >= 0; cx--) {
         var u = users[cx];
         if (u.id in map) {
             var m = map[u.id];
             if (m.deleted) users.splice(cx, 1);
             else Object.assign(u, m);
-            delete map[u.id];
-            return;
+            if (!u.shake) delete map[u.id];
+            else users.splice(cx, 1);
         }
     }
     var ms = Object.keys(map).map(k => map[k]);
-    for (var u of ms) u.msgread = 0;
-    users.push.apply(users, ms);
+    var us = ms.filter(a => !a.shake);
+    for (var u of us) {
+        u.msgread = 0;
+    }
+    users.push.apply(users, us);
+    return ms.filter(a => a.shake);
 };
 var saved_event, moving = null;
 var dragpage = {
@@ -113,8 +117,8 @@ var getRtc = function (userid) {
     return rtc;
 }
 async function pullFileWithRTC(scope, file) {
-    var userid = scope.user.id;
-    var rtc = getRtc(userid);
+    var rid = scope.remoteUser.cid;
+    var rtc = getRtc(rid);
     var h = await window.showSaveFilePicker({ suggestedName: file.name });
     var writable = await h.createWritable();
     var channel = await rtc.createChannel();
@@ -156,7 +160,7 @@ async function pullFileWithRTC(scope, file) {
         // <!-- console.log('接收端异常',event) -->
     };
     var ondate = function (date) {
-        scope.send("didate", date, userid);
+        scope.send("didate", date, rid);
     };
     var offer = await rtc.init(ondate);
     scope.send('accept', { file: file.id, channel: channel.id, offer })
@@ -217,6 +221,24 @@ async function pushFileWithRTC(scope, file, msg) {
         // <!-- console.log("发送端打开") -->
     };
 }
+var shakeing = [];
+var shakeUser = async function (page, shakes) {
+    if (shakeing.length) return shakeing.push.apply(shakeing, shakes);
+    shakeing.push.apply(shakeing, shakes);
+    while (shakeing.length) {
+        var user = shakeing.shift();
+        if (page.autoAllow);
+        else {
+            var options = [i18n`允许`, i18n`不允许` + '#danger'];
+            var res = await confirm(i18n`是否允许来自${user.name}(${user.id})的公网会话？`, options);
+            if (res === options[1]) continue;
+        }
+        delete user.shake;
+        page.push([user]);
+        await wait(function () { return page.localUser }, 10000);
+        page.send(page.localUser, 'user', user.cid);
+    }
+}
 
 
 function chat(title = '会话窗口') {
@@ -224,7 +246,6 @@ function chat(title = '会话窗口') {
     page.innerHTML = template;
     drag.on(page.firstElementChild, page);
     resize.on(page);
-    var localid = title.id || (new Date / 1000 | 0) + Math.sin(Math.random());
     var users = [];
     var addToMsgList = function (list, msgs) {
         list.push.apply(list, msgs);
@@ -234,7 +255,7 @@ function chat(title = '会话窗口') {
             if (msgs.length && (!lastmsg || lastmsg.offsetTop + lastmsg.offsetHeight === chat.scrollHeight)) {
                 chat.go(list.length ? list.length - 1 : 0);
             }
-            if (ps.user) ps.user.msgread = list.length;
+            if (ps.remoteUser) ps.remoteUser.msgread = list.length;
         }
         else {
             ps.totalunread += msgs.length;
@@ -243,8 +264,43 @@ function chat(title = '会话窗口') {
     var msgTemp = Object.create(null);
     page.push = function (msgs) {
         var { msglist } = ps;
-        var userMap = null;
         var cached = [], cachedi = 0;
+        var userMap = null;
+        var cidMap = null;
+        var addUser = function (m) {
+
+            if (!userMap) {
+                cidMap = Object.create(null);
+                for (var u of users) {
+                    cidMap[u.cid] = u;
+                }
+                userMap = Object.create(null);
+            }
+            if (cidMap[m.cid]) {
+                var c = cidMap[m.cid];
+                if (c.shaking) {
+                    delete userMap[m.id];
+                    cidMap[m.cid] = m;
+                    var i = users.indexOf(c);
+                    if (i >= 0) users[i] = m;
+                    if (ps.localUser === c) ps.localUser = m;
+                    if (ps.remoteUser === c) ps.remoteUser = m;
+                }
+                else if (m.shaking) m = cidMap[m.cid];
+                console.log(ps.remoteUser.shaking)
+
+            }
+            if (!m.icon) {
+                if (m.shaking) {
+                    m.name = "正在开启..";
+                    m.id = 'loading';
+                    m.icon = 'chrm';
+                }
+                else if (m.id) m.icon = m.id.replace(/[\.\d]+$/, '');
+            }
+            cidMap[m.cid] = m;
+            userMap[m.id] = m;
+        };
         msgs = msgs.filter(m => {
             if (!m) return false;
             if (isString(m)) {
@@ -271,11 +327,7 @@ function chat(title = '会话窗口') {
                 return true;
             }
             switch (m.type) {
-                case 'user':
-                    if (!userMap) userMap = Object.create(null);
-                    if (!m.icon) m.icon = m.id.replace(/[\.\d]+$/, '');
-                    userMap[m.id] = m;
-                    break;
+                case 'user': addUser(m); break;
             }
             return false;
         });
@@ -287,12 +339,20 @@ function chat(title = '会话窗口') {
                 ps.pushFile(m.content);
                 return false;
             }
+            if (m.type === "user") {
+                addUser(m);
+                return false;
+            }
             return true;
         });
         if (userMap) {
-            userManager(users, userMap);
-            if (users.indexOf(ps.user) < 0) ps.user = users[0];
+            var shakes = userManager(users, userMap, send1);
+            shakeUser(page, shakes);
+            if (users.indexOf(ps.remoteUser) < 0) ps.remoteUser = users[0];
             if (users.length > 0 && ps.showList === 0) ps.showList = true;
+            for (let u of users) {
+                if (u.cid === ps.cid) ps.localUser = u;
+            }
         }
         if (msgs.length) {
             var msgMap = Object.create(null);
@@ -328,9 +388,9 @@ function chat(title = '会话窗口') {
                 }
             }
             if (users.length) for (var u of users) {
-                if (u.id in msgMap) {
+                if (u.cid in msgMap) {
                     if (!u.msglist) u.msglist = [];
-                    addToMsgList(u.msglist, msgMap[u.id]);
+                    addToMsgList(u.msglist, msgMap[u.cid]);
                 }
             }
             else {
@@ -341,13 +401,14 @@ function chat(title = '会话窗口') {
     page.$renders = [function () {
         ps.resize(ps.body);
     }];
-    page.localid = localid;
-    Object.defineProperty(page, 'userid', {
+
+    Object.defineProperty(page, 'rid', {
         get() {
-            var user = ps.user;
-            if (user) return user.id;
+            var user = ps.remoteUser;
+            if (user) return user.cid;
         }
     });
+
     page.setAttribute('ng-class', "{showList:showList}");
     var fid = 0;
     var filesMap = Object.create(null);
@@ -357,19 +418,20 @@ function chat(title = '会话窗口') {
                 ps.send('rtc-video', data);
                 break;
             case "hangup":
-                ps.send('rtc-close', "", ps.remote);
+                ps.send('rtc-close', "", ps.remoteRtc);
                 break;
             case "accept":
-                ps.send('rtc-accept', data, ps.remote);
+                ps.send('rtc-accept', data, ps.remoteRtc);
                 break;
             case "didate":
-                ps.send('rtc-didate', data, ps.remote);
+                ps.send('rtc-didate', data, ps.remoteRtc);
                 break;
         }
     }
     function send1(msg, sendto) {
         cast(page, 'send', [sendto, msg]);
     }
+    page.autoAllow = true;
     var ps = {
         chat: zimoli$list,
         title,
@@ -377,45 +439,91 @@ function chat(title = '会话窗口') {
         showList: 0,
         users,
         text: '',
+        get autoAllow() {
+            return page.autoAllow;
+        },
+        set autoAllow(v) {
+            return page.autoAllow = v;
+        },
         calling: null,
-        remote: null,
-        localid,
+        remoteRtc: null,
+        get localUser() {
+            return page.localUser
+        },
+        set localUser(v) {
+            page.localUser = v;
+        },
+        get shaking() {
+            var u = this.remoteUser;
+            if (u) return u.shaking;
+        },
+        get localid() {
+            return page.clientid;
+        },
+        set localid(v) {
+            page.clientid = v;
+        },
+        get cid() {
+            return this.localid;
+        },
+        get rid() {
+            if (this.remoteUser) return this.remoteUser.cid;
+        },
+        text: '',
         totalunread: 0,
-        _user: null,
-        call(remote = this.user, offer) {
+        get linkurl() {
+            var href = location.href.replace(/[?#][\s\S]*$/, '') + "?" + this.cid;
+            return href;
+        },
+        async qr(canvas) {
+            var qrcode = await init("thirdParty$qrcode");
+            var qr = qrcode(0, 'L');
+            var href = this.linkurl;
+            qr.addData(href);
+            qr.make();
+            var size = qr.getModuleCount();
+            canvas.width = canvas.height = size;
+            while (size < 128) size = size << 1;
+            css(canvas, { width: size, height: size });
+            qr.renderTo2dContext(canvas.getContext("2d"), 1);
+        },
+        cplink() {
+            copyToClipboard(this.linkurl);
+        },
+        call(remote = this.rid, offer) {
             if (this.calling) return;
-            this.remote = isObject(remote) ? remote.id : remote;
+            this.remoteRtc = isObject(remote) ? remote.cid : remote;
             if (typeof remote === 'string') {
                 for (var u of this.users) {
-                    if (u.id === remote) {
+                    if (u.cid === remote) {
                         remote = u;
                         break;
                     }
                 }
             }
             if (!remote) return;
-            var c = chatRtc(remote, this.localid, offer);
+            var c = chatRtc(remote, this.cid, offer);
             this.calling = c;
 
             on('remove')(c, function () {
                 ps.calling = null;
-                ps.remote = null;
+                ps.remoteRtc = null;
             })
             care(c, rtcMessage);
             popup(c);
         },
         fileIcon: shapes$file,
-        set user(v) {
+        set remoteUser(v) {
             if (!v.msglist) v.msglist = []
             if (v.msgread !== v.msglist.length) {
                 v.msgread = v.msglist.length;
                 this.totalunread -= v.msglist.length - v.msgread;
             }
             this.msglist = v.msglist;
-            this._user = v;
+            page.remoteUser = v;
         },
-        get user() {
-            return this._user;
+        get remoteUser() {
+            return page.remoteUser;
         },
         msg,
         remove() {
@@ -470,10 +578,15 @@ function chat(title = '会话窗口') {
             body.resizeCell(textarea, 'top', textarea.clientHeight - targetHeight - 2);
         },
 
-        send(type, content, sendto = page.userid) {
-            var msg = {
+        send(type, content, sendto = page.rid) {
+            console.log(type, content, 'send', sendto,this.text)
+            if (type instanceof Object) {
+                var msg = type;
+                if (!msg.type) msg.type = content;
+            }
+            else var msg = {
                 type,
-                sender: this.localid,
+                sender: this.cid,
                 content,
             };
             var data = JSAM.stringify(msg);
@@ -481,7 +594,7 @@ function chat(title = '会话窗口') {
             if (data.length > 16000) {
                 return alert("信息太长，无法发送！");
             }
-            if (this.user && this.user.id !== this.localid) a: {
+            if (this.remoteUser && this.remoteUser.cid !== this.cid) a: {
                 switch (type) {
                     case "accept":
                     case "didate":
@@ -505,7 +618,7 @@ function chat(title = '会话窗口') {
             else {
                 send1(data, sendto);
             }
-            this.body.lastElementChild.focus();
+            if (this.body) this.body.lastElementChild.focus();
             this.text = '';
         }
     };
@@ -520,5 +633,6 @@ function chat(title = '会话窗口') {
         }
     });
     moveupon(page, dragpage);
+    page.send = ps.send.bind(ps);
     return page;
 }
