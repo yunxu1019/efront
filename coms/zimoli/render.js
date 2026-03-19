@@ -675,8 +675,17 @@ var gtValue = function () { return this.value };
 var stValue = function (v) { this.value = v };
 var gtChecked = function () { return this.checked };
 var stChecked = function (v) { this.checked = v };
-var gtHtml = function () { return this.innerHTML };
-var stHtml = function (v) { this.innerHTML = v };
+var gtHtml = function () {
+    removeUnsafeTags(this);
+    return this.innerHTML;
+};
+var stHtml = function (v) {
+    var span = document.createElement('span');
+    span.innerHTML = v;
+    removeUnsafeTags(span);
+    this.innerHTML = '';
+    appendChild(this, span.childNodes);
+};
 class Model {
     constructor(getScope, setScope, target) {
         this.gs = getScope;
@@ -713,6 +722,7 @@ class Model {
             return;
         }
         this.ss.call(this.target, value);
+        console.log(value, this.value, this.gs.call(this.target))
         this.value = value;
         this.bd.value = this.gs.call(this.target, value);
         if (isFunction(this.emit?.call)) {
@@ -734,7 +744,7 @@ class Model {
     }
 }
 var createSetter = function (elem, search) {
-    return $$eval.bind(elem, search + "=arguments[2]", scopeList, elem);
+    return $$eval.bind(elem, search + "=arguments[1]", scopeList, elem);
 };
 var directives = {
     text: createBinder2(function (value) {
@@ -812,6 +822,14 @@ var binders = {
     ""(attr, search) {
         var getter = createGetter(this, search);
         var oldValue;
+        if (/contenteditable/i.test(attr)) {
+            var v = this.value;
+            Object.defineProperty(this, 'value', {
+                get: gtHtml,
+                set: stHtml
+            });
+            if (isHandled(v)) this.value = v;
+        }
         var hook = function () {
             var value = getter(this);
             if (deepEqual(value, oldValue)) return;
@@ -1138,21 +1156,50 @@ var getDeepContext = function (deep) {
     var length = deep;
     var deepL = deepcontexts.length;
     while (deep-- > deepL) {
-        deepcontexts[deep] = `with($parentScopes[${deep}])`;
+        deepcontexts[deep] = `with($$[${deep}])`;
     }
     return deepcontexts.slice(0, length).join('');
 }
-var createEval = function (deep) {
-    return new Function("$parentScopes", "code", "event", `${getDeepContext(deep)}return eval(code)`);
+var isRowCode = function (code) {
+    var reg = /["';]/g;
+    reg.lastIndex = 0;
+    var reg1 = /\\[\s\S]|'/g;
+    var reg2 = /\\[\s\S]|"/g;
+    do {
+        var r = reg.exec(code)
+        if (!r) return true;
+        var regtmp = null;
+        if (r) switch (r[0]) {
+            case "'": regtmp = reg1; break;
+            case `"`: regtmp = reg2; break;
+            case ";": return false;
+        }
+        if (regtmp) {
+            regtmp.lastIndex = reg.lastIndex;
+            do {
+                var r = regtmp.exec(code);
+                if (r) {
+                    r = r[0];
+                    if (r.length === 1) break;
+                }
+            } while (r);
+            reg.lastIndex = regtmp.lastIndex;
+        }
+    } while (r);
+    return true;
+}
+var createEval = function (deep, code) {
+    if (isRowCode(code)) code = `return ${code}`;
+    else code = `{${code}}`;
+    return new Function("$$", 'event', `${getDeepContext(deep)}${code}`);
 };
 
-var evalcontexts = [createEval(0)];
 
 function $$eval(search, scopes, target = this, event) {
     var length = scopes.length;
-    var eval2 = evalcontexts[length];
-    if (!eval2) eval2 = evalcontexts[length] = createEval(length);
-    var res = eval2.call(target, scopes, search, event);
+    var eval2 = createEval(length, search);
+    if (/text/.test(search)) console.log(search)
+    var res = eval2.call(target, scopes, event);
     return res;
 }
 
