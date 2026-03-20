@@ -145,7 +145,7 @@
     var timeNode = document.createTextNode("");
     var rejectTime = 0;
     care(this, function ([type, sender, data]) {
-        if (sender !== remoteUser.id) return;
+        if (sender !== remoteUser.cid) return;
         switch (type) {
             case "rtc-close":
                 if (acceptTime) return remove(this);

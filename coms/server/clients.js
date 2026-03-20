@@ -45,7 +45,7 @@ var resMap = new WeakMap;
 var msgMap = new WeakMap;
 class Client {
     id = '';
-    optime = 0;
+    optime = +new Date;
     hub = false;
     users = Object.create(null);
     constructor(arg) {
@@ -82,8 +82,16 @@ class Client {
     putUser(user) {
         this.users[user.id] = user;
     }
+    removeUser(uid) {
+        var user = this.users[uid];
+        if (!user) return;
+        delete this.users[uid];
+        for (var k in this.users) {
+            var u = this.users[k];
+            clients.deliver(u.cid, { type: 'user', cid: user.cid, id: user.id, deleted: true });
+        }
+    }
     refresh() {
-        this.removeIndex();
         this.optime = +new Date;
     }
     keep(time = 24 * 3600 * 1000 * 7) {
@@ -107,6 +115,7 @@ class Client {
             res.forEach(a => a.end(msg));
             cmsg.splice(0, cmsg.length);
             this.refresh();
+            this.removeIndex();
             return true;
         }
     }
@@ -136,30 +145,42 @@ class Client {
 
 var removedindex = 0;
 var autoremove = function (time) {
-    var delta = 60 * 1000, d = 3000;
+    var delta = 2000, limit = 60 * 1000;
     for (var cx = removedindex - 1, dx = removedindex - 1000; cx >= dx; cx--) {
         if (cx < 0) {
             break;
         }
         var client = clients[cx];
         if (!client) continue;
-
         if (client.optime + delta < time) {
             if (resMap.has(client)) {
-                client.deliver();
-                continue;
-            }
-            clients.splice(cx, 1)[0].removeIndex();
-        } else {
-            if (client.optime + d < time) {
-                if (client.nid) {
-                    clients.deliver(client.nid, { type: 'user', cid: client.id, deleted: true });
+                var res = resMap.get(client);
+                if (res.length) {
+                    if (client.optime + limit < time) {
+                        client.deliver();
+                    }
+                    continue;
                 }
             }
-            if (msgMap.has(client)) {
-                var messages = msgMap.get(client);
-                if (messages.length > 300) messages.splice(messages.length - 200, messages.length);
+            if (!client.nid) {
+                var hasUser = false;
+                for (var _ in client.users) {
+                    hasUser = true; break;
+                }
+                if (hasUser) {
+                    client.refresh();
+                    continue;
+                }
             }
+            clients.splice(cx, 1)[0].removeIndex();
+            var cuser = client.user;
+            if (cuser) {
+                clients.removeUser(client.nid, cuser.id);
+            }
+        }
+        else {
+            var messages = msgMap.get(client);
+            if (messages?.length > 300) messages.splice(0, messages.length - 200);
         }
     }
     removedindex = dx;

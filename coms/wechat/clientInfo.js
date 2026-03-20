@@ -13,7 +13,7 @@ var getBrowserTypeFromUserAgent = function () {
     if (/MSIE/.test(navigator.userAgent)) return 'msie,Internet Explorer';
     // Opera
     // Opera/9.80 (Windows NT 6.2; WOW64) Presto/2.12.388 Version/12.15
-    if (/Presto/.test(navigator.userAgent)) return 'prst,Opera';
+    if (/(Presto|OPR)/.test(navigator.userAgent)) return 'prst,Opera';
     // QQ浏览器
     // Mozilla/5.0 (Windows NT 10.0; WOW64; Trident/7.0; rv:11.0) like Gecko Core/1.94.172.400 QQBrowser/11.1.5140.400 
     if (/QQBrowser/.test(navigator.userAgent)) return 'qqbr,QQ浏览器';

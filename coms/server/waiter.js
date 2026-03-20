@@ -151,7 +151,18 @@ var cast = function (req, res, type) {
 clients.deliver = function (cid, msg) {
     message.send("deliver", [cid, msg]);
 };
-
+message.rmuser = function ([cid, uid]) {
+    var client = clients.get(cid);
+    if (!client) return;
+    client.removeUser(uid);
+};
+clients.removeUser = function (cid, uid) {
+    message.broadcast('rmuser', [cid, uid]);
+};
+/**
+ * @param {Http2ServerRequest} req
+ * @param {Http2ServerResponse} res
+ */
 var care = function (req, res, type) {
     req.setTimeout(120000);
     var id = type[2];
@@ -184,6 +195,7 @@ var care = function (req, res, type) {
         }
         pullMessage(client);
         var usr = client.listen(res, userinfo);
+        req.on('close', function () { client.deliver(); });
         if (nid && usr) message.broadcast("putuser", [nid, String(usr)]);
     } else {
         res.writeHead(403, utf8error);
@@ -943,7 +955,7 @@ function initServer(port, hostname, hostnames) {
         })
         .once("listening", showServerInfo);
     server.timeout = 30000;
-    server.requestTimeout = memery.istest ? 3600000 : 20000;
+    server.requestTimeout = memery.istest ? 3600000 : 120000;
     server.headersTimeout = 1000;
     server.maxHeadersCount = 60;
     if (!memery.istest) server.maxRequestsPerSocket = 60;

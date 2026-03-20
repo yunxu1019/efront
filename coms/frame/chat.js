@@ -11,7 +11,7 @@ function clickfile(event) {
 }
 
 function msg(elem, { m }, parentScopes) {
-    if (m.sender === parentScopes[parentScopes.length - 1].localid) {
+    if (m.sender === parentScopes[parentScopes.length - 1].cid) {
         elem.setAttribute("self", "");
     }
     if (m) switch (m.type) {
@@ -271,24 +271,22 @@ function chat(title = '会话窗口') {
 
             if (!userMap) {
                 cidMap = Object.create(null);
-                for (var u of users) {
-                    cidMap[u.cid] = u;
-                }
+                users.forEach((u, i) => {
+                    cidMap[u.cid] = i;
+                })
                 userMap = Object.create(null);
             }
-            if (cidMap[m.cid]) {
-                var c = cidMap[m.cid];
+            if (m.cid in cidMap) {
+                var ci = cidMap[m.cid];
+                var c = users[ci];
                 if (c.shaking) {
                     delete userMap[m.id];
                     cidMap[m.cid] = m;
-                    var i = users.indexOf(c);
-                    if (i >= 0) users[i] = m;
+                    users[ci] = m;
                     if (ps.localUser === c) ps.localUser = m;
                     if (ps.remoteUser === c) ps.remoteUser = m;
                 }
                 else if (m.shaking) m = cidMap[m.cid];
-                console.log(ps.remoteUser.shaking)
-
             }
             if (!m.icon) {
                 if (m.shaking) {
@@ -493,6 +491,7 @@ function chat(title = '会话窗口') {
         call(remote = this.rid, offer) {
             if (this.calling) return;
             this.remoteRtc = isObject(remote) ? remote.cid : remote;
+            console.log(remote)
             if (typeof remote === 'string') {
                 for (var u of this.users) {
                     if (u.cid === remote) {
@@ -579,14 +578,14 @@ function chat(title = '会话窗口') {
         },
 
         send(type, content, sendto = page.rid) {
-            console.log(type, content, 'send', sendto,this.text)
+            console.log(type, content, 'send', sendto, this.text)
             if (type instanceof Object) {
                 var msg = type;
                 if (!msg.type) msg.type = content;
             }
             else var msg = {
                 type,
-                sender: this.cid,
+                sender: this.localUser.cid,
                 content,
             };
             var data = JSAM.stringify(msg);

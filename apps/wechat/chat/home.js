@@ -1,8 +1,6 @@
 async function link(page, id = clientInfo.cid) {
-    console.log(id)
     if (!id) {
         id = await data.from("link");
-        data.patchInstance("clientInfo", { cid: id }, 0);
     }
     page.clientid = id;
     var runing = true;
