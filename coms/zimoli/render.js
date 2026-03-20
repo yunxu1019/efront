@@ -1198,7 +1198,6 @@ var createEval = function (deep, code) {
 function $$eval(search, scopes, target = this, event) {
     var length = scopes.length;
     var eval2 = createEval(length, search);
-    if (/text/.test(search)) console.log(search)
     var res = eval2.call(target, scopes, event);
     return res;
 }
