@@ -475,6 +475,7 @@ function chat(title = '会话窗口') {
         },
         async qr(canvas) {
             var qrcode = await init("thirdParty$qrcode");
+            if (!this.cid) await wait(() => this.cid, 12000);
             var qr = qrcode(0, 'L');
             var href = this.linkurl;
             qr.addData(href);
