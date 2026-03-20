@@ -79,8 +79,21 @@ class Client {
     getUser(uid) {
         return this.users[uid];
     }
-    putUser(user) {
-        this.users[user.id] = user;
+    putUser(u) {
+        var users = this.users;
+        users[u.id] = u;
+        var c = clients.get(u.cid);
+        var u1s = [];
+        for (var uid in users) {
+            var u1 = users[uid];
+            if (u1.id !== u.id) {
+                var c1 = clients.get(u1.cid);
+                if (c1) c1.deliver(u);
+                if (c) u1s.push(u1);
+            }
+        }
+        if (c) c.deliver(u1s);
+
     }
     removeUser(uid) {
         var user = this.users[uid];
@@ -88,7 +101,8 @@ class Client {
         delete this.users[uid];
         for (var k in this.users) {
             var u = this.users[k];
-            clients.deliver(u.cid, { type: 'user', cid: user.cid, id: user.id, deleted: true });
+            var c = clients.get(u.cid);
+            if (c) c.deliver({ type: 'user', cid: user.cid, id: uid, deleted: true });
         }
     }
     refresh() {
@@ -157,6 +171,7 @@ var autoremove = function (time) {
                 var res = resMap.get(client);
                 if (res.length) {
                     if (client.optime + limit < time) {
+                        clients.splice(cx, 1)[0].removeIndex();
                         client.deliver();
                     }
                     continue;
@@ -164,8 +179,10 @@ var autoremove = function (time) {
             }
             if (!client.nid) {
                 var hasUser = false;
-                for (var _ in client.users) {
-                    hasUser = true; break;
+                var users = client.users;
+                for (var _ in users) {
+                    hasUser = true;
+                    break;
                 }
                 if (hasUser) {
                     client.refresh();
@@ -253,21 +270,10 @@ var methods = {
         if (u0) {
             if (u.cid === u0.cid) {
                 Object.assign(u0, u)
-                client.keep();
                 return;
             }
         }
-        var users = client.users;
         client.putUser(u);
-        var u1s = [];
-        for (var uid in users) {
-            var u1 = users[uid];
-            if (u1.id !== u.id) {
-                clients.deliver(u1.cid, u);
-                u1s.push(u1);
-            }
-        }
-        clients.deliver(u.cid, u1s);
     },
     getMark() {
         return markList;
