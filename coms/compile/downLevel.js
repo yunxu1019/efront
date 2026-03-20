@@ -1,7 +1,7 @@
 var scanner2 = require("./scanner2");
 var strings = require("../basic/strings");
 var Program = scanner2.Program;
-var { STAMP, SCOPED, STRAP, EXPRESS, pickAssignment, COMMENT, SPACE, PROPERTY, VALUE, LABEL, QUOTED, snapExpressFoot, isEval, canbeTemp, rename, isHalfSentence, skipFunction, getDeclared, skipAssignment, skipSentenceQueue, createScoped, createString, splice, relink, rolink, pickSentence, snapExpressHead, needBreakBetween } = require("./common");
+var { STAMP, SCOPED, STRAP, EXPRESS, mergeTo, pickAssignment, COMMENT, SPACE, PROPERTY, VALUE, LABEL, QUOTED, snapExpressFoot, isEval, canbeTemp, rename, isHalfSentence, skipFunction, getDeclared, skipAssignment, skipSentenceQueue, createScoped, createString, splice, relink, rolink, pickSentence, snapExpressHead, needBreakBetween } = require("./common");
 var splice2 = function (q, from, to, ...a) {
     var cx = q.indexOf(from);
     if (cx < 0) throw console.log(splice2.caller, console.format(`\r\n<red2>${i18n`自`}</red2>`), from && createString([from]), console.format(`\r\n<yellow>${i18n`至`}</yellow>`), to && createString([to]), console.format(`\r\n<cyan>${i18n`码列`}</cyan>`), createString(pickSentence(from))), i18n`结构异常`;
@@ -1783,28 +1783,34 @@ var down = function (scoped) {
     };
     var precode = function (text) {
         if (!scoped.body) return;
-        var codelist = typeof text === 'string' ? scanner2(text) : text;
-        var first = codelist[0];
-        var last = codelist[codelist.length - 1];
+        var newcode = typeof text === 'string' ? scanner2(text) : text;
+        var first = newcode[0];
+        var last = newcode[newcode.length - 1];
         var top = scoped.first;
         if (top) top.prev = last;
         if (last) last.next = top;
         if (first) delete first.prev;
         scoped.body.first = first || top;
-        scoped.body.unshift.apply(scoped.body, codelist);
+        scoped.body.unshift.apply(scoped.body, newcode);
+        mergeTo(scoped.used, newcode.used);
     };
 
     var markcodes = [];
+    var { caps } = scoped;
     if (scoped.isfunc && scoped.caps.this && (funcMark || scoped.insett)) {
         let tn = _getname("this_");
         rename(scoped.caps, "this", tn);
-        scoped.caps.this.forEach(o => o.origin = 'this');
+        caps.this.forEach(o => o.origin = 'this');
+        caps[tn] = caps.this;
+        delete caps.this;
         markcodes.push(`${tn}=this`);
     }
     if (scoped.isfunc && scoped.caps.arguments && (funcMark || scoped.inseta)) {
         let an = _getname("arguments_");
-        scoped.caps.arguments.forEach(o => o.origin = 'arguments');
-        rename(scoped.caps, "arguments", an);
+        caps.arguments.forEach(o => (o.origin = 'arguments', o.type = EXPRESS));
+        rename(caps, "arguments", an);
+        caps[an] = caps.arguments;
+        delete caps.arguments;
         markcodes.push(`${an}=arguments`);
     }
     var fordeep = 0;
