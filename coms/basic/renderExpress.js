@@ -43,7 +43,7 @@ function joinsharp(sharped, ctx) {
     if (sharped[sharped.length - 1] === '.') sharped[sharped.length - 1] = "";
     for (var cx = 0, dx = sharped.length; cx < dx; cx++) {
         var s = sharped[cx];
-        var plus = /^\//.test(s);
+        var plus = /^;/.test(s);
         if (plus) s = s.slice(1);
         call = will;
         will = willcall[cx + 1];
@@ -172,7 +172,7 @@ function main(express, autodef = true) {
                 if (/^[\[\("'`]/.test(s)) e = e.replace(/\.$/, '');
             }
             else if (!cache.length) {
-                return exp.push('/' + s);
+                return exp.push(';' + s);
             }
             e += s;
             exp[exp.length - 1] = e;
