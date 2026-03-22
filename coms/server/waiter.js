@@ -954,12 +954,12 @@ function initServer(port, hostname, hostnames) {
             socket.end('HTTP/1.1 400 Bad Request\r\n\r\n');
         })
         .once("listening", showServerInfo);
-    server.timeout = 30000;
+    server.timeout = 300000;
     server.requestTimeout = memery.istest ? 3600000 : 120000;
     server.headersTimeout = 1000;
     server.maxHeadersCount = 60;
     if (!memery.istest) server.maxRequestsPerSocket = 60;
-    server.keepAliveTimeout = 30000;
+    server.keepAliveTimeout = 7200000;
 
     if (!hostname) server.listen(+port);
     else server.listen(+port, hostname);
