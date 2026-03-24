@@ -1135,7 +1135,7 @@ commbuilder.parse = function (data, filename = 'main', fullpath = './main.js', c
     commbuilder.compress = !!compress;
     var [commName, lessName, className] = prepare(filename, fullpath);
     if (/\.(?:pem|html?|xml|glsl|txt|log)$/i.test(fullpath)) data = `return ${strings.encode(data)}`;
-    else if (/\.(?:json)$/i.test(fullpath)) data = `return ` + data;
+    else if (/\.(?:json)$/i.test(fullpath)) data = `var ${commName} = ` + data;
     else if (/\.[mc]?[tj]sx?$/i.test(fullpath)) data = replaceIncludes(data);
     var res = loadJsBody.call(this, data, fullpath, null, commName, lessName, className);
     if (breakcode || breakcode === 0) [res.params, res.data, res.occurs] = revarCode(res.params, res.data);
