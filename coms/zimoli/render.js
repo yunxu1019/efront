@@ -722,7 +722,6 @@ class Model {
             return;
         }
         this.ss.call(this.target, value);
-        console.log(value, this.value, this.gs.call(this.target))
         this.value = value;
         this.bd.value = this.gs.call(this.target, value);
         if (isFunction(this.emit?.call)) {
