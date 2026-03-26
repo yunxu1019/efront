@@ -1,6 +1,6 @@
 "use strict";
-function table(sign) {
-    var c, table = new Array(256);
+function table(sign, table = new Array(256)) {
+    var c;
     for (var n = 0; n < 256; n++) {
         c = n;
         c = c & 1 ? sign ^ c >>> 1 : c >>> 1;
@@ -34,4 +34,7 @@ crc.string = function (str) {
 var sign = parseInt("-52l3vk", 36);
 var T = table(sign);
 crc.table = T;
+crc.init = function (sign) {
+    table(sign, T);
+};
 module.exports = crc;
