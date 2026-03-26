@@ -71,15 +71,16 @@ test("for(var a in b) a.push()", "for (var a in b) a.push()", true);
 test("for(;;)", "return [0, 0]", true);
 test("for(a in b)", "for (a in b)", true);
 test("for(a of b)", "for (a of b)", true);
-test(`var [size, names] = memery.SIGNITEMS? await enpack(readfrom, hd, 7, key, cert) : await enpack(readfrom, hd, 7);`, 'if (!memery.SIGNITEMS) return [2, 0]; _ = enpack(readfrom, hd, 7, key, cert); return [_, 1];\r\n _ = @; [size, names] = _; return [3, 0];\r\n _ = enpack(readfrom, hd, 7); return [_, 1];\r\n _ = @; [size, names] = _; return [1, 0] ', true)
+test(`var [size, names] = memery.SIGNITEMS? await enpack(readfrom, hd, 7, key, cert) : await enpack(readfrom, hd, 7);`, 'if (!memery.SIGNITEMS) return [2, 0]; _ = enpack(readfrom, hd, 7, key, cert); return [_, 1];\r\n _ = @; [size, names] = _; return [3, 0];\r\n _ = enpack(readfrom, hd, 7); return [_, 1];\r\n _ = @; [size, names] = _; return [1, 0]', true)
 test("for await(a of b)", "for await (a of b)", true);
 test("for(a = os[Symbol.iterator] || os[Symbol.asyncIterator] || Array.prototype[Symbol.iterator], a = a.call(os), b = a.next(); !b.done && (o = b.value, true); b = a.next())", "_ = Symbol.iterator; _ = os[_]; if (_) return [1, 0]; _ = Symbol.asyncIterator; _ = os[_]; if (_) return [1, 0]; _ = Symbol.iterator; _ = Array.prototype[_];\r\n a = _; a = a.call(os); b = a.next(); return [1, 0];\r\n _ = !b.done; if (!_) return [1, 0]; o = b.value; _ = true;\r\n if (!_) return [1, 0]; b = a.next(); return [-1, 0]", true);
-test("for(a=0;a<1;a++)if(a==0)continue\r\n else a=1", `a = 0; return [1, 0];\r\n _ = a < 1; if (!_) return [2, 0]; _ = a == 0; if (_) return [1, 0]; a = 1; return [1, 0];\r\n _ = a++; return [-1, 0]`, true);
-test("for(a=0;a<1;a++)if(a==0){continue} else {a=1}", `a = 0; return [1, 0];\r\n _ = a < 1; if (!_) return [3, 0]; _ = a == 0; if (!_) return [1, 0]; return [2, 0];\r\n a = 1; return [1, 0];\r\n _ = a++; return [-2, 0]`, true);
-test("for(a=0;a<1;a++){if(a==0){a=2;continue} else if(b) {a=1;continue} c=3}", `a = 0; return [1, 0];\r\n _ = a < 1; if (!_) return [4, 0]; _ = a == 0; if (!_) return [1, 0]; a = 2; return [3, 0];\r\n if (!b) return [1, 0]; a = 1; return [2, 0];\r\n c = 3; return [1, 0];\r\n _ = a++; return [-3, 0]`, true);
-test("for(a=0;a<10;a++) await a", "a = 0; return [1, 0];\r\n _ = a < 10; if (!_) return [2, 0]; _ = a; return [_, 1];\r\n _ = @; _ = a++; return [-1, 0]", true);
-test("for(a=0;a<10;a++) await a, await b", "a = 0; return [1, 0];\r\n _ = a < 10; if (!_) return [3, 0]; _ = a; return [_, 1];\r\n _ = @; _ = b; return [_, 1];\r\n _ = @; _ = a++; return [-2, 0]", true);
-test("for(a=0;b=2,a<10;a++) await a, await b", "a = 0; return [1, 0];\r\n b = 2; _ = a < 10; if (!_) return [3, 0]; _ = a; return [_, 1];\r\n _ = @; _ = b; return [_, 1];\r\n _ = @; _ = a++; return [-2, 0]", true);
+test("for(a=0;a<1;a++)", `a = 0; return [1, 0];\r\n _ = a < 1; if (!_) return [1, 0]; a++; return [0, 0]`, true);
+test("for(a=0;a<1;a++)if(a==0)continue\r\n else a=1", `a = 0; return [1, 0];\r\n _ = a < 1; if (!_) return [2, 0]; _ = a == 0; if (_) return [1, 0]; a = 1; return [1, 0];\r\n a++; return [-1, 0]`, true);
+test("for(a=0;a<1;a++)if(a==0){continue} else {a=1}", `a = 0; return [1, 0];\r\n _ = a < 1; if (!_) return [3, 0]; _ = a == 0; if (!_) return [1, 0]; return [2, 0];\r\n a = 1; return [1, 0];\r\n a++; return [-2, 0]`, true);
+test("for(a=0;a<1;a++){if(a==0){a=2;continue} else if(b) {a=1;continue} c=3}", `a = 0; return [1, 0];\r\n _ = a < 1; if (!_) return [4, 0]; _ = a == 0; if (!_) return [1, 0]; a = 2; return [3, 0];\r\n if (!b) return [1, 0]; a = 1; return [2, 0];\r\n c = 3; return [1, 0];\r\n a++; return [-3, 0]`, true);
+test("for(a=0;a<10;a++) await a", "a = 0; return [1, 0];\r\n _ = a < 10; if (!_) return [2, 0]; _ = a; return [_, 1];\r\n _ = @; a++; return [-1, 0]", true);
+test("for(a=0;a<10;a++) await a, await b", "a = 0; return [1, 0];\r\n _ = a < 10; if (!_) return [3, 0]; _ = a; return [_, 1];\r\n _ = @; _ = b; return [_, 1];\r\n _ = @; a++; return [-2, 0]", true);
+test("for(a=0;b=2,a<10;a++) await a, await b", "a = 0; return [1, 0];\r\n b = 2; _ = a < 10; if (!_) return [3, 0]; _ = a; return [_, 1];\r\n _ = @; _ = b; return [_, 1];\r\n _ = @; a++; return [-2, 0]", true);
 test("while(a) await b", "if (!a) return [2, 0]; _ = b; return [_, 1];\r\n _ = @; return [-1, 0]", true);
 test("do{await b}while(a)", "_ = b; return [_, 1];\r\n _ = @; if (a) return [-1, 0]", true);
 test("switch(a){case 1:}", "if (a === 1) return [1, 0]; return [1, 0]", true);

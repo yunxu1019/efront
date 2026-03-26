@@ -259,7 +259,7 @@ var _for = function (body, cx, unblock, result) {
     while (cy < o.length && o[cy] !== m) cy++;
     var block = getblock(o, cy);// init
     cy += block.length + 1;
-    unblock(block);
+    unblock(block, false);
     if (result.length) pushstep(result, stepReturn(1, 0));
     var block1 = getblock(o, cy);// condition
     cy += block1.length + 1;
@@ -280,7 +280,7 @@ var _for = function (body, cx, unblock, result) {
     var i = result.length;
     unblock(block_);
     if (label.continue) ifpatch(result), label.contat = result.length;
-    unblock(block2);
+    unblock(block2, false);
     var loopback = stepReturn(0, 0);
     var le = loopback[loopback.length - 1];
     pushstep(result, loopback);
