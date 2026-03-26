@@ -33,4 +33,5 @@ crc.string = function (str) {
 }
 var sign = parseInt("-52l3vk", 36);
 var T = table(sign);
+crc.table = T;
 module.exports = crc;
