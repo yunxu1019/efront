@@ -193,7 +193,7 @@ function decodeASN1(buff, deep = 0) {
                 break;
             case 23: // utc 时间 1950 - 2049
                 showValue = !constructed;
-                if (showValue) value = new Date(decodeUTF8(value).replace(/^(\d{2})(\d{2})(\d{2})(\d{2})(\d{2})(\d{2})(Z|\+\d{4})$/, function (_, yy, MM, dd, hh, mm, ss, zone) {
+                if (showValue) value = new Date(decodeUTF8(value).replace(/^(\d{2})(\d{2})(\d{2})(\d{2})(\d{2})(\d{2})(Z|[\+\-]\d{4})$/, function (_, yy, MM, dd, hh, mm, ss, zone) {
                     yy = +yy;
                     if (yy < 50) yy += 100;
                     yy += 1900;
@@ -203,7 +203,7 @@ function decodeASN1(buff, deep = 0) {
             case 24: // utc 时间 4位年份
                 showValue = !constructed;
                 if (showValue) value = new Date(decodeUTF8(value).replace(
-                    /^(\d{4})(\d{2})(\d{2})(\d{2})(\d{2})(\d{2}(?:\.\d+)?)(Z|\+\d{4})$/,
+                    /^(\d{4})(\d{2})(\d{2})(\d{2})(\d{2})(\d{2}(?:\.\d+)?)(Z|[\+\-]\d{4})$/,
                     "$1-$2-$3T$4:$5:$6$7"
                 ));
                 break;
