@@ -70,15 +70,22 @@ var setObject = function (o) {
     var needproperty = true;
     for (var cx = 0; cx < o.length; cx++) {
         var m = o[cx];
+        if (m.type === STAMP) {
+            if (/^[,;]$/.test(m.text)) {
+                needproperty = true;
+                continue;
+            }
+            if (/^\.\.\.$/.test(m.text)) {
+                needproperty = false;
+                continue;
+            }
+            if (needproperty) m.isprop = true;
+            continue;
+        }
         if (!needproperty) {
             if (m.type === SCOPED && m.entry === '{') {
                 if (!m.isObject) setObject(m);
-                continue;
             }
-            if (m.type !== STAMP || m.text !== ',') continue;
-        }
-        if (m.type === STAMP && m.text === ':') {
-            needproperty = false;
             continue;
         }
         if (m.type === LABEL) {
@@ -95,12 +102,13 @@ var setObject = function (o) {
             needproperty = false;
             continue;
         }
-        m.isprop = true;
         if (m.type === EXPRESS || m.type === STRAP) {
-            if (!/\./.test(m.text)) m.type = PROPERTY;
-        }
-        if (m.prev && m.prev.type === PROPERTY) {
-            m.prev.type = STRAP;
+            m.isprop = true;
+            m.type = PROPERTY, needproperty = false;
+            var p = m.prev;
+            if (p && p.type === PROPERTY) {
+                p.type = STRAP;
+            }
         }
     }
 };
