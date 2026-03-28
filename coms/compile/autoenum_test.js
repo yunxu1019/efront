@@ -7,6 +7,16 @@ var t = function (str, want) {
     var result = createString(code);
     assert(result, want);
 }
+t("{a = 1, b = console.log(a)}=[2];", "{ a = 1, b = console.log(a) } = [2];");
+t("{a = 1, b = console.log(a)}", "{ a = 1, b = console.log(1) }");
+t("{a = 1, b = console.log(a)} console.log(a)", "{ a = 1, b = console.log(1) } console.log(1)");
+t("if(a){a = 1, b = console.log(a)} console.log(a)", "if (a) { a = 1, b = console.log(1) } console.log(a)");
+t("m:{a = 1; break m; b = console.log(a)} console.log(a)", "m: { a = 1; break m; b = console.log(1) } console.log(1)");
+t("m:{break m; a = 1; b = console.log(a)} console.log(a)", "m: { break m; a = 1; b = console.log(1) } console.log(a)");
+t("m:{ if(){break m;} a = 1; b = console.log(a)} console.log(a)", "m: { if () { break m; } a = 1; b = console.log(1) } console.log(a)");
+t("m:{ if(){break ;} a = 1; b = console.log(a)} console.log(a)", "m: { if () { break; } a = 1; b = console.log(1) } console.log(a)");
+t("m:{ while(){break;} a = 1; b = console.log(a)} console.log(a)", "m: { while () { break; } a = 1; b = console.log(1) } console.log(1)");
+t("m:{ while(){break m;} a = 1; b = console.log(a)} console.log(a)", "m: { while () { break m; } a = 1; b = console.log(1) } console.log(a)");
 t("var a=1;console.log(a)", "var a = 1; console.log(1)");
 t("a.b = 2;console.log(a.b)", "a.b = 2; console.log(2)");
 t("a/*a*/.b = 2;console.log(a.b)", "a/*a*/.b = 2; console.log(2)");
@@ -21,11 +31,16 @@ t("for(;;){let a =1; console.log(a)}", "for (;;) { let a = 1; console.log(1) }")
 // t("for(;;){a =1; console.log(a)}", "for (;;) { a = 1; console.log(1) }");
 // t("a=2;for(;;){var a =1; console.log(a)}", "a = 2; for (;;) { var a = 1; console.log(1) }");
 // t("for(;;){var a =1; console.log(a)} console.log(a)", "for (;;) { var a = 1; console.log(1) } console.log(a)");
+t("function (a=1){ console.log(a)}", "function (a = 1) { console.log(a) }");
+t("for(a=1;;a++){ console.log(a)} console.log(a)", "for (a = 1;; a++) { console.log(a) } console.log(a)");
+t("for(a=1;a<10;a++){ console.log(a)} console.log(a)", "for (a = 1; a < 10; a++) { console.log(a) } console.log(a)");
+t("for(;a=1;a++){ console.log(a)} console.log(a)", "for (; a = 1; a++) { console.log(a) } console.log(a)");
 t("for(;a=1;){ console.log(a)} console.log(a)", "for (; a = 1;) { console.log(1) } console.log(1)");
 t("for(;a=1;){ console.log(a)} console.log(a)", "for (; a = 1;) { console.log(1) } console.log(1)");
 t("for(;;a=1){ console.log(a)} console.log(a)", "for (;; a = 1) { console.log(a) } console.log(a)");
 t("for(var a = 1;;){ console.log(a)} console.log(a)", "for (var a = 1;;) { console.log(1) } console.log(1)");
-t("for(let a = 1;;){ console.log(a)} console.log(a)", "for (let a = 1;;) { console.log(a) } console.log(a)");
+t("for(let a = 1;;){ console.log(a)} console.log(a)", "for (let a = 1;;) { console.log(1) } console.log(a)");
+t("for(let a = 1;;a++){ console.log(a)} console.log(a)", "for (let a = 1;; a++) { console.log(a) } console.log(a)");
 t("var a=-1; console.log(-a)", "var a = -1; console.log(- -1)");
 t("var a=-1; console.log(--a)", "var a = -1; console.log(--a)");
 t("var a=-1; return ++a", "var a = -1; return ++a");

@@ -1,4 +1,4 @@
-var { skipAssignment, snapSentenceHead, snapExpressFoot, pickAssignment, EXPRESS, SPACE, SCOPED, QUOTED, VALUE, STRAP, STAMP, number_reg, createString } = require("./common");
+var { skipAssignment, snapSentenceHead, skipSentenceQueue, snapExpressFoot, pickAssignment, EXPRESS, SPACE, SCOPED, QUOTED, VALUE, STRAP, STAMP, LABEL, number_reg, createString } = require("./common");
 var strings = require("../basic/strings");
 
 var createRefId = function (o) {
@@ -136,7 +136,78 @@ function removeRefs(o) {
     o.next = r.next;
     if (o.next) o.next.prev = o;
 }
-
+function getFirstBreak(o, labels = []) {
+    while (o.type === LABEL) {
+        labels.push(o.text.replace(/\:$/, ''));
+        o = o.next;
+    }
+    if (o.type === STRAP && /^(for|while|do|switch)$/.test(o.text)) {
+        labels.push("break");
+        o = o.next;
+    }
+    if (o.type === STRAP) o = o.next;
+    if (o.type === SCOPED && o.entry === '(') o = o.next;
+    while (o.type === LABEL) {
+        labels.push(o.text.replace(/\:$/, ''));
+        o = o.next;
+    }
+    if (o.type !== SCOPED || o.entry !== "{") return;
+    var m = o.first;
+    while (m) switch (m.type) {
+        case SCOPED:
+            var h = snapSentenceHead(m);
+            var fb = getFirstBreak(h, labels.concat("{"));
+            if (fb) return fb;
+            m = m.next;
+            continue;
+        case STRAP:
+            if (m.type === STRAP && m.text === 'break') {
+                if (!m.isend) m = m.next;
+                var n = m.text;
+                var i = labels.lastIndexOf(n);
+                if (i >= 0) {
+                    i = labels.lastIndexOf("{", i);
+                }
+                if (i < 0) {
+                    return m.start;
+                }
+            }
+            m = m.next;
+            continue;
+        default: m = m.next;
+    }
+}
+function getConditionBlock(q, s) {
+    do {
+        var o = snapSentenceHead(q);
+        if (o.type === STRAP) {
+            if (/^(if|while|with|for)$/.test(o.text)) return [q, q.end];
+            if (o.text === 'switch') {
+                var m = s;
+                while (o) {
+                    if (m.type === STRAP) {
+                        if (/^(case|default)$/.test(m.text)) {
+                            return [q, m.start];
+                        }
+                    }
+                }
+                return [q, q.end];
+            }
+        }
+        if (o.type === LABEL) a: {
+            var fb = getFirstBreak(o);
+            var m = q.first;
+            while (m) {
+                if (m.start > fb) return [q, q.end];
+                if (m === s) break a;
+                m = m.next;
+            }
+        }
+        s = q;
+        q = q.queue;
+    } while (q);
+    return [o, o.end];
+}
 function inCondition(o) {
     // 只检查一级
     var incondition = false;
@@ -155,11 +226,12 @@ function inCondition(o) {
                 }
                 if (/^(?:while)$/.test(pp.text)) {
                     var ppp = pp.prev;
-                    if (!ppp || !ppp.prev) {
+                    if (!ppp || !ppp.prev || ppp.type !== SCOPED || ppp.entry !== '{') {
                         incondition = true;
                         break;
                     }
                     var pppp = ppp.prev;
+                    while (pppp?.type === LABEL) pppp = pppp.prev;
                     if (pppp.type === STRAP && pppp.text === "do") break;
                     incondition = true;
                     break;
@@ -179,23 +251,20 @@ function inCondition(o) {
         break;
     }
     return incondition;
-
 }
-var noVarOutOfFor = function (os, qq, sb, su) {
-    if (qq === sb) return true;
-    if (enumtype & REFMOVE) return false;
-    var [o] = os;
-    var us = su[o.tack];
-    if (!us) return false;
-    var otext = o.text;
-    var c = 0;
-    for (var u of us) {
-        if (u.text === otext) {
-            c++;
+
+function inOperatorLeft(q) {
+    if (!q.isObject) return false;
+    do {
+        if (q.kind) return true;
+        var n = q.next;
+        if (n?.type === STAMP && !/[,;]/.test(n.text)) {
+            return true;
         }
-    }
-    return c === os.length;
-};
+        q = q.queue;
+    } while (q);
+    return false;
+}
 function enumref(refitem, scoped) {
     if (enumtype === REFMOVE) {
         var c = 0;
@@ -211,15 +280,38 @@ function enumref(refitem, scoped) {
     }
     for (var rk in refitem) {
         var os = refitem[rk];
-        if (os.wcount !== 1 || os.length < 2) continue;
-        var eq = null, em = null, tp = null;
+        var wcount = os.wcount;
+        if (wcount < 1 || os.length <= wcount) continue;
+        var eq = null, sc = null, tp = null;
+        var qs = null, cq = null, oe = Infinity;
         loop: for (var o of os) {
-            if (o.equal && !o[ignore]) {
-                if (o.equal.text !== '=') break;
-                if (o.queue.kind) break;
+            if (
+                REFTYPE & enumtype && tp === null ||
+                REFMOVE & enumtype && eq === null ||
+                REFSTRC & enumtype && sc === null
+                || o.equal
+            ) {
+                if (!wcount) break;
+                if (!o.equal) continue;
+                if (enumtype & REFSTRC) {
+                    if (o.enumref) {
+                        sc = o.enumref;
+                        cq = o.queue;
+                        qs.push([cq, o, oe]);
+                    }
+                    continue;
+                }
+                tp = eq = sc = null;
+                oe = Infinity;
+                qs = [], cq = null;
+                if (o.equal.text !== "=") {
+                    continue;
+                }
+                wcount--;
                 var q = o.queue;
+                if (inOperatorLeft(q)) continue;
                 if (q !== scoped.body) {
-                    if (q.entry === '(' && noVarOutOfFor(os, q.queue, scoped.body, scoped.used)) {
+                    if (q.entry === '(') {
                         var qp = q.prev;
                         if (qp?.type === EXPRESS) qp = qp.prev;
                         if (qp && qp.type === STRAP && qp.text === "await") qp = qp.prev;
@@ -229,36 +321,67 @@ function enumref(refitem, scoped) {
                             while (f && f !== o) {
                                 if (f.type === STAMP && f.text === ";") {
                                     fc++;
-                                    if (fc > 1) break loop;
+                                    if (fc > 1) continue loop;
                                 }
                                 f = f.next;
                             }
+                            [q, oe] = getConditionBlock(q.queue, q);
                         }
+                        else if (q === scoped.head) continue loop;
+                        else[q, oe] = getConditionBlock(q, o);
                     }
-                    else break;
+                    else[q, oe] = getConditionBlock(q, o);
                 }
-                if (inCondition(o)) break;
+                if (inCondition(o)) {
+                    var e = skipSentenceQueue(o);
+                    if (e) oe = e.end;
+                    else oe = q.end;
+                    break;
+                }
+                if (enumtype & REFMOVE) {
+                    if (wcount > 0) continue;
+                    o = o.equal.next;
+                    var n = skipAssignment(o);
+                    if (!o || n !== o.next) break loop;
+                    if (o.type === VALUE && o.isdigit) {
+                        eq = o;
+                        qs.push([q, o, oe]);
+                        cq = q;
+                    }
+                    continue;
+                }
                 if (enumtype & REFTYPE) {
                     if (o.typeref) {
                         tp = o.typeref;
                         if (isObject(tp)) tp = tp.typeref;
-                        continue;
+                        cq = q;
+                        qs.push([cq, o, oe]);
                     }
+                    continue;
                 }
-                if (enumtype & REFSTRC) {
-                    if (o.enumref) {
-                        em = o.enumref;
-                        continue;
+                continue;
+            }
+            if (o.queue !== cq) {
+                do {
+                    var oq = o.queue;
+                    while (oq && oq !== cq) oq = oq.queue;
+                    if (oq) break;
+                    if (!oq) {
+                        if (qs.length) [cq, eq, oe] = qs.pop();
+                        else cq = qs = null;
                     }
-                }
-                if (enumtype & REFMOVE) {
-                    o = o.equal.next;
-                    var n = skipAssignment(o);
-                    if (!o || n !== o.next) break loop;
-                    if (o.type === VALUE && o.isdigit) eq = o;
+                } while (cq);
+                if (!cq) {
+                    tp = sc = eq = null;
+                    continue;
                 }
             }
-            else if (o.kind) {
+            if (o.start > oe) {
+                tp = eq = sc = null;
+                continue;
+            }
+
+            if (o.kind) {
                 if (enumtype & REFTYPE) {
                     if (o.typeref) {
                         tp = o.typeref;
@@ -269,7 +392,7 @@ function enumref(refitem, scoped) {
             }
             else if (o.enumref) {
                 if (enumtype & REFSTRC) {
-                    em = o.enumref;
+                    sc = o.enumref;
                     continue;
                 }
             }
@@ -281,17 +404,19 @@ function enumref(refitem, scoped) {
                     }
                 }
                 if (enumtype & REFSTRC) {
-                    if (em) {
-                        o.enumref = em;
+                    if (sc) {
+                        o.enumref = sc;
                         continue;
                     }
                 }
                 if (enumtype & REFMOVE) {
                     if (!eq) break;
                     if (o.short) continue;
+                    // var 替换前 = createString(pickAssignment(o));
                     o.type = eq.type;
                     o.isdigit = true;
                     o.text = eq.text;
+                    // var 替换后 = createString(pickAssignment(o));
                     removeRefs(o);
                 }
             }
