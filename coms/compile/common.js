@@ -173,16 +173,17 @@ var skipAssignment = function (o, cx) {
                 else condition = true;
             }
             else if (o.text === 'do') {
+                next();
                 skipLabel();
-                next();
-                next();
-                next();
+                next();// {}
+                next();// while
+                next();// ()
             }
             else if (o.text === 'for') {
                 next();
                 if (o.type === STRAP && o.text === 'await') next();
+                next();// ()
                 skipLabel();
-                next();
             }
             else if (o.text === "class") {
                 next();
@@ -239,9 +240,15 @@ function skipFunction(o) {
     }
     return o;
 }
+var snapLabel = function (o) {
+    var p = getprev(o);
+    while (p && p.type === LABEL) o = p, p = getprev(o);
+    return o;
+}
 var getDoBeforeWhile = function (while_) {
     var p = getprev(while_);
     if (!p || p.type !== SCOPED || p.entry !== '{') return;
+    p = snapLabel(p);
     p = getprev(p);
     if (p.type === STRAP && p.text === "do") return p;
 };
@@ -251,7 +258,7 @@ var getIfElseHead = function (if_) {
         if_ = p;
         p = getprev(if_);
         if (!p || p.type !== STRAP || p.text !== 'else') {
-            return if_;
+            return snapLabel(if_);
         }
         while (p && (p.type !== STRAP || p.text !== 'if')) p = getprev(p);
     } while (p);
@@ -262,20 +269,20 @@ var getContitionHeadBeforeScoped = function (p, nodo) {
     if (pp.text === 'await') {
         pp = getprev(pp);
         if (pp?.type === STRAP && pp.text === "for") {
-            return pp;
+            return snapLabel(pp);
         };
     }
     else switch (pp.text) {
         case "with":
         case "for":
-            return pp;
+            return snapLabel(pp);
         case "while":
             p = getDoBeforeWhile(pp);
             if (p) {
                 if (nodo) return;
-                return p;
+                return snapLabel(p);
             }
-            return pp;
+            return snapLabel(pp);
         case "if":
             return getIfElseHead(pp);
     }
@@ -303,6 +310,10 @@ function snapAssignmentHead(o) {
     // 只检查一级
     while (o && getprev(o)) {
         var p = getprev(o);
+        while (p.type === LABEL) {
+            p = getprev(p);
+            if (!p) return o;
+        }
         if (o.entry === '(') {
             if (p.type & ~(STAMP | STRAP)) {
                 o = p;
@@ -344,7 +355,7 @@ function snapAssignmentHead(o) {
                 o = p;
                 continue;
             }
-            if (p.entry === "(" && o.type === SCOPED) {
+            if (p.entry === "(" && o.type & (SCOPED | LABEL)) {
                 var pp = getContitionHeadBeforeScoped(p, true);
                 if (pp) { o = pp; break; }
                 var pp = getFunctionHeadBeforeScoped(p);
@@ -358,7 +369,7 @@ function snapAssignmentHead(o) {
             break;
         }
         if (p.type === STRAP) {
-            if (/^(?:new|void|typeof|delete|await|class|function|async)$/.test(p.text)) {
+            if (/^(?:new|void|do|typeof|delete|await|class|function|async)$/.test(p.text)) {
                 o = p;
                 continue;
             }
