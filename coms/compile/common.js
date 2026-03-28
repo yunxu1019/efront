@@ -1729,6 +1729,7 @@ var pickArgument = function (o) {
         p = t;
         t = getprev(t);
     }
+    res.reverse();
     while (o && (o.type !== STAMP || !/^[,;]$/.test(o.text))) {
         res.push(o);
         var n = o;
