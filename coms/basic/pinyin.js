@@ -422,6 +422,45 @@ var source = {
     ";": "；",
     " ": "　 \t\r\n"
 };
+var 注音 = {
+    "ㄅ": "b",
+    "ㄆ": "p",
+    "ㄇ": "m",
+    "ㄈ": "f",
+    "ㄉ": "d",
+    "ㄊ": "t",
+    "ㄋ": "n",
+    "ㄌ": "l",
+    "ㄍ": "g",
+    "ㄎ": "k",
+    "ㄏ": "h",
+    "ㄐ": "j",
+    "ㄑ": "q",
+    "ㄒ": "x",
+    "ㄓ": "zh",
+    "ㄔ": "ch",
+    "ㄕ": "sh",
+    "ㄖ": "r",
+    "ㄗ": "z",
+    "ㄘ": "c",
+    "ㄙ": "s",
+    "ㄧ": "i",
+    "ㄨ": "u",
+    "ㄩ": "v",
+    "ㄚ": "a",
+    "ㄛ": "o",
+    "ㄜ": "e", // 鹅
+    "ㄞ": "ai",
+    "ㄟ": "ei",
+    "ㄠ": "ao",
+    "ㄡ": "ou",
+    "ㄢ": "an",
+    "ㄣ": "en",
+    "ㄤ": "ang",
+    "ㄥ": "eng",
+    "ㄦ": "er",
+    "ㄝ": "e", // ye üe ue ie
+};
 var PY = {};
 var PinYin = {};
 for (var k in source) {
@@ -446,6 +485,7 @@ var startWith = function (p, s) {
     return true;
 }
 var py = function (char) {
+    char = 注音[char] || char;
     return PY[char] || (char || "").toLowerCase();
 };
 var pinyin = function (char) {
