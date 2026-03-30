@@ -28,9 +28,9 @@ t("console.log(a);a=1;", "console.log(a); a = 1;");
 t("console.log(a);var a=1;", "console.log(a); var a = 1;");
 t("var a=1;console.log(a++);", "var a = 1; console.log(a++);");
 t("for(;;){let a =1; console.log(a)}", "for (;;) { let a = 1; console.log(1) }");
-// t("for(;;){a =1; console.log(a)}", "for (;;) { a = 1; console.log(1) }");
-// t("a=2;for(;;){var a =1; console.log(a)}", "a = 2; for (;;) { var a = 1; console.log(1) }");
-// t("for(;;){var a =1; console.log(a)} console.log(a)", "for (;;) { var a = 1; console.log(1) } console.log(a)");
+t("for(;;){a =1; console.log(a)}", "for (;;) { a = 1; console.log(1) }");
+t("a=2;for(;;){var a =1; console.log(a)}", "a = 2; for (;;) { var a = 1; console.log(1) }");
+t("for(;;){var a =1; console.log(a)} console.log(a)", "for (;;) { var a = 1; console.log(1) } console.log(a)");
 t("function (a=1){ console.log(a)}", "function (a = 1) { console.log(a) }");
 t("for(a=1;;a++){ console.log(a)} console.log(a)", "for (a = 1;; a++) { console.log(a) } console.log(a)");
 t("for(a=1;a<10;a++){ console.log(a)} console.log(a)", "for (a = 1; a < 10; a++) { console.log(a) } console.log(a)");
@@ -47,4 +47,16 @@ t("var a=-1; return ++a", "var a = -1; return ++a");
 t("var a=-1; typeof ++a", "var a = -1; typeof ++a");
 t("var a=-1; ++a", "var a = -1; ++a");
 t("b?a=1:b=2;console.log(a)", "b ? a = 1 : b = 2; console.log(a)");
+t(
+    "switch () { case 1: a = 1; console.log(a) } console.log(a)",
+    "switch () { case 1: a = 1; console.log(1) } console.log(a)"
+);
+t(
+    "switch () { default: a = 1; console.log(a); case 1: console.log(a) }",
+    "switch () { default: a = 1; console.log(1); case 1: console.log(a) }",
+);
+t(
+    "switch () { case 0: a = 1; console.log(a); case 1: console.log(a) }",
+    "switch () { case 0: a = 1; console.log(1); case 1: console.log(a) }",
+)
 // t(fs.readFileSync(path.join(__dirname,"../zimoli/spacechar_test.js")).toString())

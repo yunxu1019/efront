@@ -60,17 +60,18 @@ var mapkey = null;
 var maplist = function (u) {
     var map = Object.create(null);
     for (var o of u) {
+
         if (o[mapkey]) continue;
         o[mapkey] = true;
         var r = createRefId(o);
+
         if (!map[r]) {
             map[r] = [];
             map[r].wcount = 0;
             map[r].ccount = 0;
         }
         var m = map[r];
-        if (!o.equal && o.kind) m.unshift(o);
-        else m.push(o);
+        m.push(o);
         if (o.equal || o.kind) {
             if (enumtype & REFTYPE) {
                 var typeref = o.typeref;
@@ -79,20 +80,24 @@ var maplist = function (u) {
                     o.typeref = typeref;
                 }
                 if (typeref) {
-                    if (m.typeref !== typeref) {
-                        m.typeref = typeref;
-                        m.wcount++;
-                    }
+                    m.typeref = typeref;
+                    m.wcount++;
                 }
-                else if (m.typeref) {
-                    var n = o.next;
-                    o[ignore] = true;
-                    if (n.type === STAMP && /^(\+\+|\-\-)$/.test(n.text)) continue;
+                else {
+                    var n = o.equal;
+                    if (n?.type !== STAMP) continue;
+                    if (n?.type === STAMP && /^(\+\+|\-\-)$/.test(n.text)) {
+                        o[ignore] = true;
+                        continue;
+                    }
                     if (/^[\+\-]\=$/.test(n.text)) {
                         var nn = n.next;
-                        if (nn && snapExpressFoot(nn) == nn && nn.isdigit && (nn.text & 0x1ff) === +nn.text) continue;
+                        if (nn && snapExpressFoot(nn) == nn && nn.isdigit && (nn.text & 0x1ff) === +nn.text) {
+                            if (m.typeref === 'uint') o[ignore] = true;
+                            continue;
+                        }
                     }
-                    else if (!n || !/[^=!]?=$/.test(n.text)) continue;
+                    else if (!/[^=!]?=$/.test(n.text)) continue;
                     o[ignore] = false;
                     m.wcount++;
                 }
@@ -208,7 +213,7 @@ function getConditionBlock(q, s) {
     } while (q);
     return [o, o.end];
 }
-function inCondition(o) {
+function preCondition(o) {
     // 只检查一级
     var incondition = false;
     while (o && o.prev) {
@@ -242,7 +247,8 @@ function inCondition(o) {
         if (p.type === STAMP) {
             if (p.text === ";") break;
             if (/^[\?\:]$/i.test(p.text)) {
-                incondition = true;
+                if (p.isExpress) incondition = true;
+                else incondition = ":";
                 break;
             }
             o = p.prev;
@@ -285,14 +291,20 @@ function enumref(refitem, scoped) {
         var eq = null, sc = null, tp = null;
         var qs = null, cq = null, oe = Infinity;
         loop: for (var o of os) {
+            if (o[ignore]) {
+                if (REFTYPE & enumtype) {
+                    o.typeref = tp;
+                }
+                continue;
+            }
             if (
                 REFTYPE & enumtype && tp === null ||
                 REFMOVE & enumtype && eq === null ||
                 REFSTRC & enumtype && sc === null
                 || o.equal
             ) {
-                if (!wcount) break;
                 if (!o.equal) continue;
+                if (!wcount) break;
                 if (enumtype & REFSTRC) {
                     if (o.enumref) {
                         sc = o.enumref;
@@ -332,11 +344,17 @@ function enumref(refitem, scoped) {
                     }
                     else[q, oe] = getConditionBlock(q, o);
                 }
-                if (inCondition(o)) {
-                    var e = skipSentenceQueue(o);
+                var pc = preCondition(o);
+                if (pc) {
+                    var e = o;
+                    if (pc === ':') while (e) {
+                        if (e.type === STRAP && /^(case|default)$/.test(e.text)) break;
+                        e = e.next;
+                    }
+                    else e = skipSentenceQueue(o);
+                    q = o.queue;
                     if (e) oe = e.end;
                     else oe = q.end;
-                    break;
                 }
                 if (enumtype & REFMOVE) {
                     if (wcount > 0) continue;
@@ -410,7 +428,7 @@ function enumref(refitem, scoped) {
                     }
                 }
                 if (enumtype & REFMOVE) {
-                    if (!eq) break;
+                    if (!eq) continue;
                     if (o.short) continue;
                     // var 替换前 = createString(pickAssignment(o));
                     o.type = eq.type;
