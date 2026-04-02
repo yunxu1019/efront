@@ -59,4 +59,11 @@ t(
     "switch () { case 0: a = 1; console.log(a); case 1: console.log(a) }",
     "switch () { case 0: a = 1; console.log(1); case 1: console.log(a) }",
 )
+t(`a[1]=1;console.log(a)`, `a[1] = 1; console.log(a)`);
+t(`a[1]=1;console.log(a[1])`, `a[1] = 1; console.log(a[1])`);
+t(`a[b]=1;console.log(a[b])`, `a[b] = 1; console.log(a[b])`);
+t(
+    `p => tmp = 2025; console.log(tmp)`,
+    "p => tmp = 2025; console.log(tmp)",
+);
 // t(fs.readFileSync(path.join(__dirname,"../zimoli/spacechar_test.js")).toString())

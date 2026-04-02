@@ -24,6 +24,10 @@ var createRefId = function (o) {
                     break;
                 }
             }
+            else {
+                ids.push("[*]");
+                break;
+            }
         }
         else if (o.type === EXPRESS) {
             var t = o.text.replace(/^\.\.\.|\.\.\.$/g, "").replace(/^[^\.\[]+/, '');
@@ -64,7 +68,7 @@ var maplist = function (u) {
         if (o[mapkey]) continue;
         o[mapkey] = true;
         var r = createRefId(o);
-
+        if (/\[\*\]/.test(r)) continue;
         if (!map[r]) {
             map[r] = [];
             map[r].wcount = 0;
@@ -244,15 +248,17 @@ function preCondition(o) {
             }
             break;
         }
-        if (p.type === STAMP) {
-            if (p.text === ";") break;
-            if (/^[\?\:]$/i.test(p.text)) {
+        if (p.type === STAMP) switch (p.text) {
+            case ";": break;
+            case "?": incondition = true; break;
+            case ":":
                 if (p.isExpress) incondition = true;
                 else incondition = ":";
                 break;
-            }
-            o = p.prev;
-            continue;
+            case "=>": incondition = true; break;
+            default:
+                o = p.prev;
+                continue;
         }
         break;
     }
@@ -271,113 +277,202 @@ function inOperatorLeft(q) {
     } while (q);
     return false;
 }
-function enumref(refitem, scoped) {
-    if (enumtype === REFMOVE) {
-        var c = 0;
-        for (var rk in refitem) {
-            c++;
-            var a = refitem[rk];
-            if (a.ccount > 0) return;
+function getEnumRange(o, scoped) {
+    var q = o.queue, oe = Infinity;
+    if (inOperatorLeft(q)) return;
+    if (q !== scoped.body) {
+        if (q.entry === '(') {
+            var qp = q.prev;
+            if (qp?.type === EXPRESS) qp = qp.prev;
+            if (qp && qp.type === STRAP && qp.text === "await") qp = qp.prev;
+            if (qp && qp.type === STRAP && qp.text === 'for') {
+                var f = q.first;
+                var fc = 0;
+                while (f && f !== o) {
+                    if (f.type === STAMP && f.text === ";") {
+                        fc++;
+                        if (fc > 1) return;
+                    }
+                    f = f.next;
+                }
+                [q, oe] = getConditionBlock(q.queue, q);
+            }
+            else if (q === scoped.head) return;
+            else[q, oe] = getConditionBlock(q, o);
         }
-        var a = refitem[""];
-        if (a && c > 1) {
-            if (a.wcount < a.length) return;
+        else[q, oe] = getConditionBlock(q, o);
+    }
+    var pc = preCondition(o);
+    if (pc) {
+        var e = o;
+        if (pc === ':') while (e) {
+            if (e.type === STRAP && /^(case|default)$/.test(e.text)) break;
+            e = e.next;
         }
+        else e = skipSentenceQueue(o);
+        q = o.queue;
+        if (e) oe = e.end;
+        else oe = q.end;
+    }
+    return [q, oe];
+}
+function enumequal(refitem, scoped) {
+    var c = 0;
+    for (var rk in refitem) {
+        c++;
+        var a = refitem[rk];
+        if (a.ccount > 0) return;
+    }
+    var a = refitem[""];
+    if (a && c > 1) {
+        if (a.wcount < a.length) return;
     }
     for (var rk in refitem) {
         var os = refitem[rk];
         var wcount = os.wcount;
         if (wcount < 1 || os.length <= wcount) continue;
-        var eq = null, sc = null, tp = null;
-        var qs = null, cq = null, oe = Infinity;
+        var eq = null;
+        var cq = null, oe = Infinity;
         loop: for (var o of os) {
             if (o[ignore]) {
                 if (REFTYPE & enumtype) {
-                    o.typeref = tp;
+                    o.typeref = eq;
                 }
                 continue;
             }
             if (
-                REFTYPE & enumtype && tp === null ||
-                REFMOVE & enumtype && eq === null ||
-                REFSTRC & enumtype && sc === null
-                || o.equal
+                eq === null || o.equal
             ) {
                 if (!o.equal) continue;
-                if (!wcount) break;
-                if (enumtype & REFSTRC) {
-                    if (o.enumref) {
-                        sc = o.enumref;
-                        cq = o.queue;
-                        qs.push([cq, o, oe]);
-                    }
-                    continue;
-                }
-                tp = eq = sc = null;
+                eq = null;
                 oe = Infinity;
-                qs = [], cq = null;
+                cq = null;
+                if (!wcount) break;
                 if (o.equal.text !== "=") {
                     continue;
                 }
                 wcount--;
-                var q = o.queue;
-                if (inOperatorLeft(q)) continue;
-                if (q !== scoped.body) {
-                    if (q.entry === '(') {
-                        var qp = q.prev;
-                        if (qp?.type === EXPRESS) qp = qp.prev;
-                        if (qp && qp.type === STRAP && qp.text === "await") qp = qp.prev;
-                        if (qp && qp.type === STRAP && qp.text === 'for') {
-                            var f = q.first;
-                            var fc = 0;
-                            while (f && f !== o) {
-                                if (f.type === STAMP && f.text === ";") {
-                                    fc++;
-                                    if (fc > 1) continue loop;
-                                }
-                                f = f.next;
-                            }
-                            [q, oe] = getConditionBlock(q.queue, q);
-                        }
-                        else if (q === scoped.head) continue loop;
-                        else[q, oe] = getConditionBlock(q, o);
-                    }
-                    else[q, oe] = getConditionBlock(q, o);
-                }
-                var pc = preCondition(o);
-                if (pc) {
-                    var e = o;
-                    if (pc === ':') while (e) {
-                        if (e.type === STRAP && /^(case|default)$/.test(e.text)) break;
-                        e = e.next;
-                    }
-                    else e = skipSentenceQueue(o);
-                    q = o.queue;
-                    if (e) oe = e.end;
-                    else oe = q.end;
-                }
-                if (enumtype & REFMOVE) {
-                    if (wcount > 0) continue;
-                    o = o.equal.next;
-                    var n = skipAssignment(o);
-                    if (!o || n !== o.next) break loop;
-                    if (o.type === VALUE && o.isdigit) {
-                        eq = o;
-                        qs.push([q, o, oe]);
-                        cq = q;
-                    }
-                    continue;
-                }
-                if (enumtype & REFTYPE) {
-                    if (o.typeref) {
-                        tp = o.typeref;
-                        if (isObject(tp)) tp = tp.typeref;
-                        cq = q;
-                        qs.push([cq, o, oe]);
-                    }
-                    continue;
+                if (wcount > 0) continue;
+                var range = getEnumRange(o, scoped);
+                if (!range) continue;
+                [cq, oe] = range;
+                o = o.equal.next;
+                var n = skipAssignment(o);
+                if (!o || n !== o.next) break loop;
+                if (o.type === VALUE && o.isdigit) {
+                    eq = o;
                 }
                 continue;
+            }
+            if (o.queue !== cq) {
+                var oq = o.queue;
+                while (oq && oq !== cq) oq = oq.queue;
+                if (!oq) {
+                    eq = null;
+                    continue;
+                }
+            }
+            if (o.start > oe) {
+                eq = null;
+                continue;
+            }
+            if (!eq) continue;
+            if (o.short) continue;
+            // var 替换前 = createString(pickAssignment(o));
+            o.type = eq.type;
+            o.isdigit = true;
+            o.text = eq.text;
+            // var 替换后 = createString(pickAssignment(o));
+            removeRefs(o);
+        }
+    }
+}
+function enummark(refitem, scoped) {
+    for (var rk in refitem) {
+        var os = refitem[rk];
+        var wcount = os.wcount;
+        if (wcount < 1 || os.length <= wcount) continue;
+        var eq = null;
+        var cq = null, oe = Infinity;
+        loop: for (var o of os) {
+            if (o[ignore]) {
+                o.typeref = eq;
+                continue;
+            }
+            if (
+                eq === null || o.equal
+            ) {
+                if (!o.equal) continue;
+                eq = null;
+                oe = Infinity;
+                cq = null;
+                if (!wcount) break;
+                if (o.equal.text !== "=") {
+                    continue;
+                }
+                wcount--;
+                var range = getEnumRange(o, scoped);
+                if (!range) continue;
+                [cq, oe] = range;
+                if (o.typeref) {
+                    eq = o.typeref;
+                    if (isObject(eq)) eq = eq.typeref;
+                }
+                continue;
+            }
+            if (o.queue !== cq) {
+                var oq = o.queue;
+                while (oq && oq !== cq) oq = oq.queue;
+                if (!oq) {
+                    eq = null;
+                    continue;
+                }
+            }
+            if (o.start > oe) {
+                eq = null;
+                continue;
+            }
+
+            if (o.kind) {
+                if (o.typeref) {
+                    eq = o.typeref;
+                    if (isObject(eq)) eq = eq.typeref;
+                }
+            }
+            else {
+                if (eq) o.typeref = eq;
+            }
+        }
+    }
+}
+function enumstruct(refitem, scoped) {
+    for (var rk in refitem) {
+        var os = refitem[rk];
+        var eq = null;
+        var qs = [], cq = null, oe = Infinity;
+        loop: for (var o of os) {
+            if (
+                eq === null || o.equal || o.kind
+            ) a: {
+                if (o.enumref) {
+                    eq = o.enumref;
+                    cq = o.queue;
+                    qs.push([cq, eq, Infinity]);
+                    continue;
+                }
+                if (!o.equal) break a;
+                if (o.equal.text !== "=") break a;
+                var range = getEnumRange(o, scoped);
+                if (!range) break a;
+                var o1 = o.equal.next;
+                var n = skipAssignment(o1);
+                if (!o1 || n !== o1.next) break a;
+                if (o1.enumref) {
+                    [cq, oe] = range;
+                    eq = o1.enumref;
+                    qs.push([cq, eq, oe]);
+                    continue;
+                }
             }
             if (o.queue !== cq) {
                 do {
@@ -386,59 +481,37 @@ function enumref(refitem, scoped) {
                     if (oq) break;
                     if (!oq) {
                         if (qs.length) [cq, eq, oe] = qs.pop();
-                        else cq = qs = null;
+                        else cq = null, oe = Infinity;
                     }
                 } while (cq);
                 if (!cq) {
-                    tp = sc = eq = null;
+                    eq = null;
                     continue;
                 }
             }
             if (o.start > oe) {
-                tp = eq = sc = null;
+                eq = null;
                 continue;
             }
 
-            if (o.kind) {
-                if (enumtype & REFTYPE) {
-                    if (o.typeref) {
-                        tp = o.typeref;
-                        if (isObject(tp)) tp = tp.typeref;
-                        continue;
-                    }
-                }
+            if (o.enumref) {
+                eq = o.enumref;
+                continue;
             }
-            else if (o.enumref) {
-                if (enumtype & REFSTRC) {
-                    sc = o.enumref;
+            else {
+                if (eq) {
+                    o.enumref = eq;
                     continue;
                 }
             }
-            else {
-                if (enumtype & REFTYPE) {
-                    if (tp) {
-                        o.typeref = tp;
-                        continue;
-                    }
-                }
-                if (enumtype & REFSTRC) {
-                    if (sc) {
-                        o.enumref = sc;
-                        continue;
-                    }
-                }
-                if (enumtype & REFMOVE) {
-                    if (!eq) continue;
-                    if (o.short) continue;
-                    // var 替换前 = createString(pickAssignment(o));
-                    o.type = eq.type;
-                    o.isdigit = true;
-                    o.text = eq.text;
-                    // var 替换后 = createString(pickAssignment(o));
-                    removeRefs(o);
-                }
-            }
         }
+    }
+}
+function enumref(refitem, scoped) {
+    switch (enumtype) {
+        case REFMOVE: enumequal(refitem, scoped); break;
+        case REFTYPE: enummark(refitem, scoped); break;
+        case REFSTRC: enumstruct(refitem, scoped); break;
     }
 }
 function atuoenum(scoped) {
