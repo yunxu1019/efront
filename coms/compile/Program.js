@@ -345,22 +345,19 @@ class Program {
         var type_reg = this.type_reg;
         var digit_reg = this.digit_reg;
         var comment_entry = this.comment_entry;
-        var rowsOf = m => m.replace(/[^\r\n\u2028\u2029]+/g, ';').replace(/\r\n|\r|\n|\u2028|\u2029/g, ' ').replace(/;/g, '').length;
-        var setRows = m => {
-            row += rowsOf(m);
-            var reg = /[\r\n\u2028\u2029]/g;
+        var setRows = (m, start) => {
+            var reg = /(\r\n|\n|\r|\u2028|\u2029)/g;
             reg.lastIndex = 0;
             var index = 0;
             do {
+                row++;
                 index = reg.lastIndex;
                 var match = reg.exec(m);
             } while (match);
+            row--;
             colstart = start + index - 1;
         };
         var queue_push = (scope) => {
-            if (scope.type & (SPACE | COMMENT | PIECE | QUOTED)) {
-                if (scope.text) setRows(scope.text);
-            }
             var last = queue.last;
             scope.queue = queue;
             scope.prev = last;
@@ -482,7 +479,6 @@ class Program {
                 last.end = end;
                 return;
             }
-
             var scope = new Node({
                 type,
                 start,
@@ -492,6 +488,9 @@ class Program {
                 isExpress: queue.inExpress,
                 text: m
             });
+            if (type & (SPACE | COMMENT | PIECE | QUOTED)) {
+                if (m) setRows(m, start);
+            }
             lasttype = type;
             if (type === STAMP) {
                 cache_stamp = scope;
@@ -713,9 +712,9 @@ class Program {
             if (index > start) {
                 var piece = queue[queue.length - 1];
                 if (piece && piece.type === PIECE) {
-                    row -= rowsOf(piece.text);
+                    var pend = piece.end;
                     piece.text = text.slice(piece.start, index);
-                    setRows(piece.text);
+                    setRows(text.slice(pend, index), pend);
                     piece.end = index;
                 }
                 else {
@@ -953,6 +952,7 @@ class Program {
                 queue.inExpress = true;
                 queue.end = index;
                 queue.text = text.slice(start, index);
+                setRows(queue.text, start);
                 pop_parents();
                 continue;
             }
