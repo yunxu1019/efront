@@ -917,7 +917,7 @@ var createScoped = function (parsed, wash) {
                     }
                 }
                 var map = isFunction ? vars : lets;
-                var keepscope = !!scoped.body || !!scoped.head;
+                var keepscope = isFunction || !!scoped.body || !!scoped.head;
                 if (!keepscope) for (var k in map) {
                     keepscope = true;
                     break;

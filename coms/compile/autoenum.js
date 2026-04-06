@@ -1,5 +1,45 @@
-var { skipAssignment, snapSentenceHead, skipSentenceQueue, snapExpressFoot, pickAssignment, EXPRESS, SPACE, SCOPED, QUOTED, VALUE, STRAP, STAMP, LABEL, number_reg, createString } = require("./common");
+var {
+    skipAssignment,
+    snapSentenceHead,
+    snapAssignmentHead,
+    skipSentenceQueue,
+    snapExpressFoot,
+    EXPRESS,
+    PROPERTY,
+    SPACE,
+    SCOPED,
+    QUOTED,
+    VALUE,
+    STRAP,
+    STAMP,
+    LABEL,
+    number_reg,
+    createString
+} = require("./common");
 var strings = require("../basic/strings");
+var getSimpleQuotedKey = function (t) {
+    if (!t.length) if (/[\.\[\]]|^#/.test(t.text)) {
+        return `[${t.text}]`;
+    }
+    else {
+        return "." + strings.decode(t.text);
+    }
+    return "[*]";
+}
+var getSimpleProperty = function (o) {
+    var t = o.last;
+    if (!t) throw new Error(i18n`代码结构错误`);
+    var p = t.prev;
+    if (p && (p.type !== STAMP || p.text !== ",")) return ["[*]"];
+    switch (t.type) {
+        case QUOTED: return getSimpleQuotedKey(t);
+        case VALUE:
+            if (t.isdigit) return `[${t.text}]`;
+            return "[*]";
+    }
+    return "[*]";
+}
+
 
 var createRefId = function (o) {
     var ids = [], refs = [];
@@ -8,26 +48,7 @@ var createRefId = function (o) {
     while (o) {
         if (o.type === SCOPED) {
             if (o.entry !== '[') break;
-            var t = o.last;
-            if (!t) throw new Error(i18n`格式错误`);
-            if (t.type === QUOTED) {
-                if (!t.length) {
-                    if (/\.|^#/.test(t.text)) {
-                        ids.push(`[${t.text}]`);
-                    }
-                    else {
-                        ids.push(strings.decode(t.text));
-                    }
-                }
-                else {
-                    ids.push("[*]");
-                    break;
-                }
-            }
-            else {
-                ids.push("[*]");
-                break;
-            }
+            ids.push(getSimpleProperty(o))
         }
         else if (o.type === EXPRESS) {
             var t = o.text.replace(/^\.\.\.|\.\.\.$/g, "").replace(/^[^\.\[]+/, '');
@@ -61,9 +82,9 @@ var createRefId = function (o) {
 }
 var ignore = Symbol("ignore");
 var mapkey = null;
-var maplist = function (u) {
+var maplist = function (oused) {
     var map = Object.create(null);
-    for (var o of u) {
+    for (var o of oused) {
 
         if (o[mapkey]) continue;
         o[mapkey] = true;
@@ -75,7 +96,10 @@ var maplist = function (u) {
             map[r].ccount = 0;
         }
         var m = map[r];
-        m.push(o);
+        if (enumtype & REFTYPE && o.kind) {
+            m.unshift(o);
+        }
+        else m.push(o);
         if (o.equal || o.kind) {
             if (enumtype & REFTYPE) {
                 var typeref = o.typeref;
@@ -329,6 +353,7 @@ function enumequal(refitem, scoped) {
     }
     for (var rk in refitem) {
         var os = refitem[rk];
+        if (os.ccount > 0) continue;
         var wcount = os.wcount;
         if (wcount < 1 || os.length <= wcount) continue;
         var eq = null;
@@ -399,15 +424,13 @@ function enummark(refitem, scoped) {
                 o.typeref = eq;
                 continue;
             }
-            if (
-                eq === null || o.equal
-            ) {
-                if (!o.equal) continue;
+            if (eq === null || o.equal) {
+                if (!o.equal && !o.kind) continue;
                 eq = null;
                 oe = Infinity;
                 cq = null;
                 if (!wcount) break;
-                if (o.equal.text !== "=") {
+                if (o.equal && o.equal.text !== "=") {
                     continue;
                 }
                 wcount--;
@@ -451,9 +474,7 @@ function enumstruct(refitem, scoped) {
         var eq = null;
         var qs = [], cq = null, oe = Infinity;
         loop: for (var o of os) {
-            if (
-                eq === null || o.equal || o.kind
-            ) a: {
+            if (eq === null || o.equal || o.kind) a: {
                 if (o.enumref) {
                     eq = o.enumref;
                     cq = o.queue;
@@ -507,19 +528,25 @@ function enumstruct(refitem, scoped) {
         }
     }
 }
-function enumref(refitem, scoped) {
-    switch (enumtype) {
-        case REFMOVE: enumequal(refitem, scoped); break;
-        case REFTYPE: enummark(refitem, scoped); break;
-        case REFSTRC: enumstruct(refitem, scoped); break;
-    }
-}
 function atuoenum(scoped) {
     var { used, caps } = scoped;
     mapkey = Symbol('enumed');
     for (var k in caps) {
-        var rs = maplist(used[k]);
-        enumref(rs, scoped);
+        var rs = null;
+        var os = used[k];
+        if (enumtype & REFSTRC) {
+            rs = maplist(os);
+            enumstruct(rs, scoped);
+        }
+        if (enumtype & REFTYPE) {
+            if (!rs) rs = maplist(os);
+            enummark(rs, scoped);
+        }
+        if (enumtype & REFMOVE) {
+            if (os.ignore) continue;
+            if (!rs) rs = maplist(used[k]);
+            enumequal(rs, scoped);
+        }
     }
     for (var k in caps) {
         for (var o of used[k]) {
@@ -527,9 +554,31 @@ function atuoenum(scoped) {
         }
     }
 }
+var setStalk = function (scoped) {
+    for (var s of scoped) setStalk(s);
+    if (!scoped.isfunc) return;
+    var used = scoped.used;
+    for (var k in scoped.envs) {
+        var os = used[k];
+        for (var o of os) if (o.equal) {
+            if (!o.stalk) o.stalk = scoped;
+        }
+    }
+    loop: for (var k in used) {
+        var os = used[k];
+        if (os) for (var o of os) if (o.stalk) {
+            if (o.stalk !== scoped) {
+                os.ignore = true;
+                continue loop;
+            }
+        }
+    }
+}
 var enumtype = 0;
 var exports = module.exports = function main(code, type = REFMOVE) {
-    var rest = [code.scoped];
+    var scoped = code.scoped;
+    setStalk(scoped);
+    var rest = [scoped];
     enumtype = type;
     while (rest.length) {
         var s = rest.pop();
