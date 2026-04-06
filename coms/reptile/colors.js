@@ -49,6 +49,7 @@ colors.outside = colors.FgCyan;
 colors.stamp = colors.FgGray;
 colors.regexp = colors.FgRed2;
 colors.text = colors.FgRed;
+colors.danger = colors.Underscore + colors.BgRed + colors.FgWhite2;
 colors.flow = colors.FgPurple;
 colors.digit = colors.FgGreen2;
 colors.deep0 = colors.FgYellow;

@@ -69,6 +69,7 @@ var codecolor = function (c, encode) {
         if (pdot) keys.shift();
         var invoked = null;
         var endi = keys.length - 1;
+        if (o.danger) var danger = wrap(keys[0], 'danger');
         if (isInvoke(o)) {
             if (!/^[\?]/.test(keys[endi])) invoked = wrap(keys[endi], "invoke");
         }
@@ -84,6 +85,7 @@ var codecolor = function (c, encode) {
             keys[cx] = /^[\?]/.test(k) || !k ? k : wrap(k, 'express');
         }
         if (endi === keys.length - 1) keys[endi] = invoked;
+        if (danger) keys[0] = danger;
         keys = keys.join(".");
         if (pdot) keys = "." + keys;
         o.text = keys;
