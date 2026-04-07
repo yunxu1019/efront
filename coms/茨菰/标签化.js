@@ -13,14 +13,22 @@ var amp = a => `&#${a.charCodeAt()};`;
 var encodeAmp = function (a) {
     return a.replace(/[\<\>\|&]/g, amp);
 };
-var codecolor = function (c, encode) {
-    var wrap = arguments[2];
-    if (encode?.length === 2) wrap = encode, encode = arguments[2];
+var codecolor = function (c) {
+    var envs, wrap, encode;
+    for (var cx = 1, dx = arguments.length; cx < dx; cx++) {
+        var a = arguments[cx];
+        switch (typeof a) {
+            case "object": envs = a; break;
+            case "function":
+                if (!wrap && a.length === 2) wrap = a;
+                else encode = a;
+                break;
+        }
+    }
     if (!wrap) {
         wrap = wrapLabel;
         if (!encode) encode = encodeAmp;
     }
-    var envs = c.envs;
     var deep = 0;
     var used = c.used;
     var scoped = c.scoped;
