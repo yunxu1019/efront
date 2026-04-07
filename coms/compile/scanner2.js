@@ -197,13 +197,37 @@ class Code extends Array {
         compress(this.scoped);
         return this;
     }
+    getNodeAt(row, col) {
+        return getNodeAt(this, row, col);
+    }
     relink(list = this) {
         relink(list);
         setqueue(list);
         return list;
     }
 }
-
+function getNodeAt(code, row, col) {
+    for (var cx = 0, dx = code.length; cx < dx;) {
+        var ci = cx + dx >>> 1;
+        var o = code[ci];
+        var r = o.row;
+        if (r < row || r === row && o.col < col) cx = ci + 1;
+        else dx = ci;
+    }
+    if (cx > 0) cx--;
+    dx = code.length;
+    while (cx < dx) {
+        var o = code[cx];
+        if (o.row === row && o.col === col) return o;
+        var n = code[++cx];
+        if (n?.row === row) {
+            if (n.col === col) return n;
+            if (n.col < col) continue;
+        }
+        if (o.length) return getNodeAt(o, row, col);
+        return o;
+    }
+}
 var avoidMap = null;
 var typeMap = Object.create(null);
 function scan(text) {
