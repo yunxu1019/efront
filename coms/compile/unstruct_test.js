@@ -16,6 +16,8 @@ test('if(this){}', `if (!this) return [1, 0]; return [1, 0]`);
 test('if(!this){}', `if (this) return [1, 0]; return [1, 0]`);
 test('if(arguments){}', `if (!arguments) return [1, 0]; return [1, 0]`);
 test('a | c & b', "_ = c & b, a | _");
+test('a || c && b', "_ = a @re _ = c @rz b");
+test('a && c || b', "_ = a @rz _ = c;\r\n @re b");
 test('a + !c', "_ = !c, a + _");
 test('a + b * c', "_ = b * c, a + _");
 test('a + b * !c', "_ = !c, _ = b * _, a + _");
