@@ -32,6 +32,7 @@ const {
     replace,
     skipAssignment,
     insertAfter,
+    insertBefore,
     pickSentence,
     unshort,
 } = require("./common");
@@ -51,6 +52,11 @@ class Javascript extends Program {
     forceend_reg = /^(return|yield|break|continue|debugger|async)$/;
     defaultType = EXPRESS;
     lbtype = true;
+    constructor() {
+        super();
+        this.powermap = Object.assign({}, this.powermap);
+        delete this.powermap["#"];
+    }
 }
 var propresolve_reg = /^(static|get|set|async|readonly|private|pub)$/;
 
@@ -474,9 +480,15 @@ function detour(o, ie) {
                 }
                 var text = o.text.replace(/^\.\.\./, '');
                 var hasdot = o.text.length !== text.length;
+                if (text === 'new.target') text = 'undefined';
                 if (context.avoidMap) {
                     var m = /^[^\.\[\]]+/.exec(o.text);
                     if (m) { context.avoidMap[m[0]] = true; }
+                }
+                var match = /^([^\#\.]*)\.#/.exec(text);
+                if (match) {
+                    var [, varname] = match;
+                    o.hidden = varname;
                 }
                 text = text.replace(/\.([^\.\[\!\=\:]+)/g, (_, a) => ie === undefined || context.strap_reg.test(a) || /#/.test(a) ? `[${strings.recode(a)}]` : _);
                 if (hasdot) text = "..." + text;
@@ -586,6 +598,8 @@ function detour(o, ie) {
                 }
                 else if (o.queue.isClass) {
                     if (o.text === 'constructor') break;
+                    var hidden = /^#/.test(o.text);
+                    if (hidden) o.hidden = true;
                     var text = strings.recode(o.text);
                     if (o.prev) {
                         var prev = o.prev;

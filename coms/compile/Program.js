@@ -76,13 +76,13 @@ var setObject = function (o) {
                 case ",":
                     var p = m.prev;
                     if (p?.type === PROPERTY) p.short = true;
-                case ";":
                     needproperty = true;
                     continue;
                 case "...":
                     needproperty = false;
                     continue;
                 case ":":
+                case "=":
                     var p = m.prev;
                     if (p?.isprop) needproperty = false;
                 default:
@@ -125,7 +125,6 @@ var setObject = function (o) {
         }
     }
     var last = o.last;
-    if (last?.type === STAMP && /^[,;]$/.test(last.text)) last = last.prev;
     if (last?.type === PROPERTY) last.short = true;
 };
 
@@ -1157,7 +1156,7 @@ class Program {
             if (this.scope_leave[m] && queue.entry === this.scope_leave[m]) {
                 if (last?.type === PROPERTY) {
                     var lp = last.prev;
-                    if (!lp || lp.type === STAMP && lp.text === ',') last.short = true;
+                    if (!lp && queue.isObject || lp?.type === STAMP && lp.text === ',') last.short = true;
                 }
 
                 queue.end = end;

@@ -1,7 +1,11 @@
 var scanner2 = require("./scanner2");
 var strings = require("../basic/strings");
 var Program = scanner2.Program;
-var { STAMP, SCOPED, STRAP, EXPRESS, mergeTo, pickAssignment, COMMENT, SPACE, PROPERTY, VALUE, LABEL, QUOTED, snapExpressFoot, isEval, canbeTemp, rename, isHalfSentence, skipFunction, getDeclared, skipAssignment, skipSentenceQueue, createScoped, createString, splice, relink, rolink, pickSentence, snapExpressHead, needBreakBetween } = require("./common");
+var {
+    STAMP, SCOPED, STRAP, EXPRESS,
+    mergeTo, pickAssignment,
+    COMMENT, SPACE, PROPERTY, VALUE, LABEL, QUOTED,
+    snapExpressFoot, isEval, canbeTemp, rename, isHalfSentence, skipFunction, getDeclared, skipAssignment, skipSentenceQueue, createScoped, createString, splice, relink, rolink, pickSentence, snapExpressHead, needBreakBetween } = require("./common");
 var splice2 = function (q, from, to, ...a) {
     var cx = q.indexOf(from);
     if (cx < 0) throw console.log(splice2.caller, console.format(`\r\n<red2>${i18n`自`}</red2>`), from && createString([from]), console.format(`\r\n<yellow>${i18n`至`}</yellow>`), to && createString([to]), console.format(`\r\n<cyan>${i18n`码列`}</cyan>`), createString(pickSentence(from))), i18n`结构异常`;
@@ -538,6 +542,7 @@ var getprop = function (o, m) {
             prop.value = scanner2(prop.name);
             if (m.next) insert1(prop.value, null, { type: STAMP, text: ',' });
         }
+        if (m.hidden) prop.hidden = true;
         if (prop.get || prop.set) {
             if (!/^[\d\.'"\[]/.test(prop.name)) prop.name = strings.encode(prop.name);
         }
@@ -604,7 +609,6 @@ var killcls = function (body, i, letname_, getname_, killobj) {
     var o = body[i];
     var ishalf = isHalfSentence(body, i - 1);
     var hasnew = o.prev && o.prev.type === STRAP && o.prev.text === 'new';
-    var start = o;
     var decName = !o.isExpress && o.next.type === EXPRESS && o.next.text;
     var isExpress = o.isExpress;
     while (o) {
@@ -628,6 +632,7 @@ var killcls = function (body, i, letname_, getname_, killobj) {
     var func = scanner2("(function(){}())")[0];
     var [, head, defines, invokes] = func;
     var foot = [];
+    var hiddens = null;
     var base = '';
     if (o) {
         var next = o;
@@ -648,15 +653,50 @@ var killcls = function (body, i, letname_, getname_, killobj) {
         var clz = { name };
         if (!clz.name) clz.name = letname_("cls" + index);
         var tempname = null;
+        var hiddens = null;
+        var staticHidden = null;
         while (m) {
             var [prop, m] = getprop(o, m);
-            if (!prop.value.length) prop.value = scanner2('undefined;');
+            var pvalue = prop.value;
+            if (!pvalue.length || pvalue.length === 1 && pvalue[0].text === ';') prop.value = scanner2('undefined;');
             else if (!prop.sfunc) killobj(prop.value);
+            if (!tempname && (prop.get || prop.set)) tempname = getname_("tmp");
+            if (prop.hidden) {
+                if (!rootenvs["#"]) {
+                    rootenvs["#"] = true;
+                }
+                if (prop.static) {
+                    if (!staticHidden) {
+                        clz.hidden = letname_('hiden' + index);
+                        staticHidden = [];
+                        insert1(foot, null, ...scanner2(`#["set"](${clz.name},{});`));
+                    }
+                    setprop(prop, `#["get"](${clz.name})`, static_, foot, tempname);
+                }
+                else {
+                    if (!hiddens) {
+                        hiddens = [];
+                        insert1(assign, null, ...scanner2(`#["set"](this,{});`));
+                    }
+                    if (!hiddens[prop.name]) {
+                        hiddens[prop.name] = prop.name;
+                    }
+                    if (prop.get || prop.set) {
+                        setprop(prop, `#["get"](this)`, define_, assign, tempname);
+                    }
+                    else if (prop.sfunc !== false) {
+                        setprop(prop, `#["get"](this)`, define_, assign);
+                    }
+                    else {
+                        insert1(assign, null, ...scanner2(`#["get"](this)${prop.name}=`), ...prop.value);
+                    }
+                }
+                continue;
+            }
             var k = prop.static ? clz.name : `${clz.name}["prototype"]`;
             var d = prop.static ? static_ : define_;
             if (prop.get || prop.set || prop.static) {
                 if (prop.name) {
-                    if ((prop.get || prop.set) && !tempname) tempname = getname_("tmp");
                     setprop(prop, k, d, defines, tempname);
                 }
                 else if (prop.static) {
@@ -732,11 +772,11 @@ var killcls = function (body, i, letname_, getname_, killobj) {
         if (clz.name) insert1(head, null, ...scanner2(`${head.length ? ',' : ''}${clz.name}`));
         index++;
     }
-    insert1(defines, null, ...foot);
+    if (foot.length) insert1(defines, null, ...foot);
     var s = i;
     i = body.indexOf(o, i);
     if (i < 0) i = body.length;
-    if (head.length > 1 || start.isExpress && (defines.length) || ishalf && defines.length) {
+    if ((ishalf || head.length > 1 || decName !== clz.name) && defines.length) {
         splice(defines, defines.length, 0, ...scanner2(`\r\nreturn ${clz.name}`))
         if (decName) splice(func, 0, 0, ...scanner2(`var ${decName}=`));
         if (hasnew) splice(body, s, i - s, func);
@@ -1080,7 +1120,15 @@ var killobj = function (body, getobjname, getletname, getname_, letname_, deep =
             }
         }
         else if (o.type === EXPRESS) {
-            if (o.text === 'new.target') o.text = 'undefined';
+            if (o.hidden) {
+                if (!rootenvs["#"]) {
+                    rootenvs["#"] = true;
+                }
+                var varname = o.hidden;
+                o.text = o.text.slice(varname.length);
+                insert1(body, o, ...scanner2(`#["get"](${varname})`));
+                i = body.indexOf(o, i);
+            }
         }
         i++;
     }
@@ -1922,6 +1970,11 @@ var downcode = downLevel.code = function (code) {
         delete rootenvs[slice_];
         if (!code.vars[slice_]) splice(code, 0, 0, ...scanner2(`var ${slice_} = Array["prototype"]["slice"];\r\n`));
         code.vars[slice_] = true;
+    }
+    if (rootenvs["#"]) {
+        delete rootenvs["#"];
+        if (!code.vars["#"]) splice(code, 0, 0, ...scanner2(`var # = new WeakMap`));
+        if (!rootenvs.WeakMap) rootenvs.WeakMap = true;
     }
     rootenvs = null;
     patchMark = patchMark_;

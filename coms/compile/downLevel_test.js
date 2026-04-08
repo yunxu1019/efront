@@ -27,7 +27,8 @@ assert(downLevel(`var [] = piece, key,[]`), 'var key');
 assert(downLevel(`const`), 'const');
 assert(downLevel(`let`), 'let');
 assert(downLevel(`var`), '');
-assert(downLevel(`new.target`), 'undefined');
+assert(downLevel(`new.target`), 'new.target');
+assert((tmp = scanner2(`new.target`), tmp.detour(), downLevel.code(tmp).toString()), 'undefined');
 assert(downLevel(`{let a; function b(){a};return;}`), `if (tmp = 0, tmp0 =function (a) { a; function b() { a }; return tmp = 1, void 0; }(a)) { if (tmp === 1) return tmp0; }
 var tmp, a, tmp0`);
 assert(downLevel(`const a,b,c`), 'var a, b, c');
@@ -99,7 +100,8 @@ assert(downLevel(`class a {static b(){}}`), "function a() {}; a.b = function () 
 assert(downLevel(`class a extends b{}`), `function a() {
 var this_ = b["apply"](this, arguments) || this;
 return this_ }; &extends(a, b)`);
-assert(downLevel(`class a extends class b{}{}`), `var a = function (b, a) { &extends(a, b)\r\nreturn a }(function b() {}, function a() {
+assert(downLevel(`class a extends class b{}{}`), `var a = function (b, a) { &extends(a, b)
+return a }(function b() {}, function a() {
 var this_ = b["apply"](this, arguments) || this;
 return this_ })`);
 assert(downLevel(`class a {get a(){}}`), `function a() {};
@@ -329,9 +331,7 @@ assert(downLevel(`[...a,c]=a`), `var &slice = Array["prototype"]["slice"];\r\n_ 
 assert(downLevel(`{...a,c}=a`), `c = a.c, a = &rest(a, ["c"])`)
 assert(downLevel(`{c,...a}=a`), `c = a.c, a = &rest(a, ["c"])`)
 assert(downLevel("if(a){}[r, g, b] = rgb4s(r, g, b, s)"), "if (a) {} _ = rgb4s(r, g, b, s), r = _[0], g = _[1], b = _[2]\r\nvar _", true);
-downLevel.debug = true; i++;
 assert(downLevel(`{c,[c]:b,...a}=a`), `c = a.c, b = a[c], a = &rest(a, ["c", c])`)
-downLevel.debug = false; i++;
 assert(downLevel(`async()=>name = require("./$split")(name)["join"]("/");`), `function () { return &async(
 function () {
 _0 = require("./$split"); _0 = _0(name); name = _0["join"]("/"); return [name, 2]
@@ -518,15 +518,27 @@ assert(downLevel(`a(a,)`), `a(a)`);
 assert(downLevel(`class{a=[...presets.source]}`), `var &slice = Array["prototype"]["slice"];
 function () { this.a = &slice["call"](presets.source) }`);
 assert(downLevel(`class{a=a=>a}`), `function () { this.a = function (a) { return a } }`);
+downLevel.debug = true; i++;
+assert(downLevel(`class{a}`), "function () { this.a = undefined; }");
+assert(downLevel(`class{a;}`), "function () { this.a = undefined; }");
+assert(downLevel(`class{#a;a(){a=this.#a}}`), `function (cls0) { cls0["prototype"].a = function () { a = this.#a }
+return cls0 }(function () { this.#a = undefined; })`);
+tmp = scanner2(`class{#a;a(){a=this.#a}}`), tmp.detour(), i++;
+assert(downLevel.code(tmp).toString(), `var # = new WeakMap function (cls0) { cls0["prototype"]["a"] = function () { a = #["get"](this)["#a"] }
+return cls0 }(function () { #["set"](this, {}); #["get"](this)["#a"] = undefined; })`);
+downLevel.debug = false; i++;
 assert(downLevel(`class{ get a(){[...a]}}`), `var &slice = Array["prototype"]["slice"];
-function () {};
+function (cls0) {
 Object["defineProperty"](cls0["prototype"], "a", (tmp = {}, tmp["get"] = function () { &slice["call"](a) }, tmp))
+return cls0 }(function () {})
 var tmp`);
 assert(downLevel(`class{ get (){[...a]}}`), `var &slice = Array["prototype"]["slice"];
-function () {}; cls0["prototype"].get = function () { &slice["call"](a) }`);
-assert(downLevel(`class{ async get  a(){[...a]}}`), `var &slice = Array["prototype"]["slice"];
-function () {};
+function (cls0) { cls0["prototype"].get = function () { &slice["call"](a) }
+return cls0 }(function () {})`);
+assert(downLevel(`class{ async get a(){[...a]}}`), `var &slice = Array["prototype"]["slice"];
+function (cls0) {
 Object["defineProperty"](cls0["prototype"], "a", (tmp = {}, tmp["get"] = function () { &slice["call"](a) }, tmp))
+return cls0 }(function () {})
 var tmp`);
 assert(downLevel(`a=class{ static a(){[...a]}}`), `var &slice = Array["prototype"]["slice"];
 a = function (cls0) { cls0.a = function () { &slice["call"](a) }

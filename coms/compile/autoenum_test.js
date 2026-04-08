@@ -41,6 +41,7 @@ t("for(;;a=1){ console.log(a)} console.log(a)", "for (;; a = 1) { console.log(a)
 t("for(var a = 1;;){ console.log(a)} console.log(a)", "for (var a = 1;;) { console.log(1) } console.log(1)");
 t("for(let a = 1;;){ console.log(a)} console.log(a)", "for (let a = 1;;) { console.log(1) } console.log(a)");
 t("for(let a = 1;;a++){ console.log(a)} console.log(a)", "for (let a = 1;; a++) { console.log(a) } console.log(a)");
+t("for(let a = 1;;++a){ console.log(a)} console.log(a)", "for (let a = 1;; ++a) { console.log(a) } console.log(a)");
 t("var a=-1; console.log(-a)", "var a = -1; console.log(- -1)");
 t("var a=-1; console.log(--a)", "var a = -1; console.log(--a)");
 t("var a=-1; return ++a", "var a = -1; return ++a");
