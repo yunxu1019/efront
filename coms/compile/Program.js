@@ -70,25 +70,37 @@ var setObject = function (o) {
     var needproperty = true;
     for (var cx = 0; cx < o.length; cx++) {
         var m = o[cx];
-        if (m.type === STAMP) {
-            if (/^[,;]$/.test(m.text)) {
-                needproperty = true;
+        var { type } = m;
+        switch (type) {
+            case STAMP: switch (m.text) {
+                case ",":
+                    var p = m.prev;
+                    if (p?.type === PROPERTY) p.short = true;
+                case ";":
+                    needproperty = true;
+                    continue;
+                case "...":
+                    needproperty = false;
+                    continue;
+                case ":":
+                    var p = m.prev;
+                    if (p?.isprop) needproperty = false;
+                default:
+                    if (needproperty) m.isprop = true;
+                    continue;
+            }
+            case SCOPED:
+                if (m.entry === "{") {
+                    if (!needproperty) {
+                        if (!m.isObject) setObject(m);
+                    }
+                    continue;
+                }
+                if (needproperty) m.isprop = true;
                 continue;
-            }
-            if (/^\.\.\.$/.test(m.text)) {
-                needproperty = false;
-                continue;
-            }
-            if (needproperty) m.isprop = true;
-            continue;
         }
-        if (!needproperty) {
-            if (m.type === SCOPED && m.entry === '{') {
-                if (!m.isObject) setObject(m);
-            }
-            continue;
-        }
-        if (m.type === LABEL) {
+        if (!needproperty) continue;
+        if (type === LABEL) {
             o.splice(cx, 0, o[++cx].prev = m.next = m.next.prev = new Node({
                 prev: m,
                 text: ':',
@@ -102,15 +114,19 @@ var setObject = function (o) {
             needproperty = false;
             continue;
         }
-        if (m.type === EXPRESS || m.type === STRAP) {
+
+        if (type & (EXPRESS | STRAP)) {
             m.isprop = true;
-            m.type = PROPERTY, needproperty = false;
+            m.type = PROPERTY;
             var p = m.prev;
             if (p && p.type === PROPERTY) {
                 p.type = STRAP;
             }
         }
     }
+    var last = o.last;
+    if (last?.type === STAMP && /^[,;]$/.test(last.text)) last = last.prev;
+    if (last?.type === PROPERTY) last.short = true;
 };
 
 

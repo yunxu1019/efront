@@ -90,6 +90,7 @@ a = function () {}; if (!a) return [1, 0]; a = 1; return [1, 0]
 var a, _0 }`)
 assert(downLevel(`if(a) class b{ c(){}};`), `if (a) var b = function (b) { b["prototype"].c = function () {}\r\nreturn b }(function b() {});`)
 assert(downLevel(`class a {a=1}`), "function a() { this.a = 1 }")
+assert(downLevel(`class a {#a=1}`), "function a() { this.#a = 1 }")
 assert(downLevel(`class a {a=1; b(){}}`), `function a() { this.a = 1; }; a["prototype"].b = function () {}`)
 assert(downLevel(`=class a {a=1; b(){}}`), `= function (a) { a["prototype"].b = function () {}\r\nreturn a }(function a() { this.a = 1; })`)
 assert(downLevel(`var a=class {a=1; static b=2 b(){}};`), `var a = function (cls0) { cls0.b = 2\r\ncls0["prototype"].b = function () {}\r\nreturn cls0 }(function () { this.a = 1; });`)
@@ -328,7 +329,9 @@ assert(downLevel(`[...a,c]=a`), `var &slice = Array["prototype"]["slice"];\r\n_ 
 assert(downLevel(`{...a,c}=a`), `c = a.c, a = &rest(a, ["c"])`)
 assert(downLevel(`{c,...a}=a`), `c = a.c, a = &rest(a, ["c"])`)
 assert(downLevel("if(a){}[r, g, b] = rgb4s(r, g, b, s)"), "if (a) {} _ = rgb4s(r, g, b, s), r = _[0], g = _[1], b = _[2]\r\nvar _", true);
+downLevel.debug = true; i++;
 assert(downLevel(`{c,[c]:b,...a}=a`), `c = a.c, b = a[c], a = &rest(a, ["c", c])`)
+downLevel.debug = false; i++;
 assert(downLevel(`async()=>name = require("./$split")(name)["join"]("/");`), `function () { return &async(
 function () {
 _0 = require("./$split"); _0 = _0(name); name = _0["join"]("/"); return [name, 2]
@@ -430,7 +433,7 @@ function (_) {
 _0 = _; return [1, 0]
 })
 var _0 }`)
-assert(downLevel(`async function(a){ for(var i=1;i<2;i++) await 1 }`), `function (a) { return &async(\r\nfunction () {\r\ni = 1; return [1, 0]\r\n},\r\nfunction () {\r\n_0 = i < 2; if (!_0) return [2, 0]; _0 = 1; return [_0, 1]\r\n},\r\nfunction (_) {\r\n_0 = _; _0 = i++; return [-1, 0]\r\n})\r\nvar i, _0 }`)
+assert(downLevel(`async function(a){ for(var i=1;i<2;i++) await 1 }`), `function (a) { return &async(\r\nfunction () {\r\ni = 1; return [1, 0]\r\n},\r\nfunction () {\r\n_0 = i < 2; if (!_0) return [2, 0]; _0 = 1; return [_0, 1]\r\n},\r\nfunction (_) {\r\n_0 = _; i++; return [-1, 0]\r\n})\r\nvar i, _0 }`)
 assert(downLevel('async function(){ if(b); else {if (a){}else{location = getRequestProtocol(url) + "//" + location;}}}'), `function () { return &async(
 function () {
 if (!b) return [1, 0]; return [3, 0]
@@ -470,7 +473,6 @@ c.fix(); i++
 c.break(); i++
 assert(c.toString(), `\r\n    if (search["length"]) return null;\r\n    return path["join"](...pathlist);\r\n`);
 assert(downLevel.code(c).toString(), `\r\n    if (search["length"]) return null;\r\n    return path["join"]["apply"](path, pathlist);\r\n`);
-downLevel.debug = true; i++;
 assert(downLevel(`Symbol;var c = (a.data || (a.data = {})).transition = no(this);`), 'Symbol; var c = (a.data || (a.data = {})).transition = no(this);', true);
 assert(downLevel(`[a.b]=[1]`), 'a.b = [1][0]')
 assert(downLevel(`[a[b]]=[1]`), 'a[b] = [1][0]')
