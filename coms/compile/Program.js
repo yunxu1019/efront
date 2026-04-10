@@ -11,8 +11,6 @@ const {
     /* 512 */LABEL,
     /*1024 */PROPERTY,
     /*2048 */ELEMENT,
-    pickAssignment,
-    createString,
     setqueue,
     number_reg,
     digit_reg,
@@ -844,10 +842,11 @@ class Program {
 
             var start = entry_reg.lastIndex = index;
             var match = entry_reg.exec(text);
-            if (!match) return null;
+            if (!match) throw console.log(text.charCodeAt(index), text.charAt(index), start, index, text.length), new Error('编译器内部异常');
             var end = match[0].length + match.index;
             index = end;
             var m = match[0];
+            if (!m) throw console.log(m, match.index), new Error('编译器内部异常，解析错误');
             if (cache_stamp && !stamp_reg.test(m)) push_stamp();
             var last = cache_stamp || queue.last;
 
@@ -1169,11 +1168,7 @@ class Program {
                 var last = queue.last;
                 if (!stamp_reg.test(m) || last && !last.isExpress) console.warn(
                     i18n`标记不匹配：`, queue.entry, m,
-                    i18n`\r\n文件位置：`, this.mindpath + ":" + `${row}:${index - colstart}`,
-                    i18n`\r\n摘要：\r\n`,
-                    index - queue.start < 200
-                        ? text.slice(queue.start, index)
-                        : text.slice(queue.start, queue.start + 100) + "..." + text.slice(index - 97, index)
+                    i18n`\r\n文件位置：`, this.mindpath + ":" + `${row}`,
                 );
             }
             save(STAMP);
@@ -1196,10 +1191,9 @@ class Program {
         if (queue !== origin) {
             var last = queue.last || queue;
             console.warn(
-                "代码异常结束", createString(origin.slice(0, 30)),
+                "代码异常结束",
                 `\r\n - 祖先标记: ${parents.slice(1).map(p => `${p.entry || ""}<red2>${p.tag || p.text || ""}</red2><gray>${p.row}:${p.col}</gray>`).join('')}`,
                 `\r\n - 内层入口: <yellow>${this.mindpath}</yellow>:${last.row}:${last.col} ${last.text || last.entry}`,
-                `\r\n ----- 快照: ${createString(pickAssignment(queue.last || queue))}`,
             );
             while (queue !== origin) {
                 queue.error = "代码异常结束";
@@ -1273,7 +1267,16 @@ class Program {
         this.prefix_reg = prefix_reg;
         var numbers = number_reg.source.replace(/^\^|\$$/g, "");
         this.digit_reg = new RegExp(/^[+\-]?/.source + numbers, number_reg.flags);
-        this.entry_reg = new RegExp([`${spaceDefined.reg.source}|${quotes_entries}|${scopes}|${numbers}(?:${spaceDefined.avoid(tokens)})*|${express}|${powers_entries}|[${stamps}]`], "gi");
+        this.entry_reg = new RegExp([
+            spaceDefined.reg.source,
+            quotes_entries,
+            scopes,
+            numbers,
+            `(?:${spaceDefined.avoid(tokens)})+`,
+            express,
+            powers_entries,
+            stamps && `[${stamps}]`
+        ].filter(a => !!a).join("|"), "gi");
         var stamps = this.stamps.slice();
         for (var k in this.powermap) {
             if (k.length === 1 && stamps.indexOf(k) < 0) stamps.push(k);

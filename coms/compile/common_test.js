@@ -54,5 +54,7 @@ function testCreateScope(code) {
     code = scanner2(code);
     common.createScoped(code);
 }
-
 testCreateScope(`class a{ static barch = new arch('b')}`)
+assert(common.number_reg.test("00080000h"), true)
+assert(new RegExp(common.number_reg.source.replace(/^\^|\$$/g, ''), 'ig').exec("00080000h"), ["00080000h"])
+assert(new RegExp(common.number_reg.source.replace(/^\^|\$$/g, ''), 'ig').exec("2A3h"), ["2A3h"])
