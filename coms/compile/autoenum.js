@@ -4,6 +4,7 @@ var {
     snapAssignmentHead,
     skipSentenceQueue,
     snapExpressFoot,
+    pickArgument,
     EXPRESS,
     PROPERTY,
     SPACE,
@@ -82,6 +83,48 @@ var createRefId = function (o) {
 }
 var ignore = Symbol("ignore");
 var mapkey = null;
+var patchFnFromProperty = function (o) {
+    var kpath = [];
+    var origin = o;
+    if (!o.queue.isObject) return;
+    while (o?.queue?.kind) {
+        if (o.type & (EXPRESS | PROPERTY)) {
+            if (o.short) {
+                kpath.push(o.text);
+                o = o.queue;
+                continue;
+            }
+        }
+        var p = o.prev;
+        if (!p) return;
+        if (p.type & (STAMP | STRAP)) {
+            if (/^(\:|as)$/.test(p.text)) p = p.prev;
+            else return;
+        }
+        if (!p) return;
+        if (p.type === PROPERTY) {//不处理字符串属性
+            kpath.push(o.text);
+            o = o.queue;
+            if (o.entry !== '{') return;
+            continue;
+        }
+        return;
+    }
+    if (!o || !o.equal || o.next !== o.equal) return;
+    var next = skipAssignment(o.equal);
+    var obj = o.equal.next;
+    if (obj.next !== next) return;
+    obj = outObjects[obj.text];
+    if (!obj) return;
+    var next = o.euqal;
+    while (kpath.length) {
+        var k = kpath.pop();
+        if (k in obj) obj = obj[k];
+        if (obj == null) return;
+    }
+    origin.fnq = o;
+    origin.fn = obj;
+}
 var maplist = function (oused) {
     var map = Object.create(null);
     for (var o of oused) {
@@ -93,7 +136,6 @@ var maplist = function (oused) {
         if (!map[r]) {
             map[r] = [];
             map[r].wcount = 0;
-            map[r].ccount = 0;
         }
         var m = map[r];
         if (enumtype & REFTYPE && o.kind) {
@@ -139,7 +181,10 @@ var maplist = function (oused) {
                     }
                     else if (enumtype & REFMOVE) m.wcount++;
                 }
-                else if (enumtype & REFMOVE) m.wcount++;
+                else if (enumtype & REFMOVE) {
+                    m.wcount++;
+                    if (o.kind !== 'argument') patchFnFromProperty(o);
+                }
             }
             else {
                 if (o.equal) m.wcount++;
@@ -148,7 +193,6 @@ var maplist = function (oused) {
         else if (enumtype & REFSTRC) {
             if (o.enumref && o.enumref !== m.enumref) m.wcount++, m.enumref = o.enumref;
         }
-        if (o.called) m.ccount++;
     }
     return map;
 }
@@ -341,19 +385,8 @@ function getEnumRange(o, scoped) {
     return [q, oe];
 }
 function enumequal(refitem, scoped) {
-    var c = 0;
-    for (var rk in refitem) {
-        c++;
-        var a = refitem[rk];
-        if (a.ccount > 0) return;
-    }
-    var a = refitem[""];
-    if (a && c > 1) {
-        if (a.wcount < a.length) return;
-    }
     for (var rk in refitem) {
         var os = refitem[rk];
-        if (os.ccount > 0) continue;
         var wcount = os.wcount;
         if (wcount < 1 || os.length <= wcount) continue;
         var eq = null;
@@ -366,18 +399,25 @@ function enumequal(refitem, scoped) {
                 continue;
             }
             if (
-                eq === null || o.equal
+                eq === null || o.equal || o.fn !== undefined
             ) {
-                if (!o.equal) continue;
+                if (!o.equal && o.fn === undefined) continue;
                 eq = null;
                 oe = Infinity;
                 cq = null;
                 if (!wcount) break;
-                if (o.equal.text !== "=") {
+                if (o.fn === undefined && o.equal.text !== "=") {
                     continue;
                 }
                 wcount--;
                 if (wcount > 0) continue;
+                if (o.fn !== undefined) {
+                    var range = getEnumRange(o.fnq, scoped);
+                    if (!range) continue;
+                    [cq, oe] = range;
+                    eq = o;
+                    continue;
+                }
                 var range = getEnumRange(o, scoped);
                 if (!range) continue;
                 [cq, oe] = range;
@@ -386,6 +426,11 @@ function enumequal(refitem, scoped) {
                 if (!o || n !== o.next) break loop;
                 if (o.type === VALUE && o.isdigit) {
                     eq = o;
+                }
+                else if (o.type === EXPRESS && o.tack in outObjects) {
+                    eq = o;
+                    var k = o.text.slice(o.tack.length + 1);
+                    o.fn = outObjects[o.tack][k];
                 }
                 continue;
             }
@@ -404,9 +449,14 @@ function enumequal(refitem, scoped) {
             if (!eq) continue;
             if (o.short) continue;
             // var 替换前 = createString(pickAssignment(o));
-            o.type = eq.type;
-            o.isdigit = true;
-            o.text = eq.text;
+            if (eq.isdigit) {
+                o.type = eq.type;
+                o.isdigit = true;
+                o.text = eq.text;
+            }
+            else if (eq.fn !== undefined) {
+                o.fn = eq.fn;
+            }
             // var 替换后 = createString(pickAssignment(o));
             removeRefs(o);
         }
@@ -575,8 +625,12 @@ var setStalk = function (scoped) {
     }
 }
 var enumtype = 0;
+var outObjects = null;
 var exports = module.exports = function main(code, type = REFMOVE) {
     var scoped = code.scoped;
+    outObjects = Object.create(null);
+    if (scoped.envs.Math) outObjects.Math = Math;
+    if (scoped.envs.Number) outObjects.Number = Number;
     setStalk(scoped);
     var rest = [scoped];
     enumtype = type;
@@ -585,6 +639,7 @@ var exports = module.exports = function main(code, type = REFMOVE) {
         if (s.length) rest.push(...s);
         atuoenum(s);
     }
+    outObjects = null;
     return code;
 }
 var REFMOVE = exports.REFMOVE = 1;
