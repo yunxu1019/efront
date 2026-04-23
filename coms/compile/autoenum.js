@@ -479,10 +479,11 @@ function enumequal(refitem, scoped) {
     }
 }
 function enummark(refitem, scoped) {
+    var rest = [];
     for (var rk in refitem) {
         var os = refitem[rk];
         var wcount = os.wcount;
-        if (wcount < 1 || os.length <= wcount) continue;
+        if (wcount < 1 || os.length <= wcount) return;
         var eq = null;
         var cq = null, oe = Infinity;
         loop: for (var o of os) {
@@ -492,21 +493,40 @@ function enummark(refitem, scoped) {
             }
             if (eq === null || o.equal) {
                 if (!o.equal && !o.kind) continue;
+                if (!wcount) break;
+                var _eq = o.typeref;
+                if (!_eq && o.equal && o.equal === o.next) {
+                    var n = o.equal.next;
+                    if (n.type === STAMP && n.text === '++') {
+                        n = n.next;
+                    }
+                    if (skipAssignment(n) === n.next) {
+                        _eq = n;
+                    }
+                }
+                if (isObject(_eq)) {
+                    if (_eq.typeref) _eq = _eq.typeref;
+                }
+                if (eq === _eq) {
+                    var oq = o.queue;
+                    while (oq && oq !== cq) oq = oq.queue;
+                    if (oq) continue;
+                }
                 eq = null;
                 oe = Infinity;
                 cq = null;
-                if (!wcount) break;
                 if (o.equal && o.equal.text !== "=") {
                     continue;
                 }
                 wcount--;
+
                 var range = getEnumRange(o, scoped);
-                if (!range) continue;
-                [cq, oe] = range;
-                if (o.typeref) {
-                    eq = o.typeref;
-                    if (isObject(eq)) eq = eq.typeref;
+                if (!range) {
+                    eq = null;
+                    continue;
                 }
+                [cq, oe] = range;
+                eq = _eq;
                 continue;
             }
             if (o.queue !== cq) {
@@ -649,11 +669,15 @@ var exports = module.exports = function main(code, type = REFMOVE) {
     if (scoped.envs.Number) outObjects.Number = Number;
     setStalk(scoped);
     var rest = [scoped];
+    var backq = [];
     enumtype = type;
     while (rest.length) {
         var s = rest.pop();
-        if (s.length) rest.push(...s);
-        atuoenum(s);
+        backq.push(s);
+        if (s.length) rest.push(...s), backq.push(...s);
+    }
+    while (backq.length) {
+        atuoenum(backq.pop());
     }
     outObjects = null;
     return code;
