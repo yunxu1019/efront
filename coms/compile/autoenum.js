@@ -257,6 +257,18 @@ function getFirstBreak(o, labels = []) {
 function getConditionBlock(q, s) {
     do {
         var o = snapSentenceHead(q);
+        var p = o.prev;
+        if (p) {
+            if (p.type === SCOPED && p.entry === '(') {
+                p = p.prev;
+                if (p.type === STRAP && /^(if|while|with|for|switch)$/.test(p.text)) {
+                    return [q, q.end];
+                }
+            }
+            if (p.type === STRAP && p.text === 'else') {
+                return [q, q.end];
+            }
+        }
         if (o.type === STRAP) {
             if (/^(if|while|with|for)$/.test(o.text)) return [q, q.end];
             if (o.text === 'switch') {
@@ -292,6 +304,10 @@ function preCondition(o) {
         o = snapSentenceHead(o);
         var p = o.prev;
         if (!p) break;
+        if (p.type === STRAP) {
+            incondition = p.text === 'else';
+            break;
+        }
         if (p.type === SCOPED) {
             if (p.entry !== "(") break;
             if (!p.prev) break;

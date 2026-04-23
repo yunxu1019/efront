@@ -83,4 +83,19 @@ t(
     `tmp = 1; console.log(tmp); function p() { tmp = 2025 }`,
     `tmp = 1; console.log(tmp); function p() { tmp = 2025 }`,
 );
+t(`if (v) v = 0;
+else if (v === false) v = !!v;
+else v = 0;
+console.log(v);`, `if (v) v = 0;
+else if (v === false) v = !!v;
+else v = 0;
+console.log(v);`)
+autoenum.debug = true;
+t(`if (v) v = 0;
+else if (v === false) v = !!v;
+else {v = 0;}
+console.log(v);`, `if (v) v = 0;
+else if (v === false) v = !!v;
+else { v = 0; }
+console.log(v);`)
 // t(fs.readFileSync(path.join(__dirname,"../zimoli/spacechar_test.js")).toString())
