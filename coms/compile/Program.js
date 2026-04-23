@@ -166,7 +166,7 @@ class Program {
     straps = "if,for".split(',');
     colonstrap_reg = /^(case|default)$/;
     forceend_reg = /^(return|break|continue|end[psm])$/;
-    funcstrap_reg = /^(class|function|fn|func|async|interface|struct|enum|impl|pub)$/;
+    funcstrap_reg = /^(class|function|fn|func|async|interface|struct|enum|impl|pub|define)$/;
     extends_reg = /^(extends|implements)$/;
     structstrap_reg = /^(class|interface|struct|enum)$/;
     control_reg = /^(if|else|switch|case|do|while|for|loop|break|continue|default|import|from|as|export|try|catch|finally|throw|await|yield|return)$/;
@@ -364,8 +364,8 @@ class Program {
             var index = 0;
             do {
                 row++;
-                index = reg.lastIndex;
                 var match = reg.exec(m);
+                if (match) index = match.index + match[0].length;
             } while (match);
             row--;
             colstart = start + index - 1;
