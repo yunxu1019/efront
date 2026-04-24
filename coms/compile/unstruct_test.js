@@ -6,6 +6,7 @@ var innerjs = new Javascript;
 innerjs.defaultType = STRAP;
 function test(codetext, expect, ret = false) {
     var code = scanner2(codetext, innerjs), i = -2;
+    code.scoped;
     try { code = unstruct(code, () => ++i >= 0 ? "_" + i : '_', ret && "@"); } catch (e) { console.log(r); throw e }
     assert(code.map(createString).join(";\r\n "), expect, r++);
 }
@@ -178,5 +179,6 @@ test(`a.b.c += menus[0][str_name] += [str__v_, version[0], str__v_1][str_join]("
 test(`menus[0].c += menus[0][str_name] += [str__v_, version[0], str__v_1][str_join]("")`, `_ = menus[0]; _0 = menus[0]; _1 = version[0]; _1 = [str__v_, _1, str__v_1]; _1 = _1[str_join](""); _2 = _0[str_name], _2 = _2 + _1; _0[str_name] = _2; _3 = _.c, _3 = _3 + _2; _.c = _3`);
 test(`new Array(2).join("") + 1`, `_0 = new Array(2); _ = _0.join(""), _ + 1`);
 test(`new window.Array(2).join("") + 1`, `_0 = new window.Array(2); _ = _0.join(""), _ + 1`);
-unstruct.debug = true; r++;
 test(`readbuff(h, offset += 2, length)`, `_ = offset + 2; offset = _; readbuff(h, _, length)`);
+unstruct.debug = true; r++;
+test('a[i] = a[--i]', `_ = i; _0 = --i; _0 = a[_0]; a[_] = _0`, true);

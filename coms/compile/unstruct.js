@@ -783,6 +783,19 @@ var uncurve = function (c) {
     }
     return c;
 };
+var getChanged = function (bd) {
+    var changed = Object.create(null);
+    var rest = [bd];
+    while (rest.length) {
+        var o = rest.pop();
+        if (o.length) rest.push.apply(rest, o);
+        else if (o.type === EXPRESS) {
+            if (o.equal) changed[o.text] = true;
+        }
+    }
+    return changed;
+};
+
 var ternary = function (body, getname, ret) {
     var eqused = 0;
     var getnextname = function (i) {
@@ -867,6 +880,35 @@ var ternary = function (body, getname, ret) {
             explist = [r];
         }
         else {
+            if (equalsend > skip) {
+                var subs = [];
+                for (var cx = 0, dx = equals.length; cx < dx; cx++) {
+                    var h = equals[cx];
+                    if (h.type === EXPRESS) {
+                        var n = h.next;
+                        if (n?.type === SCOPED && n.entry === '[') {
+                            var f = n.first;
+                            if (f && f === n.last) {
+                                subs.push(n);
+                            }
+                        }
+                    }
+                }
+                if (subs.length) {
+                    var changed = getChanged(bd);
+                    for (var n of subs) {
+                        var f = n.first;
+                        if (f.type === EXPRESS && f.text in changed) {
+                            var name = getnextname(0);
+                            ++eqused;
+                            var o = n.first = n.last = { type: EXPRESS, text: name };
+                            o.queue = n;
+                            n.splice(0, n.length, o);
+                            exphead.push([{ type: EXPRESS, text: name }, { type: STAMP, text: "=" }, f, { type: STAMP, text: ';' }]);
+                        }
+                    }
+                }
+            }
             explist = _express(bd, getnextname, equalsend > skip || ret);
         }
     }
