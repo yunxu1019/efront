@@ -220,6 +220,7 @@ Html.prototype.createScoped = function (code) {
                 }
                 if (noTag || !c.text) break;
                 var t = strings.decode(c.text);
+                if (color.isColor(t)) break;
                 var p = c.prev;
                 var pp = p && p.prev;
                 if (pp && isDynamic(pp.text)) {
