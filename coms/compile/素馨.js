@@ -1,4 +1,5 @@
 var { STAMP, PROPERTY, SCOPED, VALUE, STRAP, EXPRESS, QUOTED, SPACE, COMMENT, createString: _createString, splice } = require("./common");
+var numberReg = /((?:[\+\-]+)?(?:\d+(?:\.\d*)?|\.\d+))(?:px|%|pt|pc|in|cm|mm|r?em|deg|rad|vw|vh|%)?/;
 var createString = function (a) {
     a.autospace = false;
     return _createString(a);
@@ -9,12 +10,12 @@ class 素玉 extends Program {
     quotes = this.quotes.slice(0, 2).concat();
     keepspace = true;
     scopes = [["(", ")"], ["{", "}"]];
+    number_reg = numberReg;
     setType() { }
 }
 
 var rarg = new 素玉;
 rarg.quotes.push(["url(", ")"]);
-var numberReg = /((?:[\+\-]+)?(?:\d+(?:\.\d*)?|\.\d+))(?:\s*(px|%|pt|pc|in|cm|mm|r?em|deg|rad|vw|vh|%))?/;
 var replaceHReg = new RegExp(numberReg.source + /\s*([\/\*])\s*/.source + numberReg.source, 'gi');
 var replaceLReg = new RegExp(numberReg.source + /(\s*[\+\-]\s+|[\+\-])/.source + numberReg.source, 'gi');
 var replaceTReg = new RegExp(numberReg.source + /\s*[\/\*\+\-]\s*/.source + numberReg.source, 'i');
@@ -306,6 +307,7 @@ class 素心 extends Program {
     quotes = rarg.quotes;
     keepspace = true;
     control_reg = presets;
+    number_reg = numberReg;
     scopes = [["{", "}"], ["(", ")"]]
 }
 

@@ -13,7 +13,6 @@ const {
     /*2048 */ELEMENT,
     setqueue,
     number_reg,
-    digit_reg,
 } = require("./common");
 var combine = require("../basic/combine");
 var sortRegster = require("../basic/sortRegister");
@@ -159,7 +158,6 @@ class Program {
     prefix = '&^%?:'.split('');
     value_reg = /^(false|true|null)$/
     number_reg = number_reg;
-    digit_reg = digit_reg;
     Code = Array;
     powermap = powermap;
     transive_reg = /^(new|var|let|const|yield|void|in|of|typeof|delete|case|return|await|default|instanceof|throw|extends|import|from)$/;
