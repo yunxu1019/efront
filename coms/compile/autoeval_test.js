@@ -34,4 +34,19 @@ t("var log2=Math.log2;console.log(log2(4))", "var log2 = Math.log2; console.log(
 t("var {log2}=Math; console.log(log2(4))", "var { log2 } = Math; console.log(2)");
 t("(-1).toString()", "(-1).toString()");
 t("(-(2n*324n)).toString()", "(-648n).toString()");
+t("a+ 2*3", "a + 6");
+t("a+ 2*3**2", "a + 18");
+t("a+ b*3**2", "a + b * 9");
+t("a+ 2*3**b", "a + 2 * 3 ** b");
+t("a+ 2*3 +c", "a + 6 + c");
+t("a+ 2*3 +4+c", "a + 10 + c");
+t("a- 2*3 +4+c", "a - 2 + c");
+t("a- 1 +4", "a + 3");
+t("a / 6 * 3", "a * 0.5");
+t("a * 6 / 3", "a * 2");
+t("a >>> 1 << 1", "a >>> 1 << 1");
+t("a >> 1 << 1", "a >> 1 << 1");
+t("a << 1 >>> 1", "a << 1 >>> 1");
+t("a+ b*Math.sqrt(3**2)", "a + b * 3");
+t("Math.sqrt", "Math.sqrt");
 // tf(path.join(__dirname, "../zimoli/spacechar_test.js"))
