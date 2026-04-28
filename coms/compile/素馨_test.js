@@ -81,11 +81,10 @@ test(`.type(@type,@media) {.@{type} {&:before{content:"@{media}";}}}.type(videoi
 assert(素馨(`:not(a):not(b){c:d}`, 'abc'), `abc :not(a):not(b){c:d;}`);
 assert(素馨(`&:not(a):not(b){c:d}`, 'abc'), `abc:not(a):not(b){c:d;}`);
 assert(素馨(`:scope{&:not(a):not(b){c:d}}`, 'abc'), `abc:not(a):not(b){c:d;}`);
-assert(素馨(`:root{&:not(a):not(b){c:d}}`, 'abc1'), `:not(a):not(b){c:d;}`);
+assert(素馨(`:root{&:not(a):not(b){c:d}}`, 'abc1'), `abc1:not(a):not(b){c:d;}`);
 assert(素馨(`&{&:not(a):not(b){c:d}}`, 'abc'), `abc:not(a):not(b){c:d;}`);
 assert(素馨(`:root>a{&:not(a):not(b){c:d}}`, '.abc-'), `.abc->a:not(a):not(b){c:d;}`);
-assert(素馨(`a>:root{&:not(a):not(b){c:d}}`, '.abc-'), `:not(a):not(b){c:d;}`);
-
+assert(素馨(`a>:root{&:not(a):not(b){c:d}}`, '.abc-'), `.abc-:not(a):not(b){c:d;}`);
 assert(素馨(`.a (){ &:after{abc:1}} .b{.a();}`, '.abc-'), `.abc- .b:after{abc:1;}`);
 assert(素馨(`@a:1px;@margin-x:@a+10px; a{m:-@margin-x}`), `a{m:-11px;}`);
 assert(素馨(`a{@a:1px;@margin-x:@a+10px;m:-@margin-x}`), `a{m:-11px;}`);
@@ -114,3 +113,7 @@ assert(scanner2(`-0.2em .3em -0.2em 0`, new 素馨.素心)[0].text, '-0.2em');
 assert(scanner2(`-0.2em .3em -0.2em 0`, new 素馨.素心)[0].isdigit, true);
 assert(scanner2(`-0.2em .3em -0.2em 0`, new 素馨.素心)[2].text, ".3em");
 assert(scanner2(`-0.2em .3em -0.2em 0`, new 素馨.素心)[2].isdigit, true);
+assert(素馨(`a{ .b{b&{a:1}}}`, '', true), `a b.b{a:1;}`);
+assert(素馨(`h1{a:c; span{a:b} i{a:b} }`, '.home-', true), `.home- h1 span{a:b;}.home- h1 i{a:b;}.home- h1{a:c;}`);
+assert(素馨(`h1{ button{&:not(hover){.track{a:b}}} }`, '.home-', true), `.home- h1 button:not(hover) .track{a:b;}`);
+assert(素馨(`@type(@a){&[type=@a]{a:1}} @type(white)`, '.btn-', true), `.btn-[type=white]{a:1;}`);

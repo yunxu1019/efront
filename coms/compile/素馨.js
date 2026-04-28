@@ -1,5 +1,5 @@
 var { STAMP, PROPERTY, SCOPED, VALUE, STRAP, EXPRESS, QUOTED, SPACE, COMMENT, createString: _createString, splice } = require("./common");
-var numberReg = /((?:[\+\-]+)?(?:\d+(?:\.\d*)?|\.\d+))(?:px|%|pt|pc|in|cm|mm|r?em|deg|rad|vw|vh|%)?/;
+var numberReg = /((?:[\+\-]+)?(?:\d+(?:\.\d*)?|\.\d+))([a-zH]+|%)?/;
 var createString = function (a) {
     a.autospace = false;
     return _createString(a);
@@ -440,9 +440,21 @@ var getFromScopeList = function (name, varsList, value = name) {
     return value;
 };
 var removeSelectorSpace = a => a.trim().replace(/\s*([\+~\>])\s*/g, "$1");
-var fixBase = function (b, a) {
+var addCap = function (c, a) {
+    if (!c) return a;
+    if (/^[\>~\+]/.test(a) || /[\>~\+]$/.test(c)) {
+        a = c + a;
+    }
+    else a = c + " " + a;
+    return a;
+}
+var fixBase = function (b, a, seekroot) {
+    seekroot = seekroot !== false;
     if (/@keyframes\s/i.test(a)) {
         var bs = [];
+        if (seekroot && !baserooted) {
+            bs.push(basepath[basepath.length - 1]);
+        }
         splitParams(b).forEach(b => {
             b.replace(/@{@[^\}]+}/g, a => {
                 if (bs.indexOf(a) < 0) bs.push(a)
@@ -461,22 +473,16 @@ var fixBase = function (b, a) {
         })
         if (rootindex > 0) a = a.slice(rootindex);
         return splitParams(b).map(b => {
-            var b1 = b.replace(/^\:root\s*/g, '');
-            var rindex = rootindex;
-            if (b1.length !== b.length) rindex = true;;
-            b = b1;
-            b = b.replace(/^(&|\:scope)\s*/g, "");
             var a1 = a.replace(/&|\:scope/g, function () {
                 replaced = true;
-                if (!rindex) return b;
-                return '';
+                return b;
             });
-            if (!b && !replaced) return a1;
-            if (!replaced) {
-                if (/^[\>~\+]/.test(a) || /[\>~\+]$/.test(b)) {
-                    a1 = b + a1;
-                }
-                else if (!rindex) a1 = b + " " + a;
+            if (rootindex) return addCap(basepath[0], a1);
+            if (!replaced && b) {
+                if (!rootindex) a1 = addCap(b, a1);
+            }
+            if (seekroot && !baserooted) {
+                a1 = addCap(basepath[basepath.length - 1], a1);
             }
             return a1;
         }).join(",");
@@ -484,7 +490,7 @@ var fixBase = function (b, a) {
 }
 var Method = function () {
     var valueMap = Object.create(null);
-    if (!this.base) this.base = base;
+    this.base = halfbase || base;
     vlist.push(valueMap);
     var argDefaults = this.args.defaults;
     var ipd = 0;
@@ -551,11 +557,34 @@ var initvars = function (vars) {
         vars[k] = replace_punc(calcvars(v));
     }
 };
-var evalthis = function (p) {
-    var temp = base;
-    base = p.base || "&";
+var basepath = [], baserooted = false, halfbase = null;
+var evalthis = function (p, k) {
+    var _baserooted = baserooted || basepath.length < 1;
+    var _base = base, _halfbase = halfbase;
+    var needpop = true;
+    if (_baserooted) basepath.push(base);
+    else basepath.push(halfbase);
+    if (k && !(/^@/.test(k))) {
+        var rooted1 = /\:root/.test(k);
+        if (rooted1 || /(\:scope|&)/.test(k)) {
+            k = fixBase(base, k, false);
+            if (!_baserooted) {
+                basepath.pop();
+                needpop = false;
+            }
+        }
+        else baserooted = false;
+        if (rooted1) baserooted = !!k;
+        base = k;
+    }
+    else base = p.base || '', baserooted = !!base;
+    if (baserooted) halfbase = base;
+    else halfbase = p.base;
     var res = eval2(p.used);
-    base = temp;
+    if (needpop) basepath.pop();
+    halfbase = _halfbase;
+    base = _base;
+    baserooted = _baserooted;
     return res;
 };
 var evalproc = function (k, retnoparam) {
@@ -641,7 +670,7 @@ var eval2 = function (props) {
             else p.base = presets.test(k) ? `@{${k}}` : k;
             if (vars) vlist.push(vars);
             initvars(vars);
-            var value = evalthis(p);
+            var value = evalthis(p, k);
             if (vars) vlist.pop();
             if (value.rest.length) rest = rest.concat(value.rest);
             if (value.length) rest.push([p.base, '{', value.join(""), "}"]);
@@ -671,6 +700,7 @@ var eval2 = function (props) {
 function evalscoped(scoped, scopeName = '') {
     var _base = base;
     base = removeSelectorSpace(scopeName);
+    baserooted = true;
     var smaps = scoped.maps;
     var root = smaps[":root"], scope = smaps[":scope"];
     var and = smaps["&"];
@@ -682,7 +712,8 @@ function evalscoped(scoped, scopeName = '') {
     clist.push(smaps);
     kfmap = Object.create(null);
     initvars(vars);
-    var result = eval2(scoped, [vars]);
+    var result = eval2(scoped);
+    baserooted = false;
     kfmap = null;
     vlist.pop();
     clist.pop();
