@@ -482,7 +482,9 @@ var fixBase = function (b, a, seekroot) {
                 if (!rootindex) a1 = addCap(b, a1);
             }
             if (seekroot && !baserooted) {
-                a1 = addCap(basepath[basepath.length - 1], a1);
+                var bp = basepath[basepath.length - 1];
+                if (bp) a1 = splitParams(bp)
+                    .map(b => addCap(b, a1)).join(',');
             }
             return a1;
         }).join(",");

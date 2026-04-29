@@ -117,3 +117,4 @@ assert(素馨(`a{ .b{b&{a:1}}}`, '', true), `a b.b{a:1;}`);
 assert(素馨(`h1{a:c; span{a:b} i{a:b} }`, '.home-', true), `.home- h1 span{a:b;}.home- h1 i{a:b;}.home- h1{a:c;}`);
 assert(素馨(`h1{ button{&:not(hover){.track{a:b}}} }`, '.home-', true), `.home- h1 button:not(hover) .track{a:b;}`);
 assert(素馨(`@type(@a){&[type=@a]{a:1}} @type(white)`, '.btn-', true), `.btn-[type=white]{a:1;}`);
+assert(素馨(`a,b{c,d{ g&{e:f}}}`, '', true), `a gc,b gc,a gd,b gd{e:f;}`);
