@@ -122,7 +122,7 @@ function solve(body, ox, dx) {
                     p0 = p;
                     continue;
                 }
-                if (p === p0 && p <= powermap[">>>"]) {
+                if (p && p === p0 && p <= powermap[">>>"]) {
                     continue;
                 }
                 cache.push(cx, pt, p);

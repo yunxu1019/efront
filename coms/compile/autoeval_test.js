@@ -47,6 +47,7 @@ t("a * 6 / 3", "a * 2");
 t("a >>> 1 << 1", "a >>> 1 << 1");
 t("a >> 1 << 1", "a >> 1 << 1");
 t("a << 1 >>> 1", "a << 1 >>> 1");
+t("a = 1 >>> 1", "a = 0");
 t("a+ b*Math.sqrt(3**2)", "a + b * 3");
 t("Math.sqrt", "Math.sqrt");
 // tf(path.join(__dirname, "../zimoli/spacechar_test.js"))
