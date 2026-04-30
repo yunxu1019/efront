@@ -30,7 +30,7 @@ var fixContainer = function (elem, ipt) {
     move.fixPosition(elem);
 };
 function prompt() {
-    var msg, check, ipt;
+    var msg, check, ipt, info;
     var opts = [];
     var submit = null;
     var wrap = false;
@@ -53,6 +53,7 @@ function prompt() {
             if (isFunction(arg.check)) check = arg.check;
             if (isFunction(arg.submit)) submit = arg;
             if (isString(arg.msg || arg.title)) msg = arg.msg || arg.title;
+            if (isHandled(arg.info)) info = arg.info;
             if (isHandled(arg.value)) value = arg.value;
             for (var k in attrs) {
                 if (k in arg) attrs[k] = arg[k];
@@ -94,7 +95,16 @@ function prompt() {
         on('input')(ipt, setDisable);
     }
     var body = document.createElement("div");
-    appendChild(body, [ipt, tip]);
+    var content = [ipt, tip];
+    if (info) {
+        if (isNode(info)) content.push(info);
+        else {
+            var info_node = document.createElement('div');
+            info_node.innerHTML = info;
+            content.push(info_node);
+        }
+    }
+    appendChild(body, content);
     var c = confirm(msg, body, buttons, async function (_) {
         if (_ === buttons[0]) {
             var value = getValue();
