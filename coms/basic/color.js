@@ -2,9 +2,11 @@
  * Created by jams on 2016/5/13.
  */
 
-var { min, max, sin, cos, round, sqrt, random, PI, abs = a => a < 0 ? -a : a } = Math;
-var [v_r, v_g, v_b] = [.299, .587, .114];
-
+var { min, max, sin, cos, tan, atan, round, sqrt, acos, atan2, asin, random, PI, abs = a => a < 0 ? -a : a } = Math;
+var [r_v, g_v, b_v] = [.299, .587, .114];
+var r_u = r_v / sqrt(r_v * r_v + g_v * g_v + b_v * b_v);
+var g_u = g_v / sqrt(r_v * r_v + g_v * g_v + b_v * b_v);
+var b_u = b_v / sqrt(r_v * r_v + g_v * g_v + b_v * b_v);
 var rgb4v = function (r, g, b, v) {
 	var d = v - rgb2v(r, g, b);
 	return [r + d, g + d, b + d];
@@ -110,38 +112,64 @@ function rotate_rgb(RGBA, theta) {
 	[r, g, b] = rgb4s(r, g, b, s);
 	[r, g, b] = rgb4v(r, g, b, v);
 	return [r, g, b, a];
-	// var s = rgb2s(r, g, b);
-	// var v = rgb2v(r, g, b);
-	// var u = sqrt(3) / 3;
-	// var pu = 1 / 3;
-	// var cosa = cos(theta);
-	// var sina = sin(theta);
-	// var vera = 1 - cosa;
-	// var red = (cosa + pu * vera) * r + (pu * vera - u * sina) * g + (pu * vera + u * sina) * b;
-	// var green = (pu * vera + u * sina) * r + (cosa + pu * vera) * g + (pu * vera - u * sina) * b;
-	// var blue = (pu * vera - u * sina) * r + (pu * vera + u * sina) * g + (cosa + pu * vera) * b;
-	// var m = mode([red, green, blue]);
-	// var _min = min(red, green, blue);
-	// var d = [m - red, m - green, m - blue]
-	// if (_min < 0) {
-	// 	var index = red < 0 ? 0 : green < 0 ? 1 : 2;
-	// 	var [dr, dg, db] = single(d, -_min / d[index]);
-	// } else {
-	// 	var _max = max(red, green, blue);
-	// 	if (_max > 255) {
-	// 		var index = red > 255 ? 0 : green > 255 ? 1 : 2;
-	// 		var [dr, dg, db] = single(d, (255 - _max) / d[index]);
-	// 	} else {
-	// 		var dr, dg, db = dr = dg = 0;
-	// 	}
-	// }
-	// red += dr;
-	// green += dg;
-	// blue += db;
-	// [red, green, blue] = rgb4s(red, green, blue, s);
-	// [red, green, blue] = rgb4v(red, green, blue, v);
-	// return [red, green, blue, a];
 }
+
+// function rotate_phi(x, y, z, alpha) {
+// 	// 转轴为过原点的向量(-1,0,1)
+// 	// 顺时针转动后中性值偏向紫色方向，与纯红纯蓝的夹角均为45度
+// 	// 用于适配初始饱和度
+// 	// 此向量是过三点的平面的法向量，三点为(0,0,0)，(1,1,1)，(1,0,1)
+// 	var u = sqrt(1 / 2);
+// 	var cosi = cos(alpha);
+// 	var sini = sin(alpha);
+// 	var veri = 1 - cosi;
+// 	return [
+// 		x * (cosi + veri / 2) + sini * u * y - veri * z / 2,
+// 		-u * sini * x + y * cosi + -u * sini * z,
+// 		-veri * x / 2 + sini * u * y + (cosi + veri / 2) * z
+// 	];
+// }
+
+// function rotate_3d(x, y, z, theta) {
+// 	// 转轴为过原点的(1,1,1)向量
+// 	// 用于调整色相
+// 	// theta取正值时为逆时针转动
+// 	// 在右手坐标系中，红绿蓝分别对应母指、食指、中指的指向
+// 	var u = sqrt(3) / 3;
+// 	var pu = 1 / 3;
+// 	var cosa = cos(theta);
+// 	var sina = sin(theta);
+// 	var vera = 1 - cosa;
+// 	var a = (cosa + pu * vera) * x + (pu * vera - u * sina) * y + (pu * vera + u * sina) * z;
+// 	var b = (pu * vera + u * sina) * x + (cosa + pu * vera) * y + (pu * vera - u * sina) * z;
+// 	var c = (pu * vera - u * sina) * x + (pu * vera + u * sina) * y + (cosa + pu * vera) * z;
+// 	return [a, b, c];
+// }
+
+function rotate_(a, b, c, x, y, z, theta) {
+	var cosa = cos(theta);
+	var sina = sin(theta);
+	var vera = 1 - cosa;
+	return [
+		(vera * a * a + cosa) * x + (vera * a * b - sina * c) * y + (sina * b + vera * a * c) * z,
+		(sina * c + vera * a * b) * x + (vera * b * b + cosa) * y + (vera * b * c - sina * a) * z,
+		(vera * a * c - sina * b) * x + (sina * a + vera * b * c) * y + (vera * c * c + cosa) * z
+	];
+}
+
+function rotate_3d(r_l, g_l, b_l, theta) {
+	// (.299,.587,.114)
+	return rotate_(r_u, g_u, b_u, r_l, g_l, b_l, theta);
+}
+
+function rotate_phi(r_l, g_l, b_l, phi) {
+	// (-.114,0,.299);
+	var b_u = b_v / sqrt(b_v * b_v + r_v * r_v);
+	var r_u = r_v / sqrt(b_v * b_v + r_v * r_v);
+	return rotate_(-b_u, 0, r_u, r_l, g_l, b_l, phi);
+}
+
+
 // 对比度
 function contrast_rgb(RGBA, ratio) {
 	var [r, g, b, a] = RGBA;
@@ -207,39 +235,151 @@ function t2rgb(t, p, q) {
 	if (t < 2 / 3) return p + (q - p) * 6 * (2 / 3 - t);
 	return p;
 }
-function hsl2rgb([h, s, l]) {
+function rgb4hsl(h, s, l, a) {
 	var q = l < .5 ? l * (1 + s) : l + s - l * s;
 	var p = 2 * l - q;
 	h /= 360;
-	var r = h + 1 / 3;
-	var g = h;
-	var b = h - 1 / 3;
-	return [r, g, b].map(t => t2rgb(t, p, q) * 255);
+	var r = t2rgb(h + 1 / 3, p, q) * 255;
+	var g = t2rgb(h, p, q) * 255;
+	var b = t2rgb(h - 1 / 3, p, q) * 255;
+	return [r, g, b, a];
 }
-function percent(a) {
+function hsl2rgb([h, s, l]) {
+	return rgb4hsl(h, s, l, 1);
+}
+function percent(a, total = 1) {
 	if (/%$/.test(a)) {
-		a = a.replace(/%$/, '') / 100;
+		a = a.replace(/%$/, '') / 100 * total;
 	}
 	return +a;
 }
+function prgb(a) {
+	return percent(a, 255);
+}
+function pab(a) {
+	return percent(a, 125);
+}
+function pc(a) {
+	return percent(a, 150);
+}
+function pl(a) {
+	return percent(a, 100);
+}
+function pkl(a) {
+	return percent(a) * 100;
+}
+function pkc(a) {
+	return percent(a) * 150 / 0.4;
+}
+function pkab(a) {
+	return percent(a) * 125 / 0.4;
+}
+function ph(hue) {
+	if (/deg$/i.test(hue)) {
+		return +hue.replace(/deg$/i, '');
+	}
+	if (/turn$/i.test(hue)) {
+		return hue.replace(/turn$/i, '') * 360;
+	}
+	if (/grad$/i.test(hue)) {
+		return hue.replace(/grad$/i, '') * 360 / 400;
+	}
+	if (/rad$/i.test(hue)) {
+		return hue.replace(/rad$/i, '') * 180 / PI;
+	}
+	return percent(hue, 360);
+}
+
+const hdelta = -60;// lch的零点色相与纯红色相的差值
+const cangle = acos(g_u);// 灰度轴与纯绿轴的夹角
+// const cangle = acos(sqrt(2 / 3));// 灰度轴与纯黄向量的夹角
+// const cratio = acos(sqrt(2 / 3));// lch的纯红色与rgb纯红色的饱合度比值 
+function rgb4lch(L, c, h, a) {
+	h = (h - hdelta) / 180 * PI;
+	L = L / 100 * 255;
+	var phi = c / 150 * cangle;
+	var s = L * tan(phi);
+	var A = cos(h) * s;
+	var B = sin(h) * s;
+	var [r, g, b] = rotate_phi(B, L, A, -cangle);
+	r /= r_u;
+	g /= g_u;
+	b /= b_u;
+	return [r + .5 | 0, g + .5 | 0, b + .5 | 0, a];
+}
+function lch4rgb(r, g, b, a) {
+	r *= r_u;
+	g *= g_u;
+	b *= b_u;
+	var [B, L, A] = rotate_phi(r, g, b, cangle);
+	var theta = atan2(B, A) / PI * 180 + hdelta;
+	if (theta < 0) theta += 360;
+	var c = sqrt(B * B + A * A) / (L || 1);
+	c = atan(c) / cangle * 150;
+	return [
+		L / 255 * 100,
+		c,
+		theta,
+		a
+	];
+}
+function rgb2lch([r, g, b, a]) {
+	return lch4rgb(r, g, b, a);
+}
+function rgb4lab(L, A, B, a) {
+	var [L, c, h] = lch4lab(L, A, B, a);
+	return rgb4lch(L, c, h);
+}
+function lch4lab(L, A, B, a) {
+	var c = sqrt(A * A + B * B) / 125 * 150;
+	var h = atan2(B, A) * 180 / PI;
+	return [L, c, h, a];
+}
+function lab4lch(L, c, h, a) {
+	c = c / 150 * 125;
+	h = h * PI / 180;
+	var A = c * cos(h);
+	var B = c * sin(h);
+	return [L, A, B, a];
+}
+function lab4rgb(r, g, b, a) {
+	var [l, c, h] = lch4rgb(r, g, b);
+	return lab4lch(l, c, h, a);
+}
+
 function parse(color) {
-	if (hslReg.test(color)) {
-		var [_, H, S, L, a] = hslReg.exec(color);
-		H = parseFloat(H);
+	var m = null;
+	if (m = rgbHex.exec(color)) {
+		var [_, R, G, B, A] = m.map(a => parseInt(a + a, 16));
+		return [R, G, B, A >= 0 ? A / 0xff : 1];
+	}
+	else if (m = rgbHex2.exec(color)) {
+		var [_, R, G, B, A] = m.map(a => parseInt(a, 16));
+		return [R, G, B, A >= 0 ? A / 0xff : 1];
+	}
+	else if (m = rgbReg.exec(color)) {
+		var [_, R, G, B, a] = m;
+		return [R > 255 ? 255 : +R, G > 255 ? 255 : +G, B > 255 ? 255 : +B, a ? percent(a) : 1];
+	}
+	else if (m = hslReg.exec(color)) {
+		var [_, H, S, L, a] = m;
 		S = percent(S);
 		L = percent(L);
-		a = percent(a);
-		[R, G, B] = hsl2rgb([H, S, L]);
-		return [R, G, B, a || 1];
-	} else if (rgbReg.test(color)) {
-		var [_, R, G, B, a] = rgbReg.exec(color);
-		return [R > 255 ? 255 : +R, G > 255 ? 255 : +G, B > 255 ? 255 : +B, a ? +a : 1];
-	} else if (rgbHex.test(color)) {
-		var [_, R, G, B, A] = rgbHex.exec(color).map(a => parseInt(a + a, 16));
-		return [R, G, B, A >= 0 ? A / 0xff : 1];
-	} else if (rgbHex2.test(color)) {
-		var [_, R, G, B, A] = rgbHex2.exec(color).map(a => parseInt(a, 16));
-		return [R, G, B, A >= 0 ? A / 0xff : 1];
+		a = a ? percent(a) : 1;
+		[R, G, B] = rgb4hsl(ph(H), S, L, a);
+		return [R, G, B, a];
+	}
+	else if (m = lablch.exec(color)) {
+		var [_, f, b, c, d, a] = m;
+		a = a ? percent(a) : 1;
+		switch (f.toLowerCase()) {
+			case "rgb": return [prgb(b), prgb(c), prgb(d), a];
+			case "hsl": return rgb4hsl(ph(b), percent(c), percent(d), a);
+			case "lab": return rgb4lab(pl(b), pab(c), pab(d), a);
+			case "lch": return rgb4lch(pl(b), pc(c), ph(d), a);
+			case "oklch": return rgb4lch(pkl(b), pkc(c), ph(d), a);
+			case "oklab": return rgb4lab(pkl(b), pkab(c), pkab(d), a);
+		}
 	}
 }
 var maybe16 = function (n) {
@@ -274,11 +414,11 @@ function doWith(manager, color, ...args) {
 function normal([r, g, b]) {
 	return [g - b, b - r, r - g];
 }
-function mode([r, g, b]) {
+function norm([r, g, b]) {
 	return sqrt(r * r + g * g + b * b);
 }
-function single(c, u) {
-	if (!u) var u = 1 / mode(c);
+function unit(c, u) {
+	if (!u) var u = 1 / norm(c);
 	if (!u) {
 		u = Math.sqrt(3) / 3;
 		return [u, u, u];
@@ -293,18 +433,6 @@ function angle(c1, c2) {
 	c2 = normal(c2);
 	var theta = rgb2h(c2[0], c2[1], c2[2]) - rgb2h(c1[0], c1[1], c1[2]);
 	if (theta < 0) theta += 360;
-	// var [r1, g1, b1] = single(c1);
-	// var [r2, g2, b2] = single(c2);
-	// var c = [g1 * b2 - g2 * b1, b1 * r2 - b2 * r1, r1 * g2 - r2 * g1];
-	// var d = r1 * r2 + g1 * g2 + b1 * b2;
-	// var e = c[0] > 0 ? mode(c) : -mode(c);
-	// var theta = Math.asin(e > 1 ? 1 : e < -1 ? -1 : e);
-	// var phi = Math.acos(d > 1 ? 1 : d < -1 ? -1 : d);
-	// if (theta < 0) {
-	// 	theta = Math.PI * 2 - phi;
-	// } else {
-	// 	theta = phi;
-	// }
 	return theta;
 }
 function equal(c1, c2) {
@@ -313,12 +441,14 @@ function equal(c1, c2) {
 	var [r2, g2, b2, a2] = parse(c2);
 	return abs(r1 - r2) < 1 && abs(g1 - g2) < 1 && abs(b1 - b2) < 1 && abs(a1 - a2) < .01;
 }
-var hslReg = /^hsla?\s*\(\s*([\d\.]+(?:deg)?)\s*[,\s]\s*([\d\.]+%?)\s*[,\s]\s*([\d\.]+%?)(?:[,\/\s]\s*([\d\.]+%?))?\)$/i;
+var hslReg = /^hsla?\s*\(\s*([\d\.]+(?:deg|turn|g?rad)?)\s*[,\s]\s*([\d\.]+%?)\s*[,\s]\s*([\d\.]+%?)(?:[,\/\s]\s*([\d\.]+%?))?\)$/i;
 var rgbReg = /^rgba?\s*\(\s*([\d\.]+)\s*[,\s]\s*([\d\.]+)\s*[,\s]\s*([\d\.]+)(?:[,\s]\s*([\d\.]+))?\)$/i;
 var rgbHex = /^#([\da-f])([\da-f])([\da-f])([\da-f])?$/i;
 var rgbHex2 = /^#([\da-f]{2})([\da-f]{2})([\da-f]{2})([\da-f]{2})?$/i;
 var rotated_base_color = "#d16969";
-var colorReg = /(?:rgb|hsl)a?\s*\([\,\.\d\s%]+\)|#[\da-f]{3,8}/ig;
+var colorReg = /(?:(?:rgb|hsl)a?|hwb|(?:ok)?(?:lab|lch)?)\s*\([\-\,\.\d\s%]+\)|#[\da-f]{3,8}/ig;
+var num = /(\-?(?:\d+(?:\.\d*)|\.\d+)%?)/;
+var lablch = new RegExp(`${/^((?:ok)?(?:lab|lch)|hwb|rgb|hsl)\s*\(/.source}${num.source}\s+${num.source}\s+${num.source}\s*\/\s*${num.source}`, 'i');
 function isColor(text) {
 	return rgbReg.test(text) || rgbHex.test(text) || rgbHex2.test(text) || hslReg.test(text);
 }
@@ -342,9 +472,9 @@ var colorDesigner = {
 	contrast: 1
 };
 var rgb2v = function (r, g, b) {
-	r *= v_r;
-	g *= v_g;
-	b *= v_b;
+	r *= r_v;
+	g *= g_v;
+	b *= b_v;
 	return r + g + b;
 };
 var v2rgb = function (v, r, g, b) {
@@ -496,6 +626,12 @@ extend(color, {
 	rgb2s,
 	rgb4s,
 	rgb2hsl,
+	rgb4lch,
+	lch4rgb,
+	rgb4lab,
+	lab4rgb,
+	lab4lch,
+	lch4lab,
 	hsl2rgb,
 	angle,
 	parse,
