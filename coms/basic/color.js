@@ -16,7 +16,7 @@ var rgb4v = function (r, g, b, v) {
 var number_sort = (a, b) => a - b;
 
 var rgb4h = function (r, g, b, h) {
-	var [p, q, s] = [r, g, b].sort(number_sort);
+	var [p, _, s] = [r, g, b].sort(number_sort);
 	var m = s - p;
 	h = (h % 360 + 360) % 360;
 	if (h < 60) {
@@ -347,6 +347,51 @@ function lab4rgb(r, g, b, a) {
 	return lab4lch(l, c, h, a);
 }
 
+function hwb4hsv(h, s, v, a) {
+	var w = (1 - s) * v;
+	var b = 1 - v;
+	return [h, w, b, a];
+}
+function hsv4hwb(h, w, b, a) {
+	if (w + b > 1) {
+		var s = w + b;
+		w /= s;
+		b /= s;
+	}
+	var s = 1 - w / (1 - b);
+	var v = 1 - b;
+	return [h, s, v, a];
+}
+
+function hwb4rgb(r, g, b, a) {
+	var h = rgb2h(r, g, b);
+	var w = min(r, g, b);
+	var b = 255 - max(r, g, b);
+	return [h, w / 255, b / 255, a];
+}
+function rgb4hwb(h, w, b, a) {
+	if (w + b > 1) {
+		var s = w + b;
+		w /= s;
+		b /= s;
+	}
+	w *= 255;
+	b *= 255;
+	var [r, g, b] = rgb4h(w, 255 - b, w, h);
+	return [r, g, b, a];
+}
+function parse4(namespace, b, c, d, a) {
+	a = a ? percent(a) : 1;
+	switch (namespace.toLowerCase()) {
+		case "rgb": return [prgb(b), prgb(c), prgb(d), a];
+		case "hsl": return rgb4hsl(ph(b), percent(c), percent(d), a);
+		case "hwb": return rgb4hwb(ph(b), percent(c), percent(d), a);
+		case "lab": return rgb4lab(pl(b), pab(c), pab(d), a);
+		case "lch": return rgb4lch(pl(b), pc(c), ph(d), a);
+		case "oklch": return rgb4lch(pkl(b), pkc(c), ph(d), a);
+		case "oklab": return rgb4lab(pkl(b), pkab(c), pkab(d), a);
+	}
+}
 function parse(color) {
 	var m = null;
 	if (m = rgbHex.exec(color)) {
@@ -371,15 +416,7 @@ function parse(color) {
 	}
 	else if (m = lablch.exec(color)) {
 		var [_, f, b, c, d, a] = m;
-		a = a ? percent(a) : 1;
-		switch (f.toLowerCase()) {
-			case "rgb": return [prgb(b), prgb(c), prgb(d), a];
-			case "hsl": return rgb4hsl(ph(b), percent(c), percent(d), a);
-			case "lab": return rgb4lab(pl(b), pab(c), pab(d), a);
-			case "lch": return rgb4lch(pl(b), pc(c), ph(d), a);
-			case "oklch": return rgb4lch(pkl(b), pkc(c), ph(d), a);
-			case "oklab": return rgb4lab(pkl(b), pkab(c), pkab(d), a);
-		}
+		return parse4(f, b, c, d, a);
 	}
 }
 var maybe16 = function (n) {
@@ -446,11 +483,15 @@ var rgbReg = /^rgba?\s*\(\s*([\d\.]+)\s*[,\s]\s*([\d\.]+)\s*[,\s]\s*([\d\.]+)(?:
 var rgbHex = /^#([\da-f])([\da-f])([\da-f])([\da-f])?$/i;
 var rgbHex2 = /^#([\da-f]{2})([\da-f]{2})([\da-f]{2})([\da-f]{2})?$/i;
 var rotated_base_color = "#d16969";
-var colorReg = /(?:(?:rgb|hsl)a?|hwb|(?:ok)?(?:lab|lch)?)\s*\([\-\,\.\d\s%]+\)|#[\da-f]{3,8}/ig;
-var num = /(\-?(?:\d+(?:\.\d*)|\.\d+)%?)/;
-var lablch = new RegExp(`${/^((?:ok)?(?:lab|lch)|hwb|rgb|hsl)\s*\(/.source}${num.source}\s+${num.source}\s+${num.source}\s*\/\s*${num.source}`, 'i');
+var colorReg = /(?:(?:rgb|hsl)a?|hwb|(?:ok)?(?:lab|lch))\s*\([\-\,\.\w\s%]+\)|#[\da-f]{3,8}/ig;
+var num = /(\-?(?:\d+(?:\.\d*)?|\.\d+)(?:%|deg|turn|g?rad)?)/;
+var lablch = new RegExp(`${/^((?:ok)?(?:lab|lch)|hwb|rgb|hsl)\s*\(/.source}${num.source}\\s+${num.source}\\s+${num.source}\\s*(?:/\\s*${num.source})?\\)`, 'i');
 function isColor(text) {
-	return rgbReg.test(text) || rgbHex.test(text) || rgbHex2.test(text) || hslReg.test(text);
+	return rgbReg.test(text)
+		|| rgbHex.test(text)
+		|| rgbHex2.test(text)
+		|| hslReg.test(text)
+		|| lablch.test(text);
 }
 function format(color) {
 	var c = parse(color);
@@ -633,8 +674,11 @@ extend(color, {
 	lab4lch,
 	lch4lab,
 	hsl2rgb,
+	rgb4hwb,
+	hwb4rgb,
 	angle,
 	parse,
+	parse4,
 	equal,
 	format,
 	stringify,

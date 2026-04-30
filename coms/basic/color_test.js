@@ -28,6 +28,7 @@ function testConvert(to, from) {
     }
 }
 // testConvert(color.rgb2hsl, color.hsl2rgb);
-testConvert(color.lch4rgb, color.rgb4lch);
+// testConvert(color.lch4rgb, color.rgb4lch);
+testConvert(color.hwb4rgb, color.rgb4hwb);
 // testConvert(color.lab4rgb, color.rgb4lab);
 console.log(Matrix.cross3([1, 1, 1], [1, 1, 0]))
