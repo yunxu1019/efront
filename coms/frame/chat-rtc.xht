@@ -132,18 +132,6 @@
     </span>
 </div>
 <script>
-    var chatrtc = new ChatRTC;
-    // fullscreen.open();
-    var status = function () {
-        return acceptTime ? i18n`通话中` : rejectTime ? i18n`无应答` : i18n`正在呼叫`
-    };
-    var btn = button;
-    var dvs;
-    var callingStart = new Date, acceptTime = 0;
-    var started = false;
-    var interval = 0;
-    var timeNode = document.createTextNode("");
-    var rejectTime = 0;
     care(this, function ([type, sender, data]) {
         if (sender !== remoteUser.cid) return;
         switch (type) {
@@ -161,6 +149,23 @@
                 break;
         }
     });
+    var page = this;
+    var onCandidate = function (candidate) {
+        cast(page, ["didate", candidate]);
+    };
+    var chatrtc = new ChatRTC(onCandidate);
+    // fullscreen.open();
+    var status = function () {
+        return acceptTime ? i18n`通话中` : rejectTime ? i18n`无应答` : i18n`正在呼叫`
+    };
+    var btn = button;
+    var dvs;
+    var callingStart = new Date, acceptTime = 0;
+    var started = false;
+    var interval = 0;
+    var timeNode = document.createTextNode("");
+    var rejectTime = 0;
+
     interval = setInterval(function () {
         var toNum2 = a => a < 10 ? "0" + a : a;
         var now = new Date;
@@ -231,17 +236,15 @@
         await start();
         acceptTime = new Date;
     };
-    var onCandidate = function (candidate) {
-        cast(page, ["didate", candidate]);
-    };
+
     var start = async function () {
         try {
             if (!remoteOffer) {
-                var offer = await chatrtc.call(onCandidate, remoteOffer);
+                var offer = await chatrtc.initOffer();
                 cast(page, ['offer', offer]);
             }
             else {
-                var answer = await chatrtc.call(onCandidate, remoteOffer);
+                var answer = await chatrtc.takeOffer(remoteOffer);
                 cast(page, ['accept', answer]);
             }
         }
@@ -253,7 +256,6 @@
         }
         render.refresh();
     }
-    var page = this;
     var hangup = async function () {
         cast(page, ['hangup']);
         remove(page);

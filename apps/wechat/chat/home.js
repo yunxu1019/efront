@@ -1,6 +1,10 @@
 async function link(page, id = clientInfo.cid) {
     if (!id) {
-        id = await data.from("link");
+        id = data.hasItem("cid") ? data.getItem('cid') : '';
+        if (!id) {
+            id = await data.from("link");
+            data.setItem('cid', id, 0);
+        }
     }
     page.clientid = id;
     var runing = true;

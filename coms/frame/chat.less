@@ -157,16 +157,21 @@ padding {
     }
 }
 
+padding{
+    padding: 0 20px;
+}
 msg {
+    max-width: 100%;
     display: block;
     border-radius: 4px;
     padding: 6px 12px;
     line-height: 20px;
     white-space: normal;
     word-break: break-all;
-    background: #fff;
+    @color-remote:lch(60 30 90);
+    background: @color-remote;
     position: relative;
-    margin: 0 10px;
+    margin: 0 -10px;
     float: left;
     user-select: text;
 
@@ -181,7 +186,7 @@ msg {
 
     &:not([self]):before {
         left: 0;
-        border-right-color: #fff;
+        border-right-color: @color-remote;
     }
 
     &[self] {

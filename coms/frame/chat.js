@@ -111,17 +111,30 @@ var dragpage = {
 }
 
 var rtcMap = Object.create(null);
-var getRtc = function (userid) {
+var getRtc = function (userid, scope, offer) {
     var rtc = rtcMap[userid];
-    if (!rtc) rtc = rtcMap[userid] = new ChatRTC;
+    if (!rtc) {
+        rtc = rtcMap[userid] = new ChatRTC(function (date) {
+            scope.send("didate", date, userid);
+
+        });
+        if (offer) rtc.takeOffer(offer).then(answer => {
+            scope.send('takeup', answer, userid);
+        });
+    }
     return rtc;
 }
+var channelId = 0;
 async function pullFileWithRTC(scope, file) {
     var rid = scope.remoteUser.cid;
-    var rtc = getRtc(rid);
+    var rtc = getRtc(rid, scope);
+    var pullid = Math.random().toString(36).slice(2, 6) + "-" + ++channelId;
     var h = await window.showSaveFilePicker({ suggestedName: file.name });
     var writable = await h.createWritable();
-    var channel = await rtc.createChannel();
+    /**
+     * @type {RTCDataChannel}
+     */
+    var channel = await rtc.createChannel(pullid);
     channel.binaryType = 'arraybuffer';
     var writed = 0;
     var span = document.createElement('div');
@@ -159,40 +172,34 @@ async function pullFileWithRTC(scope, file) {
     channel.onerror = function (event) {
         // <!-- console.log('接收端异常',event) -->
     };
-    var ondate = function (date) {
-        scope.send("didate", date, rid);
-    };
-    var offer = await rtc.init(ondate);
-    scope.send('accept', { file: file.id, channel: channel.id, offer })
+    var offer = await rtc.initOffer();
+    scope.send('accept', { file: file.id, channel: pullid, offer })
     channel.onmessage = async function (event) {
         var buff = new Uint8Array(event.data);
         writed += buff.length;
         // <!-- console.log('接收端收到', writed, file.size); -->
         await writable.write(buff);
         report();
-        if (writed >= file.size) {
-            writable.close();
-        }
     }
+
 }
 /**
  * @param {File} file
  */
 async function pushFileWithRTC(scope, file, msg) {
     var sender = msg.sender;
-    var rtc = getRtc(sender);
+    var rtc = getRtc(sender, scope, msg.offer);
     var reader = file.stream().getReader();
-    var ondate = function (date) {
-        scope.send("didate", date, sender);
-    }
-    var answer = await rtc.init(ondate, msg.offer);
-    scope.send('takeup', answer, sender);
-    var remote = await rtc.waitChannel();
+    /**
+     * @type {RTCDataChannel}
+     */
+    var remote = await rtc.waitChannel(msg.channel);
     remote.binaryType = 'arraybuffer';
     var writed = 0, reported = 0;
     var readed = reader.read();
     var sizeLimit = 65536;
     remote.onmessage = async function (event) {
+        if (!opened) opened = true;
         var [low, high] = new Uint32Array(event.data);
         reported = high * 0x100000000 + low;
         // <!-- console.log('发送端收到', size(writed), size(reported)); -->
@@ -200,8 +207,8 @@ async function pushFileWithRTC(scope, file, msg) {
         var readed1 = readed;
         readed = reader.read();
         var { done, value } = await readed1;
-        if (done) {
-            if (writed < file.size) console.error('发送未完成', size(file.size), size(writed), value);
+        if (done || writed >= file.size) {
+            if (writed !== file.size) console.error('发送异常', size(file.size), size(writed), value);
             remote.close();
             return;
         }
@@ -217,9 +224,18 @@ async function pushFileWithRTC(scope, file, msg) {
     remote.onerror = function (event) {
         // <!-- console.log("发送端异常",event) -->
     }
+    var opened = false;
     remote.onopen = async function () {
         // <!-- console.log("发送端打开") -->
+        opened = true;
     };
+    if (remote.readyState === 'open') {
+        await wait(20);
+        if (!opened) {
+            opened = true;
+            remote.send(new Uint8Array(0));
+        }
+    }
 }
 var shakeing = [];
 var shakeUser = async function (page, shakes) {

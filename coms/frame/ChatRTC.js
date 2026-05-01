@@ -26,10 +26,40 @@ class ChatRTC {
      */
     peerConnection = null;
     candidates = [];
-    constructor() {
-        this.peerConnection = new RTCPeerConnection(configuration);
+    waiters = {};
+    channels = {};
+    constructor(ondate) {
+        var peerConnection = this.peerConnection = new RTCPeerConnection(configuration);
+        peerConnection.ondatachannel = (event) => {
+            var channel = event.channel;
+            var label = channel.label;
+            var waiter = this.waiters[label];
+            console.log('data-channel', channel, waiter);
+            if (waiter) {
+                delete this.waiters[label];
+                waiter(channel);
+                return;
+            }
+            this.channels[label] = channel;
+        };
+        this.ready = new Promise((ok, oh) => {
+            peerConnection.oniceconnectionstatechange = function () {
+                console.log('completed', this.iceConnectionState)
+                if (this.iceConnectionState === 'completed') {
+                    ok();
+                }
+                else if (this.iceConnectionState === 'failed') {
+                    oh();
+                }
+            }
+        });
+
+        peerConnection.onicecandidate = oncandidate;
+        peerConnection.emitDidate = ondate;
     }
     async setAnswer(answer) {
+        if (this.answer) return;
+        this.answer = answer;
         await this.peerConnection.setRemoteDescription(new RTCSessionDescription(answer));
         flushDidate(this);
     }
@@ -51,35 +81,45 @@ class ChatRTC {
         local.play();
         addTracks(this.peerConnection, localStream);
     }
-    async createChannel(id, options) {
-        return this.peerConnection.createDataChannel(id, options);
+    async createChannel(label, options) {
+        try {
+            // await this.ready;
+            return this.peerConnection.createDataChannel(label, options);
+        } catch (e) {
+            alert('无法建立连接', 'error');
+        }
     }
-    waitChannel() {
+    waitChannel(label) {
         return new Promise((ok) => {
-            if (this.channel) return ok(this.channel);
-            this.peerConnection.ondatachannel = (event) => {
-                this.channel = event.channel;
-                ok(this.channel);
-            };
+            if (this.channels[label]) {
+                var channel = this.channels[label];
+                delete this.channels[label];
+                return ok(channel);
+            }
+            this.waiters[label] = ok;
         });
     }
-    async init(ondate, offer) {
+    async initOffer() {
         var peerConnection = this.peerConnection;
-        peerConnection.emitDidate = ondate;
-        peerConnection.onicecandidate = oncandidate;
-        peerConnection.ondatachannel = event => this.channel = event.channel;
-        if (offer) return takeOffer(this, offer);
-        offer = await peerConnection.createOffer();
+        var offer = this.offer;
+        if (offer) return offer;
+        delete this.answer;
+        offer = this.offer = await peerConnection.createOffer();
         await peerConnection.setLocalDescription(offer);
         return offer;
     }
-    async call(ondate, offer) {
+    takeOffer(offer) {
+        if (this.offer) return this.answer;
+        this.offer = offer;
+        return this.answer = takeOffer(this, offer);
+    }
+    async call(offer) {
         await this.initMedia();
         var peerConnection = this.peerConnection;
         // 处理 ICE 候选
         peerConnection.remote = this.remote;
         peerConnection.ontrack = ontrack;
-        return this.init(ondate, offer);
+        return this.takeOffer(offer);
     };
     async hangup() {
         var { peerConnection, localStream, local, remote } = this;
@@ -97,6 +137,7 @@ async function takeOffer(rtc, offer) {
     var answer = await pc.createAnswer();
     await pc.setLocalDescription(answer);
     flushDidate(rtc);
+    rtc.answer = answer;
     return answer;
 }
 
@@ -129,6 +170,7 @@ var stopTracks = function (localStream) {
     }
 }
 var oncandidate = function (event) {
+    console.log(event, 'icedidate');
     var candidate = event.candidate;
     if (!candidate) return this.emitDidate(null);
     var { sdpMid, candidate, sdpMLineIndex, usernameFragment } = candidate;
