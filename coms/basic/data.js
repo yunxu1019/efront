@@ -1024,7 +1024,6 @@ var data = {
             instanceDataMap[instanceId] = instance;
         }
         return instanceDataMap[instanceId];
-
     },
     removeInstance(instanceId) {
         delete instanceDataMap[instanceId];
@@ -1198,8 +1197,9 @@ var fireListener = function (instanceId, data) {
     if (!listeners) return;
     listeners.forEach(a => a(data));
 };
-data.setItem = data.setInstance;
-data.getItem = data.getInstance;
+data.setItem = setItem;
+data.getItem = getItem;
+data.hasItem = hasItem;
 data.seekResponse = seekResponse;
 data.removeItem = data.removeInstance;
 extend(dataSourceMap, getItem(sourceDataId));
