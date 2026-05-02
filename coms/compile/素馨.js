@@ -767,3 +767,5 @@ function 素馨(text, scopeName, compress) {
     }).filter(a => !!a).join(compress ? "" : "\r\n") + getquried();
 }
 素馨.素心 = 素心;
+素馨.number_reg = numberReg;
+素馨.macros = macros;
