@@ -497,7 +497,7 @@ function enummark(refitem, scoped) {
                 var _eq = o.typeref;
                 if (!_eq && o.equal && o.equal === o.next) {
                     var n = o.equal.next;
-                    if (n.type === STAMP && n.text === '++') {
+                    if (n.type === STAMP && /^(\+\+|\-\-)$/.test(n.text)) {
                         n = n.next;
                     }
                     if (skipAssignment(n) === n.next) {
