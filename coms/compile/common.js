@@ -1535,7 +1535,7 @@ var createString = function (parsed) {
                                 ) result.push(";");
                             }
                         }
-
+                        else if (o.ion);
                         else if (!/^(\+\+|\-\-)$/.test(o.text) || p.type & (STAMP | STRAP)) {
                             if (patchspace && lasttype !== SPACE && !o.needle) result.push(" ");
                         }

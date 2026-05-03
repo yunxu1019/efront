@@ -17,6 +17,7 @@ var patchTranslate = function (c, raw) {
             var text = raw ? c.text.slice(1, c.text.length - 1) : strings.decode(c.text).replace(/\r\n|\r|\n/g, '\r\n');
             c.translate = text;
         }
+        else c.translate = '';
     }
 
 }
@@ -46,7 +47,7 @@ function getAllText(code, dest = []) {
     return dest;
 }
 
-var [手动, 字段名] = Array(2).fill(0).map((_, i) => i + 1);
+var [手动, 字段名, 公式] = Array(3).fill(0).map((_, i) => i + 1);
 function getI18nPrefixedText(code, dist = []) {
     var { used, envs } = code;
     var get = function (arr, f, t) {
@@ -54,7 +55,7 @@ function getI18nPrefixedText(code, dist = []) {
             if (!n || n.type !== QUOTED || n.length && n.entry !== '`') continue;
             var c = n;
             c.transtype = t;
-            patchTranslate(c, t === 字段名);
+            patchTranslate(c, t >= 字段名);
             f(c);
         }
     };
@@ -72,6 +73,10 @@ function getI18nPrefixedText(code, dist = []) {
         c.warn = false;
         dist.push(c);
     }, 字段名);
+    if (envs.math) get(used.math.filter(o => o.text === 'math').map(o => o.next), c => {
+        c.formula = 算式(c.translate);
+        dist.push(c);
+    }, 公式);
     return dist;
 }
 var ctn = function (tt, t) {
@@ -120,8 +125,8 @@ function translate([imap, supports], code) {
         return m;
     };
     var used = code.used;
-    for (var t of texts) {
-        if (t.transtype === 手动) {
+    for (var t of texts) switch (t.transtype) {
+        case 手动:
             var p = t.prev;
             if (p.type === SCOPED) {
                 p.prev.text = 'i18n.lang';
@@ -131,8 +136,8 @@ function translate([imap, supports], code) {
             var tt = t.translate;
             var tn = ctn(getm(tt, t.nodup), t);
             replace(t, ...tn);
-        }
-        else if (t.transtype === 字段名) {
+            break;
+        case 字段名:
             var i = t.queue.indexOf(t.prev);
             var e = t.queue.indexOf(t, i);
             if (t.warn === false) {
@@ -204,7 +209,13 @@ function translate([imap, supports], code) {
             relink(tn);
             Object.defineProperty(tn, 'queue', { value: t.queue });
             splice(t.queue, i, e + 1 - i, tn);
-        }
+            break;
+        case 公式:
+            var JJSON = require('../basic_/JSON');
+            var formula = t.formula.iscup ? t.formula.map(a => JJSON.toJS(a)).join(",") : JJSON.toJS(t.formula);
+            var node = scanner2(`(${formula})`)[0];
+            replace(t, node);
+            break;
     }
     if (used.refilm && !used.refilm.length) {
         delete code.envs.refilm;

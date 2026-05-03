@@ -1,0 +1,269 @@
+const {
+    STAMP, EXPRESS, SCOPED,
+    createExpressList,
+    skipAssignment,
+} = require("./common");
+var powermap = require("./powermap");
+
+class Math extends Program {
+    number_reg = /^(\d+(\.\d+)?|\.\d+)$/;
+}
+var math = new Math;
+math.stamps.push('\\', '_');
+var pmap = math.powermap = Object.assign({}, powermap);
+pmap["×"] = pmap[".*"] = powermap["*"];
+pmap["≈"] = pmap["~="] = pmap["=="];
+pmap["≉"] = pmap["!≈"] = pmap["!~="] = pmap["~!="] = pmap["=="];
+pmap["≠"] = powermap["!="];
+pmap["≢"] = powermap["!=="];
+pmap["^"] = powermap["**"];
+pmap["_"] = powermap["?."];
+pmap["'"] = powermap["?."];
+var puncmap = {
+    "*": "×", // 叉乘
+    '.*': '·',
+    "!=": "≉",
+    "!==": "≢",
+    "~=": "≈",
+    "-+": "±",
+    "!<": "≮",
+    "!>": "≯",
+    ">=": "≥",
+    "<=": '≤',
+    "/": "÷",
+};
+var make = function (pt, left, right) {
+    if (left) left = uncup(left);
+    if (right) right = uncup(right);
+    if (!left) {
+        return { [pt]: right instanceof Array ? ["", right] : right };
+    }
+    if (!right) {
+        return { [pt]: [left] };
+    }
+    if (left[pt]) {
+        left[pt].push(right);
+        return left
+    }
+    return { [pt]: [left, right] };
+};
+
+var split = function (code, comma) {
+    var rows = [];
+    var broken = false, bx = 0;
+    for (var cx = 0, dx = code.length; cx < dx; cx++) {
+        var o = code[cx];
+        if (o.type & COMMENT) continue;
+        if (broken && o.type & SPACE) {
+            bx = cx;
+            continue;
+        }
+        if (o.type === STAMP && o.text === comma) {
+            if (broken || !rows.length || bx < cx) {
+                rows.push(code.slice(bx, cx));
+            }
+            broken = true;
+            bx = cx + 1;
+            continue;
+        }
+        broken = false;
+    }
+    if (!broken) rows.push(code.slice(bx, dx));
+    return rows;
+}
+var getRows = function (code) {
+    var rows = split(code, ';');
+    if (rows.length === 1) a: {
+        var last = code.last;
+        if (last.type & STAMP && last.text === ';') break a;
+        return getArgs(rows[0]);
+    }
+    var trs = [];
+    var maxsize = 0;
+    for (var r of rows) {
+        var row = split(r, ',').map(toFlat);
+        maxsize = row.length;
+        trs.push(row);
+    }
+    rows.maxsize = maxsize;
+    return trs;
+}
+var getArgs = function (a) {
+    return split(a, ',').map(toFlat);
+}
+var uncup = function (cup) {
+    if (cup.iscup && cup.length <= 1) cup = cup[0];
+    return cup;
+};
+var back = function (cache) {
+    if (!cache.length) return;
+    var i = cache.length - 3;
+    var left = cache[i];
+    while (i >= 0 && left && left.iscup && !left.length) {
+        left = cache[i];
+        i -= 3;
+    };
+    if (i === cache.length - 3) return;
+    i += 3;
+    var s = i;
+    while (i <= cache.length - 3) {
+        left = make(cache[i + 1], left);
+        i += 3;
+    }
+    cache[s] = left;
+    s += 3;
+    cache.splice(s, cache.length - s);
+}
+var toFlat = function (exp) {
+    if (exp.length === 1 && exp[0].type !== SCOPED) return exp[0].text;
+    var bx = 0;
+    var p0 = 0;
+    var left = [];
+    left.iscup = true;
+    var cache = [];
+    for (var cx = 0, dx = exp.length; cx < dx; cx++) {
+        var e = exp[cx];
+        if (e.type & (SPACE | COMMENT)) continue;
+        if (e.type & STAMP) {
+            var p = pmap[e.text] || 0;
+            if (!p0 || p > p0 || !left.length) {
+                cache.push(left, e.text, p0);
+                left = [];
+                left.iscup = true;
+                p0 = p;
+                continue;
+            }
+            if (!left.length) {
+                back(cache);
+                [left, pt, p0] = cache.splice(cache.length - 3, 3);
+            }
+            while (p <= p0) {
+                var right = left;
+                p0 = cache.pop();
+                var pt = cache.pop();
+                left = cache.pop();
+                left = make(pt, left, right);
+            }
+            cache.push(left, e.text, p0);
+            p0 = p;
+            left = [];
+            left.iscup = true;
+        }
+        else if (e.type === SCOPED) {
+            if (e.entry === '(') {
+                var args = getArgs(e);
+                if (left.length) {
+                    var f = left.pop();
+                    if (f instanceof Array) {
+                        left.push({ "_": [uncup(f), ...args] });
+                    }
+                    else if (f instanceof Object) {
+                        left.push(make("", f, args));
+                    }
+                    else {
+                        left.push({ [f]: args });
+                    }
+                }
+                else {
+                    if (args.length === 1) args = args[0];
+                    left.push(args);
+                }
+            }
+            else if (e.entry === '[') {
+                if (left.length) {
+                    var last = e.last;
+                    if (last?.ion) {
+                        // 离子
+                        var ions = [];
+                        while (last && last.ion) {
+                            ions.push(last.text);
+                            last = last.prev;
+                        }
+                        e = e.slice();
+                        ions = ions.reverse().join('');
+                        if (last) {
+                            e = e.slice(0, e.indexOf(last) + 1);
+                            var args = getArgs(e);
+                            if (typeof args[args.length - 1] !== 'object') {
+                                args[args.length - 1] += ions;
+                            }
+                            else {
+                                args.push(ions);
+                            }
+                            left = [make("**", left, ...args)];
+                        }
+                        else {
+                            left = [make("**", left, ions)];
+                        }
+                    }
+                    else {
+                        var args = getArgs(e);
+                        // 下标
+                        left = [make("_", left, ...args)];
+                    }
+                    left.iscup = true;
+                }
+                else {
+                    // 矩阵
+                    left.push(getRows(e));
+                }
+            }
+            else if (e.entry === "{") {
+            }
+        }
+        else {
+            if (e.text === "Infinity") {
+                left.push(Infinity);
+                continue;
+            }
+            if (e.isdigit) a: {
+                var et = e.text;
+                var v = +et;
+                if (/^\+/.test(et)) {
+                    if (String(v) !== et.slice(1)) break a;
+                    v = make("+", '', v);
+                }
+                if (String(v) !== et) break a;
+                left.push(v);
+                continue;
+            }
+            left.push(e.text);
+        }
+    }
+    if (!left.length) {
+        back(cache);
+    }
+    while (cache.length) {
+        var right = left;
+        var p0 = cache.pop();
+        var pt = cache.pop();
+        left = cache.pop();
+        left = make(pt, left, right);
+    }
+    return uncup(left);
+}
+
+function main(text) {
+    var code = scanner2(text, math);
+    var rows = split(code, ';');
+    var res = [];
+    res.iscup = true;
+    for (var r of rows) {
+        var cells = split(r, ',');
+        for (var c of cells) {
+            var exps = createExpressList(c);
+            for (var e of exps) {
+                var a = toFlat(e);
+                if (!a) continue;
+                if (a.iscup) {
+                    for (var b of a) res.push(b, ' ');
+                }
+                else res.push(a, ' ');
+            }
+            if (res.length) res[res.length - 1] = ', ';
+        }
+        if (res.length) res[res.length - 1] = '\r\n';
+    }
+    res.pop();
+    return uncup(res);
+}

@@ -45,8 +45,8 @@ testDetour('1.e-10.a', '1e-10["a"]')
 testDetour('1.e+10.a', '1e+10["a"]')
 testDetour('0x1.a', '0x1["a"]')
 testDetour('0b1.a', '0b1["a"]')
-testDetour('01.a', '0o1["a"]')
-testDetour('08.a', '08["a"]')
+testDetour('01 .a', '0o1["a"]')
+testDetour('08 .a', '08["a"]')
 testDetour('0o1.a', '0o1["a"]')
 testDetour('0o1n.a', '0o1n["a"]')
 testDetour('0o1m.a', '0o1m["a"]')
@@ -150,4 +150,5 @@ testStar(`var a=class {a=1\r\nasync * a(){
     }
 }}`, {});
 
-assert(scanner2(`#`)[0].type, common.STAMP)
+assert(scanner2(`#`)[0].type, common.EXPRESS)
+assert(scanner2(`1*2`)[1].type, common.STAMP)

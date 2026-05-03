@@ -120,6 +120,11 @@ function markdown(text) {
         var t = /^\S+/.exec(c);
         if (t) t = t[0]; c = c.slice(t.length).replace(/^(\r\n|\r|\n)|\s+$/g, '');
         try {
+            if (t === 'math') {
+                var suanshi = compile$算式(c);
+                console.log(suanshi)
+                return suanshi.iscup ? math.apply(null, suanshi) : math(suanshi);
+            }
             return s1 + 茨菰$上色(t, c) + s2;
         } catch (e) {
             console.error(e);

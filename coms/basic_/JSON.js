@@ -25,7 +25,7 @@ var scan_number = function (str, start) {
     return false;
 };
 var scan_null = function (str, start) {
-    var reg = /null|false|true/g;
+    var reg = /null|false|true|\-?Infinity/g;
     reg.lastIndex = start;
     var match = reg.exec(str);
     if (match && match.index === start) {
@@ -38,6 +38,13 @@ var scan_null = function (str, start) {
                 break;
             case "t":
                 data = true;
+                break;
+            case "I":
+                data = Infinity;
+                break;
+            case "-":
+                data = -Infinity;
+                break;
         }
         return reg.lastIndex;
     }
@@ -121,9 +128,14 @@ var _safeparse = function (str, start) {
         case "n":
         case "f":
         case "t":
+        case "I":
             start = scan_null(str, start);
             break;
         default:
+            if (str.charAt(start + 1) === 'I') {
+                start = scan_null(str, start);
+                break;
+            }
             start = scan_number(str, start);
     }
     if (start === false)
@@ -153,7 +165,8 @@ var stringify = function (object, filter, space) {
     var res = getString(object, filter, space);
     if (res.length) return res.join('');
 }
-var toString = strings.encode;
+var toString = strings?.encode;
+var keepNaN = false;
 /**
  * 
  * @param {object} object 
@@ -188,7 +201,8 @@ var getString = function (object, filter, space) {
                     return object;
                 }
             case "number":
-                if (isNaN(object) || object === Infinity) {
+                if (keepNaN) return String(object);
+                if (isNaN(object) || object === Infinity || object === -Infinity) {
                     object = null;
                 }
             case "boolean":
@@ -252,6 +266,12 @@ var getString = function (object, filter, space) {
     return result;
 };
 var JSON = {
+    toJS(o, f, t) {
+        keepNaN = true;
+        var r = stringify(o, f, t);
+        keepNaN = false;
+        return r;
+    },
     parse: parse,
     stringify: stringify
 };

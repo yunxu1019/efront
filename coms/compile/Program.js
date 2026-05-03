@@ -125,6 +125,12 @@ var setObject = function (o) {
     if (last?.type === PROPERTY) last.short = true;
 };
 
+var setIon = function (last, powermap) {
+    while (last && last.type === STAMP && powermap[last.text] !== powermap["="]) {
+        last.ion = true;
+        last = last.prev;
+    }
+};
 
 var spaceDefined = require("../basic/spaces");
 
@@ -154,7 +160,7 @@ class Program {
         ["{", "}"],
         ["<%", "%>"],
     ]
-    stamps = "/=+;|:?<>-!~%^&*,".split("");
+    stamps = "/=+;|:?<>-!'~%^&*,".split("");
     prefix = '&^%?:'.split('');
     value_reg = /^(false|true|null)$/
     number_reg = number_reg;
@@ -423,7 +429,7 @@ class Program {
                 || last.type === STAMP && !last.istype && !/^(\+\+|\-\-)$/.test(last.text)
                 || last.type === SCOPED && !last.isExpress && !last.istype
             ) {
-                o.unary = /^[^=;,\:]$/.test(o.text);
+                o.unary = /^[^=;,\:']$/.test(o.text);
                 if (o.unary && /^(\+|\-)$/.test(o.text) && last && last.type === STAMP && /^(\+\+|\-\-)$/.test(last.text)) o.unary = !!last.unary;
             }
             if (/^(\+\+|\-\-)$/.test(o.text)) {
@@ -435,6 +441,7 @@ class Program {
                     p = queue[queue.length - ++i];
                 }
                 o.unary = !p || p.type & (SPACE | STAMP | STRAP) || p.type === EXPRESS && p.prev && p.prev.type === STAMP && /^(\+\+|\-\-)$/.test(p.prev.text) && p.prev.unary;
+                if (!o.unary) o.ion = true;
             }
 
             if (!o.unary && /^(\.\.\.|\*)$/.test(o.text)) {
@@ -455,6 +462,7 @@ class Program {
             else if (powermap[o.text] > powermap.void && !o.unary) {
                 o.needle = true;
             }
+            if (!o.unary && last && powermap[last.text] < powermap[o.text]) setIon(last, powermap);
             queue_push(cache_stamp);
             if (cache_stamp.istype && cache_stamp.unary && powermap[cache_stamp.text] == powermap[":"]) cache_stamp.unary = false;
             if (cache_stamp === queue.last && cache_stamp.isExpress && cache_stamp.text in powermap && !cache_stamp.needle) queue.inExpress = true;
@@ -714,6 +722,7 @@ class Program {
                 return;
             }
             var scope = queue;
+            setIon(scope.last, powermap);
             queue = parents.pop();
             queue_push(scope);
             lasttype = scope.type;
@@ -873,6 +882,7 @@ class Program {
                     }
                 }
                 else if (stamp_reg.test(m) && last) {
+                    if (!quote.tag && lasttype === EXPRESS) break test;
                     if (last.type === STAMP && last === cache_stamp && powermap.hasOwnProperty(last.text + m)) break test;
                     if (last.istype || last.isprop || last.isargl) {
                         isTypeTag = true;
@@ -1199,6 +1209,7 @@ class Program {
                 pop_parents();
             }
         }
+        setIon(origin.last, powermap);
         return origin;
     }
     commit() {
