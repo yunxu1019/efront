@@ -1,7 +1,7 @@
 var unstruct = require('./unstruct');
 var scanner2 = require("./scanner2");
 var { createString, STRAP } = require("./common");
-var r = 12;
+var r = 13;
 var innerjs = new Javascript;
 innerjs.defaultType = STRAP;
 function test(codetext, expect, ret = false) {
