@@ -316,3 +316,5 @@ function olinde(v, vector) {
     return v;
 }
 Matrix.norm = norm;
+Matrix.cross3 = cross3;
+Matrix.cross2 = cross2;
