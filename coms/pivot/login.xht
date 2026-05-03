@@ -43,7 +43,7 @@
 <i18n-chooser></i18n-chooser>
 <script>
 
-    var hosts = data.getItem("hosts");
+    var hosts = data.getInstance("hosts");
     if (!hosts.length) hosts.push({ key: location.host, name: location.host });
     function main(host) {
         var fields = refilm`
