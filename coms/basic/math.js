@@ -1,5 +1,5 @@
 var mo2 = (o, b) => `<mo>${o}</mo>${b}`;
-var mo3 = (o, args) => args.length === 1 ? args[0] + `<mo>${o}</mo>` : args.join(`<mo>${o}</mo>`);
+var mo3 = (o, args) => args.length === 1 ? args[0] + `<ms>${o}</ms>` : args.join(`<mo>${o}</mo>`);
 var ms = s => `<ms>${s}</ms>`;
 var mroot = (d, z) => `<mroot>${d}${z}</mroot>`;
 var msqrt = a => `<msqrt>${a}</msqrt>`;
@@ -120,7 +120,7 @@ var funcmap = {
         return args.map(a => a + `<mo>!</mo>`).join('');
     }
 };
-var unary = (u, a) => `<mo>${u}</mo>${a}`;
+var unary = (u, a) => `<ms>${u}</ms>${a}`;
 var unarymap = {
     "+"(a) {
         return unary("+", a);
@@ -227,7 +227,7 @@ var br = function () {
 function toString(obj, p, deep) {
     if (obj instanceof Array) {
         deep++;
-        var args = obj.map(a => toString(a, p, deep));
+        var args = obj.map(a => toString(a, deep > 1 ? 0 : p, deep));
         deep--;
         if (args instanceof Array) {
             if (deep > 2) {

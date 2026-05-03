@@ -32,13 +32,14 @@ var puncmap = {
     "<=": '≤',
     "/": "÷",
 };
+var isNull = a => a == null || a === '';
 var make = function (pt, left, right) {
     if (left) left = uncup(left);
     if (right) right = uncup(right);
-    if (!left) {
+    if (isNull(left)) {
         return { [pt]: right instanceof Array ? ["", right] : right };
     }
-    if (!right) {
+    if (isNull(right)) {
         return { [pt]: [left] };
     }
     if (left[pt]) {
@@ -126,7 +127,7 @@ var toFlat = function (exp) {
         if (e.type & (SPACE | COMMENT)) continue;
         if (e.type & STAMP) {
             var p = pmap[e.text] || 0;
-            if (!p0 || p > p0 || !left.length) {
+            if ((!p0 || p > p0 || !left.length) && !e.ion) {
                 cache.push(left, e.text, p0);
                 left = [];
                 left.iscup = true;
@@ -136,6 +137,11 @@ var toFlat = function (exp) {
             if (!left.length) {
                 back(cache);
                 [left, pt, p0] = cache.splice(cache.length - 3, 3);
+            }
+            if (e.ion) {
+                left = [make(e.text, left)];
+                left.iscup = true;
+                continue;
             }
             while (p <= p0) {
                 var right = left;
@@ -198,6 +204,7 @@ var toFlat = function (exp) {
                     }
                     else {
                         var args = getArgs(e);
+                        console.log(args)
                         // 下标
                         left = [make("_", left, ...args)];
                     }

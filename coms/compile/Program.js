@@ -426,7 +426,7 @@ class Program {
                 if (powermap[o.text] > powermap["="]) o.unary = true;
             }
             else if (last.type === STRAP && !last.isend
-                || last.type === STAMP && !last.istype && !/^(\+\+|\-\-)$/.test(last.text)
+                || last.type === STAMP && !last.istype && (last.unary || powermap[last.text] < powermap["++"])
                 || last.type === SCOPED && !last.isExpress && !last.istype
             ) {
                 o.unary = /^[^=;,\:']$/.test(o.text);
@@ -462,7 +462,9 @@ class Program {
             else if (powermap[o.text] > powermap.void && !o.unary) {
                 o.needle = true;
             }
-            if (!o.unary && last && powermap[last.text] < powermap[o.text]) setIon(last, powermap);
+            if (!o.unary && last?.type & STAMP && (powermap[last.text] < powermap[o.text] || powermap[o.text] >= powermap["*"])) {
+                setIon(last, powermap);
+            }
             queue_push(cache_stamp);
             if (cache_stamp.istype && cache_stamp.unary && powermap[cache_stamp.text] == powermap[":"]) cache_stamp.unary = false;
             if (cache_stamp === queue.last && cache_stamp.isExpress && cache_stamp.text in powermap && !cache_stamp.needle) queue.inExpress = true;

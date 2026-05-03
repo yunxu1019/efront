@@ -18,7 +18,9 @@ t(`[1,2;3,4]`);
 t(`a!!`);
 t(`!a`);
 t(`a(b,c)`)
-t.debug = true;
 t(`[b,c]'`)
 t(`H[+]`)
 t(`H[2-]`)
+t.debug = true;
+t(`H'*1`)
+t(`cos(theta,2)*E +(1 - cos(theta))*K'*K+sin(theta)*[0,-K_2,K_1;K_2,0,-K_0;-K_1,K_0,0]`)

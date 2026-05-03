@@ -122,7 +122,6 @@ function markdown(text) {
         try {
             if (t === 'math') {
                 var suanshi = compile$算式(c);
-                console.log(suanshi)
                 return suanshi.iscup ? math.apply(null, suanshi) : math(suanshi);
             }
             return s1 + 茨菰$上色(t, c) + s2;
