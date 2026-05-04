@@ -82,4 +82,7 @@ tc("hwb(120 0 0)", "#0f0");
 tc("hwb(120turn 0 0)", "#f00");
 tc("calc(10 / 20)", "0.5");
 tc("calc(10 / 20)", "0.5");
+tc("Math.log(f) / Math.LN2 / 10 | 0", "Math.log(f) * 0.14426950408889633 | 0");
+tc("Math.log(f) / Math.LN2 / 10 * 10 | 0", "Math.log(f) * 1.4426950408889634 | 0");
+tc("Math.log(f) / Math.LN2 / 10 ** 2 | 0", "Math.log(f) * 0.014426950408889633 | 0");
 // tf(path.join(__dirname, "../zimoli/spacechar_test.js"))
