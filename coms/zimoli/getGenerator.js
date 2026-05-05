@@ -141,7 +141,6 @@ var getGenerator = function (container, tagName = 'item', wrapItem = false) {
             if (childNodes.length > 1) element.with = Array.prototype.slice.call(childNodes, 1);
         }
         var newScope = createScope(container, index, com, wrapItem);
-        element.$renders = [update.bind(container, newScope, index, wrapItem)];
         var newItem = render(element, newScope, scopes, false);
         if (element.with) newItem.with = render(element.with, newScope, scopes, false);
         return newItem;
