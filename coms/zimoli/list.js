@@ -482,7 +482,6 @@ var setFocus_ = function (focused, animate = true) {
     if (this.focused) removeClass(this.focused, 'focus');
     addClass(focused, "focus");
     this.focused = focused;
-    this.currentY_ = currentY_;
     while (focused && focused.parentNode !== this) focused = focused.parentNode;
     if (!focused) return;
     var scrollTop = this.scrollTop;
@@ -598,6 +597,7 @@ function ylist(container, generator, $Y) {
     addClass(list, 'list-y');
     list.__animated = false;
     list.__generator = generator;
+    list.currentY_ = currentY_;
 
     bind('resize')(list, resize);
     list.getLastVisibleElement = getLastVisibleElement_;
