@@ -263,7 +263,7 @@ function toString(obj, p, deep) {
         }
         else f = unarymap[k];
         if (!f) {
-            return mrow(`<mi>${k}</mi>${mrow(args instanceof Array ? args.join('<mo>,</mo>') : args, true)}`, false, deep);
+            return mrow(`<mi>${希腊[k] || k}</mi>${mrow(args instanceof Array ? args.join('<mo>,</mo>') : args, true)}`, false, deep);
         }
         if (args instanceof Array) {
             if (k === '*') {
