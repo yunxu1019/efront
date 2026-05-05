@@ -50,6 +50,24 @@ var 三角函数 = {
     "csc"(a, n) {
         return mi2("csc", a, n);
     },
+    "arcsin"(a, n) {
+        return mi2("arcsin", a, n);
+    },
+    "arccos"(a, n) {
+        return mi2("arccos", a, n);
+    },
+    "arctan"(a, n) {
+        return mi2("arctan", a, n);
+    },
+    "arccot"(a, n) {
+        return mi2("arccot", a, n);
+    },
+    "arcsec"(a, n) {
+        return mi2("arcsec", a, n);
+    },
+    "arccsc"(a, n) {
+        return mi2("arccsc", a, n);
+    },
 };
 
 var funcmap = {
