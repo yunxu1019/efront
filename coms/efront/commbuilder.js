@@ -1,5 +1,5 @@
 "use strict";
-var { COMMENT, SCOPED, STAMP, STRAP, QUOTED, insertAfter, VALUE, EXPRESS, SCOPED, SPACE } = require("../compile/common");;
+var { COMMENT, SCOPED, STAMP, STRAP, QUOTED, insertAfter, skipAssignment, VALUE, EXPRESS, SCOPED, SPACE } = require("../compile/common");;
 var showMemery = require("./showMemery");
 var scanner2 = require("../compile/scanner2");
 var breakcode = require("../compile/breakcode");
@@ -237,6 +237,42 @@ var removePrequoted = function (code) {
 if (typeof i18n === 'undefined') var show_building = console.info.bind(console, '编译');
 else show_building = console.info.bind(console, i18n`编译`);
 var clear_console = require("../basic/lazy")(console.type, 60);
+var wrapReturnLess = function (r, cless_var, lessnode, className) {
+    var n = skipAssignment(r);
+    if (n === r.next) return n;
+    var q = r.queue;
+    var i = q.indexOf(r);
+    var hasComma = false;
+    if (n.type & STAMP && n.text === ',') hasComma = true;
+    while (n && n.type & STAMP && n.text === ',') {
+        n = skipAssignment(n.next);
+    }
+    var ni = i;
+    if (!ni) ni = q.length;
+    else ni = q.indexOf(n, i);
+    i++;
+    var exp = q.splice(i, ni - i);
+    if (hasComma) {
+        exp.entry = '(';
+        exp.leave = ")";
+        exp.type = SCOPED;
+        exp = [exp]
+    }
+    exp.push(
+        { type: STAMP, text: ',' },
+        lessnode,
+        { type: STAMP, text: ',' },
+        { type: EXPRESS, text: strings.encode(className) }
+    );
+    exp.entry = '(';
+    exp.leave = ")";
+    exp.type = SCOPED;
+    q.splice(i, 0, {
+        type: EXPRESS,
+        text: cless_var,
+    }, exp);
+
+}
 var loadJsBody = function (data, fullpath, lessdata, commName, className, htmlData) {
     if (data.length > 0x200) show_building(fullpath);
     data = trimNodeEnvHead(data);
@@ -361,7 +397,7 @@ var loadJsBody = function (data, fullpath, lessdata, commName, className, htmlDa
         }
     }
     var code_body = code;
-    if (!undeclares.exports && code.isExpressQueue()) {
+    if (!undeclares.exports && !code.return && code.isExpressQueue()) {
         //如果整个函数只有一个表达式或一个变量，直接反回其本身
         while (code_body.length && (code_body[code_body.length - 1].type === SPACE || code_body[code_body.length - 1].type === code_body.STAMP && /[,;]/.test(code_body[code_body.length - 1].text))) {
             code_body.pop();
@@ -399,7 +435,35 @@ var loadJsBody = function (data, fullpath, lessdata, commName, className, htmlDa
         } else if (undeclares.exports) {
             commName = "exports";
         }
-        if (commName) {
+        if (commName) a: {
+            var lessnode = null;
+            if (hasless) {
+                if (code.return) {
+                    var less = scanner2(`var &cless=${strings.encode(lessdata)};`);
+                    code_body.unshift(...less);
+                    lessdata = '&cless';
+                    var lessused = less;
+                    declares[lessdata] = lessdata;
+                    allVariables['&cless'] = less.used['&cless'];
+                    for (var r of code.return) {
+                        lessnode = {
+                            type: EXPRESS,
+                            text: lessdata,
+                        };
+                        allVariables["&cless"].push(lessnode);
+                        var n = wrapReturnLess(r, cless_var, lessnode, className);
+                        if (!n || n === code.last) break a;
+                    }
+                    lessnode = {
+                        type: EXPRESS,
+                        text: lessdata,
+                    };
+                    allVariables["&cless"].push(lessnode);
+                }
+                else {
+                    lessdata = strings.encode(lessdata);
+                }
+            }
             code_body.push(
                 { type: SPACE, text: "\r\n" },
                 { type: STRAP, text: "return", transive: true }
@@ -411,7 +475,7 @@ var loadJsBody = function (data, fullpath, lessdata, commName, className, htmlDa
                     code.relink(Object.assign([
                         { type: EXPRESS, text: commName },
                         { type: STAMP, text: ',' },
-                        { type: QUOTED, text: JSON.stringify(lessdata) },
+                        lessnode || { type: QUOTED, text: lessdata },
                         { type: STAMP, text: ',' },
                         { type: QUOTED, text: JSON.stringify(className) },
                     ], {

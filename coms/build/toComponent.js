@@ -595,7 +595,7 @@ function toComponent(responseTree, isWebProject) {
         for (i = 0; i < k; i++) g[i] = ${responseTree.module || responseTree.exports
             ? `a[i] === M ? (I = I || {}, I[B] = Q, I) : a[i] === E ? (I = I || {}, I[B] = Q) : ${destMap["\\import"] ? `a[i] === ${destMap["\\import"]}?T[a[i]]()(A):` : ""}`
             : ''} a[i] === c + 1 ? I ? Q : f : a[i] ? T[a[i]]() : T[0]${outsideAsync ? `, g[i] && g[i][N] instanceof P && C[T[${getEncodedIndex("push")}]()](i, g[i])` : ''};
-        if (l) l = l[1][q](','), g = g[o]([l]);${outsideAsync ? `
+        g = g[o]([f, g, l ? l[1][q](',') : []]);${outsideAsync ? `
         if (C[m]) return T[${getEncodedIndex(`Promise`, 'global')}]()[T[${getEncodedIndex("all")}]()](C)[N](function (G) {
             for (i = 0; i < G[m]; i++)g[G[i++]] = G[i];
             r = f[y](I ? I[B] : T[0], g);

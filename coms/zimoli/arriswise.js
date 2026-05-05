@@ -36,12 +36,17 @@ var replaceArg = function (arg) {
 function build(func, argNames, argsArr) {
     var newf = String(func).replace(regexps, rep);
     return Function.apply(null, argNames.map(replaceArg).concat("return " + newf))
-        .apply(this, argsArr.map(replaceArg));
+        .apply(this, replaceArg(argsArr));
 }
 var arriswise = function (func, args = []) {
     if (isFunction(args.slice)) {
         // 兼容老方法
-        return build.call(arguments[2] || this, func, args.slice(0, args.length >> 1), args.slice(args.length >> 1));
+        var argArr = args.slice(args.length - 3 >>> 1);
+        argArr.splice(argArr.length - 3, 2);
+        return build.call(arguments[2] || this, func,
+            args.slice(0, args.length - 3 >>> 1),
+            argArr,
+        );
     }
     var allArgumentsNames = args[args.length - 1];
     return build.call(this, func, allArgumentsNames, [].slice.call(args, 0));
