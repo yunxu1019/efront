@@ -1515,7 +1515,7 @@ var createString = function (parsed) {
                         (STRAP | EXPRESS | PROPERTY | COMMENT | VALUE) & lasttype
                         && (STRAP | EXPRESS | PROPERTY | VALUE | LABEL) & o.type
                     ) {
-                        if (autospace || prev?.isdigit) result.push(" ");
+                        if (autospace || prev?.isdigit && patchspace) result.push(" ");
                     }
                     else if (p && o.type === STAMP && !/^[,;]/.test(o.text)) {
                         if (result[result.length - 1] === " ");

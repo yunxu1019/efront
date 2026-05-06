@@ -78,6 +78,20 @@ test(`a    >{b{a:b}}`, `a>b{a:b;}`);
 test(`a{>b{a:b}}`, `a>b{a:b;}`);
 test(`.type(@type,@media) {.@{type} {&:before{content:"@{media}";}}}.type(videoinput, "相机");`, `.videoinput:before{content:"相机";}`);
 test(`.type(@type,@media) {.@{type} {&:before{content:"@{media}";}}}.type(videoinput, 相机);`, `.videoinput:before{content:"相机";}`);
+common.createString.debug = true;
+Program.debug = true;
+test(`@type(@len){
+    &[ntype="@{len}"] {
+    @w: @len/2+1.4;
+    >[nlist] {
+        width: @{w}em;
+        }
+        }
+        }
+        @type(1)
+        `, '');
+Program.debug = false;
+common.createString.debug = false;
 assert(素馨(`:not(a):not(b){c:d}`, 'abc'), `abc :not(a):not(b){c:d;}`);
 assert(素馨(`&:not(a):not(b){c:d}`, 'abc'), `abc:not(a):not(b){c:d;}`);
 assert(素馨(`:scope{&:not(a):not(b){c:d}}`, 'abc'), `abc:not(a):not(b){c:d;}`);

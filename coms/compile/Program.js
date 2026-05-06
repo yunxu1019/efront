@@ -1203,7 +1203,7 @@ class Program {
             console.warn(
                 "代码异常结束",
                 `\r\n - 祖先标记: ${parents.slice(1).map(p => `${p.entry || ""}<red2>${p.tag || p.text || ""}</red2><gray>${p.row}:${p.col}</gray>`).join('')}`,
-                `\r\n - 内层入口: <yellow>${this.mindpath}</yellow>:${last.row}:${last.col} ${last.text || last.entry}`,
+                `\r\n - 内层入口: <yellow>${this.mindpath}</yellow>:${queue.row}:${queue.col} ${queue.entry}`,
             );
             while (queue !== origin) {
                 queue.error = "代码异常结束";

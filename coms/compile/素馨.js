@@ -1,5 +1,5 @@
 var { STAMP, PROPERTY, SCOPED, VALUE, STRAP, EXPRESS, QUOTED, SPACE, COMMENT, createString: _createString, splice } = require("./common");
-var numberReg = /((?:[\+\-]+)?(?:\d+(?:\.\d*)?|\.\d+))([a-zH]+|%)?/;
+var numberReg = /((?:\d+(?:\.\d*)?|\.\d+))([a-zH]+|%)?/;
 var createString = function (a) {
     a.autospace = false;
     return _createString(a);
