@@ -86,6 +86,12 @@ var funcmap = {
     "*"(...args) {
         return args.join("");
     },
+    ">="(...args) {
+        return mo3("≥", args);
+    },
+    "<="(...args) {
+        return mo3("≤", args);
+    },
     "vector"(name, ...args) {
         name = `<mover>${name}<mo>→</mo></mover>`;
         if (args.length) {
