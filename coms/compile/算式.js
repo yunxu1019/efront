@@ -2,30 +2,41 @@ const {
     STAMP, EXPRESS, SCOPED,
     createExpressList,
     skipAssignment,
+    createScoped,
+    createString,
 } = require("./common");
 var powermap = require("./powermap");
 
 class Math extends Program {
     number_reg = /^(\d+(\.\d+)?|\.\d+)$/;
+    powermap = Object.assign({}, powermap);
+    constructor() {
+        super();
+        var pmap = this.powermap;
+        pmap["+-"] = pmap["-+"] = powermap["+"];
+        pmap["×"] = pmap[".*"] = powermap["*"];
+        pmap["≈"] = pmap["~="] = pmap["=="];
+        pmap["≉"] = pmap["!≈"] = pmap["!~="] = pmap["~!="] = pmap["=="];
+        pmap["≠"] = powermap["!="];
+        pmap["≢"] = powermap["!=="];
+        pmap["^"] = powermap["**"];
+        pmap["_"] = powermap["?."];
+        pmap["'"] = powermap["?."];
+        this.stamps.push('\\', '_');
+    }
 }
+Math.prototype.createScoped = createScoped;
+Math.prototype.createString = createString;
 var math = new Math;
-math.stamps.push('\\', '_');
-var pmap = math.powermap = Object.assign({}, powermap);
-pmap["×"] = pmap[".*"] = powermap["*"];
-pmap["≈"] = pmap["~="] = pmap["=="];
-pmap["≉"] = pmap["!≈"] = pmap["!~="] = pmap["~!="] = pmap["=="];
-pmap["≠"] = powermap["!="];
-pmap["≢"] = powermap["!=="];
-pmap["^"] = powermap["**"];
-pmap["_"] = powermap["?."];
-pmap["'"] = powermap["?."];
+var pmap = math.powermap;
 var puncmap = {
     "*": "×", // 叉乘
     '.*': '·',
     "!=": "≉",
     "!==": "≢",
     "~=": "≈",
-    "-+": "±",
+    "-+": "∓",
+    "+-": "±",
     "!<": "≮",
     "!>": "≯",
     ">=": "≥",
@@ -204,7 +215,6 @@ var toFlat = function (exp) {
                     }
                     else {
                         var args = getArgs(e);
-                        console.log(args)
                         // 下标
                         left = [make("_", left, ...args)];
                     }
@@ -274,3 +284,4 @@ function main(text) {
     res.pop();
     return uncup(res);
 }
+main.MathScript = Math;

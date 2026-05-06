@@ -36,7 +36,7 @@ math(obj)
 ```
 
 2. 以数学公式的js表达式做为模板直接生成
-```javascript
+```mathscript
 // 勾股定理可以表示为如下形式
 math`a**2+b**2=c**2`
 // 海伦-秦九韶公式可以表式为如下形式
@@ -46,21 +46,39 @@ math`S=sqrt(p*(p-a)*(p-b)*(p-c))`
 
 ## 常用语法及函数名如下
 * 加法
-```javascript
+```mathscript
     1+2
 ```
 ```math
     1+2
 ```
 * 减法
-```javascript
+```mathscript
     1-2
 ```
 ```math
     1-2
+```
+* 加减，正负，
+```mathscript
+    a +- 2;
+    a -+ 2;
+    +-a;
+    -+a;
+    // 分开写将识别为运算符加正负号
+    a + -2;
+    a - +2;
+```
+```math
+    a +- 2;
+    a -+ 2;
+    +-a;
+    -+a;
+    a + -2;
+    a - +2;
 ```
 * 乘法
-```javascript
+```mathscript
     1*2
     a*b
     2*a
@@ -70,7 +88,7 @@ math`S=sqrt(p*(p-a)*(p-b)*(p-c))`
     a*b
     2*a
 ```
-```javascript
+```mathscript
 // 默认用`*`会自动转成`×`或`·`或省略
 // 如果自动生成的符号不符合预期
 // 可以使用`mul(a,b)`以强制生成`×`
@@ -82,56 +100,56 @@ mul(a,b),Mul(a,b),MUL(a,b)
 mul(a,b),Mul(a,b),MUL(a,b)
 ```
 * 分数
-```javascript
+```mathscript
  分子/分母
 ```
 ```math
     分子/分母
 ```
 * 以除号表示除法
-```javascript
+```mathscript
     div(被除数,除数)
 ```
 ```math
     div(被除数,除数)
 ```
 * 绝对值
-```javascript
+```mathscript
     abs(a)
 ```
 ```math
     abs(a)
 ```
 * 阶乘： n!
-```javascript
+```mathscript
     n!
 ```
 ```math
     n!
 ```
 * 幂
-```javascript
+```mathscript
     底数 ** 指数
 ```
 ```math
     底数 ** 指数
 ```
 * 平方根
-```javascript
+```mathscript
     sqrt(底数)
 ```
 ```math
     sqrt(底数)
 ```
 * 高次根式
-```javascript
+```mathscript
   root(底数,指数)
 ```
 ```math
   root(底数,指数)
 ```
 * 函数
-```javascript
+```mathscript
     f(x)=x**2
     f'(x)=2*x
 ```
@@ -141,7 +159,7 @@ mul(a,b),Mul(a,b),MUL(a,b)
 ```
 
 * 三角函数
-```javascript
+```mathscript
 sin(theta);
 sin(theta,2);
 sin(theta**2);
@@ -155,7 +173,7 @@ sin(theta)**2;
 ```
 
 * 向量
-```javascript
+```mathscript
     //vector(向量名,横坐标,纵坐标,竖坐标)
     vector(A,x,y)
     //坐标可以不传入
@@ -166,7 +184,7 @@ sin(theta)**2;
     vector(A)
 ```
 * 下标
-```javascript
+```mathscript
     a[n]
     a[n+1]
     a_n
@@ -179,7 +197,7 @@ sin(theta)**2;
     a_(n+1) 
 ```
 * 极限
-```javascript
+```mathscript
     limit(公式主体,变量,目标)
     // 可以用 Infinity表示无穷大
     limit(1/n,n,+Infinity)
@@ -190,14 +208,14 @@ sin(theta)**2;
 ```
 
 * 积分
-```javascript
+```mathscript
 integral(表达式,下界,上界)
 ```
 ```math
 integral(表达式,下界,上界)
 ```
 * 级数
-```javascript
+```mathscript
 sigma(公式主体,n=1,+Infinity)
 series(公式主体,n=1,+Infinity)
 ```
@@ -206,28 +224,28 @@ sigma(公式主体,n=1,+Infinity)
 series(公式主体,n=1,+Infinity)
 ```
 * 矩阵
-```javascript
+```mathscript
     [1,2;3,4]
 ```
 ```math
     [1,2;3,4]
 ```
 * 左除
-```javascript
+```mathscript
     [1,2;3,4] \ [5;6]
 ```
 ```math
     [1,2;3,4]\[5;6]
 ```
 * 转置
-```javascript
+```mathscript
     [1,2;3,4]'
 ```
 ```math
     [1,2;3,4]'
 ```
 * 离子
-```javascript
+```mathscript
     H[+], O[2-]
 ```
 ```math
@@ -235,9 +253,8 @@ series(公式主体,n=1,+Infinity)
 ```
 
 ## 希腊字母对照表如下
-
+按此表中的英文单词命名的变量将自动转换为希腊字母
 ```javascript
-    // 按此表中的英文单词命名的变量将自动转换为希腊字母
     alpha: "α",    Alpha: "Α",
     beta: "β",    Beta: "Β",
     gamma: "γ",    Gamma: "‌Γ",

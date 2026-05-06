@@ -40,6 +40,7 @@ gl.straps = gl.straps.concat(
     "step", "smoothstep",
     "mix", "clamp"
 );
+const ms = new compile$算式.MathScript;
 var rust = new compile$Javascript;
 rust.powermap = Object.assign({}, rust.powermap);
 rust.powermap["->"] = 0;
@@ -137,6 +138,9 @@ var 语言 = {
     json(a) {
         return 扫描(a, json);
     },
+    mathscript(a) {
+        return 扫描(a, ms);
+    },
     less(a) {
         var c = 扫描(a, 素心);
         setless(c);
@@ -187,4 +191,5 @@ var 语言 = {
 语言.tsx = 语言.ts = 语言.typescript;
 语言.xht = 语言.jsp = 语言.asp = 语言.php = 语言.xml = 语言.html;
 语言.vue = 语言.xht;
+语言.ms = 语言.mathscript;
 return 语言;

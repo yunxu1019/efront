@@ -77,6 +77,12 @@ var funcmap = {
     "-"(...args) {
         return mo3("–", args);
     },
+    "+-"(...args) {
+        return mo3("±", args);
+    },
+    "-+"(...args) {
+        return mo3("∓", args);
+    },
     "*"(...args) {
         return args.join("");
     },
@@ -143,11 +149,17 @@ var unarymap = {
     "+"(a) {
         return unary("+", a);
     },
-    "!"(a) {
-        return unary("!", a);
-    },
     "-"(a) {
         return unary("–", a);
+    },
+    "+-"(a) {
+        return unary("±", a);
+    },
+    "-+"(a) {
+        return unary("∓", a);
+    },
+    "!"(a) {
+        return unary("!", a);
     },
     "~"(a) {
         return unary("~", a);
@@ -312,6 +324,7 @@ function toString(obj, p, deep) {
     obj = 希腊[obj] || obj;
     if (typeof obj === "number") {
         if (obj === Infinity) obj = '∞';
+        if (obj < 0) obj = "–" + -obj;
         return mrow(mn(obj), -1, deep);
     }
     if (/^[\s,;]+$/.test(obj)) {
