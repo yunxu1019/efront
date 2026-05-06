@@ -435,34 +435,32 @@ var loadJsBody = function (data, fullpath, lessdata, commName, className, htmlDa
         } else if (undeclares.exports) {
             commName = "exports";
         }
-        if (commName) a: {
+        if (hasless && code.return) a: {
+            var less = scanner2(`var &cless=${strings.encode(lessdata)};`);
+            code_body.unshift(...less);
+            lessdata = '&cless';
+            var lessused = less;
+            declares[lessdata] = lessdata;
+            allVariables['&cless'] = less.used['&cless'];
+            for (var r of code.return) {
+                lessnode = {
+                    type: EXPRESS,
+                    text: lessdata,
+                };
+                allVariables["&cless"].push(lessnode);
+                var n = wrapReturnLess(r, cless_var, lessnode, className);
+                if (!n || n === code.last) break a;
+            }
+            lessnode = {
+                type: EXPRESS,
+                text: lessdata,
+            };
+            allVariables["&cless"].push(lessnode);
+        }
+        if (commName) {
             var lessnode = null;
             if (hasless) {
-                if (code.return) {
-                    var less = scanner2(`var &cless=${strings.encode(lessdata)};`);
-                    code_body.unshift(...less);
-                    lessdata = '&cless';
-                    var lessused = less;
-                    declares[lessdata] = lessdata;
-                    allVariables['&cless'] = less.used['&cless'];
-                    for (var r of code.return) {
-                        lessnode = {
-                            type: EXPRESS,
-                            text: lessdata,
-                        };
-                        allVariables["&cless"].push(lessnode);
-                        var n = wrapReturnLess(r, cless_var, lessnode, className);
-                        if (!n || n === code.last) break a;
-                    }
-                    lessnode = {
-                        type: EXPRESS,
-                        text: lessdata,
-                    };
-                    allVariables["&cless"].push(lessnode);
-                }
-                else {
-                    lessdata = strings.encode(lessdata);
-                }
+                lessdata = strings.encode(lessdata);
             }
             code_body.push(
                 { type: SPACE, text: "\r\n" },
