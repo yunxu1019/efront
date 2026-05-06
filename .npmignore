@@ -2,6 +2,7 @@
 .gitignore
 .vscode
 *.tgz
+*.log
 data/mime.json
 apps/cityfun*
 coms/cityfun*
