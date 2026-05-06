@@ -151,7 +151,7 @@ function confirm() {
     Promise.resolve().then(function () {
         if (isMounted(element)) return;
         element.$mask = true;
-        popup(element, target || [.5, .5], target ? 'rhomb' : true);
+        popup(element, target || [.5, .5], target ? 'rhomb' : target !== false);
         element.focus();
         if (!target) drag.on(head, element);
         else {

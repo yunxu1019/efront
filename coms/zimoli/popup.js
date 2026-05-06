@@ -141,7 +141,7 @@ var popup_view = function (element, target, style) {
     }
     else if (target instanceof Array) {
         if (isNode(style) && style.$mask) addMask(element, style);
-        else if (typeof style === 'boolean') addMask(element);
+        else if (typeof style === 'boolean' && style) addMask(element);
         popup_to_point(element, target);
     }
     else if (target === true || target < 0) {

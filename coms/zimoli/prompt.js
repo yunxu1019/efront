@@ -35,6 +35,7 @@ function prompt() {
     var submit = null;
     var wrap = false;
     var value = '';
+    var mask = false;
     var attrs = {
         type: null,
         max: null,
@@ -48,6 +49,7 @@ function prompt() {
         else if (typeof arg === 'string') msg = arg;
         else if (isArray(arg)) opts = arg;
         else if (isFunction(arg) || arg instanceof RegExp) check = arg;
+        else if (typeof arg === 'boolean') mask = arg;
         else if (isObject(arg)) {
             if (isFunction(arg.test)) check = arg;
             if (isFunction(arg.check)) check = arg.check;
@@ -55,6 +57,7 @@ function prompt() {
             if (isString(arg.msg || arg.title)) msg = arg.msg || arg.title;
             if (isHandled(arg.info)) info = arg.info;
             if (isHandled(arg.value)) value = arg.value;
+            if (isHandled(arg.mask)) mask = arg.mask;
             for (var k in attrs) {
                 if (k in arg) attrs[k] = arg[k];
             }
@@ -117,7 +120,7 @@ function prompt() {
         } else {
             c.errored = true;
         }
-    });
+    }, { target: mask });
     on('mounted')(ipt, function () {
         if (setDisable) setDisable();
         setTimeout(function () {
