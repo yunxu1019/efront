@@ -124,6 +124,13 @@ var codecolor = function (c) {
         switch (o.type) {
             case LABEL:
                 o.text = wrap(o.text, 'label');
+                var label = o.tack;
+                used[o.tack].forEach(o => {
+                    if (o.text !== label) return;
+                    var prev = o.prev;
+                    if (!prev || prev.type !== STRAP || prev.isend || !/^(break|continue)$/.test(prev.text)) return;
+                    o.text = wrap(o.text, 'label');
+                })
                 break;
             case QUOTED:
                 if (o.length || !o.text) {
@@ -157,7 +164,7 @@ var codecolor = function (c) {
                 if (o.tag_leave) o.tag_leave = wrapcode(o.tag_leave, 'stamp');
                 if (o.entry) o.entry = wrapcode(o.entry, 'stamp');
                 if (o.leave) o.leave = wrapcode(o.leave, 'stamp');
-                o.tag = wrapcode(o.tag, 'label');
+                o.tag = wrapcode(o.tag, 'tag');
                 o.forEach(setcolor);
                 break;
             case SCOPED:

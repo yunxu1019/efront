@@ -40,7 +40,8 @@ var colors = module.exports = {
     BgCyan2: "\x1b[106m",
     BgWhite2: "\x1b[107m",
 };
-colors.label = colors.strap = colors.value = colors.FgBlue2;
+colors.tag = colors.FgBlue2;
+colors.label = colors.strap = colors.value = colors.FgWhite;
 colors.comment = colors.FgGreen;
 colors.invoke = colors.method = colors.FgYellow2;
 colors.express = colors.property = colors.FgCyan2;

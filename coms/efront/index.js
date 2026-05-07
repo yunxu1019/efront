@@ -353,10 +353,10 @@ var commands = {
                         if (s.suggest) {
                             console.log(console.format(`<yellow>${fullpath}:${s[0].row}:${s[0].col}</yellow>`));
                             s.envs = c.envs;
-                            codecolor(s, colors.wrap);
+                            codecolor(s, colors.wrap, c.envs);
                             console.log(" ", i18n`建议`, createString(s));
                             var suggest = scanner2(s.suggest);
-                            codecolor(suggest, colors.wrap);
+                            codecolor(suggest, colors.wrap, c.envs);
                             console.log(" ", i18n`改为`, createString(suggest));
                         }
                     });
