@@ -70,6 +70,31 @@ var 三角函数 = {
         return mi2("arccsc", a, n);
     },
 };
+var roman = {
+    I: 1, V: 5, X: 10, L: 50, C: 100, D: 500, M: 1000
+};
+var toRoman = function (n) {
+    if (n > 3888 || (n | 0) !== n || n < 1) return `<mo>(</mo><ms>Roman</ms><mo>,</mo><mn>${n}</mn><mo>)</mo>`;
+    var [a = 0, b = 0, c = 0, d = 0] = n.toString().split("").reverse();
+    a = ["", "I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX"][a];
+    b = ["", "X", "XX", "XXX", "XL", "L", "LX", "LXX", "LXXX", "XC"][b];
+    c = ["", "C", "CC", "CCC", "CD", "D", "DC", "DCC", "DCCC", "CM"][c];
+    d = ["", "M", "MM", "MMM"][d];
+    return d + c + b + a;
+};
+var circles = "①②③④⑤⑥⑦⑧⑨⑩";
+
+var tabs = {
+    roman(...args) {
+        return "&nbsp;&nbsp;" + args
+            .map(toRoman)
+            .map(a => `<mn>${a}</mn>`)
+            .join('<ms>&ensp;</ms>');
+    },
+    circle(...args) {
+        return args.map(n => circles.charAt(n - 1)).map(a => `<mn>${a}</mn>`).join('');
+    }
+}
 
 var funcmap = {
     "+"(...args) {
@@ -129,7 +154,8 @@ var funcmap = {
     },
     sigma: series,
     series,
-    tab(a) {
+    group(...args) {
+        return `<mo>{</mo><mtable><mtr><mtd>${args.join("</mtd></mtr><mtr><mtd>")}</mtd></mtr></mtable>`
     },
     '!='(...args) {
         return mo3("≉", args);
@@ -276,6 +302,9 @@ function toString(obj, p, deep) {
                 args = `<mtd>${args.join('</mtd><mtd>')}</mtd>`;
             }
             else if (deep === 1) {
+                if (obj.length === 2 && obj[1].tab) {
+                    return args.join("</mtd><mtd>");
+                }
                 args = `<mrow><mo>[</mo><mtable><mtr>${args.join("</mtr><mtr>")}</mtr></mtable><mo>]</mo></mrow>`;
             }
         }
@@ -306,6 +335,14 @@ function toString(obj, p, deep) {
             else e = '';
             prefix = mn(prefix);
             return mrow([prefix, rep, dots, e].join(''), e ? p >= pmap["*"] : false, deep);
+        }
+        if (k === 'tab') {
+            k = origin.shift();
+            if (!origin.length || !(k in tabs)) {
+                var args = origin.map(a => toString(a, 0, deep));
+                return mrow(`<ms>(</ms>${k}${args.length ? "<ms>,</ms>" + args.join('<ms>,</ms>') : ''}<ms>)</ms>`, -1, deep);
+            }
+            return mrow(tabs[k](...origin), -1, deep);
         }
         if (k in 三角函数) {
             var args = origin.map(a => toString(a, pmap["*"], 0));

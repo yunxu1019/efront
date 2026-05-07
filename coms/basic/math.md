@@ -292,7 +292,40 @@ series(公式主体,n=1,+Infinity)
     1.3.e3;
     a*1.3e3
 ```
-
+* 方程组
+```mathscript
+    group(
+        a+1=b;
+        a+b=3;
+    )
+```
+```math
+    group(
+        a+1=b,
+        a+b**2=3
+    )
+```
+* 标号
+```mathscript
+    tab(1); // 带小括号的数字
+    tab(circle,1,2,3,10); // 带圆圈的数字
+    tab(roman,1); //罗马数字
+    tab(roman,3888); //罗马数字
+    group(// 方程组中使用
+        x+y=10 tab(circle,1),
+        x*y=25 tab(circle,2)
+    )
+```
+```math
+    tab(1);
+    tab(circle,1,2,3,10);
+    tab(roman,1);
+    tab(roman,3888);
+    group(
+        x+y=10 tab(circle,1),
+        x*y=25 tab(circle,2)
+    )
+```
 
 ## 希腊字母对照表如下
 按此表中的英文单词命名的变量将自动转换为希腊字母

@@ -102,7 +102,12 @@ var getRows = function (code) {
     return trs;
 }
 var getArgs = function (a) {
-    return split(a, ',').map(toFlat);
+    return split(a, ',').map(a => {
+        var cells = createExpressList(a);
+        if (!cells[cells.length - 1]?.first) cells.pop();
+        if (cells.length === 1) return toFlat(cells[0]);
+        return cells.map(toFlat);
+    });
 }
 var uncup = function (cup) {
     if (cup.iscup && cup.length <= 1) cup = cup[0];
