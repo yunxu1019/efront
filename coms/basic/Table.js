@@ -54,6 +54,32 @@ class Table extends Array {
         });
         this.update();
     }
+    clone() {
+        var t = new Table;
+        t.fields = this.fields;
+        t.source = this.source;
+        t.searchFields = this.searchFields;
+        t.summaryFields = this.summaryFields;
+        return t;
+    }
+    toSorted(field) {
+        var t = this.clone();
+        t.sort(field);
+        return t;
+    }
+    toReversed() {
+        var t = this.clone();
+        t.length = this.length;
+        for (var cx = 0, dx = this.length; cx < dx; cx++) {
+            t[dx - cx] = this[cx];
+        }
+        return t;
+    }
+    toSpliced() {
+        var t = this.clone();
+        t.splice.apply(t, arguments);
+        return t;
+    }
     unsort() {
         this.sorted = null;
         this.update();

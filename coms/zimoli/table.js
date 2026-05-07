@@ -611,7 +611,7 @@ function table(elem) {
             model,
             scrollbar,
             sort(f) {
-                this.data.sort(f);
+                this.data = this.data.toSorted(f);
             },
             setWidth(target, f) {
                 css(target, { width: f.width });
