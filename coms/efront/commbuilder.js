@@ -1,5 +1,5 @@
 "use strict";
-var { COMMENT, SCOPED, STAMP, STRAP, QUOTED, insertAfter, skipAssignment, VALUE, EXPRESS, SCOPED, SPACE } = require("../compile/common");;
+var { COMMENT, SCOPED, STAMP, STRAP, QUOTED, splice, insertAfter, skipAssignment, VALUE, EXPRESS, SCOPED, SPACE } = require("../compile/common");;
 var showMemery = require("./showMemery");
 var scanner2 = require("../compile/scanner2");
 var breakcode = require("../compile/breakcode");
@@ -267,11 +267,11 @@ var wrapReturnLess = function (r, cless_var, lessnode, className) {
     exp.entry = '(';
     exp.leave = ")";
     exp.type = SCOPED;
-    q.splice(i, 0, {
+    splice(q, i, 0, {
         type: EXPRESS,
         text: cless_var,
     }, exp);
-
+    return n;
 }
 var loadJsBody = function (data, fullpath, lessdata, commName, className, htmlData) {
     if (data.length > 0x200) show_building(fullpath);
@@ -429,13 +429,13 @@ var loadJsBody = function (data, fullpath, lessdata, commName, className, htmlDa
         );
         code.relink();
 
-    } else {
+    } else a: {
         if (undeclares.module) {
             commName = `module["exports"]`;
         } else if (undeclares.exports) {
             commName = "exports";
         }
-        if (hasless && code.return) a: {
+        if (hasless && code.return) {
             var less = scanner2(`var &cless=${strings.encode(lessdata)};`);
             code_body.unshift(...less);
             lessdata = '&cless';
