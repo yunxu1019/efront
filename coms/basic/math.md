@@ -326,6 +326,17 @@ series(公式主体,n=1,+Infinity)
         x*y=25 tab(circle,2)
     )
 ```
+* 角
+```mathscript
+    corner(1);
+    corner(A);
+    corner(BAC);
+```
+```math
+    corner(1);
+    corner(A);
+    corner(BAC);
+```
 
 ## 希腊字母对照表如下
 按此表中的英文单词命名的变量将自动转换为希腊字母

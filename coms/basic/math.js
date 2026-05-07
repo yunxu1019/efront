@@ -224,6 +224,9 @@ var puncmap = {
     "_"(a, ...args) {
         return qt(msub, a, args);
     },
+    corner(name) {
+        return mo2("∠", name);
+    },
 
     // "积分": "∫",
     // "summa": "∫",
