@@ -1,6 +1,6 @@
 <style>
     & {
-        overflow: auto;
+        overflow: hidden;
         border-top: 0;
         border-bottom: 0;
         display: block;
@@ -43,7 +43,7 @@
                 margin-left:-@{w}em;
                 border-left: @{w}em solid transparent;
                 width: 100%;
-                overflow-x: auto;
+                overflow-x: hidden;
             }
 
             >[nlist] {
@@ -107,6 +107,12 @@
             height: 1.36em;
         }
     }
+
+    >scrollbar {
+        right: 0;
+        left: auto !important;
+        position: fixed;
+    }
 </style>
 <编辑框 spellcheck=false e-class="上色.className" e-style="{whiteSpace:'pre'}" ntype:="codeSpan">
     <list contenteditable="false" nlist# :src="(r,i) in coderows" -style="{height:codeHeight}">
@@ -115,9 +121,16 @@
     <list clist# body contenteditable:="contenteditable" :src="(r,i) in coderows" -style="{height:codeHeight}">
         <d -html="r"></d>
     </list>
+    <scrollbar x></scrollbar>
+    <scrollbar y :target="this.parentNode"></scrollbar>
 </编辑框>
 <script>
     var coder = this;
+    onmousewheel(this, function (event) {
+        if (!event.shiftKey) return;
+        event.preventDefault();
+        clist.scrollLeft += event.deltaY;
+    });
     vbox(this);
     var contenteditable = !this.readonly;
     watch(coder, {

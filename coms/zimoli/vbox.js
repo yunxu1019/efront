@@ -147,6 +147,7 @@ function ybox(generator) {
     } else {
         var wheelTime = 0;
         onmousewheel(_box, function (event) {
+            if (event.defaultPrevented) return;
             event.preventDefault();
             var isNew = event.timeStamp - wheelTime > 120;
             wheelTime = event.timeStamp;
