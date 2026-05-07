@@ -3,6 +3,7 @@ var mo3 = (o, args) => args.length === 1 ? args[0] + `<ms>${o}</ms>` : args.join
 var ms = s => `<ms>${s}</ms>`;
 var mroot = (d, z) => `<mroot>${d}${z}</mroot>`;
 var msqrt = a => `<msqrt>${a}</msqrt>`;
+var mdot = a => `<mover><mn>${a}</mn><ms>·</ms></mover>`;
 var mi = s => `<mi>${s}</mi>`;
 var mn = s => `<mn>${s}</mn>`;
 var mi2 = (s, a, n) => {
@@ -128,6 +129,8 @@ var funcmap = {
     },
     sigma: series,
     series,
+    tab(a) {
+    },
     '!='(...args) {
         return mo3("≉", args);
     },
@@ -283,6 +286,27 @@ function toString(obj, p, deep) {
         for (var k in obj) break;
         if (!k) return '';
         var origin = obj[k];
+        if (k === '..') {
+            var [prefix, rep, dots, e] = origin;
+            prefix = String(prefix);
+            if (typeof rep === 'number') rep = String(rep);
+            if (rep && !/\./.test(prefix)) prefix += '.';
+            if (typeof e === 'number') e = String(e);
+            if (!rep) rep = '';
+            else if (rep.length === 1) {
+                rep = mdot(rep);
+            }
+            else if (rep.length >= 2) {
+                rep = mdot(rep.charAt(0)) + mn(rep.slice(1, rep.length - 1)) + mdot(rep.charAt(rep.length - 1));
+            }
+            else rep = mn(rep);
+            if (dots) dots = mn(dots);
+            else dots = '';
+            if (e) e = `<mo>×</mo><msup><mn>10</mn><mn>${e}</mn></msup>`;
+            else e = '';
+            prefix = mn(prefix);
+            return mrow([prefix, rep, dots, e].join(''), e ? p >= pmap["*"] : false, deep);
+        }
         if (k in 三角函数) {
             var args = origin.map(a => toString(a, pmap["*"], 0));
             obj = 三角函数[k](...args);
@@ -302,6 +326,7 @@ function toString(obj, p, deep) {
             return mrow(`<mi>${希腊[k] || k}</mi>${mrow(args instanceof Array ? args.join('<mo>,</mo>') : args, true)}`, false, deep);
         }
         if (args instanceof Array) {
+
             if (k === '*') {
                 var allnum = true;
                 var bx = 1;

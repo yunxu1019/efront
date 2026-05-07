@@ -6,9 +6,9 @@ const {
     createString,
 } = require("./common");
 var powermap = require("./powermap");
-
+var number_rep = /^[+-]?([\d\.]+)(?:e([+-]?\d+))?$/;
 class Math extends Program {
-    number_reg = /^(\d+(\.\d+)?|\.\d+)$/;
+    number_reg = /^(\d+(?:\.\d+){0,2}|(?:\.\d+){1,2}|(?:\d+\.){1,3})\.*(?:e[+-]?\d+)?$/;
     powermap = Object.assign({}, powermap);
     value_reg = /^(false|true|null|Infinity|NaN|undefined|eval|this|arguments)$/;
     constructor() {
@@ -128,7 +128,7 @@ var back = function (cache) {
     cache.splice(s, cache.length - s);
 }
 var toFlat = function (exp) {
-    if (exp.length === 1 && exp[0].type !== SCOPED) return exp[0].text;
+    if (exp.length === 1 && exp[0].type !== SCOPED && !exp[0].isdigit) return exp[0].text;
     var bx = 0;
     var p0 = 0;
     var left = [];
@@ -236,12 +236,37 @@ var toFlat = function (exp) {
             }
             if (e.isdigit) a: {
                 var et = e.text;
-                var v = +et;
+                var [, a, e10] = number_rep.exec(et);
+                var b = a.split('.');
+                if (b.length > 2 || e10) {
+                    var nrep = b[2] || b[1];
+                    var npre = b[0];
+                    if (b[2]) {
+                        npre += "." + b[1];
+                    }
+                    else if (b.length > 3) {
+                        if (nrep) npre += "." + nrep;
+                        nrep = '';
+                    }
+                    if (String(+npre) === npre) npre = +npre;
+                    if (String(+nrep) === nrep) nrep = +nrep;
+                    var v = [npre, nrep];
+                    if (b.length > (b[2] ? 4 : b[1] ? 3 : 2)) v.push(b.slice(b[2] ? 3 : b[1] ? 2 : 1, b.length).join('.') + ".");
+                    else if (e10) v.push('');
+                    if (e10) {
+                        if (String(+e10) === e10) e10 = +e10;
+                        v.push(e10);
+                    }
+                    v = { "..": v };
+                    left.push(v);
+                    continue;
+                }
+                var v = +a;
                 if (/^\+/.test(et)) {
-                    if (String(v) !== et.slice(1)) break a;
+                    if (String(v) !== a.slice(1)) break a;
                     v = make("+", '', v);
                 }
-                if (String(v) !== et) break a;
+                if (String(v) !== a) break a;
                 left.push(v);
                 continue;
             }
