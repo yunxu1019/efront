@@ -78,6 +78,12 @@ test(`a    >{b{a:b}}`, `a>b{a:b;}`);
 test(`a{>b{a:b}}`, `a>b{a:b;}`);
 test(`.type(@type,@media) {.@{type} {&:before{content:"@{media}";}}}.type(videoinput, "相机");`, `.videoinput:before{content:"相机";}`);
 test(`.type(@type,@media) {.@{type} {&:before{content:"@{media}";}}}.type(videoinput, 相机);`, `.videoinput:before{content:"相机";}`);
+test(`
+    @avatar-top: -12px;
+    a{
+        top: 12px- @avatar-top;
+    }
+`,'a{top:24px;}');
 common.createString.debug = true;
 Program.debug = true;
 test(`@type(@len){
@@ -89,7 +95,7 @@ test(`@type(@len){
         }
         }
         @type(1)
-        `, '');
+        `, '>[nlist]{width:1.9em;}');
 Program.debug = false;
 common.createString.debug = false;
 assert(素馨(`:not(a):not(b){c:d}`, 'abc'), `abc :not(a):not(b){c:d;}`);

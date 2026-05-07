@@ -16,9 +16,10 @@ class 素玉 extends Program {
 
 var rarg = new 素玉;
 rarg.quotes.push(["url(", ")"]);
-var replaceHReg = new RegExp(numberReg.source + /\s*([\/\*])\s*/.source + numberReg.source, 'gi');
-var replaceLReg = new RegExp(numberReg.source + /(\s*[\+\-]\s+|[\+\-])/.source + numberReg.source, 'gi');
-var replaceTReg = new RegExp(numberReg.source + /\s*[\/\*\+\-]\s*/.source + numberReg.source, 'i');
+var numberReg2 = /([\-\+]?(?:\d+(?:\.\d*)?|\.\d+))([a-zH]+|%)?/;
+var replaceHReg = new RegExp(numberReg2.source + /\s*([\/\*])\s*/.source + numberReg2.source, 'gi');
+var replaceLReg = new RegExp(numberReg2.source + /(\s*[\+\-]\s+|[\+\-])/.source + numberReg2.source, 'gi');
+var replaceTReg = new RegExp(numberReg2.source + /\s*[\/\*\+\-]\s*/.source + numberReg2.source, 'i');
 var remove_quote = a => a.replace(/~\s*(['"`])((?:\\[\s\S]|[^'"`\\])*?)\1/g, '$2');
 var keepdot = function (a) {
     var g = Math.pow(10, Math.log10(a) | 0) * 1000;
