@@ -71,6 +71,7 @@ var codecolor = function (c) {
     };
     var setExpress = function (o, label) {
         if (!o.text || o.wraped) return;
+        if (o.type !== EXPRESS) return;
         o.wraped = true;
         var keys = o.text.split(".");
         var pdot = !keys[0] && keys.length > 1;

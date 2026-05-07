@@ -10,6 +10,7 @@ var powermap = require("./powermap");
 class Math extends Program {
     number_reg = /^(\d+(\.\d+)?|\.\d+)$/;
     powermap = Object.assign({}, powermap);
+    value_reg = /^(false|true|null|Infinity|NaN|undefined|eval|this|arguments)$/;
     constructor() {
         super();
         var pmap = this.powermap;
