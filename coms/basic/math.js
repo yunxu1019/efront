@@ -294,6 +294,9 @@ var br = function () {
 };
 function toString(obj, p, deep) {
     if (obj instanceof Array) {
+        if (deep == 1 && obj.length === 2 && obj[1].tab) {
+            return toString(obj[0], 0, deep) +"</mtd><mtd>"+ obj.slice(1, obj.length).map(a => toString(a, 0, 0)).join("</mtd><mtd>");
+        }
         deep++;
         var args = obj.map(a => toString(a, deep > 1 ? 0 : p, deep));
         deep--;
@@ -305,9 +308,6 @@ function toString(obj, p, deep) {
                 args = `<mtd>${args.join('</mtd><mtd>')}</mtd>`;
             }
             else if (deep === 1) {
-                if (obj.length === 2 && obj[1].tab) {
-                    return args.join("</mtd><mtd>");
-                }
                 args = `<mrow><mo>[</mo><mtable><mtr>${args.join("</mtr><mtr>")}</mtr></mtable><mo>]</mo></mrow>`;
             }
         }
