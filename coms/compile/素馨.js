@@ -71,7 +71,7 @@ var replace_punc = function (a) {
 }
 var killcalc = a => replace_punc(createString(a));
 var seprateFunc = function (express) {
-    var express = scanner2(express, rarg);
+    var express = scanner2(express, rarg, basepath[0] || base || '');
     var sps = [];
     var sp = [];
     for (var cx = 0, dx = express.length; cx < dx; cx++) {
@@ -109,7 +109,7 @@ var seprateFunc = function (express) {
 }
 var splitParams = function (params) {
     if (!params) return [];
-    params = scanner2(params, rarg);
+    params = scanner2(params, rarg, basepath[0] || base || '');
     var code = params;
     var params = [], p = [];
     for (var cx = 0, dx = code.length; cx < dx; cx++) {
@@ -125,7 +125,7 @@ var splitParams = function (params) {
     return params;
 }
 var createArgMap = function (args, split = ',', equal = ':') {
-    if (args) args = scanner2(args, rarg);
+    if (args) args = scanner2(args, rarg, basepath[0] || base || "");
     else args = [];
     var map = Object.create(null);
     var o = args.first;
@@ -727,7 +727,7 @@ var rcss = null;
 function 素馨(text, scopeName, compress) {
     if (!rcss) rcss = new 素心;
     rcss.debug = true;
-    var code = scanner2(text, rcss);
+    var code = scanner2(text, rcss, scopeName || "");
     var { scoped } = code;
     var result = evalscoped(scoped, scopeName);
     var queried = [];

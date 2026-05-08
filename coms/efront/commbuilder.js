@@ -490,7 +490,7 @@ var loadJsBody = function (data, fullpath, lessdata, commName, className, htmlDa
         }
     }
     if (templateName) {
-        var template = scanner2(`var ${templateName}=${htmlData};\r\n`);
+        var template = scanner2(`var ${templateName}=${htmlData};\r\n`, fullpath);
         if (this && this["#"]) {
             translate(this["#"], template);
         }
@@ -835,7 +835,7 @@ async function getXhtPromise(xhtdata, filename, fullpath, watchurls, extraJs, ex
     var allnames = Object.create(null);
     xhtdata = xhtdata ? String(xhtdata) : '';
     if (xhtdata) {
-        var xht = scanner2(xhtdata, 'html');
+        var xht = scanner2(xhtdata, fullpath, 'html');
         var scoped = xht.scoped;
         var { scripts, innerHTML: htmltext, attributes, tagName, styles } = scoped;
         if (extraJs) scripts = scripts.concat(extraJs);
@@ -853,7 +853,7 @@ async function getXhtPromise(xhtdata, filename, fullpath, watchurls, extraJs, ex
     timer.pause();
     if (scripts) scripts = await loadUseBody.call(this, scripts, fullpath, watchurls);
     timer.resume();
-    var jscode = scanner2(scripts);
+    var jscode = scanner2(scripts, fullpath);
     jscode.fix();
     var jscope = jscode.scoped
     timer.pause();

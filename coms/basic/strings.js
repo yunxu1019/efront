@@ -5,6 +5,7 @@ var escapeMap = {
     "\b": "\\b",
     "\f": "\\f",
     "\v": "\\u000b",
+    "\\": "\\\\",
     "\u2028": "\\u2028",
     "\u2029": "\\u2029",
 };
@@ -44,7 +45,7 @@ var esc = function (a) {
 function uncode(s) {
     return s.replace(/\\u(?:\{[0-9a-f]+\}|[0-9a-f]{4})/ig, esc);
 }
-function kicode(s) {
+function kicode(s, singleSlash = false) {
     var t = [];
     return s.replace(/\\(?:u\{[0-9a-f]+\}|u[0-9a-f]{4}|x[0-9a-f]{2}|([0-7]{1,3}|[\s\S]))/ig, (a, b, i) => {
         if (!b) {
@@ -63,17 +64,19 @@ function kicode(s) {
         }
         if (unescapeMap.hasOwnProperty(a)) return unescapeMap[a];
         if (/^[0-7]+$/.test(b)) return String.fromCharCode(parseInt(b, 8));
+        if (b === singleSlash) return b;
+        if (singleSlash) return '\\' + b;
         return b;
     });
 }
-function decode(s) {
+function decode(s, singleSlash) {
     var r = /^(['"`])([\s\S]*)\1$/.exec(s);
     if (!r) return s;
-    return kicode(r[2]);
+    return kicode(r[2], singleSlash ? r[1] : null);
 }
 
-function recode(s) {
-    s = decode(s);
+function recode(s, singleSlash) {
+    s = decode(s, singleSlash);
     s = encode(s);
     return s;
 }

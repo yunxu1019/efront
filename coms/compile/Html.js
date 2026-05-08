@@ -151,8 +151,12 @@ var toCamelCase = function (a) {
 }
 
 var isDynamic = a => /^(on|@|\-|_|\.|#|\:|\+|\*|\?|&|\$|\S+\-)|(@|\-|_|\.|#|\:|\+|\*|\?|&|\$)$/i.test(a);
-
+var decode = strings.decode;
+var decode2 = function (s) {
+    return decode(s, true);
+}
 Html.prototype.createScoped = function (code) {
+    p.mindpath = this.mindpath;
     var used = Object.create(null);
     var vars = Object.create(null);
     var rootvars = vars;
@@ -197,7 +201,7 @@ Html.prototype.createScoped = function (code) {
                         var nn = c.next.next;
                         if (!nn || nn.length > 0) return;
                         if (nn.type === EXPRESS || nn.type === QUOTED) {
-                            rootvars[strings.decode(createString([nn]))] = true;
+                            rootvars[decode(createString([nn]))] = true;
                         }
                     }
                 }
@@ -219,7 +223,7 @@ Html.prototype.createScoped = function (code) {
                     break;
                 }
                 if (noTag || !c.text) break;
-                var t = strings.decode(c.text);
+                var t = decode2(c.text);
                 if (color.isColor(t)) break;
                 var p = c.prev;
                 var pp = p && p.prev;
@@ -301,7 +305,7 @@ Html.prototype.createScoped = function (code) {
     scoped.envs = envs;
     scoped.vars = vars;
     scoped.used = used;
-
+    delete p.mindpath;
     return scoped;
 };
 Html.prototype.createString = common.createString;

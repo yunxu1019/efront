@@ -252,7 +252,7 @@ function scan(text) {
                 type = a;
                 break;
             default:
-                throw new Error('无效参数: ' + type);
+                throw new Error('无效参数: ' + a);
         }
     }
     if (!type) {
