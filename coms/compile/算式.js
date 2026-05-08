@@ -249,7 +249,7 @@ var toFlat = function (exp) {
                     if (b[2]) {
                         npre += "." + b[1];
                     }
-                    else if (b.length > 3) {
+                    else if (b[1] ? b.length <= 2 || b.length > 3 : b.length <= 1 || b.length > 2) {
                         if (nrep) npre += "." + nrep;
                         nrep = '';
                     }
