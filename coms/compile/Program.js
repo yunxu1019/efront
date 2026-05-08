@@ -179,6 +179,8 @@ class Program {
     lbtype = false;
     keepspace = false;
     lastIndex = 0
+    col = 1;
+    row = 1;
     detectLabel(o) {
         var queue = o.queue;
         var last = queue.last;
@@ -413,7 +415,7 @@ class Program {
             }
             queue.push(scope);
         };
-        var row = 1, colstart = -1;
+        var row = this.row, colstart = -this.col;
         var cache_stamp = null;
         var powermap = this.powermap;
         var push_stamp = function () {
