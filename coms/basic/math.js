@@ -3,7 +3,7 @@ var mo3 = (o, args) => args.length === 1 ? args[0] + `<ms>${o}</ms>` : args.join
 var ms = s => `<ms>${s}</ms>`;
 var mroot = (d, z) => `<mroot>${d}${z}</mroot>`;
 var msqrt = a => `<msqrt>${a}</msqrt>`;
-var mdot = a => `<mover><mn>${a}</mn><ms>·</ms></mover>`;
+var mdot = a => `<mover><mn>${a}</mn><ms>・</ms></mover>`;
 var mi = s => `<mi>${s}</mi>`;
 var mn = s => `<mn>${s}</mn>`;
 var mi2 = (s, a, n) => {
