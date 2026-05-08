@@ -6,6 +6,7 @@ async function link(page, id = clientInfo.cid) {
             data.setItem('cid', id, 0);
         }
     }
+    if (!id) return alert('连接服务器失败！', 'error', false);
     page.clientid = id;
     var runing = true;
     on('remove')(page, function () {
