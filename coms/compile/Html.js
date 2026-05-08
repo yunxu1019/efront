@@ -133,7 +133,7 @@ class Html extends Javascript {
 }
 var property = new Program;
 property.stamps = "=".split('');
-var p = new Javascript;
+var progExp = new Javascript;
 var replaceISO8859 = function (data) {
     return String(data).replace(/<\!--([\s\S]*)--\>$/g, '$1').replace(/&\w+;/g, a => iso8859[a] || a).replace(/&#(\d+);/g, (_, a) => String.fromCodePoint(a))
 };
@@ -142,8 +142,8 @@ var parseExpress = function (data, mayberepeat) {
         data = `for(var ${data});`;
     }
     else data = "=" + replaceISO8859(data);
-    p.lastIndex = 0;
-    return p.exec(data);
+    progExp.lastIndex = 0;
+    return progExp.exec(data);
 };
 
 var toCamelCase = function (a) {
@@ -156,7 +156,7 @@ var decode2 = function (s) {
     return decode(s, true);
 }
 Html.prototype.createScoped = function (code) {
-    p.mindpath = this.mindpath;
+    progExp.mindpath = this.mindpath;
     var used = Object.create(null);
     var vars = Object.create(null);
     var rootvars = vars;
@@ -229,6 +229,8 @@ Html.prototype.createScoped = function (code) {
                 var pp = p && p.prev;
                 if (pp && isDynamic(pp.text)) {
                     var mayberepeat = p && pp && p.type === STAMP && p.text === "=" && /[\:\-\_@\&\*\?\#\+\.\$](src|repeat|for|each|foreach)$/i.test(pp.text)
+                    progExp.col = c.col;
+                    progExp.row = c.row;
                     t = parseExpress(t, mayberepeat);
                     var s = createScoped(t);
                     var envs = s.envs;
@@ -246,6 +248,8 @@ Html.prototype.createScoped = function (code) {
                 if (inScript || noTag) break;
                 if (c.queue.type === QUOTED) break;
                 var t = c.text;
+                progExp.col = c.col;
+                progExp.row = c.row;
                 t = parseExpress(t);
                 var s = createScoped(t);
                 var envs = s.envs;
@@ -305,7 +309,7 @@ Html.prototype.createScoped = function (code) {
     scoped.envs = envs;
     scoped.vars = vars;
     scoped.used = used;
-    delete p.mindpath;
+    delete progExp.mindpath;
     return scoped;
 };
 Html.prototype.createString = common.createString;

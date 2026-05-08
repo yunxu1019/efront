@@ -853,7 +853,7 @@ async function getXhtPromise(xhtdata, filename, fullpath, watchurls, extraJs, ex
     timer.pause();
     if (scripts) scripts = await loadUseBody.call(this, scripts, fullpath, watchurls);
     timer.resume();
-    var jscode = scanner2(scripts, fullpath);
+    var jscode = scanner2(scripts, fullpath, 'js');
     jscode.fix();
     var jscope = jscode.scoped
     timer.pause();
