@@ -54,7 +54,7 @@ var punc_3 = {
         if (s && n1.length + +n2 > 15) {
             return BigInt(n1) << BigInt(n2) + s;
         }
-        return (n2 << n1) + s;
+        return (n1 << n2) + s;
     },
     ">"(n1, n2, s) {
         return String(+n1 > +n2);
