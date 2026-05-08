@@ -84,7 +84,7 @@ var punc_3 = {
         return (n1 & n2) + s;
     },
     "||"(n1, n2, s) {
-        return (+n2 || +n1) + s;
+        return (+n1 || +n2) + s;
     },
     "&&"(n1, n2, s) {
         return (+n1 && + n2) + s;
