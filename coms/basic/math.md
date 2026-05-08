@@ -337,6 +337,17 @@ series(公式主体,n=1,+Infinity)
     corner(A);
     corner(BAC);
 ```
+* 对数
+```mathscript
+    log(x,2);
+    log(x,e);
+    ln(x);
+```
+```math
+    log(x,2);
+    log(x,e);
+    ln(x);
+```
 
 ## 希腊字母对照表如下
 按此表中的英文单词命名的变量将自动转换为希腊字母

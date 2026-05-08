@@ -137,6 +137,12 @@ var funcmap = {
     abs(a) {
         return `<mo>|</mo>${a}<mo>|</mo>`;
     },
+    log(x, n) {
+        return `<msub><mo>log</mo>${n}</msub>${x}`
+    },
+    ln(x){
+        return `<mo>ln</mo>${x}`
+    },
     "div"(...args) {
         return mo3("÷", args);
     },
@@ -295,7 +301,7 @@ var br = function () {
 function toString(obj, p, deep) {
     if (obj instanceof Array) {
         if (deep == 1 && obj.length === 2 && obj[1].tab) {
-            return toString(obj[0], 0, deep) +"</mtd><mtd>"+ obj.slice(1, obj.length).map(a => toString(a, 0, 0)).join("</mtd><mtd>");
+            return toString(obj[0], 0, deep) + "</mtd><mtd>" + obj.slice(1, obj.length).map(a => toString(a, 0, 0)).join("</mtd><mtd>");
         }
         deep++;
         var args = obj.map(a => toString(a, deep > 1 ? 0 : p, deep));
