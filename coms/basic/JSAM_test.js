@@ -11,10 +11,10 @@ var test_self = function () {
     test(null) // null;
     test(undefined); // 空字符串
     test(1); // 1
-    test([0]); 
+    test([0]);
     test(["00"]);
-    test({"0":"00"});
-    test({"00":"00"});
+    test({ "0": "00" });
+    test({ "00": "00" });
     test(true); // true
     test(false); // false 
     test(NaN); // NaN 
@@ -353,10 +353,8 @@ function test_encode() {
 function JSAM_test() {
     test_self();
     test_json();
-    JSAM.debug = true;
     test_deep();
     test_parse();
-    JSAM.debug = false;
     test_time();
     test_encode();
 }
