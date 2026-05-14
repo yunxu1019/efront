@@ -585,7 +585,7 @@ var commands = {
         memery.PUBLIC_PATH = memery.PAGE_PATH;
         require("./setupenv");
         require("../server/main");
-        var ported = await wait(function () { return memery.proted }, 200);
+        var ported = await wait(function () { return memery.ported }, 200);
         if (ported) showHelpLine(i18n`可以通过浏览器访问打开的端口以查看文档`);
     },
     async file() {
@@ -606,7 +606,7 @@ var commands = {
         memery.PUBLIC_PATH = memery.PAGE_PATH;
         require("./setupenv");
         require("../server/main");
-        var ported = await wait(function () { return memery.proted }, 200);
+        var ported = await wait(function () { return memery.ported }, 200);
         if (ported) showHelpLine(i18n`可以通过浏览器访问打开的端口以查看文件`);
     },
     demo() {

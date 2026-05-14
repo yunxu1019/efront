@@ -840,7 +840,7 @@ var showServerInfo = async function () {
             }
             else try {
                 await checkServerState(p, version);
-                if (!memery.proted) memery.proted = true;
+                if (!memery.ported) memery.ported = true;
                 ported.push(p);
                 showValid(i);
             }
