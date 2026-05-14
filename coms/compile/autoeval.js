@@ -21,7 +21,7 @@ var punc_2 = {
         return +n + s;
     },
     "/"(n, s) {
-        if (!n) return;
+        if (!n || s) return;
         return 1 / n + s;
     }
 };
@@ -51,9 +51,6 @@ var punc_3 = {
         return (n1 >> n2) + s;
     },
     "<<"(n1, n2, s) {
-        if (s && n1.length + +n2 > 15) {
-            return BigInt(n1) << BigInt(n2) + s;
-        }
         return (n1 << n2) + s;
     },
     ">"(n1, n2, s) {
@@ -99,6 +96,7 @@ function calc_(arg1, punc, arg2) {
         var [, n, s] = match;
         var f = punc_s && punc in punc_s ? punc_s[punc] : punc_2[punc];
         if (!f) return;
+        if (s === 'n' && n.length > 15) n = BigInt(n);
         return f(n, s, arg2);
     }
     var match1 = nreg.exec(arg1);
@@ -138,7 +136,12 @@ function calc_(arg1, punc, arg2) {
                     s = 'i'; s2 = '';
                     break a;
             }
-            if (s === s2) return f(n1, n2, s);
+            if (s === s2) {
+                if (s === 'n') {
+                    if (n1.length + n2.length > 15) n1 = BigInt(n1), n2 = BigInt(n2);
+                }
+                return f(n1, n2, s);
+            }
             return;
         }
         return f(n1, n2, s || s2);
@@ -147,6 +150,10 @@ function calc_(arg1, punc, arg2) {
         // 除法不考虑虚数
         if (s === s2) {
             if (/^[lmnuf]+$/i.test(s)) {
+                if (/^[lnu]+$/.test(s)) {
+                    n1 = BigInt(n1);
+                    n2 = BigInt(n2);
+                }
                 return f(n1, n2, s);
             }
             return f(n1, n2, "");
@@ -156,6 +163,18 @@ function calc_(arg1, punc, arg2) {
         return f(n1, n2, s);
     }
     if (s !== s2) return;
+    if (s === 'n') {
+        switch (punc) {
+            case "**":
+                if (n1.length * n2 > 15) n1 = BigInt(n1), n2 = BigInt(n2);
+                break;
+            case "<<":
+                if (n1.length + +n2 > 15) n1 = BigInt(n1), n2 = BigInt(n2);
+                break;
+            default:
+                if (n1.length > 15 || n2.length > 15) n1 = BigInt(n1), n2 = BigInt(n2);
+        }
+    }
     return f(n1, n2, s);
 }
 
