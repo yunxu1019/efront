@@ -196,7 +196,7 @@ var memery = module.exports = {
     get istest() {
         return this.webroot === this.PAGE_PATH;
     },
-    proted: undefined,
+    ported: undefined,
     loghead: get('LOGHEAD, LOG'),
     defaults,
     get,
@@ -315,6 +315,10 @@ var memery = module.exports = {
     FORCE: get("AUDIT,FORCE_AUDIT,AUDIT_FORCE,FORCE", false),
     BREAK: get("BREAK,DETOUR"),
     UPLEVEL: get("UPLEVEL", false),
+    get torgb() {
+        return this.ported && this.TORGB;
+    },
+    TORGB: get("TORGB, COLOR_TORGB, COLOR", false),
     REPORT: get("REPORT"),
     JSX: get('JSX', 'react'),
     PACKAGE_NAME: get("PACKAGE_NAME", 'package.json'),

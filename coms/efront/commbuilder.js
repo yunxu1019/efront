@@ -279,6 +279,7 @@ var loadJsBody = function (data, fullpath, lessdata, commName, className, htmlDa
     data = data.replace(/\bDate\(\s*(['"`])(.*?)\1\s*\)/g, (match, quote, dateString) => `Date(${+new Date(dateString)})`);
     var destpaths = commbuilder.prepare === false ? [] : getRequiredPaths(data);
     var code = scanner2(data, fullpath, 'js');
+    if (memery.torgb) code.keepcolor = false;
     var hasExport = code.export || !code.first;
     var prequoted = removePrequoted(code);
     code.newSpread();
@@ -321,7 +322,7 @@ var loadJsBody = function (data, fullpath, lessdata, commName, className, htmlDa
         // 数据依赖其他文件
         // 为防止其他文件变更后页面刷新不及时
         // 这里仅在没有端口打开时处理导入式变量
-        code = autoConst.call(this, code, fullpath, memery.proted);
+        code = autoConst.call(this, code, fullpath, memery.ported);
         code = autoiota(code);
         code = autoenum(code);
         code = autoeval(code);
@@ -354,6 +355,7 @@ var loadJsBody = function (data, fullpath, lessdata, commName, className, htmlDa
     var templateName;
     if (htmlData) {
         if (undeclares.template) {
+            delete undeclares.template;
             templateName = 'template';
         }
         else {
@@ -533,7 +535,7 @@ var loadJsBody = function (data, fullpath, lessdata, commName, className, htmlDa
         } = code;
         code_body = code;
     }
-    else if (memery.proted && memery.MSIE) {
+    else if (memery.ported && memery.MSIE) {
         code.relink();
         code.detour();
         code = downLevel.code(code);
