@@ -33,8 +33,18 @@ function loadAsync(pathname) {
         if (!fs.existsSync(fullpath)) return ok(null);
         fs.readFile(fullpath, function (error, buff) {
             if (error) return oh(error);
-            var data = JSAM.parse(buff);
-            ok(data);
+            try {
+                var data = JSAM.parse(buff);
+                ok(data);
+            } catch (e) {
+                try {
+                    var data = JSAM.parse(String(buff).replace(/\\\\/g, '\\'));
+                    ok(data);
+                }
+                catch (e) {
+                    oh(e);
+                }
+            }
         });
     })
 }
