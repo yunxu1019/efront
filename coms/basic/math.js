@@ -140,7 +140,7 @@ var funcmap = {
     log(x, n) {
         return `<msub><mo>log</mo>${n}</msub>${x}`
     },
-    ln(x){
+    ln(x) {
         return `<mo>ln</mo>${x}`
     },
     "div"(...args) {
@@ -326,7 +326,7 @@ function toString(obj, p, deep) {
         var origin = obj[k];
         if (k === '..') {
             var [prefix, rep, dots, e] = origin;
-            prefix = String(prefix);
+            prefix = String(prefix).replace(/^\-/, '–');
             if (typeof rep === 'number') rep = String(rep);
             if (rep && !/\./.test(prefix)) prefix += '.';
             if (typeof e === 'number') e = String(e);
@@ -340,7 +340,7 @@ function toString(obj, p, deep) {
             else rep = mn(rep);
             if (dots) dots = mn(dots);
             else dots = '';
-            if (e) e = `<mo>×</mo><msup><mn>10</mn><mn>${e}</mn></msup>`;
+            if (e) e = `<mo>×</mo><msup><mn>10</mn><mn>${String(e).replace(/^\-/, '–')}</mn></msup>`;
             else e = '';
             prefix = mn(prefix);
             return mrow([prefix, rep, dots, e].join(''), e ? p >= pmap["*"] : false, deep);
