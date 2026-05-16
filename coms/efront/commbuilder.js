@@ -355,7 +355,6 @@ var loadJsBody = function (data, fullpath, lessdata, commName, className, htmlDa
     var templateName;
     if (htmlData) {
         if (undeclares.template) {
-            delete undeclares.template;
             templateName = 'template';
         }
         else {
@@ -492,7 +491,7 @@ var loadJsBody = function (data, fullpath, lessdata, commName, className, htmlDa
         }
     }
     if (templateName) {
-        var template = scanner2(`var ${templateName}=${htmlData};\r\n`, fullpath);
+        var template = scanner2(`var ${templateName}=${htmlData};\r\n`, fullpath, "js");
         if (this && this["#"]) {
             translate(this["#"], template);
         }
