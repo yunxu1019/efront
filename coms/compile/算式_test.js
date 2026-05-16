@@ -1,5 +1,6 @@
 var JSON = require('../basic_/JSON')
 var t = function (text, want) {
+    算式.debug = t.debug;
     var obj = 算式(text);
     if (t.debug) console.log(JSON.toJS(obj, null, 4))
 };
@@ -23,8 +24,9 @@ t(`H[+]`)
 t(`H[2-]`)
 t(`H'*1`)
 t(`cos(theta,2)*E +(1 - cos(theta))*K'*K+sin(theta)*[0,-K_2,K_1;K_2,0,-K_0;-K_1,K_0,0]`)
-t.debug = true;
 t(`group(
     x+y=10 tab(circle,1),
     x*y=25 tab(circle,2)
 )`)
+t.debug = true;
+t(`a + -2`);

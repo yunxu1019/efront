@@ -6,7 +6,7 @@ const {
     createString,
 } = require("./common");
 var powermap = require("./powermap");
-var number_rep = /^[+-]?([\d\.]+)(?:e([+-]?\d+))?$/;
+var number_rep = /^([+-]?[\d\.]+)(?:e([+-]?\d+))?$/;
 class Math extends Program {
     number_reg = /^(\d+(?:\.\d+){0,2}|(?:\.\d+){1,2}|(?:\d+\.){1,3})\.*(?:e[+-]?\d+)?$/;
     powermap = Object.assign({}, powermap);
