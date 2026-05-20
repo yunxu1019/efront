@@ -237,7 +237,7 @@ class Matrix extends Array {
     }
     toDOMString() {
         if (this.size()[1] === 2) return `matrix(${this.getTransform()})`;
-        return `matrix(${this})`;
+        return `matrix3d(${this})`;
     }
 }
 
