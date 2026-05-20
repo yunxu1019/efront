@@ -50,16 +50,35 @@ var locktouch = function (target, handles) {
         }
     }
 };
-
+var getX = function (event) {
+    if ('screenX' in event) return event.screenX;
+    return event.clientX;
+};
+var getY = function (event) {
+    if ('screenY' in event) return event.screenY;
+    return event.clientY;
+};
 function moveupon(target, handles, initialEvent) {
     var { start, move, end } = handles;
     var touchLocked = false;
+    var savedX, savedY;
     var offmouseup, offtouchend, offtouchcancel;
+    var setMovement = function (event) {
+        if ("movementX" in event) return
+        var x = getX(event);
+        event.movementX = x - savedX;
+        savedX = x;
+        var y = getY(event);
+        event.movementY = y - savedY;
+        savedY = y;
+    }
     var mousemove = function (event) {
+        setMovement(event);
         if (isFunction(move)) move.call(target, event);
     };
 
     var touchmove = function (event) {
+        setMovement(event);
         extendTouchEvent(event);
         if (isFunction(move)) move.call(target, event);
     };
@@ -102,6 +121,8 @@ function moveupon(target, handles, initialEvent) {
         if (locktouch(event.target, handles)) return;
         touchLocked = true;
         hookmouse(event);
+        savedX = getX(event);
+        savedY = getY(event);
         if (isFunction(start)) start.call(this, event);
     });
     ontouchstart(target, function (event) {
@@ -109,6 +130,8 @@ function moveupon(target, handles, initialEvent) {
         if (locktouch(event.target, handles)) return;
         touchLocked = true;
         extendTouchEvent(event);
+        savedX = getX(event);
+        savedY = getY(event);
         hooktouch(event);
         if (isFunction(start)) start.call(this, event);
     });
