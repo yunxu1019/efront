@@ -30,6 +30,7 @@ var bindLoadings = function (reg, data, rootfile, replacer = a => a, deep) {
     if (!data) return data;
     var regs = [].concat(reg);
     var regindex = 0;
+    if (this && this["?"]) var bindmap = this;
     var run = function (data, fullpath, increase = 0) {
         var reg = regs[regindex];
         data = String(data);
@@ -119,6 +120,11 @@ var bindLoadings = function (reg, data, rootfile, replacer = a => a, deep) {
             else loadurls.forEach(relative => {
                 var realPath = path.join(path.dirname(fullpath), relative);
                 fs.access(realPath, function (error) {
+                    if (error) {
+                        if (bindmap && !/^\./.test(relative) && relative in bindmap) {
+                            pathmap[relative] = bindmap[relative];
+                        }
+                    }
                     loadingcount--;
                     if (!error) {
                         pathmap[relative] = realPath;
@@ -769,7 +775,7 @@ var renderLessData = function (data, lesspath, commName, watchurls, className) {
         return renderImageUrl.call(that, data, realpath, watchurls);
     };
     data = renderImageUrl.call(that, data, lesspath, watchurls);
-    var lessresult = Promise.resolve(data).then(data => bindLoadings(importLessReg, data, lesspath, replacer, 0));
+    var lessresult = Promise.resolve(data).then(data => bindLoadings.call(this, importLessReg, data, lesspath, replacer, 0));
     if (watchurls.indexOf(lesspath) < 0) watchurls.push(lesspath);
     if (/\.less$/i.test(this[commName]) && this[commName] !== lesspath) {
         var configpath = this[commName];

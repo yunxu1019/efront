@@ -30,13 +30,14 @@ async function getCommap(appname, deep = 6) {
                 const fname = f.name;
                 var fn = fname.replace(/\.[\s\S]*$/, '').replace(/\-([\s\S])/g, (_, a) => a.toUpperCase());
                 if (f.isFile()) {
-                    if (!/\.(html?|[cm]?[tj]sx?|xht|less)$/i.test(fname) || /^[\#\?]/.test(fname)) continue;
+                    if (!/\.(html?|[cm]?[tj]sx?|xht|less|css)$/i.test(fname) || /^[\#\?]/.test(fname)) continue;
+                    var isless = /\.(less|css)$/i.test(fname);
                     n.push(fn);
                     var m = n.join('$');
                     n.pop();
                     var p1 = path.join(p, fname);
-                    var m1 = m + fname.slice(fn.length);
-                    if (m1 !== m && !map[m1]) {
+                    var m1 = isless ? n.join("/") + fname : m + path.extname(fname);
+                    if (m1 !== m && !map[m1] || isless) {
                         map[m1] = p1;
                     }
                     if (/^[\.&]?(const)?(\..+)?\.m?js$/i.test(fname)) {
