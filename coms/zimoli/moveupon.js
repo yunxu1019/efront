@@ -106,6 +106,7 @@ function moveupon(target, handles, initialEvent) {
 
     if (initialEvent) {
         if (locktouch(initialEvent.target, handles)) return;
+        if (target.notouch) return;
         if (initialEvent.type === "touchstart") {
             extendTouchEvent(initialEvent);
             initialEvent.preventDefault();
@@ -119,6 +120,7 @@ function moveupon(target, handles, initialEvent) {
     onmousedown(target, function (event) {
         if (touchLocked) return;
         if (locktouch(event.target, handles)) return;
+        if (target.notouch) return;
         touchLocked = true;
         hookmouse(event);
         savedX = getX(event);
