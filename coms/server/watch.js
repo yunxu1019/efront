@@ -5,8 +5,10 @@ var path = require("path");
 var lazy = require("../basic/lazy");
 var watch_tree = {};
 var watching = false;
+var lastWatchTime = 0;
 var watch_ = function (file, watchers) {
     if (watchers[0]) return;
+    lastWatchTime = +new Date;
     watchers[0] = fs.watch(file, {
         persistent: false,
         recursive: /^(darwin|win32)$/i.test(process.platform)
@@ -15,9 +17,11 @@ var watch_ = function (file, watchers) {
         if (!/^(change|rename)$/i.test(changeType)) return;
         var fullpath = path.join(folder, changedFile);
         var stats = await fsp.stat(fullpath);
-        if (new Date - stats.mtime < 6000) {
+        var now = +new Date;
+        if (now - stats.mtime < 6000 || now - lastWatchTime > 1600) {
             watchers.slice(1, watchers.length).forEach(w => w(folder));
         }
+        lastWatchTime = now;
     }.bind(watchers, file), 160));
 }
 var close = function (file) {
