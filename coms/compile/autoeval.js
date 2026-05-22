@@ -296,7 +296,7 @@ function solve(body, ox, dx) {
                 var p1 = p;
                 var pt1 = pt;
                 var p2 = p;
-                while (p1 <= cache[cache.length - 1]) {
+                while (p <= cache[cache.length - 1]) {
                     p2 = p1;
                     p1 = cache.pop();
                     pt1 = cache.pop();
@@ -306,7 +306,7 @@ function solve(body, ox, dx) {
                     if (p === p1 && p > powermap[">>>"]) cache.push(bx, pt1, p1);
                     continue;
                 }
-                var cx1 = make(body, bx, cx, p === p2 ? pt1 : null);
+                var cx1 = make(body, bx, cx, pt1);
                 if (cx1 !== cx) {
                     dx -= cx - cx1;
                     cx = cx1;
@@ -316,6 +316,12 @@ function solve(body, ox, dx) {
             }
             if (p === 0) {
                 cache.splice(0, cache.length);
+                continue;
+            }
+            if (p > p0) {
+                bx = cx + 1;
+                cache.push(bx, pt, p);
+                continue;
             }
             continue;
         }
