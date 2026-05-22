@@ -16,7 +16,8 @@ var getOffset = function (e) {
     if (isFinite(e.screenX)) return [e.screenX, e.screenY];
 };
 
-var getMouse = function (e) {
+var getMousePosition = function (e) {
+    if ('screenX' in e) return [e.screenX, e.screenY];
     return [e.clientX, e.clientY];
 };
 var z;
@@ -51,7 +52,7 @@ function drag(target, initialEvent, preventOverflow, isMovingSource) {
     if ((!target.hasAttribute || target.hasAttribute('draggable')) && target.draggable === false) return;
     initialEvent.preventDefault();
     var target_offset = getOffset(target);
-    var saved_delta = { x: target_offset[0] - initialEvent.clientX, y: target_offset[1] - initialEvent.clientY };
+    var saved_delta = { x: target_offset[0] - getMousePosition(initialEvent)[0], y: target_offset[1] - getMousePosition(initialEvent)[1] };
     var clone;
     if (target.style) {
         var saved_opacity = target.style.opacity;
@@ -90,12 +91,13 @@ function drag(target, initialEvent, preventOverflow, isMovingSource) {
             extraClones.map(c => document.body.appendChild(c));
             saved_delta.x += clone_left - target_left;
             saved_delta.y += clone_top - target_top;
-            target.setAttribute("dragging", '');
+            if (target.setAttribute) target.setAttribute("dragging", '');
             dispatch("dragstart", target);
         }
         event.moveLocked = true;
-        var offsetLeft = saved_delta.x + event.clientX;
-        var offsetTop = saved_delta.y + event.clientY;
+        var [screenX, screenY] = getMousePosition(event);
+        var offsetLeft = saved_delta.x + screenX;
+        var offsetTop = saved_delta.y + screenY;
         var [c_left, c_top] = getOffset(clone);
         var cloneDeltaLeft = -c_left, cloneDeltaTop = -c_top;
         var [c_left, c_top] = move.call(clone, offsetLeft, offsetTop, preventOverflow);
@@ -115,7 +117,10 @@ function drag(target, initialEvent, preventOverflow, isMovingSource) {
         remove(extraClones);
         extraTargets.map((target, cx) => css(target, extraStyles[cx]));
         if (tgz != null) css(target, { zIndex: tgz });
-        if (saved_delta.ing) target.removeAttribute("dragging"), dispatch("dragend", target);
+        if (saved_delta.ing) {
+            if (target.removeAttribute) target.removeAttribute("dragging");
+            dispatch("dragend", target);
+        }
         drag.target = null;
         saved_delta = null;
     };
