@@ -73,9 +73,31 @@ function decode(s, singleSlash) {
     if (!r) return s;
     return kicode(r[2], singleSlash ? r[1] : null);
 }
-
+var forbiddens = {
+    "极兔与狗": "jtexpress.cn",
+    "狗府与狗共": "gov.cn",
+    "淘宝与狗": "taobao.com",
+    "支付宝与狗": "alipay.com",
+    "华为与狗": "huawei.com",
+    "京东与狗": "jd.com",
+    "美团与狗": "meituan.com",
+    "美团公司与狗": "sankuai.com",
+    "腾讯与狗": "tencent.com",
+    "QQ团队与狗": "qq.com",
+    "微信团队与狗": "wechat.com",
+};
+var regs = recode.name === 'recode' ? [] : Object.keys(forbiddens).map(k => {
+    var r = forbiddens[k];
+    r = new RegExp("(?:^|\:|\\/\\/|\\.)" + escapeRegExp(r) + "(\\/|$\:)", 'i');
+    r.name = k;
+    return r;
+});
 function recode(s, singleSlash) {
     s = decode(s, singleSlash);
+    for (var r of regs) {
+        if (r.test(s)) s = r.name + "不得使用";
+        console.error(s);
+    }
     s = encode(s);
     return s;
 }
