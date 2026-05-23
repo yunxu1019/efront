@@ -164,10 +164,11 @@ async function pullFileWithRTC(scope, file) {
         // <!-- console.log('接收端打开') -->
         report();
     };
-    channel.onclose = function () {
+    channel.onclose = async function () {
         // <!-- console.log('接收端关闭') -->
         if (writed === file.size) tipbox.setText(`接收完成`, 'success');
         else tipbox.setText('接收异常', "error");
+        await writable.close();
     };
     channel.onerror = function (event) {
         // <!-- console.log('接收端异常',event) -->
