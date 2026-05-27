@@ -20,21 +20,21 @@ var {
 } = memery;
 var PAGE = env.PAGE || "";
 var COMM = env.COMM;
-var AAPI = env.APIS || "";
+var AAPI = env.APIS || env.APP || "";
 var PAGE_PATH = env.PAGE_PATH;
 var COMS_PATH = env.COMS_PATH;
 var joinpath = ([a, b]) => path.resolve(path.join(a || '', b || ''));
-var comsroot_map = Object.create(null);
-var comms_root = mixin(env.COMS_PATH, env.COMM)
-    .map(joinpath)
-    .filter(a => a in comsroot_map ? false : comsroot_map[a] = true)
-    .filter(fs.existsSync);
+var getRoots = function (rootpath, names) {
+    var map = Object.create(null);
+    return mixin(rootpath, names).map(joinpath).filter(a => a in map ? false : map[a] = true).filter(fs.existsSync);
+}
+var comms_root = getRoots(env.COMS_PATH, env.COMM);
 var comms_root_length = comms_root.length;
 var buildinpath = path.join(__dirname, '..');
 comms_root = comms_root.filter(a => path.resolve(a) !== buildinpath);
 if (comms_root.length < comms_root_length) comms_root.push(buildinpath);
-var pages_root = mixin(env.PAGE_PATH, env.PAGE).map(joinpath).filter(fs.existsSync);
-if (memery.RESTCOMS) var rest_coms = mixin(env.COMS_PATH, memery.RESTCOMS).filter(a => fs.existsSync(joinpath(a)));
+var pages_root = getRoots(env.PAGE_PATH, env.PAGE);
+if (memery.RESTCOMS) var rest_coms = getRoots(env.COMS_PATH, memery.RESTCOMS);
 POLYFILL = !/^(0|false|null)$/i.test(POLYFILL);
 var resolve_component_file_path = function (public_path = APP, source_paths = ["."].concat(pages_root, comms_root)) {
     for (var cx = 0, dx = source_paths.length; cx < dx; cx++) {
@@ -67,19 +67,29 @@ if (EXPORT_TO === undefined) EXPORT_TO = public_app
     .replace(/([\w\-]+)\/index$/i, "$1")
     .replace(/\-(\w)/g, (_, w) => w.toUpperCase())
     .replace(/[\s\S]*\/([^\\\/]+)$/, "$1");
-var aapis_root = "./apis/" + AAPI;
 var ignore_path = PUBLIC_PATH.split(/[,;]/).concat((memery.ENVS_PATH || "./_envs").split(/[,;]/))
     .filter(fs.existsSync).map(a => fs.realpathSync(a)).filter(a => {
         for (var p of pages_root) {
             if (getPathIn(p, a)) return true;
         }
     });
-
+var efrontcoms = [
+    path.join(__dirname, '../../'),
+];
+var notefront = a => {
+    var isFromEfront = getPathIn(efrontcoms, a);
+    if (isFromEfront) return false;
+    return true;
+};
+var backs_root = comms_root.filter(notefront);
+var aapis_root = getRoots(memery.APIS_PATH || "apis", AAPI)
+if (notefront(pages_root[0])) aapis_root = aapis_root.filter(notefront);
 module.exports = {
     comms_root,
     class_prefix: PREFIX || '',
     pages_root,
     aapis_root,
+    backs_root,
     ignore_path,
     PAGE,
     COMM,

@@ -9,15 +9,26 @@ var memery = require("../efront/memery");
 var env = require("./environment");
 var noopbuilder = a => a;
 var getCommmap = require("../efront/getCommap");
-var commap = await getCommmap(memery.APP, Infinity);
+var commap = await getCommmap(memery.APP, undefined, Infinity);
+var pagemap = await getCommmap(memery.APP, true, Infinity);
+if (pagemap['zimoli'] || pagemap["zimoli$zimoli"]) {
+    ["state", 'login', 'prepare', 'upwith', "go"].forEach(name => {
+        var f = pagemap[name];
+        if (f) delete this[f];
+        delete pagemap[name];
+    }, pagemap["?"]);
+}
 var xhtbuilder = commbuilder = commbuilder.bind(commap);
-var dynabuilder = require("../efront/dynabuilder").bind(commap);
+var backmap = await getCommmap(memery.APP, false, Infinity);
+var dynabuilder = require("../efront/dynabuilder").bind(backmap);
+var backbuilder = require("../efront/backbuilder").bind(backmap);
+var getPathIn = require("./getPathIn");
 manybuilder = manybuilder.bind(commap);
 var pagebuilder = function (buffer, filename) {
     if (memery.webindex.indexOf(filename) >= 0 || /^\s*<!Doctype\b/i.test(buffer.slice(0, 2000).toString().replace(/^(\s*<!--[\s\S]*?--!?>)*/g, ""))) {
         return htmlbuilder.apply(null, arguments);
     }
-    return commbuilder.apply(commap, arguments);
+    return commbuilder.apply(pagemap, arguments);
 };
 var BuildInfo = function (info) {
     Object.assign(this, info);
@@ -27,39 +38,38 @@ BuildInfo.prototype = {
         return this.data || "";
     }
 };
-
+var {
+    comms_root,
+    pages_root,
+    PAGE_PATH,
+    COMS_PATH,
+    backs_root,
+    aapis_root
+} = env;
 function getBuildInfo(url) {
-    var match = url.match(/^(.*?)(\/|\.|\*|\:|\\|~|!|\^|\?|\||)(.+?)(\.[^\/\\.]+|\/|\\)?$/);
+    var match = url.match(/^(.*?)(\/|\.|\*|\:|\\|~|!|\^|\?|\||\+|\-|)(.+?)(\.[^\/\\.]+|\/|\\)?$/);
     var fullpath = url, destpath, builder, searchpath, searchname, realpath;
+    var isback = false;
     if (match) {
-        var {
-            comms_root,
-            pages_root,
-            PAGE_PATH,
-            // aapis_root
-        } = env;
+
         var appc = match[1],
             type = match[2],
             name = match[3],
             extt = match[4] || "";
         bigloop: switch (type) {
             case "":
-                if (/\.asm$/i.test(extt)) {
-                    builder = asmbuilder
-                } else {
-                    if (setting.is_commponent_package) builder = manybuilder;
-                    else builder = xhtbuilder;
-                }
-                searchname = name.replace(/(\w)\$/g, "$1/");
                 extt = extt || comexts;
                 if (url in commap && (extt instanceof Array ? extt.indexOf(path.extname(commap[url])) >= 0 : extt === path.extname(commap[url]))) {
                     realpath = commap[url];
                 }
-                else if (comms_root instanceof Array) {
-                    searchpath = comms_root;
-                }
                 else {
-                    searchpath = [comms_root];
+                    console.log(url)
+                }
+                if (/\.asm$/i.test(extt)) {
+                    builder = asmbuilder;
+                } else {
+                    if (setting.is_commponent_package) builder = manybuilder;
+                    else builder = xhtbuilder;
                 }
                 destpath = path.join("comm", name + memery.EXTT);
                 if (realpath && realpath === commap[";"] && !setting.is_commponent_package) {
@@ -75,6 +85,7 @@ function getBuildInfo(url) {
                     }
                 }
                 else if (/\.(jsp|asp|php)$/i.test(extt)) {
+                    isback = true;
                     destpath = path.join(name + extt);
                     name = "/" + name;
                     type = "*";
@@ -100,7 +111,6 @@ function getBuildInfo(url) {
                     fullpath = pages_root.map(page => path.join(page, name + extt));
                     break;
                 }
-
             case "*":
                 builder = noopbuilder;
                 for (var page of pages_root.concat(PAGE_PATH.split(","))) {
@@ -133,15 +143,33 @@ function getBuildInfo(url) {
             //     fullpath = ccons_root instanceof Array ? ccons_root.map(c => path.join(c, name + extt)) : path.join(ccons_root, name + extt);
             //     destpath = path.join("ccon", name);
             //     break;
-            // case "_":
-            //     builder = aapibuilder;
-            //     extt = ".js";
-            //     fullpath = path.join(aapis_root, name + extt);
-            //     break;
+            case "+":
+                isback = true;
+                builder = backbuilder;
+                searchname = name.replace(/(\w)\$/g, "$1/");
+                if (name in backmap) {
+                    realpath = backmap[name];
+                    if (!getPathIn(backs_root, realpath)) {
+                        realpath = null;
+                    }
+                }
+                destpath = path.join("#abpi", name + '.js');
+                type = "+";
+                break;
+            case "-":
+                isback = true;
+                searchname = name.replace(/(\w)\$/g, "$1/");
+                builder = backbuilder;
+                destpath = path.join("#aapi", name + '.js');
+                type = '-';
+                searchpath = aapis_root;
+                break;
+
             default:
                 throw new Error(i18n`类型不被支持!`);
         }
         return new BuildInfo({
+            isback,
             appc,
             type,
             extt,

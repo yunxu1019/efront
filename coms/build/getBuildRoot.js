@@ -10,6 +10,7 @@ var {
     comms_root,
     pages_root,
     PAGE_PATH,
+    aapis_root,
     ignore_path,
 } = require("./environment");
 var erroredFiles = Object.create(null);
@@ -167,6 +168,10 @@ var getBuildRoot = async function (files, matchFileOnly) {
         var name = "\\" + String(rel).replace(/[\\\/]+/g, "/");
         save(name);
     };
+    var saveAapi = function (rel) {
+        var name = "-" + String(rel).replace(/[\\\/]+/g, "/");
+        save(name);
+    };
     var saveFolder = function (folder) {
         var rel = getPathIn(comms_root, folder);
         if (rel) {
@@ -194,6 +199,11 @@ var getBuildRoot = async function (files, matchFileOnly) {
                 if (/\.less$/i.test(file)) continue;
                 if (file in commap) {
                     saveComm(commap[file], file);
+                    continue;
+                }
+                var rel = getPathIn(aapis_root, file);
+                if (rel) {
+                    saveAapi(rel, file);
                     continue;
                 }
                 var rel = getPathIn(comms_root, file);

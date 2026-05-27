@@ -62,31 +62,17 @@ if (memery.TRANSFORM_PIXEL) {
 }
 var createFunction = require2.createFunction;
 var invokeFunction = require2.invokeFunction;
-var SError = function (msg) { this.message = msg };
-SError.prototype.toString = function () { return this.message };
+
 var buildjsp = function (buff, realpath) {
     var dynareg = dynabuilder.dynareg;
     var seekreg = dynabuilder.seekreg;
     var splited = [];
     var lastIndex = 0;
     var input = String(buff);
-    var prebuilds = {
+    var prebuilds = Object.assign({
         __dirname: path.dirname(realpath),
         __filename: realpath,
-        Error: SError,
-        __efront: {
-            toString() {
-                return this.path;
-            },
-            path: path.join(__dirname, '../..'),
-            version: require("../../package.json").version
-        },
-        req: null, res: null, request: null, response: null, context: null,
-        remoteAddress: null, textplain: null, forbidden: null,
-        db: null,
-        i18n: null,
-        clients: require("../server/clients")
-    };
+    }, dynabuilder.prebuilds);
     var that = this;
     //////////////////------------//////////////////////////////////////////////////////////////////////--------//////////////////////////////
     // // ///////////1/////////////11//2////////22/////////////2/2//////////////2/////////////////////11////////////////2////////2/////////1//
@@ -178,11 +164,12 @@ var str2array = require("../basic/str2array");
 var indexreg = new RegExp(`(${str2array(memery.INDEX_NAME).join('|')})\\.[^\/\\\.]+$`);
 if (memery.istest) builder = function (buff, name, fullpath) {
     var dev = buff;
+    var that = this;
     if (/\.(?:jsp|php|asp)$/i.test(fullpath)) {
         return function (req, res) {
             var data = fixpixel(buff);
             data = buildreload(data);
-            data = buildjsp.call(this, data, fullpath)
+            data = buildjsp.call(that, data, fullpath);
             return data(req, res);
         };
     }

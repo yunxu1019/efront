@@ -40,7 +40,7 @@ module.exports = function (app) {
             });
         }
         if (!value_map[""]) value_map[""] = true;
-        if (default_value === undefined) value_map["zimoli"] = true;
+        if (default_value === undefined) value_map["zimoli"] = true, value_map["reptile"] = true;
         var value = Object.keys(value_map).join(',');
         memery.setTo(env, key, value);
     });

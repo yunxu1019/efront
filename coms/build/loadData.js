@@ -53,16 +53,32 @@ function build(pages_root, lastBuiltTime, dest_root) {
         });
         var deps = {};
         var filter = r => {
-            if (/^\.*[\/\\]/.test(r)) return true;
+            if (/^\.*[\/\\]/.test(r)) {
+                if (isback) console.warn(i18n`不要在后端代码中使用相对路径\r\n    文件：${r}`);
+                return true;
+            }
+            if (isback) r = "+" + r;
             deps[r] = true;
             return false;
         };
-        var reqs = datas.map(getDependence).map(async function (a, i) {
+        var isback = false;
+        var reqs = datas.map(async function (r, i) {
+            if (!r.data) return;
+            isback = r.isback;
+            if (isback) {
+                var { required, imported } = r.data;
+                required.filter(filter);
+                imported.forEach(k => {
+                    deps["+" + k] = true;
+                });
+                return;
+            }
+            var a = getDependence(r);
             a.forEach((a, i, arr) => {
                 if (a in dependenceMap) arr[i] = dependenceMap[a];
             });
             var required = (a.require || []).filter(filter);
-            var outside = isOutside(datas[i].realpath);
+            var outside = isOutside(r.realpath);
             if (!include_required && !outside) return a.map(k => deps[k] = true);
             var required2 = required.map(r => /^\./.test(r) ? path.join(a.dirname, r) : r);
             var required3 = await getBuildRoot(required2, true);
@@ -70,7 +86,7 @@ function build(pages_root, lastBuiltTime, dest_root) {
             required3.forEach((r, cx) => {
                 map[required[cx]] = String(r);
             });
-            var isrest = datas[i].isrest;
+            var isrest = r.isrest;
             a.concat(required3).forEach(k => {
                 deps[k] = true;
                 if (isrest) restRequired[k] = true;

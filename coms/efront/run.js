@@ -215,7 +215,7 @@ module.exports = async function (mainpath, args) {
             } else {
                 getLoader = fromComponent.bind(window, env, '/');
             }
-            var map = await getCommap(env.APP);
+            var map = await getCommap(env.APP, false);
             appname = map["?"][fullpath];
             window.location = location;
             window.startPath = appname;

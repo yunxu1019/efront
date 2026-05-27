@@ -7,6 +7,7 @@ var {
     PAGE_PATH,
     POLYFILL,
     pages_root,
+    aapis_root,
     public_app
 } = environment;
 var PUBLIC_APP = /* process.argv[2] || */ APP.replace(/\.html?$/i, "");
@@ -123,6 +124,7 @@ function builder(cleanAfterBuild = false, cleanBeforeBuild = false) {
                     path.join(__dirname, "../", "zimoli/main.js"),
                     path.join(__dirname, "../", "zimoli/zimoli.js"),
                 ].concat(polyfills) : [],
+                indexHTML ? aapis_root : []
             ), lastBuildTime, public_path)
                 .then(toApplication)
                 .then(function (response) {

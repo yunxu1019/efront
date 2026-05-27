@@ -22,9 +22,11 @@ var sortPath = function (a, b) {
 var formatdir = a => a.replace(/\\/g, '/').replace(/\/$/, '') + "/";
 var createManagersWithEnv = async function (env) {
     var commap = await getCommap(env.APP);
+    var backmap = await getCommap(env.APP, false);
     if (env.root) commap[""] = env.root;
     var Cache = require("../server/cache");
     var cbuilder = commbuilder.bind(commap);
+
     var mixpath = (a, b) => {
         var map = Object.create(null);
         var root = env.root;
@@ -49,7 +51,10 @@ var createManagersWithEnv = async function (env) {
         if (env.reload instanceof Function) env.reload();
     };
     var update = async function (updated) {
-        if (update.ing) return;
+        if (update.ing) {
+            getCommap.reset();
+            return;
+        }
         update.ing = true;
         try {
             await update1();
@@ -85,9 +90,9 @@ var createManagersWithEnv = async function (env) {
     };
     comscache.onreload = update;
     pagecache.onreload = update;
-    var apicache = new Cache(mixpath(env.APIS_PATH, env.AAPI), aapibuilder);
+    var apicache = new Cache(mixpath(env.APIS_PATH, env.AAPI).concat(mixin(env.PAGE_PATH, '#aapi')), aapibuilder.bind(backmap));
     apicache.onreload = fireload;
-    var filecache = new Cache(mixpath(env.FILE_PATH || env.PAGE_PATH, env.FILE || env.PAGE), filebuilder, FILE_BUFFER_SIZE);
+    var filecache = new Cache(mixpath(env.FILE_PATH || env.PAGE_PATH, env.FILE || env.PAGE), filebuilder.bind(backmap), FILE_BUFFER_SIZE);
     filecache.onreload = fireload;
     var managers = {
         comm(name, ext) {
