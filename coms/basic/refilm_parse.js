@@ -106,7 +106,6 @@ var getUnaryRest = function (buff, index, flag) {
     var binc = index * 8;
     var savedb = binc;
     do {
-
         var i = binc / 8 | 0;
         var b = binc - i * 8;
         if (i >= buff.length) break;
@@ -232,13 +231,13 @@ function refilm_parse(data, start = 0) {
                 bytes = readFromIndex(data, index, offset);
                 value = bufferToUTF8String(bytes, 0);
             }
-            else if (/^(small|little|small-end|litte-end|end)$/i.test(field.type)) {
+            else if (/^(small|little|small-end|litte-end|end|le)\d*$/i.test(field.type)) {
                 value = numberFromSmallEnd(value);
             }
             else if (/^(string|str)$/i.test(field.type)) {
                 value = bufferToUTF8String(value);
             }
-            else if (/^num$|^number$|^int$|^integer$|^float$|^uint$/i.test(field.type)) {
+            else if (/^(num|number|int|integer|float|uint|double|real)\d*$/i.test(field.type)) {
                 value = numberFromBuffer(value, 0, field.size * field.ratio * 8);
             }
             else if (/^bool$|^boolean$/i.test(field.type)) {
@@ -268,7 +267,7 @@ function refilm_parse(data, start = 0) {
     };
     var readone = function (field) {
         var inc = 0;
-        var value = read(field, inc);
+        var value = read(field, field.repeat && inc);
         if (field.repeat) {
             var result = [value];
             var { size } = field;

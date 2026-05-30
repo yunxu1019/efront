@@ -272,28 +272,26 @@ var getComment = function (piece) {
     return '';
 };
 function spreadkey(name) {
-    if (/^\([\s\S]*\)$/.test(name) && /,/.test(name)) {
-        var [, name, rest_piece] = /^([\s\S]*?),([^\]]*)$/.exec(name.slice(1, name.length - 1));
+    var repeat = /^\[/.test(name) ? true : void 0;
+    if (/^\([\s\S]*\)$|^\[[\s\S]*\]$/.test(name)) {
+        name = name.slice(1, name.length - 1);
+        if (/,/.test(name)) var [, name, rest_piece] = /^([\s\S]*?),([^\]]*)$/.exec(name);
     }
-    if (/^\[[\s\S]*\]$/.test(name)) {
-        repeat = true;
-        name = name.replace(/^\[|\]$/g, '');
-        if (/\,/.test(name)) {
-            var commaindex = name.indexOf(",");
-            var endwith = parseKV(name.slice(commaindex + 1));
+    if (repeat) {
+        if (rest_piece) {
+            var endwith = parseKV(rest_piece);
             endwith = parseValue(endwith);
-            name = name.slice(0, commaindex);
         }
     }
     var [name, key, holder] = scanSlant(name, '/', 0, name.length + 1);
-    if (rest_piece) {
+    if (!repeat && rest_piece) {
         if (rest_piece && !/=/.test(rest_piece)) {
             var needs = { [key || name]: parseValue(rest_piece) };
         } else {
             var needs = scanNeeds(rest_piece);
         }
     }
-    return [name, key, needs, holder];
+    return [name, key, needs, holder, repeat, endwith];
 }
 function parseOptions(size, options) {
     if (typeof options === "string" && !/^[\$&]+\d+$/.test(options)) {
@@ -394,7 +392,7 @@ function parse(piece) {
                     last_type = type;
                 }
             }
-            [name, key, needs, holder] = spreadkey(name);
+            [name, key, needs, holder, repeat, endwith] = spreadkey(name);
             if (key === undefined && !/^(title|label|headline)$/i.test(type)) key = name;
         }
         var value = /\/?\=([^\/\\]+)/.exec(type);
@@ -405,10 +403,10 @@ function parse(piece) {
             if (d & 0b111 === 0) type = (d >>> 3) + 'byte/' + t;
             else type = d + 'bit/' + t;
         }
-        var sizematch = /^(\-?\d+|\-?\d*\.\d+)?([YZEPTGMK]i?b?|bytes?|bits?|words?|dword|real[48]|long|B|[^\/]*)([\/]|$|\s|\=)/i.exec(type);
+        var sizematch = !/^\:/.test(type) && /^(\-?\d+|\-?\d*\.\d+)?([YZEPTGMK]i?b?|bytes?|bits?|words?|dword|real[48]|long|B|[^\/]*)([\/]|$|\s|\=)/i.exec(type);
         if (!sizematch[1] && /^\$\d/.test(sizematch[2])) sizematch = null;
         if (sizematch) {
-            var [size_text, size = 1, unit, eq] = sizematch;
+            var [size_text, size, unit, eq] = sizematch;
             if (unit && /^i?b?$/i.test(unit.slice(1))) {
                 let ratio = KMGT.indexOf(unit.toUpperCase().charAt(0));
                 size *= Math.pow(1024, ratio + 1);
@@ -470,7 +468,7 @@ function parse(piece) {
             var size = /^\:[^\/\:\-\,\/]+/.exec(type)[0];
             type = type.slice(size.length + 1);
             if (!type) {
-                type = size.slice(1);
+                type = "bytes";
             }
         } else if (/^[\/]/.test(type)) {
             type = type.slice(1);
@@ -485,9 +483,9 @@ function parse(piece) {
         key = is(key);
     }
     else if (typeof name === 'string') {
-        [name, key = name, needs, holder] = spreadkey(name);
+        [name, key = name, needs, holder, repeat, endwith] = spreadkey(name);
     }
-    if (typeof size === 'string') size = parseFloat(size);
+    if (typeof size === 'string' && !/^\:/.test(size)) size = parseFloat(size);
     if (unit === type) unit = '';
     var field = {
         name, type, key, value, comment, options,
@@ -504,7 +502,11 @@ function parse(piece) {
     };
     var parent = piecepath[piecepath.length - 1];
     if (parent) {
-        field.parent = parent;
+        Object.defineProperty(field, 'parent', {
+            value: parent,
+            configurable: true,
+            enumerable: false
+        });
         if (parent.options) {
             parent.options.push(field);
         } else {
