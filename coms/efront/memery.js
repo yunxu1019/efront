@@ -363,3 +363,27 @@ Object.keys(memery).forEach(function (key) {
     if (isHandled(setted)) _memery[key] = setted;
 });
 Object.keys(fixme).forEach(fixpath);
+var setDebug = function () {
+    var debug = {
+        ENCRYPT: false,
+        COMPRESS: false,
+        KEEPSPACE: true,
+        BREAK: false,
+        COMMENT: true,
+    };
+    for (var k in debug) {
+        if (!isHandled(_memery[k])) _memery[k] = debug[k];
+    }
+};
+Object.defineProperty(memery, 'DEBUG', {
+    set(v) {
+        if (v) setDebug();
+    },
+    get() {
+        return !_memery.COMPRESS || !_memery.ENCRYPT;
+    }
+})
+if (get("DEBUG", false)) {
+    // 检错模式
+    setDebug();
+}

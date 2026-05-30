@@ -1141,11 +1141,14 @@ userdata.getItem("memery").then(async function (mm) {
             if (!cmd) return cmd = true;
             return true;
         }
-        if (/^--(?:inspect|debug)(-brk)?(\=\d*)?$/.test(a)) {
+        var m = null;
+        if (m = /^--(inspect|debug)(-brk)?(\=\d*)?$/.exec(a)) {
             restArgv.push(a);
-            return;
+            if (m[1] === "inspect" || m[2] || m[3]) {
+                return;
+            }
         }
-        restArgv.push(a);
+        else restArgv.push(a);
         a = a.replace(/^--/, '');
         var key, value = '';
         if (/^(no|off|not|is-not|disable)-/.test(a)) {
