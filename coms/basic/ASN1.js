@@ -4,7 +4,7 @@ var ASN1 = function (tag) { // tag=tagClass|type|composed_flag
     for (var cx = 1, dx = arguments.length; cx < dx; cx++) {
         var bytes = arguments[cx];
         if (bytes.constructor !== Array) {
-            bytes = Array.apply(null, bytes);
+            bytes = bytes.length !== 1 ? Array.apply(null, bytes) : [bytes[0]];
         }
         bytesarr.push(bytes);
         length += bytes.length;

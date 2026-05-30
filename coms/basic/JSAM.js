@@ -104,7 +104,7 @@ function stringify(memery, preload, hasDulp = true) {
     noDulp = preload === false || hasDulp === false;
     if (isArrayLike(hasDulp)) preload = hasDulp;
     if (isArrayLike(preload)) {
-        preload = Array.apply(null, preload);
+        preload = preload.length !== 1 ? Array.apply(null, preload) : [preload[0]];
         var i = preload.indexOf(memery) + 1;
         if (i > 0) return i + ',';
         preload.unshift(memery);
@@ -244,7 +244,7 @@ function scanblock(string, index, preload, obj) {
     return reg.lastIndex;
 }
 function parse(string, preload) {
-    if (isArrayLike(preload)) preload = Array.apply(null, preload);
+    if (isArrayLike(preload)) preload = preload.length !== 1 ? Array.apply(null, preload) : [preload[0]];
     else preload = [];
     isjsam = false;
     preload.unshift(void 0);
