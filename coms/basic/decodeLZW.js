@@ -100,16 +100,16 @@ function _pass(buff) {
     var dict = _dict;
     var half = _half;
     var end = false;
-    if (dict.length) {
-        var dist = [];
-        if (half) {
+    var dist = [];
+    if (_buff.length) {
+        var bl = _buff.length;
+        do {
             var [b, cx] = _readFrom(_buff.concat(buff[0], buff[1]), 0);
             if (_writeTo(dist, b)) end = true;
-        }
-        cx = cx - 1;
+        } while (cx < bl);
+        cx = cx - bl;
     } else {
         cx = 0;
-        var dist = [];
     }
     if (!end) while (cx + 1 < buff.length) {
         if (cx + 2 === buff.length) {
@@ -118,7 +118,7 @@ function _pass(buff) {
         [b, cx] = _readFrom(buff, cx);
         if (_writeTo(dist, b)) break;
     }
-    _buff = buff.slice(cx);
+    _buff = Array.prototype.slice.call(buff, cx);
     return dist;
 }
 function _end() {
@@ -131,11 +131,15 @@ function _end() {
 }
 
 function decodeLZW(buff, isBigEndStart) {
-    if (isBigEndStart !== false) _readFrom = _readFrom1, _addLength = 1;
-    else _readFrom = _readFrom2, _addLength = 0;
+    open(isBigEndStart);
     var decoded = _pass(buff);
     _end();
     return decoded;
 }
-
+var open = decodeLZW.open = function (isBigEndStart) {
+    if (isBigEndStart !== false) _readFrom = _readFrom1, _addLength = 1;
+    else _readFrom = _readFrom2, _addLength = 0;
+};
+decodeLZW.pass = _pass;
+decodeLZW.close = _end;
 module.exports = decodeLZW;
