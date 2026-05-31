@@ -2,10 +2,12 @@ var _dict = [];
 var _prefix = [];
 var _buff = [];
 var _bitDeep = 9;
+var _bitInit = 9;
+var _dictSize = 258;
 var _half = 0;
 var _addLength = 0;
 function _clear() {
-    _bitDeep = 9;
+    _bitDeep = _bitInit;
     _dict = [];
 }
 
@@ -57,9 +59,9 @@ function _readFrom1(buff, cx) {
 function _addDict(d) {
     if (d.length > 1) {
         var dict = _dict;
-        d.index = dict.length + 258;
+        d.index = dict.length + _dictSize;
         dict.push(d);
-        if (1 << _bitDeep <= dict.length + 258 + _addLength) {
+        if (1 << _bitDeep <= dict.length + _dictSize + _addLength) {
             if (!_addLength && _bitDeep >= 12) return;
             _bitDeep++;
         }
@@ -69,12 +71,12 @@ function _writeTo(dist, b) {
     var prefix = _prefix;
     var dict = _dict;
     var end = false;
-    if (b < 256) {
+    if (b < _dictSize - 2) {
         prefix.push(b);
         _addDict(prefix);
         prefix = [b];
-    } else if (b >= 258) {
-        var d = dict[b - 258];
+    } else if (b >= _dictSize) {
+        var d = dict[b - _dictSize];
         if (!d) {
             prefix.push(prefix[0]);
             _addDict(prefix);
@@ -84,10 +86,10 @@ function _writeTo(dist, b) {
             _addDict(prefix);
             prefix = d.slice(0);
         }
-    } else if (b === 256) {
+    } else if (b === _dictSize - 2) {
         _clear();
         prefix = [];
-    } else if (b === 257) {
+    } else if (b === _dictSize - 1) {
         end = true;
         prefix = [];
     }
@@ -101,15 +103,17 @@ function _pass(buff) {
     var half = _half;
     var end = false;
     var dist = [];
+    var cx = 0;
     if (_buff.length) {
         var bl = _buff.length;
         do {
-            var [b, cx] = _readFrom(_buff.concat(buff[0], buff[1]), 0);
-            if (_writeTo(dist, b)) end = true;
+            var [b, cx] = _readFrom(_buff.concat(buff[0], buff[1]), cx);
+            if (_writeTo(dist, b)) {
+                end = true;
+                break;
+            }
         } while (cx < bl);
         cx = cx - bl;
-    } else {
-        cx = 0;
     }
     if (!end) while (cx + 1 < buff.length) {
         if (cx + 2 === buff.length) {
@@ -118,7 +122,9 @@ function _pass(buff) {
         [b, cx] = _readFrom(buff, cx);
         if (_writeTo(dist, b)) break;
     }
-    _buff = Array.prototype.slice.call(buff, cx);
+    _buff = buff.slice(cx);
+    if (_buff.length === 1) _buff = [_buff[0]];
+    else _buff = Array.apply(null, _buff);
     return dist;
 }
 function _end() {
@@ -127,18 +133,21 @@ function _end() {
     _buff = [];
     _half = 0;
     _bitDeep = 9;
+    _bitInit = 9;
     return [];
 }
 
-function decodeLZW(buff, isBigEndStart) {
-    open(isBigEndStart);
+function decodeLZW(buff, isBigEndStart, lzw_size) {
+    open(isBigEndStart, lzw_size);
     var decoded = _pass(buff);
     _end();
     return decoded;
 }
-var open = decodeLZW.open = function (isBigEndStart) {
+var open = decodeLZW.open = function (isBigEndStart, lzw_size = 8) {
     if (isBigEndStart !== false) _readFrom = _readFrom1, _addLength = 1;
     else _readFrom = _readFrom2, _addLength = 0;
+    _dictSize = (1 << lzw_size) + 2;
+    _bitDeep = _bitInit = lzw_size + 1;
 };
 decodeLZW.pass = _pass;
 decodeLZW.close = _end;
