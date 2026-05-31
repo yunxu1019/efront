@@ -62,9 +62,6 @@ function getBuildInfo(url) {
                 if (url in commap && (extt instanceof Array ? extt.indexOf(path.extname(commap[url])) >= 0 : extt === path.extname(commap[url]))) {
                     realpath = commap[url];
                 }
-                else {
-                    console.log(url)
-                }
                 if (/\.asm$/i.test(extt)) {
                     builder = asmbuilder;
                 } else {
