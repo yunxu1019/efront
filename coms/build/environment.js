@@ -83,7 +83,7 @@ var notefront = a => {
 };
 var backs_root = comms_root.filter(notefront);
 var aapis_root = getRoots(memery.APIS_PATH || "apis", AAPI)
-if (notefront(pages_root[0])) aapis_root = aapis_root.filter(notefront);
+if (pages_root[0] && notefront(pages_root[0])) aapis_root = aapis_root.filter(notefront);
 module.exports = {
     comms_root,
     class_prefix: PREFIX || '',
