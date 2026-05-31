@@ -126,7 +126,7 @@ var readFromIndex = function (data, index, offset) {
         byteOffset++;
         bitOffset = 8 - bitOffset;
     }
-    var bytes = data.slice(byteIndex, byteOffset);
+    var bytes = data.subarray(byteIndex, byteOffset);
     if (bitOffset > 0 || bitIndex > 0) bytes = bytes.map(copy);
     if (bitOffset > 0) {
         bytes[bytes.length - 1] = bytes[bytes.length - 1] >> bitOffset << bitOffset;
@@ -138,7 +138,7 @@ var readFromIndex = function (data, index, offset) {
         bytes[bytes.length - 1] = bytes[bytes.length - 1] << bitIndex;
     }
     if (bitIndex + bitOffset >= 8) {
-        bytes = bytes.slice(0, bytes.length - 1);
+        bytes = bytes.subarray(0, bytes.length - 1);
     }
     return bytes;
 };
@@ -247,7 +247,7 @@ function refilm_parse(data, start = 0) {
                 value = 1 + numberFromBuffer(value, 0, field.size * field.ratio * 8);
             }
             else {
-                value = bytes.map(copy);
+                value = bytes;
             }
             index = offset;
         }
