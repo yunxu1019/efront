@@ -214,7 +214,7 @@ var wrapColor = function (k) {
     var f = color[k];
     macros[k] = function (c) {
         if (color.isColor(c)) return f(...arguments);
-        return `${k}(${Array.apply(null, arguments).join(',')})`;
+        return `${k}(${Array.prototype.join.call(arguments, ',')})`;
     };
 };
 
