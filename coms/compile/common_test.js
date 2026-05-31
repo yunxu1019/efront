@@ -60,3 +60,51 @@ assert(common.number_reg.test("1.1920928955078125e-07F"), true)
 assert(new RegExp(common.number_reg.source.replace(/^\^|\$$/g, ''), 'ig').exec("00080000h"), ["00080000h"])
 assert(new RegExp(common.number_reg.source.replace(/^\^|\$$/g, ''), 'ig').exec("2A3h"), ["2A3h"])
 assert(new RegExp(common.number_reg.source.replace(/^\^|\$$/g, ''), 'ig').exec("1.1920928955078125e-07F"), ["1.1920928955078125e-07F"])
+function testCrateString(text, want = text) {
+    var code = scanner2(text);
+    code.keepspace = false;
+    var res = common.createString(code);
+    assert(res, want);
+}
+testCrateString('else\r\na:{break a}', 'else a:{break a}')
+testCrateString('do\r\na:{break a}', 'do a:{break a}')
+testCrateString('try\r\na:{break a}', 'try a:{break a}')
+testCrateString('finally\r\na:{break a}', 'finally a:{break a}')
+testCrateString('catch\r\na:{break a}', 'catch a:{break a}')
+testCrateString(
+    'a = function () {}\r\n a: do { break a } white(true)',
+    'a=function(){};a:do{break a}white(true)'
+)
+testCrateString(
+    'function a() {}\r\nreturn',
+    'function a(){}return'
+)
+testCrateString(
+    'a = function () {}()\r\n return',
+    'a=function(){}();return'
+)
+testCrateString(
+    'a = class{}\r\n return',
+    'a=class{};return'
+)
+testCrateString(
+    'class a{}\r\n return',
+    'class a{}return'
+)
+testCrateString(
+    'class a extends class b{}{}\r\n return',
+    'class a extends class b{}{}return'
+)
+testCrateString(
+    'new class a extends class b{}{}\r\n return',
+    'new class a extends class b{}{};return'
+)
+testCrateString(
+    'new class a extends function b(){}{}\r\n return',
+    'new class a extends function b(){}{};return'
+)
+testCrateString(
+    'new class a extends()=>{}{}\r\n return',
+    'new class a extends()=>{}{};return'
+)
+testCrateString('if(true){}a:do{break a}white(true)')

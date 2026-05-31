@@ -287,6 +287,21 @@ var getContitionHeadBeforeScoped = function (p, nodo) {
             return getIfElseHead(pp);
     }
 };
+var getClassHeadBeforeScoped = function (p) {
+    var i = 0;
+    while (p && p.isClass) {
+        p = p.prev;
+        i++;
+    }
+    while (p && i > 0) {
+        var o = p;
+        if (p.type === STRAP && /^(class|interface)$/.test(p.text)) {
+            i--;
+        }
+        p = p.prev;
+    }
+    return o;
+}
 var getFunctionHeadBeforeScoped = function (p) {
     var pp = getprev(p);
     if (pp && pp.type === EXPRESS) pp = getprev(pp);
@@ -1282,9 +1297,25 @@ var getSemicolonBetween = function (prev, next) {
         }
         return;
     }
+    if (prev.brace) {
+        if (pp.type === SCOPED && pp.entry === '(' ||
+            pp.type === STAMP && pp.text === '=>'
+        ) pp = getFunctionHeadBeforeScoped(pp);
+        else if (prev.isClass) {
+            pp = getClassHeadBeforeScoped(prev);
+        }
+        else pp = null;
+        if (pp) pp = getprev(pp);
+        if (!pp) return;
+        if (pp.type === STAMP && (
+            !/^([,;]|\+\+|\-\-)$/.test(pp.text)
+            || pp.unary
+        ) || pp.type === STRAP && pp.transive && !pp.isend) return ';';
+        return;
+    }
     if (prev.type === STRAP) {
         if ((STRAP | EXPRESS | VALUE | QUOTED) & next.type) return " ";
-        if (next.type === LABEL) return ";";
+        if (next.type === LABEL) return /^(do|else|try|catch|finally)$/.test(prev.text) ? " " : ";";
     }
 }
 var needBreakBetween = function (prev, next) {

@@ -1099,7 +1099,7 @@ class Program {
                         if (last.type !== STAMP || last.text !== "=>") {
                             var classed = queue.classed;
                             var clsd = classed.pop();
-                            scope.isClass = true;
+                            scope.isClass = /^(class|interface)$/.test(clsd);
                             if (!classed.length) queue.classed = null;
                             scope.istype = clsd !== 'class';
                             scope.extend += extends_reg.test(last.text);
