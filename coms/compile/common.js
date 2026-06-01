@@ -1585,6 +1585,10 @@ var createString = function (parsed) {
         lasttype = o.type;
     };
     parsed.forEach(run);
+    var pend = parsed[parsed.length - 1];
+    if (pend?.type === COMMENT && /^\/\//.test(pend.text)) {
+        finalresult.push('\r\n');
+    }
     return finalresult.join("");
 }
 var rename = function (used, from, to) {
