@@ -650,8 +650,7 @@ function ylist(container, generator, $Y) {
 var allArgumentsNames = arguments[arguments.length - 1];
 if (allArgumentsNames.done) return ylist;
 allArgumentsNames.done = true;
-var xlist = arriswise.call(this, arguments[arguments.length - 3], arguments).apply(this, arguments);
-
+var xlist = arriswise.call(this, arguments[arguments.length - 3], arguments);
 var getGeneratorFromArray = function (source) {
     return function (index) {
         if (index >= source.length || index < 0) return null;

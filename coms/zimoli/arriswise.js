@@ -33,12 +33,15 @@ var replaceArg = function (arg) {
     }
     return arg;
 };
-function build(func, argNames, argsArr) {
+function build(func, argNames, argsArr, isWrapper) {
     var newf = String(func).replace(regexps, rep);
-    return Function.apply(null, argNames.map(replaceArg).concat("return " + newf))
+    if (isWrapper) newf = newf.replace(/^\s*function[\s\S]*?\{([\s\S]*)\}\s*$/, "$1");
+    else newf = "return " + newf;
+    return Function.apply(null, argNames.map(replaceArg).concat(newf))
         .apply(this, argsArr.map(replaceArg));
 }
 var arriswise = function (func, args = []) {
+    var isWrapper = func === args[args.length - 3];
     if (isFunction(args.slice)) {
         // 兼容老方法
         var argArr = args.slice(args.length - 3 >>> 1);
@@ -46,8 +49,9 @@ var arriswise = function (func, args = []) {
         return build.call(arguments[2] || this, func,
             args.slice(0, args.length - 3 >>> 1),
             argArr,
+            isWrapper
         );
     }
     var allArgumentsNames = args[args.length - 1];
-    return build.call(this, func, allArgumentsNames, [].slice.call(args, 0));
+    return build.call(this, func, allArgumentsNames, [].slice.call(args, 0), isWrapper);
 };
