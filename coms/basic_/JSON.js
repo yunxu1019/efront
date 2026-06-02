@@ -25,7 +25,7 @@ var scan_number = function (str, start) {
     return false;
 };
 var scan_null = function (str, start) {
-    var reg = /null|false|true|\-?Infinity/g;
+    var reg = /null|false|true|\-?Infinity|NaN/g;
     reg.lastIndex = start;
     var match = reg.exec(str);
     if (match && match.index === start) {
@@ -44,6 +44,9 @@ var scan_null = function (str, start) {
                 break;
             case "-":
                 data = -Infinity;
+                break;
+            case "N":
+                data = NaN;
                 break;
         }
         return reg.lastIndex;
@@ -129,6 +132,7 @@ var _safeparse = function (str, start) {
         case "f":
         case "t":
         case "I":
+        case "N":
             start = scan_null(str, start);
             break;
         default:
