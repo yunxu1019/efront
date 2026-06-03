@@ -324,8 +324,12 @@ function toString(obj, p, deep) {
         for (var k in obj) break;
         if (!k) return '';
         var origin = obj[k];
-        if (k === '..') {
-            var [prefix, rep, dots, e] = origin;
+        if (k === '.' || k === '..') {
+            if (k === '.') {
+                var [prefix, e, s] = origin;
+                if (/[^\d]$/.test(e)) s = e, e = '';
+            }
+            else var [prefix, rep, dots, e, s] = origin;
             prefix = String(prefix).replace(/^\-/, '–');
             if (typeof rep === 'number') rep = String(rep);
             if (rep && !/\./.test(prefix)) prefix += '.';
@@ -342,8 +346,10 @@ function toString(obj, p, deep) {
             else dots = '';
             if (e) e = `<mo>×</mo><msup><mn>10</mn><mn>${String(e).replace(/^\-/, '–')}</mn></msup>`;
             else e = '';
+            if (s) s = `<mi>${s}</mi>`;
+            else s = '';
             prefix = mn(prefix);
-            return mrow([prefix, rep, dots, e].join(''), e ? p >= pmap["*"] : false, deep);
+            return mrow([prefix, rep, dots, e, s].join(''), e ? p >= pmap["*"] : false, deep);
         }
         if (k === 'tab') {
             k = origin.shift();

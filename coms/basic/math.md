@@ -292,6 +292,13 @@ series(公式主体,n=1,+Infinity)
     1.3.e3;
     a*1.3e3
 ```
+* 虚数
+```mathscript
+    1+2i;
+    1+2.3i;
+    2+3e10k;
+    3e10j;
+```
 * 方程组
 ```mathscript
     group(

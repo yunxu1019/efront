@@ -6,9 +6,9 @@ const {
     createString,
 } = require("./common");
 var powermap = require("./powermap");
-var number_rep = /^([+-]?[\d\.]+)(?:e([+-]?\d+))?$/;
+var number_rep = /^([+-]?[\d\.]+)(?:e([+-]?\d+))?([ijkn]*)$/;
 class Math extends Program {
-    number_reg = /^(\d+(?:\.\d+){0,2}|(?:\.\d+){1,2}|(?:\d+\.){1,3})\.*(?:e[+-]?\d+)?$/;
+    number_reg = /^(\d+(?:\.\d+){0,2}|(?:\.\d+){1,2}|(?:\d+\.){1,3})\.*(?:e[+-]?\d+)?[ijkn]*$/;
     powermap = Object.assign({}, powermap);
     value_reg = /^(false|true|null|Infinity|NaN|undefined|eval|this|arguments)$/;
     constructor() {
@@ -241,9 +241,9 @@ var toFlat = function (exp) {
             }
             if (e.isdigit) a: {
                 var et = e.text;
-                var [, a, e10] = number_rep.exec(et);
+                var [, a, e10, s] = number_rep.exec(et);
                 var b = a.split('.');
-                if (b.length > 2 || e10) {
+                if (b.length > 2) {
                     var nrep = b[2] || b[1];
                     var npre = b[0];
                     if (b[2]) {
@@ -257,12 +257,26 @@ var toFlat = function (exp) {
                     if (String(+nrep) === nrep) nrep = +nrep;
                     var v = [npre, nrep];
                     if (b.length > (b[2] ? 4 : b[1] ? 3 : 2)) v.push(b.slice(b[2] ? 3 : b[1] ? 2 : 1, b.length).join('.') + ".");
-                    else if (e10) v.push('');
+                    else if (e10 || s) v.push('');
                     if (e10) {
                         if (String(+e10) === e10) e10 = +e10;
                         v.push(e10);
                     }
+                    else if (s) v.push('');
+                    if (s) v.push(s);
                     v = { "..": v };
+                    left.push(v);
+                    continue;
+                }
+                else if (s || e10) {
+                    if (String(+a) === a) a = +a;
+                    var v = [a];
+                    if (e10) {
+                        if (String(+e10) === e10) e10 = +e10;
+                        v.push(e10);
+                    }
+                    if (s) v.push(s);
+                    v = { ".": v };
                     left.push(v);
                     continue;
                 }

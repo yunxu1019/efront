@@ -28,5 +28,7 @@ t(`group(
     x+y=10 tab(circle,1),
     x*y=25 tab(circle,2)
 )`)
+t(`a + -2`);
+t(`2+3i`);
 t.debug = true;
 t(`a + -2`);
