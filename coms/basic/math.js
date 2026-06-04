@@ -8,7 +8,7 @@ var mi = s => `<mi>${s}</mi>`;
 var mn = s => `<mn>${s}</mn>`;
 var mi2 = (s, a, n) => {
     s = n ? `<msup><mi>${s}</mi>${n}</msup>` : `<mi>${s}</mi>`;
-    return s + `<ms>&thinsp;</ms>` + a;
+    return s + `<ms>&thinsp;</ms>` + a + `<ms>&thinsp;</ms>`;
 }
 var mrow = (a, quote, deep) => {
     if (deep === 2) var tag = 'mtd';
@@ -36,6 +36,9 @@ var qt = (t, a, args) => {
 
 var 三角函数 = {
     "sin"(a, n) {
+        if (!a && n instanceof Array) {
+            [a, n] = n;
+        }
         return mi2("sin", a, n);
     },
     "cos"(a, n) {
@@ -382,6 +385,18 @@ function toString(obj, p, deep) {
             prefix = mn(prefix);
             return mrow([prefix, rep, dots, e, s].join(''), e ? p >= pmap["*"] : false, deep);
         }
+        if (k === '**') {
+            if (origin instanceof Array) {
+                var [left, right] = origin;
+                if (left instanceof Object && !(left instanceof Array)) {
+                    for (var k1 in left) break;
+                    if (!(left[k1] instanceof Array)) {
+                        var obj = mi2(k1, toString(left[k1], pmap["*"], 0), toString(right));
+                        return mrow(obj, p >= pmap["**"], deep);
+                    }
+                }
+            }
+        }
         if (k === '@' || k === '$') {
             return mrow(tabs[k](origin), -1, deep);
         }
@@ -394,14 +409,19 @@ function toString(obj, p, deep) {
             return mrow(tabs[k](...origin), -1, deep);
         }
         if (k in 三角函数) {
-            var args = origin.map(a => toString(a, pmap["*"], 0));
-            obj = 三角函数[k](...args);
-            return mrow(三角函数[k](...args), p >= pmap["**"], deep);
+            if (origin instanceof Array) {
+                var args = origin.map(a => toString(a, pmap["*"], 0));
+                obj = 三角函数[k](...args);
+            }
+            else {
+                obj = 三角函数[k](toString(origin, pmap["*"], 0));
+            }
+            return mrow(obj, p >= pmap["**"], deep);
         }
         if (k === '+.') {
             var args = toString(origin, pmap[k], -1);
         }
-        else var args = toString(origin, pmap[k], 0);
+        else var args = toString(origin, k === '/' ? 0 : pmap[k], 0);
         var addqt = pmap[k] < p && p < pmap["**"];
         if (args instanceof Array) {
             if (k === "'" && args.length === 1 && !origin[0]["["]) {

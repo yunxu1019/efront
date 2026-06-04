@@ -133,10 +133,12 @@ mul(a,b),Mul(a,b),MUL(a,b)
 ```
 * 幂
 ```mathscript
-    底数 ** 指数
+    底数 ** 指数;
+    a**2**x=a**(2*x);
 ```
 ```math
-    底数 ** 指数
+    底数 ** 指数;
+    a**2**x=a**(2*x);
 ```
 * 平方根
 ```mathscript
@@ -164,16 +166,28 @@ mul(a,b),Mul(a,b),MUL(a,b)
 
 * 三角函数
 ```mathscript
-sin(theta);
-sin(theta,2);
-sin(theta**2);
-sin(theta)**2;
+// 指令形式，函数形式
+sin theta, sin(theta);
+// 不同位置的指数
+sin(theta**2),sin(theta)**2, (sin theta)**2,"sin"(theta)**2;
+// 和角公式
+sin(alpha+beta)=sin(alpha)*cos(beta)+cos(alpha)*sin(beta);
+// 倍角公式
+sin(2*alpha)=2*sin(alpha)*cos(alpha);
+// 反三角函数
+arctan x+arctan y = arctan ((x+y)/(1-x*y))
 ```
 ```math
-sin(theta);
-sin(theta,2);
-sin(theta**2);
-sin(theta)**2;
+// 指令形式，函数形式
+sin theta, sin(theta);
+// 不同位置的指数
+sin(theta**2),sin(theta)**2, (sin theta)**2,"sin"(theta)**2;
+// 和角公式
+sin(alpha+beta)=sin(alpha)*cos(beta)+cos(alpha)*sin(beta);
+// 倍角公式
+sin(2*alpha)=2*sin(alpha)*cos(alpha);
+// 反三角函数
+arctan x+arctan y = arctan ((x+y)/(1-x*y))
 ```
 
 * 向量

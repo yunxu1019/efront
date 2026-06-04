@@ -1031,7 +1031,9 @@ class Program {
                 else if (type_reg.test(m)) {
                     last.istype = true;
                 }
-                if (this.transive_reg.test(m)) {
+                var power = powermap[m];
+                last.unary = power >= powermap.new;
+                if (this.transive_reg.test(m) || power >= 0) {
                     last.transive = queue.inExpress = true;
                 }
                 else {

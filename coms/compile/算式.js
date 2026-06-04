@@ -7,10 +7,12 @@ const {
 } = require("./common");
 var powermap = require("./powermap");
 var number_rep = /^([+-]?[\d\.]+)(?:e([+-]?\d+))?([ijkn]*)$/;
+var 三角函数 = `sin,cos,tan,cot,sec,csc,arcsin,arccos,arctan,arccot,arcsec,arccsc`.split(',');
 class Math extends Program {
     number_reg = /^(\d+(?:\.\d+){0,2}|(?:\.\d+){1,2}|(?:\d+\.){1,3})\.*(?:e[+-]?\d+)?[ijkn]*$/;
     powermap = Object.assign({}, powermap);
     value_reg = /^(false|true|null|Infinity|NaN|undefined|eval|this|arguments)$/;
+    straps = 三角函数;
     constructor() {
         super();
         var pmap = this.powermap;
@@ -24,6 +26,10 @@ class Math extends Program {
         pmap["^"] = powermap["**"];
         pmap["_"] = powermap["?."];
         pmap["'"] = powermap["?."];
+        var newp = powermap['new'];
+        三角函数.forEach(k => {
+            pmap[k] = newp;
+        })
         pmap["$"] = pmap["@"] = powermap["!"];
         this.stamps.push('\\', '_', "@", "$");
     }
@@ -149,7 +155,7 @@ var toFlat = function (exp) {
     for (var cx = 0, dx = exp.length; cx < dx; cx++) {
         var e = exp[cx];
         if (e.type & (SPACE | COMMENT)) continue;
-        if (e.type & STAMP) {
+        if (e.type & (STAMP | STRAP)) {
             if (e.text === '.') e.text = "+.";
             var p = pmap[e.text] || 0;
             if ((!p0 || p > p0 || !left.length) && !e.ion) {
@@ -305,7 +311,11 @@ var toFlat = function (exp) {
                 left.push(v);
                 continue;
             }
-            left.push(e.text);
+            var text = e.text;
+            if (e.type === QUOTED) {
+                text = strings.decode(text);
+            }
+            left.push(text);
         }
     }
     if (!left.length) {

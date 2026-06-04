@@ -1506,7 +1506,7 @@ var createString = function (parsed) {
                 var prev = getprev(o);
                 if (patchspace && !intag && prev && o.type !== QUOTED && (lasttype === STAMP && !prev.unary && !prev.needle
                     || lasttype & ~(SPACE | STAMP | COMMENT) && o.brace
-                    || lasttype === STRAP && !/^(this|arguments|import)$/.test(prev.text)
+                    || lasttype === STRAP && !/^(this|arguments|import)$/.test(prev.text) && (!prev.unary || o.brace)
                 )) result.push(" ");
                 result.push(o.entry);
                 if (o.length > 0) {
