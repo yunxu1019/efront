@@ -211,19 +211,29 @@ sin(theta)**2;
 
 * 积分
 ```mathscript
-integral(表达式,下界,上界)
+integral(表达式,下界,上界) // 内联样式
+Integral(表达式,下界,上界) // 块级样式
 ```
 ```math
 integral(表达式,下界,上界)
+Integral(表达式,下界,上界)
 ```
 * 级数
 ```mathscript
+// 内联样式
 sigma(公式主体,n=1,+Infinity)
 series(公式主体,n=1,+Infinity)
+// 块级样式
+Sigma(公式主体,n=1,+Infinity)
+Series(公式主体,n=1,+Infinity)
 ```
 ```math
+// 内联样式
 sigma(公式主体,n=1,+Infinity)
 series(公式主体,n=1,+Infinity)
+// 块级样式
+Sigma(公式主体,n=1,+Infinity)
+Series(公式主体,n=1,+Infinity)
 ```
 * 矩阵
 ```mathscript

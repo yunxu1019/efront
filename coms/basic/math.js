@@ -19,7 +19,9 @@ var mrow = (a, quote, deep) => {
     return a;
 }
 var series =/*级数*/(通项, neq, to) =>
-    `<munderover><mo>∑</mo>${neq}${to}</munderover>${通项}`;
+    `<munderover><mo movablelimits=false>∑</mo>${neq}${to}</munderover>${通项}`;
+var Series =/*级数*/(通项, neq, to) =>
+    `<math display="block"><munderover><mo>∑</mo>${neq}${to}</munderover>${通项}</math>`;
 var msub = (a, n) => `<msub>${a}${n}</msub>`;
 var qt = (t, a, args) => {
     var b = args.shift();
@@ -160,6 +162,8 @@ var funcmap = {
         return `<munder><ms>limit</ms><mrow>${x}<mo>→</mo>${n}</mrow></munder>${a}`
     },
     sigma: series,
+    Sigma: Series,
+    Series,
     series,
     "{"(...args) {
         return `<mo>{</mo><mtable columnalign="left"><mtr><mtd>${args.join("</mtd></mtr><mtr><mtd>")}</mtd></mtr></mtable>`
@@ -176,8 +180,11 @@ var funcmap = {
     "~="(...args) {
         return mo3("≈", args);
     },
-    "integral"(a, b = '', c = '') {
+    integral(a, b = '', c = '') {
         return `<msubsup><mo>∫</mo>${b}${c}</msubsup>${a}`;
+    },
+    Integral(a, b = '', c = '') {
+        return `<math display="block"><msubsup><mo>∫</mo>${b}${c}</msubsup>${a}</math>`;
     },
     "'"(...args) {
         var b = args.pop();
