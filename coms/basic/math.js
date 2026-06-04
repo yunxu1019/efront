@@ -82,7 +82,7 @@ var toRoman = function (n) {
     d = ["", "M", "MM", "MMM"][d];
     return d + c + b + a;
 };
-var circles = "①②③④⑤⑥⑦⑧⑨⑩";
+var circles = "①②③④⑤⑥⑦⑧⑨⑩⑪⑫⑬⑭⑮⑯⑰⑱⑲⑳㉑㉒㉓㉔㉕㉖㉗㉘㉙㉚㉛㉜㉝㉞㉟㊱㊲㊳㊴㊵㊶㊷㊸㊹㊺㊻㊼㊽㊾㊿";
 
 var tabs = {
     roman(...args) {
@@ -94,8 +94,9 @@ var tabs = {
     circle(...args) {
         return args.map(n => circles.charAt(n - 1)).map(a => `<mn>${a}</mn>`).join('');
     }
-}
-
+};
+tabs["@"] = tabs.circle;
+tabs["$"] = tabs.roman;
 var funcmap = {
     "+"(...args) {
         return mo3("+", args);
@@ -160,8 +161,11 @@ var funcmap = {
     },
     sigma: series,
     series,
-    group(...args) {
-        return `<mo>{</mo><mtable><mtr><mtd>${args.join("</mtd></mtr><mtr><mtd>")}</mtd></mtr></mtable>`
+    "{"(...args) {
+        return `<mo>{</mo><mtable columnalign="left"><mtr><mtd>${args.join("</mtd></mtr><mtr><mtd>")}</mtd></mtr></mtable>`
+    },
+    "["(...args) {
+        return `<mo>[</mo><mtable><mtr>${args.join("</mtr><mtr>")}</mtr></mtable><mo>]</mo>`;
     },
     '!='(...args) {
         return mo3("≉", args);
@@ -185,7 +189,7 @@ var funcmap = {
         return args.map(a => a + `<mo>!</mo>`).join('');
     }
 };
-var unary = (u, a) => `<ms>${u}</ms>${a}`;
+var unary = (u, a) => `<mo>${u}</mo>${a}`;
 var unarymap = {
     "+"(a) {
         return unary("+", a);
@@ -300,21 +304,15 @@ var br = function () {
 };
 function toString(obj, p, deep) {
     if (obj instanceof Array) {
-        if (deep == 1 && obj.length === 2 && obj[1].tab) {
-            return toString(obj[0], 0, deep) + "</mtd><mtd>" + obj.slice(1, obj.length).map(a => toString(a, 0, 0)).join("</mtd><mtd>");
-        }
         deep++;
         var args = obj.map(a => toString(a, deep > 1 ? 0 : p, deep));
         deep--;
         if (args instanceof Array) {
-            if (deep > 2) {
+            if (deep >= 2) {
                 if (args.length > 1) args = `<mrow><mo>(</mo>${args.join('<mo>,</mo>')}<mo>)</mo></mrow>`;
             }
-            else if (deep === 2) {
-                args = `<mtd>${args.join('</mtd><mtd>')}</mtd>`;
-            }
             else if (deep === 1) {
-                args = `<mrow><mo>[</mo><mtable><mtr>${args.join("</mtr><mtr>")}</mtr></mtable><mo>]</mo></mrow>`;
+                args = args.join('');
             }
         }
         return args;
@@ -350,6 +348,9 @@ function toString(obj, p, deep) {
             else s = '';
             prefix = mn(prefix);
             return mrow([prefix, rep, dots, e, s].join(''), e ? p >= pmap["*"] : false, deep);
+        }
+        if (k === '@' || k === '$') {
+            return mrow(tabs[k](origin), -1, deep);
         }
         if (k === 'tab') {
             k = origin.shift();

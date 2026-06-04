@@ -23,7 +23,8 @@ class Math extends Program {
         pmap["^"] = powermap["**"];
         pmap["_"] = powermap["?."];
         pmap["'"] = powermap["?."];
-        this.stamps.push('\\', '_');
+        pmap["$"] = pmap["@"] = powermap["!"];
+        this.stamps.push('\\', '_', "@", "$");
     }
 }
 Math.prototype.createScoped = createScoped;
@@ -49,10 +50,10 @@ var make = function (pt, left, right) {
     if (left) left = uncup(left);
     if (right) right = uncup(right);
     if (isNull(left)) {
-        return { [pt]: right instanceof Array ? ["", right] : right };
+        return { [pt]: right instanceof Array && !right.iscup ? ["", right] : right };
     }
     if (isNull(right)) {
-        return { [pt]: [left] };
+        return { [pt]: left instanceof Array && left.iscup ? left : [left] };
     }
     if (left[pt]) {
         left[pt].push(right);
@@ -94,20 +95,25 @@ var getRows = function (code) {
     var trs = [];
     var maxsize = 0;
     for (var r of rows) {
-        var row = split(r, ',').map(toFlat);
+        var row = getArgs(r);
         maxsize = row.length;
         trs.push(row);
     }
     rows.maxsize = maxsize;
+    trs.iscup = true;
     return trs;
 }
 var getArgs = function (a) {
+    var res = [];
     return split(a, ',').map(a => {
         var cells = createExpressList(a);
         if (!cells[cells.length - 1]?.first) cells.pop();
         if (cells.length === 1) return toFlat(cells[0]);
-        return cells.map(toFlat);
+        cells.map(toFlat).forEach(a => {
+            res.push(a);
+        });
     });
+    return res;
 }
 var uncup = function (cup) {
     if (cup.iscup && cup.length <= 1) cup = cup[0];
@@ -228,10 +234,12 @@ var toFlat = function (exp) {
                 }
                 else {
                     // 矩阵
-                    left.push(getRows(e));
+                    left.push(make("[", null, getRows(e)));
+                    console.log(left)
                 }
             }
             else if (e.entry === "{") {
+                left.push(make("{", null, getRows(e)));
             }
         }
         else {
@@ -304,29 +312,37 @@ var toFlat = function (exp) {
     }
     return uncup(left);
 }
-
-function main(text) {
-    var code = scanner2(text, math);
+function seprate(code, addrow) {
     var rows = split(code, ';');
     var res = [];
     res.iscup = true;
     for (var r of rows) {
         var cells = split(r, ',');
+        var cup = addrow ? res : [];
         for (var c of cells) {
             var exps = createExpressList(c);
             for (var e of exps) {
                 var a = toFlat(e);
                 if (!a) continue;
                 if (a.iscup) {
-                    for (var b of a) res.push(b, ' ');
+                    if (addrow) for (var b of a) cup.push(b, ' ');
+                    else for (var b of a) cup.push(a);
                 }
-                else res.push(a, ' ');
+                else if (addrow) cup.push(a, ' ');
+                else cup.push(a);
             }
-            if (res.length) res[res.length - 1] = ', ';
+            if (addrow && cup.length) cup[res.length - 1] = ', ';
         }
-        if (res.length) res[res.length - 1] = '\r\n';
+        if (cup.length) {
+            if (addrow) cup[res.length - 1] = '\r\n';
+            else res.push(cup.length === 1 ? cup[0] : cup);
+        }
     }
-    res.pop();
+    if (addrow) res.pop();
     return uncup(res);
+}
+function main(text) {
+    var code = scanner2(text, math);
+    return seprate(code, true);
 }
 main.MathScript = Math;
