@@ -135,7 +135,27 @@ var property = new Program;
 property.stamps = "=".split('');
 var progExp = new Javascript;
 var replaceISO8859 = function (data) {
-    return String(data).replace(/<\!--([\s\S]*)--\>$/g, '$1').replace(/&\w+;/g, a => iso8859[a] || a).replace(/&#(\d+);/g, (_, a) => String.fromCodePoint(a))
+    return String(data)
+        .replace(/<\!--([\s\S]*)--\>$/g, '$1')
+        .replace(/&\w+;/g, a => iso8859[a] || a)
+        .replace(/&#([0-9a-f]+);/ig, (_, x, a) => {
+            if (x) switch (x) {
+                case "u":
+                    a = parseInt(a, 16);
+                    break;
+                case "x":
+                    a = parseInt(a, 16);
+                    break;
+                case "b":
+                    a = parseInt(a, 2);
+                    break;
+                case "o":
+                    a = parseInt(a, 8);
+                    break;
+            }
+            else a = +a;
+            return String.fromCodePoint(a);
+        });
 };
 var parseExpress = function (data, mayberepeat) {
     if (mayberepeat && /\s+(in|of)\s+/.test(data)) {
