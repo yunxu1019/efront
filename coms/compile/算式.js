@@ -222,6 +222,9 @@ var toFlat = function (exp) {
                             left = [make("**", left, ...args)];
                         }
                         else {
+                            if (ions === '*' && left[0]["["] && left.length === 1) {
+                                ions = "H";
+                            }
                             left = [make("**", left, ions)];
                         }
                     }

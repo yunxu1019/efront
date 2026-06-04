@@ -137,6 +137,15 @@ var funcmap = {
     Mul(...args) {
         return mo3("·", args);
     },
+    conj(A) {
+        var m = document.createElementNS('http://www.w3.org/1998/Math/MathML', 'math');
+        m.innerHTML = A;
+        css(m, 'opacition:0;position:absolute:left-10px;top:-10px;pointer-events:none;z-index:-10');
+        document.documentElement.appendChild(m);
+        var sp = Array(2 + (m.clientWidth / 6 | 0)).join("\u23bc");
+        remove(m);
+        return `<mover>${A}<mo stretchy=true symmetric=true fence=true accent=true>${sp}</mo></mover>`
+    },
     abs(a) {
         return `<mo>|</mo>${a}<mo>|</mo>`;
     },
@@ -261,6 +270,7 @@ var puncmap = {
     // ">=": "≥",
     // "<=": '≤',
 };
+puncmap["^*"] = puncmap["**"];
 var pmap = {};
 
 [
