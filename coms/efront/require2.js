@@ -3,27 +3,77 @@ var userdata = require("../server/userdata");
 var lock = require("./lock");
 var lock30 = lock(30000);
 var lock60 = lock(60000);
-var mixin = require("./mixin");
-var { COMM, COMS_PATH } = require("./memery");
-COMM = COMM.split(",");
-var index = COMM.indexOf('zimoli');
-if (index >= 0) COMM.splice(index, 0, 'reptile');
-else COMM.push('reptile');
 var fs = require('fs');
 var path = require("path");
 var commparse = commbuilder.parse;
-var comspath = mixin(COMS_PATH, COMM).map(c => path.join.apply(path, c)).filter(fs.existsSync);
+var memery = require("./memery");
+var getPathIn = require("../build/getPathIn");
+var comspath = [path.join(require("os").homedir(), ".efront", 'plugins')].filter(fs.existsSync);
 var required_cache = Object.create(null);
 var hasOwnProperty = {}.hasOwnProperty;
 var loadingTree = Object.create(null);
 var loadedModules = Object.create(null);
+var dynacoms = Object.create(null);
+var webdynas = null;
+var loadwebcoms = async function () {
+    var fsp = fs.promises;
+    var dynaroots = [];
+    var read = async function (fullpath) {
+        var files = await fsp.readdir(root, { withFileTypes: true });
+        var comm = Object.create(null);
+        for (var f of files) {
+            if (!f.isFile()) continue;
+            var fname = f.name;
+            var p = path.join(fullpath, fname);
+            fname = fname.replace(/\.[^\.]+$/, '');
+            comm[fname] = p;
+        }
+        return comm;
+    }
+    var load = async function (root, deep) {
+        deep++;
+        if (deep > 2) return;
+        var files = await fsp.readdir(root, { withFileTypes: true });
+        var isdynaroot = false;
+        for (var f of files) {
+            if (!f.isDirectory()) continue;
+            var fname = f.name;
+            if (/^#/.test(fname)) {
+                if (fname === '#abpi') isdynaroot = true;
+                continue;
+            }
+            await load(path.join(root, fname), deep);
+        }
+        if (isdynaroot) {
+            dynaroots.push(root);
+        }
+    };
+    await load(memery.webroot, 0);
+    for (var p of dynaroots) {
+        dynacoms[p] = await read(path.join(p, '#abpi'));
+    }
+    return webdynas = dynaroots;
+};
+if (fs.existsSync(memery.webroot)) {
+    webcoms = fs.promises.readdir(memery.webroot, { withFileTypes: true }).then(files => {
+        var webroot = memery.webroot;
+        var load = function (root) {
+            for (var f of files) {
+                if (!f.isDirectory()) continue;
+                path.join(root, f.name);
+            }
+        }
+    });
+}
+
 var prepareFunction = function (pathname) {
+    var that = this;
     if (loadedModules[pathname]) return loadedModules[pathname];
     if (loadingTree[pathname]) return loadingTree[pathname];
     return loadingTree[pathname] = new Promise(function (ok, oh) {
         fs.readFile(pathname, function (error, data) {
             if (error) return oh(error);
-            var f = createFunction(data, pathname);
+            var f = createFunction.call(that, data, pathname);
             loadedModules[pathname] = f;
             delete loadingTree[pathname];
             f.prepare().then(function () {
@@ -36,6 +86,7 @@ var createModule = function (required, pathmap, modname) {
     if (typeof modname === "number") modname = required[modname];
     var prebuilds = this.prebuilds;
     if (prebuilds && hasOwnProperty.call(prebuilds, modname)) return prebuilds[modname];
+    if (hasOwnProperty.call(pathmap, modname)) return require2(pathmap[modname]);
     switch (modname) {
         case "require": return this.require;
         case "undefined": return undefined;
@@ -45,21 +96,30 @@ var createModule = function (required, pathmap, modname) {
         case "DB": return server$doDB;
         case "module": return this;
         case "exports": return this.exports;
+        case "JSON": return basic_$JSON;
     }
     if (global[modname] !== undefined) return global[modname];
-    if (hasOwnProperty.call(pathmap, modname)) return require2(pathmap[modname]);
     if (/^\.|^\/|^\w\:/.test(modname) && this.pathname) modname = path.join(path.dirname(this.pathname), modname)
     return require(modname);
 };
 var prepareModule = async function (dirname, required, prebuilds, pathmap, modname) {
     if (typeof modname === "number") modname = required[modname];
     if (prebuilds && hasOwnProperty.call(prebuilds, modname)) return;
-    if (/^(require|_?runtask|undefined|module|_?lock)$/.test(modname)) return;
+    if (/^(require|_?runtask|undefined|module|_?lock|JSON)$/.test(modname)) return;
     if (/^(module|exports)$/.test(modname)) return;
     if (global[modname] !== undefined) return;
-    if (/^[\.\/\\]/.test(modname)) var searchpath = [dirname].concat(comspath);
-    else var searchpath = comspath;
-    return detectWithExtension(modname, ['', '.js', '.mjs', '.ts', '.json'], searchpath).then(p => {
+    var modname1 = modname;
+    if (!/^\./.test(modname)) {
+        modname1 = modname1.replace(/\//g, '$').replace(/\.[\s\S]+$/, '').replace(/\-(\S)/g, (_, a) => a.toUpperCase());
+    }
+    if (hasOwnProperty.call(pathmap, modname1)) {
+        return prepareFunction.call(this, pathmap[modname1]);
+    }
+    if (hasOwnProperty.call(this, modname1)) {
+        pathmap[modname1] = this[modname1];
+        return prepareFunction.call(this, this[modname1]);
+    }
+    return detectWithExtension(modname, ['', '.js', '.mjs', '.ts', '.json'], comspath).then(p => {
         pathmap[modname] = p;
         return prepareFunction(p);
     }, () => { });
@@ -76,14 +136,23 @@ var createFunction = function (data, pathname, prebuilds) {
     func.imported = imported;
     func.required = required;
     func.pathname = pathname;
+    var that = this;
     var promise;
     func.prepare = function () {
         if (!promise) promise = prepare();
         return promise;
     };
     var prepare = async function () {
+        if (!webdynas) webdynas = loadwebcoms();
+        var dynas = await webdynas;
+        var rel = getPathIn(dynas, pathname);
+        if (rel) {
+            var p = pathname.slice(0, pathname.length - rel.length);
+            var coms = dynacoms[p];
+            if (coms) pathmap = coms;
+        }
         var dirname = path.dirname(pathname);
-        var prepare = prepareModule.bind(func, dirname, required, prebuilds, pathmap);
+        var prepare = prepareModule.bind(that, dirname, required, prebuilds, pathmap);
         if (!(imported instanceof Array)) imported = [];
         if (!(required instanceof Array)) required = [];
         imported = imported.map(prepare);

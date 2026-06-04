@@ -76,7 +76,7 @@ async function getCommap(appname, isfront, deep = 6) {
     var loadernames = [];
     var constEnvFiles = [];
     var loadermain = path.join(__dirname, "../zimoli/main.js");
-    var mixcoms = mixin(env.COMS_PATH, env.COMM).concat(mixin(env.PAGE_PATH, '#back'));
+    var mixcoms = mixin(env.COMS_PATH, env.COMM);
     var coms = [];
     for (var [a, n] of mixcoms) {
         var p = path.join(a, n);
@@ -163,10 +163,10 @@ var isFront = async function (PAGE_PATH, appname) {
 module.exports = async function (appname, isfront, deep) {
     if (typeof isfront !== 'boolean') {
         if (!appname) appname = memery.APP || '';
-        isfront = isFront(memery.PAGE_PATH, appname);
+        isfront = await isFront(memery.PAGE_PATH, appname);
     }
     if (typeof isfront !== 'boolean') {
-        isfront = isFront(memery.COMS_PATH, memery.COMM);
+        isfront = await isFront(memery.COMS_PATH, memery.COMM);
     }
     do {
         var id = cacheid;

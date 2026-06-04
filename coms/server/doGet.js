@@ -2,7 +2,7 @@
 var zlib = require("zlib");
 var path = require("path");
 var { Http2ServerRequest, Http2ServerResponse } = require("http2");
-var filebuilder = require("../efront/filebuilder").bind(await require("../efront/getCommap")());
+var filebuilder = require("../efront/filebuilder").bind(await require("../efront/getCommap")("reptile", false));
 var checkAccess = require("./checkAccess");
 var doFile = require("./doFile");
 var doFolder = require("./doFolder");
