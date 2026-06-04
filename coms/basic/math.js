@@ -391,12 +391,14 @@ function toString(obj, p, deep) {
         if (args instanceof Array) {
 
             if (k === '*') {
-                var allnum = true;
-                var bx = 1;
+                var bx = 0;
                 var simple = true;
-                for (var cx = 0, dx = args.length; cx < dx; cx++) {
-                    if (typeof origin[cx] !== 'number') {
-                        allnum = false;
+                var pisnum = Number.isFinite(origin[0]);
+                var allnum = pisnum;
+                for (var cx = 1, dx = args.length; cx < dx; cx++) {
+                    var isnum = Number.isFinite(origin[cx]);
+                    if (!isnum) allnum = false;
+                    if (!pisnum && isnum) {
                         if (cx > bx) {
                             while (bx < cx) {
                                 args[bx] = args[bx] + "<mo>·</mo>";
@@ -405,6 +407,7 @@ function toString(obj, p, deep) {
                         }
                         bx = cx;
                     }
+                    pisnum = isnum;
                 }
                 if (allnum) {
                     return mrow(funcmap.mul(...args), false, deep);
