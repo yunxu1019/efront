@@ -188,9 +188,9 @@ var funcmap = {
     },
     "'"(...args) {
         var b = args.pop();
-        if (!args.length) return `<msup>${b}<mo>'</mo></msup>`;// 转置
+        if (!args.length) return `<msup>${b}<mo>T</mo></msup>`;
         // 导数
-        return args.map((a) => `${a}<mo>'</mo>`).join('') + `<mi>(</mi>${b}<mi>)</mi>`;
+        return args.map((a) => `${a}<mo>&apos;</mo>`).join('') + `<mi>(</mi>${b}<mi>)</mi>`;
     },
     "!"(...args) {
         return args.map(a => a + `<mo>!</mo>`).join('');
@@ -375,6 +375,9 @@ function toString(obj, p, deep) {
         var args = toString(origin, pmap[k], 0);
         var addqt = pmap[k] < p && p < pmap["**"];
         if (args instanceof Array) {
+            if (k === "'" && args.length === 1 && !origin[0]["["]) {
+                return mrow(args[0] + `<mo>&apos;</mo>`, p > pmap["**"], 0);
+            }
             var f = funcmap[k];
             if (!f) {
                 addqt = -1;
