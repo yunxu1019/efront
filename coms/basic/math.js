@@ -103,6 +103,9 @@ var funcmap = {
     "+"(...args) {
         return mo3("+", args);
     },
+    "+."(a, ...args) {
+        return a + args.join('<mo>+</mo>');
+    },
     "-"(...args) {
         return mo3("–", args);
     },
@@ -205,7 +208,7 @@ var funcmap = {
         return args.map(a => a + `<mo>!</mo>`).join('');
     }
 };
-var unary = (u, a) => `<mo>${u}</mo>${a}`;
+var unary = (u, a) => `<ms>${u}</ms>${a}`;
 var unarymap = {
     "+"(a) {
         return unary("+", a);
@@ -319,6 +322,19 @@ var br = function () {
     lineBroken = true;
     return '</mtd></mtr><mtr><mtd>';
 };
+var Number_isFinite = Number.isFinite;
+var isPostFinite = function (n) {
+    return /[^\d]$/.test(n[n.length - 1]);
+}
+var isFinite = function (n, post) {
+    if (Number_isFinite(n)) return true;
+    if (!n) return false;
+    if (n["/"]) return true;
+    if (n["+."]) return true;
+    if (n["."]) return !post || isPostFinite(n);
+    if (n[".."]) return !post || isPostFinite(n);
+    return false;
+}
 function toString(obj, p, deep) {
     if (obj instanceof Array) {
         deep++;
@@ -382,7 +398,10 @@ function toString(obj, p, deep) {
             obj = 三角函数[k](...args);
             return mrow(三角函数[k](...args), p >= pmap["**"], deep);
         }
-        var args = toString(origin, pmap[k], 0);
+        if (k === '+.') {
+            var args = toString(origin, pmap[k], -1);
+        }
+        else var args = toString(origin, pmap[k], 0);
         var addqt = pmap[k] < p && p < pmap["**"];
         if (args instanceof Array) {
             if (k === "'" && args.length === 1 && !origin[0]["["]) {
@@ -399,14 +418,14 @@ function toString(obj, p, deep) {
             return mrow(`<mi>${希腊[k] || k}</mi>${mrow(args instanceof Array ? args.join('<mo>,</mo>') : args, true)}`, false, deep);
         }
         if (args instanceof Array) {
-
             if (k === '*') {
                 var bx = 0;
                 var simple = true;
-                var pisnum = Number.isFinite(origin[0]);
+                var pisnum = isFinite(origin[0], true);
                 var allnum = pisnum;
                 for (var cx = 1, dx = args.length; cx < dx; cx++) {
-                    var isnum = Number.isFinite(origin[cx]);
+                    var o = origin[cx];
+                    var isnum = isFinite(o);
                     if (!isnum) allnum = false;
                     if (!pisnum && isnum) {
                         if (cx > bx) {
@@ -417,7 +436,7 @@ function toString(obj, p, deep) {
                         }
                         bx = cx;
                     }
-                    pisnum = isnum;
+                    pisnum = isnum && isPostFinite(o);
                 }
                 if (allnum) {
                     return mrow(funcmap.mul(...args), false, deep);

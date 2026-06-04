@@ -15,6 +15,7 @@ class Math extends Program {
         super();
         var pmap = this.powermap;
         pmap["+-"] = pmap["-+"] = powermap["+"];
+        pmap["+."] = powermap["?."];
         pmap["×"] = pmap[".*"] = powermap["*"];
         pmap["≈"] = pmap["~="] = pmap["=="];
         pmap["≉"] = pmap["!≈"] = pmap["!~="] = pmap["~!="] = pmap["=="];
@@ -149,6 +150,7 @@ var toFlat = function (exp) {
         var e = exp[cx];
         if (e.type & (SPACE | COMMENT)) continue;
         if (e.type & STAMP) {
+            if (e.text === '.') e.text = "+.";
             var p = pmap[e.text] || 0;
             if ((!p0 || p > p0 || !left.length) && !e.ion) {
                 cache.push(left, e.text, p0);
@@ -188,6 +190,10 @@ var toFlat = function (exp) {
                     }
                     else if (f instanceof Object) {
                         left.push(make("", f, args));
+                    }
+                    else if (/\d\.$/.test(f) && args.length === 1 && args[0]['/']) {
+                        f = f.replace(/\.$/, '');
+                        left.push(make("+.", f, args))
                     }
                     else {
                         left.push({ [f]: args });
@@ -238,7 +244,6 @@ var toFlat = function (exp) {
                 else {
                     // 矩阵
                     left.push(make("[", null, getRows(e)));
-                    console.log(left)
                 }
             }
             else if (e.entry === "{") {
