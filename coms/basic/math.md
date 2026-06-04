@@ -106,9 +106,11 @@ mul(a,b),Mul(a,b),MUL(a,b)
 * 分数
 ```mathscript
  分子/分母
+ 1/(2/3),1/2/3;
 ```
 ```math
     分子/分母
+ 1/(2/3),1/2/3;
 ```
 * 以除号表示除法
 ```mathscript
@@ -119,10 +121,19 @@ mul(a,b),Mul(a,b),MUL(a,b)
 ```
 * 绝对值
 ```mathscript
-    abs(a)
+    |a|;
+    |1+|a||*2;
 ```
 ```math
-    abs(a)
+    |a|;
+    |1+|a||*2;
+```
+* 行列式
+```mathscript
+    |1,2,3,4;5,6,7,8|;
+```
+```math
+    |1,2,3,4;5,6,7,8|;
 ```
 * 阶乘： n!
 ```mathscript

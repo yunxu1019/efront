@@ -32,6 +32,7 @@ class Math extends Program {
         })
         pmap["$"] = pmap["@"] = powermap["!"];
         this.stamps.push('\\', '_', "@", "$");
+        this.scopes.push(["|", "|"])
     }
 }
 Math.prototype.createScoped = createScoped;
@@ -112,10 +113,14 @@ var getRows = function (code) {
 }
 var getArgs = function (a) {
     var res = [];
-    return split(a, ',').map(a => {
+    res.iscup = true;
+    split(a, ',').forEach(a => {
         var cells = createExpressList(a);
         if (!cells[cells.length - 1]?.first) cells.pop();
-        if (cells.length === 1) return toFlat(cells[0]);
+        if (cells.length === 1) {
+            res.push(toFlat(cells[0]));
+            return;
+        }
         cells.map(toFlat).forEach(a => {
             res.push(a);
         });
@@ -231,7 +236,7 @@ var toFlat = function (exp) {
                             else {
                                 args.push(ions);
                             }
-                            left = [make("^*", left, ...args)];
+                            left = [make("^*", left, args)];
                         }
                         else {
                             if (ions === '*' && left[0]["["] && left.length === 1) {
@@ -243,7 +248,7 @@ var toFlat = function (exp) {
                     else {
                         var args = getArgs(e);
                         // 下标
-                        left = [make("_", left, ...args)];
+                        left = [make("_", left, args)];
                     }
                     left.iscup = true;
                 }
@@ -254,6 +259,9 @@ var toFlat = function (exp) {
             }
             else if (e.entry === "{") {
                 left.push(make("{", null, getRows(e)));
+            }
+            else if (e.entry === '|') {
+                left.push(make("^|", getRows(e)));
             }
         }
         else {

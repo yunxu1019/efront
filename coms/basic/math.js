@@ -102,6 +102,12 @@ var tabs = {
 };
 tabs["@"] = tabs.circle;
 tabs["$"] = tabs.roman;
+var mtable = function (args, prefix, postfix) {
+    if (prefix) prefix = `<mo>${prefix}</mo>`;
+    if (postfix) postfix = `<mo>${postfix}</mo>`;
+    if (args.length === 1) return [prefix, args[0], postfix].join('');
+    return `${prefix}<mtable><mtr>${args.join("</mtr><mtr>")}</mtr></mtable>${postfix}`;
+}
 var funcmap = {
     "+"(...args) {
         return mo3("+", args);
@@ -152,8 +158,8 @@ var funcmap = {
         remove(m);
         return `<mover>${A}<mo stretchy=true symmetric=true fence=true accent=true>${sp}</mo></mover>`
     },
-    abs(a) {
-        return `<mo>|</mo>${a}<mo>|</mo>`;
+    abs(...args) {
+        return mtable(args, "|", "|");
     },
     log(x, n) {
         return `<msub><mo>log</mo>${n}</msub>${x}`
@@ -181,10 +187,12 @@ var funcmap = {
     Series,
     series,
     "{"(...args) {
-        return `<mo>{</mo><mtable columnalign="left"><mtr><mtd>${args.join("</mtd></mtr><mtr><mtd>")}</mtd></mtr></mtable>`
+        return mtable(args, '{', '');
+        // return `<mo>{</mo><mtable columnalign="left"><mtr><mtd>${args.join("</mtd></mtr><mtr><mtd>")}</mtd></mtr></mtable>`
     },
     "["(...args) {
-        return `<mo>[</mo><mtable><mtr>${args.join("</mtr><mtr>")}</mtr></mtable><mo>]</mo>`;
+        return mtable(args, '[', ']');
+        // return `<mo>[</mo><mtable><mtr>${args.join("</mtr><mtr>")}</mtr></mtable><mo>]</mo>`;
     },
     '!='(...args) {
         return mo3("≉", args);
@@ -211,6 +219,7 @@ var funcmap = {
         return args.map(a => a + `<mo>!</mo>`).join('');
     }
 };
+funcmap["^|"] = funcmap.abs;
 var unary = (u, a) => `<ms>${u}</ms>${a}`;
 var unarymap = {
     "+"(a) {

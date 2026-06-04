@@ -1081,8 +1081,12 @@ class Program {
 
             if (scope_entry[m]) scope: {
                 if (stamp_reg.test(m)) {
+                    if (cache_stamp) {
+                        if (cache_stamp.text + m in powermap) break scope;
+                        push_stamp();
+                    }
                     var last = queue.last;
-                    if (last) {
+                    if (last && last.type & ~(STAMP | STRAP) && !last.ion) {
                         if (last.isExpress && !last.istype) break scope;
                     }
                 }
