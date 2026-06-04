@@ -219,13 +219,13 @@ var toFlat = function (exp) {
                             else {
                                 args.push(ions);
                             }
-                            left = [make("**", left, ...args)];
+                            left = [make("^*", left, ...args)];
                         }
                         else {
                             if (ions === '*' && left[0]["["] && left.length === 1) {
                                 ions = "H";
                             }
-                            left = [make("**", left, ions)];
+                            left = [make("^*", left, ions)];
                         }
                     }
                     else {
