@@ -191,7 +191,7 @@ module.exports = async function (appname, isfront, deep) {
         if (!appname) appname = memery.APP || '';
         isfront = await isFront(memery.PAGE_PATH, [
             appname,
-            appname = appname.replace(/\.[^\.]+$/, '')
+            appname.replace(/^[\.\/]*/, '').replace(/\.[^\.]+$/, '')
         ]);
     }
     if (typeof isfront !== 'boolean') {
