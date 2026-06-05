@@ -851,7 +851,7 @@ var commands = {
                 if (isdir) {
                     setenv({
                         app: memery.APP,
-                        comm: (app && !/[^\.\\\/]+/.test(app) ? app + ',zimoli,' : `zimoli,`)
+                        comm: (app && !/[^\.\\\/]+/.test(app) ? app + ',zimoli,reptile,' : `zimoli,reptile,`)
                     });
                     return require("../build");
                 } else {
