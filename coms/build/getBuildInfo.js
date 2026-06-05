@@ -58,10 +58,8 @@ function getBuildInfo(url) {
             extt = match[4] || "";
         bigloop: switch (type) {
             case "":
-                extt = extt || comexts;
-                if (url in commap && (extt instanceof Array ? extt.indexOf(path.extname(commap[url])) >= 0 : extt === path.extname(commap[url]))) {
-                    realpath = commap[url];
-                }
+                var name1 = name.replace(/\-([\s\S])/g, (_, a) => a.toUpperCase());
+                realpath = extt ? commap[name + extt] : commap[name1];
                 if (/\.asm$/i.test(extt)) {
                     builder = asmbuilder;
                 } else {

@@ -15,13 +15,14 @@ var cacheid = 1;
 async function readFrom(fullpath, deep, cmap, loadermain) {
     if (loadedMap[fullpath]) return loadedMap[fullpath];
     var id = cacheid;
-    var rest = [fullpath, [], null];
+    var rest = [fullpath, [], [], null];
     var map = Object.create(null);
     var loadernames = [];
     var constEnvFiles = [];
     while (rest.length) {
         const pMap = rest.pop();
         const n = rest.pop();
+        const n1 = rest.pop();
         const p = rest.pop();
         var files = await readdir(p);
         if (id !== cacheid) break;
@@ -51,7 +52,9 @@ async function readFrom(fullpath, deep, cmap, loadermain) {
                 n.push(fn);
                 var m = n.join('$');
                 n.pop();
-                var m1 = isless && n.length ? n.join("/") + "/" + fname : m + path.extname(fname);
+                n1.push(fname);
+                var m1 = n1.join('/');
+                n1.pop();
                 var p1 = path.join(p, fname);
                 if (m1 !== m && !map[m1] || isless) {
                     map[m1] = p1;
@@ -67,7 +70,7 @@ async function readFrom(fullpath, deep, cmap, loadermain) {
                 }
             }
             else if (f.isDirectory()) {
-                if (n.length + 1 < deep) rest.push(path.join(p, fname), n.concat(fn), constMap);
+                if (n.length + 1 < deep) rest.push(path.join(p, fname), n1.concat(fname), n.concat(fn), constMap);
             }
         }
         if (hasConst) cmap[p] = constMap;
