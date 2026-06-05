@@ -4,6 +4,7 @@ var path = require("path");
 var spaces = require("../basic/spaces");
 var getDepedence = require("./getDependence");
 var searchPath = require("./searchPath");
+var globals = require("../efront/globals");
 var window = {
     setTimeout,
     setInterval,
@@ -300,7 +301,10 @@ async function compile() {
         var findRealpath = function () {
             if (fullpath instanceof Array && !fullpath.length) {
                 if (window.modules[name]) console.info(i18n`${url} 将被内置模块替换！`), moduleValue = window.modules[name];
-                else if (!window.hasOwnProperty(name)) responseWithWarning = i18n`没有发现文件：${`<red2>${url}</red2>`}`;
+                else if (!window.hasOwnProperty(name)) {
+                    var color = globals[url] || colors.FgRed2;
+                    responseWithWarning = i18n`没有发现文件：${`${color}${url}${colors.Reset}`}`;
+                }
                 else console.info(i18n`${url} 将使用运行环境的全局变量`);
                 resolve();
                 return;

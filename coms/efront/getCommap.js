@@ -30,13 +30,29 @@ async function readFrom(fullpath, deep, cmap, loadermain) {
             const fname = f.name;
             var fn = fname.replace(/\.[\s\S]*$/, '').replace(/\-([\s\S])/g, (_, a) => a.toUpperCase());
             if (f.isFile()) {
+                if (fname === 'package.json' || fn === 'index') {
+                    if (/^p/.test(fname)) {
+                        var data = await fsp.readFile(path.join(p, fname));
+                        var json = JSON.parse(String(data));
+                        if (!json.main) continue;
+                        n.push(json.main);
+                        var m = n.join('$');
+                        n.pop();
+                        var p1 = path.join(p, json.main);
+                    }
+                    else {
+                        var m = n.join('$');
+                        var p1 = path.join(p, fname);
+                    }
+                    map[m] = p1;
+                }
                 if (!/\.(html?|[cm]?[tj]sx?|xht|less|css)$/i.test(fname) || /^[\#\?]/.test(fname)) continue;
                 var isless = /\.(less|css)$/i.test(fname);
                 n.push(fn);
                 var m = n.join('$');
                 n.pop();
-                var p1 = path.join(p, fname);
                 var m1 = isless ? n.join("/") + fname : m + path.extname(fname);
+                var p1 = path.join(p, fname);
                 if (m1 !== m && !map[m1] || isless) {
                     map[m1] = p1;
                 }

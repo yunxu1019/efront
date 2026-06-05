@@ -80,7 +80,11 @@ var nodeOnlys = {
     clearImmediate: null
 };
 setGlobal(nodeOnlys, colors.FgGreen);
-var nodeRequires = `os,fs,vm,url,readline,net,http,https,http2,zlib,util,buffer,path,cluster,crypto,process`;
+var nodeRequires = `os,fs,vm,url,readline,net,
+http,https,http2,zlib,util,
+buffer,path,cluster,crypto,process,
+stream,dns,worker_threads,child_process,
+`;
 setGlobal(nodeRequires, colors.FgGreen2);
 setGlobal("electron", colors.FgCyan);
 var chromeOnlys = `WakeLock,XMLHttpRequest,Image,PerformanceObserver,
