@@ -51,7 +51,7 @@ async function readFrom(fullpath, deep, cmap, loadermain) {
                 n.push(fn);
                 var m = n.join('$');
                 n.pop();
-                var m1 = isless ? n.join("/") + fname : m + path.extname(fname);
+                var m1 = isless && n.length ? n.join("/") + "/" + fname : m + path.extname(fname);
                 var p1 = path.join(p, fname);
                 if (m1 !== m && !map[m1] || isless) {
                     map[m1] = p1;
@@ -60,7 +60,7 @@ async function readFrom(fullpath, deep, cmap, loadermain) {
                     constEnvFiles.push([p, p1, constMap]);
                     hasConst = true;
                 }
-                if (map[m] && /\.([cm]?[tj]sx?|xht)$/i.test(map[m])) continue;
+                if (map[m] && (/\.([cm]?[tj]sx?|xht)$/i.test(map[m]) || isless)) continue;
                 map[m] = p1;
                 if (p1 === loadermain) {
                     loadernames.push(m);
