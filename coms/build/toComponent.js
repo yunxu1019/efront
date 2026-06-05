@@ -8,9 +8,7 @@ var { public_app, SOURCEDIR, EXPORT_TO: EXPORT_TO, PUBLIC_PATH } = require("./en
 if (SOURCEDIR) SOURCEDIR = path.dirname(public_app);
 else SOURCEDIR = PUBLIC_PATH;
 var breakreg = memery.BREAK ? function (_, a, c, p) {
-    var c1 = c;
     c = _strings.escape(c, memery.BREAK).replace(/\\[\s\S]|\//g, a => a.length === 1 ? '\\' + a : a);
-    if (c1 !== c) assert(c, c1);
     return a + c + p;
 } : a => a;
 var strings_encode = memery.BREAK&&false ? function (source) {
