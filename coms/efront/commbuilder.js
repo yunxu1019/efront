@@ -333,6 +333,7 @@ var loadJsBody = function (data, fullpath, lessdata, commName, className, htmlDa
         code = autoenum(code);
         code = autoeval(code);
     }
+    else code = autoConst.call(this, code, fullpath, true);
     if (memery.POLYFILL) {
         code = polyfill(code);
     }
@@ -625,7 +626,7 @@ var buildPress2 = function (imported, params, data, args, strs, press) {
     press = press !== false && memery.COMPRESS;
     if (imported.length > 0) {
         var code = scanner2(`var [${params.concat(args || [])}];${data}`);
-        if (press) code.press(memery.KEEPSPACE);
+        if (press) code.press(memery.KEEPSPACE, press);
         else code.revar();
         params = code[1].filter(a => a.type !== code.STAMP).map(c => c.text);
         code.splice(0, 2);
@@ -638,12 +639,12 @@ var buildPress2 = function (imported, params, data, args, strs, press) {
             else if (s instanceof RegExp) s = `/${s.source}/${s.flags}`;
             return `${a}=${s}`;
         }).join(',')};${data}`);
-        if (press) code.press(memery.KEEPSPACE);
+        if (press) code.press(memery.KEEPSPACE, press);
         else code.revar();
     }
     else {
         var code = scanner2(data);
-        if (press) code.press(memery.KEEPSPACE);
+        if (press) code.press(memery.KEEPSPACE, press);
         else code.revar();
     }
     data = code.toString();
