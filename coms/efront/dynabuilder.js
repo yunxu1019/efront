@@ -1,5 +1,5 @@
 var path = require('path');
-var dynareg = /\<([%\?]|script)(?:(?<=%)|(?:(?<=[\?])(?:php|jsp|asp))|(?<=\<script)[^\>]*?serverside[^\>]*\>)([\s\S]*?)(?:\<\/(?=script)\1\>|\1\>)/gi;
+var dynareg = /<script[^>]*>\s*\<\!\-\-[\s\S]*?\-\-\!?\>\s*\<\/script\>|\<([%\?]|script)(?:(?<=%)|(?:(?<=[\?])(?:php|jsp|asp))|(?<=\<script)[^\>]*?serverside[^\>]*\>)([\s\S]*?)(?:\<\/(?=script)\1\>|\1\>)/gi;
 var seekreg = new RegExp(`^\\s*(?:\\=\\s*|return\\s+|)[^\\d\\s${punkreg.source.slice(1)}[^\\s${punkreg.source.slice(1)}*\\s*$`);
 var commparse = commbuilder.parse;
 var SError = function (msg) {
@@ -34,6 +34,7 @@ function dynabuilder(buff, fileurl, filepath) {
     var imported = [];
     var required = [];
     var data = String(buff).replace(dynareg, function (match, split, content) {
+        if (/^\<\!\-\-/.test(match)) return match;
         if (!seekreg.test(content)) {
             var res = commparse.call(that, content, fileurl, filepath, false, false);
             if (res.imported) for (var a of res.imported) {

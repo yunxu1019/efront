@@ -80,9 +80,11 @@ var buildjsp = function (buff, realpath) {
     input.replace(dynareg, function (match, split, content, index, input) {
         var str = input.slice(lastIndex, index), func;
         lastIndex = index + match.length;
-        if (seekreg.test(content)) {
+        if (!split) func = match;
+        else if (seekreg.test(content)) {
             func = createseek(content);
-        } else {
+        }
+        else {
             func = createFunction.call(that, content, realpath, prebuilds);
         }
         splited.push(str, func);

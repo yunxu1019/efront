@@ -110,6 +110,13 @@ async function getCommap(appname, isfront, deep = 6) {
         if (consts.length) constEnvFiles.push.apply(constEnvFiles, consts);
         mergeTo(res, n ? n + "$" : n, map);
     }
+    if (res["zimoli"] && path.dirname(res['zimoli']) === zimolifront) {
+        delete res['state'];
+        delete res['login'];
+        delete res['prepare'];
+        delete res['upwith'];
+        delete res['go'];
+    }
     if (loadernames.length) a: {
         for (var loadername of loadernames) {
             if (res[loadername] === loadermain) break a;
