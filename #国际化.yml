@@ -40,6 +40,9 @@
 - zh-CN: 禁用
   en:    Disable
 
+- zh-CN: "不要在后端代码中使用相对路径\r\n    文件：$1"
+  en:    "Do not use relative paths in backend code\nFile: $1"
+
 - zh-CN: 代码结构错误
   en:    Code structure error
 
