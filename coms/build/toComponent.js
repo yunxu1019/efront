@@ -248,7 +248,7 @@ function toComponent(responseTree, isWebProject) {
             return $key;
         };
         var breakreg = memery.BREAK ? function (k) {
-            k = k.replace(/^(\/)([\s\S]*)(\/\w*)$/, function (_, a, c, p) {
+            return k.replace(/^(\/)([\s\S]*)(\/\w*)$/, function (_, a, c, p) {
                 c = _strings.escape(c, memery.BREAK).replace(/\\[\s\S]|\//g, a => a.length === 1 ? '\\' + a : a);
                 return a + c + p;
             });

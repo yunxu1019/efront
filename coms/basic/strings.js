@@ -92,7 +92,7 @@ var forbiddens = {
 };
 var regs = recode.name === 'recode' ? [] : Object.keys(forbiddens).map(k => {
     var r = forbiddens[k];
-    r = new RegExp("(?:^|\:|\\/\\/|\\.)" + escapeRegExp(r) + "(\\/|$\:)", 'i');
+    r = new RegExp("(?:^|\\:|\\/\\/|\\.)" + escapeRegExp(r) + "(\\/|$\\:)", 'i');
     r.name = k;
     return r;
 });
