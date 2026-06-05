@@ -34,7 +34,7 @@ var buildinpath = path.join(__dirname, '..');
 comms_root = comms_root.filter(a => path.resolve(a) !== buildinpath);
 if (comms_root.length < comms_root_length) comms_root.push(buildinpath);
 var pages_root = getRoots(env.PAGE_PATH, env.PAGE);
-if (memery.RESTCOMS) var rest_coms = getRoots(env.COMS_PATH, memery.RESTCOMS);
+if (memery.RESTCOMS) var rest_coms = mixin(env.COMS_PATH, memery.RESTCOMS).filter(a => fs.existsSync(joinpath(a)));;
 POLYFILL = !/^(0|false|null)$/i.test(POLYFILL);
 var resolve_component_file_path = function (public_path = APP, source_paths = ["."].concat(pages_root, comms_root)) {
     for (var cx = 0, dx = source_paths.length; cx < dx; cx++) {
