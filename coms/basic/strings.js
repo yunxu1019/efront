@@ -10,8 +10,17 @@ var escapeMap = {
 };
 var unescapeFun = a => escapeMap[a];
 var unescapeUnc = function (a) {
-    if (escapeMap.hasOwnProperty(a)) return escapeMap[a];
-    var code = a.charCodeAt(0).toString(16);
+    if (a.length !== 1) a: {
+        var a1 = a[1];
+        if (escapeMap.hasOwnProperty(a1)) {
+            return escapeMap[a1];
+        }
+        var code = a1.charCodeAt(0);
+        if (code <= 0x001f || code >= 0x80) break a;
+        return a;
+    }
+    else if (escapeMap.hasOwnProperty(a)) return escapeMap[a];
+    else var code = a.charCodeAt(0).toString(16);
     switch (code.length) {
         case 1:
             return "\\u000" + code;
@@ -27,14 +36,14 @@ var unescapeMap = {
 };
 for (var k in escapeMap) unescapeMap[escapeMap[k]] = k;
 var unescapeReg = new RegExp(`[${Object.keys(escapeMap).map(a => escapeMap[a]).join('')}]`, 'g');
-function escape(str, escapeUnicode) {
-    if (escapeUnicode) str = str.replace(/[\r\n\t\v\f\u0008\u0000-\u001f\u007f-\uffff]/g, unescapeUnc);
-    else str = str.replace(unescapeReg, unescapeFun);
+function escape(str) {
+    str = str.replace(/\\[\s\S]|[\r\n\t\v\f\u0008\u0000-\u001f\u007f-\uffff]/g, unescapeUnc);
     return str;
 }
 function encode(str, q = "\"", escapeUnicode = true) {
     str = str.replace(new RegExp(`[\\\\${q}]`, 'g'), "\\$&");
-    str = escape(str, escapeUnicode);
+    if (escapeUnicode) str = escape(str);
+    else str = str.replace(unescapeReg, unescapeFun);
     return q + str + q;
 }
 var esc = function (a) {

@@ -7,7 +7,13 @@ var globals = require("../efront/globals");
 var { public_app, SOURCEDIR, EXPORT_TO: EXPORT_TO, PUBLIC_PATH } = require("./environment");
 if (SOURCEDIR) SOURCEDIR = path.dirname(public_app);
 else SOURCEDIR = PUBLIC_PATH;
-var strings_encode = memery.BREAK ? function (source) {
+var breakreg = memery.BREAK ? function (_, a, c, p) {
+    var c1 = c;
+    c = _strings.escape(c, memery.BREAK).replace(/\\[\s\S]|\//g, a => a.length === 1 ? '\\' + a : a);
+    if (c1 !== c) assert(c, c1);
+    return a + c + p;
+} : a => a;
+var strings_encode = memery.BREAK&&false ? function (source) {
     return _strings.encode(source, `"`, false);
 } : _strings.encode;
 var strings_decode = _strings.decode;
@@ -247,14 +253,9 @@ function toComponent(responseTree, isWebProject) {
             $key = appendExtractedParam($key);
             return $key;
         };
-        var breakreg = memery.BREAK ? function (k) {
-            return k.replace(/^(\/)([\s\S]*)(\/\w*)$/, function (_, a, c, p) {
-                c = _strings.escape(c, memery.BREAK).replace(/\\[\s\S]|\//g, a => a.length === 1 ? '\\' + a : a);
-                return a + c + p;
-            });
-        } : a => a;
+
         var setMatchedConstRegExp = function (k) {
-            k = breakreg(k);
+            k = k.replace(/^(\/)([\s\S]*)(\/\w*)$/, breakreg);
             var $key = getEfrontKey(k, 'regexp');
             $key = appendExtractedParam($key);
             return $key;
