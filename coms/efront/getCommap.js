@@ -171,7 +171,7 @@ var isFront = async function (PAGE_PATH, appname) {
         if (stats.isFile()) p = path.dirname(p);
         var files = await readdir(p);
         for (var f of files) {
-            if (f.isFile() && /\.(less|css|xht|html?|vue)$/i.test(f.name)) return true;
+            if (f.isFile() && /\.(less|css|xht|html?|vue|jsp|asp|php)$/i.test(f.name)) return true;
         }
     }
     if (pages.length) return false;
@@ -179,7 +179,10 @@ var isFront = async function (PAGE_PATH, appname) {
 module.exports = async function (appname, isfront, deep) {
     if (typeof isfront !== 'boolean') {
         if (!appname) appname = memery.APP || '';
-        isfront = await isFront(memery.PAGE_PATH, appname);
+        isfront = await isFront(memery.PAGE_PATH, [
+            appname,
+            appname = appname.replace(/\.[^\.]+$/, '')
+        ]);
     }
     if (typeof isfront !== 'boolean') {
         isfront = await isFront(memery.COMS_PATH, memery.COMM);

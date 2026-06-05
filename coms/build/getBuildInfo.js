@@ -10,7 +10,7 @@ var env = require("./environment");
 var noopbuilder = a => a;
 var getCommmap = require("../efront/getCommap");
 var commap = await getCommmap(memery.APP, undefined, Infinity);
-var pagemap = await getCommmap(memery.APP, true, Infinity);
+var pagemap = await getCommmap(memery.APP, undefined, Infinity);
 if (pagemap['zimoli'] || pagemap["zimoli$zimoli"]) {
     ["state", 'login', 'prepare', 'upwith', "go"].forEach(name => {
         var f = pagemap[name];

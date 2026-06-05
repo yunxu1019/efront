@@ -366,7 +366,7 @@ Object.keys(fixme).forEach(fixpath);
 var setDebug = function () {
     var debug = {
         ENCRYPT: false,
-        COMPRESS: false,
+        COMPRESS: -1,
         KEEPSPACE: true,
         BREAK: false,
         COMMENT: true,

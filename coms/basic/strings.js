@@ -27,10 +27,14 @@ var unescapeMap = {
 };
 for (var k in escapeMap) unescapeMap[escapeMap[k]] = k;
 var unescapeReg = new RegExp(`[${Object.keys(escapeMap).map(a => escapeMap[a]).join('')}]`, 'g');
-function encode(str, q = "\"", escapeUnicode = true) {
-    str = str.replace(new RegExp(`[\\\\${q}]`, 'g'), "\\$&");
+function escape(str, escapeUnicode) {
     if (escapeUnicode) str = str.replace(/[\r\n\t\v\f\u0008\u0000-\u001f\u007f-\uffff]/g, unescapeUnc);
     else str = str.replace(unescapeReg, unescapeFun);
+    return str;
+}
+function encode(str, q = "\"", escapeUnicode = true) {
+    str = str.replace(new RegExp(`[\\\\${q}]`, 'g'), "\\$&");
+    str = escape(str, escapeUnicode);
     return q + str + q;
 }
 var esc = function (a) {
@@ -95,10 +99,12 @@ var regs = recode.name === 'recode' ? [] : Object.keys(forbiddens).map(k => {
 function recode(s, singleSlash) {
     s = decode(s, singleSlash);
     for (var r of regs) {
-        if (r.test(s)) s = r.name + "不得使用";
-        console.error(s);
+        if (r.test(s)) {
+            s = r.name + "不得使用";
+            console.error(s);
+        }
     }
-    s = encode(s);
+    s = encode(s, '"', false);
     return s;
 }
-export { encode, decode, recode, kicode, uncode };
+export { encode, decode, recode, escape, kicode, uncode };

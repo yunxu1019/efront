@@ -7,6 +7,10 @@ var globals = require("../efront/globals");
 var { public_app, SOURCEDIR, EXPORT_TO: EXPORT_TO, PUBLIC_PATH } = require("./environment");
 if (SOURCEDIR) SOURCEDIR = path.dirname(public_app);
 else SOURCEDIR = PUBLIC_PATH;
+var strings_encode = memery.BREAK ? function (source) {
+    return _strings.encode(source, `"`, false);
+} : _strings.encode;
+var strings_decode = _strings.decode;
 var report = require("./report");
 var isSymbol = require("./isSymbol");
 var isText = require("./isText");
@@ -119,7 +123,7 @@ function toComponent(responseTree, isWebProject) {
                 saveOnlyGlobal(key);
             }
         } else {
-            if (type === 'string') k = _strings.decode(k);
+            if (type === 'string') k = strings_decode(k);
             var key = k.replace(/[^\w\$]+/g, "_");
             if (key.length > 8) {
                 key = key.slice(0, 8);
@@ -132,7 +136,7 @@ function toComponent(responseTree, isWebProject) {
             }
             if (!destMap[key]) {
                 paramsMap[key] = k;
-                if (type === 'string') k = _strings.encode(k);
+                if (type === 'string') k = strings_encode(k);
                 if (type === 'string') k = encode(k);
                 avoidMap[key] = type;
                 saveOnly(k, key);
@@ -151,7 +155,7 @@ function toComponent(responseTree, isWebProject) {
     if (encoded) decoderSource.replace(/\$\w+/g, addConst);
     if (array_map) polyfill_map.replace(/\$\w+/g, addConst);
     var encode = function (source) {
-        var _source = _strings.decode(source);
+        var _source = strings_decode(source);
         var prefix = '';
         if (isText(_source)) {
             if (!compress) prefix = `/* text */ `;
@@ -186,11 +190,11 @@ function toComponent(responseTree, isWebProject) {
 
             if (!~strings.indexOf(temp)) source = temp;
         }
-        source = _strings.encode(source);
+        source = strings_encode(source);
         return source;
     };
     var getEncodedIndex = function (key, type = "string") {
-        if (type === 'string') key = _strings.encode(key);
+        if (type === 'string') key = strings_encode(key);
         return destMap[getEfrontKey(key, type)];
     };
     var warningMap = Object.create(null);
@@ -214,7 +218,7 @@ function toComponent(responseTree, isWebProject) {
             if (/^(['"`])user?\s+(strict|asm|strip)\1$/i.test(k)) return k;
             if (k.length < 3) return k;
             if (isReq) {
-                var refer = _strings.decode(k);
+                var refer = strings_decode(k);
                 if (reqMap && {}.hasOwnProperty.call(reqMap, refer)) {
                     var reqer = reqMap[refer];
                     var reqed = getFromTree(destMap, reqer);
@@ -228,12 +232,12 @@ function toComponent(responseTree, isWebProject) {
                     }
                     if (reqer in libsTree) {
                         var libdir = path.relative(PUBLIC_PATH, libsTree[reqer].realpath).replace(/\\/g, '/');
-                        k = _strings.encode(libdir);
+                        k = strings_encode(libdir);
                     } else if (/^[\.\/]/.test(refer)) {
                         k = path.relative(PUBLIC_PATH, path.join(path.dirname(responseTree[module_key].realpath), refer)).replace(/\\/g, '/');
-                        k = _strings.encode(k);
+                        k = strings_encode(k);
                     } else {
-                        k = _strings.encode(reqMap[refer]);
+                        k = strings_encode(reqMap[refer]);
                     }
                     has_outside_require = true;
                 }
@@ -243,7 +247,14 @@ function toComponent(responseTree, isWebProject) {
             $key = appendExtractedParam($key);
             return $key;
         };
+        var breakreg = memery.BREAK ? function (k) {
+            k = k.replace(/^(\/)([\s\S]*)(\/\w*)$/, function (_, a, c, p) {
+                c = _strings.escape(c, memery.BREAK).replace(/\\[\s\S]|\//g, a => a.length === 1 ? '\\' + a : a);
+                return a + c + p;
+            });
+        } : a => a;
         var setMatchedConstRegExp = function (k) {
+            k = breakreg(k);
             var $key = getEfrontKey(k, 'regexp');
             $key = appendExtractedParam($key);
             return $key;
@@ -298,7 +309,7 @@ function toComponent(responseTree, isWebProject) {
         module_string = code_blocks.map(replaceMatchedString).join("");
         module_string = `${isAsync ? "async " : ""}function${isYield ? "*" : ""}(${module_body.slice(module_body.length >> 1, module_body.length - 1)}){${compress ? "" : "\r\n"}${module_string}${compress ? "" : "\r\n"}}`;
         if (compress) {
-            module_string = scanner2(module_string).press(keepspace).toString();
+            module_string = scanner2(module_string).press(keepspace, compress).toString();
         }
         if (needAwaits) getEncodedIndex('Promise', 'global');
         saveOnly(`[${module_body.slice(0, module_body.length >> 1).map(function (a) {
@@ -418,7 +429,7 @@ function toComponent(responseTree, isWebProject) {
         switch (c) {
             case "'":
             case "\"":
-                text = _strings.decode(text);
+                text = strings_decode(text);
                 return getEncodedIndex(text, 'string');
             case "/":
                 return getEncodedIndex(text, 'regexp');
@@ -433,7 +444,7 @@ function toComponent(responseTree, isWebProject) {
         d.imported = d.imported.map(saveImported);
         var module = d.module.replace(/"(imported\s*-\s*\d+)"/g, imported);
         if (compress) {
-            module = scanner2(module).press(keepspace).toString();
+            module = scanner2(module).press(keepspace, compress).toString();
         }
         saveOnly(`[${d.imported.join(',')},${module}]`, d.importedid);
     };

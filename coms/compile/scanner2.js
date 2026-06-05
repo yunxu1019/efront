@@ -4,6 +4,7 @@ var createShortList = function (keys, prevent) {
     return createShortName(keys.length, prevent);
 };
 var renameHashName = require("./nametill");
+var renameBothName = require('./namekill');
 var createNameList = createShortList;
 var Html = require("./Html");
 var Javascript = require("./Javascript");
@@ -190,11 +191,16 @@ class Code extends Array {
         createNameList = createShortList;
     }
     // 压缩
-    press(keepspace) {
+    press(keepspace, pressMethod) {
         this.keepspace = keepspace;
         this.pressed = true;
         this.helpcode = false;
-        compress(this.scoped);
+        if (pressMethod < 0) {
+            createNameList = renameBothName;
+            compress(this.scoped);
+            createShortList = createShortList;
+        }
+        else compress(this.scoped);
         return this;
     }
     getNodeAt(row, col) {
