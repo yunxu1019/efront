@@ -12,12 +12,10 @@ var readdir = p => fsp.readdir(p, readConfig);
 var hasOwnProperty = Object.prototype.hasOwnProperty;
 var loadedMap = Object.create(null);
 var cacheid = 1;
-async function readFrom(fullpath, deep, cmap, loadermain) {
+async function readFrom(fullpath, deep, cmap, map, loadernames) {
     if (loadedMap[fullpath]) return loadedMap[fullpath];
     var id = cacheid;
     var rest = [fullpath, [], [], null];
-    var map = Object.create(null);
-    var loadernames = [];
     var constEnvFiles = [];
     while (rest.length) {
         const pMap = rest.pop();
@@ -56,7 +54,11 @@ async function readFrom(fullpath, deep, cmap, loadermain) {
                 var m1 = n1.join('/');
                 n1.pop();
                 var p1 = path.join(p, fname);
-                if (m1 !== m && !map[m1] || isless) {
+                if (isless) {
+                    if (!map[m1]) map[m1] = p1;
+                    continue;
+                }
+                if (m1 !== m && !map[m1]) {
                     map[m1] = p1;
                 }
                 if (/^[\.&]?(const)?(\..+)?\.m?js$/i.test(fname)) {
@@ -75,17 +77,13 @@ async function readFrom(fullpath, deep, cmap, loadermain) {
         }
         if (hasConst) cmap[p] = constMap;
     }
-    return [map, loadernames, constEnvFiles];
+    return constEnvFiles;
 }
-var mergeTo = function (dst, nameprefix, map) {
-    for (var k in map) {
-        if (!(k in dst)) dst[k] = map[k];
-        var k1 = nameprefix + k;
-        if (!(k1 in dst)) dst[k1] = map[k];
-    }
-};
+
+
 var reptileback = path.join(__dirname, '../reptile');
 var zimolifront = path.join(__dirname, '../zimoli');
+var loadermain = path.join(zimolifront, "main.js");
 async function getCommap(appname, isfront, deep = 6) {
     var id = cacheid;
     var env = setupenv(appname);
@@ -94,7 +92,6 @@ async function getCommap(appname, isfront, deep = 6) {
     var ser = Object.create(null);
     var loadernames = [];
     var constEnvFiles = [];
-    var loadermain = path.join(__dirname, "../zimoli/main.js");
     var mixcoms = mixin(env.COMS_PATH, env.COMM);
     var coms = [];
     for (var [a, n] of mixcoms) {
@@ -104,16 +101,13 @@ async function getCommap(appname, isfront, deep = 6) {
         if (isfront && p === reptileback) continue;
         if (coms.indexOf(p) >= 0) continue;
         coms.push(p);
-        var [map, ldnames, consts] = await readFrom(p, deep, cmap, loadermain);
+        var consts = await readFrom(p, deep, cmap, res, loadernames);
         if (id !== cacheid) return;
-        if (ldnames.length) loadernames.push.apply(loadernames, ldnames);
         if (consts.length) constEnvFiles.push.apply(constEnvFiles, consts);
-        mergeTo(res, n ? n + "$" : n, map);
     }
     if (res["zimoli"] && path.dirname(res['zimoli']) === zimolifront) {
         delete res['state'];
         delete res['login'];
-        delete res['prepare'];
         delete res['upwith'];
         delete res['go'];
     }
@@ -191,7 +185,7 @@ module.exports = async function (appname, isfront, deep) {
         if (!appname) appname = memery.APP || '';
         isfront = await isFront(memery.PAGE_PATH, [
             appname,
-            appname.replace(/^[\.\/]*/, '').replace(/\.[^\.]+$/, '')
+            appname.replace(/^[\.\/]*/, '').replace(/\.[^\.\\\/]+$/, '')
         ]);
     }
     if (typeof isfront !== 'boolean') {

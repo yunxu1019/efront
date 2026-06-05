@@ -473,7 +473,7 @@ module.exports = async function (responseTree) {
     var versionVariableName;
     var prebuilds = Object.create(null);
     prebuilds.state = true;
-    prebuilds.prepare = true;
+    prebuilds.upwith = true;
     prebuilds.module = true;
     prebuilds.exports = true;
     mainScriptData = mainScriptData.toString()
@@ -485,7 +485,7 @@ module.exports = async function (responseTree) {
         .replace(/(var\s+modules\s*=\s*\{\s*)([\s\S]*?)(\s*\})/, function (_, prefix, modules, aftfix) {
             var parsed = parseKV(modules, ',', ":");
             Object.keys(parsed).forEach(k => prebuilds[k] = true);
-            missing = missing.filter(k => !responseTree[k].type && !prebuilds[responseTree[k].url] && !/^[\.\[\]]/.test(missing));
+            missing = missing.filter(k => !responseTree[k].type && !prebuilds[responseTree[k].url] && !/^[\.\[\]]/.test(k));
             return `${prefix}${missing.map(k => responseTree[k].warn ? `"${k}":window["${k}"]` : k).join(",\r\n")}${missing.length ? ',' : ''}\r\n${modules}${aftfix}`;
         })
         .replace(/(?:\.send|\[\s*(["'])send\1\s*\])\s*\((.*?)\)/g, (match, quote, data) => (versionVariableName = data || "", quote ? `[${quote}send${quote}]()` : ".send()"))
