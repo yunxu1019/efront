@@ -19,7 +19,7 @@ var loadwebcoms = async function () {
     var fsp = fs.promises;
     var dynaroots = [];
     var read = async function (fullpath) {
-        var files = await fsp.readdir(root, { withFileTypes: true });
+        var files = await fsp.readdir(fullpath, { withFileTypes: true });
         var comm = Object.create(null);
         for (var f of files) {
             if (!f.isFile()) continue;
@@ -55,7 +55,7 @@ var loadwebcoms = async function () {
     return webdynas = dynaroots;
 };
 if (fs.existsSync(memery.webroot)) {
-    webcoms = fs.promises.readdir(memery.webroot, { withFileTypes: true }).then(files => {
+    dynacoms = fs.promises.readdir(memery.webroot, { withFileTypes: true }).then(files => {
         var webroot = memery.webroot;
         var load = function (root) {
             for (var f of files) {
