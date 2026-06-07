@@ -261,7 +261,19 @@ var toFlat = function (exp) {
                 left.push(make("{", null, getRows(e)));
             }
             else if (e.entry === '|') {
-                left.push(make("^|", getRows(e)));
+                var f = e.first;
+                if (f.type === SCOPED && f === e.last) {
+                    left.push({ "^|": getRows(f) });
+                }
+                else {
+                    var args = getRows(e);
+                    if (args.length === 1 && !(args[0] instanceof Array)) {
+                        left.push(make("&|", args[0]));
+                    }
+                    else {
+                        left.push(make("^|", args));
+                    }
+                }
             }
         }
         else {
@@ -322,6 +334,10 @@ var toFlat = function (exp) {
             var text = e.text;
             if (e.type === QUOTED) {
                 text = strings.decode(text);
+            }
+            if (e.type === LABEL) {
+                left.push({ "^:": text });
+                continue;
             }
             left.push(text);
         }

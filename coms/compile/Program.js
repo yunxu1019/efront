@@ -1086,7 +1086,7 @@ class Program {
                         push_stamp();
                     }
                     var last = queue.last;
-                    if (last && last.type & ~(STAMP | STRAP | LABEL) && !last.ion) {
+                    if (last && last.type & ~(STAMP | STRAP | LABEL | PROPERTY) && !last.ion) {
                         if (last.isExpress && !last.istype) break scope;
                     }
                 }

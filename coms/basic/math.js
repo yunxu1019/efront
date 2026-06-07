@@ -106,7 +106,7 @@ var mtable = function (args, prefix, postfix) {
     if (prefix) prefix = `<mo>${prefix}</mo>`;
     if (postfix) postfix = `<mo>${postfix}</mo>`;
     if (args.length === 1) return [prefix, args[0], postfix].join('');
-    return `${prefix}<mtable><mtr>${args.join("</mtr><mtr>")}</mtr></mtable>${postfix}`;
+    return `${prefix}<mtable>${args.join("")}</mtable>${postfix}`;
 }
 var funcmap = {
     "+"(...args) {
@@ -158,8 +158,8 @@ var funcmap = {
         remove(m);
         return `<mover>${A}<mo stretchy=true symmetric=true fence=true accent=true>${sp}</mo></mover>`
     },
-    abs(...args) {
-        return mtable(args, "|", "|");
+    abs(a) {
+        return `<mo>|</mo>${a}<mo>|</mo>`;
     },
     log(x, n) {
         return `<msub><mo>log</mo>${n}</msub>${x}`
@@ -186,14 +186,6 @@ var funcmap = {
     Sigma: Series,
     Series,
     series,
-    "{"(...args) {
-        return mtable(args, '{', '');
-        // return `<mo>{</mo><mtable columnalign="left"><mtr><mtd>${args.join("</mtd></mtr><mtr><mtd>")}</mtd></mtr></mtable>`
-    },
-    "["(...args) {
-        return mtable(args, '[', ']');
-        // return `<mo>[</mo><mtable><mtr>${args.join("</mtr><mtr>")}</mtr></mtable><mo>]</mo>`;
-    },
     '!='(...args) {
         return mo3("≉", args);
     },
@@ -219,7 +211,7 @@ var funcmap = {
         return args.map(a => a + `<mo>!</mo>`).join('');
     }
 };
-funcmap["^|"] = funcmap.abs;
+funcmap["&|"] = funcmap.abs;
 var unary = (u, a) => `<ms>${u}</ms>${a}`;
 var unarymap = {
     "+"(a) {
@@ -332,7 +324,7 @@ var 希腊 = {
 var lineBroken = false;
 var br = function () {
     lineBroken = true;
-    return '</mtd></mtr><mtr><mtd>';
+    return '</mtd></mtr><mtr><mtd style="text-align:left">';
 };
 var Number_isFinite = Number.isFinite;
 var isPostFinite = function (n) {
@@ -346,6 +338,96 @@ var isFinite = function (n, post) {
     if (n["."]) return !post || isPostFinite(n);
     if (n[".."]) return !post || isPostFinite(n);
     return false;
+}
+var toCell = function (eq, k) {
+    var left, right;
+    var res = [];
+    if (eq instanceof Array) {
+        left = toString(eq[0], 0, 0);
+        right = toString(eq.slice(1), 0, 0);
+    }
+    else left = ``, right = toString(eq);
+    if (left instanceof Array) left = left.join("&ensp;&ensp;");
+    else if (right instanceof Array) right = right.join(`<mi>${k}</mi>`);
+    res.push(
+        `<mtd style="text-align:right;text-align:-webkit-right;padding-right:0;">`,
+        left,
+        `</mtd><mtd><mi>${k}</mi></mtd><mtd style="text-align:left;padding-left:0;">`,
+        right,
+        '</mtd>',
+    );
+    return res.join("");
+};
+var num = function (prefix, rep, dots, e, s, p, deep) {
+    prefix = String(prefix).replace(/^\-/, '–');
+    if (typeof rep === 'number') rep = String(rep);
+    if (rep && !/\./.test(prefix)) prefix += '.';
+    if (typeof e === 'number') e = String(e);
+    if (!rep) rep = '';
+    else if (rep.length === 1) {
+        rep = mdot(rep);
+    }
+    else if (rep.length >= 2) {
+        rep = mdot(rep.charAt(0)) + mn(rep.slice(1, rep.length - 1)) + mdot(rep.charAt(rep.length - 1));
+    }
+    else rep = mn(rep);
+    if (dots) dots = mn(dots);
+    else dots = '';
+    if (e) e = `<mo>×</mo><msup><mn>10</mn><mn>${String(e).replace(/^\-/, '–')}</mn></msup>`;
+    else e = '';
+    if (s) s = `<mi>${s}</mi>`;
+    else s = '';
+    prefix = mn(prefix);
+    return mrow([prefix, rep, dots, e, s].join(''), e ? p >= pmap["*"] : false, deep);
+
+}
+var makemap = {
+    ".."(origin, p, deep) {
+        var [prefix, rep, dots, e, s] = origin;
+        return num(prefix, rep, dots, e, s, p, deep);
+    },
+    "."(origin, p, deep) {
+        var [prefix, e, s] = origin;
+        if (/[^\d]$/.test(e)) s = e, e = '';
+        return num(prefix, '', '', e, s, p, deep);
+    },
+    "@"(origin, p, deep) {
+        return mrow(tabs.circle(origin), -1, deep);
+    },
+    "$"(origin, p, deep) {
+        return mrow(tabs.roman(origin), -1, deep);
+    },
+    tab(origin, p, deep) {
+        var k = origin.shift();
+        if (!origin.length || !(k in tabs)) {
+            var args = origin.map(a => toString(a, 0, deep));
+            return mrow(`<ms>(</ms>${k}${args.length ? "<ms>,</ms>" + args.join('<ms>,</ms>') : ''}<ms>)</ms>`, -1, deep);
+        }
+        return mrow(tabs[k](...origin), -1, deep);
+    },
+    "{"(origin, p, deep) {
+        return mrow(mtable(origin.map(toRows), "{", ''), false, 0);
+    },
+    "^:"(origin, p, deep) {
+        return `<ms style="font-weight:bolder">${origin}</ms>`;
+    },
+    "["(origin, p, deep) {
+        return toMatrix(origin, '[', ']');
+    },
+    "^|"(origin, p, deep) {
+        console.log(origin);
+        if (origin instanceof Array) return toMatrix(origin, '|', '|');
+        return mrow(funcmap.abs(toString(origin[0])), false, 0);
+    },
+};
+var toMatrix = function (origin, prev, post) {
+    var res = origin.map(o => {
+        if (o instanceof Array) return `<mtr><mtd>${o.map(a => {
+            return toString(a);
+        }).join('</mtd><mtd>')}</mtd></mtr>`
+        return `<mtr><mtd>${toString(o)}</mtd></mtr>`;
+    });
+    return mrow(mtable(res, prev, post), false, 0);
 }
 function toString(obj, p, deep) {
     if (obj instanceof Array) {
@@ -367,32 +449,8 @@ function toString(obj, p, deep) {
         for (var k in obj) break;
         if (!k) return '';
         var origin = obj[k];
-        if (k === '.' || k === '..') {
-            if (k === '.') {
-                var [prefix, e, s] = origin;
-                if (/[^\d]$/.test(e)) s = e, e = '';
-            }
-            else var [prefix, rep, dots, e, s] = origin;
-            prefix = String(prefix).replace(/^\-/, '–');
-            if (typeof rep === 'number') rep = String(rep);
-            if (rep && !/\./.test(prefix)) prefix += '.';
-            if (typeof e === 'number') e = String(e);
-            if (!rep) rep = '';
-            else if (rep.length === 1) {
-                rep = mdot(rep);
-            }
-            else if (rep.length >= 2) {
-                rep = mdot(rep.charAt(0)) + mn(rep.slice(1, rep.length - 1)) + mdot(rep.charAt(rep.length - 1));
-            }
-            else rep = mn(rep);
-            if (dots) dots = mn(dots);
-            else dots = '';
-            if (e) e = `<mo>×</mo><msup><mn>10</mn><mn>${String(e).replace(/^\-/, '–')}</mn></msup>`;
-            else e = '';
-            if (s) s = `<mi>${s}</mi>`;
-            else s = '';
-            prefix = mn(prefix);
-            return mrow([prefix, rep, dots, e, s].join(''), e ? p >= pmap["*"] : false, deep);
+        if (k in makemap) {
+            return makemap[k](origin, p, deep);
         }
         if (k === '**') {
             if (origin instanceof Array) {
@@ -406,17 +464,7 @@ function toString(obj, p, deep) {
                 }
             }
         }
-        if (k === '@' || k === '$') {
-            return mrow(tabs[k](origin), -1, deep);
-        }
-        if (k === 'tab') {
-            k = origin.shift();
-            if (!origin.length || !(k in tabs)) {
-                var args = origin.map(a => toString(a, 0, deep));
-                return mrow(`<ms>(</ms>${k}${args.length ? "<ms>,</ms>" + args.join('<ms>,</ms>') : ''}<ms>)</ms>`, -1, deep);
-            }
-            return mrow(tabs[k](...origin), -1, deep);
-        }
+
         if (k in 三角函数) {
             if (origin instanceof Array) {
                 var args = origin.map(a => toString(a, pmap["*"], 0));
@@ -483,25 +531,94 @@ function toString(obj, p, deep) {
         return mrow(mn(obj), -1, deep);
     }
     if (/^[\s,;]+$/.test(obj)) {
-        obj = obj.replace(/(\r\n|\r|\n)/g, br)
+        obj = obj.replace(/(\r\n|\r|\n)\s*/g, br);
         if (lineBroken) return obj;
         obj = obj.replace(/\s/g, '&ensp;');
-        return `<mtext>${obj}</mtext>`;
+        return `<ms>${obj}</ms>`;
     }
     if (isCap && obj.length === 1) return mrow(ms(obj), -1, deep);
     obj = String(obj).replace(/\-/g, '–');
     return mrow(obj ? mi(obj) : '', -1, deep);
 }
+function toRows(args) {
+    var res = [];
+    var row = [];
+    var q = true;
+    var br = lineBroken;
+    lineBroken = false;
+    var inBlock = false;
+    var inLine = false;
+    var prevIsEqual = false;
+    var prevIsBroken = false;
+    for (var a of args) {
+        if (a instanceof Object && !(a instanceof Array)) {
+            for (var k in a) break;
+            if (pmap[k] === pmap['=']) {
+                if (row.length) {
+                    if (prevIsBroken) {
+                        var row1 = row.pop();
+                        res.push(`<mtd style="text-align:left">`, row.join(''));
+                        row1 = row1.replace(/\<mtd[^\>]*\>$/, '');
+                        res.push(row1);
+                    }
+                    else {
+                        res.push('<mtd style="text-align:left">', row.join(''), '</mtd>');
+                    }
+                    if (!prevIsEqual) {
+                        res.push('<mtable><mtr>');
+                        inBlock = true;
+                    }
+                }
+                prevIsEqual = true;
+                row = [];
+                var r = toCell(a[k], k);
+                res.push(r);
+                q = true;
+                continue;
+            }
+        }
+
+        if (a instanceof Object) {
+            if (!q) row.push('<ms>&ensp;</ms>');
+            if (inBlock) {
+                row.push("</mtr></mtable>");
+                inBlock = false;
+            }
+            q = false;
+            prevIsEqual = false;
+            var r = toString(a, 0, 1);
+            row.push(r);
+        }
+        else if (/^,/.test(a)) {
+            row.push('<ms>,&ensp;</ms>'), q = true;
+        }
+        else if (a === ' ') {
+            row.push(`<ms>&ensp;</ms>`), q = true;
+        }
+        else {
+            if (!q) row.push('<ms>&ensp;</ms>');
+            var r = toString(a, 0, 1);
+            row.push(r);
+            var prevIsBroken = lineBroken && /<mtd[^\>]*>$/i.test(r);
+            if (prevIsBroken) q = true;
+        }
+    }
+    if (inBlock) {
+        row.push('</mtr></mtable>');
+    }
+    if (!res.length && !lineBroken) {
+        res = row.join('');
+    }
+    else {
+        if (row.length) res.push(`<mtd style="text-align:left">`, row.join(""), `</mtd>`);
+        res = `<mtr>${res.join('')}</mtr>`;
+    }
+    lineBroken = br;
+    return res;
+};
 function math(mathObj) {
     if (mathObj.tagName) return mathObj;
-    lineBroken = false;
-    var res = [];
-    for (var a of arguments) {
-        res.push(toString(a, 0, 1));
-    }
-    res = res.join('');
-    if (lineBroken) {
-        res = `<mtable style="text-align:justify"><mtr><mtd>${res}</mtd></mtr></mtable>`;
-    }
+    var res = toRows(arguments);
+    if (/^\<mtr/.test(res)) res = `<mtable>${res}</mtable>`;
     return `<math>${res}</math>`;
 }
