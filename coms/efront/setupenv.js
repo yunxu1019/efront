@@ -25,7 +25,11 @@ module.exports = function (app) {
     });
     pollyfill(env);
     normalize(env);
-    extendIfNeed(env, rootEnvs);
+    for (var k in rootEnvs) {
+        if (!(k in env)) {
+            env[k] = memery[k] || rootEnvs;
+        }
+    }
     "IMAG COMM AAPI".split(/\s+/).forEach(function (key) {
         var default_value = memery.get.call(env, key);
         if (default_value === undefined) default_value = memery.get.call(rootEnvs, key);
