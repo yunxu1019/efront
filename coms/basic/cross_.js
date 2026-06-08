@@ -326,6 +326,8 @@ function cross_(jsonp, digest = noop, method, url, headers) {
         };
         var fire = async function (code) {
             if (!~requests.indexOf(xhr)) return;
+            headers = await headers;
+            cachedata = await Promise.all(cachedata);
             prepareHeaders();
             xhr.method = method;
             xhr.url = url;

@@ -320,6 +320,59 @@ require2.invokeTask = async function (taskid, data) {
     if (res) res = require("../crypt/encode62").packencode(JSON.stringify(res));
     return res;
 };
+
+var toPrivate = async function (v) {
+    var m = null;
+    if (m = /^\<_private\>\(([^\)]+)\)$/.exec(v)) {
+        v = m[1];
+    }
+    if (!m) return v;
+    v = v.trim().split(/\s+/);
+    var v0 = v[0];
+    if (v.length === 1) {
+        v = await _private(v0);
+    }
+    else if (/^Basic$/i.test(v0)) {
+        var [n, s = ''] = v[1].split(':');
+        if (n) n = await _private(n);
+        if (s) s = await _private(s);
+        console.log(n, s);
+        v = `Basic ${btoa([n, s].join(":"))}`;
+    }
+    return v;
+}
+async function toPrivateObject(headers) {
+    var privateHeaders = {};
+    for (var k in headers) {
+        var v = headers[k];
+        if (typeof v === 'function') continue;
+        v = await toPrivate(v);
+        privateHeaders[k] = v;
+    }
+    return privateHeaders;
+}
+
+function _cross(method, url, headers) {
+    // 默认情况下，服务端的明文代码无法加载和使用密钥
+    // 需要使用密钥的地方需经过加密任务中转
+    // 加密任务如需保持密钥不输出到明文代码，就要编写大量的业务逻辑
+    // 这有些麻烦
+    // 这里提供一个网格请求方法，可以把相关的标记替换成密钥
+    // 这样避免了明文代码与密钥的直接接触，也无需编写中转代码
+    var privateHeaders = typeof headers === "object" ? toPrivateObject(headers) : headers;
+    var xhr = reptile$cross(method, url, privateHeaders);
+    var send = xhr.send;
+    xhr.data = xhr.send = function (data) {
+        if (typeof data === 'string') {
+            data = toPrivate(data);
+        }
+        else if (typeof data === 'object') {
+            data = toPrivateObject(data);
+        }
+        send.call(xhr, data);
+    };
+    return xhr;
+}
 var restModules = {
     runtask: _runtask,
     _runtask: _runtask,
@@ -327,6 +380,7 @@ var restModules = {
     _lock: lock60,
     lock30: lock30,
     _lock30: lock30,
+    _cross,
     DB: require("../server/doDB"),
     readdata: require("../server/readdata"),
 };
