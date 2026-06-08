@@ -368,7 +368,7 @@ function _cross(method, url, headers) {
         else if (typeof data === 'object') {
             data = toPrivateObject(data);
         }
-        send.call(xhr, data);
+        return send.call(xhr, data);
     };
     return xhr;
 }
