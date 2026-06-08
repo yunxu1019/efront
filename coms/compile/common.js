@@ -1844,6 +1844,7 @@ var pickAssignment = function (n) {
     return values;
 }
 var insertBefore = function () {
+    "use strict";
     var [o] = arguments;
     var queue = this || o.queue;
     var index = queue.indexOf(o);
