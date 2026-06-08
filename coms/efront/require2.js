@@ -98,7 +98,6 @@ var createModule = function (required, pathmap, modname) {
     if (typeof modname === "number") modname = required[modname];
     var prebuilds = this.prebuilds;
     if (prebuilds && hasOwnProperty.call(prebuilds, modname)) return prebuilds[modname];
-    if (hasOwnProperty.call(constModules, modname)) return constModules[modname];
     if (hasOwnProperty.call(pathmap, modname)) return require2(pathmap[modname]);
     if (hasOwnProperty.call(restModules, modname)) return restModules[modname];
     switch (modname) {
@@ -122,7 +121,6 @@ var rootmap = Object.create(null);
 var prepareModule = function (dirname, required, prebuilds, pathmap, modname) {
     if (typeof modname === "number") modname = required[modname];
     if (prebuilds && hasOwnProperty.call(prebuilds, modname)) return;
-    if (hasOwnProperty.call(constModules, modname)) return;
     if (hasOwnProperty.call(restModules, modname)) return;
     if (/^(module|exports|__dirname|__filename)$/.test(modname)) return;
     if (global[modname] !== undefined) return;
@@ -238,7 +236,23 @@ var invokeFunction = function (func, prebuilds) {
     invokingStack.push(func.pathname);
     if (imported instanceof Array && require instanceof Function) imported = imported.map(require);
     invokingStack.pop();
-    return imported instanceof Array ? func.apply(context, imported) : func.call(context);
+    var hasPromise = false;
+    if (imported instanceof Array) {
+        for (var f of imported) {
+            if (f && typeof f.then === 'function') {
+                hasPromise = true;
+                break;
+            }
+        }
+        if (!hasPromise) return func.apply(context, imported);
+        return Promise.all(imported).then(function (imported) {
+            return func.apply(context, imported);
+        });
+    }
+    else {
+        return func.call(context);
+    }
+
 };
 
 var taskmap = {}, loadtime = userdata.loadtime;
