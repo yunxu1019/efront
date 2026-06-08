@@ -336,7 +336,6 @@ var toPrivate = async function (v) {
         var [n, s = ''] = v[1].split(':');
         if (n) n = await _private(n);
         if (s) s = await _private(s);
-        console.log(n, s);
         v = `Basic ${btoa([n, s].join(":"))}`;
     }
     return v;
