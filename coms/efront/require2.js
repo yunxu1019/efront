@@ -85,15 +85,7 @@ var prepareFunction = function (pathname) {
         });
     });
 };
-var restModules = {
-    runtask: _runtask,
-    _runtask: _runtask,
-    lock: lock60,
-    _lock: lock60,
-    lock30: lock30,
-    _lock30: lock30,
-    DB: require("../server/doDB"),
-};
+
 var createModule = function (required, pathmap, modname) {
     if (typeof modname === "number") modname = required[modname];
     var prebuilds = this.prebuilds;
@@ -327,5 +319,15 @@ require2.invokeTask = async function (taskid, data) {
     }
     if (res) res = require("../crypt/encode62").packencode(JSON.stringify(res));
     return res;
+};
+var restModules = {
+    runtask: _runtask,
+    _runtask: _runtask,
+    lock: lock60,
+    _lock: lock60,
+    lock30: lock30,
+    _lock30: lock30,
+    DB: require("../server/doDB"),
+    readdata: require("../server/readdata"),
 };
 module.exports = require2;
