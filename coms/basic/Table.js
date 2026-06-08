@@ -1,4 +1,4 @@
-Promise.resolve(init("pinyin")).then(py => mark.setPinyin(py));
+Promise.resolve(require("pinyin")).then(py => mark.setPinyin(py));
 
 function minusPower(a, b) {
     return a.$power - b.$power >= 0;

@@ -21,6 +21,7 @@ var prebuilds = {
     remoteAddress: null, textplain: null, forbidden: null,
     db: null,
     i18n: null,
+    readdata: server$readdata,
     checkAuth: server$checkAuth,
     clients: require("../server/clients")
 };

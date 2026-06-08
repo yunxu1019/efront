@@ -794,7 +794,7 @@ var commands = {
         setAppnameAndPorts(arguments);
         startServer();
     },
-    run(appname) {
+    async run(appname) {
         var args = [].concat.apply(["efront"], arguments);
         if (restArgv.length) args.push.apply(args, restArgv);
         if (!appname) {
@@ -802,22 +802,19 @@ var commands = {
             return;
         }
         var fullpath = process.cwd();
-        var detectPromise = detectWithExtension(appname, ["", ".js", ".ts", "/index.js", "/index.ts"], ['']);
+        var src = [fullpath];
         memery.islive = memery.LIVEMODE !== false;
-        detectPromise.catch(function () {
-            return detectEnvironment("reptile").then(function () {
-                require("./setupenv");
-                return require("./run")(appname, args);
-            });
-        });
-        detectPromise.then(function (f) {
-            setenv({
-                comm: './,basic,basic_',
-                coms_path: './,' + path.join(__dirname, '..'),
-            }, false);
-            require("./setupenv");
-            return require('./run')(path.relative(fullpath, f), args);
-        }, function () { });
+        await detectEnvironment(",reptile,basic");
+        var mixin = require("./mixin");
+        if (memery.PAGE_PATH) {
+            src.push.apply(src, mixin(memery.PAGE_PATH).map(a => a[0]));
+        }
+        if (memery.COMS_PATH) {
+            src.push.apply(src, mixin(memery.COMS_PATH, memery.COMM || '').map(a => path.join.apply(path, a)));
+        }
+        src = mixin(src).map(a => a[0]).filter(fs.existsSync);
+        var f = await detectWithExtension(appname, ["", ".js", ".ts", "/index.js", "/index.ts"], src);
+        return require('./run2')(f, args);
     },
     async public(app_Name, module_Name, publicOnly) {
         if (app_Name) {

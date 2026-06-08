@@ -68,11 +68,7 @@ if (EXPORT_TO === undefined) EXPORT_TO = public_app
     .replace(/\-(\w)/g, (_, w) => w.toUpperCase())
     .replace(/[\s\S]*\/([^\\\/]+)$/, "$1");
 var ignore_path = PUBLIC_PATH.split(/[,;]/).concat((memery.ENVS_PATH || "./_envs").split(/[,;]/))
-    .filter(fs.existsSync).map(a => fs.realpathSync(a)).filter(a => {
-        for (var p of pages_root) {
-            if (getPathIn(p, a)) return true;
-        }
-    });
+    .filter(fs.existsSync).map(a => fs.realpathSync(a)).filter(a => getPathIn(pages_root, a));
 var efrontcoms = [
     path.join(__dirname, '../../'),
 ];

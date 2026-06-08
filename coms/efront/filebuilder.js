@@ -54,6 +54,7 @@ var pixelDecoder = d => d / 16 + "rem";
 if (memery.TRANSFORM_PIXEL) {
     var fixpixel = function (buff) {
         var renderPixelRatio = .75;
+        var devicePixelRatio = 1.5;
         return String(buff).replace(/(\:\s*)?((?:\d*\.)?\d+)px(\s*\))?/ig, (m, h, d, quote) => (h || "") + (d !== '1' ? h && quote ? renderPixelRatio * d + "pt" : pixelDecoder(d) : renderPixelRatio > 1 ? ".75pt" : 0.75 / devicePixelRatio + "pt") + (quote || ""));
     };
 
@@ -100,7 +101,6 @@ var buildjsp = function (buff, realpath) {
             request: req,
             res: res,
             response: res,
-            readdata: server$readdata,
             i18n: i18n.lang(server$getLang(req)),
             db: {
                 get(dbid, dataid) {

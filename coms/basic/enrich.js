@@ -1,4 +1,5 @@
 "use strict";
+var document = this.document;
 var bindObjK = function (obj, k, resolve, _object) {
     Object.defineProperty(_object, k, {
         get() {

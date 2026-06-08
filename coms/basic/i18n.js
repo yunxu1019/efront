@@ -7,7 +7,10 @@ var languageMap = {};
 var languageIndex = 0;
 function i18n() {
     var [arg] = arguments;
-    if (typeof arg === 'string' || !isArrayLike(arg)) arg = arguments;
+    if (arg.raw) return arg[0] + arg.slice(1).map((a, i) => {
+        return arguments[i + 1] + a;
+    }).join('');
+    if (typeof arg === 'string' || typeof arg === 'function') arg = arguments;
     return isFinite(this) ? arg[this] : arg[languageIndex];
 };
 
@@ -67,3 +70,4 @@ var i = +localStorage?.getItem('language-index');
 if (i >= 0) i18n.setIndex(i);
 else i18n.setIndex(languageIndex);
 var supports;
+module.exports = i18n;

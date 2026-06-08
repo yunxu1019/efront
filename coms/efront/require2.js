@@ -4,6 +4,7 @@ var lock = require("./lock");
 var lock30 = lock(30000);
 var lock60 = lock(60000);
 var fs = require('fs');
+const fsp = fs.promises;
 var path = require("path");
 var commparse = commbuilder.parse;
 var memery = require("./memery");
@@ -13,7 +14,9 @@ var required_cache = Object.create(null);
 var hasOwnProperty = {}.hasOwnProperty;
 var loadingTree = Object.create(null);
 var loadedModules = Object.create(null);
+var vm = require('vm');
 var dynacoms = Object.create(null);
+var detectWithExtension = require("../reptile/detectWithExtension");
 var webdynas = null;
 var loadwebcoms = async function () {
     var fsp = fs.promises;
@@ -82,34 +85,49 @@ var prepareFunction = function (pathname) {
         });
     });
 };
+var restModules = {
+    runtask: _runtask,
+    _runtask: _runtask,
+    lock: lock60,
+    _lock: lock60,
+    lock30: lock30,
+    _lock30: lock30,
+    DB: require("../server/doDB"),
+};
 var createModule = function (required, pathmap, modname) {
     if (typeof modname === "number") modname = required[modname];
     var prebuilds = this.prebuilds;
     if (prebuilds && hasOwnProperty.call(prebuilds, modname)) return prebuilds[modname];
+    if (hasOwnProperty.call(constModules, modname)) return constModules[modname];
     if (hasOwnProperty.call(pathmap, modname)) return require2(pathmap[modname]);
+    if (hasOwnProperty.call(restModules, modname)) return restModules[modname];
     switch (modname) {
         case "require": return this.require;
         case "undefined": return undefined;
-        case "runtask": case "_runtask": return _runtask;
-        case "lock": case "_lock": return lock60;
-        case "lock30": case "_lock30": return lock30;
-        case "DB": return server$doDB;
         case "module": return this;
         case "exports": return this.exports;
-        case "JSON": return basic_$JSON;
+        case "__dirname": return path.dirname(this.pathname);
+        case "__filename": return this.pathname;
     }
+    if (/^\.*[\\\/]/.test(modname) && this.pathname) modname = path.join(path.dirname(this.pathname), modname)
+    if (path.isAbsolute(modname)) return require2(rootmap[modname]);
     if (global[modname] !== undefined) return global[modname];
-    if (/^\.|^\/|^\w\:/.test(modname) && this.pathname) modname = path.join(path.dirname(this.pathname), modname)
-    return require(modname);
+    try {
+        return require(modname);
+    } catch {
+        console.error(i18n`加载${modname}失败，引用队列为：` + "\r\n  <red> " + invokingStack.slice().reverse().join(" </red>\r\n  <red> ") + " </red>\r\n");
+    }
 };
-var prepareModule = async function (dirname, required, prebuilds, pathmap, modname) {
+var rootmap = Object.create(null);
+var prepareModule = function (dirname, required, prebuilds, pathmap, modname) {
     if (typeof modname === "number") modname = required[modname];
     if (prebuilds && hasOwnProperty.call(prebuilds, modname)) return;
-    if (/^(require|_?runtask|undefined|module|_?lock|JSON)$/.test(modname)) return;
-    if (/^(module|exports)$/.test(modname)) return;
+    if (hasOwnProperty.call(constModules, modname)) return;
+    if (hasOwnProperty.call(restModules, modname)) return;
+    if (/^(module|exports|__dirname|__filename)$/.test(modname)) return;
     if (global[modname] !== undefined) return;
     var modname1 = modname;
-    if (!/^\./.test(modname)) {
+    if (!/^\.*[\/\\]/.test(modname)) {
         modname1 = modname1.replace(/\//g, '$').replace(/\.[\s\S]+$/, '').replace(/\-(\S)/g, (_, a) => a.toUpperCase());
     }
     if (hasOwnProperty.call(pathmap, modname1)) {
@@ -119,22 +137,60 @@ var prepareModule = async function (dirname, required, prebuilds, pathmap, modna
         pathmap[modname1] = this[modname1];
         return prepareFunction.call(this, this[modname1]);
     }
-    return detectWithExtension(modname, ['', '.js', '.mjs', '.ts', '.json'], comspath).then(p => {
-        pathmap[modname] = p;
-        return prepareFunction(p);
-    }, () => { });
+    if (/^\.*[\/\\]/.test(modname)) {
+        modname1 = path.join(dirname, modname);
+    }
+    if (path.isAbsolute(modname1)) {
+        if (hasOwnProperty.call(rootmap, modname1)) {
+            return rootmap[modname1];
+        }
+        return rootmap[modname1] = detectWithExtension(modname1, ['', '.js', '.mjs', '.json', '.ts']).then(async fullpath => {
+            var stats = await fsp.stat(fullpath);
+            if (stats.isFile()) {
+                await prepareFunction.call(this, fullpath);
+                rootmap[modname1] = pathmap[modname] = fullpath;
+                return;
+            }
+            if (stats.isDirectory()) {
+                var files = await fsp.readdir(fullpath, { withFileTypes: true });
+                var index = null;
+                for (var f of files) {
+                    if (!f.isFile()) continue;
+                    var fname = f.name;
+                    if (/^package\.json$/i.test(fname)) {
+                        var data = await fsp.readFile(path.join(fullpath, fname));
+                        data = JSON.parse(String(data));
+                        if (data.main) {
+                            index = data.main;
+                            break;
+                        }
+                    }
+                    if (/^index\.(js|json|mjs|ts)$/i.test(fname)) {
+                        index = fname;
+                        continue;
+                    }
+                }
+                if (!index) return;
+                fullpath = path.join(fullpath, index);
+                await prepareFunction.call(this, fullpath);
+                pathmap[modname] = rootmap[modname1] = fullpath;
+            }
+        });
+    }
 };
-
 var createFunction = function (data, pathname, prebuilds) {
     var content = String(data);
     var { params, imported, data, required, isAsync, isYield } = commparse.call(this, content, pathname, pathname);
-    var func = eval(`[${isAsync ? 'async ' : ""}function${isYield ? "*" : ""}(${params ? params.join(",") : ''}){\r\n${data}\r\n}][0]`);
+    var func = vm.runInThisContext(`[${isAsync ? 'async ' : ""}function${isYield ? "*" : ""}(${params ? params.join(",") : ''}){\r\n${data}\r\n}][0]`, {
+        filename: pathname,
+    });
     if (!(imported instanceof Array)) imported = [];
     var pathmap = {};
     func.require = createModule.bind(func, required, pathmap);
     func.require.cache = required_cache;
     func.imported = imported;
     func.required = required;
+    func.prebuilds = prebuilds;
     func.pathname = pathname;
     var that = this;
     var promise;
@@ -153,16 +209,13 @@ var createFunction = function (data, pathname, prebuilds) {
         }
         var dirname = path.dirname(pathname);
         var prepare = prepareModule.bind(that, dirname, required, prebuilds, pathmap);
-        if (!(imported instanceof Array)) imported = [];
-        if (!(required instanceof Array)) required = [];
-        imported = imported.map(prepare);
-        required = required.map(prepare);
-        await Promise.all(imported);
-        await Promise.all(required);
+        if (imported instanceof Array) for (var a of imported) await prepare(a);
+        if (required instanceof Array) for (var a of required) await prepare(a);
         delete func.prepare;
     };
     return func;
 };
+var invokingStack = [];
 var invokeFunction = function (func, prebuilds) {
     if (func.prepare) return func.prepare().then(function () {
         return invokeFunction(func, prebuilds);
@@ -182,7 +235,9 @@ var invokeFunction = function (func, prebuilds) {
     }
     func.prebuilds = prebuilds;
     func.exports = context || {};
+    invokingStack.push(func.pathname);
     if (imported instanceof Array && require instanceof Function) imported = imported.map(require);
+    invokingStack.pop();
     return imported instanceof Array ? func.apply(context, imported) : func.call(context);
 };
 
