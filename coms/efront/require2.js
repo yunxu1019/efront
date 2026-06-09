@@ -278,9 +278,33 @@ var _runtask = required_cache.runtask = async function (taskid, ...params) {
     return t(...params);
 };
 
-var _private = async function (privateid) {
+var validPerpose = function (data, url) {
+    if (!data.domain) return true;
+    if (!url) return false;
+    var domains = str2array(data.domain);
+    url = parseURL(url);
+    var valid = false;
+    for (var d of domains) {
+        d = parseURL(d);
+        if (d.protocol) {
+            if (url.protocol !== d.protocol) continue;
+        }
+        if (d.host) {
+            if (url.host !== d.host) continue;
+        }
+        if (d.pathname && d.pathname !== '/') {
+            if (url.pathname !== d.path) continue;
+        }
+        valid = true;
+        break;
+    }
+    return valid;
+}
+
+var _private = async function (privateid, url) {
     var data = await userdata.getOptionObj("private", privateid);
     if (!data) throw i18n`密钥 ${privateid} 不存在！`;
+    if (!validPerpose(data, url)) throw i18n`未授权`;
     return data.value;
 };
 
@@ -321,7 +345,7 @@ require2.invokeTask = async function (taskid, data) {
     return res;
 };
 
-var toPrivate = async function (v) {
+var toPrivate = async function (v, url) {
     var m = null;
     if (m = /^\<_private\>\(([^\)]+)\)$/.exec(v)) {
         v = m[1];
@@ -330,22 +354,22 @@ var toPrivate = async function (v) {
     v = v.trim().split(/\s+/);
     var v0 = v[0];
     if (v.length === 1) {
-        v = await _private(v0);
+        v = await _private(v0, url);
     }
     else if (/^Basic$/i.test(v0)) {
         var [n, s = ''] = v[1].split(':');
-        if (n) n = await _private(n);
-        if (s) s = await _private(s);
+        if (n) n = await _private(n, url);
+        if (s) s = await _private(s, url);
         v = `Basic ${btoa([n, s].join(":"))}`;
     }
     return v;
 }
-async function toPrivateObject(headers) {
+async function toPrivateObject(headers, url) {
     var privateHeaders = {};
     for (var k in headers) {
         var v = headers[k];
         if (typeof v === 'function') continue;
-        v = await toPrivate(v);
+        v = await toPrivate(v, url);
         privateHeaders[k] = v;
     }
     return privateHeaders;
@@ -363,10 +387,10 @@ function _cross(method, url, headers) {
     var send = xhr.send;
     xhr.data = xhr.send = function (data) {
         if (typeof data === 'string') {
-            data = toPrivate(data);
+            data = toPrivate(data, url);
         }
         else if (typeof data === 'object') {
-            data = toPrivateObject(data);
+            data = toPrivateObject(data, url);
         }
         return send.call(xhr, data);
     };
