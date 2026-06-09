@@ -1,12 +1,12 @@
 var cross = cross_.bind(function (callback, onerror) {
     var response, responseObject, responseType = "", decoder, error;
+    var headers = {};
+    var http = null;
     var xhr = {
         status: 0,
         readyState: 0,
         method: null,
         url: null,
-        http: null,
-        headers: {},
         responseHeaders: {},
         get response() {
             if (responseType === "" || responseType === "text") {
@@ -42,7 +42,7 @@ var cross = cross_.bind(function (callback, onerror) {
             if (data instanceof FormData) data = String(data);
             if (data) {
                 data = Buffer.from(data);
-                this.headers["Content-Length"] = data.length;
+                headers["Content-Length"] = data.length;
             }
             if (/^\[/.test(hostname)) hostname = hostname.replace(/^\[(.*?)\]$/, "$1");
             var options = {
@@ -51,14 +51,14 @@ var cross = cross_.bind(function (callback, onerror) {
                 port,
                 path,
                 auth,
-                headers: this.headers,
+                headers: headers,
             };
             var onerror1 = function (e) {
                 xhr.readyState = 4;
                 error = e;
                 onerror(e);
             };
-            var req = this.http.request(options, function (res) {
+            var req = http.request(options, (res) => {
                 var data = [];
                 xhr.status = res.statusCode;
                 xhr.responseHeaders = res.headers;
@@ -76,11 +76,12 @@ var cross = cross_.bind(function (callback, onerror) {
             this.readyState = 1;
             req.on("error", onerror1);
             req.on("timeout", onerror1);
-            req.setTimeout(3000);
+            req.setTimeout(120000);
             if (data) req.end(data);
             else req.end();
         },
         open(method, url) {
+            if (http) throw new Error('请不要重新打开！');
             this.method = method;
             this.url = url;
             this.status = 0;
@@ -88,14 +89,12 @@ var cross = cross_.bind(function (callback, onerror) {
             response = null;
             responseObject = null;
             error = null;
-            var http;
             if (/^http\:/i.test(url)) {
                 http = require("http");
             }
             else {
                 http = require("https");
             }
-            this.http = http;
         },
         get responseType() {
             return responseType;
@@ -106,7 +105,7 @@ var cross = cross_.bind(function (callback, onerror) {
             responseType = v;
         },
         setRequestHeader(key, value) {
-            this.headers[key] = value;
+            headers[key] = value;
         },
         overrideMimeType(type) {
             responseType = type;
