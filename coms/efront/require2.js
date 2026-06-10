@@ -382,7 +382,7 @@ function _cross(method, url, headers) {
     // 这有些麻烦
     // 这里提供一个网格请求方法，可以把相关的标记替换成密钥
     // 这样避免了明文代码与密钥的直接接触，也无需编写中转代码
-    var privateHeaders = typeof headers === "object" ? toPrivateObject(headers) : headers;
+    var privateHeaders = typeof headers === "object" ? toPrivateObject(headers, url) : headers;
     var xhr = reptile$cross(method, url, privateHeaders);
     var send = xhr.send;
     xhr.data = xhr.send = function (data) {
