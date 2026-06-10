@@ -47,3 +47,11 @@ test('a><a></a>', 'a > <a></a>');
 test('X', 'X');
 test('<input -class="{actived:actived===f}"/>', 'scoped.envs.actived', true);
 test('<i>>_</i>', '<i>>_</i>');
+test('<i -src="[f,data]"></i>', 'scoped.envs', {
+    f: true,
+    data: true
+});
+test('<i -src=[f,data]></i>', 'scoped.envs', {
+    f: true,
+    data: true
+});

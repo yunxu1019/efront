@@ -238,6 +238,7 @@ Html.prototype.createScoped = function (code) {
                 break;
             case QUOTED:
             case PIECE:
+            case SCOPED:
                 if (c.length) {
                     c.forEach(run);
                     break;
