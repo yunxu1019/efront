@@ -525,164 +525,161 @@ var prepareURL = function (url, params) {
     }
     return [uri, rest, baseuri, search];
 };
-var privates = {
-    pack(serviceId, params) {
-        if (/\?/.test(serviceId)) {
-            params = extend({}, getParamsFromUrl(serviceId), params);
-            serviceId = serviceId.replace(/\?[\s\S]*$/, '');
-        }
-        if (/\:/.test(serviceId)) {
-            var params1 = extend({}, params);
-            var temp = getParamsFromUrl(serviceId, ":");
-            for (var k in temp) {
-                var v = temp[k];
-                if (v in params) {
-                    params1[k] = params[v];
-                }
-                if (!(v in temp)) {
-                    delete params1[v];
-                }
-            }
-        }
-        return params;
-    },
-    fromApi(api, params) {
-        let url = api.url;
-        var base = api.base;
-        if (base) url = base + api.path;
-        if (this.validApi(api, params)) {
-            params = this.repare(api, params);
-            return this.loadIgnoreConfig(api.method, url, params, api);
-        }
-        return Promise.reject(ABORTED);
-    },
-    repare(api, params) {
-        var { required, autotrim, prepared } = api;
-        if (!required.length && !prepared.length && !autotrim) return params;
-        var params1 = {};
-        required.forEach(k => {
-            var v = seekResponse(params, required[k] || k);
-            params1[k] = v;
-        });
-        prepared.forEach(k => {
-            var v = params[k];
-            if (isEmpty(v)) {
-                v = prepared[k];
-            }
-            params1[k] = v;
-        });
-        if (!autotrim) {
-            for (var k in params) {
-                if (!(k in params1)) {
-                    params1[k] = params[k];
-                }
-            }
-        }
-        return params1;
-    },
-
-    validApi(api, params) {
-        if (api.required) {
-            var required = api.required;
-            var lacks = required;
-            if (params) {
-                lacks = lacks.filter(k => {
-                    if (!required[k]) return false;
-                    var v = seekResponse(params, required[k]);
-                    if (isEmpty(v)) return true;
-                });
-            }
-            if (lacks.length) {
-
-                console.log(i18n`跳过了缺少参数的请求:${api.id} ${api.name} ${api.url}\r\n缺少参数：${lacks.join(', ')}`);
-                return false;
-            }
-        }
-        return true;
-    },
-    getApi(serviceId) {
-        return getApi(serviceId, this.getConfigPromise());
-    },
-    prepare(method, url, params) {
-        var spliterIndex = /[\:\|\/\~\!\?\#\.\[]/.exec(method), search;
-        if (spliterIndex) spliterIndex = spliterIndex.index;
-        else spliterIndex = method.length;
-        var coinmethod = method.slice(0, spliterIndex).toLowerCase();
-        var realmethod = coinmethod.replace(/\W[\s\S]*$/g, '');
-        var [uri, rest, baseuri, search] = prepareURL(url, params);
-        if (params && rest.length) rest.forEach(r => delete params[r]);
-        var selector = method.slice(spliterIndex);
-        if (!/^(?:[\.\#\[]|\:(?:nth|first|last)\-child)/.test(selector)) selector = selector.slice(1);
-        return { method: realmethod, coinmethod, selector, search, baseuri, uri, params };
-    },
-    loadIgnoreConfig(method, url, params1, api) {
-        var headers = api && api.headers;
-        var { method: realmethod, uri, baseuri, coinmethod, search, selector, params } = this.prepare(method, url, params1);
-        var id = realmethod + " " + baseuri;
-        var promise = cachedLoadingPromise[id];
-        var temp = JSON.stringify(params);
-        var currentTime = +new Date;
-        var loading = promise && promise.loading;
-        if (!promise || currentTime - promise.time > 60 || temp !== promise.params || promise.search !== search || promise.uri !== uri) {
-            var promise = new Promise(function (ok, oh) {
-                if (headers) {
-                    headers = seekFromSource(headers, api.base);
-                }
-                loading = cross(realmethod, uri, headers).send(params).done(e => {
-                    ok(e.response || e.responseText);
-                }).error(xhr => {
-                    try {
-                        var e = getErrorMessage(parseData(xhr.response || xhr.responseText || xhr.statusText || xhr.status));
-                        oh({ status: loading.status, api, params: params1, error: e, toString: getErrorMessage })
-                    } catch (error) {
-                        oh(error);
-                    }
-                });
-            });
-            promise.uri = uri;
-            promise.loading = loading;
-            promise.search = search;
-            promise.params = temp;
-            promise.time = currentTime;
-            cachedLoadingPromise[id] = promise;
-        }
-        var p = promise.then(function (response) {
-            if (/\*$/.test(coinmethod)) return response;
-            var type = loading.getResponseHeader?.("content-type");
-            var data = response;
-            if (/text\/plain|json|[xyt]ml/i.test(type)) {
-                data = parseData(data);
-            }
-            var checked = error_check(data);
-            var apiMap = api && api.root;
-            var trans = api ? api.transpile : getTranspile(url);
-            if (/^\^/.test(selector) && loading.getResponseHeader) {
-                data = loading.getResponseHeader(selector.replace(/^\^/, ''));
-                selector = '';
-            }
-            data = transpile(seekResponse(data, selector), trans, apiMap);
-            if (isDefined(checked)) {
-                return checked;
-            }
-            return data;
-        });
-        p.loading = promise.loading;
-        return p;
-    },
-
-    getConfigPromise() {
-        if (!configPormise) {
-            if (!_configfileurl) {
-                throw new Error(i18n`没有指定配置文件的路径，请使用data.loadConfig加载配置`);
-            }
-            var p = this.loadIgnoreConfig('get', _configfileurl);
-            p.loading.abort = function () { };
-            configPormise = p.then(createApiMap);
-        }
-        return configPormise;
-    },
-
+var prepare = function (method, url, params) {
+    var spliterIndex = /[\:\|\/\~\!\?\#\.\[]/.exec(method), search;
+    if (spliterIndex) spliterIndex = spliterIndex.index;
+    else spliterIndex = method.length;
+    var coinmethod = method.slice(0, spliterIndex).toLowerCase();
+    var realmethod = coinmethod.replace(/\W[\s\S]*$/g, '');
+    var [uri, rest, baseuri, search] = prepareURL(url, params);
+    if (params && rest.length) rest.forEach(r => delete params[r]);
+    var selector = method.slice(spliterIndex);
+    if (!/^(?:[\.\#\[]|\:(?:nth|first|last)\-child)/.test(selector)) selector = selector.slice(1);
+    return { method: realmethod, coinmethod, selector, search, baseuri, uri, params };
 };
+var loadIgnoreConfig = function (method, url, params1, api) {
+    var headers = api && api.headers;
+    var { method: realmethod, uri, baseuri, coinmethod, search, selector, params } = prepare(method, url, params1);
+    var id = realmethod + " " + baseuri;
+    var promise = cachedLoadingPromise[id];
+    var temp = JSON.stringify(params);
+    var currentTime = +new Date;
+    var loading = promise && promise.loading;
+    if (!promise || currentTime - promise.time > 60 || temp !== promise.params || promise.search !== search || promise.uri !== uri) {
+        var promise = new Promise(function (ok, oh) {
+            if (headers) {
+                headers = seekFromSource(headers, api.base);
+            }
+            loading = cross(realmethod, uri, headers).send(params).done(e => {
+                ok(e.response || e.responseText);
+            }).error(xhr => {
+                try {
+                    var e = getErrorMessage(parseData(xhr.response || xhr.responseText || xhr.statusText || xhr.status));
+                    oh({ status: loading.status, api, params: params1, error: e, toString: getErrorMessage })
+                } catch (error) {
+                    oh(error);
+                }
+            });
+        });
+        promise.uri = uri;
+        promise.loading = loading;
+        promise.search = search;
+        promise.params = temp;
+        promise.time = currentTime;
+        cachedLoadingPromise[id] = promise;
+    }
+    var p = promise.then(function (response) {
+        if (/\*$/.test(coinmethod)) return response;
+        var type = loading.getResponseHeader?.("content-type");
+        var data = response;
+        if (/text\/plain|json|[xyt]ml/i.test(type)) {
+            data = parseData(data);
+        }
+        var checked = error_check(data);
+        var apiMap = api && api.root;
+        var trans = api ? api.transpile : getTranspile(url);
+        if (/^\^/.test(selector) && loading.getResponseHeader) {
+            data = loading.getResponseHeader(selector.replace(/^\^/, ''));
+            selector = '';
+        }
+        data = transpile(seekResponse(data, selector), trans, apiMap);
+        if (isDefined(checked)) {
+            return checked;
+        }
+        return data;
+    });
+    p.loading = promise.loading;
+    return p;
+};
+var getConfigPromise = function () {
+    if (!configPormise) {
+        if (!_configfileurl) {
+            throw new Error(i18n`没有指定配置文件的路径，请使用data.loadConfig加载配置`);
+        }
+        var p = loadIgnoreConfig('get', _configfileurl);
+        p.loading.abort = function () { };
+        configPormise = p.then(createApiMap);
+    }
+    return configPormise;
+};
+var validApi = function (api, params) {
+    if (api.required) {
+        var required = api.required;
+        var lacks = required;
+        if (params) {
+            lacks = lacks.filter(k => {
+                if (!required[k]) return false;
+                var v = seekResponse(params, required[k]);
+                if (isEmpty(v)) return true;
+            });
+        }
+        if (lacks.length) {
+
+            console.log(i18n`跳过了缺少参数的请求:${api.id} ${api.name} ${api.url}\r\n缺少参数：${lacks.join(', ')}`);
+            return false;
+        }
+    }
+    return true;
+};
+
+var pack = function (serviceId, params) {
+    if (/\?/.test(serviceId)) {
+        params = extend({}, getParamsFromUrl(serviceId), params);
+        serviceId = serviceId.replace(/\?[\s\S]*$/, '');
+    }
+    if (/\:/.test(serviceId)) {
+        var params1 = extend({}, params);
+        var temp = getParamsFromUrl(serviceId, ":");
+        for (var k in temp) {
+            var v = temp[k];
+            if (v in params) {
+                params1[k] = params[v];
+            }
+            if (!(v in temp)) {
+                delete params1[v];
+            }
+        }
+    }
+    return params;
+};
+var repare = function (api, params) {
+    var { required, autotrim, prepared } = api;
+    if (!required.length && !prepared.length && !autotrim) return params;
+    var params1 = {};
+    required.forEach(k => {
+        var v = seekResponse(params, required[k] || k);
+        params1[k] = v;
+    });
+    prepared.forEach(k => {
+        var v = params[k];
+        if (isEmpty(v)) {
+            v = prepared[k];
+        }
+        params1[k] = v;
+    });
+    if (!autotrim) {
+        for (var k in params) {
+            if (!(k in params1)) {
+                params1[k] = params[k];
+            }
+        }
+    }
+    return params1;
+};
+
+var fromApi = function (api, params) {
+    let url = api.url;
+    var base = api.base;
+    if (base) url = base + api.path;
+    if (validApi(api, params)) {
+        params = repare(api, params);
+        return loadIgnoreConfig(api.method, url, params, api);
+    }
+    return Promise.reject(ABORTED);
+};
+var getApiFromConfig = function (serviceId) {
+    return getApi(serviceId, getConfigPromise());
+}
 var instanceId = 0;
 var getInstanceId = function () {
     if (instanceId++ === instanceId) {
@@ -761,28 +758,116 @@ var oncatch = function (e) {
 var cross = () => { throw new Error('请使用data.setEnvs(cross,on,onmounted)进行初始化，然后再使用data') };
 var on = () => { throw new Error("请使用data.setEnvs(cross,on,onmounted)") };
 var onmounted = () => { throw new Error("请使用data.setEnvs(cross,on,onmounted)") };
+var rebuildInstance = function (instance, data, old = instance) {
+    if (instance === data) return;
+    if (!isObject(instance)) throw new Error(i18n`只支持object类型的数据！`);
+    if (!isObject(data)) data = { data }, data.toString = data.valueOf = toDataString;
+    if (instance instanceof Array) instance.splice(0, instance.length);
+    var sample = new LoadingArray;
+    Object.keys(old).forEach(function (k) {
+        if (instance[k] === old[k] && !(k in sample)) {
+            delete instance[k];
+        }
+    });
+    extend(instance, data);
+};
+/**
+ * 返回一个延长生命周期的内存对象
+ * @param instanceId 数据唯一标识
+ * @param onlyFromLocalStorage 是否只从localStorage加载
+*/
+var getInstance = function (instanceId, onlyFromLocalStorage = false) {
+    if (!instanceDataMap[instanceId]) {
+        var data = getItem(instanceId, onlyFromLocalStorage);
+        var instance = new LoadingArray;
+        rebuildInstance(instance, data);
+        instance.is_loading = false;
+        instance.is_loaded = true;
+        instanceDataMap[instanceId] = instance;
+    }
+    return instanceDataMap[instanceId];
+};
+
+/**
+ * 设置一个延长生命周期的数据对象
+ * @param {*} instanceId 数据唯一标识
+ * @param {*} data 数据本体
+ * @param {boolean|number} [rememberWithStorage=0] 是否存储到localStorage，默认为否，只存储到sessionStorage
+ */
+var setInstance = function (instanceId, data, rememberWithStorage = 0) {
+    const instance = getInstance(instanceId);
+    if (isObject(instance)) {
+        rebuildInstance(instance, data);
+    } else {
+        instanceDataMap[instanceId] = data;
+    }
+    instance.rw_storage = rememberWithStorage;
+    setItem(instanceId, data, rememberWithStorage);
+    fireListener(instanceId, data);
+    return instanceDataMap[instanceId];
+};
+
+var removeInstance = function (instanceId) {
+    delete instanceDataMap[instanceId];
+    const storageId = userPrefix + instanceId + pagePathName;
+    localStorage.removeItem(storageId);
+    sessionStorage.removeItem(storageId);
+};
+
+var responseLoading = function (response) {
+    if (isObject(response)) {
+        response.is_loaded = false;
+        response.is_loading = true;
+        response.then = LoadingArray_then;
+        response.abort = LoadingArray_abort;
+    }
+};
+
+var responseLoaded = function (response) {
+    if (isObject(response)) {
+        response.is_loaded = true;
+        response.is_loading = false;
+        if (response.then === LoadingArray_then) delete response.then;
+        if (response.abort === LoadingArray_abort) delete response.abort;
+    }
+};
+
+var createResponse = function (p, parse) {
+    var id = !p.id || parse instanceof Function ? getInstanceId() : 0;
+    if (id) removeInstance(id);
+    var pid = p.id;
+    var response = getInstance(id || pid);
+    if (!isObject(response)) response = new LoadingArray;
+    responseLoading(response);
+    response.loading = p.loading;
+    response.loading_promise = p;
+    p = p.then((data) => {
+        response.loading = null;
+        if (parse instanceof Function) data = parse(data);
+        if (id) {
+            setInstance(id, data, false);
+            removeInstance(id);
+        } else {
+            setInstance(pid, data);
+        }
+        responseLoaded(response);
+        return data;
+    }, (e) => {
+        responseCrash(e, response);
+    })
+    if (parse) response.loading_promise = p;
+    return response;
+};
+
+
 var data = {
     prepareURL,
     decodeStructure,
     getUrlParamsForApi,
     encodeStructure,
-    responseLoaded(response) {
-        if (isObject(response)) {
-            response.is_loaded = true;
-            response.is_loading = false;
-            if (response.then === LoadingArray_then) delete response.then;
-            if (response.abort === LoadingArray_abort) delete response.abort;
-        }
-    },
+    responseLoaded,
     responseCrash,
-    responseLoading(response) {
-        if (isObject(response)) {
-            response.is_loaded = false;
-            response.is_loading = true;
-            response.then = LoadingArray_then;
-            response.abort = LoadingArray_abort;
-        }
-    },
+    createResponse,
     setEnvs(cross1, on1, onmounted1) {
         delete data.setEnvs;
         cross = cross1;
@@ -804,10 +889,10 @@ var data = {
             _configfileurl = defaultConfigFile;
             configPormise = null;
         }
-        return privates.getConfigPromise();
+        return getConfigPromise();
     },
     getApi(a) {
-        return privates.getApi(a);
+        return getApiFromConfig(a);
     },
     setConfig(data) {
         data = this.parseConfig(data);
@@ -821,7 +906,7 @@ var data = {
         extend(c, data);
     },
     getConfig() {
-        return privates.getConfigPromise();
+        return getConfigPromise();
     },
     parseConfig(o) {
         if (o instanceof Promise) {
@@ -833,7 +918,7 @@ var data = {
         }
     },
     fromAll(refs, params, parse) {
-        return this.createResponse(Promise.all(refs.map(r => this.from(r, params, parse).loading_promise.catch(e => []))).then(datas => {
+        return createResponse(Promise.all(refs.map(r => this.from(r, params, parse).loading_promise.catch(e => []))).then(datas => {
             datas = datas.filter(a => !!a);
             if (!datas.length) throw new Error(i18n`无可用的数据源`);
             return datas.concat.apply([], datas);
@@ -872,7 +957,7 @@ var data = {
     enrich(config = configPormise) {
         if (!config) return;
         if (isString(config)) {
-            config = privates.loadIgnoreConfig('get', config).then(createApiMap);
+            config = loadIgnoreConfig('get', config).then(createApiMap);
         } else if (!(config instanceof Promise)) {
             if (!isObject(config)) return;
             config = Promise.resolve(config).then(createApiMap);
@@ -895,7 +980,7 @@ var data = {
                             if (!ids.length) return ok(res);
                             var id = ids.pop();
                             var a = data[id];
-                            privates.fromApi(a, res).then(run);
+                            fromApi(a, res).then(run);
                         };
                         run(params);
                     });
@@ -904,56 +989,34 @@ var data = {
         });
     },
     fromApi(api, params, parse) {
-        var p = privates.fromApi(api, params);
-        return this.createResponse(p, parse);
+        var p = fromApi(api, params);
+        return createResponse(p, parse);
     },
     postURL(url, data, parse) {
-        var p = privates.loadIgnoreConfig("post", url, data);
-        return this.createResponse(p, parse);
+        var p = loadIgnoreConfig("post", url, data);
+        return createResponse(p, parse);
     },
     fromURL(url, parse) {
-        var p = privates.loadIgnoreConfig('get', url);
-        return this.createResponse(p, parse);
+        var p = loadIgnoreConfig('get', url);
+        return createResponse(p, parse);
     },
-    createResponse(p, parse) {
-        var id = !p.id || parse instanceof Function ? getInstanceId() : 0;
-        if (id) this.removeInstance(id);
-        var pid = p.id;
-        var response = this.getInstance(id || pid);
-        if (!isObject(response)) response = new LoadingArray;
-        this.responseLoading(response);
-        response.loading = p.loading;
-        response.loading_promise = p;
-        p = p.then((data) => {
-            response.loading = null;
-            if (parse instanceof Function) data = parse(data);
-            if (id) {
-                this.setInstance(id, data, false);
-                this.removeInstance(id);
-            } else {
-                this.setInstance(pid, data);
-            }
-            this.responseLoaded(response);
-            return data;
-        }, (e) => {
-            this.responseCrash(e, response);
-        })
-        if (parse) response.loading_promise = p;
-        return response;
+    cross(method, url, data, api, parse) {
+        var p = loadIgnoreConfig(method, url, data, api);
+        return createResponse(p, parse);
     },
     asyncInstance(sid, params, parse) {
         // 不同参数的请求互不影响
         if (typeof sid !== "string") throw new Error(i18n`serviceId 只能是字符串`);
-        var p0 = privates.getApi(sid);
+        var p0 = getApiFromConfig(sid);
         var p = p0.then((api) => {
-            params = privates.pack(sid, params);
-            var p = privates.fromApi(api, params);
+            params = pack(sid, params);
+            var p = fromApi(api, params);
             p.loading = response.loading = p.loading;
             return p;
         }, oncatch);
         p.loading = p0;
         if (isEmpty(params)) p.id = sid;
-        var response = this.createResponse(p, parse);
+        var response = createResponse(p, parse);
         return response;
     },
 
@@ -977,14 +1040,14 @@ var data = {
             }
         });
         var id = "." + sid;
-        var instance = this.getInstance(id);
+        var instance = getInstance(id);
         var loading_promise = instance && instance.loading_promise;
         var p = Promise.resolve().then(function () {
             if (loading_promise) return wait(timeout);
             return wait(60);
         }).then(function () {
             if (p !== instance.loading_promise) throw OUTDATE;
-            return privates.getApi(sid);
+            return getApiFromConfig(sid);
         }).then((api) => {
             if (p !== instance.loading_promise) throw OUTDATE;
             if ("params" in instance && shallowEqual(instance.params, params1)) throw ABORTED;
@@ -992,7 +1055,7 @@ var data = {
             if (instance.loading) {
                 instance.loading.abort();
             }
-            var r = privates.fromApi(api, params1);
+            var r = fromApi(api, params1);
             instance.loading = r.loading;
             return r;
         }).then((data) => {
@@ -1001,7 +1064,7 @@ var data = {
             return data;
         }, oncatch);
         p.id = id;
-        var instance = this.createResponse(p);
+        var instance = createResponse(p);
         p.catch(function () { }).then(() => {
             return wait(timeout);
         }).then(() => {
@@ -1009,33 +1072,13 @@ var data = {
         });
         return instance;
     },
-    /**
-     * 返回一个延长生命周期的内存对象
-     * @param instanceId 数据唯一标识
-     * @param onlyFromLocalStorage 是否只从localStorage加载
-     */
-    getInstance(instanceId, onlyFromLocalStorage = false) {
-        if (!instanceDataMap[instanceId]) {
-            var data = getItem(instanceId, onlyFromLocalStorage);
-            var instance = new LoadingArray;
-            this.rebuildInstance(instance, data);
-            instance.is_loading = false;
-            instance.is_loaded = true;
-            instanceDataMap[instanceId] = instance;
-        }
-        return instanceDataMap[instanceId];
-    },
-    removeInstance(instanceId) {
-        delete instanceDataMap[instanceId];
-        const storageId = userPrefix + instanceId + pagePathName;
-        localStorage.removeItem(storageId);
-        sessionStorage.removeItem(storageId);
-    },
+    getInstance,
+    removeInstance,
     /** 设置所有网络请求拉取时的参数数附加据源 */
     setSource(sourceid, value) {
         var rememberWithStorage;
         if (isObject(sourceid)) {
-            this.rebuildInstance(dataSourceMap, sourceid);
+            rebuildInstance(dataSourceMap, sourceid);
             rememberWithStorage = value;
         } else {
             dataSourceMap[sourceid] = value;
@@ -1052,36 +1095,19 @@ var data = {
         localStorage.removeItem(sourceDataId);
         sessionStorage.removeItem(sourceDataId);
     },
-    /**
-     * 设置一个延长生命周期的数据对象
-     * @param {*} instanceId 数据唯一标识
-     * @param {*} data 数据本体
-     * @param {boolean|number} [rememberWithStorage=0] 是否存储到localStorage，默认为否，只存储到sessionStorage
-     */
-    setInstance(instanceId, data, rememberWithStorage = 0) {
-        const instance = this.getInstance(instanceId);
-        if (isObject(instance)) {
-            this.rebuildInstance(instance, data);
-        } else {
-            instanceDataMap[instanceId] = data;
-        }
-        instance.rw_storage = rememberWithStorage;
-        setItem(instanceId, data, rememberWithStorage);
-        fireListener(instanceId, data);
-        return instanceDataMap[instanceId];
-    },
+    setInstance,
     // rememberWithStorage =null 生产环境不存储，开发环境存到sessionStorage
     wetInstance(instanceId, data, rememberWithStorage = null) {
         instanceHasDulpData = false;
-        var res = this.setInstance(instanceId, data, rememberWithStorage);
+        var res = setInstance(instanceId, data, rememberWithStorage);
         instanceHasDulpData = true;
         return res;
     },
     patchInstance(instanceId, data, rememberWithStorage) {
-        var instance = this.getInstance(instanceId);
+        var instance = getInstance(instanceId);
         if (rememberWithStorage === undefined) rememberWithStorage = instance.rw_storage;
         extend(instance, data);
-        return this.setInstance(instanceId, instance, rememberWithStorage);
+        return setInstance(instanceId, instance, rememberWithStorage);
     },
     /**
      * 仅初始化，不覆盖
@@ -1089,10 +1115,10 @@ var data = {
     initInstance(instanceId, data, rememberWithStorage = 0) {
         var item = getItem(instanceId);
         if (!isEmpty(item)) return;
-        return this.setInstance(instanceId, data, rememberWithStorage);
+        return setInstance(instanceId, data, rememberWithStorage);
     },
     switchInstance(instanceId, key, rememberWithStorage = 0) {
-        var instance = this.getInstance(instanceId);
+        var instance = getInstance(instanceId);
         if (key === true || key === false || isEmpty(key)) {
             rememberWithStorage = key;
             key = null;
@@ -1110,7 +1136,7 @@ var data = {
         } else {
             instance[key] = value;
         }
-        return this.setInstance(instanceId, instance, rememberWithStorage);
+        return setInstance(instanceId, instance, rememberWithStorage);
     },
     /**
      * bindInstance(instanceId, callback);
@@ -1139,19 +1165,7 @@ var data = {
     unbindInstance() {
         bubApply(unbindInstance, arguments);
     },
-    rebuildInstance(instance, data, old = instance) {
-        if (instance === data) return;
-        if (!isObject(instance)) throw new Error(i18n`只支持object类型的数据！`);
-        if (!isObject(data)) data = { data }, data.toString = data.valueOf = toDataString;
-        if (instance instanceof Array) instance.splice(0, instance.length);
-        var sample = new LoadingArray;
-        Object.keys(old).forEach(function (k) {
-            if (instance[k] === old[k] && !(k in sample)) {
-                delete instance[k];
-            }
-        });
-        extend(instance, data);
-    }
+    rebuildInstance,
 };
 var instanceHasDulpData = true;
 function setItem(instanceId, data, rememberWithStorage) {
