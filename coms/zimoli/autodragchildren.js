@@ -93,13 +93,12 @@ var bindTarget = function (index, element) {
     return value;
 };
 
-var hooka = function (matcher, move, event, targetChild, isMovingSource) {
+var hooka = function (matcher, move, event, targetChild, isMovingSource, hideSource = isMovingSource !== false) {
     var boxfinder;
     var isMovingSource = isMovingSource !== false;
     if (isMovingSource === false) boxfinder = matcher, matcher = null;
     var that = this;
-
-    var draggingSourceOpacity = isMovingSource !== false ? 0 : 1;
+    var draggingSourceOpacity = hideSource ? 0 : 1;
 
     var recover = function (element) {
         moveMargin(element, 0);
@@ -151,7 +150,7 @@ var hooka = function (matcher, move, event, targetChild, isMovingSource) {
     if (event.target === this) return;
     // var targetChild = getTargetIn(matcher, event.target);
     if (!targetChild) return;
-    drag(targetChild, event, false, isMovingSource);
+    drag(targetChild, event, false, hideSource);
     if (isArray(targetChild)) {
         targetChild = targetChild[0];
     }
@@ -169,7 +168,8 @@ var hooka = function (matcher, move, event, targetChild, isMovingSource) {
             rebuildTargets = function () { };
             [moveMargin, moveChildren, scroll] = getMoveFuncs(targetChild);
             moveChildren = moveChildren.bind(null, that, previousElements, followedElements, moveMargin, recover);
-        } else {
+        }
+        else {
             previousElements = [];
             followedElements = [];
             moveChildren = () => { };
@@ -354,10 +354,10 @@ var hooka = function (matcher, move, event, targetChild, isMovingSource) {
                 e.style.zIndex = zIndex;
                 var z = zIndex - 1;
                 var ws = e.with;
-                if (ws){
+                if (ws) {
                     if (isNode(ws)) ws = [ws];
                     for (var w of ws) w.style.zIndex = z;
-                } 
+                }
             };
             if (zIndex > 2) {
                 previousElements.forEach(copyZIndex);
@@ -412,7 +412,7 @@ var hookEvent = function (matcher, move, event) {
     if (event.target === this) return;
     var targetChild = getTargetIn(matcher, event.target, false);
     if (!targetChild) return;
-    hooka.call(this, matcher, move, event, targetChild);
+    hooka.call(this, matcher, move, event, targetChild, true, true);
 };
 function addhook() {
     var mousedownEvent, targetElement, callback, boxfinder, dropid, allowdrops;
@@ -440,6 +440,9 @@ function addhook() {
                 }
                 if (arg !== null) mousedownEvent = arg;
                 break;
+            case "boolean":
+                dropSource = arg;
+                break;
         }
     });
     if (!targetElement && isElement(this)) {
@@ -447,22 +450,27 @@ function addhook() {
     }
     if (!mousedownEvent) return;
     var target = targetElement || mousedownEvent.currentTarget;
+    var dropSource = target && target.parentNode?.hasAttribute('allowdrop');
     hooka.call(targetElement, function () {
         var target = drag.shadow;
-        var res = Array.prototype.filter.call(allowdrops || (boxfinder ? boxfinder(target) : document.querySelectorAll("[allowdrop]")), function (child) {
-            return target && overlap(child, target);
+        if (!allowdrops) allowdrops = [...boxfinder ? boxfinder(target) : document.querySelectorAll("[allowdrop]")];
+        var ols = new WeakMap;
+        var res = allowdrops.filter(function (child, i) {
+            var o = target && overlap(child, target);
+            ols.set(child, o);
+            return o > 0;
         }).filter(e => {
             var a = e.getAttribute("allowdrop");
             if (!a || !dropid) return true;
             return a === dropid;
-        });
+        }).sort((a, b) => ols.get(a) - ols.get(b));
         if (res instanceof Array) {
             return res[res.length - 1];
         }
         return res;
     }, function (_, dst, _a, _b, parentNode) {
         if (isFunction(callback) && parentNode) callback(dst, parentNode);
-    }, mousedownEvent, target, false);
+    }, mousedownEvent, target, false, dropSource);
 }
 function autodragchildren(target, matcher, move) {
     onmousedown(target, hookEvent.bind(target, matcher, move));
