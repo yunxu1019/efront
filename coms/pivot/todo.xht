@@ -1,0 +1,69 @@
+<todo>
+    <div .id>
+        <span -bind="m.id"></span>
+    </div>
+    <div .detail>
+        <span -bind="m.name"></span>
+        <span -bind="states[m.state]"></span>
+    </div>
+    <div .circle -bind="index"></div>
+</todo>
+<style>
+    .circle {
+        border-radius: 50%;
+        width: 32px;
+        height: 32px;
+        font-size: 16px;
+        line-height: 24px;
+        text-align: center;
+        position: absolute;
+        display: block;
+        left: -6px;
+        top: 6px;
+        border: 4px double;
+    }
+
+    .id {
+        size: 0;
+        font-size: 12px;
+        color: #666;
+        padding-left: 32px;
+    }
+
+    & {
+        padding: 4px 12px 4px 0px;
+        display: block;
+        color: #ccc;
+        border: 1px solid;
+        border-left: 6px solid;
+        position: relative;
+        background: #fff;
+        margin: 0 0 10px 0;
+    }
+
+    .detail {
+        color: #000;
+        text-indent: 32px;
+    }
+
+    &.new {
+        color: #629;
+    }
+
+    &.ing {
+        color: #263;
+    }
+
+    &.done {
+        color: #26c;
+    }
+</style>
+<script>
+    var m = {};
+    var index;
+    var states = [];
+    care(this, function ([a, i]) {
+        m = a;
+        index = +i + 1;
+    });
+</script>

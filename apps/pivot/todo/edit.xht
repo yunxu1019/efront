@@ -1,0 +1,38 @@
+<style>
+</style>
+<div head><span -if="data1.id">${i18n`编辑`}</span><span -else>${i18n`添加`}</span><span>${i18n`任务`}</span></div>
+<div body>
+    <field -repeat="f in fields" -src=[f,data1]></field>
+</div>
+<div foot>
+    <a @click="cancel()">取消</a>
+    <btn @click="submit()">确认</btn>
+</div>
+<script>
+    var [data] = arguments;
+    var btn = button;
+    var a = button;
+    var window = this;
+    var cancel = function () {
+        remove(window);
+    };
+    var submit = async function () {
+        await DB.save('待办', {
+            id: data1.id,
+            name: data1.name,
+            state: data1.state,
+        });
+        dispatch(window, 'changed');
+        remove(window);
+    };
+    view(this);
+    console.log(data);
+    var data1 = {
+        id: data?.id,
+        name: data?.name,
+        state: data?.state
+    };
+    var fields = refilm`
+    任务概要/name text
+    `;
+</script>

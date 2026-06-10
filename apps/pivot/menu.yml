@@ -1,4 +1,5 @@
 首页: /home/welcome
+待办: /todo/list
 WEB:
   路径映射: /proxy/list
   文件管理: /wow/root

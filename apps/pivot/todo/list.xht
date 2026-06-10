@@ -1,0 +1,135 @@
+<style>
+    & {
+        display: block;
+        height: 100%;
+        padding-bottom: 10px !important;
+        position: relative;
+    }
+
+    h3 {
+        margin: 0;
+        padding: 0;
+    }
+
+    >.dropping {
+        outline: 1px solid;
+        outline-offset: -6px;
+
+        &.created {
+            background: #62c2;
+        }
+
+        &.pending {
+            background: #2942;
+        }
+
+        &.done {
+            background: #26c2;
+        }
+    }
+
+    >list {
+        >[insert] {
+            display: block;
+            padding: 4px 16px;
+            background: #fff;
+        }
+
+        display: inline-block;
+        width: 33%;
+        min-width: 220px;
+        height: 100%;
+        background: #f2f2f2;
+        border: 6px solid #fff;
+
+        &.created {
+            color: #62c;
+        }
+
+        &.pending {
+            color: #263;
+        }
+
+        &.done {
+            color: #26c;
+        }
+    }
+
+    @media (max-width:680px) {
+        >list {
+
+            &:nth-child(2),
+            &:nth-child(1) {
+                width: 50%;
+                height: 50%;
+            }
+
+            &:nth-child(3) {
+                width: 100%;
+                height: 50%;
+            }
+        }
+    }
+
+    @media (max-width:460px) {
+        >list {
+            &:nth-child(1),
+            &:nth-child(2),
+            &:nth-child(3){
+                width: 100%;
+                height: 33%;
+            }
+        }
+    }
+</style>
+<list -src="(m,i) in items" allowdrop .created _state="0">
+    <div insert>${i18n`未处理`}</div>
+    <todo @click="edit(m)" .new -if="!m.state" -src="[m,i]"></todo>
+</list>
+<list -src="(m,i) in items" allowdrop .pending _state="1">
+    <div insert>${i18n`进行中`}</div>
+    <todo @click="edit(m)" .ing -if="m.state==1" -src="[m,i]"></todo>
+</list>
+<list -src="(m,i) in items" allowdrop .done _state="2">
+    <div insert>${i18n`已办结`}</div>
+    <todo @click="edit(m)" .done -if="m.state==2" -src="[m,i]"></todo>
+</list>
+<script>
+    once('mounted')(this, function () {
+        data.setInstance('option-buttons', [
+            {
+                name: '添加',
+                icon: "fa-plus",
+                sign: "+",
+                do() {
+                    var elem = popup('/todo/edit');
+                },
+            }
+        ]);
+    })
+    on('mousedown')(this, function (event) {
+        var target = getTargetIn(a => a.tagName === 'TODO', event.target);
+        if (!target) return;
+        var obj = $scoped.get(target).m;
+        autodragchildren.hook(target, event, true, function (index, targetBox) {
+            var state = targetBox.state;
+            obj.state = state;
+            DB.update("待办", {
+                name: obj.name,
+                id: obj.id,
+                state: state
+            });
+            render.refresh();
+        });
+    })
+    var edit = function (m) {
+        var window = popup('/todo/edit', m);
+        on('changed')(window, function () {
+            console.log('changed')
+            items = DB.query("待办", null, 120);
+        })
+    };
+    var btn = button;
+    var list = zimoli$list;
+    var items = DB.query("待办", null, 120);
+</script>
