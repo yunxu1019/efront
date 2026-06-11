@@ -456,8 +456,13 @@ Object.defineProperty(require2, "commap", {
     },
     set(a) {
         var comslist = mixin(memery.COMS_PATH, memery.COMM)
-            .map(a => path.join(a[0], a[1]))
-            .filter(fs.existsSync).filter(a => a !== path.join(__dirname, '../zimoli'));
+            .map(a => path.join(a[0], a[1]));
+        mixin(memery.COMS_PATH).forEach(a => {
+            a = a[0];
+            if (comslist.indexOf(a) < 0) comslist.push(a);
+        });
+        comslist = comslist.filter(fs.existsSync)
+            .filter(a => a !== path.join(__dirname, '../zimoli'));
         comscache = new Cache(comslist, commparse.bind(a));
         comscache.onreload = function (changed) {
             changed.forEach(c => {
