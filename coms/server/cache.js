@@ -426,9 +426,8 @@ var createDirect = function (froot, rebuild, limit, powermap) {
     direct.pmap = powermap;
     return direct;
 };
-var split = require("../basic/$split");
 var 参数 = function (url, extts) {
-    var keeys = split(url);
+    var keeys = url.split(/[\\\/]/);
     var match = keeys.pop() || '';
     var kpath = [];
     for (var k of keeys) {
