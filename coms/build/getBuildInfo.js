@@ -1,6 +1,6 @@
 "use strict";
 var commbuilder = require("../efront/commbuilder");
-var htmlbuilder = require("../efront/filebuilder");
+var htmlbuilder = efront$filebuilder;
 var asmbuilder = require("../efront/asmbuilder");
 var manybuilder = require("./unpublish");
 var setting = require("./setting");

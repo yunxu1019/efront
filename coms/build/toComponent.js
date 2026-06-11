@@ -608,8 +608,7 @@ function toComponent(responseTree, isWebProject) {
         g = g[o]([f, g, l ? l[1][q](',') : []]);${outsideAsync ? `
         if (C[m]) return T[${getEncodedIndex(`Promise`, 'global')}]()[T[${getEncodedIndex("all")}]()](C)[N](function (G) {
             for (i = 0; i < G[m]; i++)g[G[i++]] = G[i];
-            r = f[y](I ? I[B] : T[0], g);
-            return I ? I[B] : r;
+            return f[y](I ? I[B] : T[0], g);
         });`: ""}
         return f[y](I ? I[B] : T[0], g);
     };

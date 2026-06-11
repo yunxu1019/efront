@@ -39,4 +39,4 @@ var enrich = function enrich(obj) {
     for (var k in obj) bindObjK(obj, k, resolve, _object);
     return _object;
 };
-module.exports = enrich;
+return enrich;
