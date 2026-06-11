@@ -3,7 +3,10 @@ var split = function (p) {
     var reg = /[\\\/\$]/g;
     reg.lastIndex = 0;
     var lastIndex = 0;
-    if (/^[\/\\]/.test(p)) lastIndex++;
+    if (/^[\/\\]/.test(p)) {
+        lastIndex++;
+        s.push('');
+    }
     while (p) {
         reg.lastIndex++;
         var m = reg.exec(p);
