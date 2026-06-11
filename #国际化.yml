@@ -40,6 +40,30 @@
 - zh-CN: 禁用
   en:    Disable
 
+- zh-CN: 加载$1失败，引用队列为
+  en:    "Loading $1 failed, reference queue is"
+
+- zh-CN: 未授权
+  en:    unauthorized
+
+- zh-CN: 校验域名
+  en:    Verify domain name
+
+- zh-CN: 编辑
+  en:    edit
+
+- zh-CN: 任务概要
+  en:    Task Overview
+
+- zh-CN: 未处理
+  en:    unprocessed
+
+- zh-CN: 进行中
+  en:    in progress
+
+- zh-CN: 已办结
+  en:    Completed
+
 - zh-CN: "不要在后端代码中使用相对路径\r\n    文件：$1"
   en:    "Do not use relative paths in backend code\nFile: $1"
 
