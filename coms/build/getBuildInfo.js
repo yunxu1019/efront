@@ -12,7 +12,7 @@ var getCommmap = require("../efront/getCommap");
 var commap = await getCommmap(memery.APP, undefined, Infinity);
 var pagemap = await getCommmap(memery.APP, undefined, Infinity);
 if (pagemap['zimoli'] || pagemap["zimoli$zimoli"]) {
-    ["state", 'login', 'prepare', 'upwith', "go"].forEach(name => {
+    ["state", 'login', 'prepare', 'upwith', "go"].forEach(function (name) {
         var f = pagemap[name];
         if (f) delete this[f];
         delete pagemap[name];
