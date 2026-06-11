@@ -1,3 +1,4 @@
+"use strict";
 var Cache = require('../server/cache');
 var commbuilder = require("./commbuilder");
 var userdata = require("../server/userdata");
@@ -195,8 +196,8 @@ var prepareModule = function (dirname, required, prebuilds, pathmap, modname) {
     }
 };
 var createFromParsed = function (parsed, pathname, prebuilds) {
-    var { params, imported, data, required, isAsync, isYield } = parsed;
-    var func = vm.runInThisContext(`[${isAsync ? 'async ' : ""}function${isYield ? "*" : ""}(${params ? params.join(",") : ''}){\r\n${data}\r\n}][0]`, {
+    var { params, imported, prequoted, data, required, isAsync, isYield } = parsed;
+    var func = vm.runInThisContext(`[${isAsync ? 'async ' : ""}function${isYield ? "*" : ""}(${params ? params.join(",") : ''}){${prequoted ? prequoted.map(a => a.text).join('') : ''}${data}}][0]`, {
         filename: pathname,
         breakOnSigint: true
     });
