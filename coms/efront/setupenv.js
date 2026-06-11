@@ -27,7 +27,7 @@ module.exports = function (app) {
     normalize(env);
     for (var k in rootEnvs) {
         if (!(k in env)) {
-            env[k] = memery[k] || rootEnvs;
+            env[k] = memery[k] || rootEnvs[k];
         }
     }
     "IMAG COMM AAPI".split(/\s+/).forEach(function (key) {
