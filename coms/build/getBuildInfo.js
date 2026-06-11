@@ -19,7 +19,7 @@ if (pagemap['zimoli'] || pagemap["zimoli$zimoli"]) {
     }, pagemap["?"]);
 }
 var xhtbuilder = commbuilder = commbuilder.bind(commap);
-var backmap = await getCommmap(memery.APP, false, Infinity);
+var backmap = await require("../efront/commap");
 var dynabuilder = require("../efront/dynabuilder").bind(backmap);
 var backbuilder = require("../efront/backbuilder").bind(backmap);
 var getPathIn = require("./getPathIn");

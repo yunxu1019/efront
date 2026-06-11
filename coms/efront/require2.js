@@ -1,3 +1,4 @@
+var Cache = require('../server/cache');
 var commbuilder = require("./commbuilder");
 var userdata = require("../server/userdata");
 var lock = require("./lock");
@@ -10,6 +11,9 @@ var commparse = commbuilder.parse;
 var memery = require("./memery");
 var getPathIn = require("../build/getPathIn");
 var comspath = [path.join(require("os").homedir(), ".efront", 'plugins')].filter(fs.existsSync);
+var mixin = require('./mixin');
+var commap = null;
+var comscache = null;
 var required_cache = Object.create(null);
 var hasOwnProperty = {}.hasOwnProperty;
 var loadingTree = Object.create(null);
@@ -69,14 +73,29 @@ if (fs.existsSync(memery.webroot)) {
     });
 }
 
+var comsextt = [".js", ".mjs", ".ts"];
+
 var prepareFunction = function (pathname) {
-    var that = this;
     if (loadedModules[pathname]) return loadedModules[pathname];
     if (loadingTree[pathname]) return loadingTree[pathname];
-    return loadingTree[pathname] = new Promise(function (ok, oh) {
+    return loadingTree[pathname] = new Promise(async function (ok, oh) {
+        if (commap instanceof Promise) await commap;
+        var ref = commap[":"][pathname];
+        if (ref) {
+            var res = await comscache.seek(ref, comsextt);
+            if (res instanceof Error) {
+                return oh(f);
+            }
+            var f = createFromParsed(res, pathname);
+            loadedModules[pathname] = f;
+            await f.prepare();
+            delete loadingTree[pathname];
+            ok(f);
+            return;
+        }
         fs.readFile(pathname, function (error, data) {
             if (error) return oh(error);
-            var f = createFunction.call(that, data, pathname);
+            var f = createFunction(data, pathname, pathname);
             loadedModules[pathname] = f;
             delete loadingTree[pathname];
             f.prepare().then(function () {
@@ -121,23 +140,30 @@ var prepareModule = function (dirname, required, prebuilds, pathmap, modname) {
         modname1 = modname1.replace(/\//g, '$').replace(/\.[\s\S]+$/, '').replace(/\-(\S)/g, (_, a) => a.toUpperCase());
     }
     if (hasOwnProperty.call(pathmap, modname1)) {
-        return prepareFunction.call(this, pathmap[modname1]);
+        return prepareFunction(pathmap[modname1]);
     }
-    if (hasOwnProperty.call(this, modname1)) {
-        pathmap[modname1] = this[modname1];
-        return prepareFunction.call(this, this[modname1]);
+    if (hasOwnProperty.call(commap, modname1)) {
+        pathmap[modname1] = commap[modname1];
+        return prepareFunction(commap[modname1]);
     }
     if (/^\.*[\/\\]/.test(modname)) {
         modname1 = path.join(dirname, modname);
     }
     if (path.isAbsolute(modname1)) {
         if (hasOwnProperty.call(rootmap, modname1)) {
-            return rootmap[modname1];
+            var fullpath = rootmap[modname1];
+            if (fullpath instanceof Promise) {
+                return fullpath.then(function () {
+                    pathmap[modname] = rootmap[modname1];
+                })
+            }
+            pathmap[modname] = fullpath;
+            return prepareFunction(fullpath);
         }
         return rootmap[modname1] = detectWithExtension(modname1, ['', '.js', '.mjs', '.json', '.ts']).then(async fullpath => {
             var stats = await fsp.stat(fullpath);
             if (stats.isFile()) {
-                await prepareFunction.call(this, fullpath);
+                await prepareFunction(fullpath);
                 rootmap[modname1] = pathmap[modname] = fullpath;
                 return;
             }
@@ -162,47 +188,61 @@ var prepareModule = function (dirname, required, prebuilds, pathmap, modname) {
                 }
                 if (!index) return;
                 fullpath = path.join(fullpath, index);
-                await prepareFunction.call(this, fullpath);
+                await prepareFunction(fullpath);
                 pathmap[modname] = rootmap[modname1] = fullpath;
             }
         });
     }
 };
-var createFunction = function (data, pathname, prebuilds) {
-    var content = String(data);
-    var { params, imported, data, required, isAsync, isYield } = commparse.call(this, content, pathname, pathname);
+var createFromParsed = function (parsed, pathname, prebuilds) {
+    var { params, imported, data, required, isAsync, isYield } = parsed;
     var func = vm.runInThisContext(`[${isAsync ? 'async ' : ""}function${isYield ? "*" : ""}(${params ? params.join(",") : ''}){\r\n${data}\r\n}][0]`, {
         filename: pathname,
+        breakOnSigint: true
     });
     if (!(imported instanceof Array)) imported = [];
-    var pathmap = {};
+    var pathmap = func.pathmap = {};
     func.require = createModule.bind(func, required, pathmap);
     func.require.cache = required_cache;
     func.imported = imported;
     func.required = required;
     func.prebuilds = prebuilds;
     func.pathname = pathname;
-    var that = this;
-    var promise;
+    wrapPrepare(func);
+    return func;
+};
+var wrapPrepare = function (func) {
+    var promise = null;
     func.prepare = function () {
-        if (!promise) promise = prepare();
+        if (!promise) {
+            promise = waitPrepare(func);
+            promise.then(function () {
+                delete func.prepare;
+            });
+        }
         return promise;
     };
-    var prepare = async function () {
-        if (!webdynas) webdynas = loadwebcoms();
-        var dynas = await webdynas;
-        var rel = getPathIn(dynas, pathname);
-        if (rel) {
-            var p = pathname.slice(0, pathname.length - rel.length);
-            var coms = dynacoms[p];
-            if (coms) pathmap = coms;
-        }
-        var dirname = path.dirname(pathname);
-        var prepare = prepareModule.bind(that, dirname, required, prebuilds, pathmap);
-        if (imported instanceof Array) for (var a of imported) await prepare(a);
-        if (required instanceof Array) for (var a of required) await prepare(a);
-        delete func.prepare;
-    };
+};
+var waitPrepare = async function (func) {
+    if (!webdynas) webdynas = loadwebcoms();
+    var dynas = await webdynas;
+    if (!comscache) await commap;
+    var { pathname, imported, required, prebuilds, pathmap } = func;
+    var rel = getPathIn(dynas, pathname);
+    if (rel) {
+        var p = pathname.slice(0, pathname.length - rel.length);
+        var coms = dynacoms[p];
+        if (coms) pathmap = coms;
+    }
+    var dirname = path.dirname(pathname);
+    var prepare = prepareModule.bind(null, dirname, required, prebuilds, pathmap);
+    if (imported instanceof Array) for (var a of imported) await prepare(a);
+    if (required instanceof Array) for (var a of required) await prepare(a);
+};
+var createFunction = function (data, pathname, fullpath, prebuilds) {
+    var content = String(data);
+    var parsed = commparse.call(commap, content, pathname, fullpath);
+    var func = createFromParsed(parsed, fullpath, prebuilds);
     return func;
 };
 var invokingStack = [];
@@ -223,8 +263,9 @@ var invokeFunction = function (func, prebuilds) {
         }
         context = global;
     }
+    else func.exports = context;
     func.prebuilds = prebuilds;
-    func.exports = context || {};
+    if (!func.exports) func.exports = {};
     invokingStack.push(func.pathname);
     if (imported instanceof Array && require instanceof Function) imported = imported.map(require);
     invokingStack.pop();
@@ -252,7 +293,7 @@ var gettask = async function (taskid) {
     var task = await userdata.getOptionObj("task", taskid);
     if (!task) throw new Error(i18n`指定的任务 ${taskid} 不存在！`);
     if (task.status !== 1) throw new Error(i18n`任务 ${taskid} 未启用！`);
-    var func = createFunction(task.code, 'private/main', { _private });
+    var func = createFunction(task.code, 'private/main', 'private/main', { _private });
     var task = await invokeFunction(func);
     var params = /\(\s*([\s\S]*?)\s*\)/.exec(task);
     if (params) {
@@ -315,7 +356,7 @@ function require2(pathname) {
     if (func instanceof Promise) {
         return required_cache[pathname] = func.then(f => {
             required_cache[pathname] = f.exports || {};
-            return required_cache[pathname] = invokeFunction(f, required_cache[pathname]);
+            return required_cache[pathname] = invokeFunction(f, f);
         });
     }
     return required_cache[pathname] = invokeFunction(func);
@@ -407,4 +448,26 @@ var restModules = {
     DB: require("../server/doDB"),
     readdata: require("../server/readdata"),
 };
+
+Object.defineProperty(require2, "commap", {
+    get() {
+        return commap;
+    },
+    set(a) {
+        var comslist = mixin(memery.COMS_PATH, memery.COMM)
+            .map(a => path.join(a[0], a[1]))
+            .filter(fs.existsSync).filter(a => a !== path.join(__dirname, '../zimoli'));
+        comscache = new Cache(comslist, commparse.bind(a));
+        comscache.onreload = function (changed) {
+            changed.forEach(c => {
+                delete loadedModules[c];
+            })
+            for (var k in required_cache) {
+                delete required_cache[k];
+            }
+        };
+        return commap = a;
+    }
+});
+
 module.exports = require2;

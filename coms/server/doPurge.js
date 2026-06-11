@@ -1,5 +1,5 @@
 "use strict";
-var finalpacker = require("../efront/finalpacker");
+var finalpacker = efront$finalpacker;
 var getRequestEnv = require("./getRequestEnv");
 var handle = Object.create(null);
 

@@ -61,10 +61,11 @@ if (memery.TRANSFORM_PIXEL) {
 } else {
     var fixpixel = e => String(e);
 }
+var commap = await require("./commap");
+require2.commap = commap;
 var createFunction = require2.createFunction;
 var invokeFunction = require2.invokeFunction;
-
-var buildjsp = function (buff, realpath) {
+var buildjsp = function (buff, nameurl, realpath) {
     var dynareg = dynabuilder.dynareg;
     var seekreg = dynabuilder.seekreg;
     var splited = [];
@@ -86,7 +87,7 @@ var buildjsp = function (buff, realpath) {
             func = createseek(content);
         }
         else {
-            func = createFunction.call(that, content, realpath, prebuilds);
+            func = createFunction(content, nameurl, realpath, prebuilds);
         }
         splited.push(str, func);
         return match;
@@ -172,7 +173,7 @@ if (memery.istest) builder = function (buff, name, fullpath) {
         return function (req, res) {
             var data = fixpixel(buff);
             data = buildreload(data);
-            data = buildjsp.call(that, data, fullpath);
+            data = buildjsp(data, name, fullpath);
             return data(req, res);
         };
     }
@@ -191,7 +192,7 @@ if (memery.istest) builder = function (buff, name, fullpath) {
 else builder = function (buff, name, fullpath) {
     if (/\.(?:jsp|php|asp)$/i.test(fullpath)) {
         buff = fixpixel(buff);
-        buff = buildjsp.call(this, buff, fullpath);
+        buff = buildjsp(buff, name, fullpath);
     }
     return buff;
 };

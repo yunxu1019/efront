@@ -21,10 +21,11 @@ module.exports = async function (mainpath, args) {
         }
     }
     memery.COMS_PATH = coms.join(',');
+    var commap = await require("./commap");
     var require2 = require("./require2");
-    var commap = await require('./getCommap')("", false);
+    require2.commap = commap;
     memery.POLYFILL = false;
-    var f = require2.createFunction.call(commap, data, mainpath);
+    var f = require2.createFunction(data, r || mainpath, mainpath);
     process._argv = args;
     require2.invokeFunction(f);
 

@@ -107,7 +107,6 @@ var setAuth = function (auth, data, refpath) {
 var http = require("http");
 var http2 = require("http2");
 // build mime
-var doPurge = require("./doPurge");
 var doCross = require("./doCross");
 var { referer: crossReferer, prefix: crossPrefix } = doCross;
 var doFile = require("./doFile");

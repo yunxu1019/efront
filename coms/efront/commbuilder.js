@@ -176,7 +176,7 @@ var loadUseBody = async function (source, fullpath, watchurls) {
             var commName = realName;
         }
         if (!commName) commName = realName;
-        if (~loadJsBody(data, 'main.js', '', 'main', '').imported.indexOf('module')) {
+        if (~loadJsBody(data, 'main.js', 'main.js', '', 'main', '').imported.indexOf('module')) {
             var module_reg = /\bmodule(.exports|\[(['"`])exports\1\])\s*=/g;
             if (module_reg.test(data)) {
                 data = data.replace(module_reg, commName ? "var " + commName + " =" : "return ");
@@ -279,7 +279,7 @@ var wrapReturnLess = function (r, cless_var, lessnode, className) {
     }, exp);
     return n;
 }
-var loadJsBody = function (data, fullpath, lessdata, commName, className, htmlData) {
+var loadJsBody = function (data, filename, fullpath, lessdata, commName, className, htmlData) {
     if (data.length > 0x200) show_building(fullpath);
     data = trimNodeEnvHead(data);
     data = data.replace(/\bDate\(\s*(['"`])(.*?)\1\s*\)/g, (match, quote, dateString) => `Date(${+new Date(dateString)})`);
@@ -582,10 +582,10 @@ var loadJsBody = function (data, fullpath, lessdata, commName, className, htmlDa
     }).filter(a => !!a);
     var params = globals.map(g => globalsmap[g]);
     if (this && this["?"]) {
-        globals = rethink(this, globals, fullpath);
+        globals = rethink(this, globals, filename, fullpath);
         if (required instanceof Array) {
             var required_paths = required.map(r => r.value);
-            required_paths = rethink(this, required_paths, fullpath);
+            required_paths = rethink(this, required_paths, filename, fullpath);
             required.forEach((r, i) => {
                 var p = required_paths[i];
                 r.value = p;
@@ -650,11 +650,11 @@ var buildPress2 = function (imported, params, data, args, strs, press) {
     data = code.toString();
     return [params, data];
 };
-var rethink = function (mmap, imported, fullpath) {
+var rethink = function (mmap, imported, filename, fullpath) {
     var rmap = mmap["?"];
     var fmap = mmap[":"];
     var refname = fmap[fullpath] || '';
-    var refpath = refname ? $split(refname) : [];
+    var refpath = refname ? $split(refname) : $split(filename);
     var realimport = imported.map(m => {
         var a = getMaped(refpath, mmap, m);
         if (a !== fullpath) m = rmap[a] || m;
@@ -873,7 +873,7 @@ async function getXhtPromise(xhtdata, filename, fullpath, watchurls, extraJs, ex
     if (jsenvs.template) entryTack = 'template';
     if (!xhtdata || entryTack || !htmltext && !scoped.outerHTML) {
         if (xhtdata) htmltext = `{toString:()=>${compile$wraphtml(await renderImageUrl.call(this, scoped.outerHTML || scoped.innerHTML, fullpath, watchurls))}}`;
-        var res = loadJsBody.call(this, scripts, fullpath, styles, commName, className, htmltext);
+        var res = loadJsBody.call(this, scripts, filename, fullpath, styles, commName, className, htmltext);
         watchurls.time += +timer;
         return res;
     }
@@ -1016,7 +1016,7 @@ async function getXhtPromise(xhtdata, filename, fullpath, watchurls, extraJs, ex
     ${xhtrender}
     return elem;
     }`;
-    var res = loadJsBody.call(this, xht, fullpath, styles, commName, className)
+    var res = loadJsBody.call(this, xht, filename, fullpath, styles, commName, className)
     watchurls.time += +timer;
     return res;
 }
@@ -1061,7 +1061,7 @@ function getMouePromise(data, filename, fullpath, watchurls) {
                 }
                 jsData += `;\r\nextend(exports,Vue.compile(template))`;
             }
-            var data = loadJsBody.call(this, jsData, fullpath, null, commName);
+            var data = loadJsBody.call(this, jsData, filename, fullpath, null, commName);
             time += new Date - timeStart;
             promise.time = time;
             ok(data);
@@ -1099,7 +1099,7 @@ function getHtmlPromise(data, filename, fullpath, watchurls) {
         }
     }).then(() => {
         var timeStart = new Date;
-        var data = loadJsBody.call(this, jsData, fullpath, lessData, commName, className);
+        var data = loadJsBody.call(this, jsData, filename, fullpath, lessData, commName, className);
         time += new Date - timeStart;
         promise.time = time;
         return data;
@@ -1119,7 +1119,7 @@ function getScriptPromise(data, filename, fullpath, watchurls) {
         var timer = new Timer;
         var [commName] = prepare(filename, fullpath);
         if (!/\.[mc]?js$/i.test(fullpath)) data = await coffee(fullpath, data);
-        data = loadJsBody.call(that, data, fullpath, null, commName);
+        data = loadJsBody.call(that, data, filename, fullpath, null, commName);
         p.time = +timer;
         return data;
     });
@@ -1137,13 +1137,13 @@ function commbuilder(buffer, filename, fullpath, watchurls) {
     }
     else if (/\.json$/i.test(fullpath)) {
         var timeStart = new Date;
-        var data = loadJsBody("(" + String(buffer) + ")", fullpath);
+        var data = loadJsBody("(" + String(buffer) + ")", filename, fullpath);
         data.time = new Date - timeStart;
         promise = Promise.resolve(data);
     }
     else if (/\.ya?ml$/i.test(fullpath)) {
         var timeStart = new Date;
-        var data = loadJsBody(`return ${JSON.stringify(parseYML(String(buffer)))}`, fullpath);
+        var data = loadJsBody(`return ${JSON.stringify(parseYML(String(buffer)))}`, filename, fullpath);
         data.time = new Date - timeStart;
         promise = Promise.resolve(data);
     }
@@ -1199,6 +1199,7 @@ function commbuilder(buffer, filename, fullpath, watchurls) {
     return promise1 || data;
 }
 commbuilder.parse = function (data, filename = 'main', fullpath = './main.js', compress, breakcode = 0) {
+    data = String(data);
     var savedflag = breakflag;
     breakflag = !!breakcode;
     var savedCompress = commbuilder.compress;
@@ -1207,7 +1208,7 @@ commbuilder.parse = function (data, filename = 'main', fullpath = './main.js', c
     if (/\.(?:pem|html?|xml|glsl|txt|log)$/i.test(fullpath)) data = `return ${strings.encode(data)}`;
     else if (/\.(?:json)$/i.test(fullpath)) data = `var ${commName} = ` + data;
     else if (/\.[mc]?[tj]sx?$/i.test(fullpath)) data = replaceIncludes(data);
-    var res = loadJsBody.call(this, data, fullpath, null, commName, lessName, className);
+    var res = loadJsBody.call(this, data, filename, fullpath, null, commName, lessName, className);
     if (breakcode || breakcode === 0) [res.params, res.data, res.occurs] = revarCode(res.params, res.data);
     if (savedCompress === undefined) delete commbuilder.compress;
     else commbuilder.compress = savedCompress;

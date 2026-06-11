@@ -406,7 +406,8 @@ File.prototype.update = async function () {
 };
 var formatpathlist = function (filesroot) {
     var loaded = Object.create(null);
-    filesroot = String(filesroot || '').split(",").filter(fs.existsSync).map(a => fs.realpathSync(a))
+    if (!(filesroot instanceof Array)) filesroot = String(filesroot || '').split(",");
+    filesroot = filesroot.filter(fs.existsSync).map(a => fs.realpathSync(a))
         .filter(a => loaded[a] ? false : loaded[a] = true);
     return filesroot;
 }
@@ -425,9 +426,10 @@ var createDirect = function (froot, rebuild, limit, powermap) {
     direct.pmap = powermap;
     return direct;
 };
+var split = require("../basic/$split");
 var 参数 = function (url, extts) {
-    var keeys = url.split(/[\\\/]+/);
-    var match = keeys.pop();
+    var keeys = split(url);
+    var match = keeys.pop() || '';
     var kpath = [];
     for (var k of keeys) {
         if (k === "" || k === '.') continue;
@@ -476,7 +478,7 @@ var seekAsync = async function (directs, keeys, match, findPackage) {
 }
 
 var isValidData = function (data) {
-    if (data instanceof Buffer || data instanceof Function || data instanceof Array || data instanceof Error) return true;
+    if (data instanceof Buffer || data instanceof Function || data instanceof Array || data instanceof Error || data instanceof Object) return true;
 };
 var getPackageMain = function (url, data, map) {
     if (!data instanceof PackageData) return;

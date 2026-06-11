@@ -5,7 +5,6 @@ var memery = require("./memery");
 var getCommap = require("./getCommap");
 var commbuilder = require("./commbuilder");
 var aapibuilder = require("./aapibuilder");
-var filebuilder = require("./filebuilder");
 var path = require("path");
 var mixin = require("./mixin");
 var fs = require("fs");
@@ -22,7 +21,7 @@ var sortPath = function (a, b) {
 var formatdir = a => a.replace(/\\/g, '/').replace(/\/$/, '') + "/";
 var createManagersWithEnv = async function (env) {
     var commap = await getCommap(env.APP);
-    var backmap = await getCommap(env.APP, false);
+    var backmap = await require('./commap');
     if (env.root) commap[""] = env.root;
     var Cache = require("../server/cache");
     var cbuilder = commbuilder.bind(commap);
@@ -92,7 +91,7 @@ var createManagersWithEnv = async function (env) {
     pagecache.onreload = update;
     var apicache = new Cache(mixpath(env.APIS_PATH, env.AAPI).concat(mixin(env.PAGE_PATH, '#aapi')), aapibuilder.bind(backmap));
     apicache.onreload = fireload;
-    var filecache = new Cache(mixpath(env.FILE_PATH || env.PAGE_PATH, env.FILE || env.PAGE), filebuilder.bind(backmap), FILE_BUFFER_SIZE);
+    var filecache = new Cache(mixpath(env.FILE_PATH || env.PAGE_PATH, env.FILE || env.PAGE), filebuilder, FILE_BUFFER_SIZE);
     filecache.onreload = fireload;
     var managers = {
         comm(name, ext) {

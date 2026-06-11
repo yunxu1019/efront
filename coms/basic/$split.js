@@ -1,7 +1,9 @@
-var split = function (reg, p) {
+var split = function (p) {
     var s = [];
+    var reg = /[\\\/\$]/g;
     reg.lastIndex = 0;
     var lastIndex = 0;
+    if (/^[\/\\]/.test(p)) lastIndex++;
     while (p) {
         reg.lastIndex++;
         var m = reg.exec(p);
@@ -16,7 +18,4 @@ var split = function (reg, p) {
     return s;
 
 }
-module.exports = function (p) {
-    var s = split(/[\\\/\$]/g, p);
-    return s;
-}
+module.exports = split;
