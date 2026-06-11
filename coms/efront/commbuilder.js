@@ -778,8 +778,11 @@ var renderLessData = function (data, lesspath, commName, watchurls, className) {
     data = renderImageUrl.call(that, data, lesspath, watchurls);
     var lessresult = Promise.resolve(data).then(data => bindLoadings.call(this, importLessReg, data, lesspath, replacer, 0));
     if (watchurls.indexOf(lesspath) < 0) watchurls.push(lesspath);
-    if (/\.less$/i.test(this[commName]) && this[commName] !== lesspath) {
-        var configpath = this[commName];
+    var lesspath = lesspath.replace(/\.[^\/\\\.]+$/, '.less');
+    var jspath = lesspath.replace(/\.[^\/\\\.]+$/, '.js');
+    var configName = commName + ".less";
+    if (this[configName] && this[configName] !== lesspath && this[commName] === jspath) {
+        var configpath = this[configName];
         if (watchurls.indexOf(configpath) < 0) watchurls.push(configpath);
         var lessresult = Promise.all([lessresult, getFileData(configpath)])
             .then(async function ([origin, config]) {
