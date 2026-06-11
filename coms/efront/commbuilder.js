@@ -282,7 +282,6 @@ var wrapReturnLess = function (r, cless_var, lessnode, className) {
 var loadJsBody = function (data, filename, fullpath, lessdata, commName, className, htmlData) {
     if (data.length > 0x200) show_building(fullpath);
     data = trimNodeEnvHead(data);
-    data = data.replace(/\bDate\(\s*(['"`])(.*?)\1\s*\)/g, (match, quote, dateString) => `Date(${+new Date(dateString)})`);
     var destpaths = commbuilder.prepare === false ? [] : getRequiredPaths(data);
     var code = scanner2(data, fullpath, 'js');
     if (memery.torgb) code.keepcolor = false;
