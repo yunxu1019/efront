@@ -17,7 +17,7 @@ if (!Promise) {
     };
     var thro = function (error) {
         // <!--
-        console.error(i18n`在异步过程中发现未处理的异常：`, error);
+        console.error(i18n`在异步过程中发现未处理的异常\r\n`, error);
         // -->
     };
     var queue = [];
