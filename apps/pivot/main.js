@@ -15,6 +15,7 @@ data.setReporter(function (m, t) {
 });
 data.bindInstance("base", async function (base) {
     if (!base.base) return;
+    DB.base = base.base;
     cross.addDirect(base.base);
     var apimap = await data.getConfig();
     for (var k in apimap) {

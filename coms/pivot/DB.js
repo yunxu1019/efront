@@ -44,6 +44,15 @@ var bind = function (hostname) {
     DB.query = function (type, queryObj, size = 100, queryStart) {
         return DB.search(type, queryObj, size, '', queryStart);
     };
+    Object.defineProperty(DB, 'base', {
+        get() {
+            return api.base;
+        },
+        set(v) {
+            host = v + '/';
+            return api.base = v;
+        },
+    })
     return DB;
 };
 var db = bind(location.host || location.href);
