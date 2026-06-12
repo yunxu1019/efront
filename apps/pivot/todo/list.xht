@@ -112,16 +112,20 @@
         var target = getTargetIn(a => a.tagName === 'TODO', event.target);
         if (!target) return;
         var obj = $scoped.get(target).m;
-        autodragchildren.hook(target, event, true, function (index, targetBox) {
+        autodragchildren.hook(target, event, true, async function (index, targetBox) {
             var state = targetBox.state;
             if (obj.state === state) return;
+            var state_ = obj.state;
             obj.state = state;
-            DB.update("待办", {
-                name: obj.name,
-                id: obj.id,
-                state: state
-            });
-            render.refresh();
+            try {
+                await DB.update("待办", {
+                    name: obj.name,
+                    id: obj.id,
+                    state: state
+                });
+            } catch {
+                obj.state = state_;
+            }
         });
     })
     var edit = function (m) {
