@@ -26,6 +26,6 @@ if %packed% == efront-%published%.tgz (echo 已是最新版本&exit /b 0)
 del *.tgz
 echo 发布
 if exist *.tgz (echo 无需发布&exit /b 0)
-@REM npm publish
+npm publish
 
 :end
