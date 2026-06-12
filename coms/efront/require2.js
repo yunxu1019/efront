@@ -266,7 +266,7 @@ var invokeFunction = function (func, prebuilds) {
     }
     else func.exports = context;
     func.prebuilds = prebuilds;
-    if (!func.exports) func.exports = {};
+    if (ismodule && !func.exports) context = func.exports = {};
     invokingStack.push(func.pathname);
     if (imported instanceof Array && require instanceof Function) imported = imported.map(require);
     invokingStack.pop();
