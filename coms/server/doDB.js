@@ -279,6 +279,7 @@ var setItem = async function (req, dbid, lastId, data) {
     }
     else {
         var db = await getDB(dbid);
+        if (!db) throw new i18n[lang]`${dbid}数据库不存在！`;
         var owner = await checkOwner(req, db);
         if (!owner) {
             if (!await checkAuth(req, ['dbw'])) throw i18n[lang]`请登录后重试`;
@@ -301,9 +302,10 @@ var setItem = async function (req, dbid, lastId, data) {
 var deleteItem = async function (req, dbid, lastId) {
     var lang = getLang(req);
     if (!lastId) throw i18n[lang]`参数异常`;
+    var db = await getDB(dbid);
+    if (!db) throw i18n[lang]`${dbid}数据库不存在！`;
     var origin = await message.invoke('dbLoad', [dbid, lastId]);
     if (!isHandled(origin)) throw i18n[lang]`数据不存在`;
-    var db = await getDB(dbid);
     var owner = await checkOwner(req, db, origin);
     if (!owner) {
         if (await checkAuth(req, ["dbd"]) && !origin.owner);
@@ -313,14 +315,15 @@ var deleteItem = async function (req, dbid, lastId) {
     return data;
 };
 var patchItem = async function (req, dbid, lastId, data) {
+    var lang = getLang(req);
+    var db = await getDB(dbid);
+    if (!db) throw i18n[lang]`${dbid}数据库不存在！`;
     if (dbid === "用户" && data.a) {
         await userdata.setPasswordA(String(data.a), data);
         delete data.a;
     }
-    var lang = getLang(req);
     var origin = await message.invoke('dbLoad', [dbid, lastId]);
     if (!origin) throw i18n[lang]`不存在名为${lastId}的${dbid}`;
-    var db = await getDB(dbid);
     var owner = await checkOwner(req, db, origin);
     a: if (!owner) {
         if (!origin.owner) {
@@ -350,6 +353,8 @@ var trimUser = function (data) {
 
 var readItem = async function (req, dbid, lastId, version) {
     var lang = getLang(req);
+    var db = await getDB(dbid);
+    if (!db) throw i18n[lang]`${dbid}数据库不存在！`;
     if (version) version = +version;
     var data = await message.invoke('dbLoad', [dbid, lastId, version]);
     if (dbid === '用户') trimUser(data);
@@ -360,7 +365,6 @@ var readItem = async function (req, dbid, lastId, version) {
             data.mime = mime[ext.slice(1)];
         }
     }
-    var db = await getDB(dbid);
     if (!checkOwner(req, db, data)) throw i18n[lang]`您无权访问此数据！`;
     return data;
 }
