@@ -69,6 +69,7 @@
     `;
     var fields = refilm`
     是否公开/open swap // 允许所有人检索全部内容
+    未登录脚本可写/dis401 swap
     (用户互访/visit/,open=false) swap // 不公开时检查此项`;
     var [db] = arguments;
     if (!db.fields) {

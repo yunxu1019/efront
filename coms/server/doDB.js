@@ -12,11 +12,13 @@ var checkRead = function (req, db) {
     return checkAuth(req, db.roles);
 };
 var checkOwner = async function (req, db, origin) {
-    if (db.open || db.visit) {
+    if (db.dis401 && req.dis401 === unsafeUser) return unsafeUser.id;
+    if (db.open || db.visit || db.dis401) {
         var user = req.socket.user;
         if (!user) {
-            await checkAuth(req);
+            var auth = await checkAuth(req);
             user = req.socket.user;
+            if (auth && !user) user = unsafeUser;
         }
         if (!user) return false;
         var owner = user.id;
@@ -168,12 +170,12 @@ var doDB = async function (req, res) {
                 if (search || searchText || pageSize >= 0) {
                     query = parseKV(query);
                     if (!db.open) {
-                        if (!db.visit) {
+                        if (!db.visit && !db.dis401) {
                             res.writeHead(403, utf8error);
                             res.end(i18n[lang]`此数据不可查询！`);
                             return;
                         }
-                        var owner = checkOwner(req, db);
+                        var owner = await checkOwner(req, db);
                         if (!isHandled(owner)) {
                             res.writeHead(403, utf8error);
                             res.end(i18n[lang]`不可查询私有数据！`);
@@ -365,7 +367,7 @@ var readItem = async function (req, dbid, lastId, version) {
             data.mime = mime[ext.slice(1)];
         }
     }
-    if (!checkOwner(req, db, data)) throw i18n[lang]`您无权访问此数据！`;
+    if (!await checkOwner(req, db, data)) throw i18n[lang]`您无权访问此数据！`;
     return data;
 }
 var getDB = async function (dbid) {
@@ -381,7 +383,7 @@ doDB.allocId = async function (req, dbid) {
     }
     else {
         if (!db) throw i18n[lang]`数据库不存在`;
-        if (!checkOwner(req, db)) throw i18n[lang]`非法访问`;
+        if (!await checkOwner(req, db)) throw i18n[lang]`非法访问`;
     }
     return message.invoke("dbAlloc", [dbid]);
 };

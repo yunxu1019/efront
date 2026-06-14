@@ -114,6 +114,20 @@ var buildjsp = function (buff, nameurl, realpath) {
                     return server$doDB.addItem(req, dbid, data);
                 }
             },
+            unsafeDB: {
+                get(dbid, dataid) {
+                    req.dis401 = server$unsafeUser;
+                    return server$doDB.getItem(req, dbid, dataid);
+                },
+                set(dbid, dataid, data) {
+                    req.dis401 = server$unsafeUser;
+                    return server$doDB.patchItem(req, dbid, dataid, data);
+                },
+                add(dbid, data) {
+                    req.dis401 = server$unsafeUser;
+                    return server$doDB.addItem(req, dbid, data);
+                },
+            },
             context,
             textplain(e) {
                 res.writeHead(200, {
