@@ -1,6 +1,7 @@
 var path = require('path');
 var fs = require('fs');
 var fsp = fs.promises;
+var islive = require("../efront/memery").islive;
 mark.setPinyin(pinyin);
 
 var src = "0123456789ABCDEFGHIJKLMNPQRSTUVW";
@@ -179,18 +180,23 @@ class FolderDB {
 
         if (!data) return;
         var datapath = path.join(directory, data.id + dbExt);
-        data = JSON.stringify(origins || data);
+        if (islive) {
+            data = JSON.stringify(origins || data, null, 4);
+        }
+        else {
+            data = JSON.stringify(origins || data);
+        }
         await fsp.writeFile(datapath, data);
         return id;
     }
     async patch(lastId, pdata) {
         if (!pdata) return;
         var origins = await this.load(lastId, 0);
+        await this.save(pdata, origins);
         if (pdata.id && pdata.id !== lastId) {
             await this.drop(lastId);
             origins = null;
         }
-        await this.save(pdata, origins);
         return pdata.id;
     }
     async drop(id) {

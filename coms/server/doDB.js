@@ -338,6 +338,7 @@ var patchItem = async function (req, dbid, lastId, data) {
     if (msg) throw msg;
     data.owner = owner;
     if (data.id && data.id !== origin.id) throw i18n[lang]`数据标识不可更改！`;
+    data.mtime = +new Date;
     data = await message.invoke('dbPatch', [dbid, lastId, data]);
     return data;
 };
