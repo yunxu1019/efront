@@ -141,7 +141,7 @@ module.exports = async function (root) {
             if (filesCount === 1) if (k === 'require') required = undeclares[k].map(a => {
                 if (a.text !== 'require') return;
                 a = a.next;
-                if (a.type !== SCOPED) return;
+                if (!a || a.type !== SCOPED) return;
                 a = a.first;
                 if (a.type !== QUOTED) return;
                 if (a.first !== a.last) return;
