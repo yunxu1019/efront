@@ -180,8 +180,8 @@ function cross_(jsonp, digest = noop, method, url, headers) {
     var flush = function () {
         var then = xhr.then;
         delete xhr.then;
-        if (loaded) onloads.forEach(e => e instanceof Function && e(xhr));
-        if (errored) onerrors.forEach(e => e instanceof Function && e(errored));
+        if (loaded) onloads.forEach(e => e instanceof Function && e.call(xhr, xhr));
+        if (errored) onerrors.forEach(e => e instanceof Function && e.call(xhr, errored));
         if (loaded || errored) {
             onloads.splice(0, onloads.length);
             onerrors.splice(0, onerrors.length);
