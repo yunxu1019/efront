@@ -1,5 +1,9 @@
 "use strict";
-var { COMMENT, SCOPED, STAMP, STRAP, QUOTED, splice, insertAfter, skipAssignment, VALUE, EXPRESS, SCOPED, SPACE } = require("../compile/common");;
+var {
+    COMMENT, SCOPED, STAMP, STRAP, QUOTED,
+    splice, insertAfter, skipAssignment, skipSentenceQueue,
+    VALUE, EXPRESS, SCOPED, SPACE
+} = require("../compile/common");;
 var showMemery = require("./showMemery");
 var scanner2 = require("../compile/scanner2");
 var breakcode = require("../compile/breakcode");
@@ -435,7 +439,6 @@ var loadJsBody = function (data, filename, fullpath, lessdata, commName, classNa
             { type: STRAP, text: "return", transive: true }
         );
         code.relink();
-
     } else a: {
         if (undeclares.module) {
             commName = `module["exports"]`;
@@ -464,6 +467,11 @@ var loadJsBody = function (data, filename, fullpath, lessdata, commName, classNa
             };
             allVariables["&cless"].push(lessnode);
         }
+        else if (code.return) {
+            var r = code.return[code.return.length - 1];
+            var n = skipSentenceQueue(r);
+            if (!n || n === code.last) break a;
+        }
         if (commName) {
             var lessnode = null;
             if (hasless) {
@@ -473,8 +481,8 @@ var loadJsBody = function (data, filename, fullpath, lessdata, commName, classNa
                 { type: SPACE, text: "\r\n" },
                 { type: STRAP, text: "return", transive: true }
             )
-            code_body.push({ type: EXPRESS, text: commName }, { type: STAMP, text: '=' });
             if (hasless) {
+                code_body.push({ type: EXPRESS, text: commName }, { type: STAMP, text: '=' });
                 code_body.push(
                     { type: code_body.EXPRESS, text: cless_var },
                     code.relink(Object.assign([
