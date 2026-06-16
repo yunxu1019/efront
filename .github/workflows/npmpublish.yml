@@ -8,12 +8,15 @@ on:
     branches:
       - develop
 
+permissions:
+  id-token: write
+  contents: read
 jobs:
   publish-efront:
     runs-on: windows-latest
     steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-node@v1
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
         with:
           node-version: 22
           registry-url: https://registry.npmjs.org/
@@ -66,8 +69,6 @@ jobs:
           if exist *.tgz (echo 无需发布&exit 0)
           npm publish
         shell: cmd
-        env:
-          NODE_AUTH_TOKEN: ${{secrets.npm_token}}
 
   run-efront-on-windows:
     needs: publish-efront
