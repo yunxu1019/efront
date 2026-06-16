@@ -223,12 +223,15 @@ var scrollbary = function () {
         _scrollbar.scrollTo = scrollTo;
         var _handler = document.createElement("scrollbar-thumb");
         _handler.className = "thumb";
+        var sidebar = document.createElement('scroll-side');
         _scrollbar.$Top = getTop;
         _scrollbar.autohide = lazy(function () {
             this.thumb.style.opacity = 0;
         }, 600);
         _scrollbar.autoshow = function () {
-            this.autohide();
+            if (!_scrollbar.nohide &&! _scrollbar.hasAttribute('nohide')) {
+                this.autohide();
+            }
             this.thumb.style.opacity = 1;
         };
 
@@ -239,7 +242,7 @@ var scrollbary = function () {
         });
         onremove(_scrollbar, cancelscroll);
         onmousedown(_scrollbar, scrollerMousedown);
-        appendChild(_scrollbar, _handler);
+        appendChild(_scrollbar, _handler, sidebar);
         _scrollbar.thumb = _handler;
         _scrollbar.bindTarget = bindTarget;
         return _scrollbar;

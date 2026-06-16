@@ -1,3 +1,16 @@
+>scroll-side {
+    position: absolute;
+    display: block;
+    left: 0;
+    top: 0;
+    bottom: -1px;
+    right: -1px;
+    pointer-events: none;
+    width: auto;
+    height: auto;
+    outline-offset: 2px;
+}
+
 & {
     position: absolute;
     border-radius: 7px;
@@ -15,7 +28,7 @@
         border-left: 3px solid transparent;
         top: 0;
         height: 100px;
-        width: 6px;
+        width: 10px;
         right: 0;
     }
 
@@ -44,6 +57,17 @@
         border-radius: 7px;
         height: 100%;
         width: 100%;
-        background-color: #29c9;
+        background-color: #09c;
+
+        &:active {
+            background-color: #058;
+        }
+
+        &:hover,
+        &:active {
+            +scroll-side {
+                outline: 1px solid #000;
+            }
+        }
     }
 }
