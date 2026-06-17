@@ -1,5 +1,5 @@
 # 数学公式生成工具
-在2023年及以后的浏览器(Chrome109, Firefox1, Safari5.1, ...)中可用
+在2023年及以后的浏览器(Chrome109, Firefox1, Safari5.1, ...)中可用，但最终展示效果在所有浏览器上均不一致。截止至2026年6月17日，安卓手机及苹果手机上复杂公式会洋相百出，桌面浏览器chrome以及同核心的其他套壳浏览器可以无异常展示，Firefox上求和公式的块级样式异常，Safari上方程组样式异常。
 受支持的浏览器参考 [https://developer.mozilla.org/zh-CN/docs/Web/MathML](https://developer.mozilla.org/zh-CN/docs/Web/MathML)
 使用方法有如下两种：
 1. 直接传入解析结构
