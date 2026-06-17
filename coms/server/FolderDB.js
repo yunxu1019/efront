@@ -88,7 +88,7 @@ var removeSameParts = function (data, compare) {
     return keep;
 }
 var dbExt = '.json';
-
+var hasOwnProperty = Object.prototype.hasOwnProperty;
 class FolderDB {
     indexed = null;
     static createId = createId;
@@ -150,11 +150,17 @@ class FolderDB {
                 version -= 1;
             }
             if (version < 0) return;
-            if (version > data.length) return;
-            return data[version];
+            if (version >= data.length) return;
+            var d = data.pop();
+            while (data.length > version) {
+                var d1 = data.pop();
+                for (var k in d1) d[k] = d1[k];
+            }
+            return d;
         }
         else if (isHandled(version)) {
             if (version === 0) return [data];
+            if (version !== 1) return;
         }
         return data;
     }
@@ -163,6 +169,16 @@ class FolderDB {
         if (origins) {
             var origin = origins[origins.length - 1];
             if (isObject(data)) data = extend({}, origin, data);
+            for (var k in data) {
+                if (origin[k] === data[k]) {
+                    delete origin[k];
+                }
+                else {
+                    if (!hasOwnProperty.call(origin, k)) {
+                        origin[k] = null;
+                    }
+                }
+            }
             origins.push(data);
         }
         if (data) {
@@ -186,7 +202,10 @@ class FolderDB {
         else {
             data = JSON.stringify(origins || data);
         }
+        var datapath1 = "#" + datapath;
+        await fsp.rename(datapath, datapath1);
         await fsp.writeFile(datapath, data);
+        await fsp.unlink(datapath1);
         return id;
     }
     async patch(lastId, pdata) {

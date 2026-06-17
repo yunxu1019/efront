@@ -368,7 +368,7 @@ var readItem = async function (req, dbid, lastId, version) {
             data.mime = mime[ext.slice(1)];
         }
     }
-    if (!await checkOwner(req, db, data)) throw i18n[lang]`您无权访问此数据！`;
+    if (!db.open && !db.visit && !await checkOwner(req, db, data)) throw i18n[lang]`您无权访问此数据！`;
     return data;
 }
 var getDB = async function (dbid) {
