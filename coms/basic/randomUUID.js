@@ -2,7 +2,7 @@ function randomUUID(sign) {
     var random = crypto.getRandomValues(new Uint16Array(6));
     var mask = 0;
     for (var cx = 0, dx = sign.length + random.length; cx < dx; cx++) {
-        mask = mask << 1 ^ sign.charCodeAt((cx + random[cx % 6]) % dx);
+        mask = (mask << 5 | mask >>> 27) ^ sign.charCodeAt((cx + random[cx % 6]) % dx);
     }
     mask = mask >>> 0;
     return [

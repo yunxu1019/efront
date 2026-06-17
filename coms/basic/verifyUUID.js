@@ -11,7 +11,7 @@ function validUUID(uuid, sign) {
     random[5] = parseInt(match[7], 16) ^ mask & 0xffff;
     var mask1 = 0;
     for (var cx = 0, dx = random.length + sign.length; cx < dx; cx++) {
-        mask1 = mask1 << 1 ^ sign.charCodeAt((cx + random[cx % 6]) % dx);
+        mask1 = (mask1 << 5 | mask1 >>> 27) ^ sign.charCodeAt((cx + random[cx % 6]) % dx);
     }
     mask1 = mask1 >>> 0;
     return mask === mask1;
