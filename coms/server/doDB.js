@@ -334,6 +334,17 @@ var patchItem = async function (req, dbid, lastId, data) {
         throw i18n[lang]`您不能修改其他用户的数据`;
     }
     if (data.owner && data.owner !== owner) throw i18n[lang]`请不要冒充其他用户！`;
+    if (data.ctime && origin.ctime === data.ctime) {
+        delete data.ctime;
+    }
+    if (data.mtime) {
+        if (origin.mtime === data.mtime) {
+            delete data.mtime;
+        }
+        else if (data.mtime < origin.mtime) {
+            throw i18n[lang]`数据已过期！`;
+        }
+    }
     var msg = checkField(data, ['mtime', 'ctime'], lang);
     if (msg) throw msg;
     data.owner = owner;
