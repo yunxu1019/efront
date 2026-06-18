@@ -1,5 +1,6 @@
 var stringify_failed_error_message = "stringify json failed!";
 var parse_failed_error_message = "parse json failed!";
+var strings_decode = strings?.decode;
 var scan_string = function (str, start) {
     if (str.charAt(start) !== "\"")
         return false;
@@ -11,7 +12,7 @@ var scan_string = function (str, start) {
             return false;
         if (match[0] === "\"") break;
     }
-    data = strings.decode(str.slice(start, reg.lastIndex));
+    data = strings_decode(str.slice(start, reg.lastIndex));
     return reg.lastIndex;
 };
 var scan_number = function (str, start) {
@@ -155,7 +156,7 @@ var parse = function (string) {
         data = null;
         return result;
     } else {
-        throw parse_failed_error_message;
+        throw new Error(parse_failed_error_message);
     }
 };
 
@@ -247,7 +248,7 @@ var getString = function (object, filter, space) {
             var v = get(object[key]);
             if (isObject(v)) {
                 key1[0] = cx + 1;
-                if (objects.indexOf(v) >= 0) throw stringify_failed_error_message;
+                if (objects.indexOf(v) >= 0) throw new Error(stringify_failed_error_message);
                 objects.push(v);
                 keys.push([0]);
                 break;

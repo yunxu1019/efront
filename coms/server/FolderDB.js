@@ -170,7 +170,7 @@ class FolderDB {
             var origin = origins[origins.length - 1];
             if (isObject(data)) data = extend({}, origin, data);
             for (var k in data) {
-                if (origin[k] === data[k]) {
+                if (deepEqual(origin[k], data[k])) {
                     delete origin[k];
                 }
                 else {

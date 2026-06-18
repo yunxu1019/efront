@@ -1,4 +1,4 @@
-var JSON0 = window.JSON;
+var JSON0 = this.JSON;
 var test = function (JSON) {
     var parse = function (s) {
         try {
@@ -171,8 +171,7 @@ var test2 = function (JSON) {
     assert(JSON.parse(`{/*a*/"1":\r\n2}`), { "1": 2 })
     assert(JSON.parse(`{"1/*a*/":\r\n2}`), { "1/*a*/": 2 })
 }
-var test3 = function (JSON) {
-    console.log(JSON, JSON0, JSON === JSON0);
+var test3 = function (JSON, name) {
     var start_time = performance.now();
     for (var cx = 0, dx = 0xffff; cx < dx; cx++) {
         var str = String.fromCodePoint(cx);
@@ -191,13 +190,22 @@ var test3 = function (JSON) {
             process.exit(1);
         }
     }
-    console.log(performance.now() - start_time);
+    console.log(performance.now() - start_time, name);
+};
+var test4 = function (JSON) {
+    var data = {};
+    assert(JSON.stringify({ a() { } }), "{}");
+    data.refund_amount = data;
+    JSON.stringify(data);
 }
-function JSON_test() {
-    window.JSON0 = JSON0;
-    window.JSON = void 0;
-    delete modules.JSON;
-    modules.init("JSON", test2);
-    modules.init("JSON", test3);
-    window.JSON = JSON0;
+try {
+    var JSON1 = require("./JSON.js");
+    test2(JSON1);
+    test3(JSON1, '替补JSON, basic_/JSON.js');
+    test3(JSON0, '原生JSON');
+    test3(JSAM, 'JSAM, basic/JSAM');
+    test4(JSON1);
+}
+catch (e) {
+    console.log(e)
 }

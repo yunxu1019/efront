@@ -211,7 +211,7 @@ function translate([imap, supports], code) {
             splice(t.queue, i, e + 1 - i, tn);
             break;
         case 公式:
-            var JJSON = require('../basic_/JSON');
+            var JJSON = require('../basic_/JSON.js');
             var formula = t.formula.iscup ? t.formula.map(a => JJSON.toJS(a)).join(",") : JJSON.toJS(t.formula);
             var node = scanner2(`(${formula})`)[0];
             replace(t, node);
