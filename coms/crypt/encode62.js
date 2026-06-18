@@ -2,7 +2,7 @@
 module.exports = encode62;
 var encodeUTF8 = require("../basic/encodeUTF8");
 var decodeUTF8 = require("../basic/decodeUTF8");
-var src = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789".split();
+var src = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789".split("");
 var map = {};
 src.forEach((s, i) => map[s] = i);
 
