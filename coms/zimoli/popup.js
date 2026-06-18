@@ -152,8 +152,15 @@ var popup_view = function (element, target, style) {
     }
     return element;
 };
+var csstext = `position:absolute;position:fixed;left:0;right:0;bottom:0;top:0;width:auto;height:auto;transform:scale(1);display:block;`;
+if (document.documentElement.style.backdropFilter !== undefined) {
+    csstext += 'backdrop-filter:blur(26px);';
+}
+else {
+    csstext += 'background:#000;opacity:0.6;';
+}
+css(".mask", csstext);
 
-css(".mask", `position:absolute;position:fixed;left:0;right:0;bottom:0;top:0;width:auto;height:auto;background:#000;opacity:0.2;transform:scale(1);display:block`);
 var createMask = function (element) {
     var masks = element.with;
     if (masks) for (var cx = 0, dx = masks.length; cx < dx; cx++) {
