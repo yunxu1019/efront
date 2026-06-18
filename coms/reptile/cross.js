@@ -62,8 +62,15 @@ var cross = cross_.bind(function (callback, onerror) {
                 var data = [];
                 xhr.status = res.statusCode;
                 xhr.responseHeaders = res.headers;
+                var totalSize = 0;
                 res.on("data", function (chunk) {
-                    xhr.readyState = 4;
+                    xhr.readyState = 3;
+                    totalSize += chunk.length;
+                    if (totalSize > 2 * 1024 * 1024) {
+                        onerror1(new Error(i18n`数据过大`));
+                        res.destroy();
+                        return;
+                    }
                     data.push(chunk);
                 });
                 res.on("end", function () {
