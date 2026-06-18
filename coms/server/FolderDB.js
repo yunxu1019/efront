@@ -202,10 +202,15 @@ class FolderDB {
         else {
             data = JSON.stringify(origins || data);
         }
-        var datapath1 = "#" + datapath;
-        await fsp.rename(datapath, datapath1);
-        await fsp.writeFile(datapath, data);
-        await fsp.unlink(datapath1);
+        if (origin) {
+            var datapath1 = datapath + "-";
+            await fsp.rename(datapath, datapath1);
+            await fsp.writeFile(datapath, data);
+            await fsp.unlink(datapath1);
+        }
+        else {
+            await fsp.writeFile(datapath, data);
+        }
         return id;
     }
     async patch(lastId, pdata) {
