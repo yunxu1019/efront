@@ -54,7 +54,7 @@ var getAssignedConst = function (a, used) {
 }
 var findConsts = function (code) {
     var consts = getExported(code);
-    if (!consts) return;
+    if (!consts || !consts.length) return;
     autoiota(code);
     var used = code.used;
     var vmap = Object.create(null);
@@ -90,6 +90,7 @@ var setMapDefinedConsts = function (used, k, consts) {
     for (var o of u) {
         var exp = pickAssignment(o);
         var e = exp[exp.length - 1];
+        if (k === 'SAFE_CIRCLE_DEPTH') console.log(k, createString(exp))
         if (!isSimpleEqual(exp, o)) continue;
         if (e !== o) {
             if (e.prev !== o) continue;
@@ -120,6 +121,7 @@ var setMapDefinedConsts = function (used, k, consts) {
 };
 var getMaped = require("./getMaped");
 var maped = Object.create(null);
+var simples = Object.create(null);
 var loadConsts = function (fullpath, commap) {
     if (fullpath in maped) return maped[fullpath];
     maped[fullpath] = null;
@@ -129,6 +131,17 @@ var loadConsts = function (fullpath, commap) {
     autoConst.call(commap, code, fullpath);
     var consts = findConsts(code);
     maped[fullpath] = consts;
+    if (!consts) {
+        if (code.isExpressQueue()) {
+            var last = code.last;
+            while (last?.type === STAMP && last.text === ';') last = last.prev;
+            if (!last) return;
+            var lp = last.prev;
+            if (last.isdigit && (!lp || lp.type === STAMP && /^[,\=]$/.test(lp.text))) {
+                simples[fullpath] = last;
+            }
+        }
+    }
     return consts;
 };
 
@@ -252,7 +265,11 @@ var autoConst = function (code, fullpath, ignoreImported) {
         p = getMaped(upath, this, k);
         if (!p) continue;
         var consts = loadConsts(p, this);
-        if (!consts) continue;
+        if (!consts) {
+            var s = simples[p];
+            if (s) setEnvDefinedConsts(used, k, s);
+            continue;
+        }
         setMapDefinedConsts(used, k, consts)
     }
     return code;

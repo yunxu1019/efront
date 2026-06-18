@@ -823,7 +823,6 @@ var modules = {
     undefined: void 0,
     start_time,
     MOVELOCK_DELTA: 3 * renderPixelRatio,
-    SAFE_CIRCLE_DEPTH: 300,
     init,
     efrontPath,
     versionTree,
