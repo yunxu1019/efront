@@ -1,6 +1,6 @@
-var src = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+var src = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789".split('');
 var map = {};
-src.split("").forEach((s, i) => map[s] = i);
+src.forEach((s, i) => map[s] = i);
 var encode62 = {
     src,
     map,
@@ -19,7 +19,7 @@ var encode62 = {
     geta(string) {
         string = String(string)
         string = string.length + string + "2017-08-19";
-        var buff = src.split('');
+        var buff = src.slice();
         for (var cx = 0, dx = buff.length + src.length, sl = string.length, cl = buff.length; cx < dx; cx++) {
             var s1 = string.charCodeAt(cx % sl) % cl;
             var s2 = cx % cl;
