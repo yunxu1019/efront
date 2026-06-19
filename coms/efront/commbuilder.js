@@ -15,6 +15,7 @@ var fs = require("fs");
 var path = require("path");
 var memery = require("./memery");
 var islive = memery.islive;
+var AUTOEVAL = memery.AUTOEVAL;
 var autoiota = require("../compile/autoiota");
 var autoeval = require("../compile/autoeval");
 var autoenum = require("../compile/autoenum");
@@ -192,7 +193,7 @@ var loadUseBody = async function (source, fullpath, watchurls) {
         return data;
     };
     source = await bindLoadings(useInternalReg, source, fullpath, replacer);
-    if (!isbooted || !memery.AUTOEVAL) return source;
+    if (!isbooted || !AUTOEVAL) return source;
     return bindLoadings(/require\((['"`])([^'"`\)]*?\.json)\1\)\.[\w\.\u007f-\uffff]+/g, source, fullpath, function (data, realpath, match) {
         var json = JSON.parse(data);
         match = match.replace(/^[\s\S]*\)\./, '');
@@ -325,7 +326,7 @@ var loadJsBody = function (data, filename, fullpath, lessdata, commName, classNa
             }
         }
     }
-    if (memery.AUTOEVAL) {
+    if (AUTOEVAL) {
         // 处理导入式变量时
         // 有阻塞式读取文件的操作，性能可能下降
         // 数据依赖其他文件
@@ -1214,6 +1215,8 @@ commbuilder.parse = function (data, filename = 'main', fullpath = './main.js', c
     breakflag = !!breakcode;
     var savedCompress = commbuilder.compress;
     commbuilder.compress = !!compress;
+    var autoeval = AUTOEVAL;
+    AUTOEVAL = memery.run2eval;
     var [commName, lessName, className] = prepare(filename, fullpath);
     if (/\.(?:pem|html?|xml|glsl|txt|log)$/i.test(fullpath)) data = `return ${strings.encode(data)}`;
     else if (/\.(?:json)$/i.test(fullpath)) data = `var ${commName} = ` + data;
@@ -1222,6 +1225,7 @@ commbuilder.parse = function (data, filename = 'main', fullpath = './main.js', c
     if (breakcode || breakcode === 0) [res.params, res.data, res.occurs] = revarCode(res.params, res.data);
     if (savedCompress === undefined) delete commbuilder.compress;
     else commbuilder.compress = savedCompress;
+    AUTOEVAL = autoeval;
     breakflag = savedflag;
     return res;
 };

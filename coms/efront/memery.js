@@ -299,6 +299,7 @@ var memery = module.exports = {
     COMPRESS: get("COMPRESS, PRESS, ENCODE"),
     KEEPSPACE: get("KEEPSPACE, SPACE"),
     AUTOEVAL: get("AUTOEVAL, AUTOENUM, EVAL, ENUM"),
+    run2eval: get("AUTOEVAL, AUTOENUM, EVAL, ENUM", false),
     RECORD: getdirpath("RECORD_PATH,RECORD"),
     TRANSFORM_PIXEL: get("TRANSFORM_PIXEL", false),
     SIGNITEMS: get("SIGNITEMS", false),// 目前仅用在签名exe，不用于服务器
