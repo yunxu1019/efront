@@ -252,7 +252,7 @@ var autoConst = function (code, fullpath, ignoreImported) {
             continue;
         }
     }
-    var mmap = this?.["?"];
+    var mmap = this?.[":"];
     if (!mmap) return code;
     var url = mmap[fullpath];
     var upath = split(url);
