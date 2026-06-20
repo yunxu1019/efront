@@ -1,4 +1,4 @@
-var BigInt = window.BigInt;
+var BigInt = this.BigInt;
 return BigInt ? function power_(a, b) {
     if (typeof a !== 'bigint') {
         return Math.pow(a, b);
