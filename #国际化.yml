@@ -40,6 +40,15 @@
 - zh-CN: 禁用
   en:    Disable
 
+- zh-CN: $1数据库不存在！
+  en:    The $1 database does not exist!
+
+- zh-CN: 数据已过期！
+  en:    The data has expired!
+
+- zh-CN: 未登录脚本可写
+  en:    Unregistered script can be written
+
 - zh-CN: 加载$1失败，引用队列为
   en:    "Loading $1 failed, reference queue is"
 
