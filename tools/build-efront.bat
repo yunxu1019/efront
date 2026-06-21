@@ -5,10 +5,10 @@ setlocal
 pushd
 cd %~dp0..
 echo %cd%
-set coms_path=./coms
-set page_path=./coms
+set coms_path=
+set page_path=
 set public_path=./public
-set page=./
+set page=
 set app=efront/index.js
 set extt=.js
 set coms=./,reptile

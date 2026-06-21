@@ -323,6 +323,7 @@ var getFunctionHeadBeforeScoped = function (p) {
 }
 function snapAssignmentHead(o) {
     // 只检查一级
+    if (o.type === STAMP && o.prev) o = o.prev;
     while (o && getprev(o)) {
         var p = getprev(o);
         while (p.type === LABEL) {
@@ -549,11 +550,20 @@ var snapExpressFoot = function (o) {
     }
     return o;
 };
+var patchScoped = function (os, scoped) {
+    for (var u of os) {
+        u.scoped = scoped;
+        if (u.kind) {
+            while (u && !u.equal) u = u.queue;
+            if (u) u.scoped = scoped;
+        }
+    }
+};
 var createScoped = function (parsed, wash) {
     var used = Object.create(null); var vars = Object.create(null), lets = vars;
     var scoped = [], funcbody = scoped, argscope = scoped, thisscope = scoped, labelused = used;
     funcbody.isroot = true;
-    scoped.body = parsed;
+    Object.defineProperty(scoped, 'body', { value: parsed, enumerable: false, configurable: true });
     scoped.isfunc = true;
     var dec = function (map, o) {
         var kind = o.text;
@@ -917,10 +927,11 @@ var createScoped = function (parsed, wash) {
                     var n = skipAssignment(o);
                     scoped.arraw = o;
                     while (o !== n) {
-                        var n1 = run(o, 0);
+                        n1 = run(o, 0);
                         if (n1 === o || n1?.entry === "{") o = getnext(n1);
                         else o = n1;
                     }
+                    o = n1;
                 }
                 else {
                     var n = skipSentenceQueue(o);
@@ -948,6 +959,7 @@ var createScoped = function (parsed, wash) {
                             }
                         }
                         else {
+                            patchScoped(used[k], scoped);
                             caps[k] = used[k];
                         }
                     }
@@ -1007,6 +1019,7 @@ var createScoped = function (parsed, wash) {
     scoped.used = used;
     scoped.vars = vars;
     scoped.caps = used;
+    for (var k in used) patchScoped(used[k], scoped);
     var envs = Object.create(null);
     for (var u in used) {
         if (!(u in vars)) {
@@ -1086,10 +1099,9 @@ var getDeclared = function (o, kind, queue) {
                 prop = `[${prop}]`;
             }
             else if (o.isdigit) prop = `[${prop}]`;
-            else if (!/^\[[\s\S]*\]$/.test(prop)) prop = "." + prop;
-            skiped.push(o);
             var n = getnext(o);
             if (n?.type === STAMP && n.text === ":") {
+                skiped.push(o);
                 o = getnext(n);
             }
         }
@@ -1139,7 +1151,7 @@ var getDeclared = function (o, kind, queue) {
                 var n = getnext(o);
                 if (n) {
                     if (n.type === STAMP && n.text === ":" || n.type === STRAP && n.text === "as") {
-                        prop = "." + o.text;
+                        prop = o.text;
                         o = getnext(n);
                         continue;
                     }
@@ -1250,6 +1262,7 @@ var saveTo = function (used, k, o) {
 };
 
 var mergeTo = function (used, used0) {
+    if (used === used0) return;
     for (var k in used0) {
         var v = used0[k];
         if (!used[k]) used[k] = [];
@@ -1882,8 +1895,11 @@ var insertAfter = function () {
     if (next) next.prev = o;
     else queue.last = o;
 };
-var unshort = function (o, text) {
-    insertBefore.call(o.queue, o, { text: text || o.text, short: false, isprop: true, type: PROPERTY }, { text: ':', type: STAMP });
+var unshort = function (o, name) {
+    if (!name || typeof name === 'string') {
+        name = { text: name || o.text, short: false, isprop: true, type: PROPERTY };
+    }
+    insertBefore.call(o.queue, o, name, { text: ':', type: STAMP });
     o.isprop = false;
     o.type = EXPRESS;
     delete o.short;
@@ -1964,7 +1980,62 @@ var isDeclareOnly = function (o) {
     if (!n) return true;
     if (n.type !== STAMP || /^[,;]$/.test(n.text)) return true;
     return false;
-}
+};
+
+var collectArgument = function (q) {
+    var t = q.first;
+    var index = 0;
+    var args = [];
+    while (t) {
+        var n = t.next;
+        while (n && (n.type !== STAMP || n.text !== ',')) n = n.next;
+        var start = q.indexOf(t, index);
+        var end = n ? q.indexOf(n.prev, start) + 1 : q.indexOf(q.last) + 1;
+        index = end;
+        args.push(q.slice(start, end));
+        if (!n) break;
+        t = n.next;
+    }
+    return args;
+};
+
+var collectProperty = function (q) {
+    var t = q.first;
+    var defined = Object.create(null);
+    var index = 0;
+    while (t) {
+        if (!(t.type === PROPERTY || t.isprop)) {
+            t = t.next;
+            continue;
+        }
+        var n = t.next;
+        if (n && n.isprop) {
+            if (n.type & (EXPRESS | QUOTED | STRAP) || n.type === SCOPED && n.entry === '[') {
+                t = t.next;
+                continue;
+            }
+        }
+        var text = strings.decode(t.text);
+        if (t.short) {
+            defined[text] = [t];
+            t = t.next;
+            continue;
+        }
+        var n = t.next;
+        while (n && (n.type !== STAMP || n.text !== ':') && (n.type !== SCOPED || n.entry !== '(')) n = n.next;
+        if (n.type === STAMP) n = n.next;
+        var start = q.indexOf(n, index);
+        while (n && (n.type !== STAMP || n.text !== ',')) n = n.next;
+        var end = n ? q.indexOf(n.prev, start) + 1 : q.indexOf(q.last) + 1;
+        index = end;
+        while (end > start && q[end - 1].type & (SPACE | COMMENT)) end--;
+        if (text) defined[text] = q.slice(start, end);
+        var text = strings.decode(t.text);
+        if (!n) break;
+        t = n.next;
+    }
+    return defined;
+};
 
 export {
     /*   1 */COMMENT,
@@ -1996,6 +2067,8 @@ export {
     createExpressList,
     snapSentenceHead,
     pickArgument,
+    collectArgument,
+    collectProperty,
     pickSentence,
     pickExpress,
     snapAssignmentHead,

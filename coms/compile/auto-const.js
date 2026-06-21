@@ -1,5 +1,6 @@
 var isConst = a => a.kind === 'const';
 var autoiota = require("./autoiota");
+var autoprop = require("./autoprop");
 var removeFromList = require("../basic/removeFromList");
 var scanner2 = require("./scanner2");
 var strings = require("../basic/strings");
@@ -28,6 +29,9 @@ var getExported = function (code) {
         if (isConst(a)) {
             a.name = a.origin;
             consts.push(a);
+        }
+        else {
+            autoprop.addHideExp(a);
         }
     }
     return consts;
@@ -62,7 +66,7 @@ var findConsts = function (code) {
         var name = a.name;
         if (/[\.\[]/.test(name)) continue;
         var c = getAssignedConst(a, used);
-        if (c) vmap[name] = c;
+        if (c) vmap[name] = [c.type, c.text, c.isdigit];
     }
     return vmap;
 };
@@ -80,8 +84,9 @@ var setEnvDefinedConsts = function (used, k, v) {
         else {
             insertBefore(a, comment);
         }
-        a.type = v.type;
-        a.text = v.text;
+        a.type = v[0];
+        a.text = v[1];
+        if (v[2]) a.isdigit = true;
     }
 };
 var setMapDefinedConsts = function (used, k, consts) {
@@ -90,7 +95,6 @@ var setMapDefinedConsts = function (used, k, consts) {
     for (var o of u) {
         var exp = pickAssignment(o);
         var e = exp[exp.length - 1];
-        if (k === 'SAFE_CIRCLE_DEPTH') console.log(k, createString(exp))
         if (!isSimpleEqual(exp, o)) continue;
         if (e !== o) {
             if (e.prev !== o) continue;
@@ -110,9 +114,9 @@ var setMapDefinedConsts = function (used, k, consts) {
             }
             if (!t || !(t in consts)) continue;
             var c = consts[t];
-            o.type = c.type;
-            o.text = c.text;
-            if (c.isdigit) o.isdigit = true;
+            o.type = c[0];
+            o.text = c[1];
+            if (c[2]) o.isdigit = true;
             remove(e);
             continue;
         }
@@ -138,7 +142,7 @@ var loadConsts = function (fullpath, commap) {
             if (!last) return;
             var lp = last.prev;
             if (last.isdigit && (!lp || lp.type === STAMP && /^[,\=]$/.test(lp.text))) {
-                simples[fullpath] = last;
+                simples[fullpath] = [last.type, last.text, last.isdigit];
             }
         }
     }
@@ -153,8 +157,8 @@ var getOnlyString = function (q) {
     return t;
 };
 var getCopy = function (o) {
-    var a = { type: o.type, text: o.text };
-    if (o.isdigit) a.isdigit = true;
+    var a = { type: o[0], text: o[1] };
+    if (o[2]) a.isdigit = true;
     return a;
 }
 
@@ -194,7 +198,7 @@ var isSimpleEqual = function (exp, o) {
     var eq = f.equal;
     return eq === f.next && eq?.next === o;
 }
-var setRequiredConsts = function (code, upath, commap) {
+var setRequiredConsts = function (code, upath, commap, propable) {
     var requires = code.used.require;
     if (!requires) return code;
     var used = code.used;
@@ -204,7 +208,13 @@ var setRequiredConsts = function (code, upath, commap) {
         var t = getOnlyString(q);
         if (!t) continue;
         var p = getMaped(upath, commap, t);
-        if (!p) continue;
+        if (!p) {
+            if (propable) {
+                r._debug = code._debug;
+                autoprop.addKeepEnv(r);
+            }
+            continue;
+        }
         var consts = loadConsts(p, commap);
         if (!consts) continue;
         var exp = pickAssignment(r);
@@ -238,7 +248,7 @@ var setRequiredConsts = function (code, upath, commap) {
     }
     return code;
 }
-
+var proped = new Set();
 var autoConst = function (code, fullpath, ignoreImported) {
     var vmap = this?.["&"];
     var { envs, used, envs } = code;
@@ -257,13 +267,24 @@ var autoConst = function (code, fullpath, ignoreImported) {
     var url = mmap[fullpath];
     var upath = split(url);
     if (ignoreImported) return code;
+    var propable = !proped.has(fullpath);
+    if (propable) proped.add(fullpath);
     for (var k in envs) {
         if (k === 'require') {
-            setRequiredConsts(code, upath, this);
+            setRequiredConsts(code, upath, this, propable);
             continue;
         }
         p = getMaped(upath, this, k);
-        if (!p) continue;
+        if (!p) {
+            if (propable) {
+                code._debug = /color\.js$/.test(fullpath);
+                if (k !== 'exports') for (var o of used[k]) {
+                    o._debug = code._debug;
+                    autoprop.addKeepEnv(o);
+                }
+            }
+            continue;
+        }
         var consts = loadConsts(p, this);
         if (!consts) {
             var s = simples[p];
@@ -272,6 +293,7 @@ var autoConst = function (code, fullpath, ignoreImported) {
         }
         setMapDefinedConsts(used, k, consts)
     }
+    if (propable) autoprop.addKeepBody(code);
     return code;
 };
 autoConst.loadConsts = loadConsts;

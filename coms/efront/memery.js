@@ -297,6 +297,8 @@ var memery = module.exports = {
     IN_WATCH_MODE: get("IN_WATCH_MODE", false),
     ENCRYPT: get("ENCRYPT, CRYPT, ENCODE", true),
     COMPRESS: get("COMPRESS, PRESS, ENCODE"),
+    KEEPPROP: get("KEEPPROP,KEEPPROPS"),
+    HIDEPROP: get("HIDEPROP,HIDEPROPS"),
     KEEPSPACE: get("KEEPSPACE, SPACE"),
     AUTOEVAL: get("AUTOEVAL, AUTOENUM, EVAL, ENUM"),
     run2eval: get("AUTOEVAL, AUTOENUM, EVAL, ENUM", false),

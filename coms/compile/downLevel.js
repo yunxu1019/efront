@@ -8,9 +8,9 @@ var {
     snapExpressFoot, isEval, canbeTemp, rename, isHalfSentence, skipFunction, getDeclared, skipAssignment, skipSentenceQueue, createScoped, createString, splice, relink, rolink, pickSentence, snapExpressHead, needBreakBetween } = require("./common");
 var splice2 = function (q, from, to, ...a) {
     var cx = q.indexOf(from);
-    if (cx < 0) throw console.log(splice2.caller, console.format(`\r\n<red2>${i18n`自`}</red2>`), from && createString([from]), console.format(`\r\n<yellow>${i18n`至`}</yellow>`), to && createString([to]), console.format(`\r\n<cyan>${i18n`码列`}</cyan>`), createString(pickSentence(from))), i18n`结构异常`;
+    if (cx < 0) throw console.log(splice2.caller, console.format(`\r\n<red2>${i18n`自`}</red2>`), from && createString([from]), console.format(`\r\n<yellow>${i18n`至`}</yellow>`), to && createString([to]), console.format(`\r\n<cyan>${i18n`码列`}</cyan>`), createString(pickSentence(from))), new Error(i18n`结构异常`);
     var dx = to ? q.indexOf(to, cx) : q.length;
-    if (dx < 0) throw console.log(splice2.caller, console.format(`\r\n<yellow>${i18n`自`}</yellow>`), from && createString([from]), console.format(`\r\n<red2>${i18n`至`}</red2>`), to && createString([to]), console.format(`\r\n<cyan>${i18n`码列`}</cyan>`), createString(pickSentence(from))), i18n`结构异常`;
+    if (dx < 0) throw console.log(splice2.caller, console.format(`\r\n<yellow>${i18n`自`}</yellow>`), from && createString([from]), console.format(`\r\n<red2>${i18n`至`}</red2>`), to && createString([to]), console.format(`\r\n<cyan>${i18n`码列`}</cyan>`), createString(pickSentence(from))), new Error(i18n`结构异常`);
     return splice(q, cx, dx - cx, ...a);
 };
 var insert1 = function (q, r, ...a) {

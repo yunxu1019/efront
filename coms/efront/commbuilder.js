@@ -16,6 +16,13 @@ var path = require("path");
 var memery = require("./memery");
 var islive = memery.islive;
 var AUTOEVAL = memery.AUTOEVAL;
+var autoprop = require("../compile/autoprop");
+if (typeof memery.KEEPPROP === 'string') {
+    require("../basic/str2array")(memery.KEEPPROP).forEach(autoprop.addKeepName, autoprop);
+}
+if (typeof memery.HIDEPROP === 'string') {
+    require("../basic/str2array")(memery.HIDEPROP).forEach(autoprop.addHideName, autoprop);
+}
 var autoiota = require("../compile/autoiota");
 var autoeval = require("../compile/autoeval");
 var autoenum = require("../compile/autoenum");
@@ -320,7 +327,7 @@ var loadJsBody = function (data, filename, fullpath, lessdata, commName, classNa
             }
             let lm = code.used.languageMap;
             if (lm && lm[0].next && lm[0].next.next) {
-                i18ndata = i18ndata.map((a, i) => JSON.stringify(a.lang) + ":" + i).join(",");
+                i18ndata = i18ndata.map((a, i) => `[${strings.encode(a.lang)}]` + ":" + i).join(",");
                 i18ndata = scanner2(`={${i18ndata}}`)[1];
                 lm[0].next.next.push(...i18ndata);
             }

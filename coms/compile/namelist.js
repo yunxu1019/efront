@@ -120,11 +120,15 @@ var preventList = function (k) {
 var preventObject = function (k) {
     return k in this;
 };
+var preventSet = function (k) {
+    return this.has(k);
+};
 var preventNull = function () { return false };
 function namelist(count, prevent, skip) {
     var dist = [];
     if (!prevent) prevent = preventNull;
     else if (prevent instanceof Array) prevent = preventList.bind(prevent);
+    else if (prevent instanceof Set || prevent instanceof Map) prevent = preventSet.bind(prevent);
     else prevent = preventObject.bind(prevent);
     var skip0 = skip;
     for (var cy = 0, dy = counts.length; cy < dy; cy++) {
