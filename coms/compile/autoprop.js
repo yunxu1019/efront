@@ -28,7 +28,6 @@ function addKeepName(a) {
     [],
     Array.prototype,
     Uint8Array.prototype,
-    Buffer?.prototype,
     "",
     String.prototype,
     false,
@@ -40,29 +39,40 @@ function addKeepName(a) {
     function () { },
     Function.prototype,
     Promise.prototype,
-    Iterator?.prototype
 ].forEach(o => {
     if (o) for (var n of Object.getOwnPropertyNames(o)) {
         addKeepName(n);
     }
 });
-keepSet.add('callee');
-keepSet.add('null');
-keepSet.add('true');
-keepSet.add('false');
-keepSet.add('boolean');
-keepSet.add('string');
-keepSet.add('number');
-keepSet.add('function');
-keepSet.add('object');
-keepSet.add('undefined');
-keepSet.add('symbol');
-keepSet.add('get');
-keepSet.add('set');
-keepSet.add('value');
-keepSet.add('enumerable');
-keepSet.add('configurable');
-keepSet.add('require');
+[
+    'constructor', 'readBigUInt64LE', 'readBigUInt64BE', 'readBigUint64LE',
+    'readBigUint64BE', 'readBigInt64LE', 'readBigInt64BE', 'writeBigUInt64LE',
+    'writeBigUInt64BE', 'writeBigUint64LE', 'writeBigUint64BE', 'writeBigInt64LE',
+    'writeBigInt64BE', 'readUIntLE', 'readUInt32LE', 'readUInt16LE',
+    'readUInt8', 'readUIntBE', 'readUInt32BE', 'readUInt16BE',
+    'readUintLE', 'readUint32LE', 'readUint16LE', 'readUint8',
+    'readUintBE', 'readUint32BE', 'readUint16BE', 'readIntLE',
+    'readInt32LE', 'readInt16LE', 'readInt8', 'readIntBE',
+    'readInt32BE', 'readInt16BE', 'writeUIntLE', 'writeUInt32LE',
+    'writeUInt16LE', 'writeUInt8', 'writeUIntBE', 'writeUInt32BE',
+    'writeUInt16BE', 'writeUintLE', 'writeUint32LE', 'writeUint16LE',
+    'writeUint8', 'writeUintBE', 'writeUint32BE', 'writeUint16BE',
+    'writeIntLE', 'writeInt32LE', 'writeInt16LE', 'writeInt8',
+    'writeIntBE', 'writeInt32BE', 'writeInt16BE', 'readFloatLE',
+    'readFloatBE', 'readDoubleLE', 'readDoubleBE', 'writeFloatLE',
+    'writeFloatBE', 'writeDoubleLE', 'writeDoubleBE', 'asciiSlice',
+    'base64Slice', 'base64urlSlice', 'latin1Slice', 'hexSlice',
+    'ucs2Slice', 'utf8Slice', 'asciiWrite', 'base64Write',
+    'base64urlWrite', 'latin1Write', 'hexWrite', 'ucs2Write',
+    'utf8Write', 'parent', 'offset', 'copy',
+    'toString', 'equals', 'inspect', 'compare',
+    'indexOf', 'lastIndexOf', 'includes', 'fill',
+    'write', 'toJSON', 'subarray', 'slice',
+    'swap16', 'swap32', 'swap64', 'toLocaleString',
+    "callee", "null", "true", "false", "boolean", "string", "number",
+    "function", "object", "undefined", "symbol", "get", "set", "value",
+    "enumerable", "configurable", "require", "from"
+].forEach(a => keepSet.add(a));
 function addPropSeek(dec, used) {
     for (var d of dec) {
         for (var o of used[d]) addKeepEqual(o);
@@ -237,7 +247,7 @@ function addKeepCode(code) {
                 addKeepString(o.text);
                 break;
             case PROPERTY:
-                // if (o.kind) addHideName(o.text);
+            // if (o.kind) addHideName(o.text);
         }
     }
 }
