@@ -848,7 +848,7 @@ var commands = {
                 if (isdir) {
                     setenv({
                         app: memery.APP,
-                        comm: (app && /^[^\.\\\/]+$/.test(app) ? app + ',zimoli,reptile,' : `zimoli,reptile,`)
+                        comm: memery.COMM || (app && /^[^\.\\\/]+$/.test(app) ? app + ',zimoli,reptile,' : `zimoli,reptile,`)
                     });
                     return require("../build");
                 } else {
@@ -1113,6 +1113,14 @@ process.on("exit", function () {
     if (!/win32/.test(process.platform)) {
         console.log();
     }
+});
+process.on('uncaughtException', function (e) {
+    console.trace(e);
+    process.exit(1);
+});
+process.on('unhandledRejection', function (e) {
+    console.trace(e);
+    process.exit(1);
 });
 var argv = [];
 var restArgv = [];
