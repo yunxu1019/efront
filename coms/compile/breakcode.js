@@ -44,6 +44,8 @@ var trimStringLiteral = function (block) {
         return padStart(block) + setMatchedConstString(block_string) + padEnd(block);
     }
     if (block.type === block.regexp_quote_scanner) {
+        // if (/\s/.test(block_string)) console.warn(
+        //     '<red2>' + block_string + '</red2>\r\n', "<cyan>" + module_string.slice(Math.max(block.start - 160, 0), block.end) + "</cyan>");
         return padStart(block) + setMatchedConstRegExp(block_string) + padEnd(block);
     }
     if (block.type === block.template_quote_scanner) {

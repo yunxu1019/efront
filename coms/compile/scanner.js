@@ -358,7 +358,7 @@ function block_code_scanner(index, blocks = [], keepdeep = Infinity) {
                         isReg = tempIndex <= start_index || /[[|,+=*~?:&\^{\(\/><;%\-!]/.test(this[tempIndex]);
                         if (!isReg && tempIndex >= start_index + 5) {
                             var last_pice = this.slice(Math.max(tempIndex - 50, 0), tempIndex + 1);
-                            isReg = /(return|typeof|instanceof|in|new|void|delete|else)\s*$|([)};:{]|[^\.\s]\s+)(continue|break|case)\s*$/.test(last_pice);
+                            isReg = /([^\w\u0081-\u2027\u2030-\uffff]|^)(return|typeof|instanceof|in|new|void|delete|else)\s*$|([)};:{]|[^\.\s]\s+)(continue|break|case)\s*$/.test(last_pice);
                             isReg = isReg || /([)};:{]|[^\.\s]\s+)(?:continue|break)\s+([\w\u0100-\u2027\u2030-\uffff]+?)$/.test(last_pice);
                             if (!isReg && !/\r\n\u2028\u2029/.test(last_pice)) {
                                 var variabled_name_reg = /[\w\u0100-\u2027\u2030-\uffff]/;

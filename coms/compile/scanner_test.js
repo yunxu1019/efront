@@ -8,4 +8,5 @@ var res = scanner(`=
     //
     `+
     String(/^\s*@?\s*if\s+(\/i\s+)?(not\s+)?(?:(cmdextversion|errorlevel)\s+(.+?)|(.+?)\s*(\=\=|\b(?:equ|neq|lss|leq|gtr|geq)\b)\s*(.+?)|exist\s+(["])(.+?)\8|defined\s+(.+?))\s+([\s\S]*?)$/i))
+var res = scanner(`average = min / 2;`)
 console.log(res)

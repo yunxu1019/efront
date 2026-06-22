@@ -1210,8 +1210,8 @@ class Program {
             var last = queue.last || queue;
             console.warn(
                 "代码异常结束",
-                `\r\n - 祖先标记: ${parents.slice(1).map(p => `${p.entry || ""}<red2>${p.tag || p.text || ""}</red2><gray>${p.row}:${p.col}</gray>`).join('')}`,
-                `\r\n - 内层入口: <yellow>${this.mindpath}</yellow>:${queue.row}:${queue.col} ${queue.entry}`,
+                `\r\n - 祖先标记: ${parents.slice(1).map(p => `${p.entry || ""}<red2>${p.tag || p.text || p.first?.text || ''}</red2><gray>${p.row}:${p.col}</gray>`).join('')}`,
+                `\r\n - 内层入口: <yellow>${this.mindpath}</yellow>:${queue.row}:${queue.col} ${queue.entry}<red2>${queue.tag || queue.text || queue.first?.text || ''}</red2>`,
             );
             while (queue !== origin) {
                 queue.error = "代码异常结束";

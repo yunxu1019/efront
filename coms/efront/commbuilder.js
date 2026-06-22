@@ -637,10 +637,10 @@ var loadJsBody = function (data, filename, fullpath, lessdata, commName, classNa
     };
 };
 
-var buildPress2 = function (imported, params, data, args, strs, press) {
-    press = press !== false && memery.COMPRESS;
+var buildPress2 = function (imported, params, data, args, strs, fullpath) {
+    var press = memery.COMPRESS;
     if (imported.length > 0) {
-        var code = scanner2(`var [${params.concat(args || [])}];${data}`);
+        var code = scanner2(`var [${params.concat(args || [])}];${data}`, fullpath);
         if (press) code.press(memery.KEEPSPACE, press);
         else code.revar();
         params = code[1].filter(a => a.type !== code.STAMP).map(c => c.text);
@@ -653,12 +653,12 @@ var buildPress2 = function (imported, params, data, args, strs, press) {
             if (typeof s === 'string') s = strings.encode(s);
             else if (s instanceof RegExp) s = `/${s.source}/${s.flags}`;
             return `${a}=${s}`;
-        }).join(',')};${data}`);
+        }).join(',')};${data}`, fullpath);
         if (press) code.press(memery.KEEPSPACE, press);
         else code.revar();
     }
     else {
-        var code = scanner2(data);
+        var code = scanner2(data, fullpath);
         if (press) code.press(memery.KEEPSPACE, press);
         else code.revar();
     }
@@ -677,19 +677,20 @@ var rethink = function (mmap, imported, filename, fullpath) {
     });
     return realimport;
 };
-var revarCode = function (params, data) {
-    var code = scanner2(`var [${params}];${data}`);
+var revarCode = function (params, data, fullpath) {
+    var code = scanner2(`var [${params}];${data}`, fullpath);
     code.revar();
     params = code[1].filter(a => a.type !== code.STAMP).map(c => c.text);
     code.splice(0, 3);
     data = code.toString();
     return [params, data, code.occurs];
 };
-var buildResponse = function ({ imported, prequoted, params, data, required, occurs, isAsync, isYield, isBroken }, compress) {
+var buildResponse = function ({ imported, prequoted, params, data, required, occurs, isAsync, isYield, isBroken }, compress, fullpath) {
+    fullpath += "->.js";
     if (!islive && compress !== false) {
         if (memery.BREAK) var [data, args, strs] = breakcode(data, occurs), strs = `[${strs}]`;
         else args = [], strs = "[]";
-        [params, data] = buildPress2(imported, params, data, args, strs);
+        [params, data] = buildPress2(imported, params, data, args, strs, fullpath);
         if (imported.length > 0) {
             var strlength = (strs.length * 2).toString(36);
         } else {
@@ -699,7 +700,7 @@ var buildResponse = function ({ imported, prequoted, params, data, required, occ
     else {
         if (params.length > 0) {
             for (var p in occurs) if (/^[@#%\^&\?\\]/.test(p)) {
-                [params, data, occurs] = revarCode(params, data);
+                [params, data, occurs] = revarCode(params, data, fullpath);
                 break;
             }
 
@@ -1206,7 +1207,7 @@ function commbuilder(buffer, filename, fullpath, watchurls) {
                     data.data = "var " + codes.join(",") + ";\r\n" + data.data;
                 }
             }
-            data = buildResponse(data, compress);
+            data = buildResponse(data, compress, fullpath);
             data.path = fullpath;
             data.time = new Date - timeStart + (watchurls.time || 0) + (promise.time || 0);
             clear_console();
@@ -1229,7 +1230,7 @@ commbuilder.parse = function (data, filename = 'main', fullpath = './main.js', c
     else if (/\.(?:json)$/i.test(fullpath)) data = `var ${commName} = ` + data;
     else if (/\.[mc]?[tj]sx?$/i.test(fullpath)) data = replaceIncludes(data);
     var res = loadJsBody.call(this, data, filename, fullpath, null, commName, lessName, className);
-    if (breakcode || breakcode === 0) [res.params, res.data, res.occurs] = revarCode(res.params, res.data);
+    if (breakcode || breakcode === 0) [res.params, res.data, res.occurs] = revarCode(res.params, res.data, fullpath + "->.js");
     if (savedCompress === undefined) delete commbuilder.compress;
     else commbuilder.compress = savedCompress;
     AUTOEVAL = autoeval;

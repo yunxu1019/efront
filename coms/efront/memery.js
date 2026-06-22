@@ -371,8 +371,9 @@ var setDebug = function () {
         ENCRYPT: false,
         COMPRESS: -1,
         KEEPSPACE: true,
-        BREAK: false,
+        BREAK: true,
         COMMENT: true,
+        AUTOEVAL: true,
     };
     for (var k in debug) {
         if (!isHandled(_memery[k])) _memery[k] = debug[k];

@@ -464,7 +464,7 @@ module.exports = async function (responseTree) {
     commbuilder.loadonly = true;
     var mainScriptData = await commbuilder(mainScript.data, "main.js", mainScript.realpath, []);
     if (!memory.ENCRYPT) {
-        mainScriptData = scanner2(mainScriptData);
+        mainScriptData = scanner2(mainScriptData, mainScript.realpath);
         mainScriptData.helpcode = true;
         mainScriptData = mainScriptData.toString()
     }
