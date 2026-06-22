@@ -931,7 +931,6 @@ var createScoped = function (parsed, wash) {
                         if (n1 === o || n1?.entry === "{") o = getnext(n1);
                         else o = n1;
                     }
-                    o = n1;
                 }
                 else {
                     var n = skipSentenceQueue(o);

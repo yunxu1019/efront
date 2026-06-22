@@ -21,8 +21,8 @@ if (comms_root.length < comms_root_length) comms_root.push(buildinpath);
 //     } = getVariables(jst);
 //     return undeclares;
 // };
-var find = function (data) {
-    return require("../compile/scanner2")(data).getUndecleared();
+var find = function (data, fullpath) {
+    return require("../compile/scanner2")(data, fullpath).getUndecleared();
 };
 var globals = require("./globals");
 module.exports = async function (root) {
@@ -133,7 +133,7 @@ module.exports = async function (root) {
         }
         if (!/\.[cm]?[jt]sx?$/i.test(fullpath)) return;
         map[basename.replace(/\.[cm]?[jt]sx?$/i, "")] = true;
-        undeclares = find(data);
+        undeclares = find(data, fullpath);
         Object.keys(undeclares).map(k => k).forEach(k => {
             if (!needs[k]) needs[k] = [];
 
