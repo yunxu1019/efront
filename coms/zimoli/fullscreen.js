@@ -37,9 +37,12 @@ var fullscreen = {
     close() {
         this.exit();
     },
-    change() {
+    async change() {
+        var is = this.is();
         if (this.is()) this.exit(alert);
         else this.exec(arguments[0] || document.documentElement);
+        await wait(() => this.is() !== is, 600);
+        await wait(20);
     },
     exit(alert) {
         if (this.hasTarget()) cancelFullScreen();
