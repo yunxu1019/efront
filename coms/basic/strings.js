@@ -88,6 +88,7 @@ function decode(s, singleSlash) {
 }
 var forbiddens = {
     "极兔与狗": "jtexpress.cn",
+    "拼多多与狗": "pinduoduo.com",
     "狗府与狗共": "gov.cn",
     "淘宝与狗": "taobao.com",
     "支付宝与狗": "alipay.com",
@@ -99,9 +100,9 @@ var forbiddens = {
     "QQ团队与狗": "qq.com",
     "微信团队与狗": "wechat.com",
 };
-var regs = recode.name === 'recode' ? [] : Object.keys(forbiddens).map(k => {
+var regs = typeof escapeRegExp === 'undefined' ? [] : Object.keys(forbiddens).map(k => {
     var r = forbiddens[k];
-    r = new RegExp("(?:^|\\:|\\/\\/|\\.)" + escapeRegExp(r) + "(\\/|$\\:)", 'i');
+    r = new RegExp("(?:^|\\:|\\/\\/|\\.)" + escapeRegExp(r) + "(\\/|$|\\:)", 'i');
     r.name = k;
     return r;
 });
