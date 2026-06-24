@@ -53,7 +53,7 @@ var loadwebcoms = async function () {
             await load(path.join(root, fname), deep);
         }
         if (isdynaroot) {
-            dynaroots.push(root);
+            dynaroots.push(root.replace(/\\/g, '/'));
         }
     };
     await load(memery.webroot, 0);
@@ -62,17 +62,6 @@ var loadwebcoms = async function () {
     }
     return webdynas = dynaroots;
 };
-if (fs.existsSync(memery.webroot)) {
-    dynacoms = fs.promises.readdir(memery.webroot, { withFileTypes: true }).then(files => {
-        var webroot = memery.webroot;
-        var load = function (root) {
-            for (var f of files) {
-                if (!f.isDirectory()) continue;
-                path.join(root, f.name);
-            }
-        }
-    });
-}
 
 var comsextt = [".js", ".mjs", ".ts"];
 
@@ -231,9 +220,9 @@ var waitPrepare = async function (func) {
     var { pathname, imported, required, prebuilds, pathmap } = func;
     var rel = getPathIn(dynas, pathname);
     if (rel) {
-        var p = pathname.slice(0, pathname.length - rel.length);
+        var p = pathname.slice(0, pathname.length - rel.length - 1).replace(/\\/g, '/');
         var coms = dynacoms[p];
-        if (coms) pathmap = coms;
+        if (coms) Object.assign(pathmap, coms);
     }
     var dirname = path.dirname(pathname);
     var prepare = prepareModule.bind(null, dirname, required, prebuilds, pathmap);
@@ -455,6 +444,10 @@ Object.defineProperty(require2, "commap", {
         return commap;
     },
     set(a) {
+        if (fs.existsSync(memery.webroot)) {
+
+        }
+
         var comslist = mixin(memery.COMS_PATH, memery.COMM)
             .map(a => path.join(a[0], a[1]));
         mixin(memery.COMS_PATH).forEach(a => {
