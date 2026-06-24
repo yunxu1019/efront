@@ -692,7 +692,7 @@ var buildResponse = function ({ imported, prequoted, params, data, required, occ
         else args = [], strs = "[]";
         [params, data] = buildPress2(imported, params, data, args, strs, fullpath);
         if (imported.length > 0) {
-            var strlength = (strs.length * 2).toString(36);
+            var strlength = strs.length.toString(36);
         } else {
             strs = '';
         }
@@ -712,12 +712,8 @@ var buildResponse = function ({ imported, prequoted, params, data, required, occ
         _arguments.push(required.join(';'));
     }
     _arguments = _arguments.join(',');
-    var length = (_arguments.length << 1).toString(36);
-    if (length.length === 1) {
-        length = "00" + length;
-    } else if (length.length === 2) {
-        length = "0" + length;
-    }
+    var length = _arguments.length.toString(36);
+    length = 1 + length.length + length;
     if (prequoted) {
         data = prequoted.map(a => a.text).join('') + data;
     }
@@ -726,7 +722,7 @@ var buildResponse = function ({ imported, prequoted, params, data, required, occ
         if (isAsync) data = "~" + data;
     }
     // [参数长度*2 参数列表]? [字符串列表长度*2 字符串数组]? 代码块
-    data = (_arguments.length ? length + _arguments : "") + (strs && strs.length > 2 && imported.length > 0 ? strlength + strs : '') + (parseInt(data.slice(0, 3), 36) % 2 === 0 || /^\w{1,6}\[/.test(data) && parseInt(data.slice(0, 6), 36) % 2 === 0 ? ";" : "") + data;
+    data = (_arguments.length ? length + _arguments : "") + (strs && strs.length > 2 && imported.length > 0 ? strlength.length + 1 + strlength + strs : '') + (+data.charAt(0) > 1 ? ";" : "") + data;
     data = Buffer.from(data);
     data.occurs = occurs;
     data.isAsync = isAsync;

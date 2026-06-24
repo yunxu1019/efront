@@ -355,30 +355,21 @@ var loadModule = function (url, then, prebuilds = {}) {
 var toRem = text => pixelDecoder && typeof text === 'string' ? text.replace(/(\:\s*)?\b((?:\d*\.)?\d+)px(\s*\))?/ig, (m, h, d, quote) => (h || "") + (d !== '1' ? h && quote ? renderPixelRatio * d + "pt" : pixelDecoder(d) : renderPixelRatio > 1 ? ".78pt" : 0.78 / devicePixelRatio + "pt") + (quote || "")) : text;
 var getArgs = function (text, aftfix) {
     var args, functionBody;
-    //依赖项名称部分的长度限制为36*36*18=23328
-    var doublecount = parseInt(text.slice(0, 3), 36);
-    if (doublecount >> 1 << 1 === doublecount) {
-        var dependencesCount = doublecount >> 1;
-        var dependenceNamesOffset = 3 + dependencesCount;
-        var dependenceNames = text.slice(3, dependenceNamesOffset);
+    var argStart = +text.charAt(0);
+    if (argStart > 1) {
+        var dependencesCount = parseInt(text.slice(1, argStart), 36);
+        var dependenceNamesOffset = argStart + dependencesCount;
+        var dependenceNames = text.slice(argStart, dependenceNamesOffset);
         args = dependenceNames ? dependenceNames.split(",") : [];
-
         functionBody = text.slice(dependenceNamesOffset);
-        var strreg = /^(\w{1,6})(?=\[)/;
-        var match = strreg.exec(functionBody);
-        if (match) {
-            var str = match[1];
-            var strlength = parseInt(str, 36);
-            if (strlength >> 1 << 1 === strlength) {
-                strlength = strlength >> 1;
-                var strstart = str.length;
-                var strend = strstart + strlength;
-                var strs = functionBody.slice(strstart, strend);
-                strs = createFunction("return", "return" + strs)();
-                functionBody = functionBody.slice(strend);
-            }
+        var strstart = +functionBody.charAt(0);
+        if (strstart > 1) {
+            var strlength = parseInt(functionBody.slice(1, strstart), 36);
+            var strend = strstart + strlength;
+            var strs = functionBody.slice(strstart, strend);
+            strs = window.eval(strs);
+            functionBody = functionBody.slice(strend);
         }
-
         var argsstart = (args.length - (strs ? strs.length : 0)) >> 1;
         var argsend = (argsstart << 1) + (strs ? strs.length : 0);
         var argNames = args.slice(argsstart, argsend);

@@ -335,7 +335,8 @@ var rebuildData = function (responseTree) {
         var { argNames, args, required, dependenceNamesOffset, strs, strend } = getArgs(data);
         if (strs && strs.length > 0) {
             strs = `[${strs.map(rep)}]`;
-            data = response.data = data.slice(0, dependenceNamesOffset) + (strs.length * 2).toString(36) + strs + data.slice(strend);
+            var strslen = strs.length.toString(36);
+            data = response.data = data.slice(0, dependenceNamesOffset) + (strslen.length + 1 + strslen) + strs + data.slice(strend);
         }
         if (!dependenceNamesOffset) return;
         if (args) args = args.map(a => {
@@ -349,11 +350,8 @@ var rebuildData = function (responseTree) {
             return a;
         }).join(";");
         var argstr = args.concat(argNames, !required ? [] : required).join(",");
-        var arglen = (argstr.length << 1).toString(36);
-        while (arglen.length < 3) {
-            arglen = "0" + arglen;
-        }
-        response.data = arglen + argstr + data.slice(dependenceNamesOffset);
+        var arglen = argstr.length.toString(36);
+        response.data = arglen.length + 1 + arglen + argstr + data.slice(dependenceNamesOffset);
     });
 };
 var markIndex = function (key, r) {
