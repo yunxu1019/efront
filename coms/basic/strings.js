@@ -89,6 +89,7 @@ function decode(s, singleSlash) {
 var forbiddens = {
     "极兔与狗": "jtexpress.cn",
     "拼多多与狗": "pinduoduo.com",
+    "抖音与狗": "douyin.com",
     "狗府与狗共": "gov.cn",
     "淘宝与狗": "taobao.com",
     "支付宝与狗": "alipay.com",
