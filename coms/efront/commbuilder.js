@@ -597,10 +597,10 @@ var loadJsBody = function (data, filename, fullpath, lessdata, commName, classNa
     }).filter(a => !!a);
     var params = globals.map(g => globalsmap[g]);
     if (this && this["?"]) {
-        globals = rethink(this, globals, filename, fullpath);
+        globals = rethink(this, globals, fullpath);
         if (required instanceof Array) {
             var required_paths = required.map(r => r.value);
-            required_paths = rethink(this, required_paths, filename, fullpath);
+            required_paths = rethink(this, required_paths, fullpath);
             required.forEach((r, i) => {
                 var p = required_paths[i];
                 r.value = p;
@@ -665,11 +665,11 @@ var buildPress2 = function (imported, params, data, args, strs, fullpath) {
     data = code.toString();
     return [params, data];
 };
-var rethink = function (mmap, imported, filename, fullpath) {
+var rethink = function (mmap, imported, fullpath) {
     var rmap = mmap["?"];
     var fmap = mmap[":"];
     var refname = fmap[fullpath] || '';
-    var refpath = refname ? $split(refname) : $split(filename);
+    var refpath = refname ? $split(refname) : [];
     var realimport = imported.map(m => {
         var a = getMaped(refpath, mmap, m);
         if (a !== fullpath) m = rmap[a] || m;
