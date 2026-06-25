@@ -444,10 +444,6 @@ Object.defineProperty(require2, "commap", {
         return commap;
     },
     set(a) {
-        if (fs.existsSync(memery.webroot)) {
-
-        }
-
         var comslist = mixin(memery.COMS_PATH, memery.COMM)
             .map(a => path.join(a[0], a[1]));
         mixin(memery.COMS_PATH).forEach(a => {
