@@ -715,12 +715,6 @@ function list() {
     appendChild.wrapTarget(container);
     var list = ($Y === "X" ? xlist : ylist)(container, generator, $Y);
     if (!list.group) list.group = groupCount || 2;
-    if (bindSrc instanceof Array || isFunction(bindSrc?.next)) {
-        list.src = bindSrc;
-        container.go(container.index() || 0);
-    } else if (bindSrc === true) {
-        container.go(container.index() || 0);
-    }
     list.clean = function (src, old) {
         var children = (container || list).childNodes;
         children = Array.prototype.filter.call(children, c => {
@@ -736,6 +730,12 @@ function list() {
         if (src && old) children = Array.prototype.filter.call(children, c => src[c.index] !== old[c.index]);
         remove(children);
     };
+    if (bindSrc instanceof Array || isFunction(bindSrc?.next)) {
+        list.src = bindSrc;
+        container.go(container.index() || 0);
+    } else if (bindSrc === true) {
+        container.go(container.index() || 0);
+    }
     return list;
 }
 return list;
