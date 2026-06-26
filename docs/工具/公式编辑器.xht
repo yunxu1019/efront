@@ -1,10 +1,17 @@
 <style>
-    &>div {
+    &>div,
+    &>code {
         width: 50%;
         height: 100%;
         vertical-align: top;
         position: relative;
         display: inline-block;
+        overflow: hidden;
+    }
+    &{
+        display: block;
+        position: relative;
+        height: 100%;
     }
 
     button {
@@ -21,9 +28,7 @@
         padding: 20px 10px;
     }
 </style>
-<div>
-    <code @input="update()" type="mathscript" -model="mathcode"></code>
-</div>
+<code @input="update()" type="mathscript" -model="mathcode"></code>
 <div>
     <div .buttons>
         <button @click="copyml">复制MathML</button>

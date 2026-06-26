@@ -130,8 +130,8 @@
         <d -html="r"></d>
     </list>
 </bjq1>
-<scrollbar x :target="clist.parentNode"></scrollbar>
-<scrollbar y :target="clist.parentNode"></scrollbar>
+<scrollbar y :target="this.previousElementSibling"></scrollbar>
+<scrollbar x :target="clist"></scrollbar>
 <script>
     addClass(this, 上色.className);
     var coder = this;
