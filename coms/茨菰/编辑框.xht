@@ -1,6 +1,5 @@
 <style>
     & {
-        overflow: hidden;
         border-top: 0;
         border-bottom: 0;
         display: block;
@@ -8,6 +7,13 @@
         max-height: 100%;
         min-height: 6em;
     }
+
+    >bjq1 {
+        height: 100%;
+        overflow: hidden;
+        display: block;
+    }
+
 
     &.noinput {
         &:before {
@@ -27,7 +33,7 @@
 
     @ntype(@len) {
 
-        &[ntype="@{len}"] {
+        >bjq1[ntype="@{len}"] {
             @w: @len/2+1.4;
             @bg: --bgcolor;
 
@@ -66,7 +72,8 @@
     @ntype(6);
     @ntype(7);
 
-    >list {
+
+    >bjq1>list {
         display: inline-block;
         min-height: 100%;
         border-top: 6px solid #2c2d2c;
@@ -115,26 +122,28 @@
         z-index: 1;
     }
 </style>
-<编辑框 spellcheck=false e-class="上色.className" e-style="{whiteSpace:'pre'}" ntype:="codeSpan">
+<bjq1 spellcheck=false -style="{whiteSpace:'pre'}" ntype:="codeSpan">
     <list contenteditable="false" nlist# :src="(r,i) in coderows" -style="{height:codeHeight}">
         <n current:="isCurrent(i)" -bind="i+1"></n>
     </list>
     <list clist# body contenteditable:="contenteditable" :src="(r,i) in coderows" -style="{height:codeHeight}">
         <d -html="r"></d>
     </list>
-    <scrollbar x></scrollbar>
-    <scrollbar y :target="this.parentNode"></scrollbar>
-</编辑框>
+</bjq1>
+<scrollbar x :target="clist.parentNode"></scrollbar>
+<scrollbar y :target="clist.parentNode"></scrollbar>
 <script>
+    addClass(this, 上色.className);
     var coder = this;
-    onmousewheel(this, function (event) {
+    var [editor, scrollbarx, scrollbary] = this.children;
+    onmousewheel(editor, function (event) {
         if (!event.shiftKey) return;
         event.preventDefault();
         clist.scrollLeft += event.deltaY;
     });
-    vbox(this);
+    vbox(editor);
     var contenteditable = !this.readonly;
-    watch(coder, {
+    watch(editor, {
         readonly(v) {
             contenteditable = !v;
         }
@@ -150,12 +159,12 @@
     var codeHeight = '';
     var codeSpan = 1;
     var coderid = 0;
-    care(coder, async function ([text, type]) {
+    care(this, async function ([text, type]) {
         try {
-            coder.type = type;
-            await coder.setValue(text);
+            this.type = type;
+            await this.setValue(text);
         } catch {
-            if (typeof text === 'string') coder.innerHTML = 渲染.encode(text);
+            if (typeof text === 'string') editor.innerHTML = 渲染.encode(text);
         }
     });
     var reshape = function () {
@@ -164,7 +173,7 @@
         codeHeight += 'em';
         codeSpan = (coderows.length).toString().length;
     };
-    on('scroll')(coder, function () {
+    on('scroll')(editor, function () {
         nlist.refresh();
         clist.refresh();
     });
@@ -173,7 +182,7 @@
         return i >= selection[0] && i <= selection[2];
     };
     var coderows = [""], codetext = '';
-    coder.setValue = async function (text) {
+    this.setValue = async function (text) {
         codetext = text;
         var id = ++coderid;
         var colored = 上色.rows(this.type, text);
@@ -182,9 +191,9 @@
         codeHistory = [[codetext]];
         historyIndex = 0;
         reshape();
-        render.refresh(coder);
+        render.refresh(this);
     };
-    coder.getValue = function () {
+    this.getValue = function () {
         return codetext;
     };
     var selection;
@@ -274,8 +283,8 @@
                 clist.scrollLeft = anchor.offsetLeft;
             }
             anchor.parentNode.removeChild(anchor);
-            if (d.offsetTop < coder.scrollTop + clist.offsetTop) {
-                coder.scrollTop = d.offsetTop - clist.offsetTop;
+            if (d.offsetTop < editor.scrollTop + clist.offsetTop) {
+                editor.scrollTop = d.offsetTop - clist.offsetTop;
             }
         }
         if (an && fn) document_selection.setBaseAndExtent(an, ai, fn, fi);
@@ -284,7 +293,7 @@
     var 更新 = function () {
         var { scrollTop, scrollLeft } = clist;
         reshape();
-        render.refresh(coder);
+        render.refresh([clist, nlist, scrollbarx, scrollbary]);
         clist.scrollTop = scrollTop;
         clist.scrollLeft = scrollLeft;
     };
@@ -304,7 +313,7 @@
         followChar = '';
         coderid++;
         var { anchorNode, anchorOffset } = document_selection;
-        if (!coder || !anchorNode) return;
+        if (!editor || !anchorNode) return;
         while (anchorNode.nodeType === 1 || anchorOffset === 0) {
             if (anchorNode.nodeType === 1) {
                 var { childNodes } = anchorNode;
@@ -567,8 +576,9 @@
         tab(clist, direction);
         markAnchorOffset();
         pudo();
+        return;
     };
-    on("input")(coder, function (event) {
+    on("input")(editor, function (event) {
         if (event.isComposing) return;
         isInput = true;
         var id = ++coderid;
@@ -580,27 +590,25 @@
             updateCodeHtml();
             pudo();
             更新();
-            unmarkAnchorOffset();
             return;
         }
         if (id !== coderid) return;
         pudo();
         coderows = 上色.rows(coder.type, codetext);
         更新();
-        unmarkAnchorOffset();
         coderows.forEach(function (c, i) {
             var d = c.indexOf(光标);
             if (d > 0) coderows[i] = c.slice(0, d) + c.slice(d + 1);
         });
     });
-    on('keydown.space.only')(coder, fixpace);
-    on('keydown.tab.shift.prevent.only')(coder, function () {
+    on('keydown.space.only')(editor, fixpace);
+    on('keydown.tab.shift.prevent.only')(editor, function () {
         keytab(-1);
     });
-    on('keydown.tab.prevent.only')(coder, function () {
+    on('keydown.tab.prevent.only')(editor, function () {
         keytab(1);
     });
-    bind('selectionchange', document)(coder, function () {
+    bind('selectionchange', document)(editor, function () {
         if (isInput) return isInput = false;
         markAnchorOffset();
     });
@@ -608,7 +616,6 @@
         [codetext, selection] = codeHistory[historyIndex];
         coderows = 上色.rows(coder.type, codetext);
         更新();
-        unmarkAnchorOffset();
         codetext = getCodeText();
     };
     var pudo = function (markedText) {
@@ -635,16 +642,21 @@
             updo();
         }
     };
-    on('keydown.ctrl.z.prevent.only')(coder, undo);
-    on('keydown.ctrl.shift.z.prevent.only')(coder, redo);
-    on('keydown.ctrl.y.prevent.only')(coder, redo);
-    on('keydown.backspace')(coder, function (event) {
+    on('keydown.ctrl.z.prevent.only')(editor, undo);
+    on('keydown.ctrl.shift.z.prevent.only')(editor, redo);
+    on('keydown.ctrl.y.prevent.only')(editor, redo);
+    on('keydown.backspace')(editor, function (event) {
         var { firstChild, lastChild } = clist;
         if (firstChild === lastChild && !firstChild.childNodes.length) {
             event.preventDefault();
             return;
         }
     });
-    on('keydown')(coder, updatechar);
+    on('keydown')(editor, updatechar);
+    lazy(function () {
+        care(clist, function (src) {
+            if (src === coderows) unmarkAnchorOffset();
+        });
+    })();
     reshape();
 </script>

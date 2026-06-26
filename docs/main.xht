@@ -6,7 +6,6 @@
         top: 0;
         left: 0;
         right: 0;
-        margin-right: -16px;
         height: 100%;
         position: absolute;
         padding-left: var(--leftwidth);
@@ -76,7 +75,6 @@
         font-size: 16px;
         vertical-align: top;
         overflow-x: hidden;
-        overflow-y: scroll;
         position: relative;
         background: linear-gradient(#f2f4ff, 70%, #e9fff2);
     }
@@ -124,6 +122,7 @@
         :scope>menu {
 
             position: absolute;
+            position: fixed;
             z-index: -1;
 
             &[open] {
@@ -331,20 +330,12 @@
         drag.on(close, window);
     }
     render(page, scope);
-    var scrbar = scrollbar();
     on("mounted")(page, initMenus);
-    scrbar.bindTarget(scope.content);
-    page.with = scrbar;
     resizingList.set(page, function () {
         if (page.adapted === true) return;
         if (calcPixel(page.offsetWidth) < 720) return;
         page.adapted = false;
         page.adapt();
-    });
-    bind("render")(page, function () {
-        requestAnimationFrame(function () {
-            scrbar.reshape();
-        })
     });
     drag.on(scope.switch);
     css(scope.switch, data.getInstance('switch-position'));

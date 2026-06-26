@@ -13,7 +13,6 @@
     >[body] {
         border-top: 42px solid transparent;
         padding-top: 40px;
-        overflow: auto;
     }
 
 
@@ -70,12 +69,8 @@
     }
 
     [codearea]>cigu {
-        overflow: auto;
         display: block;
-        white-space: pre;
         height: 100%;
-        min-height: 100%;
-        outline: none;
     }
 
     markdown {
@@ -105,24 +100,27 @@
         <b -if="doc?.mark" w>${i18n`有文档`}</b>
         <b -if="doc?.test" t>${i18n`有测试代码`}</b>
     </h2>
-    <div body -if="tags[0].actived">
-        <container -if="doc?.url" .src="doc.url">
-        </container>
-        <p4 envs>
-            <span -if="envs?.length">
-                ${i18n`环境依赖项:`}&nbsp; <m -repeat="c in envs" -bind="c"> </m>
-            </span>
-            <span -else> ${i18n`无环境依赖项`} </span>
-        </p4>
-        <p4 imported>
-            <span -if="required?.length">
-                ${i18n`导入项:`}&nbsp;<m -repeat="c in required" -bind="c"></m>
-            </span>
-            <span -else>
-                ${i18n`无导入项`}
-            </span>
-        </p4>
-    </div>
+    <template -if="tags[0].actived">
+        <div body>
+            <container -if="doc?.url" .src="doc.url">
+            </container>
+            <p4 envs>
+                <span -if="envs?.length">
+                    ${i18n`环境依赖项:`}&nbsp; <m -repeat="c in envs" -bind="c"> </m>
+                </span>
+                <span -else> ${i18n`无环境依赖项`} </span>
+            </p4>
+            <p4 imported>
+                <span -if="required?.length">
+                    ${i18n`导入项:`}&nbsp;<m -repeat="c in required" -bind="c"></m>
+                </span>
+                <span -else>
+                    ${i18n`无导入项`}
+                </span>
+            </p4>
+        </div>
+        <scrollbar y></scrollbar>
+    </template>
     <div body codearea -elseif="tags[1].actived">
         <cigu #coder></cigu>
     </div>
