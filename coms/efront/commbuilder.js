@@ -1276,7 +1276,9 @@ commbuilder.parse = function (data, filename = 'main', fullpath = './main.js', c
     else if (/\.(?:json)$/i.test(fullpath)) data = `var ${commName} = ` + data;
     else if (/\.[mc]?[tj]sx?$/i.test(fullpath)) data = replaceIncludes(data);
     var res = loadJsBody.call(this, data, filename, fullpath, null, commName, lessName, className);
-    if (breakcode || breakcode === 0) [res.params, res.data, res.occurs] = revarCode(res.params, res.data, fullpath + "->.js");
+    if (compress === 2) [res.params, res.data] = buildPress2([], [], res.data, [], [], fullpath + "->.js");
+    else if (compress) [res.params, res.data] = buildPress2(res.imported, res.params, res.data, [], [], fullpath + "->.js");
+    else if (breakcode || breakcode === 0) [res.params, res.data, res.occurs] = revarCode(res.params, res.data, fullpath + "->.js");
     if (savedCompress === undefined) delete commbuilder.compress;
     else commbuilder.compress = savedCompress;
     AUTOEVAL = autoeval;
