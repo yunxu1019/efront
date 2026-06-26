@@ -515,7 +515,9 @@ var createModule = function (exec, originNames, compiledNames, prebuilds = {}, a
     var _this = isModuleInit ? exports : window;
     var argsPromises = argsList.filter(isThenable);
     argsList = argsList.concat(exec.strs);
-    argsList.push(exec, argsList, compiledNames || []);
+    if (compiledNames) compiledNames = compiledNames.slice();
+    else compiledNames = [];
+    argsList.push(exec, argsList, compiledNames);
     if (!argsPromises.length) {
         return exec.apply(_this, argsList);
     }
