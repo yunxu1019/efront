@@ -253,7 +253,9 @@ var shakeUser = async function (page, shakes) {
         delete user.shake;
         page.push([user]);
         await wait(function () { return page.localUser }, 10000);
-        page.send(page.localUser, 'user', user.cid);
+        await (20);
+        var { icon, cid, id, name } = page.localUser;
+        page.send({ icon, cid, id, name }, 'user', user.cid);
     }
 }
 
@@ -284,8 +286,9 @@ function chat(title = '会话窗口') {
         var cached = [], cachedi = 0;
         var userMap = null;
         var cidMap = null;
+        var userChanged = false;
         var addUser = function (m) {
-
+            userChanged = true;
             if (!userMap) {
                 cidMap = Object.create(null);
                 users.forEach((u, i) => {
@@ -369,6 +372,7 @@ function chat(title = '会话窗口') {
                 if (u.cid === ps.cid) ps.localUser = u;
             }
         }
+        if (userChanged) ps.users = users.slice();
         if (msgs.length) {
             var msgMap = Object.create(null);
             for (var m of msgs) {
@@ -509,7 +513,6 @@ function chat(title = '会话窗口') {
         call(remote = this.rid, offer) {
             if (this.calling) return;
             this.remoteRtc = isObject(remote) ? remote.cid : remote;
-            console.log(remote)
             if (typeof remote === 'string') {
                 for (var u of this.users) {
                     if (u.cid === remote) {
@@ -596,7 +599,6 @@ function chat(title = '会话窗口') {
         },
 
         send(type, content, sendto = page.rid) {
-            console.log(type, content, 'send', sendto, this.text)
             if (type instanceof Object) {
                 var msg = type;
                 if (!msg.type) msg.type = content;
