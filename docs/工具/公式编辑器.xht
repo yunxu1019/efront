@@ -1,0 +1,68 @@
+<style>
+    &>div {
+        width: 50%;
+        height: 100%;
+        vertical-align: top;
+        position: relative;
+        display: inline-block;
+    }
+
+    button {
+        padding: 0 12px;
+        margin-right: 10px;
+    }
+
+    .buttons {
+        text-align: right;
+    }
+
+    [view] {
+        background: #fff;
+        padding: 20px 10px;
+    }
+</style>
+<div>
+    <code @input="update()" type="mathscript" -model="mathcode"></code>
+</div>
+<div>
+    <div .buttons>
+        <button @click="copyml">复制MathML</button>
+        <!-- <button @click="copytp">复制图片</button> -->
+    </div>
+    <math display="block" view# -html="formular"></math>
+</div>
+<script>
+    var code = 茨菰$编辑框;
+    var formular = '';
+    var mathcode = `
+四个直角梯形的斜边围成正方形，;
+其面积的两种计算方式结果相等，;
+设上底为 x ，列方程如下;
+(8-(9-x))*(8-(9-x))
++8*(9-x)/2*4=10*10;
+(x-1)**2+16*(9-x)=100;
+x**2-2*x+1+144-16*x=100;
+x**2 - 18*x + 45 = 0;
+(x-3)*(x-15)=0;`;
+    var update = function () {
+        var c = mathcode;
+        var suanshi = compile$算式(c);
+        formular = suanshi.iscup ? math.apply(null, suanshi) : math(suanshi);
+    };
+    update();
+    var copyml = function () {
+        return copyToClipboard(formular);
+    };
+    var copytp = async function () {
+        var canvas = new OffscreenCanvas(view.clientWidth, view.clientHeight);
+        var ctx = canvas.getContext("2d");
+        ctx.drawImage(view, 0, 0, canvas.width, canvas.height);
+        try {
+        } catch {
+            alert.error("复制失败！");
+            return;
+        }
+        var b = await canvas.convertToBlob();
+        await copyToClipboard(b, 'image/png');
+    }
+</script>

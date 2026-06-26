@@ -337,6 +337,8 @@ var isFinite = function (n, post) {
     if (n["+."]) return true;
     if (n["."]) return !post || isPostFinite(n);
     if (n[".."]) return !post || isPostFinite(n);
+    n = n["*"] || n.mul || n.Mul || n.MUL;
+    if (n) return isFinite(n[0]);
     return false;
 }
 var toCell = function (eq, k) {
@@ -429,10 +431,10 @@ var toMatrix = function (origin, prev, post) {
     });
     return mrow(mtable(res, prev, post), false, 0);
 }
-function toString(obj, p, deep) {
+function toString(obj, p, deep, index) {
     if (obj instanceof Array) {
         deep++;
-        var args = obj.map(a => toString(a, deep > 1 ? 0 : p, deep));
+        var args = obj.map((a, i) => toString(a, deep > 1 ? 0 : p, deep, i));
         deep--;
         if (args instanceof Array) {
             if (deep >= 2) {
@@ -479,7 +481,7 @@ function toString(obj, p, deep) {
             var args = toString(origin, pmap[k], -1);
         }
         else var args = toString(origin, k === '/' ? 0 : pmap[k], 0);
-        var addqt = pmap[k] < p && p < pmap["**"];
+        var addqt = (pmap[k] < p || pmap[k] === p && index > 0) && (p < pmap["**"] || pmap[k] < pmap["*"]);
         if (args instanceof Array) {
             if (k === "'" && args.length === 1 && !origin[0]["["]) {
                 return mrow(args[0] + `<mo>&apos;</mo>`, p > pmap["**"], 0);
@@ -496,9 +498,9 @@ function toString(obj, p, deep) {
         }
         if (args instanceof Array) {
             if (k === '*') {
-                var bx = 0;
                 var simple = true;
                 var pisnum = isFinite(origin[0], true);
+                var bx = +pisnum;
                 var allnum = pisnum;
                 for (var cx = 1, dx = args.length; cx < dx; cx++) {
                     var o = origin[cx];
