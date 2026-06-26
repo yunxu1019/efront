@@ -909,6 +909,7 @@ async function getXhtPromise(xhtdata, filename, fullpath, watchurls, extraJs, ex
     var scope = Object.keys(Object.assign({}, scoped.vars, scoped.envs)).filter(e => e in this || e in jsused || e in xused && xused[e].length > 0);
     if (scope.length) {
         var htcode = scanner2(htmltext);
+        var htused = htcode.used;
         var jsvars = Object.assign({}, jscope.vars, scoped.vars);
         var jsenvs = jscope.envs;
         for (var k in jsvars) if (k in jsenvs) delete jsenvs[k];
@@ -968,8 +969,8 @@ async function getXhtPromise(xhtdata, filename, fullpath, watchurls, extraJs, ex
             if (!jsvars[k]) return true;
             delete jsvars[k];
             delete jscope[k];
-            var ju = jscode.used[k];
-            var hu = htcode.used[k];
+            var ju = jsused[k];
+            var hu = htused[k];
             pushu(ju, hu, k + ":undefined");
             if (ju) {
                 compile$patchlist(xhtmain + ".", ju);
@@ -981,7 +982,55 @@ async function getXhtPromise(xhtdata, filename, fullpath, watchurls, extraJs, ex
         }).concat(uscope);
         if (htmlchanged) htmltext = htcode.toString();
         scope = `var ${Object.keys(jsvars).concat(xhtmain).join(',')}={${cscope.join(",")}};`;
+        if (htmltext !== '``') {
+            var htend = 0;
+            Object.keys(htused).forEach(k => {
+                var hu = jsused[k];
+                if (!hu) return;
+                var o = hu[hu.length - 1];
+                if (htend < o.end) htend = o.end;
+            });
+            for (var c of jscode) {
+                if (c.start < htend) continue;
+                break;
+            }
+            if (c) c = skipSentenceQueue(c);
+            if (c) {
+                var htend = jscode.indexOf(c);
+                if (htend < 0) htend = jscode.length;
+            } else htend = jscode.length;
+            var htpre = [
+                { type: STAMP, text: ';' },
+                { type: SPACE, text: '\r\n' },
+            ];
+            var htaft = [
+                { type: STAMP, text: ';' },
+                { type: SPACE, text: '\r\n' },
+            ];
+            if (htend >= jscode.length) {
+                if (jscode.last.type === STAMP && jscode.last.text === ";") htpre.pop();
+                htaft = [];
+            }
+            else {
+                while (htend >= 0 && jscode[htend].type & (COMMENT | SPACE)) htend--;
+                if (jscode[htend]?.type === STAMP && jscode[htend].text === ';') htpre.shift(), htend++;
+                while (htend < jscode.length && jscode[htend].type & (COMMENT | SPACE)) htend++;
+                if (jscode[htend]?.type === STAMP && jscode[htend].text === ';') htaft = [];
+            }
+            jscode.splice(htend, 0,
+                ...htpre,
+                { text: 'this.innerHTML', type: EXPRESS },
+                { text: '=', type: STAMP },
+                ...htcode,
+                ...htaft,
+            ), htmltext = '';
+        }
         scripts = jscode.toString();
+    }
+    else {
+        scope = '';
+        var htaft = jscode.first?.type !== STAMP || jscode.first.text !== ';' ? ';' : '';
+        if (htmltext !== '``') scripts = `this.innerHTML=${htmltext}${htaft}\r\n${scripts}`, htmltext = '';
     }
     if (attributes) attributes = attributes.map(a => `elem.setAttribute("${a.name}",${a.value ? strings.recode(a.value) : '""'})`).join("\r\n");
     else attributes = '';
@@ -997,10 +1046,10 @@ async function getXhtPromise(xhtdata, filename, fullpath, watchurls, extraJs, ex
             createElement = 'document.createElement(';
     }
     if (htmltext !== '``' || attributes || tagName && jsvars[tagName] || commName && jsvars[commName]) {
-        var xhtrender = `elem.innerHTML=template;render(elem,scope);`;
+        var xhtrender = `render(elem,scope);`;
         xhtrender = async
-            ? `${xhtmain}.apply(elem,arguments).then(function([template,scope]){${xhtrender}})`
-            : `var [template,scope]=${xhtmain}.apply(elem,arguments);${xhtrender}`;
+            ? `${xhtmain}.apply(elem,arguments).then(function(scope){${xhtrender}})`
+            : `var scope=${xhtmain}.apply(elem,arguments);${xhtrender}`;
     }
     else xhtrender = `${xhtmain}.apply(elem,arguments)`;
     var entryName = commName.replace(/\-(\w)/g, (_, a) => a.toUpperCase());
@@ -1013,7 +1062,7 @@ async function getXhtPromise(xhtdata, filename, fullpath, watchurls, extraJs, ex
     var ${xhtmain}=${async}function(){
     ${scope}
     ${scripts}
-    return [${htmltext},${xhtmain}];
+    return ${xhtmain};
     };
     function ${entryName}(){
     ${createElement}
