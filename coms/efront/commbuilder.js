@@ -665,14 +665,15 @@ var buildPress2 = function (imported, params, data, args, strs, fullpath) {
     data = code.toString();
     return [params, data];
 };
+var extname = require('path').extname;
 var rethink = function (mmap, imported, fullpath) {
     var rmap = mmap["?"];
-    var fmap = mmap[":"];
+    var fmap = mmap["~"];
     var refname = fmap[fullpath] || '';
     var refpath = refname ? $split(refname) : [];
     var realimport = imported.map(m => {
         var a = getMaped(refpath, mmap, m);
-        if (a !== fullpath) m = rmap[a] || m;
+        if (a && a !== fullpath) m = rmap[a] in globalThis && extname(a) === extname(m) ? fmap[a] || m : rmap[a] || m;
         return m;
     });
     return realimport;
@@ -1008,7 +1009,7 @@ async function getXhtPromise(xhtdata, filename, fullpath, watchurls, extraJs, ex
                 { type: SPACE, text: '\r\n' },
             ];
             if (htend >= jscode.length) {
-                if (jscode.last.type === STAMP && jscode.last.text === ";") htpre.pop();
+                if (jscode.last?.type === STAMP && jscode.last.text === ";") htpre.pop();
                 htaft = [];
             }
             else {

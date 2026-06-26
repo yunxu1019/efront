@@ -132,11 +132,14 @@ async function getCommap(appname, isfront, deep = 6) {
     }
     // mer fullpath:maxname
     var mer = Object.create(null);
+    var cer = Object.create(null);
     for (var k in res) {
         var v = res[k];
-        if (v in mer && mer[v].length >= k.length) continue;
-        mer[v] = k;
+        var er = /[\/\.]/.test(k) ? mer : cer;
+        if (v in er && er[v].length >= k.length) continue;
+        er[v] = k;
     }
+    Object.defineProperty(res, "~", { value: cer, enumerable: false, writable: false, configurable: false });
     Object.defineProperty(res, "?", { value: ser, enumerable: false, writable: false, configurable: false });
     Object.defineProperty(res, "/", { value: coms, enumerable: false, writable: false, configurable: false });
     Object.defineProperty(res, ":", { value: mer, enumerable: false, writable: false, configurable: false });

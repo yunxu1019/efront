@@ -200,6 +200,7 @@ var test4 = function (JSON) {
 }
 try {
     var JSON1 = require("./JSON.js");
+    console.log(JSON0 === JSON1);
     test2(JSON1);
     test3(JSON1, '替补JSON, basic_/JSON.js');
     test3(JSON0, '原生JSON');
