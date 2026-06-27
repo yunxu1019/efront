@@ -236,8 +236,8 @@ class Matrix extends Array {
         return [this[0], this[1], this[3], this[4], this[6], this[7]];
     }
     toDOMString() {
-        if (this.size()[1] === 2) return `matrix(${this.getTransform()})`;
-        return `matrix3d(${this})`;
+        if (this.size()[1] === 2) return `matrix(${this.getTransform().map(a => +a.toFixed(6))})`;
+        return `matrix3d(${this.map(a => +a.toFixed(6))})`;
     }
 }
 
