@@ -972,13 +972,13 @@ async function getXhtPromise(xhtdata, filename, fullpath, watchurls, extraJs, ex
             delete jscope[k];
             var ju = jsused[k];
             var hu = htused[k];
-            pushu(ju, hu, k + ":undefined");
+            pushu(ju, hu, strings.encode(k) + ":undefined");
             if (ju) {
-                compile$patchlist(xhtmain + ".", ju);
+                compile$patchlist(xhtmain, ju);
             }
             if (hu) {
                 htmlchanged = true;
-                compile$patchlist(xhtmain + '.', hu);
+                compile$patchlist(xhtmain, hu);
             }
         }).concat(uscope);
         if (htmlchanged) htmltext = htcode.toString();
