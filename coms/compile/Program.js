@@ -82,6 +82,7 @@ var setObject = function (o) {
                 case "=":
                     var p = m.prev;
                     if (p?.isprop) needproperty = false;
+                    if (p?.type === PROPERTY) p.short = true;
                 default:
                     if (needproperty) m.isprop = true;
                     continue;
