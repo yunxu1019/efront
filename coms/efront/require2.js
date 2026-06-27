@@ -230,8 +230,13 @@ var waitPrepare = async function (func) {
     if (required instanceof Array) for (var a of required) await prepare(a);
 };
 var createFunction = function (data, pathname, fullpath, prebuilds) {
-    var content = String(data);
-    var parsed = commparse.call(commap, content, pathname, fullpath);
+    if (/\.png$/i.test(fullpath)) {
+        var parsed = pngencode.readjs(data);
+    }
+    else {
+        var content = String(data);
+        var parsed = commparse.call(commap, content, pathname, fullpath);
+    }
     var func = createFromParsed(parsed, fullpath, prebuilds);
     return func;
 };

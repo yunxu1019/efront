@@ -148,14 +148,14 @@ function getBuildInfo(url) {
                         realpath = null;
                     }
                 }
-                destpath = path.join("#abpi", name + '.js');
+                destpath = path.join("#abpi", name + '.png');
                 type = "+";
                 break;
             case "-":
                 isback = true;
                 searchname = name.replace(/(\w)\$/g, "$1/");
                 builder = backbuilder;
-                destpath = path.join("#aapi", name + '.js');
+                destpath = path.join("#aapi", name + '.png');
                 type = '-';
                 searchpath = aapis_root;
                 break;
