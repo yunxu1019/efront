@@ -108,3 +108,5 @@ testCrateString(
     'new class a extends()=>{}{};return'
 )
 testCrateString('if(true){}a:do{break a}white(true)')
+common.createString.debug = true;
+testCrateString('`${getobjname()},`')

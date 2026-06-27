@@ -1532,7 +1532,7 @@ var createString = function (parsed) {
                     o.forEach(run);
                     var p = getprev(o);
                     if (p?.type === STRAP && /^for$/.test(p.text));
-                    else if (/^[,;]$/.test(result[result.length - 1]) && autospace && !keepspace) {
+                    else if (lasttype !== PIECE && /^[,;]$/.test(result[result.length - 1]) && autospace && !keepspace) {
                         var last = o.last;
                         var lp = last && getprev(last);
                         if (!lp) result.pop();
