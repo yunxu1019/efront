@@ -583,13 +583,20 @@ var autofire = function (key, lazy) {
     var h = on(key);
     handlersMap["on" + key] = function (target, handle) {
         var off = h(target, handle);
-        if (!off.dulp && isMounted(target)) Promise.resolve().then(function () {
+        if (lazy) {
+            if (!off.dulp && isMounted(target)) Promise.resolve().then(function () {
+                if (!off.dulp && isMounted(target)) {
+                    handle.call(target);
+                }
+            });
+        }
+        else {
             if (!off.dulp && isMounted(target)) {
                 handle.call(target);
             }
-        });
+        }
         return off;
     };
 };
-autofire('mounted');
+autofire('mounted', true);
 autofire('append');
