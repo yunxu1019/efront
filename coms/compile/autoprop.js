@@ -258,14 +258,23 @@ function addKeepBody(code) {
         used.this.forEach(addKeepEnv);
     }
 }
+var disabled = false;
 function autoprop(text, addhidden) {
     text = strings.decode(text);
-    if (keepSet.has(text)) return strings.encode(text);
+    if (disabled || keepSet.has(text)) return strings.encode(text);
     if (addhidden) addHideName(text);
     if (hideMap.has(text)) return hideMap.get(text);
     return strings.encode(text);
 }
 module.exports = autoprop;
+Object.defineProperty(autoprop, 'disabled', {
+    get() {
+        return disabled;
+    },
+    set(v) {
+        disabled = v;
+    }
+})
 autoprop.addKeepName = addKeepName;
 autoprop.addHideName = addHideName;
 autoprop.addKeepEnv = addKeepEnv;
