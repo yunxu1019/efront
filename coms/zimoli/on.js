@@ -579,12 +579,14 @@ var invoke = function (event, type, pointerType) {
  * @param {Element} target 
  * @param {Function} handle 
  */
-var autofire = function (key) {
+var autofire = function (key, lazy) {
     var h = on(key);
     handlersMap["on" + key] = function (target, handle) {
         var off = h(target, handle);
         if (!off.dulp && isMounted(target)) {
-            handle.call(target);
+            Promise.resolve().then(function () {
+                handle.call(target);
+            });
         }
         return off;
     };
