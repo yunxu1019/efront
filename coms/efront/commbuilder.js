@@ -1,7 +1,8 @@
 "use strict";
 var {
     COMMENT, SCOPED, STAMP, STRAP, QUOTED,
-    splice, insertAfter, skipAssignment, skipSentenceQueue,
+    createString,
+    splice, insertAfter, skipAssignment, skipSentenceQueue, snapSentenceHead,
     VALUE, EXPRESS, SCOPED, SPACE
 } = require("../compile/common");;
 var showMemery = require("./showMemery");
@@ -988,17 +989,20 @@ async function getXhtPromise(xhtdata, filename, fullpath, watchurls, extraJs, ex
             Object.keys(htused).forEach(k => {
                 var hu = jsused[k];
                 if (!hu) return;
+                if (k in jsenvs) return;
                 var o = hu[hu.length - 1];
                 if (htend < o.end) htend = o.end;
             });
             for (var c of jscode) {
-                if (c.start < htend) continue;
-                break;
+                if (c.start >= htend) break;
             }
-            if (c) c = skipSentenceQueue(c);
             if (c) {
-                var htend = jscode.indexOf(c);
-                if (htend < 0) htend = jscode.length;
+                if (c) c = c.prev ? skipSentenceQueue(c.prev) : null;
+                if (c) {
+                    var htend = jscode.indexOf(c);
+                    if (htend < 0) htend = jscode.length;
+                }
+                else htend = 0;
             } else htend = jscode.length;
             var htpre = [
                 { type: STAMP, text: ';' },
@@ -1013,10 +1017,12 @@ async function getXhtPromise(xhtdata, filename, fullpath, watchurls, extraJs, ex
                 htaft = [];
             }
             else {
-                while (htend >= 0 && jscode[htend].type & (COMMENT | SPACE)) htend--;
-                if (jscode[htend]?.type === STAMP && jscode[htend].text === ';') htpre.shift(), htend++;
                 while (htend < jscode.length && jscode[htend].type & (COMMENT | SPACE)) htend++;
                 if (jscode[htend]?.type === STAMP && jscode[htend].text === ';') htaft = [];
+                do { htend--; } while (htend > 0 && jscode[htend].type & (COMMENT | SPACE));
+                if (htend <= 0) htend = 0, htpre = [];
+                else if (jscode[htend]?.type === STAMP && jscode[htend].text === ';') htpre.shift(), htend++;
+                else if (jscode[htend]?.type & ~(SPACE | COMMENT)) htend++;
             }
             jscode.splice(htend, 0,
                 ...htpre,
