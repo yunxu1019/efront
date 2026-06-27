@@ -247,7 +247,7 @@ function addKeepCode(code) {
                 addKeepString(o.text);
                 break;
             case PROPERTY:
-            // if (o.kind) addHideName(o.text);
+                if (/^#/.test(o.text)) addHideName(o.text);
         }
     }
 }
@@ -258,9 +258,10 @@ function addKeepBody(code) {
         used.this.forEach(addKeepEnv);
     }
 }
-function autoprop(text) {
+function autoprop(text, addhidden) {
     text = strings.decode(text);
     if (keepSet.has(text)) return strings.encode(text);
+    if (addhidden) addHideName(text);
     if (hideMap.has(text)) return hideMap.get(text);
     return strings.encode(text);
 }

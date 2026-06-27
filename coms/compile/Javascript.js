@@ -491,7 +491,7 @@ function detour(o, ie) {
                     var [, varname] = match;
                     o.hidden = varname;
                 }
-                text = text.replace(/\.([^\.\[\!\=\:]+)/g, (_, a) => ie === undefined || context.strap_reg.test(a) || /#/.test(a) ? `[${autoprop(a)}]` : _);
+                text = text.replace(/\.([^\.\[\!\=\:]+)/g, (_, a) => ie === undefined || context.strap_reg.test(a) || /^#/.test(a) ? `[${autoprop(a, hidden)}]` : _);
                 if (hasdot) text = "..." + text;
                 o.text = text;
                 break;
@@ -589,7 +589,9 @@ function detour(o, ie) {
                         text.isprop = true;
                     }
                     else if (ie !== false) {
-                        collectProperty(o, o.text = strings.recode(o.text));
+                        if (!o.short) o.text = strings.recode(o.text);
+                        else text = strings.recode(o.text);
+                        collectProperty(o, o.text);
                     }
                     if (text) {
                         if (o.short) {
@@ -603,7 +605,6 @@ function detour(o, ie) {
                 else if (o.queue.isClass) {
                     if (o.text === 'constructor') break;
                     var hidden = /^#/.test(o.text);
-                    if (hidden) o.hidden = true;
                     if (o.prev) {
                         var prev = o.prev;
                         if (prev && prev.isprop && !prev.isend && propresolve_reg.test(prev.text)) {
@@ -612,7 +613,8 @@ function detour(o, ie) {
                         if (prev && prev.type === STAMP && prev.isprop) prev = prev.prev;
                         if (prev && (prev.type !== STAMP || prev.text !== ';')) insertAfter(prev, { text: ';', type: STAMP });
                     }
-                    replace(o, o = scan(`[${autoprop(o.text)}]`)[0]);
+                    replace(o, o = scan(`[${autoprop(o.text, hidden)}]`)[0]);
+                    if (hidden) o.hidden = hidden;
                     o.isprop = true;
                     if (o.next && o.next.type === SCOPED && o.next.entry === "(") { }
                     else if (!o.next || o.next.type !== STAMP || o.next.text !== "=") {

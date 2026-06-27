@@ -597,7 +597,7 @@ function toComponent(responseTree, isWebProject) {
         r[T[${getEncodedIndex(`cache`)}]()] = s[${getEncodedIndex('require', "builtin") - 1}][T[${getEncodedIndex('cache')}]()];
         r[T[${getEncodedIndex(`resolve`)}]()] = s[${getEncodedIndex('require', "builtin") - 1}][T[${getEncodedIndex('resolve')}]()];
         return r;
-    }`: `function (){ return function (i, a) { return a in T[i] ? T[i][a] : T[i](a) } }`};` : ""}
+    }`: `function (){ return function (i, a) { return a in T[i] ? T[i][a] : T[i](a) } }`}` : ""};
     else R = function (Q, A) {${outsideAsync ? `
         var C = [];` : ''}
         if (E === c + 1 || M === c + 1) return s[c][0];

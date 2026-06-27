@@ -201,7 +201,7 @@ assert(downLevel(`=[a,b,...c,d,e,f,...g]`), `var &slice = Array["prototype"]["sl
 assert(downLevel(`=[a,b,...c,d,...e]`), `var &slice = Array["prototype"]["slice"];\r\n= [a, b]["concat"](&slice["call"](c), [d], &slice["call"](e))`)
 assert(downLevel(`a(...b)`), `a["apply"](null, b)`)
 assert(downLevel(`a(..."b,c".split(","))`), `a["apply"](null, "b,c".split(","))`)
-assert(downLevel(`new a(...args)`), `var &slice = Array["prototype"]["slice"];\r\nnew (a['bind']['apply'](a, [null]["concat"](&slice["call"](args))))`)
+assert(downLevel(`new a(...args)`), `var &slice = Array["prototype"]["slice"];\r\nnew(a['bind']['apply'](a, [null]["concat"](&slice["call"](args))))`)
 assert(downLevel(`a(c,d,e,...b(...c))`), `var &slice = Array["prototype"]["slice"];\r\na["apply"](null, [c, d, e]["concat"](&slice["call"](b["apply"](null, c))))`)
 assert(downLevel(`a(c,d,e,...b.a(...c))`), `var &slice = Array["prototype"]["slice"];\r\na["apply"](null, [c, d, e]["concat"](&slice["call"](b.a["apply"](b, c))))`)
 assert(downLevel(`a(c,d,e,...b.a.c(...c))`), `var &slice = Array["prototype"]["slice"];\r\na["apply"](null, [c, d, e]["concat"](&slice["call"]((_ = b.a).c["apply"](_, c))))\r\nvar _`)
@@ -518,14 +518,14 @@ assert(downLevel(`a(a,)`), `a(a)`);
 assert(downLevel(`class{a=[...presets.source]}`), `var &slice = Array["prototype"]["slice"];
 function () { this.a = &slice["call"](presets.source) }`);
 assert(downLevel(`class{a=a=>a}`), `function () { this.a = function (a) { return a } }`);
-downLevel.debug = true; i++;
 assert(downLevel(`class{a}`), "function () { this.a = undefined; }");
 assert(downLevel(`class{a;}`), "function () { this.a = undefined; }");
 assert(downLevel(`class{#a;a(){a=this.#a}}`), `function (cls0) { cls0["prototype"].a = function () { a = this.#a }
 return cls0 }(function () { this.#a = undefined; })`);
+downLevel.debug = true; i++;
 tmp = scanner2(`class{#a;a(){a=this.#a}}`), tmp.detour(), i++;
-assert(downLevel.code(tmp).toString(), `var # = new WeakMap function (cls0) { cls0["prototype"]["a"] = function () { a = #["get"](this)["#a"] }
-return cls0 }(function () { #["set"](this, {}); #["get"](this)["#a"] = undefined; })`);
+assert(downLevel.code(tmp).toString(), `var # = new WeakMap function (cls0) { cls0["prototype"]["a"] = function () { a = #["get"](this)["a"/* #a */] }
+return cls0 }(function () { #["set"](this, {}); #["get"](this)["a" /* #a */] = undefined; })`);
 downLevel.debug = false; i++;
 assert(downLevel(`class{ get a(){[...a]}}`), `var &slice = Array["prototype"]["slice"];
 function (cls0) {

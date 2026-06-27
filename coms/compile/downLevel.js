@@ -76,7 +76,8 @@ var killdec = function (queue, i, getobjname, _var = 'var', killobj, islet) {
                 while (iter.index < inc) iter.next();
                 k = iter.tname + `["value"]`;
             }
-            else k = tmpname + k;
+            else if (/^[\[\.]/.test(k)) k = tmpname + k;
+            else k = tmpname + "." + k;
         }
         if (v.attributes) {
             tmpname = k;
@@ -207,7 +208,7 @@ var killdec = function (queue, i, getobjname, _var = 'var', killobj, islet) {
             var map = Object.create(null);
             d.attributes.forEach((b, i) => {
                 var a = b[0];
-                if (/^\./.test(a)) a = JSON.stringify(a.slice(1));
+                if (/^\./.test(a)) a = strings.recode(a.slice(1));
                 else if (/^\[[\s\S]*\]$/.test(a)) {
                     var t = scanner2(a)[0].first;
                     if (!t.next && (t.type === EXPRESS || t.type === QUOTED || t.type === VALUE)) {
@@ -219,6 +220,7 @@ var killdec = function (queue, i, getobjname, _var = 'var', killobj, islet) {
                         a = n;
                     }
                 }
+                else a = strings.recode(a);
                 map[a] = a;
             });
             d.attributes.forEach(dec);
@@ -243,6 +245,7 @@ var killdec = function (queue, i, getobjname, _var = 'var', killobj, islet) {
         if (!d || d.attributes.length !== 1 || d["..."]) return;
         var [k, v, q, f1, f2] = d.attributes[0];
         if (rootenvs.Symbol && /^\[\d+\]$/.test(k)) return;
+        if (!/^[\[\.]/.test(k)) k = "." + k;
         p += k;
         if (!v.attributes) return [p, v, q, f1, f2];
         return single(v, p);
