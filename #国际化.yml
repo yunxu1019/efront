@@ -40,6 +40,9 @@
 - zh-CN: 禁用
   en:    Disable
 
+- zh-CN: 公式编辑器
+  en:    Formula Editor
+
 - zh-CN: $1数据库不存在！
   en:    The $1 database does not exist!
 
