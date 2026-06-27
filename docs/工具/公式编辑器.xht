@@ -8,7 +8,8 @@
         display: inline-block;
         overflow: hidden;
     }
-    &{
+
+    & {
         display: block;
         position: relative;
         height: 100%;
@@ -27,14 +28,28 @@
         background: #fff;
         padding: 20px 10px;
     }
+
+    [img] {
+        background: #fff;
+        text-align: right;
+    }
+
+    img {
+        width: auto;
+        height: 220px;
+    }
 </style>
 <code @input="update()" type="mathscript" -model="mathcode"></code>
 <div>
     <div .buttons>
         <button @click="copyml">复制MathML</button>
+        <button @click="eximg">更换图片</button>
         <!-- <button @click="copytp">复制图片</button> -->
     </div>
     <math display="block" view# -html="formular"></math>
+    <div img>
+        <img :src="imgsrc" />
+    </div>
 </div>
 <script>
     var code = 茨菰$编辑框;
@@ -55,9 +70,40 @@ x**2 - 18*x + 45 = 0;
         formular = suanshi.iscup ? math.apply(null, suanshi) : math(suanshi);
     };
     update();
+    var m1 = matrix.create2d(0).rotate(Math.PI / 2, [11, 11]);
+    var m2 = matrix.create2d(0).rotate(Math.PI, [11, 11]);
+    var m3 = matrix.create2d(0).rotate(Math.PI * 1.5, [11, 11]);
+    var m4 = matrix.create2d(0).rotate(Math.PI * 2, [11, 11]);
+    var imgsrc = `data:image/svg+xml;base64,` + btoa(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 23 22" version="1.1">
+<polyline points="1 18 10 18 4 10 1 10 1 18" transform="${m1.toDOMString()}" stroke="#000" fill="transparent" stroke-width=".1"/>
+<polyline points="1 18 10 18 4 10 1 10 1 18" transform="${m2.toDOMString()}" stroke="#000" fill="transparent" stroke-width=".1"/>
+<polyline points="1 18 10 18 4 10 1 10 1 18" transform="${m3.toDOMString()}" stroke="#000" fill="transparent" stroke-width=".1"/>
+<polyline points="1 18 10 18 4 10 1 10 1 18" transform="${m4.toDOMString()}" stroke="#000" fill="transparent" stroke-width=".1"/>
+<line x1="10" y1="18" x2="10" y2="9.6" transform="${m1.toDOMString()}" stroke="#000" fill="transparent" stroke-width=".1" stroke-dasharray=".6,.3" />
+<line x1="10" y1="18" x2="10" y2="9.6" transform="${m2.toDOMString()}" stroke="#000" fill="transparent" stroke-width=".1" stroke-dasharray=".6,.3" />
+<line x1="10" y1="18" x2="10" y2="9.6" transform="${m3.toDOMString()}" stroke="#000" fill="transparent" stroke-width=".1" stroke-dasharray=".6,.3" />
+<line x1="10" y1="18" x2="10" y2="9.6" transform="${m4.toDOMString()}" stroke="#000" fill="transparent" stroke-width=".1" stroke-dasharray=".6,.3" />
+<text x="2.5" y="11.4" font-style="italic" font-family="Times,sansif" font-size="1.6" fill='#000'>x</text>
+<text x="6.2" y="11.4" font-family="Times,sansif" font-size="1.6" fill='#000'>
+    <tspan>9 &\#8722; </tspan>
+    <tspan font-style="italic">x</tspan>
+</text>
+<text x="0" y="14.6" font-family="Times,sansif" font-size="1.6" fill='#000'>8</text>
+<text x="5" y="19.4" font-family="Times,sansif" font-size="1.6" fill='#000'>9</text>
+<text x="5" y="14.6" font-family="Times,sansif" font-size="1.6" fill='#000'>10</text>
+</svg>`);
     var copyml = function () {
         return copyToClipboard(formular);
     };
+    var eximg = async function () {
+        var files = await chooseFile('image/*', false);
+        if (!files) return;
+        var [f] = files;
+        if (/^blob\:/.test(imgsrc)) {
+            URL.revokeObjectURL(imgsrc);
+        }
+        imgsrc = URL.createObjectURL(f);
+    }
     var copytp = async function () {
         var canvas = new OffscreenCanvas(view.clientWidth, view.clientHeight);
         var ctx = canvas.getContext("2d");
