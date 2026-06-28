@@ -32,7 +32,15 @@ var qt = (t, a, args) => {
         a = t(a, b);
     }
     return a;
-}
+};
+
+var pt = (t, a, args) => {
+    var b = args.pop();
+    while (args.length) {
+        b = t(args.pop(), b);
+    }
+    return t(a, b);
+};
 
 var 三角函数 = {
     "sin"(a, n) {
@@ -235,7 +243,7 @@ var unarymap = {
 };
 var puncmap = {
     "**"(a, ...args) {
-        return qt((a, b) => `<msup>${a}${b}</msup>`, a, args);
+        return pt((a, b) => `<msup>${a}${b}</msup>`, a, args);
     },
     "/"(a, ...args) {
         while (args.length) {
@@ -417,7 +425,6 @@ var makemap = {
         return toMatrix(origin, '[', ']');
     },
     "^|"(origin, p, deep) {
-        console.log(origin);
         if (origin instanceof Array) return toMatrix(origin, '|', '|');
         return mrow(funcmap.abs(toString(origin[0])), false, 0);
     },
@@ -454,19 +461,6 @@ function toString(obj, p, deep, index) {
         if (k in makemap) {
             return makemap[k](origin, p, deep);
         }
-        if (k === '**') {
-            if (origin instanceof Array) {
-                var [left, right] = origin;
-                if (left instanceof Object && !(left instanceof Array)) {
-                    for (var k1 in left) break;
-                    if (!(left[k1] instanceof Array)) {
-                        var obj = mi2(k1, toString(left[k1], pmap["*"], 0), toString(right));
-                        return mrow(obj, p >= pmap["**"], deep);
-                    }
-                }
-            }
-        }
-
         if (k in 三角函数) {
             if (origin instanceof Array) {
                 var args = origin.map(a => toString(a, pmap["*"], 0));
@@ -477,11 +471,28 @@ function toString(obj, p, deep, index) {
             }
             return mrow(obj, p >= pmap["**"], deep);
         }
+        if (k === '**') {
+            if (origin instanceof Array) {
+                var [left, right] = origin;
+                if (left instanceof Object && !(left instanceof Array)) {
+                    for (var k1 in left) break;
+                    if (!(left[k1] instanceof Array)) {
+                        var obj = mi2(k1, toString(left[k1], pmap["*"], 0), toString(right));
+                        return mrow(obj, p >= pmap["**"], deep);
+                    }
+                    left = toString(left);
+                    right = toString(right);
+                    return puncmap["**"](`<mrow><mo>(</mo>${left}<mo>)</mo></mrow>`, right);
+
+                }
+            }
+        }
+
         if (k === '+.') {
             var args = toString(origin, pmap[k], -1);
         }
         else var args = toString(origin, k === '/' ? 0 : pmap[k], 0);
-        var addqt = (pmap[k] < p || pmap[k] === p && index > 0) && (p < pmap["**"] || pmap[k] < pmap["*"]);
+        var addqt = (pmap[k] < p || pmap[k] === p && index > 0) && p < pmap["**"];
         if (args instanceof Array) {
             if (k === "'" && args.length === 1 && !origin[0]["["]) {
                 return mrow(args[0] + `<mo>&apos;</mo>`, p > pmap["**"], 0);

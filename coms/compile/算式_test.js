@@ -1,4 +1,4 @@
-var JSON = require('../basic_/JSON')
+var JSON = require('../basic_/JSON.js')
 var t = function (text, want) {
     算式.debug = t.debug;
     var obj = 算式(text);
@@ -30,8 +30,17 @@ t(`group(
 )`)
 t(`a + -2`);
 t(`2+3i`);
-t.debug = true;
 t(`@1`);
 t(`#1`);
 t(`_1`);
 t("1*|11|")
+t(`a**b**c`)
+t(`a**(b**c)`)
+t(`(a**b)**c`)
+t("sin theta *2")
+t("sin (theta ** 2)")
+t("sin (theta) ** 2")
+t("(sin theta) ** 2")
+t("sin (alpha+beta)=sin alpha * cos beta+cos alpha*sin beta")
+t.debug = true;
+t("sin (alpha+beta)=sin(alpha)*cos(beta)+cos(alpha)*sin(beta)")

@@ -1,5 +1,6 @@
 const {
     STAMP, EXPRESS, SCOPED,
+    STRAP, LABEL, VALUE, SPACE, COMMENT, QUOTED,
     createExpressList,
     skipAssignment,
     createScoped,
@@ -63,7 +64,7 @@ var make = function (pt, left, right) {
     if (isNull(right)) {
         return { [pt]: left instanceof Array && left.iscup ? left : [left] };
     }
-    if (left[pt]) {
+    if (left[pt] && pt !== "**") {
         left[pt].push(right);
         return left
     }
@@ -163,7 +164,7 @@ var toFlat = function (exp) {
         if (e.type & (STAMP | STRAP)) {
             if (e.text === '.') e.text = "+.";
             var p = pmap[e.text] || 0;
-            if ((!p0 || p > p0 || !left.length) && !e.ion) {
+            if ((!p0 || p > p0 || p >= pmap["**"] || !left.length) && !e.ion) {
                 cache.push(left, e.text, p0);
                 left = [];
                 left.iscup = true;
@@ -212,7 +213,14 @@ var toFlat = function (exp) {
                 }
                 else {
                     if (args.length === 1) args = args[0];
-                    left.push(args);
+                    if (cache.length && p0 === pmap["new"]) {
+                        var p = cache.pop();
+                        var f = cache.pop();
+                        left = cache.pop();
+                        left.push({ [f]: args });
+                        p0 = p;
+                    }
+                    else left.push(args);
                 }
             }
             else if (e.entry === '[') {
