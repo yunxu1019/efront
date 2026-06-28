@@ -179,10 +179,46 @@ function calc_(arg1, punc, arg2) {
 }
 
 var isNone = a => a == null || a !== a;
-
+var make_ = function (body, bx, cx, pt, a) {
+    var o = body[bx];
+    if (pt) {
+        switch (pt.text) {
+            case "-":
+                if (isNone(a)) return cx;
+            case "+":
+                if (isNone(a)) return cx;
+                if (/^-/.test(a)) {
+                    pt.text = '-';
+                    a = a.slice(1);
+                }
+                else {
+                    pt.text = '+';
+                }
+                setvalue(o, a);
+                break;
+            case "/":
+                if (isNone(a)) return cx;
+            case "*":
+                if (isNone(a)) return cx;
+                setvalue(o, a);
+                pt.text = "*";
+                break;
+            default:
+                if (isNone(a)) return cx;
+                setvalue(o, a);
+                break;
+        }
+    }
+    else {
+        if (isNone(a)) return cx;
+        setvalue(o, a);
+    }
+    bx = bx + 1;
+    body.splice(bx, cx - bx);
+    return bx;
+}
 var make = function (body, bx, cx, pt) {
     var p = pt && powermap[pt.text];
-    if (p <= powermap[">>>"] && p > powermap['=']) return cx;
     var bd = body.slice(bx, cx);
     var bd = bd.filter(a => a.type & ~(COMMENT | SPACE));
     if (bd.length < 2) return cx;
@@ -207,15 +243,57 @@ var make = function (body, bx, cx, pt) {
     var c = bd.pop();
     c = c.text;
     var b = bd.pop();
-    while (bd.length >= 3) {
+    var pp = powermap["**"];
+    a: while (bd.length >= 3) {
         if (b.unary) {
             c = calc('', b.text, c);
             b = bd.pop();
             continue;
         }
+        var bt = b.text;
+        var pb = powermap[bt];
+        if (pb < pp) {
+            var m = bd[bd.length - 2];
+            if (m && powermap[m.text] === pb) {
+                if (!pt || powermap[pt.text] < pb) for (var cy = bd.length - 4; cy >= 0; cy -= 2) {
+                    var p2 = powermap[bd[cy].text];
+                    if (p2 < pb) {
+                        cy += 2;
+                        var a = bd[cy - 1].text;
+                        var d = bd[cy];
+                        break;
+                    }
+                }
+                else var cy = -1;
+                var by = cy;
+                if (cy < 0) {
+                    if (!pt) {
+                        cy += 2;
+                        a = bd[cy - 1].text || '';
+                        d = bd[cy];
+                    }
+                    else {
+                        a = '';
+                        d = pt;
+                    }
+                }
+                while (cy < bd.length) {
+                    a = calc(a, d.text, bd[cy + 1].text);
+                    cy += 2;
+                    d = bd[cy];
+                }
+                if (by < 0) return make_(body, bx, cx, pt, calc(a, b.text, c));
+                c = calc(a, b.text, c);
+                bd.splice(by, bd.length - by);
+                a = bd.pop();
+                b = bd.pop();
+                a = a.text;
+                continue a;
+            }
+        }
         var a = bd.pop();
         a = a.text;
-        c = calc(a, b.text, c);
+        c = calc(a, bt, c);
         b = bd.pop();
     }
     while (b?.unary) {
@@ -232,48 +310,16 @@ var make = function (body, bx, cx, pt) {
     var a = bd.pop();
     a = a.text;
     b = b.text;
-
-    if (pt) {
-        switch (pt.text) {
-            case "-":
-                a = calc("", "-", a);
-                if (isNone(a)) return cx;
-            case "+":
-                var value = calc(a, b, c);
-                if (isNone(value)) return cx;
-                if (/^-/.test(value)) {
-                    pt.text = '-';
-                    value = value.slice(1);
-                }
-                else {
-                    pt.text = '+';
-                }
-                setvalue(o, value);
-                break;
-            case "/":
-                a = calc('', '/', a);
-                if (isNone(a)) return cx;
-            case "*":
-                var value = calc(a, b, c);
-                if (isNone(value)) return cx;
-                setvalue(o, value);
-                pt.text = "*";
-                break;
-            default:
-                var value = calc(a, b, c);
-                if (isNone(value)) return cx;
-                setvalue(o, value);
-                break;
-        }
+    if (pt) switch (pt.text) {
+        case "-":
+            a = calc('', "-", a);
+            break;
+        case "/":
+            a = calc('', '/', a);
+            break;
     }
-    else {
-        var v = calc(a, b, c);
-        if (isNone(v)) return cx;
-        setvalue(o, v);
-    }
-    bx = bx + 1;
-    body.splice(bx, cx - bx);
-    return bx;
+    a = calc(a, b, c);
+    return make_(body, bx, cx, pt, a);
 }
 var mathEnabled = false;
 var numberEnabled = false;
@@ -292,21 +338,16 @@ function solve(body, ox, dx) {
             p = powermap[o.text] || 0;
             pt = o;
             if (p <= powermap["&&"]) p = 0;
-            if (cache.length && p <= cache[cache.length - 1]) {
+            if (cache.length && p < cache[cache.length - 1]) {
                 var p1 = p;
                 var pt1 = pt;
-                var p2 = p;
+                var p2 = cache[cache.length - 1];
                 while (p <= cache[cache.length - 1]) {
-                    p2 = p1;
                     p1 = cache.pop();
                     pt1 = cache.pop();
                     bx = cache.pop();
                 }
-                if (cx - bx < 3) {
-                    if (p === p1 && p > powermap[">>>"]) cache.push(bx, pt1, p1);
-                    continue;
-                }
-                var cx1 = make(body, bx, cx, pt1);
+                var cx1 = make(body, bx, cx, p1 === p ? null : pt1);
                 if (cx1 !== cx) {
                     dx -= cx - cx1;
                     cx = cx1;
@@ -326,7 +367,14 @@ function solve(body, ox, dx) {
             continue;
         }
         else if (!o.isdigit || o.type !== VALUE) {
-            cache.splice(0, cache.length);
+            var [bx, pt1, p1] = cache.splice(0, cache.length);
+            if (p1 === p && cx - bx > 3 && p > powermap[">>>"]) {
+                var cx1 = make(body, bx, cx - 1, pt1);
+                if (cx1 !== cx) {
+                    dx -= cx - cx1;
+                    cx = cx1 + 1;
+                }
+            }
             p0 = p;
             continue;
         }
@@ -336,7 +384,7 @@ function solve(body, ox, dx) {
                     p0 = p;
                     continue;
                 }
-                if (p && p === p0 && p <= powermap[">>>"]) {
+                if (p && p === p0 && p < powermap["|"]) {
                     continue;
                 }
                 cache.push(cx, pt, p);
@@ -344,12 +392,12 @@ function solve(body, ox, dx) {
             }
         }
     }
-
     if (cache.length) {
         var bx = cache[0];
         var pt = cache[1];
-        if (cx - bx >= 2 && cache[2] <= p) {
-            cx = make(body, bx, cx, cache[1]);
+        var p1 = cache[2];
+        if (cx - bx >= 2 && (p1 === 0 || p1 <= p && p > powermap[">>>"])) {
+            cx = make(body, bx, cx, p1 === 0 ? null : pt);
         }
     }
     return cx;
