@@ -1,0 +1,1 @@
+efront build ../docs --rest-coms=zimoli,reptile,basic,frame,maps,random,third-party,view
