@@ -248,7 +248,7 @@ var puncmap = {
     "/"(a, ...args) {
         while (args.length) {
             var b = args.shift();
-            a = `<mfrac>${a}${b}</mfrac>`;
+            a = `<math display="block"><mfrac>${a}${b}</mfrac></math>`;
         }
         return a;
     },
