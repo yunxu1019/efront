@@ -367,8 +367,9 @@ function solve(body, ox, dx) {
             continue;
         }
         else if (!o.isdigit || o.type !== VALUE) {
+            var p2 = cache[5];
             var [bx, pt1, p1] = cache.splice(0, cache.length);
-            if (p1 === p && cx - bx > 3 && p > powermap[">>>"]) {
+            if ((p1 === p || p1 === 0 && p2 === p) && cx - bx >= 3 && p > powermap[">>>"]) {
                 var cx1 = make(body, bx, cx - 1, pt1);
                 if (cx1 !== cx) {
                     dx -= cx - cx1;
@@ -380,16 +381,13 @@ function solve(body, ox, dx) {
         }
         else {
             if (!cache.length) {
-                if (p < p0) {
-                    p0 = p;
-                    continue;
-                }
                 if (p && p === p0 && p < powermap["|"]) {
                     continue;
                 }
                 cache.push(cx, pt, p);
                 bx = cx;
             }
+            p0 = p;
         }
     }
     if (cache.length) {
