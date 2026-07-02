@@ -27,6 +27,7 @@ var createDecoder = function (text) {
     var parents = [];
     var jsonlikes = [];
     var done = false;
+    var row, prop, spacesize;
     var total = rows.length;
     var result = null;
     var push = function (value) {
@@ -66,13 +67,14 @@ var createDecoder = function (text) {
     };
     var next = function () {
         if (!rows.length) {
+            if (done) return;
             if (data || prop) push();
             while (parents[0] === undefined && parents.length > 0) parents.shift();
             result = parents[0];
             done = true;
             return;
         }
-        var row = rows.pop();
+        row = rows.pop();
         isjson = false;
         if (/^['"]$/.test(rowtype)) {
             var isjson = !!jsonlikes.length || !data
@@ -102,7 +104,7 @@ var createDecoder = function (text) {
             return;
         }
 
-        var spacesize = /^\s*/.exec(row)[0].length;
+        spacesize = /^\s*/.exec(row)[0].length;
         if (spacesize === row.length) {
             rowtype = 0;
             if (prop || data) push();
@@ -167,7 +169,6 @@ var createDecoder = function (text) {
         }
 
         if (jsonlikes.length) {
-
             var match = /^\:|[\]\},]|\:[\s\[\{]/.exec(row);
             if (match) {
                 if (match.index > 0) {
@@ -219,7 +220,8 @@ var createDecoder = function (text) {
                     push(obj);
                     parents[spacesize] = obj;
                 }
-                var [_, prop, value] = match;
+                var value;
+                [, prop, value] = match;
                 if (!prop) prop = data, data = '';
                 value = value.trim();
                 if (value) {
