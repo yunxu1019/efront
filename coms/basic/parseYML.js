@@ -18,14 +18,17 @@ var eval2 = function (data) {
     else data = decodeString(data);
     return data;
 };
-var scan = function (text) {
-    var rows = text.split(/\r\n|\r|\n/);
+var createDecoder = function (text) {
+    var rows = text.split(/\r\n|\r|\n/).reverse();
     var rowtype = 0;
     var data = '';
     var span = 0;
     var prop;
     var parents = [];
     var jsonlikes = [];
+    var done = false;
+    var total = rows.length;
+    var result = null;
     var push = function (value) {
         if (data && prop === undefined && jsonlikes[jsonlikes.length - 1] === '{') {
             prop = decodeString(data);
@@ -59,10 +62,17 @@ var scan = function (text) {
     var unshift = function (size, row) {
         if (!row) return;
         row = new Array(size + 1).join(" ") + row;
-        rows.unshift(row);
+        rows.push(row);
     };
-    while (rows.length) {
-        var row = rows.shift();
+    var next = function () {
+        if (!rows.length) {
+            if (data || prop) push();
+            while (parents[0] === undefined && parents.length > 0) parents.shift();
+            result = parents[0];
+            done = true;
+            return;
+        }
+        var row = rows.pop();
         isjson = false;
         if (/^['"]$/.test(rowtype)) {
             var isjson = !!jsonlikes.length || !data
@@ -81,7 +91,7 @@ var scan = function (text) {
             }
             if (index < 0) {
                 data += row + "\r\n";
-                continue;
+                return;
             }
             data += row.slice(0, index + +!!jsonlikes.length);
             if (index == 0 && !data) data = rowtype + rowtype;
@@ -89,14 +99,14 @@ var scan = function (text) {
             if (!row) push();
             else unshift(spacesize, row);
             rowtype = 0;
-            continue;
+            return;
         }
 
         var spacesize = /^\s*/.exec(row)[0].length;
         if (spacesize === row.length) {
             rowtype = 0;
             if (prop || data) push();
-            continue;
+            return;
         }
         if (!data && prop === undefined && !jsonlikes.length) {
             span = spacesize;
@@ -109,12 +119,12 @@ var scan = function (text) {
         }
         if (rowtype && spacesize >= rowtype) {
             data += row + "\r\n";
-            continue;
+            return;
         }
         rowtype = 0;
         if (/^#/.test(row)) {
             // comment 
-            continue;
+            return;
         }
         if (/^["']/.test(row)) {
             if (data) push();
@@ -124,10 +134,10 @@ var scan = function (text) {
             }
             row = row.slice(1);
             unshift(0, row);
-            continue;
+            return;
         }
         if (/^\-\-+$/.test(row)) {
-            continue;
+            return;
         }
 
         if (/^\-(\s|$)/.test(row)) {
@@ -144,7 +154,7 @@ var scan = function (text) {
             rowtype = row[0];
             row = row.slice(1);
             unshift(spacesize + 1, row);
-            continue;
+            return;
         }
         if (!data && /^[\[\{]/.test(row)) {
             var obj = row[0] === "{" ? {} : [];
@@ -153,7 +163,7 @@ var scan = function (text) {
             jsonlikes.push(row[0]);
             row = row.slice(1);
             unshift(spacesize + 1, row);
-            continue;
+            return;
         }
 
         if (jsonlikes.length) {
@@ -190,14 +200,14 @@ var scan = function (text) {
                     }
                 }
                 if (row) unshift(0, row);
-                if (!jsonlikes.length) continue;
+                if (!jsonlikes.length) return;
                 if (pre === ']' || pre === '}') {
-                    row = rows.shift();
+                    row = rows.pop();
                     row = row.replace(/^\s*,/, '');
-                    if (row) rows.unshift(row);
+                    if (row) rows.push(row);
                 }
             }
-            continue;
+            return;
         }
         else {
             var match = /^([\s\S]*?)\:(|\s+[\s\S]*)$/.exec(row);
@@ -218,18 +228,37 @@ var scan = function (text) {
                 prop = decodeString(prop);
                 span = spacesize;
                 parents = parents.slice(0, span + 1);
-                continue;
+                return;
             }
         }
 
         if (row === "|" || row === ">") {
             rowtype = "|"
-            continue;
+            return;
         }
         if (row) data += row + "\r\n";
     }
-    if (data || prop) push();
-    while (parents[0] === undefined && parents.length > 0) parents.shift();
-    return parents[0];
+    return {
+        next,
+        get index() {
+            return total - rows.length;
+        },
+        get total() {
+            return total;
+        },
+        get done() {
+            return done
+        },
+        get value() {
+            return result;
+        }
+    };
 }
+var scan = function (text) {
+    var decoder = createDecoder(text);
+    while (!decoder.done) decoder.next();
+    return decoder.value;
+};
+scan.yield = createDecoder;
+
 module.exports = scan;
