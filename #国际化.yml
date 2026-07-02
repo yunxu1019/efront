@@ -1,56 +1,3 @@
-- zh-CN: 当前状态会保持屏幕常亮，如您暂时离开，建议您手动锁屏
-  zh-TW: 當前狀態會保持荧幕常亮，如您暫時離開，建議您手動鎖屏
-  en:    "The current status will keep the screen constantly on. If you temporarily leave, it is recommended that you manually lock the screen"
-  ja:    現在の状態では画面が常に明るくなります。一時的に離れる場合は、手動で画面をロックすることをお勧めします
-  fr:    "L'état actuel gardera l'écran toujours allumé, si vous êtes temporairement absent, il est recommandé de verrouiller l'écran manuellement"
-  ru:    "Текущее состояние будет держать экран часто ярким, если вы временно уйдете, рекомендуется заблокировать экран вручную"
-  ko:    현재 상태에서는 화면이 항상 밝게 표시되므로 잠시 자리를 비우면 수동으로 잠그는 것이 좋습니다.
-  de:    "Der aktuelle Status hält den Bildschirm immer hell, wenn Sie vorübergehend verlassen, empfehlen wir Ihnen, den Bildschirm manuell zu sperren"
-  it:    "Lo stato attuale manterrà lo schermo sempre illuminato, se si lascia temporaneamente, si consiglia di bloccare manualmente lo schermo"
-  th:    สถานะปัจจุบันจะทำให้หน้าจอสว่างขึ้นตามปกติหากคุณออกไปชั่วคราวขอแนะนำให้คุณล็อคหน้าจอด้วยตนเอง
-  vi:    "Trạng thái hiện tại sẽ giữ cho màn hình luôn sáng, nếu bạn tạm thời rời đi, bạn nên khóa màn hình bằng tay."
-  ar:    الوضع الحالي سوف تبقى الشاشة مشرقة في كثير من الأحيان ، إذا كنت ترك مؤقتا ، فمن المستحسن أن يمكنك قفل الشاشة يدويا
-  nl:    "De huidige status houdt het scherm helder. Als u tijdelijk vertrekt, wordt u aanbevolen het scherm handmatig te vergrendelen."
-  fi:    "Nykyinen tila pitää näytön kirkkaana. Jos poistut väliaikaisesti, suositellaan lukitsemaan näytön manuaalisesti."
-  el:    "Η τρέχουσα κατάσταση θα διατηρήσει την οθόνη πάντα φωτεινή, αν αποχωρήσετε προσωρινά, συνιστάται να κλειδώσετε την οθόνη με το χέρι"
-  es:    "El estado actual mantendrá la pantalla siempre encendida. si se va temporalmente, se recomienda bloquear la pantalla manualmente."
-  pt:    "O estado atual manterá a tela sempre brilhante, se você sair temporariamente, é recomendável bloquear a tela manualmente."
-  hu:    "Az aktuális állapot a képernyőt világosan tartja. Ha ideiglenesen távozik, javasoljuk, hogy manuálisan zárja le a képernyőt."
-  sv:    "Aktuellt tillstånd håller skärmen ljus, om du lämnar tillfälligt rekommenderas att du låser skärmen manuellt"
-  da:    "Den aktuelle status vil holde skærmen lys, hvis du forlader midlertidigt, anbefales du at låse skærmen manuelt"
-  cs:    "Aktuální stav bude udržovat obrazovku svítilou, pokud jste dočasně pryč, doporučujeme ručně zamknout obrazovku"
-  pl:    "Aktualny stan utrzymuje ekran świetny, jeśli zostaniesz tymczasowo, zaleca się ręczne zablokowanie ekranu"
-  bg:    "Текущото състояние ще запази екрана постоянно светъл, ако временно напуснете, препоръчваме да заключите екрана ръчно."
-  et:    "Praegune olek hoiab ekraani alati valgeks, kui te ajutiselt lahkute, soovitatakse ekraani käsitsi lukustada"
-  ro:    "Starea curentă va menține ecranul luminos. Dacă părăsiți temporar, vă recomandăm să blocați manual ecranul."
-  sl:    "Trenutno stanje bo zaslon stalno vklopljen. Če začasno odidete, je priporočljivo, da zaslon ročno zaklenete."
-  af:    "Die huidige status sal die skerm konstantelik op hou. As jy tydelik verlaat, word dit aanbeveel dat jy die skerm hand sluit"
-  am:    የአሁኑ ሁኔታ ማያ ገጹን ብሩህ ይጠብቃል ፣ ለጊዜያዊ ጊዜ ከተወጡ በእጅ ማያ ገጹን መቆለፍ ይመከራሉ
-  bn:    "বর্তমান অবস্থা স্ক্রিনটি উজ্জ্বল রাখবে, যদি আপনি অস্থায়ীভাবে ছেড়ে যান, তাহলে আপনি ম্যানুয়ালি স্ক্রিন লক কর"
-  ca:    "L'estat actual mantindrà la pantalla encendida. Si us deixeu temporalment, es recomana bloquejar la pantalla manualment."
-  fa:    وضعیت فعلی صفحه نمایش را روشن نگه می دارد، اگر شما به طور موقت ترک کنید، توصیه می شود که صفحه نمایش را به صورت دستی قفل کنید.
-  fil:   "Ang kasalukuyang status ay patuloy na ilagay ang screen. Kung ikaw ay mag-iwan ng oras, ipinapahirapang mag-lock ka ng screen nang kamay"
-  gu:    "હાલની સ્થિતિ સ્ક્રીનને તેજસ્વી રાખશે, જો તમે કામચલાઉ રીતે દૂર રહ્યા હોવ તો સ્ક્રીનને જાતે તાળ"
-  he:    "המצב הנוכחי ישמור על המסך בהיר, אם אתה עוזב באופן זמני, מומלץ לנעול את המסך ידנית"
-  hi:    "वर्तमान स्थिति स्क्रीन को हमेशा उज्ज्वल रखती है, यदि आप अस्थायी रूप से छोड़ रहे हैं, तो आपको मैन्युअल रूप से स्क्रीन"
-  hr:    "Trenutno stanje će održati zaslon uvijek svijetlim, ako privremeno napustite, preporučujemo vam da ručno zaključate zaslon."
-  id:    "Status saat ini akan menjaga layar tetap terang, jika Anda meninggalkan sementara, disarankan untuk mengunci layar secara manual"
-  kn:    ಪ್ರಸ್ತುತ ಸ್ಥಿತಿಯು ಪರದೆಯನ್ನು ಪ್ರಕಾಶಮಾನವಾಗಿ ಉಳಿಸಿಕೊಳ್ಳುತ್ತದೆ. ನೀವು ತಾತ್ಕಾಲಿಕವಾಗಿ ನಿರ್ಗಮಿ
-  lt:    "Dabartinė būsena išlaikys ekraną šviesią, jei laikinai paliksite, rekomenduojama užrakinti ekraną rankiniu būdu"
-  lv:    "Pašreizējais stāvoklis saglabās ekrānu, ja jūs pagaidu atstāt, ieteicams manuāli bloķēt ekrānu"
-  ml:    "നിലവിലെ അവസ്ഥ സ്ക്രീൻ തിളക്കമുള്ളതായി നിലനിർത്തും, നിങ്ങൾ താൽക്കാലികമായി വിടുകയാണെങ്കിൽ, നിങ"
-  mr:    "सध्याची स्थिती स्क्रीन उज्ज्वल ठेवते. आपण तात्पुरत्या सोडल्यास, आपण हस्तच स्क्रीन लॉक करण्याची शिफारस"
-  ms:    "Status semasa akan mengekalkan skrin yang terang, jika anda meninggalkan sementara, anda disyorkan untuk mengunci skrin secara manual"
-  nb:    "Den nåværende status vil holde skjermen konstant på. Hvis du midlertidig forlater, anbefales det at du låser skjermen manuelt."
-  sk:    "Aktuálny stav udrží obrazovku vždy svetlou, ak dočasne odchádzate, odporúčame vám ručne zamknúť obrazovku"
-  sr:    "Тренутни статус ће стално укључивати екран. Ако привремено одете, препоручује се ручно закључавање екрана"
-  sw:    "Hali ya sasa itaweka screen daima mwanga, kama wewe kuondoka kwa muda, unapendekeza manually lock screen"
-  ta:    "தற்போதைய நிலை திரையை எப்போதும் பிரகாசமாக வைத்திருக்கும், நீங்கள் தற்காலிகமாக வெளியேறினால், நீங்கள"
-  te:    "ప్రస్తుత స్థితి స్క్రీన్ ప్రకాశవంతంగా ఉంటుంది, మీరు తాత్కాలికంగా వెళ్ళి ఉంటే, మీరు మాన్యువ"
-  tr:    "Mevcut durum ekranı her zaman parlak tutacaktır. Geçici olarak ayrılırsanız, ekranı el ile kilitlemenizi öneririz."
-  uk:    "Поточний стан зберігає екран завжди яскравим, якщо ви тимчасово виходите, рекомендуємо вручну заблокувати екран"
-  ur:    موجودہ حیثیت اسکرین کو ہمیشہ روشن رکھے گی، اگر آپ عارضی طور پر چھوڑ رہے ہیں تو، آپ کو دستی طور پر اسکرین لاک کرنے کی سفارش کی جاتی ہے
-
 - zh-CN: 正在编译项目
   zh-TW: 正在編譯項目
   en:    Compiling project
@@ -899,59 +846,6 @@
   uk:    Завершено
   ur:    مکمل
 
-- zh-CN: 搜索
-  zh-TW: 搜尋
-  en:    Search
-  ja:    検索
-  fr:    recherche
-  ru:    поиск
-  ko:    검색
-  de:    Suche
-  it:    ricerca
-  th:    ค้นหา
-  vi:    tìm kiếm
-  ar:    بحث
-  nl:    Zoeken
-  fi:    Etsi
-  el:    Αναζήτηση
-  es:    buscar
-  pt:    pesquisar
-  hu:    Keresés
-  sv:    Sök
-  da:    Søg
-  cs:    Vyhledávání
-  pl:    Szukaj
-  bg:    Търсене
-  et:    Otsi
-  ro:    Căutare
-  sl:    iskanje
-  af:    Soektog
-  am:    ፍለጋ
-  bn:    অনুসন্ধান
-  ca:    Cerca
-  fa:    جستجو
-  fil:   search
-  gu:    શોધો
-  he:    חיפוש
-  hi:    खोजें
-  hr:    Pretraživanje
-  id:    Pencarian
-  kn:    ಹುಡುಕಾಟ
-  lt:    Ieškoti
-  lv:    Meklēšana
-  ml:    തിരയുക
-  mr:    शोधा
-  ms:    Carian
-  nb:    Søk
-  sk:    Vyhľadávanie
-  sr:    претрага
-  sw:    Utafutaji
-  ta:    தேடல்
-  te:    శోధన
-  tr:    Arama
-  uk:    Пошук
-  ur:    تلاش کریں
-
 - zh-CN: 读取文件$1出错
   zh-TW: 讀取檔案$1出錯
   en:    Error reading file $1
@@ -1269,6 +1163,112 @@
   tr:    Değiştir
   uk:    Змінити
   ur:    ترمیم کریں
+
+- zh-CN: 改为
+  zh-TW: 改為
+  en:    Change to
+  ja:    に改心させる
+  fr:    Remplacer par
+  ru:    Заменить текст следующим текстом
+  ko:    으로 변경
+  de:    ändern
+  it:    Cambia in
+  th:    เปลี่ยนเป็น
+  vi:    Thay đổi
+  ar:    تغير
+  nl:    Verander naar
+  fi:    vaihtaa
+  el:    Αλλαγή σε
+  es:    Cambiar a
+  pt:    Mudar para
+  hu:    Változtatás
+  sv:    Byt till
+  da:    Skift til
+  cs:    Změnit na
+  pl:    Zmień na
+  bg:    Промени на
+  et:    Muuda
+  ro:    Schimbă la
+  sl:    sprememba na
+  af:    verander na
+  am:    ወደ ቀይር
+  bn:    পরিবর্তন করুন
+  ca:    Canvia a
+  fa:    تغییر به
+  fil:   pagbabago sa
+  gu:    બદલો
+  he:    להחליף
+  hi:    बदलें
+  hr:    Promijeni na
+  id:    Ubah ke
+  kn:    ಬದಲಾಯಿಸು
+  lt:    Pakeisti į
+  lv:    Mainīt uz
+  ml:    മാറ്റുക
+  mr:    बदला
+  ms:    Tukar kepada
+  nb:    endring til
+  sk:    Zmeniť na
+  sr:    промена у
+  sw:    Badilisha kwa
+  ta:    மாற்று
+  te:    మార్చు
+  tr:    Değiştir
+  uk:    Змінити на
+  ur:    تبدیل کریں
+
+- zh-CN: 替换
+  zh-TW: 替換
+  en:    Replace
+  ja:    置き換える
+  fr:    remplacer
+  ru:    Замена
+  ko:    대체
+  de:    Ersetzen
+  it:    Sostituire
+  th:    แทนที่
+  vi:    thay thế
+  ar:    استبدال
+  nl:    Vervangen
+  fi:    Korvaa
+  el:    Αντικατάσταση
+  es:    reemplazar
+  pt:    Substituir
+  hu:    Cserélje
+  sv:    Byt ut
+  da:    Erstat
+  cs:    Nahradit
+  pl:    Zastąpić
+  bg:    Замяна
+  et:    Asendamine
+  ro:    Înlocuiește
+  sl:    nadomesti
+  af:    Vervang
+  am:    ምትክ
+  bn:    প্রতিস্থাপন
+  ca:    Substitueix
+  fa:    جایگزین
+  fil:   replace
+  gu:    બદલો
+  he:    להחליף
+  hi:    बदलें
+  hr:    Zamijeni
+  id:    Ganti
+  kn:    ಬದಲಾಯಿಸು
+  lt:    Pakeisti
+  lv:    Aizstāt
+  ml:    മാറ്റിസ്ഥാപിക്കുക
+  mr:    बदला
+  ms:    Ganti
+  nb:    erstatte
+  sk:    Nahradiť
+  sr:    заменити
+  sw:    Badilisha
+  ta:    மாற்று
+  te:    భర్తీ చేయండి
+  tr:    Değiştir
+  uk:    Замінити
+  ur:    تبدیل کریں
 
 - zh-CN: 确认取消
   zh-TW: 確認取消
@@ -3230,112 +3230,6 @@
   tr:    Veri yok
   uk:    Немає даних
   ur:    کوئی ڈیٹا نہیں
-
-- zh-CN: 改为
-  zh-TW: 改為
-  en:    Change to
-  ja:    に改心させる
-  fr:    Remplacer par
-  ru:    Заменить текст следующим текстом
-  ko:    으로 변경
-  de:    ändern
-  it:    Cambia in
-  th:    เปลี่ยนเป็น
-  vi:    Thay đổi
-  ar:    تغير
-  nl:    Verander naar
-  fi:    vaihtaa
-  el:    Αλλαγή σε
-  es:    Cambiar a
-  pt:    Mudar para
-  hu:    Változtatás
-  sv:    Byt till
-  da:    Skift til
-  cs:    Změnit na
-  pl:    Zmień na
-  bg:    Промени на
-  et:    Muuda
-  ro:    Schimbă la
-  sl:    sprememba na
-  af:    verander na
-  am:    ወደ ቀይር
-  bn:    পরিবর্তন করুন
-  ca:    Canvia a
-  fa:    تغییر به
-  fil:   pagbabago sa
-  gu:    બદલો
-  he:    להחליף
-  hi:    बदलें
-  hr:    Promijeni na
-  id:    Ubah ke
-  kn:    ಬದಲಾಯಿಸು
-  lt:    Pakeisti į
-  lv:    Mainīt uz
-  ml:    മാറ്റുക
-  mr:    बदला
-  ms:    Tukar kepada
-  nb:    endring til
-  sk:    Zmeniť na
-  sr:    промена у
-  sw:    Badilisha kwa
-  ta:    மாற்று
-  te:    మార్చు
-  tr:    Değiştir
-  uk:    Змінити на
-  ur:    تبدیل کریں
-
-- zh-CN: 替换
-  zh-TW: 替換
-  en:    Replace
-  ja:    置き換える
-  fr:    remplacer
-  ru:    Замена
-  ko:    대체
-  de:    Ersetzen
-  it:    Sostituire
-  th:    แทนที่
-  vi:    thay thế
-  ar:    استبدال
-  nl:    Vervangen
-  fi:    Korvaa
-  el:    Αντικατάσταση
-  es:    reemplazar
-  pt:    Substituir
-  hu:    Cserélje
-  sv:    Byt ut
-  da:    Erstat
-  cs:    Nahradit
-  pl:    Zastąpić
-  bg:    Замяна
-  et:    Asendamine
-  ro:    Înlocuiește
-  sl:    nadomesti
-  af:    Vervang
-  am:    ምትክ
-  bn:    প্রতিস্থাপন
-  ca:    Substitueix
-  fa:    جایگزین
-  fil:   replace
-  gu:    બદલો
-  he:    להחליף
-  hi:    बदलें
-  hr:    Zamijeni
-  id:    Ganti
-  kn:    ಬದಲಾಯಿಸು
-  lt:    Pakeisti
-  lv:    Aizstāt
-  ml:    മാറ്റിസ്ഥാപിക്കുക
-  mr:    बदला
-  ms:    Ganti
-  nb:    erstatte
-  sk:    Nahradiť
-  sr:    заменити
-  sw:    Badilisha
-  ta:    மாற்று
-  te:    భర్తీ చేయండి
-  tr:    Değiştir
-  uk:    Замінити
-  ur:    تبدیل کریں
 
 - zh-CN: 禁止访问
   zh-TW: 禁止訪問
@@ -6412,6 +6306,59 @@
   uk:    Чи увімкнути
   ur:    فعال کیا جائے
 
+- zh-CN: 搜索
+  zh-TW: 搜尋
+  en:    Search
+  ja:    検索
+  fr:    recherche
+  ru:    поиск
+  ko:    검색
+  de:    Suche
+  it:    ricerca
+  th:    ค้นหา
+  vi:    tìm kiếm
+  ar:    بحث
+  nl:    Zoeken
+  fi:    Etsi
+  el:    Αναζήτηση
+  es:    buscar
+  pt:    pesquisar
+  hu:    Keresés
+  sv:    Sök
+  da:    Søg
+  cs:    Vyhledávání
+  pl:    Szukaj
+  bg:    Търсене
+  et:    Otsi
+  ro:    Căutare
+  sl:    iskanje
+  af:    Soektog
+  am:    ፍለጋ
+  bn:    অনুসন্ধান
+  ca:    Cerca
+  fa:    جستجو
+  fil:   search
+  gu:    શોધો
+  he:    חיפוש
+  hi:    खोजें
+  hr:    Pretraživanje
+  id:    Pencarian
+  kn:    ಹುಡುಕಾಟ
+  lt:    Ieškoti
+  lv:    Meklēšana
+  ml:    തിരയുക
+  mr:    शोधा
+  ms:    Carian
+  nb:    Søk
+  sk:    Vyhľadávanie
+  sr:    претрага
+  sw:    Utafutaji
+  ta:    தேடல்
+  te:    శోధన
+  tr:    Arama
+  uk:    Пошук
+  ur:    تلاش کریں
+
 - zh-CN: 通话中
   zh-TW: 通話中
   en:    During the call
@@ -8161,59 +8108,6 @@
   uk:    Є документи
   ur:    دستاویزات موجود ہیں
 
-- zh-CN: 注意
-  zh-TW: 注意
-  en:    NOTICE
-  ja:    注意
-  fr:    Attention
-  ru:    Внимание
-  ko:    주의
-  de:    Achtung
-  it:    Attenzione
-  th:    ระวัง
-  vi:    Chú ý
-  ar:    لاحظ
-  nl:    Let op
-  fi:    Huomaa!
-  el:    Προσοχή.
-  es:    atención
-  pt:    Atenção
-  hu:    Figyelem!
-  sv:    Uppmärksamhet
-  da:    Bemærk
-  cs:    Pozor!
-  pl:    Uwaga!
-  bg:    Внимание!
-  et:    Tähelepanu!
-  ro:    Atenţie!
-  sl:    pozornost
-  af:    Aangaande
-  am:    ማስታወሻ
-  bn:    মনোযোগ
-  ca:    Atenció
-  fa:    توجه کنید
-  fil:   pansin
-  gu:    નોંધ
-  he:    שימו לב.
-  hi:    ध्यान दें
-  hr:    Pažnja.
-  id:    Perhatikan
-  kn:    ಗಮನಿಸಿ
-  lt:    Atkreipkite dėmesį
-  lv:    Uzmanība
-  ml:    ശ്രദ്ധിക്കുക
-  mr:    लक्षात घ्या
-  ms:    Perhatian
-  nb:    oppmerksomhet
-  sk:    Pozor!
-  sr:    пажња
-  sw:    Kumbuka
-  ta:    கவனம்
-  te:    గమనించండి
-  tr:    Dikkat et.
-  uk:    Увага
-  ur:    نوٹ کریں
-
 - zh-CN: http端口
   zh-TW: http埠
   en:    HTTP Port
@@ -9114,6 +9008,59 @@
   tr:    Yükleniyor...
   uk:    Завантаження...
   ur:    لوڈ ہو رہا ہے..
+
+- zh-CN: 注意
+  zh-TW: 注意
+  en:    NOTICE
+  ja:    注意
+  fr:    Attention
+  ru:    Внимание
+  ko:    주의
+  de:    Achtung
+  it:    Attenzione
+  th:    ระวัง
+  vi:    Chú ý
+  ar:    لاحظ
+  nl:    Let op
+  fi:    Huomaa!
+  el:    Προσοχή.
+  es:    atención
+  pt:    Atenção
+  hu:    Figyelem!
+  sv:    Uppmärksamhet
+  da:    Bemærk
+  cs:    Pozor!
+  pl:    Uwaga!
+  bg:    Внимание!
+  et:    Tähelepanu!
+  ro:    Atenţie!
+  sl:    pozornost
+  af:    Aangaande
+  am:    ማስታወሻ
+  bn:    মনোযোগ
+  ca:    Atenció
+  fa:    توجه کنید
+  fil:   pansin
+  gu:    નોંધ
+  he:    שימו לב.
+  hi:    ध्यान दें
+  hr:    Pažnja.
+  id:    Perhatikan
+  kn:    ಗಮನಿಸಿ
+  lt:    Atkreipkite dėmesį
+  lv:    Uzmanība
+  ml:    ശ്രദ്ധിക്കുക
+  mr:    लक्षात घ्या
+  ms:    Perhatian
+  nb:    oppmerksomhet
+  sk:    Pozor!
+  sr:    пажња
+  sw:    Kumbuka
+  ta:    கவனம்
+  te:    గమనించండి
+  tr:    Dikkat et.
+  uk:    Увага
+  ur:    نوٹ کریں
 
 - zh-CN: 检查
   zh-TW: 檢查
@@ -12400,6 +12347,165 @@
   tr:    Telugu dili
   uk:    Телугу
   ur:    تیلوگو
+
+- zh-CN: 加载已翻译文件：$1
+  zh-TW: 加載已翻譯檔案：$1
+  en:    "Load translated file: $1"
+  ja:    翻訳ファイルのロード:$1
+  fr:    "Chargement des fichiers traduits: $1"
+  ru:    "Загрузка переведенных файлов: $1"
+  ko:    "번역된 파일 로드: $1"
+  de:    "Übersetzte Dateien laden: $1"
+  it:    "Caricamento dei file tradotti: $1"
+  th:    "โหลดไฟล์ที่แปลแล้ว: $1"
+  vi:    "Tải tập tin đã dịch: $1"
+  ar:    "تحميل الملفات المترجمة : $ 1"
+  nl:    "Laad vertaalde bestanden: $1"
+  fi:    "Lataa käännetty tiedosto: $1"
+  el:    "Φόρτωση μεταφρασμένων αρχείων: $1"
+  es:    "Carga el archivo traducido: $1"
+  pt:    "Carregar arquivos traduzidos: $1"
+  hu:    "A lefordított fájlok betöltése: $1"
+  sv:    "Ladda översatta filer: $1"
+  da:    "Indlæs oversatte filer: $1"
+  cs:    "Načítání přeložených souborů: $1"
+  pl:    "Załadowanie tłumaczonych plików: $1"
+  bg:    "Зареждане на преведени файлове: $1"
+  et:    "Tõlgitud failide laadimine: $1"
+  ro:    "Încărcare fișiere traduse: $1"
+  sl:    "Naloži prevedeno datoteko: $1"
+  af:    "Laai oorselde lêer: $1"
+  am:    የተተረጎሙ ፋይሎችን ይጫኑ:$1
+  bn:    "অনুবাদিত ফাইল লোড করা: $1"
+  ca:    "Carrega el fitxer traduït: $1"
+  fa:    "بارگذاری فایل های ترجمه شده: $1"
+  fil:   "Load translated file: $1"
+  gu:    "અનુવાદિત ફાઇલ લાવો: $1"
+  he:    "טען קובץ מתורגם: $1"
+  hi:    "अनुवादित फ़ाइलें लोड करें: $1"
+  hr:    "Učitavanje prevedenih datoteka: $1"
+  id:    "Memuat file yang diterjemahkan: $1"
+  kn:    "ಭಾಷಾಂತರಿತ ಕಡತವನ್ನು ಲೋಡ್ ಮಾಡುತ್ತಿದೆ: $1"
+  lt:    "Įkelti išverstą failą: $1"
+  lv:    "Lādēt tulkoto failu: $1"
+  ml:    "വിവർത്തന ഫയലുകൾ ലോഡ് ചെയ്യുക: $1"
+  mr:    "भाषांतरित फाइल लोड करा: $1"
+  ms:    "Muat fail terjemahan: $1"
+  nb:    "Lad oversatt fil: $1"
+  sk:    "Načítať preložený súbor: $1"
+  sr:    "Учитавање преведене датотеке: $ 1"
+  sw:    "Pakisha faili zilizotafsiriwa: $1"
+  ta:    "மொழிபெயர்க்கப்பட்ட கோப்புகளை ஏற்றுதல்: $1"
+  te:    "అనువాదించిన ఫైళ్ళను లోడ్ చేస్తోంది: $1"
+  tr:    "Çevirilmiş dosya yükleniyor: $1"
+  uk:    "Завантаження перекладеного файлу: $1"
+  ur:    "ترجمہ شدہ فائل لوڈ کریں: $1"
+
+- zh-CN: 加载已翻译文件:$1 ($2\$3)
+  zh-TW: 加載已翻譯檔案：$1（$2\$3）
+  en:    "Load translated file: $1 ($2\\$3)"
+  ja:    翻訳ファイルのロード:$1($2\$3)
+  fr:    "Chargement des fichiers traduits: $1 ($2\\$3)"
+  ru:    "Загрузка переведенных файлов: $1 ($2:$3)"
+  ko:    "번역된 파일 로드: $1 ($2\\$3)"
+  de:    "Übersetzte Dateien laden: $1 ($2\\$3)"
+  it:    "Caricare file tradotti: $1 ($2\\$3)"
+  th:    "โหลดไฟล์ที่แปลแล้ว: $ 1 ($ 2\\$ 3)"
+  vi:    "Tải tập tin đã dịch: $1 ($2\\$3)"
+  ar:    "تحميل الملفات المترجمة : $ 1 ( $ 2 \\\\ $ 3 )"
+  nl:    "Laad vertaalde bestanden: $1 ($2\\$3)"
+  fi:    "Lataa käännetty tiedosto: $1 ($2\\$3)"
+  el:    "Φόρτωση μεταφρασμένων αρχείων: $1 ($2\\$3)"
+  es:    "Carga el archivo traducido: $1 ( $2 \\ $3)"
+  pt:    "Carregar arquivos traduzidos: $1 ($2\\$3)"
+  hu:    "A lefordított fájlok betöltése: $1 ($2\\$3)"
+  sv:    "Ladda översatta filer: $1 ($2\\$3)"
+  da:    "Indlæs oversatte filer: $1 ($2\\$3)"
+  cs:    "Načítat přeložený soubor: $1 ($2\\$3)"
+  pl:    "Załadowanie tłumaczonych plików: $1 ($2\\$3)"
+  bg:    "Зареждане на преведени файлове: $1 ($2\\$3)"
+  et:    "Tõlgitud failide laadimine: $1 ($2\\$3)"
+  ro:    "Încărcarea fișierelor traduse: $1 ($2\\$3)"
+  sl:    "Naloži prevedeno datoteko: $1 ($2 \\$3)"
+  af:    "Laai oorselde lêer: $1 ($2 \\ $3)"
+  am:    የተተረጎሙ ፋይሎችን ይጫኑ:$1 ($2$3)
+  bn:    "অনুবাদিত ফাইল লোড করা: $1 ($2$3)"
+  ca:    "Carrega el fitxer traduït: $1 ($2$3)"
+  fa:    "بارگذاری فایل های ترجمه شده: $1 ($2$3)"
+  fil:   "Maglagay ng translated file: $1 ($2 \\ $3)"
+  gu:    "અનુવાદિત ફાઇલ લાવો: $1 ($2$3)"
+  he:    "טען קובץ מתורגם: $1 ($2$3)"
+  hi:    "अनुवादित फ़ाइलें लोड करें: $1 ($2$3)"
+  hr:    "Učitaj prevođenu datoteku: $1 ($2$3)"
+  id:    "Memuat file yang diterjemahkan: $1 ($2$3)"
+  kn:    "ಭಾಷಾಂತರಿತ ಕಡತಗಳನ್ನು ಲೋಡ್ ಮಾಡಿ: $1 ($2$3)"
+  lt:    "Įkelti išverstą failą: $1 ($2$3)"
+  lv:    "Lādēt tulkoto failu: $1 ($2$3)"
+  ml:    "പരിഭാഷിച്ച ഫയലുകൾ ലോഡ് ചെയ്യുക: $1 ($2$3)"
+  mr:    "भाषांतरित फाइल लोड करा: $1 ($2$3)"
+  ms:    "Muat fail yang diterjemahkan: $1 ($2$3)"
+  nb:    Lad oversatt fil
+  sk:    "Načítať preložený súbor: $1 ($2$3)"
+  sr:    "Учитавање преведене датотеке: $ 1 ($ 2 \\ $ 3)"
+  sw:    "Pakisha faili zilizotafsiriwa: $1 ($2$3)"
+  ta:    "மொழிபெயர்க்கப்பட்ட கோப்புகளை ஏற்றுதல்: $1 ($2$3)"
+  te:    "అనువాదించిన ఫైళ్ళను లోడ్ చేస్తోంది: $1 ($2$3)"
+  tr:    "Çevirilmiş dosya yüklenir: $1 ($2$3)"
+  uk:    "Завантажити перекладені файли: $1 ($2$3)"
+  ur:    "ترجمہ شدہ فائل لوڈ کریں: $1 ($2$3)"
+
+- zh-CN: 当前状态会保持屏幕常亮，如您暂时离开，建议您手动锁屏
+  zh-TW: 當前狀態會保持荧幕常亮，如您暫時離開，建議您手動鎖屏
+  en:    "The current status will keep the screen constantly on. If you temporarily leave, it is recommended that you manually lock the screen"
+  ja:    現在の状態では画面が常に明るくなります。一時的に離れる場合は、手動で画面をロックすることをお勧めします
+  fr:    "L'état actuel gardera l'écran toujours allumé, si vous êtes temporairement absent, il est recommandé de verrouiller l'écran manuellement"
+  ru:    "Текущее состояние будет держать экран часто ярким, если вы временно уйдете, рекомендуется заблокировать экран вручную"
+  ko:    현재 상태에서는 화면이 항상 밝게 표시되므로 잠시 자리를 비우면 수동으로 잠그는 것이 좋습니다.
+  de:    "Der aktuelle Status hält den Bildschirm immer hell, wenn Sie vorübergehend verlassen, empfehlen wir Ihnen, den Bildschirm manuell zu sperren"
+  it:    "Lo stato attuale manterrà lo schermo sempre illuminato, se si lascia temporaneamente, si consiglia di bloccare manualmente lo schermo"
+  th:    สถานะปัจจุบันจะทำให้หน้าจอสว่างขึ้นตามปกติหากคุณออกไปชั่วคราวขอแนะนำให้คุณล็อคหน้าจอด้วยตนเอง
+  vi:    "Trạng thái hiện tại sẽ giữ cho màn hình luôn sáng, nếu bạn tạm thời rời đi, bạn nên khóa màn hình bằng tay."
+  ar:    الوضع الحالي سوف تبقى الشاشة مشرقة في كثير من الأحيان ، إذا كنت ترك مؤقتا ، فمن المستحسن أن يمكنك قفل الشاشة يدويا
+  nl:    "De huidige status houdt het scherm helder. Als u tijdelijk vertrekt, wordt u aanbevolen het scherm handmatig te vergrendelen."
+  fi:    "Nykyinen tila pitää näytön kirkkaana. Jos poistut väliaikaisesti, suositellaan lukitsemaan näytön manuaalisesti."
+  el:    "Η τρέχουσα κατάσταση θα διατηρήσει την οθόνη πάντα φωτεινή, αν αποχωρήσετε προσωρινά, συνιστάται να κλειδώσετε την οθόνη με το χέρι"
+  es:    "El estado actual mantendrá la pantalla siempre encendida. si se va temporalmente, se recomienda bloquear la pantalla manualmente."
+  pt:    "O estado atual manterá a tela sempre brilhante, se você sair temporariamente, é recomendável bloquear a tela manualmente."
+  hu:    "Az aktuális állapot a képernyőt világosan tartja. Ha ideiglenesen távozik, javasoljuk, hogy manuálisan zárja le a képernyőt."
+  sv:    "Aktuellt tillstånd håller skärmen ljus, om du lämnar tillfälligt rekommenderas att du låser skärmen manuellt"
+  da:    "Den aktuelle status vil holde skærmen lys, hvis du forlader midlertidigt, anbefales du at låse skærmen manuelt"
+  cs:    "Aktuální stav bude udržovat obrazovku svítilou, pokud jste dočasně pryč, doporučujeme ručně zamknout obrazovku"
+  pl:    "Aktualny stan utrzymuje ekran świetny, jeśli zostaniesz tymczasowo, zaleca się ręczne zablokowanie ekranu"
+  bg:    "Текущото състояние ще запази екрана постоянно светъл, ако временно напуснете, препоръчваме да заключите екрана ръчно."
+  et:    "Praegune olek hoiab ekraani alati valgeks, kui te ajutiselt lahkute, soovitatakse ekraani käsitsi lukustada"
+  ro:    "Starea curentă va menține ecranul luminos. Dacă părăsiți temporar, vă recomandăm să blocați manual ecranul."
+  sl:    "Trenutno stanje bo zaslon stalno vklopljen. Če začasno odidete, je priporočljivo, da zaslon ročno zaklenete."
+  af:    "Die huidige status sal die skerm konstantelik op hou. As jy tydelik verlaat, word dit aanbeveel dat jy die skerm hand sluit"
+  am:    የአሁኑ ሁኔታ ማያ ገጹን ብሩህ ይጠብቃል ፣ ለጊዜያዊ ጊዜ ከተወጡ በእጅ ማያ ገጹን መቆለፍ ይመከራሉ
+  bn:    "বর্তমান অবস্থা স্ক্রিনটি উজ্জ্বল রাখবে, যদি আপনি অস্থায়ীভাবে ছেড়ে যান, তাহলে আপনি ম্যানুয়ালি স্ক্রিন লক কর"
+  ca:    "L'estat actual mantindrà la pantalla encendida. Si us deixeu temporalment, es recomana bloquejar la pantalla manualment."
+  fa:    وضعیت فعلی صفحه نمایش را روشن نگه می دارد، اگر شما به طور موقت ترک کنید، توصیه می شود که صفحه نمایش را به صورت دستی قفل کنید.
+  fil:   "Ang kasalukuyang status ay patuloy na ilagay ang screen. Kung ikaw ay mag-iwan ng oras, ipinapahirapang mag-lock ka ng screen nang kamay"
+  gu:    "હાલની સ્થિતિ સ્ક્રીનને તેજસ્વી રાખશે, જો તમે કામચલાઉ રીતે દૂર રહ્યા હોવ તો સ્ક્રીનને જાતે તાળ"
+  he:    "המצב הנוכחי ישמור על המסך בהיר, אם אתה עוזב באופן זמני, מומלץ לנעול את המסך ידנית"
+  hi:    "वर्तमान स्थिति स्क्रीन को हमेशा उज्ज्वल रखती है, यदि आप अस्थायी रूप से छोड़ रहे हैं, तो आपको मैन्युअल रूप से स्क्रीन"
+  hr:    "Trenutno stanje će održati zaslon uvijek svijetlim, ako privremeno napustite, preporučujemo vam da ručno zaključate zaslon."
+  id:    "Status saat ini akan menjaga layar tetap terang, jika Anda meninggalkan sementara, disarankan untuk mengunci layar secara manual"
+  kn:    ಪ್ರಸ್ತುತ ಸ್ಥಿತಿಯು ಪರದೆಯನ್ನು ಪ್ರಕಾಶಮಾನವಾಗಿ ಉಳಿಸಿಕೊಳ್ಳುತ್ತದೆ. ನೀವು ತಾತ್ಕಾಲಿಕವಾಗಿ ನಿರ್ಗಮಿ
+  lt:    "Dabartinė būsena išlaikys ekraną šviesią, jei laikinai paliksite, rekomenduojama užrakinti ekraną rankiniu būdu"
+  lv:    "Pašreizējais stāvoklis saglabās ekrānu, ja jūs pagaidu atstāt, ieteicams manuāli bloķēt ekrānu"
+  ml:    "നിലവിലെ അവസ്ഥ സ്ക്രീൻ തിളക്കമുള്ളതായി നിലനിർത്തും, നിങ്ങൾ താൽക്കാലികമായി വിടുകയാണെങ്കിൽ, നിങ"
+  mr:    "सध्याची स्थिती स्क्रीन उज्ज्वल ठेवते. आपण तात्पुरत्या सोडल्यास, आपण हस्तच स्क्रीन लॉक करण्याची शिफारस"
+  ms:    "Status semasa akan mengekalkan skrin yang terang, jika anda meninggalkan sementara, anda disyorkan untuk mengunci skrin secara manual"
+  nb:    "Den nåværende status vil holde skjermen konstant på. Hvis du midlertidig forlater, anbefales det at du låser skjermen manuelt."
+  sk:    "Aktuálny stav udrží obrazovku vždy svetlou, ak dočasne odchádzate, odporúčame vám ručne zamknúť obrazovku"
+  sr:    "Тренутни статус ће стално укључивати екран. Ако привремено одете, препоручује се ручно закључавање екрана"
+  sw:    "Hali ya sasa itaweka screen daima mwanga, kama wewe kuondoka kwa muda, unapendekeza manually lock screen"
+  ta:    "தற்போதைய நிலை திரையை எப்போதும் பிரகாசமாக வைத்திருக்கும், நீங்கள் தற்காலிகமாக வெளியேறினால், நீங்கள"
+  te:    "ప్రస్తుత స్థితి స్క్రీన్ ప్రకాశవంతంగా ఉంటుంది, మీరు తాత్కాలికంగా వెళ్ళి ఉంటే, మీరు మాన్యువ"
+  tr:    "Mevcut durum ekranı her zaman parlak tutacaktır. Geçici olarak ayrılırsanız, ekranı el ile kilitlemenizi öneririz."
+  uk:    "Поточний стан зберігає екран завжди яскравим, якщо ви тимчасово виходите, рекомендуємо вручну заблокувати екран"
+  ur:    موجودہ حیثیت اسکرین کو ہمیشہ روشن رکھے گی، اگر آپ عارضی طور پر چھوڑ رہے ہیں تو، آپ کو دستی طور پر اسکرین لاک کرنے کی سفارش کی جاتی ہے
 
 - zh-CN: 正在重组数据..
   zh-TW: 正在重組數據..
