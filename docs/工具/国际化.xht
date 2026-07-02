@@ -371,7 +371,10 @@
     //     "庄，庄": ["za", "Zhuang, Chuang"],
     //     祖鲁语: ["zu", "Zulu"]
     // };
-    var supports = i18nSupports;
+    var supports = shallowClone(i18nSupports, 2);
+    supports.forEach(a => {
+        a.info = a.land()
+    });
     var getAllText = function (data, f) {
         try {
             if (/^\s*(\<\!--[\s\S]*?--\>\s*)*<!doctype\s/i.test(data)) return [];
@@ -438,6 +441,8 @@
     var detailWindow;
     var detailScope = {
         drop,
+        checker,
+        item: null,
         field,
         textarea,
         supports: baiduFanyiConfig.smap ? supports.filter(s => baiduFanyiConfig.smap[s.id]) : supports.slice(0, 8),
@@ -445,7 +450,66 @@
         lattice,
         fanyi: {},
         a: button,
+        _baiduAll: false,
+        get baiduAll() {
+            return this._baiduAll;
+        },
+        _wakeLock: null,
+        _wakeAlert: null,
+        async wakeLock() {
+            if (this._wakeLock) {
+                this.wakeLockEnd();
+            }
+            if (navigator.wakeLock) {
+                this._wakeLock = navigator.wakeLock.request("screen");
+                this._wakeLock = await this._wakeLock;
+                if (this._wakeLock) this._wakeAlert = alert(i18n`当前状态会保持屏幕常亮，如您暂时离开，建议您手动锁屏`, 'warn', false);
+            }
+        },
+        async wakeLockEnd() {
+            var wakeLock = await this._wakeLock;
+            this._wakeLock = null;
+            if (wakeLock) {
+                await wakeLock.release();
+                if (this._wakeLock === wakeLock) this._wakeLock = null;
+                if (!this._wakeLock) remove(this._wakeAlert);
+            }
+        },
+        set baiduAll(v) {
+            this._baiduAll = v;
+            if (v) this.wakeLock();
+            else this.wakeLockEnd();
+        },
+        async baidu2() {
+            var startRow = activedRow;
+            var direction = 1;
+            do {
+                var nextRow = null;
+                await this.baidu();
+                if (activedRow && this.baiduAll) {
+                    if (direction > 0) {
+                        var nextRow = activedRow.nextElementSibling;
+                        if (nextRow) {
+                            nextRow.click();
+                            await wait(200);
+                        }
+                        else direction = -1;
+                    }
+                    if (direction < 0) {
+                        var nextRow = activedRow.previousElementSibling;
+                        if (nextRow) nextRow.click();
+                    }
+                    if (nextRow) {
+                        tableElement.children[1].setFocus(nextRow);
+                    }
+                }
+                await wait(200);
+
+            } while (nextRow);
+
+        },
         async baidu() {
+
             var fanyi = this.fanyi;
             var item = this.item;
             if (item) {
@@ -458,9 +522,12 @@
             }
             try {
                 for (var s of this.supports) {
-                    if (fanyi[s.id] && fanyi[s.id].trim()) continue;
+                    var fy = fanyi[s.id];
+                    if (fy instanceof Array) fy = fy[0];
+                    if (typeof fy === 'string' && fy.trim()) continue;
                     fanyi[s.id] = await requestBaiduFanyi(text, s.id, from);
                     liang++;
+                    if (item) item.liang = liang;
                     render.digest();
                 }
                 if (item) item.liang = liang;
@@ -480,7 +547,7 @@
         if (!detailWindow) {
             detailWindow = view();
             on('submit')(detailWindow, e => e.preventDefault());
-            detailWindow.innerHTML = `<div head><span -if=!item? >${i18n`翻译工具`} </span><template -else>${i18n`翻译: `}"<span -bind="item?.text"></span>"</template><drop @click="close()"></drop></div><lattice itemwidth=260 -src="s in supports" body><field style="display:inline-block;padding:6px 0 0 0;position:relative" ><label style="padding-left:2px;display:block;background:#fff;background-clip:padding-box;border:1px solid transparent;box-sizing:border-box;" head><span -bind="s.name"></span>(<span -bind="s.lang"></span>)</label><textarea -model="fanyi[s.id]" class='body' style="resize:none"></textarea></field></lattice><div foot><a style="float:left" @click="baidu">${i18n`一键百度`}</a></div>`;
+            detailWindow.innerHTML = `<div head><span -if=!item? >${i18n`翻译工具`} </span><template -else>${i18n`翻译: `}"<span -bind="item?.text"></span>"</template><drop @click="close()"></drop></div><lattice itemwidth=260 -src="s in supports" body><field style="display:inline-block;padding:6px 0 0 0;position:relative" ><label style="padding-left:2px;display:block;background:#fff;background-clip:padding-box;border:1px solid transparent;box-sizing:border-box;pointer-events:none" head><span -bind="s.name"></span>(<span -bind="s.lang"></span>)</label><textarea -model="fanyi[s.id]" class='body' style="resize:none"></textarea></field></lattice><div foot><a style="float:left" @click="baidu2">${i18n`一键百度`}</a><label @click="baiduAll=!baiduAll" -if="!!item?" ><checker -value=baiduAll></checker>${i18n`自动换行`}</label></div>`;
             drag.on(detailWindow, detailWindow.firstElementChild);
             resize.on(detailWindow);
             css(detailWindow, `position:absolute;left:0;top:0;bottom:0;width:260px;`);
@@ -501,7 +568,9 @@
         var count = 0;
         var fanyi = detailScope.fanyi;
         if (fanyi) for (var s of supports) {
-            if (fanyi[s.id] && fanyi[s.id].trim()) count++;
+            var fy = fanyi[s.id];
+            if (fy instanceof Array) fy = fy[0];
+            if (typeof fy === 'string' && fy.trim()) count++;
         }
         if (detailScope.item) {
             detailScope.item.liang = count;
@@ -612,13 +681,24 @@
                 }
             }
         }
-        msg.setText(i18n`提取完成`);
         var result = [];
         var preMap = Object.create(null);
         var againstid = 0;
         for (var e of pretrans) {
             var data = await readText(e);
-            data = parseYML(data);
+            var filename = a.name;
+            msg.setText(i18n`加载已翻译文件：${filename}`);
+            var yield1 = parseYML.yield(data);
+            while (!yield1.done) {
+                if (yield1.index % 10000 === 0) {
+                    msg.setText(i18n`加载已翻译文件:${filename} (${yield1.total}\\${yield1.index})`);
+                    await wait(20);
+                }
+                yield1.next();
+            }
+            msg.setText(i18n`正在重组数据..`);
+            await wait(20);
+            data = yield1.value;
             loop: for (var d of data) {
                 for (var k in d) {
                     var s = d[k];
@@ -640,7 +720,16 @@
                     liang++;
                     fanyi[id] = d[k];
                 }
-                d = { text: d[supports[0].lang], fanyi, liang, d };
+                var text = d[supports[0].lang]
+                d = { text: text, fanyi, liang, d };
+                if (text in textMap) {
+                    var tm = textMap[text];
+                    var count = tm['#count'];
+                    delete tm["#count"];
+                    var files = Object.keys(tm);
+                    d.files = files.join(',\r\n');
+                    d.count = count;
+                }
                 result.push(d);
             }
         }
@@ -666,9 +755,9 @@
             if (k in preMap) return;
             untrans.push({ text: k, occurs: texts, files: files.join(',\r\n'), count });
         });
-
         已找到的字符串 = untrans.concat(result);
         runFilter();
+        msg.setText(i18n`提取完成`, 'success');
     }
     var exportCSV = async function () {
         var checked_supports = detailScope.supports;

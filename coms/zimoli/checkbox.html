@@ -1,4 +1,5 @@
 <a ng-repeat="o in options" ng-click="select(o)">
     <r ng-model=o.checked></r>
     <span ng-bind=o.name||o></span>
+    <span .info -if="o.info">(<span -bind="o.info"></span>)</span>
 </a>

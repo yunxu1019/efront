@@ -546,7 +546,7 @@ var commands = {
         // 帮肋信息
         if (+process.version.replace(/^v/, '').split(".").slice(0, 2).join('.') < 21.2) {
             setTimeout(function () {
-                console.help(i18n`If you are an English user, please switch to nodejs21.2 or above to display in English`);
+                console.help(`If you are an English user, please switch to nodejs21.2 or above to display in English`);
             });
         }
         if (!value1) {

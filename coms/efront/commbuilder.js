@@ -319,7 +319,7 @@ var loadJsBody = function (data, filename, fullpath, lessdata, commName, classNa
                 });
                 i18nSupports = scanner2(`[${i18ndata.map(a => `{
                     "name":${strings.encode(a.name)},
-                    "land":i18n${strings.encode(a.land, '`')},
+                    "land":i18n${strings.encode(a.land(), '`')},
                     "id":${strings.encode(a.id)},
                     "key":${strings.encode(a.key)}
                 }`)}]`);
