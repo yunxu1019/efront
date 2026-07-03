@@ -79,6 +79,7 @@ var buildjsp = function (buff, nameurl, realpath) {
     var SError = prebuilds.Error;
     //////////////////------------//////////////////////////////////////////////////////////////////////--------//////////////////////////////
     // // ///////////1/////////////11//2////////22/////////////2/2//////////////2/////////////////////11////////////////2////////2/////////1//
+    var promise = null;
     input.replace(dynareg, function (match, split, content, index, input) {
         var str = input.slice(lastIndex, index), func;
         lastIndex = index + match.length;
@@ -88,12 +89,22 @@ var buildjsp = function (buff, nameurl, realpath) {
         }
         else {
             func = createFunction(content, nameurl, realpath, prebuilds);
+            if (typeof func.then === "function") {
+                promise = true;
+            }
         }
         splited.push(str, func);
         return match;
     });
     if (lastIndex < input.length - 1) splited.push(input.slice(lastIndex, input.length));
-    return function (req, res) {
+    if (promise) promise = Promise.all(splited).then((spd) => {
+        splited = spd;
+        promise = null;
+    });
+    return function jsp(req, res) {
+        if (promise) return promise.then(function () {
+            return jsp(req, res);
+        });
         var context = {};
         context.context = context;
         var terminate = false;

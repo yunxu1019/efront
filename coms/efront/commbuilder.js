@@ -151,13 +151,28 @@ var bindLoadings = function (reg, data, rootfile, replacer = a => a, deep) {
 };
 
 var useInternalReg = /^\s*(['"`])(?:use|#?include)\s+(.+?)\1(\s*;)?\s*$/img;
-var replaceIncludes = function (data) {
-    return data.replace(useInternalReg, function (m, q, p, c) {
+var fsp = fs.promises;
+var replaceIncludes = function (data, fullpath) {
+    var lastIndex = 0;
+    var splited = [];
+    var dirname = path.dirname(fullpath);
+    var data1 = data.replace(useInternalReg, function (m, q, p, c, i) {
         if (/^\s*(['"`])use\s+strict\1/i.test(m)) return m;
-        var realName = path.basename(p).replace(/\..*$/, "") || "main";
-        realName = realName.replace(/\-(\w)/g, (_, a) => a.toUpperCase());
-        return `var ${realName}=require(${q}${p}${q})${c || ''}`;
+        var fp = path.join(dirname, p);
+        if (!/\.([mc]?jsx?|h)$/.test(fp) || !fs.existsSync(fp)) {
+            var realName = path.basename(p).replace(/\..*$/, "") || "main";
+            realName = realName.replace(/\-(\w)/g, (_, a) => a.toUpperCase());
+            return `var ${realName}=require(${q}${p}${q})${c || ''}`;
+        }
+        splited.push(data.slice(lastIndex, i), fsp.readFile(fp));
+        lastIndex = i + m.length;
+        return m;
     });
+    if (lastIndex === 0) return data1;
+    if (lastIndex < data.length) {
+        splited.push(data.slice(lastIndex));
+    }
+    return Promise.all(splited).then(a => a.join(""));
 };
 var loadUseBody = async function (source, fullpath, watchurls) {
     var replacer = function (data, realPath) {
@@ -1269,8 +1284,7 @@ function commbuilder(buffer, filename, fullpath, watchurls) {
     }
     return promise1 || data;
 }
-commbuilder.parse = function (data, filename = 'main', fullpath = './main.js', compress, breakcode = 0) {
-    data = String(data);
+var parse_ = function (data, filename, fullpath, compress, breakcode) {
     var savedflag = breakflag;
     breakflag = !!breakcode;
     var savedCompress = commbuilder.compress;
@@ -1280,7 +1294,6 @@ commbuilder.parse = function (data, filename = 'main', fullpath = './main.js', c
     var [commName, lessName, className] = prepare(filename, fullpath);
     if (/\.(?:pem|html?|xml|glsl|txt|log)$/i.test(fullpath)) data = `return ${strings.encode(data)}`;
     else if (/\.(?:json)$/i.test(fullpath)) data = `var ${commName} = ` + data;
-    else if (/\.[mc]?[tj]sx?$/i.test(fullpath)) data = replaceIncludes(data);
     autoprop.disabled = true;
     var res = loadJsBody.call(this, data, filename, fullpath, null, commName, lessName, className);
     if (compress === 2) [res.params, res.data] = buildPress2([], [], res.data, [], [], fullpath + "->.js");
@@ -1291,6 +1304,15 @@ commbuilder.parse = function (data, filename = 'main', fullpath = './main.js', c
     else commbuilder.compress = savedCompress;
     AUTOEVAL = autoeval;
     breakflag = savedflag;
+    return res;
+};
+commbuilder.parse = function (data, filename = 'main', fullpath = './main.js', compress, breakcode = 0) {
+    data = String(data);
+    if (/\.[mc]?[tj]sx?$/i.test(fullpath)) {
+        data = replaceIncludes(data, fullpath);
+        if (typeof data.then === 'function') return data.then((data) => parse_.call(this, data, filename, fullpath, compress, breakcode));
+    }
+    var res = parse_.call(this, data, filename, fullpath, compress, breakcode);
     return res;
 };
 commbuilder.break = function (data, filename, fullpath, compress) {

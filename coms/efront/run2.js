@@ -26,7 +26,7 @@ module.exports = async function (mainpath, args) {
     require2.commap = commap;
     memery.POLYFILL = false;
     memery.COMPRESS = false;
-    var f = require2.createFunction(data, r || mainpath, mainpath);
+    var f = await require2.createFunction(data, r || mainpath, mainpath);
     process._argv = args;
     require2.invokeFunction(f);
 

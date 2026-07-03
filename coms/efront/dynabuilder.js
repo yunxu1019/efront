@@ -30,29 +30,47 @@ var globals = Object.assign(Object.create(null), prebuilds, {
     __filename: '',
     __dirname: ''
 });
-function dynabuilder(buff, fileurl, filepath) {
+async function dynabuilder(buff, fileurl, filepath) {
     var that = this;
     var time = +new Date;
     var imported = [];
     var required = [];
-    var data = String(buff).replace(dynareg, function (match, split, content) {
+    var splited = [];
+    var lastIndex = 0;
+    var data = String(buff);
+    var collect = function (res) {
+        if (res.imported) for (var a of res.imported) {
+            if (a in globals) continue;
+            if (imported.indexOf(a) < 0) imported.push(a);
+        }
+        if (res.required) for (var a of res.required) {
+            if (a in globals) continue;
+            if (required.indexOf(a) < 0) required.push(a);
+        }
+        return `<script serverside>${res.data}</script>`;
+    }
+    var data1 = data.replace(dynareg, function (match, split, content, index) {
         if (/^\<\!\-\-/.test(match)) return match;
         if (!seekreg.test(content)) {
             var res = commparse.call(that, content, fileurl, filepath, memery.COMPRESS ? 2 : false, false);
-            if (res.imported) for (var a of res.imported) {
-                if (a in globals) continue;
-                if (imported.indexOf(a) < 0) imported.push(a);
+            if (typeof res.then === 'function') {
+                splited.push(data.slice(lastIndex, index), res);
+                lastIndex = index + match.length;
+                return match;
             }
-            if (res.required) for (var a of res.required) {
-                if (a in globals) continue;
-                if (required.indexOf(a) < 0) required.push(a);
-            }
-            content = res.data;
+            return collect(res);
         }
-        if (split === '%') return `<%${content}%>`;
-        return `<script serverside>${content}</script>`;
+        return `<%${content}%>`;
     });
-    data = Buffer.from(data);
+    if (lastIndex > 0) {
+        splited = await Promise.all(splited);
+        for (var cx = 1, dx = splited.length; cx < dx; cx += 2) {
+            splited[cx] = collect(splited[cx]);
+        }
+        if (lastIndex < data.length) splited.push(data.slice(lastIndex));
+        data1 = splited.join('');
+    }
+    data = Buffer.from(data1);
     data.time = new Date - time;
     data.imported = imported;
     data.required = required;

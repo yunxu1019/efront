@@ -1,8 +1,8 @@
 var memery = require('./memery');
 var commparse = commbuilder.parse;
-function backbuilder(buff, fileurl, filepath) {
+async function backbuilder(buff, fileurl, filepath) {
     var time = new Date;
-    var res = commparse.call(this, String(buff), fileurl, filepath, memery.COMPRESS ? true : false, memery.BREAK);
+    var res = await commparse.call(this, String(buff), fileurl, filepath, memery.COMPRESS ? true : false, memery.BREAK);
     var buff = pngencode.packjs(res);
     buff.time = new Date - time;
     buff.imported = res.imported;

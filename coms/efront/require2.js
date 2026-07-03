@@ -236,6 +236,9 @@ var createFunction = function (data, pathname, fullpath, prebuilds) {
     else {
         var content = String(data);
         var parsed = commparse.call(commap, content, pathname, fullpath);
+        if (typeof parsed.then === 'function') {
+            return parsed.then(parsed => createFromParsed(parsed, fullpath, prebuilds));
+        }
     }
     var func = createFromParsed(parsed, fullpath, prebuilds);
     return func;
