@@ -1,6 +1,7 @@
 var scanner2 = require("./scanner2");
 var { SCOPED, QUOTED, SCOPED, PROPERTY, STAMP, PIECE, setqueue, splice, relink, patchArrawScope, number_reg, replace, canbeDuplicate, createString } = require("./common");
 var strings = require("../basic/strings");
+var cloneNode = require("./cloneNode.js");
 var program = null;
 var patchTranslate = function (c, raw) {
     if (c.length) {
@@ -90,7 +91,7 @@ var ctn = function (tt, t) {
         n.forEach((a, i) => {
             if (a.type !== SCOPED) return;
             var e = a[0].text;
-            if (e in t) n[i] = t[e];
+            if (e in t) n[i] = cloneNode(t[e]);
         });
         relink(n);
     });
@@ -160,7 +161,7 @@ function translate([imap, supports], code) {
                     if (/[\$&]\d+/.test(v)) {
                         var a = v.replace(/^[\$&]+/, '');
                         var a = (a << 1) - 1;
-                        if (a in t) v = t[a];
+                        if (a in t) v = cloneNode(t[a]);
                         else v = scanner2(`(${JSON.stringify(v)})`)[0];
                     }
                     else if (k === 'options') {

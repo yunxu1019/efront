@@ -27,3 +27,4 @@ var cloneNode = function (o, keep) {
     }
     return c;
 };
+module.exports = cloneNode;
