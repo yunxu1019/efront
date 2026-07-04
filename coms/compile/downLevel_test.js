@@ -1,10 +1,11 @@
 var downLevel = require("./downLevel");
-var _asert = assert, i = 12;
+var _asert = assert, i = downLevel.debugid = 13;
 assert = function (a, b) {
     var d = 1;
     b = b.split(/(?<!\r)\n/), d = b["length"], b = b["join"]("\r\n");
     _asert(a, b, i);
     i += d;
+    downLevel.debugid = i;
 }
 var innerJs = new Javascript;
 innerJs.defaultType = common.STRAP;
@@ -189,35 +190,36 @@ _.a = function () {},
 Object["defineProperty"](_, "c", (_0 = {}, _0["get"] = function () {}, _0)),
 _.b = b, _)\r\nvar _, _0`);
 assert(downLevel(`if(){Promise.reslove({get then() {}})}`), `if () { Promise.reslove((_ = {},\r\nObject["defineProperty"](_, "then", (_0 = {}, _0["get"] = function () {}, _0)), _)) }\r\nvar _, _0`)
-assert(downLevel(`=[...a]`), `var &slice = Array["prototype"]["slice"];\r\n= &slice["call"](a)`)
-assert(downLevel(`let a = [...a,...a()];`), `var &slice = Array["prototype"]["slice"];\r\nvar a = &slice["call"](a)["concat"](&slice["call"](a()));`)
-assert(downLevel(`=[...a,...b]`), `var &slice = Array["prototype"]["slice"];\r\n= &slice["call"](a)["concat"](&slice["call"](b))`)
-assert(downLevel(`=[a,...b]`), `var &slice = Array["prototype"]["slice"];\r\n= [a]["concat"](&slice["call"](b))`)
-assert(downLevel(`=[a,...b,...c]`), `var &slice = Array["prototype"]["slice"];\r\n= [a]["concat"](&slice["call"](b), &slice["call"](c))`)
-assert(downLevel(`=[a,b,...c]`), `var &slice = Array["prototype"]["slice"];\r\n= [a, b]["concat"](&slice["call"](c))`)
-assert(downLevel(`=[a,b,...c,d]`), `var &slice = Array["prototype"]["slice"];\r\n= [a, b]["concat"](&slice["call"](c), [d])`)
-assert(downLevel(`=[a,b,...c,d,e,f]`), `var &slice = Array["prototype"]["slice"];\r\n= [a, b]["concat"](&slice["call"](c), [d, e, f])`)
-assert(downLevel(`=[a,b,...c,d,e,f,...g]`), `var &slice = Array["prototype"]["slice"];\r\n= [a, b]["concat"](&slice["call"](c), [d, e, f], &slice["call"](g))`)
-assert(downLevel(`=[a,b,...c,d,...e]`), `var &slice = Array["prototype"]["slice"];\r\n= [a, b]["concat"](&slice["call"](c), [d], &slice["call"](e))`)
+assert(downLevel(`=[...a]`), `= &slice(a)`)
+assert(downLevel(`let a = [...a,...a()];`), `var a = &slice(a)["concat"](&slice(a()));`)
+assert(downLevel(`=[...a,...b]`), `= &slice(a)["concat"](&slice(b))`)
+assert(downLevel(`=[a,...b]`), `= [a]["concat"](&slice(b))`)
+assert(downLevel(`=[a,...b,...c]`), `= [a]["concat"](&slice(b), &slice(c))`)
+assert(downLevel(`=[a,b,...c]`), `= [a, b]["concat"](&slice(c))`)
+assert(downLevel(`=[a,b,...c,d]`), `= [a, b]["concat"](&slice(c), [d])`)
+assert(downLevel(`=[a,b,...c,d,e,f]`), `= [a, b]["concat"](&slice(c), [d, e, f])`)
+assert(downLevel(`=[a,b,...c,d,e,f,...g]`), `= [a, b]["concat"](&slice(c), [d, e, f], &slice(g))`)
+assert(downLevel(`=[a,b,...c,d,...e]`), `= [a, b]["concat"](&slice(c), [d], &slice(e))`)
 assert(downLevel(`[...new Set(keys)]`), '&values(new Set(keys))');
+assert(downLevel(`[...new Array(20)]`), '&slice(new Array(20))');
 assert(downLevel(`a(...b)`), `a["apply"](null, b)`)
 assert(downLevel(`a(..."b,c".split(","))`), `a["apply"](null, "b,c".split(","))`)
-assert(downLevel(`new a(...args)`), `var &slice = Array["prototype"]["slice"];\r\nnew(a['bind']['apply'](a, [null]["concat"](&slice["call"](args))))`)
-assert(downLevel(`a(c,d,e,...b(...c))`), `var &slice = Array["prototype"]["slice"];\r\na["apply"](null, [c, d, e]["concat"](&slice["call"](b["apply"](null, c))))`)
-assert(downLevel(`a(c,d,e,...b.a(...c))`), `var &slice = Array["prototype"]["slice"];\r\na["apply"](null, [c, d, e]["concat"](&slice["call"](b.a["apply"](b, c))))`)
-assert(downLevel(`a(c,d,e,...b.a.c(...c))`), `var &slice = Array["prototype"]["slice"];\r\na["apply"](null, [c, d, e]["concat"](&slice["call"]((_ = b.a).c["apply"](_, c))))\r\nvar _`)
-assert(downLevel(`a(...b,...c)`), `var &slice = Array["prototype"]["slice"];\r\na["apply"](null, &slice["call"](b)["concat"](&slice["call"](c)))`)
-assert(downLevel(`a(...b,c)`), `var &slice = Array["prototype"]["slice"];\r\na["apply"](null, &slice["call"](b)["concat"]([c]))`)
+assert(downLevel(`new a(...args)`), `new(a['bind']['apply'](a, [null]["concat"](&slice(args))))`)
+assert(downLevel(`a(c,d,e,...b(...c))`), `a["apply"](null, [c, d, e]["concat"](&slice(b["apply"](null, c))))`)
+assert(downLevel(`a(c,d,e,...b.a(...c))`), `a["apply"](null, [c, d, e]["concat"](&slice(b.a["apply"](b, c))))`)
+assert(downLevel(`a(c,d,e,...b.a.c(...c))`), `a["apply"](null, [c, d, e]["concat"](&slice((_ = b.a).c["apply"](_, c))))\r\nvar _`)
+assert(downLevel(`a(...b,...c)`), `a["apply"](null, &slice(b)["concat"](&slice(c)))`)
+assert(downLevel(`a(...b,c)`), `a["apply"](null, &slice(b)["concat"]([c]))`)
 assert(downLevel(`getPendingExpressions()[_push](...flattenCommaList(expr));`), `(_ = getPendingExpressions())[_push]["apply"](_, flattenCommaList(expr));\r\nvar _`)
-assert(downLevel(`a(b,...c)`), `var &slice = Array["prototype"]["slice"];\r\na["apply"](null, [b]["concat"](&slice["call"](c)))`)
-assert(downLevel(`a(a,b,...c,d,...e)`), `var &slice = Array["prototype"]["slice"];\r\na["apply"](null, [a, b]["concat"](&slice["call"](c), [d], &slice["call"](e)))`)
-assert(downLevel(`a["call"](a,b,...c,d,...e)`), `var &slice = Array["prototype"]["slice"];\r\na["call"]["apply"](a, [a, b]["concat"](&slice["call"](c), [d], &slice["call"](e)))`)
-assert(downLevel(`a.b(a,b,...c,d,...e)`), `var &slice = Array["prototype"]["slice"];\r\na.b["apply"](a, [a, b]["concat"](&slice["call"](c), [d], &slice["call"](e)))`)
-assert(downLevel(`[].b(a,b,...c,d,...e)`), `var &slice = Array["prototype"]["slice"];\r\n(_ = []).b["apply"](_, [a, b]["concat"](&slice["call"](c), [d], &slice["call"](e)))\r\nvar _`)
+assert(downLevel(`a(b,...c)`), `a["apply"](null, [b]["concat"](&slice(c)))`)
+assert(downLevel(`a(a,b,...c,d,...e)`), `a["apply"](null, [a, b]["concat"](&slice(c), [d], &slice(e)))`)
+assert(downLevel(`a["call"](a,b,...c,d,...e)`), `a["call"]["apply"](a, [a, b]["concat"](&slice(c), [d], &slice(e)))`)
+assert(downLevel(`a.b(a,b,...c,d,...e)`), `a.b["apply"](a, [a, b]["concat"](&slice(c), [d], &slice(e)))`)
+assert(downLevel(`[].b(a,b,...c,d,...e)`), `(_ = []).b["apply"](_, [a, b]["concat"](&slice(c), [d], &slice(e)))\r\nvar _`)
 assert(downLevel(`a(...b).c(...d)`), `(_ = a["apply"](null, b)).c["apply"](_, d)\r\nvar _`)
 assert(downLevel(`a(...b).c(...d).e(...f)`), `(_ = (_ = a["apply"](null, b)).c["apply"](_, d)).e["apply"](_, f)\r\nvar _`)
 assert(downLevel(`diagnostic.relatedInformation.push(...relatedInformation);`), `(_ = diagnostic.relatedInformation).push["apply"](_, relatedInformation);\r\nvar _`);
-assert(downLevel(`const typeNames = [79 /* Identifier */, ...typeKeywords];`), `var &slice = Array["prototype"]["slice"];\r\nvar typeNames = [79 /* Identifier */]["concat"](&slice["call"](typeKeywords));`);
+assert(downLevel(`const typeNames = [79 /* Identifier */, ...typeKeywords];`), `var typeNames = [79 /* Identifier */]["concat"](&slice(typeKeywords));`);
 i++// 箭头函数
 assert(downLevel(`a=>k`), "function (a) { return k }")
 assert(downLevel(`function (a,...b,b){}`), `function (a, b) { b = arguments["length"] > 1 ? arguments[arguments["length"] - 1] : undefined; }`)
@@ -228,10 +230,10 @@ assert(downLevel(`map(([a])=>a)`), "map(function (arg) { var a = arg[0]; return 
 assert(downLevel(`var [_, R, G, B, A] = rgbHex.exec(color).map(a => parseInt(a + a, 16));`), "var _0 = rgbHex.exec(color).map(function (a) { return parseInt(a + a, 16) }), _ = _0[0], R = _0[1], G = _0[2], B = _0[3], A = _0[4];\r\nvar _0")
 assert(downLevel(`if (/^(?:select|input|textarea)$/i.test(initialEvent.target.tagName) || getTargetIn(a => a.nodrag || a.hasAttribute('nodrag'), initialEvent.target)) return;`), "if (/^(?:select|input|textarea)$/i.test(initialEvent.target.tagName) || getTargetIn(function (a) { return a.nodrag || a.hasAttribute('nodrag') }, initialEvent.target)) return;")
 i++// 对象收集
-assert(downLevel(`function (a,...b){}`), `var &slice = Array["prototype"]["slice"];\r\nfunction (a) { var b = &slice["call"](arguments, 1); }`)
-assert(downLevel(`function (a,...b,c){}`), `var &slice = Array["prototype"]["slice"];\r\nfunction (a, c) { var b = &slice["call"](arguments, 1, -1); c = arguments["length"] > 1 ? arguments[arguments["length"] - 1] : undefined; }`)
+assert(downLevel(`function (a,...b){}`), `function (a) { var b = &slice(arguments, 1); }`)
+assert(downLevel(`function (a,...b,c){}`), `function (a, c) { var b = &slice(arguments, 1, -1); c = arguments["length"] > 1 ? arguments[arguments["length"] - 1] : undefined; }`)
 assert(downLevel(`function (a,...,c){}`), `function (a, c) { c = arguments["length"] > 1 ? arguments[arguments["length"] - 1] : undefined; }`)
-assert(downLevel(`(...a) => k`), `var &slice = Array["prototype"]["slice"];\r\nfunction () { var a = &slice["call"](arguments, 0); return k }`)
+assert(downLevel(`(...a) => k`), `function () { var a = &slice(arguments, 0); return k }`)
 assert(downLevel(`for await(o of os) noSymbol`), `return &async(
 function () {
 return [8, 8]
@@ -325,10 +327,10 @@ assert(downLevel(`for(var [a] of os)Symbol`), `try { for (var a, _0 = os[Symbol[
 var _, _0, _1, _2, _3`)
 assert(downLevel(`for(var [a,b] of os)Symbol`), `try { for (var a, b, _0 = os[Symbol["iterator"]] || Array["prototype"][Symbol["iterator"]], _0 = _0["call"](os), _ = _0["next"](); !_["done"] && (_1 = _["value"], _2 = (_1[Symbol["iterator"]] || Array["prototype"][Symbol["iterator"]])["call"](_1), _3 = undefined, _3 = _2["next"](), a = _3["value"], _3 = _2["next"](), b = _3["value"], _3 = (!_3 || !_3["done"]) && typeof _2["return"] === "function" && _2["return"](), true); _ = _0["next"]()) Symbol } finally { if (_ && !_["done"] && typeof _0["return"] === "function") _0["return"]() }
 var _, _0, _1, _2, _3`)
-assert(downLevel(`[...a]=a`), `var &slice = Array["prototype"]["slice"];\r\na = &slice["call"](a, 0)`)
-assert(downLevel(`[c,...a]=a`), `var &slice = Array["prototype"]["slice"];\r\nc = a[0], a = &slice["call"](a, 1)`)
-assert(downLevel(`[...a]=a`), `var &slice = Array["prototype"]["slice"];\r\na = &slice["call"](a, 0)`)
-assert(downLevel(`[...a,c]=a`), `var &slice = Array["prototype"]["slice"];\r\n_ = a, a = &slice["call"](a, 0, -1), c = _["length"] > 1 ? _[_["length"] - 1] : undefined\r\nvar _`)
+assert(downLevel(`[...a]=a`), `a = &slice(a, 0)`)
+assert(downLevel(`[c,...a]=a`), `c = a[0], a = &slice(a, 1)`)
+assert(downLevel(`[...a]=a`), `a = &slice(a, 0)`)
+assert(downLevel(`[...a,c]=a`), `_ = a, a = &slice(a, 0, -1), c = _["length"] > 1 ? _[_["length"] - 1] : undefined\r\nvar _`)
 assert(downLevel(`{...a,c}=a`), `c = a.c, a = &rest(a, ["c"])`)
 assert(downLevel(`{c,...a}=a`), `c = a.c, a = &rest(a, ["c"])`)
 assert(downLevel("if(a){}[r, g, b] = rgb4s(r, g, b, s)"), "if (a) {} _ = rgb4s(r, g, b, s), r = _[0], g = _[1], b = _[2]\r\nvar _", true);
@@ -467,8 +469,7 @@ assert(downLevel(`Object.defineProperty(dis, f.key, {get() {}, set(v) {}})`), `O
 _.get = function () {},
 _.set = function (v) {}, _))
 var _`);
-assert(downLevel(`var restq = splice(queue, i, i2 - i, ...a[1], { type: STAMP, text: "=" });`), `var &slice = Array["prototype"]["slice"];
-var restq = splice["apply"](null, [queue, i, i2 - i]["concat"](&slice["call"](a[1]), [{ type: STAMP, text: "=" }]));`)
+assert(downLevel(`var restq = splice(queue, i, i2 - i, ...a[1], { type: STAMP, text: "=" });`), `var restq = splice["apply"](null, [queue, i, i2 - i]["concat"](&slice(a[1]), [{ type: STAMP, text: "=" }]));`)
 var c = scanner2(`\r\n    if (search.length) return null;\r\n    return path.join(...pathlist);\r\n`); i++
 c.fix(); i++
 c.break(); i++
@@ -484,13 +485,11 @@ assert(downLevel(`[{}.b,c]=[1]`), '_ = [1], {}.b = _[0], c = _[1]\r\nvar _')
 assert(downLevel(`[{}.b]=[1]`), '({}).b = [1][0]')
 assert(downLevel(`[[[a[b]]]]=[1]`), 'a[b] = [1][0][0][0]')
 assert(downLevel(`[[[{}[b]]]]=[1]`), '({})[b] = [1][0][0][0]')
-assert(downLevel(`[...a[b]]=[1]`), 'var &slice = Array["prototype"]["slice"];\r\n_ = [1], a[b] = &slice["call"](_, 0)\r\nvar _')
-assert(downLevel(`[a,...{length}]=[1]`), 'var &slice = Array["prototype"]["slice"];\r\n_ = [1], a = _[0], _0 = &slice["call"](_, 1), length = _0.length\r\nvar _, _0')
-assert(downLevel(`[...{length}]=[1]`), `var &slice = Array["prototype"]["slice"];
-_ = [1], _0 = &slice["call"](_, 0), length = _0.length
+assert(downLevel(`[...a[b]]=[1]`), '_ = [1], a[b] = &slice(_, 0)\r\nvar _')
+assert(downLevel(`[a,...{length}]=[1]`), '_ = [1], a = _[0], _0 = &slice(_, 1), length = _0.length\r\nvar _, _0')
+assert(downLevel(`[...{length}]=[1]`), `_ = [1], _0 = &slice(_, 0), length = _0.length
 var _, _0`)
-assert(downLevel(`[...{}[a]]=[1]`), `var &slice = Array["prototype"]["slice"];
-_ = [1], {}[a] = &slice["call"](_, 0)
+assert(downLevel(`[...{}[a]]=[1]`), `_ = [1], {}[a] = &slice(_, 0)
 var _`)
 assert(downLevel(`,{...{}[a]}=[1]`), `, _ = [1], {}[a] = &rest(_, [])
 var _`)
@@ -516,8 +515,7 @@ assert(downLevel(`var [list = this] = 0;`), `var list = (_ = 0[0], _ !== undefin
 var _`)
 assert(downLevel(`a => a() + a(1), a => a`), `function (a) { return a() + a(1) }, function (a) { return a }`)
 assert(downLevel(`a(a,)`), `a(a)`);
-assert(downLevel(`class{a=[...presets.source]}`), `var &slice = Array["prototype"]["slice"];
-function () { this.a = &slice["call"](presets.source) }`);
+assert(downLevel(`class{a=[...presets.source]}`), `function () { this.a = &slice(presets.source) }`);
 assert(downLevel(`class{a=a=>a}`), `function () { this.a = function (a) { return a } }`);
 assert(downLevel(`class{a}`), "function () { this.a = undefined; }");
 assert(downLevel(`class{a;}`), "function () { this.a = undefined; }");
@@ -528,27 +526,21 @@ tmp = scanner2(`class{#a;a(){a=this.#a}}`), tmp.detour(), i++;
 assert(downLevel.code(tmp).toString(), `var # = new WeakMap function (cls0) { cls0["prototype"]["a"] = function () { a = #["get"](this)["a"/* #a */] }
 return cls0 }(function () { #["set"](this, {}); #["get"](this)["a" /* #a */] = undefined; })`);
 downLevel.debug = false; i++;
-assert(downLevel(`class{ get a(){[...a]}}`), `var &slice = Array["prototype"]["slice"];
-function (cls0) {
-Object["defineProperty"](cls0["prototype"], "a", (tmp = {}, tmp["get"] = function () { &slice["call"](a) }, tmp))
+assert(downLevel(`class{ get a(){[...a]}}`), `function (cls0) {
+Object["defineProperty"](cls0["prototype"], "a", (tmp = {}, tmp["get"] = function () { &slice(a) }, tmp))
 return cls0 }(function () {})
 var tmp`);
-assert(downLevel(`class{ get (){[...a]}}`), `var &slice = Array["prototype"]["slice"];
-function (cls0) { cls0["prototype"].get = function () { &slice["call"](a) }
+assert(downLevel(`class{ get (){[...a]}}`), `function (cls0) { cls0["prototype"].get = function () { &slice(a) }
 return cls0 }(function () {})`);
-assert(downLevel(`class{ async get a(){[...a]}}`), `var &slice = Array["prototype"]["slice"];
-function (cls0) {
-Object["defineProperty"](cls0["prototype"], "a", (tmp = {}, tmp["get"] = function () { &slice["call"](a) }, tmp))
+assert(downLevel(`class{ async get a(){[...a]}}`), `function (cls0) {
+Object["defineProperty"](cls0["prototype"], "a", (tmp = {}, tmp["get"] = function () { &slice(a) }, tmp))
 return cls0 }(function () {})
 var tmp`);
-assert(downLevel(`a=class{ static a(){[...a]}}`), `var &slice = Array["prototype"]["slice"];
-a = function (cls0) { cls0.a = function () { &slice["call"](a) }
+assert(downLevel(`a=class{ static a(){[...a]}}`), `a = function (cls0) { cls0.a = function () { &slice(a) }
 return cls0 }(function () {})`);
-assert(downLevel(`a=class{ static(){[...a]}}`), `var &slice = Array["prototype"]["slice"];
-a = function (cls0) { cls0["prototype"].static = function () { &slice["call"](a) }
+assert(downLevel(`a=class{ static(){[...a]}}`), `a = function (cls0) { cls0["prototype"].static = function () { &slice(a) }
 return cls0 }(function () {})`);
-assert(downLevel(`a=class{ static{[...a]}}`), `var &slice = Array["prototype"]["slice"];
-a = function (cls0) { (function () { &slice["call"](a) }())
+assert(downLevel(`a=class{ static{[...a]}}`), `a = function (cls0) { (function () { &slice(a) }())
 return cls0 }(function () {})`);
 assert(downLevel(`geta=()=>({[a]:1})`), `geta = function () { return ((_ = {},
 _[a] = 1, _))

@@ -234,7 +234,7 @@ var killdec = function (queue, i, getobjname, _var = 'var', killobj, islet) {
                 iter.done = true;
                 write(name, `${patchMark}restIter(${tmpname})`), rootenvs[patchMark + "restIter"] = true;
             }
-            else write(name, `${patchMark}slice["call"](${tmpname},${at}${a > at ? `,${at - a}` : ''})`, rest.length > 0), rootenvs[patchMark + 'slice'] = true;
+            else write(name, `${patchMark}slice(${tmpname},${at}${a > at ? `,${at - a}` : ''})`, rest.length > 0), rootenvs[patchMark + 'slice'] = true;
             total = rest.length;
             rest.forEach(dec);
         }
@@ -827,7 +827,7 @@ var killspr = function (body, i, _getobjname, killobj) {
             var q = scanner2(`${patchMark}values()`);
         }
         else {
-            var q = scanner2(`${patchMark}slice["call"]()`);
+            var q = scanner2(`${patchMark}slice()`);
             rootenvs[patchMark + "slice"] = true;
         }
         insert1(q[q.length - 1], null, ...v);
@@ -1439,7 +1439,7 @@ var killarg = function (head, body, _getname, setarg = true) {
             return `${a}=arguments["length"]>${collect + n - 1}?arguments[arguments["length"] - ${n}]:undefined`;
         }));
 
-        if (cname) argcodes.unshift(`var ${cname}=${patchMark}slice["call"](arguments,${collect}${index > collect ? `,${collect - index}` : ""})`), rootenvs[patchMark + 'slice'] = true;
+        if (cname) argcodes.unshift(`var ${cname}=${patchMark}slice(arguments,${collect}${index > collect ? `,${collect - index}` : ""})`), rootenvs[patchMark + 'slice'] = true;
     }
     if (argcodes.length && setarg) {
         if (!body) {
@@ -1974,12 +1974,6 @@ var downcode = downLevel.code = function (code) {
     if (code.patchMark) patchMark = code.patchMark;
     down(code.scoped);
     code.keepcolor = false;
-    var slice_ = patchMark + 'slice';
-    if (rootenvs[slice_]) {
-        delete rootenvs[slice_];
-        if (!code.vars[slice_]) splice(code, 0, 0, ...scanner2(`var ${slice_} = Array["prototype"]["slice"];\r\n`));
-        code.vars[slice_] = true;
-    }
     if (rootenvs["#"]) {
         delete rootenvs["#"];
         if (!code.vars["#"]) splice(code, 0, 0, ...scanner2(`var # = new WeakMap`));
