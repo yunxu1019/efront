@@ -56,7 +56,7 @@ var patchCurve = function (b) {
         }
     }
 }
-// 解构赋值
+// 解构赋值 [...a]=...
 var killdec = function (queue, i, getobjname, _var = 'var', killobj, islet) {
     var tmpname = '';
     var index = 0;
@@ -396,7 +396,7 @@ var killdec = function (queue, i, getobjname, _var = 'var', killobj, islet) {
     // relink(queue);
     return i;
 };
-// 键值对重组
+// 键值对重组{...{K:v}}
 var killmap = function (body, i, _getobjname, _getnewname, killobj) {
     var o = body[i];
     if (!o.length) return i + 1;
@@ -805,7 +805,7 @@ var indexof = function (list, o, i) {
 var is3dots = function (m) {
     return m.type === STAMP && m.text === '...' || m.type === EXPRESS && /^\.\.\./.test(m.text);
 };
-// 数组或参数展开
+// 数组或参数展开(...args),[...args]
 var killspr = function (body, i, _getobjname, killobj) {
     var o = body[i];
     var m = o.first;
@@ -822,8 +822,14 @@ var killspr = function (body, i, _getobjname, killobj) {
         if (!s.text) v.shift();
         if (m) splice2(o, m, m = m.next);
         killobj(v);
-        var q = scanner2(`${patchMark}slice["call"]()`);
-        rootenvs[patchMark + "slice"] = true;
+        if (rootHyper) {
+            rootenvs[patchMark + "values"] = true;
+            var q = scanner2(`${patchMark}values()`);
+        }
+        else {
+            var q = scanner2(`${patchMark}slice["call"]()`);
+            rootenvs[patchMark + "slice"] = true;
+        }
         insert1(q[q.length - 1], null, ...v);
         return q;
     };
@@ -1963,7 +1969,7 @@ function downLevel(data) {
 var patchMark = '&';
 var downcode = downLevel.code = function (code) {
     rootenvs = code.envs;
-    rootHyper = rootenvs.Symbol || code.yield || code.async;
+    rootHyper = rootenvs.Symbol || code.yield || code.async || rootenvs.Set || rootenvs.Map;
     var patchMark_ = patchMark;
     if (code.patchMark) patchMark = code.patchMark;
     down(code.scoped);

@@ -513,7 +513,7 @@ var snapExpressHead = function (o) {
 
 var snapExpressFoot = function (o) {
     while (o && getnext(o)) {
-        if (o.needle) {
+        if (o.needle || o.unary) {
             o = getnext(o);
             continue;
         }
@@ -1141,8 +1141,17 @@ var getDeclared = function (o, kind, queue) {
                     }
                 }
                 if (o.text === '...') {
-                    o = getnext(o);
-                    continue;
+                    var n = o.next;
+                    if (n.type === EXPRESS) {
+                        o = n;
+                        continue;
+                    }
+                    var f = snapExpressFoot(n);
+                    var s = [o];
+                    while (o !== f) o = getnext(o), s.push(o);
+                    declared["..."] = [s, index];
+                    o.kind = kind;
+                    o = getnext(f);
                 }
                 break;
             case LABEL:

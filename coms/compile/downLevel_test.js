@@ -199,6 +199,7 @@ assert(downLevel(`=[a,b,...c,d]`), `var &slice = Array["prototype"]["slice"];\r\
 assert(downLevel(`=[a,b,...c,d,e,f]`), `var &slice = Array["prototype"]["slice"];\r\n= [a, b]["concat"](&slice["call"](c), [d, e, f])`)
 assert(downLevel(`=[a,b,...c,d,e,f,...g]`), `var &slice = Array["prototype"]["slice"];\r\n= [a, b]["concat"](&slice["call"](c), [d, e, f], &slice["call"](g))`)
 assert(downLevel(`=[a,b,...c,d,...e]`), `var &slice = Array["prototype"]["slice"];\r\n= [a, b]["concat"](&slice["call"](c), [d], &slice["call"](e))`)
+assert(downLevel(`[...new Set(keys)]`), '&values(new Set(keys))');
 assert(downLevel(`a(...b)`), `a["apply"](null, b)`)
 assert(downLevel(`a(..."b,c".split(","))`), `a["apply"](null, "b,c".split(","))`)
 assert(downLevel(`new a(...args)`), `var &slice = Array["prototype"]["slice"];\r\nnew(a['bind']['apply'](a, [null]["concat"](&slice["call"](args))))`)

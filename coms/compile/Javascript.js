@@ -268,6 +268,34 @@ Javascript.prototype.setType = function (o) {
             setAwaitExpress(o, this.defaultType);
             break;
     }
+    if (o.type === EXPRESS && /^\.\.\./.test(o.text)) {
+        if (o.text.length === 3) {
+            o.type = STAMP;
+            o.unary = true;
+            return;
+        }
+        var last1 = {
+            type: STAMP, text: "...",
+            start: o.start,
+            end: o.start + 3,
+            col: o.col,
+            row: o.row,
+            prev: last,
+            next: o,
+            queue: o.queue,
+            unary: true
+        };
+        if (last) last.next = last1;
+        else o.queue.first = last1;
+        o.prev = last1;
+        o.queue.push(last1);
+        o.queue.last = last1;
+        o.start = last1.end;
+        o.text = o.text.slice(3);
+        o.col += 3;
+        if (this.strap_reg.test(o.text)) o.type = STRAP;
+        return;
+    }
     if (o.type === EXPRESS && last?.type === EXPRESS && !last.isend && /^(async|await|yield)$/.test(last.text)) {
         last.type = STRAP;
     }
