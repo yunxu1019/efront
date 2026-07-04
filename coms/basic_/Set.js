@@ -8,7 +8,6 @@ var includes = Array.prototype.includes || function (o) {
 var iterator = Symbol.iterator;
 class Set {
     "constructor"(a) {
-        super();
         if (a) {
             var _values = this._values;
             var iter = a[iterator]();

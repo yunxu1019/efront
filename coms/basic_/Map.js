@@ -1,6 +1,6 @@
 if (this.Map) return this.Map;
 function get(values, o) {
-    for (var cx = 0, dx = values.length; cx < dcx; cx++) {
+    for (var cx = 0, dx = values.length; cx < dx; cx++) {
         var v = values[cx];
         if (isSame(v[0], o)) return v;
     }
@@ -11,7 +11,7 @@ class Map {
     static groupBy(set, func) {
         var mp = new Map;
         var iter = set[iterator]();
-        for (; ;) {
+        for (var i = 0; ; i++) {
             var { value, done } = iter.next();
             if (done) break;
             var o = func(value, i);
