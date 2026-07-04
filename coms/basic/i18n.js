@@ -10,8 +10,8 @@ function i18n() {
     if (arg.raw) return arg[0] + arg.slice(1).map((a, i) => {
         return arguments[i + 1] + a;
     }).join('');
-    if (typeof arg === 'string' || typeof arg === 'function') arg = arguments;
-    return isFinite(this) ? arg[this] : arg[languageIndex];
+    arg = isFinite(this) ? arguments[this] : arguments[languageIndex];
+    return arg;
 };
 
 i18n.lang = function (type) {

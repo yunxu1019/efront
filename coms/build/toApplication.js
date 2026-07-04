@@ -424,7 +424,7 @@ var patchData = function (mainScriptData, mainScript, responseTree) {
         var xTreeName = /(?:\bversionTree\s*|\[\s*(["'])versionTree\1\s*\])\s*[\:\=]\s*(.+?)\b/m.exec(mainScriptData);
         if (xTreeName) xTreeName = xTreeName[2];
         else xTreeName = "versionTree";
-        var code = "{\r\n" + Object.keys(versionTree).map(k => `["${k}"]:${strings.encode(versionTree[k])}`).join(",\r\n\t") + "\r\n}";
+        var code = "{\r\n" + Object.keys(versionTree).map(k => `["${k}"]:${strings.encode(versionTree[k], `'`)}`).join(",\r\n\t") + "\r\n}";
         mainScriptData = replaceTree(mainScriptData, xTreeName, code)
     }
     else {

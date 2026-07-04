@@ -118,4 +118,9 @@ function recode(s, singleSlash) {
     s = encode(s, '"', false);
     return s;
 }
-export { encode, decode, recode, escape, kicode, uncode };
+function ricode(s, singleSlash) {
+    s = decode(s, singleSlash);
+    s = encode(s, "'", false);
+    return s;
+}
+export { encode, decode, recode, ricode, ricode as ticode, escape, kicode, uncode };

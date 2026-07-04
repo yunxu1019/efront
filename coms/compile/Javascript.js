@@ -1,5 +1,5 @@
 "use strict";
-var strings = require("../basic/strings");
+var { recode, ricode, ticode, encode, decode } = require("../basic/strings");
 var Program = require("./Program");
 var Node = require("./Node");
 var backEach = require("../basic/backEach");
@@ -369,12 +369,16 @@ var scan = function (data) {
 var detourTemplate = function (raw, params) {
     var spliter = new Node({ text: ",", type: STAMP });
     var template = scan(`&extend([],{["raw"]:[]})`);
-    rootenvs["&extend"] = true;
+    var _extends = rootenvs["&extend"];
+    if (!_extends) {
+        _extends = rootenvs["&extend"] = [];
+    }
+    _extends.push(template[0])
     var str0 = template[1].first;
     var str1 = template[1][2][2];
     for (var r of raw) {
-        str0.push({ text: strings.recode("`" + r.text + "`"), type: QUOTED }, spliter);
-        str1.push({ text: strings.encode(r.text), type: QUOTED }, spliter);
+        str0.push({ text: recode("`" + r.text + "`"), type: QUOTED }, spliter);
+        str1.push({ text: encode(r.text), type: QUOTED }, spliter);
     }
     str0.pop();
     str1.pop();
@@ -421,11 +425,15 @@ var removeQuote = function (o, c, i) {
     if (c.prev) c.prev.next = ch;
     if (c.next) c.next.prev = cf;
 }
-
 Javascript.prototype.detour = function (body, ie) {
     context = this;
     var envs = rootenvs = Object.create(null);
+    ricode = require("../basic/strings").ricode;
     detour(body.first, ie);
+    for (var k in envs) {
+        body.used[k] = envs[k];
+        envs[k] = body.envs[k] = true;
+    }
     rootenvs = null;
     context = null;
     return envs;
@@ -453,6 +461,21 @@ var detourNullishSeek = function (o, ie) {
     o = o1.last;
     return o;
 }
+function addCrypt(c) {
+    var scoped = [c];
+    scoped.entry = '(';
+    scoped.leave = ')';
+    scoped.type = SCOPED;
+    scoped.first = scoped.last = c;
+    c.queue = scoped;
+    var dec = { type: EXPRESS, text: "\\decrypt" };
+    var _decrypts = rootenvs["\\decrypt"];
+    if (!_decrypts) {
+        _decrypts = rootenvs["\\decrypt"] = [];
+        _decrypts.push(dec);
+    }
+    return [dec, scoped];
+}
 function detour(o, ie) {
     while (o) {
         switch (o.type) {
@@ -468,7 +491,7 @@ function detour(o, ie) {
                     var n = o.next;
                     remove(o);
                     if (n.type === EXPRESS) {
-                        n.text = `[${strings.recode(n.text)}]`;
+                        n.text = `[${recode(n.text)}]`;
                     }
                     o = n;
                     continue;
@@ -516,14 +539,20 @@ function detour(o, ie) {
                 if (o.length) {
                     if (!o.prev || o.prev.type & (STAMP | STRAP)) {
                         o.type = SCOPED;
+                        var noemit = o.noemit;
                         o.entry = '[';
                         o.leave = `]["join"]("")`;
                         for (var cx = o.length - 1; cx >= 0; cx--) {
                             var c = o[cx];
                             if (c.type === PIECE) {
-                                c.type = QUOTED;
-                                c.text = strings.recode("`" + c.text + "`");
-                                splice(o, cx + 1, 0, { type: STAMP, text: ',' });
+                                if (noemit && ricode !== ticode) {
+                                    splice(o, cx, 1, ...addCrypt({ type: QUOTED, text: ricode("`" + c.text + "`") }), { type: STAMP, text: ',' });
+                                }
+                                else {
+                                    c.type = QUOTED;
+                                    c.text = (noemit ? ricode : recode)("`" + c.text + "`");
+                                    splice(o, cx + 1, 0, { type: STAMP, text: ',' });
+                                }
                             }
                             else {
                                 c.entry = "(";
@@ -563,7 +592,13 @@ function detour(o, ie) {
                 }
                 else if (!o.prev || o.prev.type & (STAMP | STRAP)) {
                     if (/^[`]/.test(o.text)) {
-                        o.text = strings.recode(o.text);
+                        if (ricode !== ticode && o.noemit) {
+                            replace(o, ...addCrypt({ type: o.type, text: ricode(o.text) }))
+                        }
+                        else {
+                            o.text = (o.noemit ? ricode : recode)(o.text);
+                        }
+                        break;
                     }
                 }
                 else {
@@ -575,9 +610,13 @@ function detour(o, ie) {
                         o.leave = ")";
                         delete o.text;
                         o.push.apply(o, template);
+                        break;
                     }
                 }
-                if (!o.isprop) break;
+                if (!o.isprop) {
+                    if (/^'/.test(o.text)) o.text = recode(o.text);
+                    break;
+                }
             case PROPERTY:
                 if (!o.isend && propresolve_reg.test(o.text) && o.next && (o.next.type === PROPERTY || o.next.isprop)) break;
                 if (o.text === 'static' && o.next && o.next.type === SCOPED && o.next.entry === '{') break;
@@ -589,8 +628,8 @@ function detour(o, ie) {
                         text.isprop = true;
                     }
                     else if (ie !== false) {
-                        if (!o.short) o.text = strings.recode(o.text);
-                        else text = strings.recode(o.text);
+                        if (!o.short) o.text = recode(o.text);
+                        else text = recode(o.text);
                         collectProperty(o, o.text);
                     }
                     if (text) {
@@ -884,7 +923,7 @@ var wrapRequire = function (n, i, code) {
 };
 
 Javascript.prototype.newVar = function (used, string_template) {
-    var name = strings.decode(string_template)
+    var name = decode(string_template)
         .replace(/\.[^\.\/\\]+$/, '')
         .replace(/[\-\s]+([\s\S])/, (_, a) => a.toUpperCase())
         .split(/[\/\\\:\{\}\[\]\.\+\-\*\/\!\~\|\:;,'"`\(\)\>\<\?\^%&\s]+/)

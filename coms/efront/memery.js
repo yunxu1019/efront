@@ -197,6 +197,7 @@ var memery = module.exports = {
         return this.webroot === this.PAGE_PATH;
     },
     ported: undefined,
+    crypt_code: 0,
     loghead: get('LOGHEAD, LOG'),
     defaults,
     get,

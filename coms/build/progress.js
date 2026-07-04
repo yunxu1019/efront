@@ -19,6 +19,15 @@ var clean = require("./clean");
 var _finish = require("./finish");
 var setting = require("./setting");
 var memery = require("../efront/memery");
+var strings = require("../basic/strings");
+var { decode, encode } = strings;
+var crypt1 = require("./crypt1");
+var crypt1_ricode = function (source) {
+    source = decode(source);
+    source = crypt1(source, memery.crypt_code);
+    source = encode(source, "'");
+    return source;
+};
 require("../compile/namelist").makeSource(memery.SCITER);
 var getBuiltVersion = async function (filepath) {
     try {
@@ -73,6 +82,13 @@ function builder(cleanAfterBuild = false, cleanBeforeBuild = false) {
             //导出组件
             var public_path = path.join(PUBLIC_PATH, public_app);
             setting.is_commponent_package = true;
+            if (memery.ENCRYPT) {
+                do {
+                    var crypt_code = new Date / 1000 ^ Math.random() * 3600;
+                } while (crypt_code & 0x7f === 0);
+                memery.crypt_code = crypt_code;
+                strings.ricode = crypt1_ricode;
+            }
             require("../compile/scanner2").avoid = Object.create(null);
             var toComponent = require("./toComponent");
             commbuilder.compress = false;

@@ -2,6 +2,7 @@ var scanner2 = require("../compile/scanner2");
 var scanner = require("../compile/scanner");
 var path = require("path");
 var _strings = require("../basic/strings");
+var crypt1 = require("./crypt1");
 var memery = require("../efront/memery");
 var globals = require("../efront/globals");
 var { public_app, SOURCEDIR, EXPORT_TO: EXPORT_TO, PUBLIC_PATH } = require("./environment");
@@ -11,7 +12,7 @@ var breakreg = memery.BREAK ? function (_, a, c, p) {
     c = _strings.escape(c, memery.BREAK).replace(/\\[\s\S]|\//g, a => a.length === 1 ? '\\' + a : a);
     return a + c + p;
 } : a => a;
-var strings_encode = memery.BREAK&&false ? function (source) {
+var strings_encode = memery.BREAK && false ? function (source) {
     return _strings.encode(source, `"`, false);
 } : _strings.encode;
 var strings_decode = _strings.decode;
@@ -34,7 +35,7 @@ var getFromTree = function (destMap, reqer) {
         return destMap[reqer.replace(/\.[mc]?[jt]sx?$/i, '')];
     }
 };
-var decoderSource = `function(a, c, s, h){
+var decoderSource = `function(a, c, s){
     a = a[$split]("")[$reverse]();
     for (c = 0; c < a[$length]; c++) {
         s = a[c][$charCodeAt](0);
@@ -58,8 +59,7 @@ var polyfill_map = `function (f, t) {
     for (; c < d; c++)r[c] = f[e](t, s[c], c, s);
     return r
 }`;
-
-var crypt_code = new Date / 1000 ^ Math.random() * 3600;
+var crypt_code = memery.crypt_code || new Date / 1000 ^ Math.random() * 3600;
 var encoded = memery.ENCRYPT;
 var compress = memery.COMPRESS;
 var keepspace = memery.KEEPSPACE;
@@ -176,22 +176,7 @@ function toComponent(responseTree, isWebProject) {
 
         source = _source;
         if (!~strings.indexOf(source)) {
-            var temp = source.split('').reverse();
-            for (var cx = 0, dx = temp.length; cx < dx; cx++) {
-                var t = temp[cx].charCodeAt(0);
-                if (t > 39 && t < 127) {
-                    t = ((crypt_code - t) % 87) + 40;
-                } else if (t >= 0x1000) {
-                    t = (crypt_code & 0xff) ^ t;
-                }
-                temp[cx] = t;
-            }
-            var strs = [];
-            while (temp.length > 0) {
-                strs.push(String.fromCharCode.apply(null, temp.splice(0, 1024)));
-            }
-            temp = strs.join('');
-
+            var temp = crypt1(source, crypt_code);
             if (!~strings.indexOf(temp)) source = temp;
         }
         source = strings_encode(source);
@@ -292,7 +277,7 @@ function toComponent(responseTree, isWebProject) {
                 }
             }
             var block_string = module_string.slice(block.start, block.end);
-            if (block.type === block.single_quote_scanner || block.type === block.double_quote_scanner) {
+            if (block.type === block.double_quote_scanner) {
                 if (hasRequire) {
                     var isRequire = !!findRequire(module_string, block.start);
                 }
@@ -328,7 +313,7 @@ function toComponent(responseTree, isWebProject) {
             if (!isFinite(index)) {
                 var i = a;
                 if (a === "\\import") i = `[${getEncodedIndex("url")},function(b){return function(a,c){return c={},c[b]=a,c}}]`;
-                else if (memery.EMIT) console.warn(i18n`编译异常`, module_key, a);
+                else if (memery.EMIT && a !== '\\decrypt') console.warn(i18n`编译异常`, module_key, a);
                 saveOnly(i, a);
                 index = destMap[a];
             }
@@ -556,7 +541,7 @@ function toComponent(responseTree, isWebProject) {
             args[a] = getEncodedIndex(w, isString ? "string" : 'global');
             return a;
         });
-        saveOnly(simple_compress(`[${args.map(a => args[a])},function(${args}){return ${decoder}}]`), '- decoder');
+        saveOnly(simple_compress(`[${dest.length + 1},${args.map(a => args[a])},function(h,${args}){return ${decoder}}]`), "\\decrypt");
     }
     var hasRequire;
     saveOnlyGlobal('module');
@@ -586,10 +571,9 @@ function toComponent(responseTree, isWebProject) {
         M: destMap.module,
         A: `s[${getEncodedIndex('Array', 'global') - 1}]`,
     };
-
     var decoder = `
         if (typeof a !== z || ${constIndex.map(c => `${c} === c`).join(" || ")}) return a;
-        return T[${destMap["- decoder"]}]()(a, c, s, s[M-1])`;
+        return T[${destMap["\\decrypt"]}]()(a)`;
     var realize = `
     if (!(a instanceof A)) ${encoded ? `R = function () {${decoder}}` : `return T[c + 1] = function () { return a }`};${hasRequire ? `
     else if(!a[m]) R = ${has_outside_require ? `function(){
@@ -600,11 +584,12 @@ function toComponent(responseTree, isWebProject) {
     }`: `function (){ return function (i, a) { return a in T[i] ? T[i][a] : T[i](a) } }`}` : ""};
     else R = function (Q, A) {${outsideAsync ? `
         var C = [];` : ''}
-        if (E === c + 1 || M === c + 1) return s[c][0];
+        if (!(~c + E | ~c + M)) return s[c][0];
         var r = s[${getEncodedIndex(`/${freg.source}/`, 'regexp') - 1}], I, g = [], i, k = a[m] - 1, f = a[k], l = r[e](f);
         for (i = 0; i < k; i++) g[i] = ${responseTree.module || responseTree.exports
             ? `a[i] === M ? (I = I || {}, I[B] = Q, I) : a[i] === E ? (I = I || {}, I[B] = Q) : ${destMap["\\import"] ? `a[i] === ${destMap["\\import"]}?T[a[i]]()(A):` : ""}`
             : ''} a[i] === c + 1 ? I ? Q : f : a[i] ? T[a[i]]() : T[0]${outsideAsync ? `, g[i] && g[i][N] instanceof P && C[T[${getEncodedIndex("push")}]()](i, g[i])` : ''};
+        ${encoded ? `if (!(${destMap["\\decrypt"] - 1}-c)) g[0] = s[M - 1];` : ''}
         g = g[o]([f, g, l ? l[1][q](',') : []]);${outsideAsync ? `
         if (C[m]) return T[${getEncodedIndex(`Promise`, 'global')}]()[T[${getEncodedIndex("all")}]()](C)[N](function (G) {
             for (i = 0; i < G[m]; i++)g[G[i++]] = G[i];

@@ -87,7 +87,9 @@ var ctn = function (tt, t) {
         return _;
     }));
     (tn[0].type === SCOPED ? tn[0] : tn[1]).forEach(n => {
-        if (n.type !== QUOTED || !n.length) return;
+        if (n.type !== QUOTED) return;
+        n.noemit = true;
+        if (!n.length) return;
         n.forEach((a, i) => {
             if (a.type !== SCOPED) return;
             var e = a[0].text;

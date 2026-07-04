@@ -2,6 +2,7 @@
 var {
     COMMENT, SCOPED, STAMP, STRAP, QUOTED,
     createString,
+    replace,
     splice, insertAfter, skipAssignment, skipSentenceQueue, snapSentenceHead,
     VALUE, EXPRESS, SCOPED, SPACE
 } = require("../compile/common");;
@@ -296,7 +297,7 @@ var wrapReturnLess = function (r, cless_var, lessnode, className) {
         { type: STAMP, text: ',' },
         lessnode,
         { type: STAMP, text: ',' },
-        { type: EXPRESS, text: strings.encode(className) }
+        { type: EXPRESS, text: strings.encode(className, "'") }
     );
     exp.entry = '(';
     exp.leave = ")";
@@ -307,6 +308,7 @@ var wrapReturnLess = function (r, cless_var, lessnode, className) {
     }, exp);
     return n;
 }
+var i18npath = path.join(__dirname, "../basic/i18n.js");
 var loadJsBody = function (data, filename, fullpath, lessdata, commName, className, htmlData) {
     if (data.length > 0x200) show_building(fullpath);
     data = trimNodeEnvHead(data);
@@ -319,7 +321,7 @@ var loadJsBody = function (data, filename, fullpath, lessdata, commName, classNa
     code.fix();
     if (this && this["#"]) {
         translate(this["#"], code);
-        if (commName === "i18n") {
+        if (i18npath === fullpath) {
             let i18ndata = this["#"][1];
             let ls = code.used.supports;
             let i18nSupports = require("../basic/i18n-supports");
@@ -332,12 +334,12 @@ var loadJsBody = function (data, filename, fullpath, lessdata, commName, classNa
                 i18ndata = i18nSupports.filter(s => {
                     return s.lang in ss;
                 });
-                i18nSupports = scanner2(`[${i18ndata.map(a => `{
-                    "name":${strings.encode(a.name)},
-                    "land":i18n${strings.encode(a.land(), '`')},
-                    "id":${strings.encode(a.id)},
-                    "key":${strings.encode(a.key)}
-                }`)}]`);
+                i18nSupports = scanner2(`[${i18ndata.map(a =>
+                    `{"name":${strings.encode(a.name)
+                    },"land":i18n${strings.encode(a.land(), '`')
+                    },"id":${strings.encode(a.id)
+                    },"key":${strings.encode(a.key)
+                    }}`).join(",\r\n")}]`);
                 translate(this["#"], i18nSupports);
                 ls.push(...i18nSupports[0]);
             }
@@ -470,7 +472,7 @@ var loadJsBody = function (data, filename, fullpath, lessdata, commName, classNa
             commName = "exports";
         }
         if (hasless && code.return) {
-            var less = scanner2(`var &cless=${strings.encode(lessdata)};`);
+            var less = scanner2(`var &cless=${strings.encode(lessdata, "'")};`);
             code_body.unshift(...less);
             lessdata = '&cless';
             var lessused = less;
@@ -530,6 +532,7 @@ var loadJsBody = function (data, filename, fullpath, lessdata, commName, classNa
     }
     if (templateName) {
         var template = scanner2(`var ${templateName}=${htmlData};\r\n`, fullpath, "js");
+        template[3][4].noemit = true;
         if (this && this["#"]) {
             translate(this["#"], template);
         }
