@@ -32,7 +32,7 @@ class Math extends Program {
             pmap[k] = newp;
         })
         pmap["$"] = pmap["@"] = powermap["!"];
-        this.stamps.push('\\', '_', "@", "$");
+        this.stamps.push('\\', '_', "@", "$","'");
         this.scopes.push(["|", "|"])
     }
 }

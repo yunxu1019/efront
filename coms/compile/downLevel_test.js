@@ -517,6 +517,9 @@ assert(downLevel(`a => a() + a(1), a => a`), `function (a) { return a() + a(1) }
 assert(downLevel(`a(a,)`), `a(a)`);
 assert(downLevel(`class{a=[...presets.source]}`), `function () { this.a = &slice(presets.source) }`);
 assert(downLevel(`class{a=a=>a}`), `function () { this.a = function (a) { return a } }`);
+assert(downLevel(`class{static groupBy(){}'a'(){}}`), `function (cls0) { cls0.groupBy = function () {}
+cls0["prototype"]['a'] = function () {}
+return cls0 }(function () {})`);
 assert(downLevel(`class{a}`), "function () { this.a = undefined; }");
 assert(downLevel(`class{a;}`), "function () { this.a = undefined; }");
 assert(downLevel(`class{#a;a(){a=this.#a}}`), `function (cls0) { cls0["prototype"].a = function () { a = this.#a }

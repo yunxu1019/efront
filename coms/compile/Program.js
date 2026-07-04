@@ -161,7 +161,7 @@ class Program {
         ["{", "}"],
         ["<%", "%>"],
     ]
-    stamps = "/=+;|:?<>-!'~%^&*,".split("");
+    stamps = "/=+;|:?<>-!~%^&*,".split("");
     prefix = '&^%?:'.split('');
     value_reg = /^(false|true|null)$/
     number_reg = number_reg;

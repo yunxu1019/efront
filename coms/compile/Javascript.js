@@ -57,6 +57,7 @@ class Javascript extends Program {
         super();
         this.powermap = Object.assign({}, this.powermap);
         delete this.powermap["#"];
+        delete this.powermap["'"];
     }
 }
 var propresolve_reg = /^(static|get|set|async|readonly|private|pub)$/;
