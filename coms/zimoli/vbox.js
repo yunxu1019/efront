@@ -148,7 +148,6 @@ function ybox(generator) {
         var wheelTime = 0;
         onmousewheel(_box, function (event) {
             if (event.defaultPrevented) return;
-            event.preventDefault();
             var isNew = event.timeStamp - wheelTime > 120;
             wheelTime = event.timeStamp;
             var absY = Math.abs(event.deltaY);
@@ -169,6 +168,7 @@ function ybox(generator) {
                 box = getTargetIn(e => e === _box || /^(?:auto|scroll)$/i.test(getComputedStyle(e).overflowY) && e.scrollHeight - e.scrollTop > e.clientHeight, event.target);
             }
             if (box === _box) {
+                event.preventDefault();
                 var wheelDelta = event.wheelDelta;
                 if (wheelDelta && wheelDelta !== deltay) {
                     deltay /= 6;
