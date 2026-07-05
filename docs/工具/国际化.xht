@@ -392,9 +392,43 @@
         }
     };
     var 已找到的字符串 = [];
+
     var fields = [
-        { name: i18n`字符串`, type: 'text', key: "text", width: 280 },
-        { name: i18n`已翻译`, key: "liang", width: 80 },
+        {
+            name: i18n`字符串`, key: "text", binder() {
+                var e = this;
+                var { field, data } = e;
+                if (data.caps > 0) {
+                    e.innerHTML = `<span style="display:inline-block;background:#269;color:#fff;border-radius:4px;padding:0 6px; line-height:20px;margin:6px 0;">${data.caps}</span>` + data.text.replace(/[\<\>\/'"`=&]/g, a => `&#` + a.charCodeAt())
+                }
+                else {
+                    e.innerText = data.text;
+                }
+                if (data.crashCount > 0) {
+                    e.setAttribute('style', "color:#c24");
+                }
+                else {
+                    e.setAttribute('style', '');
+                }
+            }, type(e, renders) {
+                renders.push(e.field.binder);
+            }, width: 280
+        },
+        {
+            name: i18n`已翻译&异常`, key: "liang", binder() {
+                var e = this;
+                var { field, data } = e;
+                var crashcount = data.crashCount;
+                if (crashcount > 0) {
+                    e.innerHTML = `<span style="color:red">${data.liang}</span> - <span style="color:#fff;background:#912;line-height:20px;margin:6px 0;padding:0 6px;display:inline-block;">${crashcount}</span>`;
+                }
+                else {
+                    e.innerText = data.liang;
+                }
+            }, type(e, renders) {
+                renders.push(e.field.binder);
+            }, width: 120
+        },
         { name: i18n`出现文件`, key: "files", width: 200 },
         { name: i18n`出现次数`, key: "count", width: 80 },
     ];
@@ -547,11 +581,20 @@
         if (!detailWindow) {
             detailWindow = view();
             on('submit')(detailWindow, e => e.preventDefault());
-            detailWindow.innerHTML = `<div head><span -if=!item? >${i18n`翻译工具`} </span><template -else>${i18n`翻译: `}"<span -bind="item?.text"></span>"</template><drop @click="close()"></drop></div><lattice itemwidth=260 -src="s in supports" body><field style="display:inline-block;padding:6px 0 0 0;position:relative" ><label style="padding-left:2px;display:block;background:#fff;background-clip:padding-box;border:1px solid transparent;box-sizing:border-box;pointer-events:none" head><span -bind="s.name"></span>(<span -bind="s.lang"></span>)</label><textarea -model="fanyi[s.id]" class='body' style="resize:none"></textarea></field></lattice><div foot><a style="float:left" @click="baidu2">${i18n`一键百度`}</a><label @click="baiduAll=!baiduAll" -if="!!item?" ><checker -value=baiduAll></checker>${i18n`自动换行`}</label></div>`;
+            var errbg = `-style="{background:s.id in item.crash?'#fde':'#fff'}"`;
+            detailWindow.innerHTML = `<div head><span -if=!item? >${i18n`翻译工具`} </span><template -else>${i18n`翻译: `}"<span -bind="item?.text"></span>"</template><drop @click="close()"></drop></div><lattice itemwidth=260 -src="s in supports" body><field style="display:inline-block;padding:6px 0 12px 0;position:relative" ><label style="padding-left:2px;display:block;background:#fff;background-clip:padding-box;border:1px solid transparent;box-sizing:border-box;pointer-events:none;" ${errbg} head><span -bind="s.name"></span>(<span -bind="s.lang"></span>)</label><textarea -model="fanyi[s.id]" class='body' style="resize:vertical;height:120px" ${errbg} -style="{color:s.id in item.crash?'#c24':'','border-color':s.id in item.crash?'#c24':''}"></textarea></field></lattice><div foot><a style="float:left" @click="baidu2">${i18n`一键百度`}</a><label @click="baiduAll=!baiduAll" -if="!!item?" ><checker -value=baiduAll></checker>${i18n`自动换行`}</label></div>`;
             drag.on(detailWindow, detailWindow.firstElementChild);
             resize.on(detailWindow);
             css(detailWindow, `position:absolute;left:0;top:0;bottom:0;width:260px;`);
             detailWindow.initialStyle = "margin-left:-100px;opacity:0";
+            var updateCrash = lazy(function () {
+                var item = detailScope.item;
+                setCrash(item);
+            });
+            bind('input', document)(detailWindow, updateCrash);
+            bind('keyup', document)(detailWindow, updateCrash);
+            bind('paste', document)(detailWindow, updateCrash);
+            bind('cut', document)(detailWindow, updateCrash);
             render(detailWindow, detailScope);
             on("remove")(detailWindow, function () {
                 更新翻译数();
@@ -614,6 +657,28 @@
         data = decodeUTF8(new Uint8Array(data));
         return data;
     }
+    var idregs = [];
+    var getReg = function (i) {
+        if (idregs[i]) return idregs[i];
+        return idregs[i] = new RegExp("\\$" + i);
+    }
+    var setCrash = function (d) {
+        var { fanyi, caps } = d;
+        var crash = Object.create(null);
+        var errorCount = 0;
+        for (var k in fanyi) {
+            for (var cx = 1, dx = caps; cx <= dx; cx++) {
+                var r = getReg(cx);
+                if (!r.test(fanyi[k])) {
+                    crash[k] = true;
+                    errorCount++;
+                    break;
+                }
+            }
+        }
+        d.crash = crash;
+        d.crashCount = errorCount;
+    };
     var chooseFolder = async function () {
         var dp = await window.showDirectoryPicker();
         var msg = alert(i18n`正在读取文件列表，请稍候..`, false);
@@ -651,7 +716,7 @@
         css(msg.firstElementChild, 'text-align:left');
         var textMap = Object.create(null);
         已找到的字符串.is_loading = true;
-        var addTranslate = function (translate) {
+        var addTranslate = function (translate, size) {
             if (!isHandled(translate)) return;
             translate = translate.replace(/^\s*([\s\S]*?)([：\:]?\s*)$/, '$1');
             var tmap = textMap[translate];
@@ -659,6 +724,7 @@
             if (!tmap[e.path]) tmap[e.path] = [];
             tmap["#count"]++;
             tmap[e.path].push(t);
+            tmap["#size"] = size;
         }
         for (var e of result) {
             msg.setText(i18n`正在提取 ` + e.path);
@@ -666,7 +732,8 @@
             var texts = getAllText(data, e);
             for (var t of texts) {
                 if (t.transtype === compile$translate.手动) {
-                    addTranslate(t.translate);
+                    if (t.length) t.size = t.length >>> 1;
+                    addTranslate(t.translate, t.size);
                 }
                 else if (t.transtype === compile$translate.字段名) {
                     t.fields.forEach(f => {
@@ -725,10 +792,14 @@
                 if (text in textMap) {
                     var tm = textMap[text];
                     var count = tm['#count'];
+                    var size = tm['#size'];
                     delete tm["#count"];
+                    delete tm["#size"];
                     var files = Object.keys(tm);
                     d.files = files.join(',\r\n');
                     d.count = count;
+                    d.caps = size;
+                    setCrash(d);
                 }
                 result.push(d);
             }
@@ -748,12 +819,14 @@
         var untrans = [];
         Object.keys(textMap).map(k => {
             var texts = textMap[k];
-            var count = texts["#count"];
+            var count = texts["#count"] || 1;
+            var size = texts["#size"];
             delete texts["#count"];
+            delete texts["#size"];
             var files = Object.keys(texts);
             k = k.trim();
             if (k in preMap) return;
-            untrans.push({ text: k, occurs: texts, files: files.join(',\r\n'), count });
+            untrans.push({ text: k, occurs: texts, files: files.join(',\r\n'), count, caps: size });
         });
         已找到的字符串 = untrans.concat(result);
         runFilter();
