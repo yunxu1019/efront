@@ -454,10 +454,10 @@
                 var { field, data } = e;
                 var crashcount = data.crashCount;
                 if (crashcount > 0) {
-                    e.innerHTML = `<span style="color:red">${data.liang}</span> - <span style="color:#fff;background:#912;line-height:20px;margin:6px 0;padding:0 6px;display:inline-block;">${crashcount}</span>`;
+                    e.innerHTML = `<span style="color:red">${data.liang || ''}</span> - <span style="color:#fff;background:#912;line-height:20px;margin:6px 0;padding:0 6px;display:inline-block;">${crashcount}</span>`;
                 }
                 else {
-                    e.innerText = data.liang;
+                    e.innerText = data.liang || '';
                 }
             }, type(e, renders) {
                 renders.push(e.field.binder);
@@ -619,8 +619,8 @@
         if (!detailWindow) {
             detailWindow = view();
             on('submit')(detailWindow, e => e.preventDefault());
-            var errbg = `-style="{background:s.id in item.crash?'#fde':'#fff'}"`;
-            detailWindow.innerHTML = `<div head><span -if=!item? >${i18n`翻译工具`} </span><template -else>${i18n`翻译: `}"<span -bind="item?.text"></span>"<a @click="copyText">${i18n`复制`}</a></template><drop @click="close()"></drop></div><lattice itemwidth=260 -src="s in supports" body><field style="display:inline-block;padding:6px 0 12px 0;position:relative" ><label style="padding-left:2px;display:block;background:#fff;background-clip:padding-box;border:1px solid transparent;box-sizing:border-box;pointer-events:none;" ${errbg} head><span -bind="s.name"></span>(<span -bind="s.info"></span>,<span -bind="s.lang"></span>)</label><textarea -model="fanyi[s.id]" class='body' style="resize:vertical;height:120px" ${errbg} -style="{color:s.id in item.crash?'#c24':'','border-color':s.id in item.crash?'#c24':''}"></textarea></field></lattice><div foot><a style="float:left" @click="baidu2">${i18n`一键百度`}</a><label @click="baiduAll=!baiduAll" -if="!!item?" ><checker -value=baiduAll></checker>${i18n`自动换行`}</label></div>`;
+            var errbg = `-style="{background:item.crash&&s.id in item.crash?'#fde':'#fff'}"`;
+            detailWindow.innerHTML = `<div head><span -if=!item? >${i18n`翻译工具`} </span><template -else>${i18n`翻译: `}"<span -bind="item?.text"></span>"<a @click="copyText">${i18n`复制`}</a></template><drop @click="close()"></drop></div><lattice itemwidth=260 -src="s in supports" body><field style="display:inline-block;padding:6px 0 12px 0;position:relative" ><label style="padding-left:2px;display:block;background:#fff;background-clip:padding-box;border:1px solid transparent;box-sizing:border-box;pointer-events:none;" ${errbg} head><span -bind="s.name"></span>(<span -bind="s.info"></span>,<span -bind="s.lang"></span>)</label><textarea -model="fanyi[s.id]" class='body' style="resize:vertical;height:120px" ${errbg} -style="{color:item.crash&&s.id in item.crash?'#c24':'','border-color':item.crash&&s.id in item.crash?'#c24':''}"></textarea></field></lattice><div foot><a style="float:left" @click="baidu2">${i18n`一键百度`}</a><label @click="baiduAll=!baiduAll" -if="!!item?" ><checker -value=baiduAll></checker>${i18n`自动换行`}</label></div>`;
             drag.on(detailWindow, detailWindow.firstElementChild);
             resize.on(detailWindow);
             css(detailWindow, `position:absolute;left:0;top:0;bottom:0;width:260px;`);
