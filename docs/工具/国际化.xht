@@ -154,9 +154,9 @@
             }
             var n = /\s*(\d+|[\u0d66-\u0d6f]+|[\u09E6-\u09ef]+)/;
             var reg = new RegExp(`${escapeRegExp(prefix)}${n.source}${escapeRegExp(postfix)}|${escapeRegExp(postfix)}${n.source}${escapeRegExp(prefix)}`, 'g');
-            for (var a of data.trans_result) {
-                var map1 = Object.assign(Object.create(null), map);
-                var lack = false;
+            var map1 = Object.assign(Object.create(null), map);
+            var lack = false;
+            var res = data.trans_result.map(a => {
                 a = a.dst.replace(reg, (_, a) => {
                     if (/[\u0d66-\u0d6f]/.test(a)) a = a.split("").map(a => a.charCodeAt() - 0xd66).join("");
                     else if (/[\u09e6-\u09ef]/.test(a)) a = a.split("").map(a => a.charCodeAt() - 0x9e6).join("");
@@ -169,10 +169,11 @@
                     delete map1[k];
                     return m;
                 });
-                var count = Object.keys(map1).length;
-                if (!count && !lack) return [count, a];
-            }
-            return [count || lack, a];
+                return a;
+            }).join('\r\n');
+            var count = Object.keys(map1).length;
+            if (!count && !lack) return [count, res];
+            return [count || lack, res];
         }
         var [count, res] = await req("#", "");
         if (!count) return res;
