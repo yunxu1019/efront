@@ -133,19 +133,53 @@
             }
             return res.join('');
         }
-        var xhr = await cross("get", "https://fanyi-api.baidu.com/api/trans/vip/translate").send({
-            q: str,
-            from,
-            to,
-            appid,
-            salt,
-            sign: md5(`${appid}${str}${salt}${sign}`),
-        });
-        var data = JSON.parse(xhr.response);
-        if (+data.error_code > 54000) {
-            throw data.error_msg;
+        var req = async function (prefix = '', postfix = '') {
+            var map = Object.create(null);
+            var str1 = str.replace(/\$(\d+)/g, (_, a) => {
+                var k = prefix + a + postfix;
+                map[k] = "$" + a;
+                return k;
+            });
+            var xhr = await cross("get", "https://fanyi-api.baidu.com/api/trans/vip/translate").send({
+                q: str1,
+                from,
+                to,
+                appid,
+                salt,
+                sign: md5(`${appid}${str1}${salt}${sign}`),
+            });
+            var data = JSON.parse(xhr.response);
+            if (+data.error_code > 54000) {
+                throw data.error_msg;
+            }
+            var n = /\s*(\d+|[\u0d66-\u0d6f]+|[\u09E6-\u09ef]+)/;
+            var reg = new RegExp(`${escapeRegExp(prefix)}${n.source}${escapeRegExp(postfix)}|${escapeRegExp(postfix)}${n.source}${escapeRegExp(prefix)}`, 'g');
+            for (var a of data.trans_result) {
+                var map1 = Object.assign(Object.create(null), map);
+                var lack = false;
+                a = a.dst.replace(reg, (_, a) => {
+                    if (/[\u0d66-\u0d6f]/.test(a)) a = a.split("").map(a => a.charCodeAt() - 0xd66).join("");
+                    else if (/[\u09e6-\u09ef]/.test(a)) a = a.split("").map(a => a.charCodeAt() - 0x9e6).join("");
+                    var k = prefix + a + postfix;
+                    var m = map1[k];
+                    if (!m) {
+                        lack = true;
+                        return _;
+                    }
+                    delete map1[k];
+                    return m;
+                });
+                var count = Object.keys(map1).length;
+                if (!count && !lack) return [count, a];
+            }
+            return [count || lack, a];
         }
-        return data.trans_result.map(a => a.dst).join('\r\n');
+        var [count, res] = await req("#", "");
+        if (!count) return res;
+        var [count, res] = await req("@", "");
+        if (!count) return res;
+        var [count, res] = await req("$", "");
+        return res;
     };
     var editCode = function () {
         supports.forEach(s => s.checked = false);
@@ -399,7 +433,7 @@
                 var e = this;
                 var { field, data } = e;
                 if (data.caps > 0) {
-                    e.innerHTML = `<span style="display:inline-block;background:#269;color:#fff;border-radius:4px;padding:0 6px; line-height:20px;margin:6px 0;">${data.caps}</span>` + data.text.replace(/[\<\>\/'"`=&]/g, a => `&#` + a.charCodeAt())
+                    e.innerHTML = `<span style="display:inline-block;background:#296;color:#fff;border-radius:4px;padding:0 6px; line-height:20px;margin:6px 0;">${data.caps}</span>` + data.text.replace(/[\<\>\/'"`=&]/g, a => `&#` + a.charCodeAt())
                 }
                 else {
                     e.innerText = data.text;
@@ -562,12 +596,16 @@
                     fanyi[s.id] = await requestBaiduFanyi(text, s.id, from);
                     liang++;
                     if (item) item.liang = liang;
+                    setCrash(item);
                     render.digest();
                 }
                 if (item) item.liang = liang;
             } catch (e) {
                 alert(e, 'error');
             }
+        },
+        copyText() {
+            return copyToClipboard(this.item.text);
         },
         save() {
 
@@ -582,7 +620,7 @@
             detailWindow = view();
             on('submit')(detailWindow, e => e.preventDefault());
             var errbg = `-style="{background:s.id in item.crash?'#fde':'#fff'}"`;
-            detailWindow.innerHTML = `<div head><span -if=!item? >${i18n`翻译工具`} </span><template -else>${i18n`翻译: `}"<span -bind="item?.text"></span>"</template><drop @click="close()"></drop></div><lattice itemwidth=260 -src="s in supports" body><field style="display:inline-block;padding:6px 0 12px 0;position:relative" ><label style="padding-left:2px;display:block;background:#fff;background-clip:padding-box;border:1px solid transparent;box-sizing:border-box;pointer-events:none;" ${errbg} head><span -bind="s.name"></span>(<span -bind="s.lang"></span>)</label><textarea -model="fanyi[s.id]" class='body' style="resize:vertical;height:120px" ${errbg} -style="{color:s.id in item.crash?'#c24':'','border-color':s.id in item.crash?'#c24':''}"></textarea></field></lattice><div foot><a style="float:left" @click="baidu2">${i18n`一键百度`}</a><label @click="baiduAll=!baiduAll" -if="!!item?" ><checker -value=baiduAll></checker>${i18n`自动换行`}</label></div>`;
+            detailWindow.innerHTML = `<div head><span -if=!item? >${i18n`翻译工具`} </span><template -else>${i18n`翻译: `}"<span -bind="item?.text"></span>"<a @click="copyText">${i18n`复制`}</a></template><drop @click="close()"></drop></div><lattice itemwidth=260 -src="s in supports" body><field style="display:inline-block;padding:6px 0 12px 0;position:relative" ><label style="padding-left:2px;display:block;background:#fff;background-clip:padding-box;border:1px solid transparent;box-sizing:border-box;pointer-events:none;" ${errbg} head><span -bind="s.name"></span>(<span -bind="s.info"></span>,<span -bind="s.lang"></span>)</label><textarea -model="fanyi[s.id]" class='body' style="resize:vertical;height:120px" ${errbg} -style="{color:s.id in item.crash?'#c24':'','border-color':s.id in item.crash?'#c24':''}"></textarea></field></lattice><div foot><a style="float:left" @click="baidu2">${i18n`一键百度`}</a><label @click="baiduAll=!baiduAll" -if="!!item?" ><checker -value=baiduAll></checker>${i18n`自动换行`}</label></div>`;
             drag.on(detailWindow, detailWindow.firstElementChild);
             resize.on(detailWindow);
             css(detailWindow, `position:absolute;left:0;top:0;bottom:0;width:260px;`);
