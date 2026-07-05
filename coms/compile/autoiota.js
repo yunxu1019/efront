@@ -76,14 +76,23 @@ var arrayFillMap = function (a, i, as) {
     var n = a.next;
     if (!n || n.type !== SCOPED || n.entry !== '(') return;
     var nn = n.next;
-    if (!nn || nn.type !== EXPRESS || nn.text !== ".fill") return;
+    if (nn?.type & (STAMP | EXPRESS) && nn.text === '.') {
+        nn = nn.next;
+        if (!nn || nn.type !== EXPRESS || nn.text !== 'fill') return;
+    }
+    else if (!nn || nn.type !== EXPRESS || nn.text !== ".fill") return;
     var nnn = nn.next;
     if (!nnn || nnn.type !== SCOPED || nnn.entry !== '(') return;
     var mn = nnn.next;
+    if (!mn) return;
+    if (mn.type & (STAMP | EXPRESS) && mn.text === '.') {
+        mn = mn.next;
+        if (mn.text !== 'map') return;
+    }
+    else if (mn.type !== EXPRESS || mn.text !== '.map') return;
     var f = n.first;
     var mnn = mn && mn.next;
     if (!f || f.type !== VALUE || !f.isdigit ||
-        !mn || mn.type !== EXPRESS || mn.text !== '.map' ||
         !mnn || mnn.type !== SCOPED || mnn.entry !== "(" ||
         Object.keys(createScoped(mnn).used).length > 0) {
         var ni = a.queue.indexOf(n);
