@@ -245,8 +245,12 @@ var setContent = function (value) {
         appendChild(this, value);
     }
     else if (isHandled(value)) {
+        //<!--        try{ -->
         if (this.field.type === 'html') this.innerHTML = value;
         else this.innerText = value;
+        //<!--        }catch(e){ -->
+        //<!--  console.error(`字段异常`,this.field,value,e) -->
+        //<!--        } -->
     }
     else {
         remove(this.childNodes);
@@ -331,7 +335,7 @@ function setBinder(elem, binder) {
         renders.push(binder);
     }
     else {
-        var ipt = binder(elem);
+        var ipt = binder(elem, renders);
         if (ipt && isFunction(ipt.then)) {
             ipt.then(setModel.bind(elem, renders));
         }
