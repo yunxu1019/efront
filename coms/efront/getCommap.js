@@ -165,9 +165,10 @@ async function getCommap(appname, isfront, deep = 6) {
     }
     return res;
 }
-getCommap.reset = function () {
+var reset = function () {
     loadedMap = Object.create(null);
     cacheid = cacheid + 1 & 0xffffffff;
+    国际化.reset();
 };
 var isFront = async function (PAGE_PATH, appname) {
     var pages = mixin(PAGE_PATH, appname).map(a => path.join.apply(path, a)).filter(fs.existsSync);
@@ -183,7 +184,7 @@ var isFront = async function (PAGE_PATH, appname) {
     }
     if (pages.length) return false;
 };
-module.exports = async function (appname, isfront, deep) {
+async function main(appname, isfront, deep) {
     if (typeof isfront !== 'boolean') {
         if (!appname) appname = memery.APP || '';
         isfront = await isFront(memery.PAGE_PATH, [
@@ -200,3 +201,5 @@ module.exports = async function (appname, isfront, deep) {
     } while (id !== cacheid);
     return res;
 };
+main.reset = reset;
+module.exports = main;

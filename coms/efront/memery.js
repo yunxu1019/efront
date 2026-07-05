@@ -260,6 +260,7 @@ var memery = module.exports = {
     COMS_PATH: getfullpath("COMS_PATH,COMM_PATH"),
     SCITER: get("SCITER,QUICKJS,QJS", false),
     I18NNAME: get("I18N_FILENAME,I18N_NAME,I18NFILE,I18NNAME", '#国际化.yml'),
+    I18N: get("I18N"),
     get PROXY() {
         return !noproxy;
     },

@@ -62,6 +62,7 @@ var createManagersWithEnv = async function (env) {
         if (updated.loaded) fireload();
     }
     var update1 = async function () {
+        getCommap.reset();
         var cm = await getCommap(env.APP);
         a: {
             for (var k in cm) if (!(k in commap)) break a;
