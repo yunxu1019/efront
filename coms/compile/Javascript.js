@@ -454,15 +454,18 @@ var removeQuote = function (o, c, i) {
     if (c.prev) c.prev.next = ch;
     if (c.next) c.next.prev = cf;
 }
+var mindpath = '';
 Javascript.prototype.detour = function (body, ie) {
     context = this;
     var envs = rootenvs = Object.create(null);
     ricode = require("../basic/strings").ricode;
+    mindpath = body.fullpath;
     detour(body.first, ie);
     for (var k in envs) {
         body.used[k] = envs[k];
         envs[k] = body.envs[k] = true;
     }
+    mindpath = '';
     rootenvs = null;
     context = null;
     return envs;

@@ -1869,6 +1869,7 @@ var insertBefore = function () {
     var [o] = arguments;
     var queue = this || o.queue;
     var index = queue.indexOf(o);
+    if (index < 0) throw console.log(createString(pickArgument(queue)), createString([o])), new Error('节点不在队列中');
     var os = [].slice.call(arguments, 1);
     queue.splice.apply(queue, [index, 0].concat(os));
     var prev = o && getprev(o), next = o;

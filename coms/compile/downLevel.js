@@ -8,9 +8,27 @@ var {
     snapExpressFoot, isEval, canbeTemp, rename, isHalfSentence, skipFunction, getDeclared, skipAssignment, skipSentenceQueue, createScoped, createString, splice, relink, rolink, pickSentence, snapExpressHead, needBreakBetween } = require("./common");
 var splice2 = function (q, from, to, ...a) {
     var cx = q.indexOf(from);
-    if (cx < 0) throw console.log(splice2.caller, console.format(`\r\n<red2>${i18n`自`}</red2>`), from && createString([from]), console.format(`\r\n<yellow>${i18n`至`}</yellow>`), to && createString([to]), console.format(`\r\n<cyan>${i18n`码列`}</cyan>`), createString(pickSentence(from))), new Error(i18n`结构异常`);
+    if (cx < 0) throw console.log(
+        splice2.caller,
+        `${mindpath}:${q.row}:${q.col}`,
+        console.format(`\r\n<red2>${i18n`自`}</red2>`),
+        from && createString([from]),
+        console.format(`\r\n<yellow>${i18n`至`}</yellow>`),
+        to && createString([to]),
+        console.format(`\r\n<cyan>${i18n`码列`}</cyan>`),
+        createString(pickSentence(from))
+    ), new Error(i18n`结构异常`);
     var dx = to ? q.indexOf(to, cx) : q.length;
-    if (dx < 0) throw console.log(splice2.caller, console.format(`\r\n<yellow>${i18n`自`}</yellow>`), from && createString([from]), console.format(`\r\n<red2>${i18n`至`}</red2>`), to && createString([to]), console.format(`\r\n<cyan>${i18n`码列`}</cyan>`), createString(pickSentence(from))), new Error(i18n`结构异常`);
+    if (dx < 0) throw console.log(
+        splice2.caller,
+        `${mindpath}:${q.row}:${q.col}`,
+        console.format(`\r\n<yellow>${i18n`自`}</yellow>`),
+        from && createString([from]),
+        console.format(`\r\n<red2>${i18n`至`}</red2>`),
+        to && createString([to]),
+        console.format(`\r\n<cyan>${i18n`码列`}</cyan>`),
+        createString(pickSentence(from))
+    ), new Error(i18n`结构异常`);
     return splice(q, cx, dx - cx, ...a);
 };
 var insert1 = function (q, r, ...a) {
@@ -1967,8 +1985,10 @@ function downLevel(data) {
     return code.toString();
 }
 var patchMark = '&';
+var mindpath = "";
 var downcode = downLevel.code = function (code) {
     rootenvs = code.envs;
+    mindpath = code.fullpath;
     rootHyper = rootenvs.Symbol || code.yield || code.async || rootenvs.Set || rootenvs.Map;
     var patchMark_ = patchMark;
     if (code.patchMark) patchMark = code.patchMark;

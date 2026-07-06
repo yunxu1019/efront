@@ -1,4 +1,4 @@
-var { VALUE, QUOTED, EXPRESS, STRAP, relink } = require("./common");
+var { VALUE, QUOTED, EXPRESS, STRAP, relink, setqueue, } = require("./common");
 var Node = require("./Node");
 var cloneChild = o => cloneNode(o);
 var cloneNode = function (o, keep) {
@@ -13,6 +13,7 @@ var cloneNode = function (o, keep) {
         c.brace = o.brace;
         c.isExpress = o.isExpress;
         relink(c);
+        setqueue(c);
     }
     else if (typeof c === 'object' && c instanceof Object) {
         if (keep) return c;
