@@ -9,7 +9,7 @@
 </style>
 <template>
     <select -model="i18n.getIndex,i18n.setIndex" title:="title()" -src="(s,i) in i18n.supports">
-        <option -value="i" -bind="s.land===s.name?'🌏'+s.land:'🌐'+s.land +' - '+s.name"></option>
+        <option -value="i" -html="s.land===s.name?'🌏'+s.land:'🌐'+s.land +' - '+s.name"></option>
     </select>
 </template>
 <script>
