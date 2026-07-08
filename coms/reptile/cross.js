@@ -1,7 +1,78 @@
+var http_ = require("http");
+var https_ = require("https");
 var cross = cross_.bind(function (callback, onerror) {
     var response, responseObject, responseType = "", decoder, error;
     var headers = {};
     var http = null;
+    var send = async function (data) {
+        var { hostname, port, path, auth } = parseURL(xhr.url);
+        if (!port) port = http === https_ ? 443 : 80;
+        if (data instanceof FormData) data = String(data);
+        if (data) {
+            data = Buffer.from(data);
+            headers["Content-Length"] = data.length;
+        }
+        if (/^\[/.test(hostname)) hostname = hostname.replace(/^\[(.*?)\]$/, "$1");
+        var options = {
+            method: xhr.method,
+            hostname,
+            port,
+            path,
+            auth,
+            headers: headers,
+        };
+        if (proxy_url) {
+            var proxy = parseURL(proxy_url);
+            await new Promise((ok, oh) => (/^https\:/.test(proxy_url) ? https_ : http_).request({
+                host: proxy.hostname,
+                port: proxy.port,
+                method: 'CONNECT',
+                path: hostname + ":" + port,
+            }).on('connect', function (res, socket, head) {
+                if (res.statusCode !== 200) {
+                    oh(i18n`代理隧道创建失败，状态码：${res.statusCode}`);
+                    return;
+                }
+                options.agent = new http.Agent({ socket, keepAlive: false });
+                ok();
+            }).on('error', function (err) {
+                console.error(i18n`连接到代理服务器失败：${err}`);
+            }).end());
+        }
+        var onerror1 = function (e) {
+            xhr.readyState = 4;
+            error = e;
+            onerror(e);
+        };
+        var req = http.request(options, (res) => {
+            var data = [];
+            xhr.status = res.statusCode;
+            xhr.responseHeaders = res.headers;
+            var totalSize = 0;
+            res.on("data", function (chunk) {
+                xhr.readyState = 3;
+                totalSize += chunk.length;
+                if (totalSize > 2 * 1024 * 1024) {
+                    onerror1(new Error(i18n`数据过大`));
+                    res.destroy();
+                    return;
+                }
+                data.push(chunk);
+            });
+            res.on("end", function () {
+                response = Buffer.concat(data);
+                xhr.readyState = 4;
+                callback();
+            });
+            xhr.readyState = 2;
+        });
+        xhr.readyState = 1;
+        req.on("error", onerror1);
+        req.on("timeout", onerror1);
+        req.setTimeout(120000);
+        if (data) req.end(data);
+        else req.end();
+    }
     var xhr = {
         status: 0,
         readyState: 0,
@@ -38,54 +109,7 @@ var cross = cross_.bind(function (callback, onerror) {
             return null;
         },
         send(data) {
-            var { hostname, port, path, auth } = parseURL(this.url);
-            if (data instanceof FormData) data = String(data);
-            if (data) {
-                data = Buffer.from(data);
-                headers["Content-Length"] = data.length;
-            }
-            if (/^\[/.test(hostname)) hostname = hostname.replace(/^\[(.*?)\]$/, "$1");
-            var options = {
-                method: this.method,
-                hostname,
-                port,
-                path,
-                auth,
-                headers: headers,
-            };
-            var onerror1 = function (e) {
-                xhr.readyState = 4;
-                error = e;
-                onerror(e);
-            };
-            var req = http.request(options, (res) => {
-                var data = [];
-                xhr.status = res.statusCode;
-                xhr.responseHeaders = res.headers;
-                var totalSize = 0;
-                res.on("data", function (chunk) {
-                    xhr.readyState = 3;
-                    totalSize += chunk.length;
-                    if (totalSize > 2 * 1024 * 1024) {
-                        onerror1(new Error(i18n`数据过大`));
-                        res.destroy();
-                        return;
-                    }
-                    data.push(chunk);
-                });
-                res.on("end", function () {
-                    response = Buffer.concat(data);
-                    xhr.readyState = 4;
-                    callback();
-                });
-                this.readyState = 2;
-            });
-            this.readyState = 1;
-            req.on("error", onerror1);
-            req.on("timeout", onerror1);
-            req.setTimeout(120000);
-            if (data) req.end(data);
-            else req.end();
+            send(data);
         },
         open(method, url) {
             if (http) throw new Error('请不要重新打开！');
@@ -97,10 +121,10 @@ var cross = cross_.bind(function (callback, onerror) {
             responseObject = null;
             error = null;
             if (/^http\:/i.test(url)) {
-                http = require("http");
+                http = http_;
             }
             else {
-                http = require("https");
+                http = https_;
             }
         },
         get responseType() {
@@ -127,3 +151,12 @@ cross.hostCookie = function (xhr) {
     if (xhr.cookie) return xhr.cookie;
     return xhr.cookie = cookie.new();
 };
+var proxy_url = null;
+Object.defineProperty(cross, 'proxy', {
+    get() {
+        return proxy_url;
+    },
+    set(proxyurl) {
+        proxy_url = proxyurl;
+    }
+})
