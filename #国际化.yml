@@ -1,3 +1,798 @@
+- zh-CN: efront目前使用的翻译接口免费额度受限，如果遇到翻译失败的情况，您可以自己$1配置后使用
+  zh-TW: efront現時使用的翻譯介面免費額度受限，如果遇到翻譯失敗的情況，您可以自己$1配置後使用
+  en:    "The free quota for the translation interface currently used by efront is limited. If you encounter a translation failure, you can configure it yourself using $1 and then use it."
+  ja:    efrontが現在使用している翻訳インタフェースの無料限度額は制限されています。翻訳に失敗した場合は、自分で$1を設定して使用することができます。
+  fr:    "L'interface de traduction actuellement utilisée par efront a une limite de quota gratuite. Si vous rencontrez un échec de traduction, vous pouvez la configurer vous-même avec $1, puis l'utiliser."
+  ru:    "Интерфейс перевода, используемый в настоящее время efront, имеет ограниченный бесплатный лимит. В случае неудачи перевода вы можете настроить его самостоятельно с помощью $1, а затем использовать."
+  ko:    efront 에서 현재 사용 중인 번역 인터페이스의 무료 한도가 제한되어 있습니다. 번역에 실패할 경우 직접 $1을(를) 설정한 후 사용할 수 있습니다.
+  de:    "Das kostenlose Kontingent für die derzeit von efront verwendete Übersetzungsschnittstelle ist begrenzt. Sollte die Übersetzung fehlschlagen, können Sie diese selbst mit $1 konfigurieren und dann verwenden."
+  it:    "L'interfaccia di traduzione attualmente utilizzata da efront ha un limite di quota gratuita. In caso di fallimento della traduzione, è possibile configurarla autonomamente con $1 e poi utilizzarla."
+  th:    อินเทอร์เฟซการแปลที่ efront ใช้งานอยู่ในปัจจุบันมีขีดจำกัดโควตาฟรี หากพบการแปลผิดพลาด คุณสามารถกำหนดค่าด้วยตัวเองโดยใช้ $1 แล้วใช้งานได้
+  vi:    "Giao diện dịch thuật hiện đang được efront sử dụng có hạn mức miễn phí. Nếu bạn gặp sự cố dịch thuật, bạn có thể tự cấu hình nó bằng $1 rồi sử dụng."
+  ar:    واجهة الترجمة التي تستخدمها efront حاليًا لديها حصة مجانية محدودة. إذا واجهت فشلاً في الترجمة، يمكنك إعدادها بنفسك باستخدام $1 ثم استخدامها.
+  nl:    "Het gratis quotum voor de vertaalinterface die efront momenteel gebruikt, is beperkt. Als de vertaling mislukt, kunt u deze zelf configureren met $1 en vervolgens gebruiken."
+  fi:    "Efrontin tällä hetkellä käyttämän käännösrajapinnan ilmainen kiintiö on rajattu. Jos käännös epäonnistuu, voit määrittää sen itse $1:llä ja sitten käyttää sitä."
+  el:    "Η διεπαφή μετάφρασης που χρησιμοποιείται επί του παρόντος από το efront έχει περιορισμένο δωρεάν όριο. Εάν αντιμετωπίσετε αποτυχία μετάφρασης, μπορείτε να τη διαμορφώσετε μόνοι σας χρησιμοποιώντας το $1 και στη συνέχεια να τη χρησιμοποιήσετε."
+  es:    "La cuota gratuita de la interfaz de traducción utilizada actualmente por efront es limitada. Si la traducción falla, puede configurarla usted mismo con $1 y luego usarla."
+  pt:    "A interface de tradução atualmente usada pela efront tem uma quota gratuita limitada. Se você encontrar falhas de tradução, pode configurá-la você mesmo com $1 e depois usá-la."
+  hu:    "Az efront által jelenleg használt fordítási interfész ingyenes kerete korlátozott. Ha a fordítás sikertelen, önállóan konfigurálhatja a $1-gyel, majd használhatja."
+  sv:    Den fria kvoten för översättningsgränssnittet som efront för närvarande använder är begränsad. Om översättningen misslyckas kan du konfigurera det själv med $1 och sedan använda det.
+  da:    "Den gratis kvote for oversættelsesgrænsefladen, der i øjeblikket bruges af efront, er begrænset. Hvis oversættelsen mislykkes, kan du selv konfigurere den med $1 og derefter bruge den."
+  cs:    "Překladatelské rozhraní, které efront v současné době používá, má omezenou bezplatnou kvótu. Pokud dojde k selhání překladu, můžete si ho sami nakonfigurovat pomocí $1 a poté použít."
+  pl:    "Interfejs tłumaczeniowy używany przez efront ma ograniczony darmowy limit. W przypadku niepowodzenia tłumaczenia, możesz skonfigurować go samodzielnie z $1, a następnie go użyć."
+  bg:    "Интерфейсът за превод, използван в момента от efront, е с ограничени безплатни квоти. Ако се сблъскате с неуспех в превода, можете сами да го конфигурирате с $1 и след това да го използвате."
+  et:    "Efronti praegu kasutatava tõlkeliidese tasuta kvoot on piiratud. Kui tõlkimine ebaõnnestub, saate selle ise $1-ga konfigureerida ja siis kasutada."
+  ro:    "Interfața de traducere pe care efront o utilizează în prezent are o cotă gratuită limitată. Dacă traducerea eșuează, o puteți configura dumneavoastră înșivă cu $1 și apoi o puteți utiliza."
+  sl:    "Brezplačna kvota za prevajalski vmesnik, ki ga trenutno uporablja efront, je omejena. Če naletite na napako prevajanja, ga lahko sami nastavite z $1 in ga nato uporabite."
+  af:    "Die gratis kwota vir die vertaal-koppelvlak wat tans deur efront gebruik word, is beperk. As jy 'n vertaalmislukking ervaar, kan jy dit self met $1 instel en dan gebruik."
+  am:    efront በአሁኑ ጊዜ የሚጠቀመው የትርጉም በይነገጽ ነጻ መጠን የተገደበ ነው። ትርጉም ካልተሳካ፣ እርስዎ እራስዎ በ$1 ውቅር በኋላ መጠቀም ይችላሉ።
+  bn:    "efront বর্তমানে ব্যবহৃত অনুবাদ ইন্টারফেসের বিনামূল্যে সীমা সীমিত। অনুবাদ ব্যর্থ হলে, আপনি নিজের $1 কনফিগার করার পর এটি ব্যবহার করতে পারেন।"
+  ca:    "La interfície de traducció que efront utilitza actualment té una quota gratuïta limitada. Si la traducció falla, pot configurar-la vostè mateix amb $1 i després utilitzar-la."
+  fa:    رابط ترجمه ای که efront در حال حاضر از آن استفاده می کند، دارای محدودیت سهمیه رایگان است. در صورت شکست در ترجمه، می توانید آن را خودتان با $1 پیکربندی کرده و سپس استفاده کنید.
+  fil:   "Ang libreng quota para sa interface ng pagsasalin na kasalukuyang ginagamit ng efront ay may limitasyon. Kung magkaroon ka ng pagkabigo sa pagsasalin, maaari mong i-configure ito sa iyong sarili gamit ang $1 at gamitin ito."
+  gu:    "efront હાલમાં અનુવાદ ઇન્ટરફેસનો ઉપયોગ મર્યાદિત મફત ક્વોટા સાથે કરે છે. જો અનુવાદ નિષ્ફળ જાય, તો તમે તમારી જાતને $1 નો ઉપયોગ કરીને રૂપરેખાંકિત કરી શકો છો અને પછી તેનો ઉપયોગ કરી શકો છો."
+  he:    "ממשק התרגום שבו efront משתמש כרגע הוא בעל מכסה חינמית מוגבלת. אם התרגום נכשל, אתה יכול להגדיר אותו בעצמך באמצעות $1 ולאחר מכן להשתמש בו."
+  hi:    "efront वर्तमान में उपयोग किए जाने वाले अनुवाद इंटरफ़ेस की मुफ्त सीमा सीमित है। यदि अनुवाद विफलता का सामना करना पड़ता है, तो आप स्वयं $1 का उपयोग करके इसे कॉन्फ़िगर कर सकते हैं और फिर उपयोग कर सकते हैं।"
+  hr:    "Prevoditeljsko sučelje koje efront trenutno koristi ima ograničenu besplatnu kvotu. Ako se dogodi neuspjeh prijevoda, možete ga sami konfigurirati pomoću $1 i zatim koristiti."
+  id:    "Antarmuka terjemahan yang saat ini digunakan efront memiliki kuota gratis yang terbatas. Jika terjemahan gagal, Anda dapat mengkonfigurasikannya sendiri menggunakan $1, lalu menggunakannya."
+  kn:    "efront ಪ್ರಸ್ತುತ ಬಳಸುತ್ತಿರುವ ಅನುವಾದ ಇಂಟರ್ಫೇಸ್ ಉಚಿತ ಬಳಕೆಯ ಮಿತಿ ಹೊಂದಿದೆ. ನೀವು ಅನುವಾದ ವಿಫಲವಾಗಿದ್ದರೆ, ನೀವು ಸ್ವತಃ $1 ಅನ್ನು ಕಾನ್ಫಿಗರ್ ಮಾಡಿ ಬಳಸಬಹುದು."
+  lt:    "„efront“ šiuo metu naudojama vertimo sąsaja turi ribotą nemokamą kvotą. Jei vertimas nepavyksta, galite jį patys sukonfigūruoti naudodami $1 ir tada naudoti."
+  lv:    "Efront pašlaik izmantotajam tulkošanas saskarnei ir ierobežota bezmaksas kvota. Ja rodas tulkošanas neveiksmes, jūs varat to konfigurēt paši, izmantojot $1, un pēc tam lietot."
+  ml:    "efront നിലവിൽ ഉപയോഗിക്കുന്ന വിവർത്തന ഇന്റർഫേസിന്റെ സൗജന്യ ക്വാട്ട പരിമിതപ്പെടുത്തിയിരിക്കുന്നു. വിവർത്തനം പരാജയപ്പെട്ടാൽ, നിങ്ങൾക്ക് സ്വയം $1 ക്രമീകരിച്ച ശേഷം ഉപയോഗിക്കാം."
+  mr:    "efront सध्या वापरत असलेल्या भाषांतर इंटरफेसची मोफत मर्यादा मर्यादित आहे. जर भाषांतर अपयश आले, तर तुम्ही स्वतः $1 वापरून कॉन्फिगर केल्यानंतर ते वापरू शकता."
+  ms:    "Antara muka terjemahan yang kini digunakan oleh efront mempunyai kuota percuma terhad. Jika terjemahan gagal, anda boleh mengkonfigurasinya sendiri menggunakan $1, kemudian menggunakannya."
+  nb:    "Den gratis kvoten for oversettelsesgrensesnittet som efront for tiden bruker er begrenset. Hvis du støter på en oversettelsesfeil, kan du konfigurere det selv med $1 og deretter bruke det."
+  sk:    "Prekladateľské rozhranie, ktoré efront v súčasnosti používa, má obmedzenú bezplatnú kvótu. Ak preklad zlyhá, môžete si ho sami nakonfigurovať pomocou $1 a potom použiť."
+  sr:    "Бесплатна квота за преводилачки интерфејс који тренутно користи efront је ограничена. Ако наиђете на неуспех у преводу, можете га сами конфигурирати користећи $1 и користити га."
+  sw:    "Kiolesura cha tafsiri kinachotumiwa sasa na efront kina kikomo cha bure kilichowekwa. Kama tafsiri itashindwa, unaweza kusanidi mwenyewe kwa kutumia $1, kisha kuitumia."
+  ta:    "efront தற்போது பயன்படுத்தும் மொழிபெயர்ப்பு இடைமுகத்தில் இலவச ஒதுக்கீடு கட்டுப்படுத்தப்பட்டுள்ளது. மொழிபெயர்ப்பு தோல்வியுற்றால், நீங்கள் $1 ஐப் பயன்படுத்தி அதை நீங்களே உள்ளமைத்து பயன்படுத்தலாம்."
+  te:    "efront ప్రస్తుతం ఉపయోగిస్తున్న అనువాద ఇంటర్‌ఫేస్ ఉచిత కోటా పరిమితం. మీరు అనువాదం విఫలమైతే, మీరు $1 ఉపయోగించి దాన్ని మీరే కాన్ఫిగర్ చేసి ఉపయోగించవచ్చు."
+  tr:    "efront'un şu anda kullandığı çeviri arayüzünün ücretsiz kullanım kotası sınırlıdır. Çeviri başarısız olursa, kendi başınıza $1 kullanarak yapılandırabilir ve sonra kullanabilirsiniz."
+  uk:    "Безкоштовний інтерфейс перекладу, який в даний час використовується efront, має обмежену безкоштовну квоту. Якщо ви стикаєтеся з невдачею перекладу, ви можете налаштувати його самостійно, використовуючи $1, а потім використовувати."
+  ur:    efront کے ذریعہ استعمال کیا جانے والا ترجمہ انٹرفیس مفت کی حد محدود ہے۔ ترجمہ کی ناکامی کا سامنا ہے تو آپ اسے خود $1 استعمال کرکے ترتیب دینے کے بعد استعمال کر سکتے ہیں۔
+
+- zh-CN: 创建Api Key
+  zh-TW: 創建Api Key
+  en:    Create API Key
+  ja:    Api Keyの作成
+  fr:    Créer une API key
+  ru:    Создание Api Key
+  ko:    Api Key 만들기
+  de:    API Key erstellen
+  it:    Creazione di API Key
+  th:    สร้าง Api Key
+  vi:    Tạo API Key
+  ar:    إنشاء مفتاح API
+  nl:    API Key maken
+  fi:    API-avaimen luominen
+  el:    Δημιουργία API Key
+  es:    Crear apikey
+  pt:    Criação de API Key
+  hu:    API Key létrehozása
+  sv:    Skapa en API Key
+  da:    Oprettelse af API Key
+  cs:    Vytvoření API Key
+  pl:    Tworzenie API Key
+  bg:    Създаване на API Key
+  et:    API Key loomine
+  ro:    Crearea API Key
+  sl:    Ustvari ključ API
+  af:    Skep API Sleutel
+  am:    API ቁልፍ መፍጠር
+  bn:    API Key তৈরি করুন
+  ca:    Crear una clau API
+  fa:    ایجاد API Key
+  fil:   Gumawa ng API Key
+  gu:    API કી બનાવો
+  he:    יצירת API Key
+  hi:    API Key बनाएँ
+  hr:    Izrada API ključa
+  id:    Membuat API Key
+  kn:    API ಕೀಲಿಯನ್ನು ರಚಿಸು
+  lt:    Api Key kūrimas
+  lv:    API atslēgas izveide
+  ml:    API Key സൃഷ്ടിക്കുക
+  mr:    API की तयार करा
+  ms:    Mencipta API Key
+  nb:    Lag API-nøkkel
+  sk:    Vytvorenie API Key
+  sr:    Креирајте АПИ кључ
+  sw:    Kujenga API Key
+  ta:    API Key உருவாக்குதல்
+  te:    API కీ సృష్టించండి
+  tr:    API Key oluşturmak
+  uk:    Створення API Key
+  ur:    API کلید بنائیں
+
+- zh-CN: 申请appid和密钥
+  zh-TW: 申請appid和金鑰
+  en:    Apply for appid and key
+  ja:    appidと鍵の申請
+  fr:    Application appid et clé
+  ru:    Запросить appid и ключ
+  ko:    appid 및 키 요청
+  de:    Appid und Schlüssel beantragen
+  it:    Applicare appid e chiave
+  th:    สมัคร appid และคีย์
+  vi:    Ứng dụng Appid và Key
+  ar:    تطبيق مفتاح
+  nl:    Appid en sleutel aanvragen
+  fi:    Haku appid ja avain
+  el:    Εφαρμόστε το appid και το κλειδί
+  es:    Solicitar el ID de la aplicación y la clave
+  pt:    Aplicar o appid e a chave
+  hu:    Appid és kulcs alkalmazása
+  sv:    Ansöka om appid och nyckel
+  da:    Ansøg om appid og nøgle
+  cs:    APPID a klíč
+  pl:    Wniosek o appid i klucz
+  bg:    Заявка за appid и ключ
+  et:    Appid ja võtme taotlemine
+  ro:    Aplicați appid și cheie
+  sl:    Zaprosi za appid in ključ
+  af:    Apply for appid and key
+  am:    appid እና ቁልፍ መተግበር
+  bn:    APPID এবং কী আবেদন
+  ca:    "Solicita l' appid i la clau"
+  fa:    درخواست APPID و کلید
+  fil:   Mag-aplay para sa appid at key
+  gu:    appid અને કીને લાગુ કરો
+  he:    יישום APPID ומפתח
+  hi:    एपीआईडी और कुंजी का आवेदन करें
+  hr:    Primjena appid i ključ
+  id:    Aplikasi appid dan kunci
+  kn:    appid ಮತ್ತು ಕೀಲಿಗಳನ್ನು ಅನ್ವಯಿಸಿ
+  lt:    APPID ir raktas
+  lv:    Pieteikties appid un atslēgas
+  ml:    ആപ്പിഡും കീയും അപേക്ഷിക്കുക
+  mr:    appid आणि की लागू
+  ms:    Permohonan appid dan kunci
+  nb:    Bruk appid og nøkkel
+  sk:    APPID a kľúč
+  sr:    Пријавите се за аппид и кључ
+  sw:    Kuomba appid na funguo
+  ta:    APPID மற்றும் விசைகளை விண்ணப்பிக்கவும்
+  te:    appid మరియు కీ దరఖాస్తు
+  tr:    appid ve anahtar uygulamak
+  uk:    Застосувати APPID і ключ
+  ur:    APPID اور کلید درخواست دیں
+
+- zh-CN: Api Key管理
+  zh-TW: Api Key管理
+  en:    Api Key Management
+  ja:    Api Key管理
+  fr:    Gestion API key
+  ru:    Управление Api Key
+  ko:    Api Key 관리
+  de:    API Key Verwaltung
+  it:    Gestione API Key
+  th:    การจัดการคีย์ Api
+  vi:    Quản lý API Key
+  ar:    إدارة مفتاح API
+  nl:    API-sleutelbeheer
+  fi:    API-avaimen hallinta
+  el:    Διαχείριση API Key
+  es:    API Key Management
+  pt:    Gestão de chaves API
+  hu:    API kulcs kezelés
+  sv:    API-nyckelhantering
+  da:    API Nøglehåndtering
+  cs:    Správa API klíčů
+  pl:    Zarządzanie API Key
+  bg:    API управление на ключовете
+  et:    API võtme haldamine
+  ro:    Managementul cheilor API
+  sl:    Upravljanje ključev Api
+  af:    Api sleutel bestuurder
+  am:    API ቁልፍ አስተዳደር
+  bn:    API কী পরিচালনা
+  ca:    Administració de claus API
+  fa:    مدیریت API Key
+  fil:   Api Key Management
+  gu:    API કી વ્યવસ્થાપન
+  he:    ניהול מפתח API
+  hi:    एपीआई कुंजी प्रबंधन
+  hr:    Upravljanje API ključevima
+  id:    Manajemen API Key
+  kn:    API ಕೀಲಿ ನಿರ್ವಹಣೆ
+  lt:    API raktų valdymas
+  lv:    API atslēgas pārvaldība
+  ml:    API കീ മാനേജ്മെന്റ്
+  mr:    API की व्यवस्थापन
+  ms:    Pengurusan API Key
+  nb:    Api Key Management
+  sk:    Správa API kľúčov
+  sr:    Апи Кеи Манагемент
+  sw:    Usimamizi wa API Key
+  ta:    API விசை மேலாண்மை
+  te:    API కీ నిర్వహణ
+  tr:    API Key Yönetimi
+  uk:    Управління API Key
+  ur:    API کلید مینجمنٹ
+
+- zh-CN: Api Key
+  zh-TW: API金鑰
+  en:    Api Key
+  ja:    APIキー
+  fr:    clé API
+  ru:    API Ключ
+  ko:    API 키
+  de:    API Schlüssel
+  it:    chiave API
+  th:    คีย์ API
+  vi:    Chìa khóa API
+  ar:    مفتاح API
+  nl:    Api Sleutel
+  fi:    Api avain
+  el:    API κλειδί
+  es:    Api clave
+  pt:    chave API
+  hu:    API kulcs
+  sv:    Api nyckel
+  da:    API nøgle
+  cs:    API klíč
+  pl:    API klucz
+  bg:    API Ключ
+  et:    API võti
+  ro:    cheie API
+  sl:    Ključ Api
+  af:    Api sleutel
+  am:    API ቁልፍ
+  bn:    API কী
+  ca:    clau API
+  fa:    کلید API
+  fil:   Api Key
+  gu:    API કી
+  he:    מפתח Api
+  hi:    एपीआई कुंजी
+  hr:    Api ključ
+  id:    Kunci Api
+  kn:    API ಕೀಲಿ
+  lt:    API raktas
+  lv:    API atslēga
+  ml:    API കീ
+  mr:    एपीआय की
+  ms:    API Key
+  nb:    Api nøkkel
+  sk:    API kľúč
+  sr:    Апи Кеи
+  sw:    Ufunguo wa API
+  ta:    API விசை
+  te:    API కీ
+  tr:    Api Anahtarı
+  uk:    API Ключ
+  ur:    API کلید
+
+- zh-CN: 模型
+  zh-TW: 模型
+  en:    model
+  ja:    モデル
+  fr:    Modèle
+  ru:    модель
+  ko:    모델
+  de:    Modell
+  it:    Modello
+  th:    โมเดล
+  vi:    Mô hình
+  ar:    نموذج
+  nl:    Model
+  fi:    malli
+  el:    μοντέλο
+  es:    modelo
+  pt:    modelo
+  hu:    modell
+  sv:    Modell
+  da:    Model
+  cs:    Model
+  pl:    Model
+  bg:    Модели
+  et:    mudel
+  ro:    Modelul
+  sl:    model
+  af:    model
+  am:    ሞዴል
+  bn:    মডেল
+  ca:    Model
+  fa:    مدل
+  fil:   modelo
+  gu:    મોડેલ
+  he:    מודל
+  hi:    मॉडल
+  hr:    Model
+  id:    Model
+  kn:    ಮಾದರಿ
+  lt:    Modelis
+  lv:    modeļiem
+  ml:    മാതൃക
+  mr:    मॉडेल
+  ms:    Model
+  nb:    modell
+  sk:    Model
+  sr:    модел
+  sw:    Mfano
+  ta:    மாதிரி
+  te:    నమూనా
+  tr:    Model
+  uk:    Модель
+  ur:    ماڈل
+
+- zh-CN: 代理隧道创建失败，状态码：$1
+  zh-TW: 代理隧道創建失敗，狀態碼：$1
+  en:    "Proxy tunnel creation failed, status code: $1"
+  ja:    プロキシトンネルの作成に失敗しました。ステータスコード:$1
+  fr:    "La création du tunnel proxy a échoué, Status Code: $1"
+  ru:    "Провал создания прокси - туннеля, код состояния: $1"
+  ko:    "프록시 터널 생성 실패, 상태 코드: $1"
+  de:    "Die Erstellung des Proxy-Tunnels ist fehlgeschlagen, Statuscode: $1"
+  it:    "Creazione del tunnel proxy non riuscita, codice di stato: $1"
+  th:    "การสร้างอุโมงค์พร็อกซี่ล้มเหลวรหัสสถานะ: \\$1"
+  vi:    "Tạo đường hầm proxy không thành công, mã trạng thái: $1"
+  ar:    "وكيل النفق فشل إنشاء رمز الحالة : $1"
+  nl:    "Het maken van de proxytunnel is mislukt, statuscode: $1"
+  fi:    "Proxy tunnelin luominen epäonnistui, tilakoodi: $1"
+  el:    "Η δημιουργία σήραγγας proxy απέτυχε, κωδικός κατάστασης: $1"
+  es:    "Falló la creación del túnel agente, Código de estado: $1"
+  pt:    "A criação do túnel do proxy falhou, código de estado: $1"
+  hu:    "A proxy alagút létrehozása nem sikerült, állapotkód: $1"
+  sv:    "Misslyckades skapa proxytunnel, statuskod: $1"
+  da:    "Oprettelse af proxytunnel mislykkedes, statuskode: $1"
+  cs:    "Vytvoření proxy tunelu selhalo, stavový kód: $1"
+  pl:    "Nie udało się utworzyć tunelu proxy, kod stanu: $1"
+  bg:    "Прокси тунелът не е създаден, код за състояние: $1"
+  et:    "Proksi tunneli loomine nurjus, olekukood: $1"
+  ro:    "Crearea tunelului proxy a eșuat, codul de stare: $1"
+  sl:    "Ustvarjanje predora proxy ni uspelo, koda stanja: $1"
+  af:    "Volmag tunnel skepping het gevaal, status kode: $1"
+  am:    "የፕሮክሲ ዋሻ መፍጠር አልተሳካም, ሁኔታ ኮድ: $1"
+  bn:    "প্রক্সি টানেল তৈরি করতে ব্যর্থ, স্ট্যাটাস কোড: $1"
+  ca:    "Ha fallat la creació del túnel de proxy, codi d'estat: $1"
+  fa:    "خرابی در ایجاد تونل پروکسی، کد وضعیت: $1"
+  fil:   "Nabigo ang paglikha ng proxy tunnel, status code: $1"
+  gu:    "પ્રોક્સી ટનલ બનાવવામાં નિષ્ફળ, સ્થિતિ કોડ: $1"
+  he:    "יצירת מנהרת פרוקסי נכשלה, קוד מצב: $1"
+  hi:    "प्रॉक्सी सुरंग बनाने में विफल, स्थिति कोड: $1"
+  hr:    "Neuspjelo je stvoriti proxy tunel, kod stanja: $1"
+  id:    "Gagal membuat terowongan proxy, kode status: $1"
+  kn:    "ಪ್ರಾಕ್ಸಿ ಸುರಂಗವನ್ನು ರಚಿಸಲು ವಿಫಲವಾಯಿತು, ಸ್ಥಿತಿ ಸಂಕೇತ: $1"
+  lt:    "Nepavyko sukurti proxy tunelio, būsenos kodas: $1"
+  lv:    "Nevēlas izveidot proxy tuneli, statusa kods: $1"
+  ml:    "പ്രോക്സി തുരങ്കം സൃഷ്ടിക്കാൻ പരാജയപ്പെട്ടു, സ്റ്റാറ്റസ് കോഡ്: $1"
+  mr:    "प्रॉक्सी बोगदा निर्माण अपयशी, स्थिती कोड: $1"
+  ms:    "Gagal mencipta terowongan proksi, kod status: $1"
+  nb:    "Proksisk tunnelskapelse mislyktes, status code: $1"
+  sk:    "Vytvorenie proxy tunelu zlyhalo, stavový kód: $1"
+  sr:    "Стварање проки тунела није успело, статусни код: $1"
+  sw:    "Wakilishi tunnel kuunda kushindwa, hali code: $1"
+  ta:    "முகவர் சுரங்கப்பாதை உருவாக்க தோல்வியடைந்தது, நிலை குறியீடு: $1"
+  te:    "ప్రాక్సీ సొరంగం సృష్టించడం విఫలమైంది, స్థితి కోడ్: $1"
+  tr:    "Proxy tüneli oluşturulmadı, durum kodu: $1"
+  uk:    "Не вдалося створити тунель проксі, код стану: $1"
+  ur:    "پراکسی سرنگ کی تخلیق ناکام، ریاست کوڈ: $1"
+
+- zh-CN: 连接到代理服务器失败：$1
+  zh-TW: 連接到代理伺服器失敗：$1
+  en:    "Failed to connect to proxy server: $1"
+  ja:    プロキシサーバへの接続に失敗しました:$1
+  fr:    "La connexion au serveur Proxy a échoué: $1"
+  ru:    "Ошибка подключения к прокси - серверу: $1"
+  ko:    "프록시 서버 연결 실패: $1"
+  de:    "Die Verbindung zum Proxy-Server ist fehlgeschlagen: $1"
+  it:    "Connessione al server proxy non riuscita: $1"
+  th:    "การเชื่อมต่อกับพร็อกซีเซิร์ฟเวอร์ล้มเหลว: \\$1"
+  vi:    "Kết nối đến máy chủ proxy không thành công: $1"
+  ar:    "فشل الاتصال إلى ملقم وكيل : $1"
+  nl:    "Verbinding met proxyserver mislukt: $1"
+  fi:    "Yhteys välityspalvelimeen epäonnistui: $1"
+  el:    "Αποτυχία σύνδεσης με διακομιστή μεσολάβησης: $1"
+  es:    "Falló la conexión al servidor agente: $1"
+  pt:    "Falha na conexão ao servidor proxy: $1"
+  hu:    "Nem sikerült csatlakozni a proxy kiszolgálóhoz: $1"
+  sv:    "Misslyckades ansluta till proxyservern: $1"
+  da:    "Mislykkedes at oprette forbindelse til proxyserveren: $1"
+  cs:    "Nepodařilo se připojení k proxy serveru: $1"
+  pl:    "Nie udało się połączyć się z serwerem proxy: $1"
+  bg:    "Свързването с прокси сървъра не успя: $1"
+  et:    "Ühendus proxyserviriga nurjus: $1"
+  ro:    "Conexiunea la serverul proxy a eșuat: $1"
+  sl:    "Ni uspelo povezati s proxy strežnikom: $1"
+  af:    "Kon nie koppel na volmag bediener: $1"
+  am:    ከፕሮክሲ አገልጋይ ጋር መገናኘት አልተሳካም:$1
+  bn:    "প্রক্সি সার্ভারের সাথে সংযোগ করা ব্যর্থ: $1"
+  ca:    "Ha fallat la connexió al servidor intermediari: $1"
+  fa:    "خرابی در اتصال به پروکسی: $1"
+  fil:   "Nabigo sa koneksyon sa proxy server: $1"
+  gu:    "પ્રોક્સી સર્વર સાથે જોડાણ નિષ્ફળ: $1"
+  he:    "התחבר לשרת פרוקסי נכשל: $1"
+  hi:    "प्रॉक्सी सर्वर से कनेक्ट करने में विफल: $1"
+  hr:    "Neuspjelo povezivanje sa proxy poslužiteljem: $1"
+  id:    "Gagal terhubung ke server proxy: $1"
+  kn:    "ಪ್ರಾಕ್ಸಿ ಪರಿಚಾರಕಕ್ಕೆ ಸಂಪರ್ಕ ಸಾಧಿಸಲು ವಿಫಲವಾಯಿತು: $1"
+  lt:    "Nepavyko prisijungti prie proxy serverio: $1"
+  lv:    "Neizdevās savienoties ar proxy serveri: $1"
+  ml:    "പ്രോക്സി സെര്‍വറുമായി ബന്ധപ്പെടാന്‍ പരാജയപ്പെട്ടു: $1"
+  mr:    "प्रॉक्सी सर्व्हरशी जोडणे अपयशी: $1"
+  ms:    "Gagal sambungan ke pelayan proksi: $1"
+  nb:    "Failed to connect to proxy server: $1"
+  sk:    "Nepodarilo sa pripojiť k proxy serveru: $1"
+  sr:    "Није успео да се повеже на проки сервер: $1"
+  sw:    "Kushindwa kuunganisha na seva wakili: $1"
+  ta:    "முகவர் சேவையகத்துடன் இணைப்பது தோல்வியடைந்தது: $1"
+  te:    "ప్రాక్సీ సర్వర్కు కనెక్ట్ అవుతుంది: $1"
+  tr:    "Vekili sunucuya bağlanmadı: $1"
+  uk:    "Помилка підключення до проксі-сервера: $1"
+  ur:    "پراکسی سرور سے اتصال ناکام: $1"
+
+- zh-CN: 复制原文
+  zh-TW: 複製原文
+  en:    Copy the original text
+  ja:    原文をコピーする
+  fr:    Copie du texte original
+  ru:    Копирование оригинала
+  ko:    원문 을 복사 하다
+  de:    Original kopieren
+  it:    Copia il testo originale
+  th:    คัดลอกต้นฉบับ
+  vi:    Sao chép văn bản gốc
+  ar:    نسخة أصلية
+  nl:    Origineel kopiëren
+  fi:    Kopioi alkuperäinen teksti
+  el:    Αντιγραφή αρχικού κειμένου
+  es:    Copiar el texto original
+  pt:    Copiar o texto original
+  hu:    Az eredeti szöveg másolása
+  sv:    Kopiera originaltexten
+  da:    Kopier den oprindelige tekst
+  cs:    Kopírovat originál
+  pl:    Kopiuj oryginał
+  bg:    Копиране на оригинала
+  et:    Originaali kopeerimine
+  ro:    Copiați originalul
+  sl:    Kopiraj izvirno besedilo
+  af:    Kopieer die oorspronklike teks
+  am:    የመጀመሪያውን ቅጂ
+  bn:    মূল পাঠ কপি করুন
+  ca:    Copia el text original
+  fa:    کپی کردن متن اصلی
+  fil:   Kopyahin ang orihinal na teksto
+  gu:    મૂળની નકલ કરો
+  he:    העתק את המקור
+  hi:    मूल लेख की नकल करें
+  hr:    Kopiraj izvorni tekst
+  id:    Salin teks asli
+  kn:    ಮೂಲ ಪಠ್ಯವನ್ನು ನಕಲು ಮಾಡಿ
+  lt:    Kopijuoti originalą
+  lv:    Kopēt oriģinālu
+  ml:    യഥാര്‍ത്ഥ ലേഖനം പകര്‍ത്തുക
+  mr:    मूळ लेख कॉपी करा
+  ms:    Salin asal
+  nb:    Kopier originalt tekst
+  sk:    Kopírovať originál
+  sr:    Копирајте оригинални текст
+  sw:    Nakala maandishi ya asili
+  ta:    அசல் உரையை நகலெடுக்கவும்
+  te:    అసలును కాపీ చేయండి
+  tr:    Orijinali kopyala
+  uk:    Копіювати оригінал
+  ur:    اصل نقل کریں
+
+- zh-CN: 文本过长无法翻译！
+  zh-TW: 文字過長無法翻譯！
+  en:    The text is too long to translate!
+  ja:    テキストが長すぎて翻訳できない！
+  fr:    Le texte est trop long pour être traduit!
+  ru:    Текст слишком длинный для перевода!
+  ko:    텍스트가 너무 길어서 번역할 수 없습니다!
+  de:    Der Text ist zu lang für die Übersetzung!
+  it:    Il testo è troppo lungo per essere tradotto!
+  th:    ข้อความยาวเกินไปที่จะแปล!
+  vi:    Văn bản quá dài để dịch!
+  ar:    النص طويل جدا للترجمة !
+  nl:    De tekst is te lang om te vertalen!
+  fi:    Liian pitkä teksti ei voi kääntää!
+  el:    Το κείμενο είναι πολύ μεγάλο για να μεταφραστεί!
+  es:    ¡¡ el texto es demasiado largo para traducir!
+  pt:    O texto é muito longo para traduzir!
+  hu:    A szöveg túl hosszú a lefordításhoz!
+  sv:    Texten är för lång att översätta!
+  da:    Teksten er for lang til oversættelse.
+  cs:    Text je příliš dlouhý na překlad.
+  pl:    Tekst jest zbyt długi na tłumaczenie!
+  bg:    Твърде дълъг текст за превод!
+  et:    Liiga pikk tekst tõlkimiseks!
+  ro:    Textul este prea lung pentru traducere!
+  sl:    Besedilo je predolgo za prevajanje!
+  af:    Die teks is te lank om te vertaal!
+  am:    ጽሑፉ ለመተርጎም በጣም ረጅም ነው!
+  bn:    টেক্সট অনুবাদ করার জন্য খুব দীর্ঘ!
+  ca:    El text és massa llarg per traduir!
+  fa:    متن بیش از حد طولانی برای ترجمه!
+  fil:   Ang teksto ay masyadong mahaba upang i-translate!
+  gu:    અનુવાદ કરવા માટે લખાણ ખૂબ લાંબું છે!
+  he:    הטקסט ארוך מדי כדי לתרגם!
+  hi:    अनुवाद करने के लिए पाठ बहुत लंबा है!
+  hr:    Tekst je previše dug za prevod!
+  id:    Teks terlalu panjang untuk diterjemahkan!
+  kn:    ಪಠ್ಯವು ಅನುವಾದಿಸಲು ತುಂಬಾ ಉದ್ದವಾಗಿದೆ!
+  lt:    Per ilgas tekstas negali būti išverstas!
+  lv:    Teksts ir pārāk gars tulkot!
+  ml:    വാചകം വിവർത്തനം ചെയ്യാൻ വളരെ നീണ്ട!
+  mr:    मजकूर अनुवादित करण्यासाठी खूप लांब आहे!
+  ms:    Teks terlalu panjang untuk diterjemahkan!
+  nb:    SMSen er for lang til å oversette!
+  sk:    Text je príliš dlhý na preklad.
+  sr:    Текст је предуг за превођење!
+  sw:    Nakala ni ndefu sana kwa ajili ya kutafsiri!
+  ta:    மொழிபெயர்க்க முடியாத உரை மிகவும் நீண்டது!
+  te:    టెక్స్ట్ అనువాదం చాలా పొడవు!
+  tr:    Çevirilemeyecek çok uzun!
+  uk:    Текст занадто довгий для перекладу!
+  ur:    متن ترجمہ کرنے کے لئے بہت لمبا ہے!
+
+- zh-CN: 请求频率超限
+  zh-TW: 請求頻率超限
+  en:    Request frequency exceeds the limit
+  ja:    要求周波数超過
+  fr:    Dépassement de fréquence des demandes
+  ru:    Превышение частоты запросов
+  ko:    요청 빈도 제한 초과
+  de:    Frequenz der Anfrage überschritten
+  it:    Frequenza di richiesta superata
+  th:    คำขอความถี่เกินขีด จำกัด
+  vi:    Yêu cầu vượt tần số
+  ar:    طلب تردد تجاوز
+  nl:    Frequentie van verzoeken overschreden
+  fi:    Pyynnön taajuus ylitetty
+  el:    Υπερόριο συχνότητας αιτήματος
+  es:    Frecuencia de solicitud por encima del límite
+  pt:    Frequência de solicitação excedida
+  hu:    A kérés gyakorisága túllépett
+  sv:    Begränsad förfrågningsfrekvens
+  da:    Begrænset anmodningsfrekvens
+  cs:    Překročení frekvence požadavků
+  pl:    Częstotliwość żądania przekroczona
+  bg:    Превишена честота на заявките
+  et:    Taotluse sagedus ületatud
+  ro:    Frecvența cererii este depășită
+  sl:    Pogostost zahteve presega mejo
+  af:    Versoek frekwensie oorskry die grens
+  am:    የጥያቄ ድግግሞሽ የተገደበ ነው
+  bn:    অনুরোধের ফ্রিকোয়েন্সি অতিরিক্ত
+  ca:    Freqüència de sol·licitud superada
+  fa:    فرکانس درخواست بیش از حد
+  fil:   Ang frekuensyang humihingi ay lumalabas sa limitasyon
+  gu:    વિનંતી આવર્તન મર્યાદા
+  he:    תדירות בקשה מוגבלת
+  hi:    अनुरोध आवृत्ति अधिक
+  hr:    Prekrašena frekvencija zahtjeva
+  id:    Frekuensi permintaan terbatas
+  kn:    ವಿನಂತಿಯ ಆವರ್ತನ ಮಿತಿ
+  lt:    Prašymų dažnis viršijamas
+  lv:    Pieprasījuma biežums pārsniegts
+  ml:    അഭ്യർത്ഥനയുടെ ആവൃത്തി പരിധി
+  mr:    विनंती वारंवारता मर्यादित
+  ms:    Frekuensi permintaan terhad
+  nb:    Ber om frekvens overskrider grensen
+  sk:    Prekročená frekvencia žiadostí
+  sr:    Учесталост захтева прелази границу
+  sw:    Kiwango cha mwisho wa maombi
+  ta:    கோரிக்கை அதிர்வெண் வரம்பு
+  te:    అభ్యర్థన పౌనఃపున్యం పరిమితి
+  tr:    İstek sıklığı aştı
+  uk:    Перемежена частота запиту
+  ur:    درخواست کی تعدد کی حد
+
+- zh-CN: 请求频率超限，将在$1秒后重试
+  zh-TW: 請求頻率超限，將在$1秒後重試
+  en:    "Request frequency exceeded limit, will retry in $1 second"
+  ja:    要求周波数が超過しているため、$1秒後に再試行されます
+  fr:    "Demande de dépassement de fréquence, réessayera dans $1sec"
+  ru:    Запрос на частоту превышает лимит и будет повторен через $1 секунду.
+  ko:    "요청 빈도 제한 초과, $1 초 후에 다시 시도"
+  de:    Die Anforderungsfrequenz ist überschritten und wird nach $1 Sekunde erneut versucht
+  it:    "La frequenza della richiesta è superata, riprova dopo $1 secondo"
+  th:    คำขอความถี่เกินขีด จำกัด จะลองอีกครั้งหลังจาก \$1 วินาที
+  vi:    Tần số yêu cầu vượt quá và sẽ thử lại sau $1 giây
+  ar:    طلب تردد يتجاوز الحد ، سيتم المحاولة مرة أخرى في $1 ثانية
+  nl:    De frequentie van het verzoek is overschreden en wordt na $1 seconde opnieuw geprobeerd
+  fi:    "Pyynnön taajuus ylitetty, yritetään uudelleen $1 sekunnin kuluttua"
+  el:    Η συχνότητα του αιτήματος υπερβαίνει το όριο και θα δοκιμαστεί ξανά μετά το $1 δευτερόλεπτο
+  es:    Se solicita una frecuencia excesiva y se intentará de nuevo después de $1 segundo
+  pt:    A frequência da solicitação é ultrapassada e será tentada novamente em $1 segundo
+  hu:    "A kérések gyakorisága túllépte a korlátot, újrapróbálkozás $1 másodperc múlva."
+  sv:    "Frekvensen för begäran har överskridits, försöker om $1 sekund"
+  da:    "Frekvensen af anmodningen er overskredet, vil forsøge igen efter $1 sekund"
+  cs:    "Frekvence požadavku je překročena, pokusíte se znovu za $1 sekundu"
+  pl:    "Częstotliwość żądania jest przekroczona, spróbujemy ponownie po $1 sekundzie"
+  bg:    "Честотата на заявката е прекъсната, ще се опита отново след $1 секунда"
+  et:    "Taotluse sagedus on ületatud, proovitakse uuesti pärast $1 sekundit"
+  ro:    Frecvența solicitării a fost depășită și va fi reîncercată după $1 secundă
+  sl:    "Zahteva frekvenca presežena omejitev, bo ponovno poskusila čez $1 sekundo"
+  af:    "Versoek frekwensie oorgetrek beperk, sal weer probeer in $1 sekonde"
+  am:    የጥያቄው ድግግሞሽ ተገደበ ሲሆን ከ $1 ሰከንድ በኋላ እንደገና ይሞክራል
+  bn:    "অনুরোধের ফ্রিকোয়েন্সি অতিক্রম করা হয়েছে, $1 সেকেন্ডের পরে আবার চেষ্টা করা হবে"
+  ca:    "La freqüència de la sol· licitud ha superat el límit, es tornarà a provar després de $1 segon"
+  fa:    فرکانس درخواست بیش از حد است، پس از $1 ثانیه دوباره امتحان می شود
+  fil:   "Ang frekuensyang humigit sa limitasyon, subukan muli sa $1 segundo"
+  gu:    "વિનંતી આવર્તન મર્યાદાથી વધુ છે, $1 સેકન્ડ પછી ફરીથી પ્રયત્ન કરવામાં આવશે"
+  he:    תדירות הבקשה מוגבלת וננסה שוב לאחר $1 שניה
+  hi:    "अनुरोध आवृत्ति अधिक है, $1 सेकंड के बाद फिर से कोशिश की जाएगी"
+  hr:    "Frekvencija zahtjeva prekoračena, pokušat će se ponovo za $1 sekunda"
+  id:    "Frekuensi permintaan melebihi batas, akan dicoba lagi setelah $1 detik"
+  kn:    "ವಿನಂತಿಯ ಆವರ್ತನ ಮಿತಿ, $1 ಸೆಕೆಂಡಿನ ನಂತರ ಮತ್ತೆ ಪ್ರಯತ್ನಿಸಲಾಗುತ್ತದೆ"
+  lt:    "Prašymo dažnis viršijamas, vėl bus bandytas po $1 sekundės"
+  lv:    "Pieprasījuma biežums ir pārsniegts, tiks mēģināts atkal pēc $1 sekundes"
+  ml:    "അഭ്യർത്ഥനയുടെ ആവൃത്തി പരിധി കവിഞ്ഞു, $1 സെക്കൻഡിനു ശേഷം വീണ്ടും ശ്രമിക്കും"
+  mr:    "विनंती वारंवारता मर्यादित आहे, $1 सेकंदानंतर पुन्हा प्रयत्न करा"
+  ms:    "Frekuensi permintaan melebihi had, akan cuba semula selepas $1 saat"
+  nb:    "Forespørselsfrekvensen har overskredet grensen, prøver på nytt om $1 sekunder."
+  sk:    "Frekvencia žiadosti je prekročená, skúsim sa znova o $1 sekundu"
+  sr:    "Захтева фреквенцију прекорачену границу, покушаће се у $1 секунди"
+  sw:    "Maombi ya mzunguko umepungua, itajaribu tena baada ya sekunde $1"
+  ta:    "கோரிக்கை அதிர்வெண் வரம்பு மீறியது, $1 வினாடிகளுக்குப் பிறகு மீண்டும் முயற்சி"
+  te:    "అభ్యర్థన పౌనఃపున్యం అధికంగా ఉంది, $1 సెకన్ల తరువాత తిరిగి ప్రయత్నించండి"
+  tr:    "İstek sıklığı aşıldı, $1 saniye sonra tekrar denenecektir"
+  uk:    "Частота запиту перевищена, спробується знову через $1 секунду"
+  ur:    فریکوئنسی کی درخواست حد سے زیادہ ہے، $1 سیکنڈ کے بعد دوبارہ کوشش کی جائے گی
+
+- zh-CN: 正在重试
+  zh-TW: 正在重試
+  en:    Trying again
+  ja:    再試行中
+  fr:    Essaie à nouveau
+  ru:    Повторяю.
+  ko:    재시도 중
+  de:    Wiederversuchen
+  it:    Riprova
+  th:    กำลังลองอีกครั้ง
+  vi:    Đang thử lại
+  ar:    إعادة المحاولة
+  nl:    Opnieuw proberen
+  fi:    Yritän uudelleen
+  el:    Προσπαθώ ξανά
+  es:    Se está volviendo a probar
+  pt:    Tentando novamente
+  hu:    Újra próbálkozik
+  sv:    Försöker igen
+  da:    Prøver igen
+  cs:    Zkouším znovu
+  pl:    Próbujemy ponownie
+  bg:    Опитвам отново
+  et:    Uuesti proovitakse
+  ro:    Încerc din nou
+  sl:    Poskušam znova.
+  af:    Probeer weer
+  am:    እንደገና እየሞከረ ነው
+  bn:    আবার চেষ্টা করা হচ্ছে
+  ca:    "S' està tornant a provar"
+  fa:    تلاش مجدد
+  fil:   Sinusubukan muli
+  gu:    ફરીથી પ્રયત્ન કરી રહ્યા છીએ
+  he:    מנסה שוב
+  hi:    फिर से कोशिश की जा रही है
+  hr:    Ponovno pokušavam
+  id:    Mencoba ulang
+  kn:    ಮರುಪ್ರಯತ್ನಿಸುತ್ತಿದೆ
+  lt:    Bandoma dar kartą
+  lv:    Mēģina atkal
+  ml:    വീണ്ടും ശ്രമിക്കുന്നു
+  mr:    पुन्हा प्रयत्न करत आहे
+  ms:    Cuba semula
+  nb:    Prøver igjen
+  sk:    Skúšam znova
+  sr:    Покушајте поново
+  sw:    Inajaribu tena
+  ta:    மீண்டும் முயற்சிக்கிறேன்
+  te:    మళ్ళీ ప్రయత్నిస్తోంది
+  tr:    Tekrar deneniyor
+  uk:    Спробується знову
+  ur:    دوبارہ کوشش کی جارہی ہے
+
+- zh-CN: 问问Gemini
+  zh-TW: 問問Gemini
+  en:    Ask Gemini
+  ja:    Geminiに聞いてみよう
+  fr:    Demandez à Gemini
+  ru:    Спросите Gemini
+  ko:    Gemini한테 물어보세요.
+  de:    Fragen Gemini
+  it:    Chiedi a Gemini
+  th:    ถาม Gemini
+  vi:    Hỏi về Gemini
+  ar:    اسأل الجوزاء
+  nl:    Vraag het Gemini
+  fi:    Kysy Geminiltä
+  el:    Ρωτήστε το Gemini
+  es:    Pregúntale a Gemini
+  pt:    Pergunte ao Gemini
+  hu:    Kérdés Gemini
+  sv:    Fråga Gemini
+  da:    Spørg Gemini
+  cs:    Zeptejte se Gemini
+  pl:    Zapytaj Gemini
+  bg:    Попитай Близнаците
+  et:    "Küsi Gemini'lt"
+  ro:    Întrebați Gemini
+  sl:    Vprašaj Dvojčka.
+  af:    Vra Gemini
+  am:    Gemini ን ይጠይቁ
+  bn:    জিজ্ঞাসা করুন Gemini
+  ca:    Pregunta al Gemini
+  fa:    سوال از Gemini
+  fil:   Tanungin si Gemini
+  gu:    Gemini ને પૂછો
+  he:    שאל את Gemini
+  hi:    Gemini से पूछें
+  hr:    Pitajte Gemini
+  id:    Tanyakan pada Gemini
+  kn:    Gemini ಗೆ ಕೇಳಿ
+  lt:    Paklauskite Gemini
+  lv:    Jautājiet Gemini
+  ml:    Gemini ചോദിക്കുക
+  mr:    Gemini विचारा
+  ms:    Tanya kepada Gemini
+  nb:    Spør Gemini
+  sk:    Spýtajte sa Gemini
+  sr:    Питајте Близанце
+  sw:    Kuuliza Gemini
+  ta:    கேள்வி Gemini
+  te:    జెమినిని అడగండి
+  tr:    "Gemini'ye Sorun"
+  uk:    Запитайте Gemini
+  ur:    Gemini سے پوچھیں
+
+- zh-CN: 语境提示词
+  zh-TW: 脉络提示詞
+  en:    Context prompt words
+  ja:    文脈提示語
+  fr:    Mots contextuels suggestifs
+  ru:    Контекстные подсказки
+  ko:    언어 환경 제시어
+  de:    Kontext-Hinweise
+  it:    Indicazione contestuale
+  th:    คำใบ้บริบท
+  vi:    Từ gợi ý ngữ cảnh
+  ar:    تلميحات السياقية
+  nl:    Contextuele aanwijzingen
+  fi:    Kontekstiivinkkejä
+  el:    Λέξεις πλαισίου
+  es:    Consejos contextuales
+  pt:    Palavras de contexto
+  hu:    Kontextuális jelzés
+  sv:    Kontekstuella tips
+  da:    Kontekstuelle ord
+  cs:    Kontextové slovo
+  pl:    Wskazówki kontekstowe
+  bg:    Контекстуални съвети
+  et:    Kontekstilised vihjed
+  ro:    Cuvinte contextuale
+  sl:    Pozivne besede za kontekst
+  af:    Konteks vraagwoorde
+  am:    የአውድ ጠቃሚ ቃላት
+  bn:    প্রেক্ষাপট টিপট
+  ca:    Consells de context
+  fa:    کلمات محیطی
+  fil:   Mga salita ng Context prompt
+  gu:    સંદર્ભ સંકેત
+  he:    מילים בהקשר
+  hi:    संदर्भ संकेत
+  hr:    Kontekstni saveti
+  id:    Kata petunjuk konteks
+  kn:    ಸಂದರ್ಭದ ಸೂಚನೆ
+  lt:    Konteksto patarimai
+  lv:    Konteksta norādes
+  ml:    സാഹചര്യ സൂചനകൾ
+  mr:    संदर्भ सूचना
+  ms:    Kata petunjuk konteks
+  nb:    Konsentrasjonsvakt ord
+  sk:    Kontextové slová
+  sr:    Контекст брзе речи
+  sw:    Maneno ya mazingira
+  ta:    சூழல் குறிப்புகள்
+  te:    సందర్భ సూచనలు
+  tr:    Kontekst İpuçları
+  uk:    Контекстові підказки
+  ur:    سیاق و سبق اشارے
+
 - zh-CN: 正在编译项目
   zh-TW: 正在編譯項目
   en:    Compiling project
@@ -45481,51 +46276,51 @@
   fr:    $1 est $2
   ru:    $1 - это $2.
   ko:    $1은 $2입니다.
-  de:     $1 ist $2
-  it:     $1 è $2
+  de:    $1 ist $2
+  it:    $1 è $2
   th:    $1 คือ $2
   vi:    $1 là $2
   ar:    $1 هو $2
   nl:    $1 is $2
-  fi:     $1 on $2
+  fi:    $1 on $2
   el:    $1 είναι $2
   es:    $1 es $2
-  pt:     $1 é $2
-  hu:     $1 az $2
-  sv:     $1 är $2
-  da:     $1 er $2
-  cs:     $1 je $2
-  pl:     $1 jest $2
-  bg:     $1 е $2
-  et:     $1 on $2
-  ro:     $1 este $2
+  pt:    $1 é $2
+  hu:    $1 az $2
+  sv:    $1 är $2
+  da:    $1 er $2
+  cs:    $1 je $2
+  pl:    $1 jest $2
+  bg:    $1 е $2
+  et:    $1 on $2
+  ro:    $1 este $2
   sl:    $1 je $2
   af:    $1 is $2
   am:    $1 ነው $2
-  bn:     $1 হল $2
-  ca:     $1 és $2
-  fa:     $1 است $2
+  bn:    $1 হল $2
+  ca:    $1 és $2
+  fa:    $1 است $2
   fil:   $1 is $2
   gu:    $1 એ $2 છે
-  he:     $1 הוא $2
-  hi:     $1 है $2
-  hr:     $1 je $2
-  id:     $1 adalah $2
+  he:    $1 הוא $2
+  hi:    $1 है $2
+  hr:    $1 je $2
+  id:    $1 adalah $2
   kn:    $1 ಆಗಿದೆ $2
-  lt:     $1 yra $2
-  lv:     $1 ir $2
-  ml:     $1 ആണ് $2
-  mr:     $1 म्हणजे $2
-  ms:     $1 ialah $2
+  lt:    $1 yra $2
+  lv:    $1 ir $2
+  ml:    $1 ആണ് $2
+  mr:    $1 म्हणजे $2
+  ms:    $1 ialah $2
   nb:    $1 is $2
-  sk:     $1 je $2
+  sk:    $1 je $2
   sr:    $1 is $2
-  sw:     $1 kwa ajili ya $2
+  sw:    $1 kwa ajili ya $2
   ta:    $1 என்பது $2
   te:    $1 అంటే $2
-  tr:    " $1'de $2'de"
-  uk:     $1 є $2
-  ur:     $1 ہے $2
+  tr:    "$1'de $2'de"
+  uk:    $1 є $2
+  ur:    $1 ہے $2
 
 - zh-CN: ，默认值是$1
   zh-TW: ，預設值是$1
@@ -48276,7 +49071,7 @@
   nb:    Du må bruke kommandoen $2 for å angi $4 på $3 før $1
   sk:    Pred $1 je potrebné použiť príkaz $2 nastaviť $4 na $3
   sr:    Pre $1 potrebno je koristiti komandu $2 da biste podesili $4 na $3
-  sw:     $1 kabla ya kutumia amri $2 kuanzisha $3 juu ya $4
+  sw:    $1 kabla ya kutumia amri $2 kuanzisha $3 juu ya $4
   ta:    $1 முன் $2 கட்டளையைப் பயன்படுத்தி $3 மீது $4 அமைக்க வேண்டும்
   te:    $1 ముందు అవసరం $2 ఆదేశం ఉపయోగించి $3 సెట్ $4
   tr:    $1 önce $2 komutu kullanarak $3 üzerinde $4 ayarlamak gerekir

@@ -1,0 +1,31 @@
+<div head><span -if=!item?>${i18n`翻译工具`} </span>
+    <template -else>
+        ${i18n`翻译: `}"<span -bind="item?.text"></span>"
+        <a @click="copyText">${i18n`复制原文`}</a>
+    </template>
+    <div>
+        <select -if="config.tool==='gemini'" -model="context" -src="o in contexts" editable>
+            <option -value="o.key" -bind="o.name"></option>
+        </select>
+    </div>
+    <drop @click="close()"></drop>
+</div>
+<lattice itemwidth=260 -src="s in supports" body>
+    <field>
+        <label
+            style="padding-left:2px;display:block;background:#fff;background-clip:padding-box;border:1px solid transparent;box-sizing:border-box;pointer-events:none;"
+            ${errbg} head>
+            <span -bind="s.name"></span>
+            (<span -bind="s.info"></span>,<span -bind="s.lang"></span>)
+        </label>
+        <textarea -model="fanyi[s.id]" class='body' style="resize:vertical;height:120px" ${errbg}
+            -style="{color:item?.crash&&s.id in item.crash?'#c24':'','border-color':item?.crash&&s.id in item.crash?'#c24':''}">
+        </textarea>
+    </field>
+</lattice>
+<div foot>
+    <a @click="baidu2" -bind="actname"></a>
+    <label @click="baiduAll=!baiduAll" -if="!!item?">
+        <checker -value=baiduAll></checker>${i18n`自动换行`}
+    </label>
+</div>

@@ -8,6 +8,7 @@ var loadData = async function (fullpath) {
     if (!fs.existsSync(fullpath)) return;
     var text = await fs.promises.readFile(fullpath);
     var data = parseYML(text.toString());
+    data = data.filter(d => typeof d === 'object');
     if (!data || typeof data !== "object") return;
     if (!(data instanceof Array)) data = [data];
     var map = Object.create(null);

@@ -83,133 +83,90 @@
     </table>
 </div>
 <script>
-    var baiduFanyiConfig = data.getInstance("fanyi-config");
+    var fanyiConfig = data.getInstance("fanyi-config");
     var a = button;
-    var salt = `efront${Math.random().toString(36).slice(6, 16)}`;
-    var requestBaiduFanyi = async function (str, to, from = 'auto', nbr) {
-        var appid = baiduFanyiConfig.appid || "20210218000700622";
-        var sign = baiduFanyiConfig.sign || "xJf0dfXeJdzudCTBn3QS";
-        var limit = 6000;
-        if (str.length > limit || /[\r\n\u2028\u2029]/.test(str) && nbr !== false) {
-            var strs = [];
-            str.replace(/([^\r\n\u2028\u2029]*)([\r\n\u2028\u2029]*)/g, function (_, a, b) {
-                strs.push([a, b]);
-            });
-            var reqstr = [];
-            var reqbr = [];
-            var res = [];
-            var reqlength = 0;
-            var req = async function () {
-                var res = await requestBaiduFanyi(reqstr.join('\r\n'), to, from, false);
-                res = res.split("\r\n").map((a, i) => {
-                    return a + reqbr[i];
-                }).join("");
-                return res;
-            };
-            for (var s of strs) {
-                var [a, b] = s;
-                if (a.length > limit) {
-                    throw `i18n文本过长无法翻译！`;
-                }
-
-                reqlength += a.length + 2;
-                if (reqlength > limit || !a && reqstr.length) {
-                    res.push(await req());
-                    await wait(200);
-                    reqstr = [];
-                    reqbr = [];
-                    reqlength = a.length;
-                }
-                if (a) {
-                    reqstr.push(a);
-                    reqbr.push(b);
-                }
-                else {
-                    res.push(b);
-                }
-            }
-            if (reqlength) {
-                res.push(await req());
-            }
-            return res.join('');
-        }
-        var req = async function (prefix = '', postfix = '') {
-            var map = Object.create(null);
-            var str1 = str.replace(/\$(\d+)/g, (_, a) => {
-                var k = prefix + a + postfix;
-                map[k] = "$" + a;
-                return k;
-            });
-            var xhr = await cross("get", "https://fanyi-api.baidu.com/api/trans/vip/translate").send({
-                q: str1,
-                from,
-                to,
-                appid,
-                salt,
-                sign: md5(`${appid}${str1}${salt}${sign}`),
-            });
-            var data = JSON.parse(xhr.response);
-            if (+data.error_code > 54000) {
-                throw data.error_msg;
-            }
-            var n = /\s*(\d+|[\u0d66-\u0d6f]+|[\u09E6-\u09ef]+)/;
-            var reg = new RegExp(`${escapeRegExp(prefix)}${n.source}${escapeRegExp(postfix)}|${escapeRegExp(postfix)}${n.source}${escapeRegExp(prefix)}`, 'g');
-            var map1 = Object.assign(Object.create(null), map);
-            var lack = false;
-            var res = data.trans_result.map(a => {
-                a = a.dst.replace(reg, (_, a) => {
-                    if (/[\u0d66-\u0d6f]/.test(a)) a = a.split("").map(a => a.charCodeAt() - 0xd66).join("");
-                    else if (/[\u09e6-\u09ef]/.test(a)) a = a.split("").map(a => a.charCodeAt() - 0x9e6).join("");
-                    var k = prefix + a + postfix;
-                    var m = map1[k];
-                    if (!m) {
-                        lack = true;
-                        return _;
-                    }
-                    delete map1[k];
-                    return m;
-                });
-                return a;
-            }).join('\r\n');
-            var count = Object.keys(map1).length;
-            if (!count && !lack) return [count, res];
-            return [count || lack, res];
-        }
-        var [count, res] = await req("#", "");
-        if (!count) return res;
-        var [count, res] = await req("@", "");
-        if (!count) return res;
-        var [count, res] = await req("$", "");
-        return res;
-    };
     var editCode = function () {
         supports.forEach(s => s.checked = false);
-        detailScope.supports.forEach(s => s.checked = true);
+        supports.checked.forEach(s => s.checked = true);
+        var apply_info = function (act) {
+            return i18n`efront目前使用的翻译接口免费额度受限，如果遇到翻译失败的情况，您可以自己${act}配置后使用`;
+        };
+        var config = {
+            tool: fanyiConfig.tool || 'gemini',
+            baidu_url: 'https://fanyi-api.baidu.com/',
+            gemini_url: 'https://aistudio.google.com/api-keys',
+            gemini_info: apply_info(i18n`创建Api Key`),
+            baidu_info: apply_info(i18n`申请appid和密钥`),
+            appid: fanyiConfig.appid,// baidu
+            sign: fanyiConfig.sign,
+            API_KEY: fanyiConfig.API_KEY,// gemini
+            model_id: 'gemini-2.5-flash',
+        };
         var editor = frame$edit(i18n`国际化参数`, {
             submit(form) {
                 if (form.appid && !form.sign || form.sign && !form.appid) {
                     return i18n`appid和密钥不能只有一个！`;
                 }
-                detailScope.supports = supports.filter(s => s.checked);
+                var supports1 = supports.checked = supports.filter(s => s.checked);
                 var smap = {};
-                for (var s of detailScope.supports) {
+                for (var s of supports1) {
                     smap[s.id] = true;
                 }
-                data.patchInstance('fanyi-config', { appid: form.appid, sign: form.sign, smap }, true);
+                data.patchInstance('fanyi-config', {
+                    appid: form.appid,
+                    sign: form.sign,
+                    API_KEY: form.API_KEY,
+                    model_id: form.model_id,
+                    tool: form.tool,
+                    smap
+                }, true);
             }
         }, {
             fields: [
-                { name: i18n`提示`, readonly: true, key: 'apply_info', type: 'text' },
-                { name: i18n`appid及密钥申请地址`, readonly: true, key: 'apply_url', type: 'anchor' },
-                { name: `appid`, key: 'appid', type: 'input' },
-                { name: i18n`密钥`, key: 'sign', type: "input" },
+                {
+                    name: i18n`翻译工具`, key: "tool", type: 'radio', options: [
+                        { name: 'Gemini', key: 'gemini' },
+                        { name: "百度翻译", key: 'baidu' }
+                    ]
+                },
+                { name: i18n`提示`, readonly: true, key: 'baidu_info', needs: { tool: "baidu" }, type: 'text' },
+                { name: i18n`提示`, readonly: true, key: 'gemini_info', needs: { tool: "gemini" }, type: 'text' },
+                {
+                    name: i18n`appid及密钥申请地址`,
+                    readonly: true,
+                    needs: { tool: "baidu" },
+                    key: 'baidu_url',
+                    type: 'anchor'
+                },
+                {
+                    name: i18n`Api Key管理`,
+                    readonly: true,
+                    needs: { tool: "gemini" },
+                    key: 'gemini_url',
+                    type: 'anchor'
+                },
+                {
+                    name: `appid`, key: 'appid',
+                    needs: { tool: "baidu" },
+                    type: 'input'
+                },
+                {
+                    name: i18n`密钥`, key: 'sign',
+                    needs: { tool: "baidu" },
+                    type: "input"
+                },
+                {
+                    name: i18n`Api Key`, key: 'API_KEY',
+                    needs: { tool: "gemini" },
+                    type: "input"
+                },
+                {
+                    name: i18n`模型`, key: 'model_id',
+                    needs: { tool: "gemini" },
+                    type: "input"
+                },
                 { name: i18n`目标语言`, type: 'checkbox', options: supports }
-            ], data: {
-                apply_url: 'https://fanyi-api.baidu.com/',
-                apply_info: i18n`efront目前使用的翻译接口免费额度受限，如果遇到翻译失败的情况，您可以自己申请一个appid和密钥配置后使用`,
-                appid: baiduFanyiConfig.appid,
-                sign: baiduFanyiConfig.sign
-            }
+            ], data: config,
         });
         popup(editor, [.5, .5]);
     };
@@ -406,10 +363,6 @@
     //     "庄，庄": ["za", "Zhuang, Chuang"],
     //     祖鲁语: ["zu", "Zulu"]
     // };
-    var supports = shallowClone(i18nSupports, 2);
-    supports.forEach(a => {
-        a.info = a.land()
-    });
     var getAllText = function (data, f) {
         try {
             if (/^\s*(\<\!--[\s\S]*?--\>\s*)*<!doctype\s/i.test(data)) return [];
@@ -508,182 +461,40 @@
         });
     };
     var detailWindow;
-    var detailScope = {
-        drop,
-        checker,
-        item: null,
-        field,
-        textarea,
-        supports: baiduFanyiConfig.smap ? supports.filter(s => baiduFanyiConfig.smap[s.id]) : supports.slice(0, 8),
-        button,
-        lattice,
-        fanyi: {},
-        a: button,
-        _baiduAll: false,
-        get baiduAll() {
-            return this._baiduAll;
-        },
-        _wakeLock: null,
-        _wakeAlert: null,
-        async wakeLock() {
-            if (this._wakeLock) {
-                this.wakeLockEnd();
-            }
-            if (navigator.wakeLock) {
-                this._wakeLock = navigator.wakeLock.request("screen");
-                this._wakeLock = await this._wakeLock;
-                if (this._wakeLock) this._wakeAlert = alert(i18n`当前状态会保持屏幕常亮，如您暂时离开，建议您手动锁屏`, 'warn', false);
-            }
-        },
-        async wakeLockEnd() {
-            var wakeLock = await this._wakeLock;
-            this._wakeLock = null;
-            if (wakeLock) {
-                await wakeLock.release();
-                if (this._wakeLock === wakeLock) this._wakeLock = null;
-                if (!this._wakeLock) remove(this._wakeAlert);
-            }
-        },
-        set baiduAll(v) {
-            this._baiduAll = v;
-            if (v) this.wakeLock();
-            else this.wakeLockEnd();
-        },
-        async baidu2() {
-            var startRow = activedRow;
-            var direction = 1;
-            do {
-                var nextRow = null;
-                await this.baidu();
-                if (activedRow && this.baiduAll) {
-                    if (direction > 0) {
-                        var nextRow = activedRow.nextElementSibling;
-                        if (nextRow) {
-                            nextRow.click();
-                            await wait(200);
-                        }
-                        else direction = -1;
-                    }
-                    if (direction < 0) {
-                        var nextRow = activedRow.previousElementSibling;
-                        if (nextRow) nextRow.click();
-                    }
-                    if (nextRow) {
-                        tableElement.children[1].setFocus(nextRow);
-                    }
-                }
-                await wait(200);
-
-            } while (nextRow);
-
-        },
-        async baidu() {
-
-            var fanyi = this.fanyi;
-            var item = this.item;
-            if (item) {
-                var liang = item.liang;
-                var text = item.text;
-            }
-            var from = 'auto';
-            if (!text) for (var k in fanyi) {
-                if (fanyi[k]) text = fanyi[k], from = k;
-            }
-            try {
-                for (var s of this.supports) {
-                    var fy = fanyi[s.id];
-                    if (fy instanceof Array) fy = fy[0];
-                    if (typeof fy === 'string' && fy.trim()) continue;
-                    fanyi[s.id] = await requestBaiduFanyi(text, s.id, from);
-                    liang++;
-                    if (item) item.liang = liang;
-                    setCrash(item);
-                    render.digest();
-                }
-                if (item) item.liang = liang;
-            } catch (e) {
-                alert(e, 'error');
-            }
-        },
-        copyText() {
-            return copyToClipboard(this.item.text);
-        },
-        save() {
-
-        },
-        close() {
-            remove(detailWindow);
-        }
-    };
     var activedRow;
-    var initDetailWindow = function () {
+    var initDetailWindow = function (item) {
         if (!detailWindow) {
-            detailWindow = view();
-            on('submit')(detailWindow, e => e.preventDefault());
-            var errbg = `-style="{background:item.crash&&s.id in item.crash?'#fde':'#fff'}"`;
-            detailWindow.innerHTML = `<div head><span -if=!item? >${i18n`翻译工具`} </span><template -else>${i18n`翻译: `}"<span -bind="item?.text"></span>"<a @click="copyText">${i18n`复制`}</a></template><drop @click="close()"></drop></div><lattice itemwidth=260 -src="s in supports" body><field style="display:inline-block;padding:6px 0 12px 0;position:relative" ><label style="padding-left:2px;display:block;background:#fff;background-clip:padding-box;border:1px solid transparent;box-sizing:border-box;pointer-events:none;" ${errbg} head><span -bind="s.name"></span>(<span -bind="s.info"></span>,<span -bind="s.lang"></span>)</label><textarea -model="fanyi[s.id]" class='body' style="resize:vertical;height:120px" ${errbg} -style="{color:item.crash&&s.id in item.crash?'#c24':'','border-color':item.crash&&s.id in item.crash?'#c24':''}"></textarea></field></lattice><div foot><a style="float:left" @click="baidu2">${i18n`一键百度`}</a><label @click="baiduAll=!baiduAll" -if="!!item?" ><checker -value=baiduAll></checker>${i18n`自动换行`}</label></div>`;
-            drag.on(detailWindow, detailWindow.firstElementChild);
-            resize.on(detailWindow);
-            css(detailWindow, `position:absolute;left:0;top:0;bottom:0;width:260px;`);
-            detailWindow.initialStyle = "margin-left:-100px;opacity:0";
-            var updateCrash = lazy(function () {
-                var item = detailScope.item;
-                setCrash(item);
-            });
-            bind('input', document)(detailWindow, updateCrash);
-            bind('keyup', document)(detailWindow, updateCrash);
-            bind('paste', document)(detailWindow, updateCrash);
-            bind('cut', document)(detailWindow, updateCrash);
-            render(detailWindow, detailScope);
+            detailWindow = 翻译工具(item);
             on("remove")(detailWindow, function () {
-                更新翻译数();
                 if (activedRow) {
                     removeClass(activedRow, "actived");
                     activedRow = null;
-                    delete detailScope.item;
                 }
             })
 
         }
     }
-    var 更新翻译数 = function () {
-        var count = 0;
-        var fanyi = detailScope.fanyi;
-        if (fanyi) for (var s of supports) {
-            var fy = fanyi[s.id];
-            if (fy instanceof Array) fy = fy[0];
-            if (typeof fy === 'string' && fy.trim()) count++;
-        }
-        if (detailScope.item) {
-            detailScope.item.liang = count;
-        }
-    };
+
     var showDetail = function (event) {
         initDetailWindow();
-        更新翻译数();
         var tr = getTargetIn(tableElement.children[1], event.active, false);
-        var item = detailScope.item = event.item;
+        var item = event.item;
+        if (!item.fanyi) item.fanyi = {}, item.fanyi[supports[0].id] = item.text;
         if (activedRow !== tr) {
             if (activedRow) removeClass(activedRow, 'actived');
             activedRow = tr;
             addClass(activedRow, 'actived');
         }
+        detailWindow.setItem(item, tableElement, activedRow);
         if (item.text.length > 160) {
             alert(i18n`文本超长，无法翻译`, 'error');
             return;
         }
-        // if (/[\u2028\u2029\r\n]/.test(item.text)) {
-        //     alert("不能翻译换行符号！", "error");
-        //     return;
-        // }
-        if (!item.fanyi) item.fanyi = {}, item.fanyi[supports[0].id] = item.text;
-        detailScope.fanyi = item.fanyi;
         if (!isMounted(detailWindow)) popup(detailWindow);
     };
     var 显示翻译窗口 = function () {
         initDetailWindow();
-        delete detailScope.item;
-        detailScope.fanyi = Object.create(null);
+        detailWindow.setItem(null, null, null);
         if (!isMounted(detailWindow)) popup(detailWindow);
     }
     var readText = async function (e) {
@@ -696,28 +507,8 @@
         data = decodeUTF8(new Uint8Array(data));
         return data;
     }
-    var idregs = [];
-    var getReg = function (i) {
-        if (idregs[i]) return idregs[i];
-        return idregs[i] = new RegExp("\\$" + i);
-    }
-    var setCrash = function (d) {
-        var { fanyi, caps } = d;
-        var crash = Object.create(null);
-        var errorCount = 0;
-        for (var k in fanyi) {
-            for (var cx = 1, dx = caps; cx <= dx; cx++) {
-                var r = getReg(cx);
-                if (!r.test(fanyi[k])) {
-                    crash[k] = true;
-                    errorCount++;
-                    break;
-                }
-            }
-        }
-        d.crash = crash;
-        d.crashCount = errorCount;
-    };
+
+
     var chooseFolder = async function () {
         var dp = await window.showDirectoryPicker();
         var msg = alert(i18n`正在读取文件列表，请稍候..`, false);
@@ -790,6 +581,7 @@
         var result = [];
         var preMap = Object.create(null);
         var againstid = 0;
+        var contexts = [];
         for (var e of pretrans) {
             var data = await readText(e);
             var filename = a.name;
@@ -805,7 +597,13 @@
             msg.setText(i18n`正在重组数据..`);
             await wait(20);
             data = yield1.value;
+            var context = '';
             loop: for (var d of data) {
+                if (typeof d === 'string') {
+                    context = d;
+                    contexts.push(d);
+                    continue;
+                }
                 for (var k in d) {
                     var s = d[k];
                     if (typeof s === 'string') d[k] = s.replace(/^\s*([\s\S]*?)([：\:]?\s*)$/, '$1');
@@ -827,7 +625,7 @@
                     fanyi[id] = d[k];
                 }
                 var text = d[supports[0].lang]
-                d = { text: text, fanyi, liang, d };
+                d = { text: text, fanyi, liang, d, context };
                 if (text in textMap) {
                     var tm = textMap[text];
                     var count = tm['#count'];
@@ -843,18 +641,18 @@
                 result.push(d);
             }
         }
-        var againsts = [];
-        result = result.filter(a => {
-            var ag = a.d.against;
-            delete a.d;
-            if (!ag) return true;
-            var aga = againsts[ag];
-            if (!aga) aga = againsts[ag] = [];
-            aga.push(a);
-        });
-        againsts.forEach(a => {
-            result.unshift.apply(result, a);
-        });
+        // var againsts = [];
+        // result = result.filter(a => {
+        //     var ag = a.d.against;
+        //     delete a.d;
+        //     if (!ag) return true;
+        //     var aga = againsts[ag];
+        //     if (!aga) aga = againsts[ag] = [];
+        //     aga.push(a);
+        // });
+        // againsts.forEach(a => {
+        //     result.unshift.apply(result, a);
+        // });
         var untrans = [];
         Object.keys(textMap).map(k => {
             var texts = textMap[k];
@@ -865,16 +663,31 @@
             var files = Object.keys(texts);
             k = k.trim();
             if (k in preMap) return;
-            untrans.push({ text: k, occurs: texts, files: files.join(',\r\n'), count, caps: size });
+            untrans.push({
+                text: k,
+                occurs: texts,
+                files: files.join(',\r\n'),
+                count,
+                context: contexts[0],
+                liang: 1,
+                caps: size
+            });
         });
+        supports.contexts = contexts;
         已找到的字符串 = untrans.concat(result);
         runFilter();
         msg.setText(i18n`提取完成`, 'success');
     }
     var exportCSV = async function () {
-        var checked_supports = detailScope.supports;
+        var checked_supports = supports.checked;
         var objs = [];
+        var context = '';
         for (var d of tableData) {
+            var dc = d.context;
+            if (dc && dc !== context) {
+                context = dc;
+                objs.push(dc);
+            }
             var o = {};
             if (!d.fanyi) {
                 for (var c of checked_supports) o[c.lang] = '';
