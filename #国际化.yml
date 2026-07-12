@@ -1,3 +1,56 @@
+- zh-CN: 请配置密钥（API Key）后使用
+  zh-TW: 請配寘金鑰（API Key）後使用
+  en:    Please configure the API Key before use
+  ja:    キー（API Key）を設定して使用してください
+  fr:    Veuillez utiliser après avoir configuré la clé (API key)
+  ru:    После настройки ключа (API Key) используйте
+  ko:    키(API Key)를 구성한 후 사용하십시오.
+  de:    Konfigurieren Sie den API-Schlüssel
+  it:    Configurare la chiave API
+  th:    กรุณาใช้หลังจากกำหนดค่าคีย์ (API Key)
+  vi:    Sử dụng API Key
+  ar:    تكوين مفتاح API
+  nl:    Gebruik de API-sleutel
+  fi:    Käytä API-avainta
+  el:    Χρησιμοποιήστε το API Key
+  es:    "Por favor, use después de configurar la clave (api key)"
+  pt:    Configure a chave (API Key) depois de usar
+  hu:    "Kérjük, konfigurálja az API kulcsot"
+  sv:    Använd API-nyckeln
+  da:    Brug venligst API-nøglen
+  cs:    Vytvořte si klíč API (API Key).
+  pl:    Proszę skonfigurować klucz API po użyciu
+  bg:    Използвайте API ключа
+  et:    Palun kasutage API-võtit.
+  ro:    Configurați cheia API
+  sl:    Pred uporabo nastavite ključ API
+  af:    Asseblief konfigureer die API-sleutel voor gebruik
+  am:    የ API ቁልፍ አዋቅር
+  bn:    API কী ব্যবহার করুন
+  ca:    Configureu la clau API
+  fa:    استفاده از کلید API (API Key)
+  fil:   Paki-configure ang API Key bago gamitin
+  gu:    મહેરબાની કરીને API કીને રૂપરેખાંકિત કરો
+  he:    תוכלו להגדיר את מפתח API
+  hi:    कृपया एपीआई कुंजी (API Key) का उपयोग करें
+  hr:    Koristite API ključ
+  id:    Silakan gunakan kunci API.
+  kn:    API ಕೀಲಿಯನ್ನು ಸಂರಚಿಸಿ
+  lt:    Pasidarykite API raktą
+  lv:    "Lūdzu, konfigurējiet API atslēgu"
+  ml:    API Key ഉപയോഗിക്കുക
+  mr:    कृपया API की कॉन्फिगर करा
+  ms:    Sila gunakan kunci API.
+  nb:    Konfigurer API-nøkkelen før bruk
+  sk:    Kľúč API (API Key)
+  sr:    Пре употребе конфигуришите АПИ кључ
+  sw:    Tafadhali usanidi ufunguo (API Key) baada ya kutumia
+  ta:    API விசை (API Key)
+  te:    API కీని కాన్ఫిగర్ చేయండి
+  tr:    Lütfen API anahtarını kullanın.
+  uk:    "Будь ласка, налаштуйте ключ API."
+  ur:    API کلید کو ترتیب دیں
+
 - zh-CN: efront目前使用的翻译接口免费额度受限，如果遇到翻译失败的情况，您可以自己$1配置后使用
   zh-TW: efront現時使用的翻譯介面免費額度受限，如果遇到翻譯失敗的情況，您可以自己$1配置後使用
   en:    "The free quota for the translation interface currently used by efront is limited. If you encounter a translation failure, you can configure it yourself using $1 and then use it."

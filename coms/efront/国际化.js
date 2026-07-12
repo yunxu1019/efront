@@ -61,7 +61,6 @@ var loadParents = async function (fullpath, i18nMap, name, loaded, keys) {
                 keys1.forEach(a => {
                     if (keys.indexOf(a) < 0) keys.push(a);
                 })
-                keys.push(keys1);
                 for (var k in map) if (!(k in i18nMap)) i18nMap[k] = map[k];
                 cwd = path.join(cwd, r);
             }
