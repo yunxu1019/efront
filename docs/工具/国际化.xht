@@ -100,7 +100,7 @@
             appid: fanyiConfig.appid,// baidu
             sign: fanyiConfig.sign,
             API_KEY: fanyiConfig.API_KEY,// gemini
-            model_id: 'gemini-2.5-flash',
+            model_id: fanyiConfig.model_id || 'gemini-2.5-flash',
         };
         var editor = frame$edit(i18n`国际化参数`, {
             submit(form) {
