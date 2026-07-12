@@ -40,9 +40,10 @@ i18n.getIndex = function () {
     return languageIndex;
 };
 i18n.setIndex = function (index) {
-    languageIndex = +index;
     if (localStorage) localStorage.setItem('language-index', index);
     supports = [];
+    if (!(index >= 0 && index < supports.length)) index = 0;
+    languageIndex = +index;
     i18n.supports = supports;
     i18n.reload();
 };
