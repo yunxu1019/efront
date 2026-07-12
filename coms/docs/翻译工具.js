@@ -17,7 +17,7 @@ var salt = `efront${Math.random().toString(36).slice(6, 16)}`;
 
 var config = data.getInstance("fanyi-config");
 if (!config.tool) config.tool = `baidu`;
-if (!config.model_id) config.model_id = 'gemini-2.5-flash';
+if (!config.model_id) config.model_id = 'gemini-3.5-flash';
 if (!config.gemini_version) config.gemini_version = "v1";
 var requestBaiduFanyi = async function (str, to, from = 'auto', nbr) {
     var appid = config.appid || "20210218000700622";
