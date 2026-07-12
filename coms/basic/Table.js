@@ -30,7 +30,7 @@ class Table extends Array {
     static from(fields, data) {
         var t = new Table;
         t.fields = fields;
-        t.source = data;
+        t.source = data instanceof Table ? data.source : data;
         t.searchFields = fields.filter(searchThis);
         t.summaryFields = fields.filter(s => s.summary);
         t.update();

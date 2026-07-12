@@ -18,6 +18,7 @@ var salt = `efront${Math.random().toString(36).slice(6, 16)}`;
 var config = data.getInstance("fanyi-config");
 if (!config.tool) config.tool = `baidu`;
 if (!config.model_id) config.model_id = 'gemini-2.5-flash';
+if (!config.gemini_version) config.gemini_version = "v1";
 var requestBaiduFanyi = async function (str, to, from = 'auto', nbr) {
     var appid = config.appid || "20210218000700622";
     var sign = config.sign || "xJf0dfXeJdzudCTBn3QS";
@@ -122,8 +123,8 @@ var requestGemini = async function (str, caps, context, loadcount) {
         return;
     }
     var model_id = config.model_id;
-    var url = `https://generativelanguage.googleapis.com/v1beta/models/${model_id}:generateContent`;
-
+    var version = config.gemini_version;
+    var url = `https://generativelanguage.googleapis.com/${version}/interactions`;
     if (!caps) {
         caps = 0;
         str = str.replace(/\$(\d+)/, (_, d) => {
@@ -133,45 +134,45 @@ var requestGemini = async function (str, caps, context, loadcount) {
     var contexts = [];
     if (context) contexts.push(context);
     if (caps) {
-        var caps = "保留" + new Array(caps).fill(0).map((_, i) => "$" + (i + 1)).join('、');
-        contexts.push(context);
+        var caps = "语句中存在变量占位符，以“$”开紧随整数数值，这里出现的" + new Array(caps).fill(0).map((_, i) => "“$" + (i + 1)+"”").join('、')+"均为占位符，不翻译";
+        contexts.push(caps);
     }
-    if (str) contexts.push(`以“${str}”的语义为基准，将已给出的json数据中不同的语种替换成更准确的翻译。`);
+    if (str) contexts.push(`请以“${str}”的语义为准，给出不同语种的翻译。`);
     var trans = {};
     var fanyi = detailScope.fanyi;
+    var propdef = {};
     detailScope.supports.forEach(s => {
         trans[s.lang] = fanyi[s.id] || s.name;
+        propdef[s.lang] = {
+            type: "string",
+            description: s.name,
+
+        }
     });
+    var responseSchema = {
+        type: "object",
+        properties: propdef,
+    };
+    responseSchema.required = Object.keys(propdef);
     var xhr = cross('post', url, {
         "Content-Type": "application/json",
         'x-goog-api-client': 'gl-node/0.1.0',
         'Accept': 'application/json',
         "X-goog-api-key": apikey
     }).send({
-        "contents": [{
-            "parts": [
-                // 这里是用户输入的文本命令
-                {
-                    "text": contexts.join(", ")
-                },
-
-                // 这里是图片的 Base64 数据
-                {
-                    "inlineData": {
-                        "mimeType": "text/plain", // 必须指定 MIME 类型 (jpeg, png, webp 等)
-                        "data": toBase64(encodeUTF8(JSON.stringify(trans))) // 纯 Base64 字符串，不包含 "data:image/jpeg;base64," 前缀
-                    }
-                }
-            ]
-        }],
-        "generationConfig": {
-            "responseMimeType": "application/json"
+        model: model_id,
+        input: contexts.join("。"),
+        response_format: {
+            type: 'text',
+            mime_type: 'application/json',
+            schema: responseSchema
         }
     });
     try {
         await xhr;
         var data = JSON.parse(xhr.response);
-        return JSON.parse(data.candidates[0].content.parts[0].text);
+        var steps = data.steps;
+        return JSON.parse(steps[steps.length - 1].content[0].text);
     } catch {
         var { error } = JSON.parse(xhr.response);
         if (error.code === 429) {

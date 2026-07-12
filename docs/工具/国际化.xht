@@ -92,7 +92,7 @@
             return i18n`efront目前使用的翻译接口免费额度受限，如果遇到翻译失败的情况，您可以自己${act}配置后使用`;
         };
         var config = {
-            tool: fanyiConfig.tool || 'gemini',
+            tool: fanyiConfig.tool || 'baidu',
             baidu_url: 'https://fanyi-api.baidu.com/',
             gemini_url: 'https://aistudio.google.com/api-keys',
             gemini_info: apply_info(i18n`创建Api Key`),
@@ -101,6 +101,7 @@
             sign: fanyiConfig.sign,
             API_KEY: fanyiConfig.API_KEY,// gemini
             model_id: fanyiConfig.model_id || 'gemini-2.5-flash',
+            gemini_version: fanyiConfig.gemini_version || 'v1',
         };
         var editor = frame$edit(i18n`国际化参数`, {
             submit(form) {
@@ -116,6 +117,7 @@
                     appid: form.appid,
                     sign: form.sign,
                     API_KEY: form.API_KEY,
+                    gemini_version: form.gemini_version,
                     model_id: form.model_id,
                     tool: form.tool,
                     smap
@@ -162,6 +164,11 @@
                 },
                 {
                     name: i18n`模型`, key: 'model_id',
+                    needs: { tool: "gemini" },
+                    type: "input"
+                },
+                {
+                    name: i18n`接口版本`, key: 'gemini_version',
                     needs: { tool: "gemini" },
                     type: "input"
                 },
