@@ -18,6 +18,7 @@ var number_reg = /^(?:(?:0x[0-9a-f]+|\d[0-9a-f]*h|0b[01]+|0o[0-7]+)(?:_[0-9a-f]+
 var equal_reg = /^(?:[\+\-\*\/~\^&\|%]|\*\*|>>>?|<<)?\=$|^(?:\+\+|\-\-)$/;
 var needhead_reg = /^\?|^\.(?:[^\.]|$)|^\[/;
 var needfoot_reg = /(\:\:|\.)$/;
+import * as  strings from "../basic/strings.js";
 var skipAssignment = function (o, cx) {
     if (!o) return;
     var next = arguments.length === 1 ? function () {
