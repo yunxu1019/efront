@@ -16,7 +16,10 @@ var unescapeUnc = function (a) {
             return escapeMap[a1];
         }
         var code = a1.charCodeAt(0);
-        if (code <= 0x001f || code >= 0x80) break a;
+        if (code <= 0x001f || code >= 0x80) {
+            code = code.toString(16);
+            break a;
+        }
         return a;
     }
     else if (escapeMap.hasOwnProperty(a)) return escapeMap[a];
