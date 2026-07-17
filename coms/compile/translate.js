@@ -1,5 +1,10 @@
 var scanner2 = require("./scanner2");
-var { SCOPED, QUOTED, SCOPED, PROPERTY, STAMP, PIECE, setqueue, splice, relink, patchArrawScope, number_reg, replace, canbeDuplicate, createString } = require("./common");
+var {
+    SCOPED, QUOTED, SCOPED, PROPERTY, STAMP, PIECE,
+    number_reg,
+    createScoped, setqueue, splice, relink, patchArrawScope,
+    replace, canbeDuplicate, createString
+} = require("./common");
 var strings = require("../basic/strings");
 var cloneNode = require("./cloneNode.js");
 var program = null;
@@ -224,6 +229,7 @@ function translate([imap, supports], code) {
         delete code.envs.refilm;
         delete code.used.refilm;
     }
+    delete code._scoped;
 }
 translate.getAllText = function (data) {
     var code = scanner2(String(data));

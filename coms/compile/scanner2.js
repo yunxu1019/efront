@@ -309,6 +309,7 @@ function scan(text) {
     program.lastIndex = lastIndex;
     program.mindpath = fullpath;
     var res = program.exec(text);
+    res.fullpath = fullpath;
     res.autospace = !program.keepspace;
     Object.defineProperty(res, "program", { value: program, enumerable: false })
     return res;

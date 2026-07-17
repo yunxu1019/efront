@@ -599,8 +599,7 @@ var getprop = function (o, m) {
 };
 var setprop = function (prop, k, d, q, tempname) {
     if (prop.sfunc !== false)
-        // insert1(prop.value, prop.value[0], ...scanner2(`${prop.async ? "async " : ""}function${prop["*"] ? "*" : ''}`));
-        insert1(prop.value, prop.value[0], ...scanner2(`function`));
+        insert1(prop.value, prop.value[0], { type: STRAP, text: 'function', async: prop.async });
     if (prop.get || prop.set) {
         var pv = prop.value;
         if (pv) {

@@ -152,3 +152,9 @@ testStar(`var a=class {a=1\r\nasync * a(){
 
 assert(scanner2(`#`)[0].type, common.EXPRESS)
 assert(scanner2(`1*2`)[1].type, common.STAMP)
+assert(scanner2(`={async""(){}}`)[1][1].type, common.QUOTED)
+assert(scanner2(`={async""(){}}`)[1][1].isprop, true)
+assert(scanner2(`\`\${{async"'"(){}}}\``)[0][1][0][1], {
+    isprop: true,
+    text: '"\'"'
+})
