@@ -1,7 +1,9 @@
 "use strict";
 var Cache = require('../server/cache');
 var commbuilder = require("./commbuilder");
+var color = require("../reptile/colors");
 var userdata = require("../server/userdata");
+var split = require("../basic/$split");
 var lock = require("./lock");
 var lock30 = lock(30000);
 var lock60 = lock(60000);
@@ -184,6 +186,28 @@ var prepareModule = function (dirname, required, prebuilds, pathmap, modname) {
         });
     }
 };
+
+var require_queue = [];
+var formatModname = function (n, c) {
+    var ns = split(n);
+    for (var cx = 0, dx = ns.length - 1; cx < dx; cx++) {
+        ns[cx] = color.FgGray + ns[cx] + color.Reset;
+    }
+    ns[ns.length - 1] = c + ns[ns.length - 1] + color.Reset;
+    return ns.join("/");
+}
+var createNoCircle = function (required, pathmap, modname) {
+    var i = require_queue.indexOf(modname);
+    if (i >= 0) {
+        modname = formatModname(modname, color.FgRed);
+        console.warn(i18n`发现循环引用`, '\r\n  ', [modname].concat(require_queue.slice(i + 1).map(a => formatModname(a, color.FgYellow)), modname).join(' <= '));
+        return;
+    }
+    require_queue.push(modname);
+    var res = createModule.call(this, required, pathmap, modname);
+    require_queue.pop();
+    return res;
+};
 var createFromParsed = function (parsed, pathname, prebuilds) {
     var { params, imported, prequoted, data, required, isAsync, isYield } = parsed;
     var func = vm.runInThisContext(`[${isAsync ? 'async ' : ""}function${isYield ? "*" : ""}(${params ? params.join(",") : ''}){${prequoted ? prequoted.map(a => a.text).join('') : ''}${data}}][0]`, {
@@ -192,7 +216,7 @@ var createFromParsed = function (parsed, pathname, prebuilds) {
     });
     if (!(imported instanceof Array)) imported = [];
     var pathmap = func.pathmap = {};
-    func.require = createModule.bind(func, required, pathmap);
+    func.require = createNoCircle.bind(func, required, pathmap);
     func.require.cache = required_cache;
     func.imported = imported;
     func.required = required;
