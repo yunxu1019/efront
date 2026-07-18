@@ -486,6 +486,7 @@ function parse(piece) {
         [name, key = name, needs, holder, repeat, endwith] = spreadkey(name);
     }
     if (typeof size === 'string' && !/^\:/.test(size)) size = parseFloat(size);
+    else if (!size) size = 1;
     if (unit === type) unit = '';
     var field = {
         name, type, key, value, comment, options,
