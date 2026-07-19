@@ -7,6 +7,7 @@ var unmark = function (select) {
     select.isediter = false;
     select.isreader = false;
 };
+var strings_encode = strings.encode;
 unmark(select);
 unmark(radio);
 unmark(checkbox);
@@ -20,13 +21,13 @@ var renderOption = function (o, index) {
     if (typeof o === 'string') return o;
     if (isFunction(o)) {
         var name = typeof index === 'number' ? o.name : index;
-        return `<a href="javascript:;" @click="field.options[&quot;${amp_encode(index)}&quot;](data)">${name}</a>`
+        return `<a href="javascript:;" @click="field.options[${amp_encode(strings_encode(index))}](data)">${name}</a>`
     }
     if (isObject(o)) {
         if (o.href) {
             return `<a href="${amp_encode(o.href)}">${o.name}</a>`;
         }
-        return `<a href='javascript:;' @click="field.options[&quot;${amp_encode(index)}&quot;](data)">${o.name}</a>`
+        return `<a href='javascript:;' @click="field.options[${amp_encode(strings_encode(index))}](data)">${o.name}</a>`
     }
     return o;
 }
