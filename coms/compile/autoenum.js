@@ -567,7 +567,7 @@ function enumstruct(refitem, scoped) {
                     qs.push([cq, eq, Infinity]);
                     continue;
                 }
-                if (!o.equal) break a;
+                if (!o.equal || o[ignore]) break a;
                 if (o.equal.text !== "=") break a;
                 var range = getEnumRange(o, scoped);
                 if (!range) break a;
