@@ -597,13 +597,11 @@ function toComponent(responseTree, isWebProject) {
         });`: ""}
         return f[y](I ? I[B] : T[0], g);
     };
-    return T[c + 1] = function (a, S) {
-        a = a || '';
-        S = T[c + 1] = function (a) {
-            if(a in S) return S[a];
-            return S[a]=R(S[a]={},a)${outsideAsync ? `, S[a] && S[a][N] instanceof P && S[a][N](function (s) { S[a] = s }), S[a]` : ''}
+    return T[c + 1] = function (S) {
+        T[c + 1] = function () {
+            return S;
         };
-        return S(a);
+        return S=R(S={},a)${outsideAsync ? `, S && S[N] instanceof P && S[N](function (s) { S = s }), S` : ''}
     }`;
     var declears = scanner2(realize).envs;
     declears = Object.keys(declears).filter(k => !/^[acs]$/.test(k)).map(k => {
