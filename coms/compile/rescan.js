@@ -1,4 +1,4 @@
-var { SCOPED, EXPRESS, replace } = require("./common");
+var { SCOPED, EXPRESS, replace, createString } = require("./common");
 var keep = false;
 var patchObject = function (code, objs) {
     var rest = [code];

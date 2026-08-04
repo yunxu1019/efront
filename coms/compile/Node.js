@@ -21,11 +21,11 @@ function Node(o) {
 var node_props = [
     "next", "prev", "queue", "type", "text",
     "istype", 'isend', "isdigit",
-    "tack", "refs", "maped", 'called',
+    "tack", "refs", "maped", 'called', "scoped",
     "col", "row", "start", "end", "isExpress"
 ];
 var array_props = [
-    "next", "prev", "queue",
+    "next", "prev", "queue", "scoped",
     "col", "row", "start", "end",
     "isExpress", "inExpress",
     "type", "inTag",
@@ -41,13 +41,14 @@ defineProperty(Node, 'debug', {
         node_props.forEach(debug ? def : del, Node.prototype);
     }
 });
-
-var def = function (k) {
+var defmap = Object.create(null);
+var defobj = k => {
+    if (k in defmap) return;
     var k1 = Symbol(k);
     var set = function (v) {
         defineProperty(this, k1, { configurable: true, writable: true, enumerable: false, value: v });
     };
-    defineProperty(this, k, {
+    var defcfg = {
         configurable: true, enumerable: false,
         get() {
             return this[k1];
@@ -60,7 +61,13 @@ var def = function (k) {
             set.call(this, v);
             this[types[this.type]] = v;
         } : set,
-    });
+    };
+    defmap[k] = defcfg;
+}
+node_props.forEach(defobj);
+array_props.forEach(defobj);
+var def = function (k) {
+    defineProperty(this, k, defmap[k]);
 };
 var del = function (k) {
     delete this[k];

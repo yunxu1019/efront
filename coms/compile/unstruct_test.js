@@ -75,7 +75,7 @@ test("for(;;)", "return [0, 0]", true);
 test("for(a in b)", "for (a in b)", true);
 test("for(a of b)", "for (a of b)", true);
 test(`var [size, names] = memery.SIGNITEMS? await enpack(readfrom, hd, 7, key, cert) : await enpack(readfrom, hd, 7);`, 'if (!memery.SIGNITEMS) return [2, 0]; _ = enpack(readfrom, hd, 7, key, cert); return [_, 1];\r\n _ = @; [size, names] = _; return [3, 0];\r\n _ = enpack(readfrom, hd, 7); return [_, 1];\r\n _ = @; [size, names] = _; return [1, 0]', true)
-test("for await(a of b)", "for await (a of b)", true);
+test("for await(a of b)", "for await(a of b)", true);
 test("for(a = os[Symbol.iterator] || os[Symbol.asyncIterator] || Array.prototype[Symbol.iterator], a = a.call(os), b = a.next(); !b.done && (o = b.value, true); b = a.next())", "_ = Symbol.iterator; _ = os[_]; if (_) return [1, 0]; _ = Symbol.asyncIterator; _ = os[_]; if (_) return [1, 0]; _ = Symbol.iterator; _ = Array.prototype[_];\r\n a = _; a = a.call(os); b = a.next(); return [1, 0];\r\n _ = !b.done; if (!_) return [1, 0]; o = b.value; _ = true;\r\n if (!_) return [1, 0]; b = a.next(); return [-1, 0]", true);
 test("for(a=0;a<1;a++)", `a = 0; return [1, 0];\r\n _ = a < 1; if (!_) return [1, 0]; a++; return [0, 0]`, true);
 test("for(a=0;a<1;a++)if(a==0)continue\r\n else a=1", `a = 0; return [1, 0];\r\n _ = a < 1; if (!_) return [2, 0]; _ = a == 0; if (_) return [1, 0]; a = 1; return [1, 0];\r\n a++; return [-1, 0]`, true);
@@ -127,7 +127,7 @@ test("debugger", 'debugger', true);
 test("a(b,b+=1)", '_ = b; _0 = b + 1; b = _0; a(_, _0)', true);
 test("while(a){if(b){if(c);else d;continue;}}", 'if (!a) return [4, 0]; if (!b) return [3, 0]; if (!c) return [1, 0]; return [2, 0];\r\n d; return [1, 0];\r\n return [-2, 0];\r\n return [-3, 0]', true);
 test("/*abc*/", '/*abc*/', true);
-test("//aaa", '//aaa', true);
+test("//aaa", '//aaa\r\n', true);
 test("menus[0].name+='aaa'", "_ = menus[0]; _0 = _.name, _0 = _0 + 'aaa'; _.name = _0", true);
 test("menus[a+b].name+='aaa'", "_ = a + b; _ = menus[_]; _0 = _.name, _0 = _0 + 'aaa'; _.name = _0", true);
 test("menus[a+b]()", "_ = a + b; menus[_]()", true);

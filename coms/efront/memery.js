@@ -172,6 +172,9 @@ var _ifempty = {
     get BREAK() {
         return memery.ENCRYPT;
     },
+    get COMMENT() {
+        return false;
+    },
     get AUTOEVAL() {
         return memery.BREAK;
     },
@@ -289,7 +292,7 @@ var memery = module.exports = {
     MODULES: get("MODULES", true),// 是否集成node_modules/路径下的代码
     RELEASE: get("RELEASE,INCLUDE_REQUIRED"),
     PREFIX: get("PREFIX", ''),
-    COMMENT: get("COMMENT", false),
+    COMMENT: get("COMMENT"),
     CHANNEL_ENABLED: get("CHANNEL_ENABLED,CHANNEL", true),
     POLYFILL: get("POLYFILL"),
     SOURCEDIR: get("SOURCEDIR", false),

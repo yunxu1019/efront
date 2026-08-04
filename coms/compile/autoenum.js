@@ -128,7 +128,6 @@ var patchFnFromProperty = function (o) {
 var maplist = function (oused) {
     var map = Object.create(null);
     for (var o of oused) {
-
         if (o[mapkey]) continue;
         o[mapkey] = true;
         var r = createRefId(o);
@@ -138,10 +137,8 @@ var maplist = function (oused) {
             map[r].wcount = 0;
         }
         var m = map[r];
-        if (enumtype & REFTYPE && o.kind) {
-            m.unshift(o);
-        }
-        else m.push(o);
+        if (o[ignore]) continue;
+        m.push(o);
         if (o.equal || o.kind) {
             if (enumtype & REFTYPE) {
                 var typeref = o.typeref;
@@ -156,18 +153,26 @@ var maplist = function (oused) {
                 else {
                     var n = o.equal;
                     if (n?.type !== STAMP) continue;
-                    if (n?.type === STAMP && /^(\+\+|\-\-)$/.test(n.text)) {
+                    if (/^(\+\+|\-\-)$/.test(n.text)) {
                         o[ignore] = true;
                         continue;
                     }
+                    var nn = n.next;
+                    var e = skipAssignment(nn);
+                    while (nn !== e) {
+                        if (nn.text === o.text) {
+                            m.splice(m.length - 1, 0, nn);
+                            nn[ignore] = true;
+                        }
+                        nn = nn.next;
+                    }
                     if (/^[\+\-]\=$/.test(n.text)) {
-                        var nn = n.next;
                         if (nn && snapExpressFoot(nn) == nn && nn.isdigit && (nn.text & 0x1ff) === +nn.text) {
-                            if (m.typeref === 'uint') o[ignore] = true;
+                            if (/int$/i.test(m.typeref)) o[ignore] = true;
                             continue;
                         }
                     }
-                    else if (!/[^=!]?=$/.test(n.text)) continue;
+                    else if (n.text !== "=") continue;
                     o[ignore] = false;
                     m.wcount++;
                 }
@@ -408,12 +413,7 @@ function enumequal(refitem, scoped) {
         var eq = null;
         var cq = null, oe = Infinity;
         loop: for (var o of os) {
-            if (o[ignore]) {
-                if (REFTYPE & enumtype) {
-                    o.typeref = eq;
-                }
-                continue;
-            }
+            if (o[ignore]) continue;
             if (
                 eq === null || o.equal || o.fn !== undefined
             ) {
@@ -495,6 +495,7 @@ function enummark(refitem, scoped) {
                 if (!o.equal && !o.kind) continue;
                 if (!wcount) break;
                 var _eq = o.typeref;
+                if (!_eq && !o.euqal) continue;
                 if (!_eq && o.equal && o.equal === o.next) {
                     var n = o.equal.next;
                     if (n.type === STAMP && /^(\+\+|\-\-)$/.test(n.text)) {
@@ -519,7 +520,6 @@ function enummark(refitem, scoped) {
                     continue;
                 }
                 wcount--;
-
                 var range = getEnumRange(o, scoped);
                 if (!range) {
                     eq = null;
@@ -614,6 +614,11 @@ function enumstruct(refitem, scoped) {
         }
     }
 }
+var unIgnore = function (oused) {
+    for (var o of oused) {
+        delete o[ignore];
+    }
+};
 function atuoenum(scoped) {
     var { used, caps } = scoped;
     mapkey = Symbol('enumed');
@@ -623,15 +628,18 @@ function atuoenum(scoped) {
         if (enumtype & REFSTRC) {
             rs = maplist(os);
             enumstruct(rs, scoped);
+            unIgnore(os);
         }
         if (enumtype & REFTYPE) {
-            if (!rs) rs = maplist(os);
+            rs = maplist(os);
             enummark(rs, scoped);
+            unIgnore(os);
         }
         if (enumtype & REFMOVE) {
             if (os.ignore) continue;
-            if (!rs) rs = maplist(used[k]);
+            rs = maplist(used[k]);
             enumequal(rs, scoped);
+            unIgnore(os);
         }
     }
     for (var k in caps) {
