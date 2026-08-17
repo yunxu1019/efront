@@ -19,19 +19,40 @@ return async function (a) {
     var ip = a.ip || a.remote;
     var m = /(\d+\.){3}\d+$/.exec(ip);
     ip = m ? m[0] : ip;
-    var res = await data.from("ipcn", { ip });
-    if (!res.address && !res.data) res = await baidu(ip);
+    try {
+        var res = await data.from("ipcn", { ip });
+    } catch { }
+    try {
+        if (!res || !res.address && !res.data) res = await baidu(ip);
+    } catch { }
     var msg = '加载错误';
-    if (res.message && !res.data && !res.content && !res.address) {
-        msg = res.message;
-        res = await gaode(ip);
+    if (!res || res.message && !res.data && !res.content && !res.address) {
+        msg = res?.message;
+        try {
+            res = await gaode(ip);
+        } catch { }
     }
-    if (res.data) res = res.data;
-    if (res.content) res = res.content;
-    if (res.address) res = res.address;
-    else if (res.country || res.province || res.city || res.isp) {
-        res = [res.country, res.province, res.city, res.district, res.isp].join('');
+    if (res) {
+        if (res.data) res = res.data;
+        if (res.content) res = res.content;
+        if (res.address_detail) res = res.address_detail;
+        else if (res.address) res = res.address;
+        if (res.country || res.province || res.city || res.isp) {
+            res = [res.nation || res.country, res.province, res.city !== res.province ? res.city : '', res.district, res.isp].filter(a => !!a);
+            a: {
+                for (var i = res.length - 1; i > 0;) {
+                    var n = res[i--];
+                    if (!/[a-z]/.test(n)) break a;
+                    var p = res[i];
+                    if (/[a-z]$/i.test(p) && /^[a-z]/i.test(n)) res.splice(i + 1, 0, ', ');
+                }
+                if (!/[a-z]/.test(res[0])) break a;
+                res.reverse();
+            }
+            res = res.join("");
+        }
     }
     if (!res) alert(msg, 'warn');
     a.address = res || msg;
+    return a;
 }
