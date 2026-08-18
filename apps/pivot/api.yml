@@ -40,7 +40,7 @@ https://api.map.baidu.com/:
 https://restapi.amap.com/:
   ipgaode: get v3/ip
 https://www.ip.cn/ referer=https://www.ipshudi.com/&Cookie=:empty:
-  ipcn: get#tab0_address ip/:ip.html#address=!innerText
+  ipcn: get:.table-outer>table>tbody>tr:nth-child(2)>th+td>span ip/:ip.html#address=!innerText
 # https://ipchaxun.com/ :
 #   iplocation: get:[].info%20label:nth-child(n+2)>span:nth-child(2) :ip/
 # https://www.ip138.com/:
