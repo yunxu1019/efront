@@ -697,6 +697,10 @@ var commands = {
             startDevelopEnv(memery.APP || "", http_port, https_port);
         }).catch(console.error);
     },
+    "live."(http_port, https_port) {
+        memery.PAGE_PATH = process.cwd();
+        this.live(http_port, https_port);
+    },
     cook() {
         setAppnameAndPorts(arguments);
         memery.WAITER_NUMBER = 1;
@@ -713,6 +717,10 @@ var commands = {
             require("./setupenv");
             require("../server/main");
         });
+    },
+    "start."() {
+        memery.PUBLIC_PATH = process.cwd();
+        this.start.apply(this, arguments);
     },
     set(key, value) {
         setenv({ [key]: value });
