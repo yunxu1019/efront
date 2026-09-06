@@ -95,7 +95,7 @@ function builder(cleanAfterBuild = false, cleanBeforeBuild = false) {
             commbuilder.prepare = false;
             var polyfills = POLYFILL ? [path.join(__dirname, "../", "basic_/[]map.js")] : [];
         }
-        promise = loadData(polyfills.concat(public_app), 0, public_path)
+        promise = loadData(polyfills.concat(public_app), 0, public_path, false)
             .then(toComponent)
             .then(function (response) {
                 return write(response, PUBLIC_PATH);
@@ -131,17 +131,10 @@ function builder(cleanAfterBuild = false, cleanBeforeBuild = false) {
             if (!indexHTML) {
                 console.warn(i18n`项目内未发面主页面`);
             }
-            polyfills = POLYFILL ? [
-                path.join(__dirname, "../", "basic_/Promise.js"),
-                path.join(__dirname, "../", "basic_/[]map.js")
-            ] : [];
             return loadData(pages_root.concat(
-                indexHTML ? [indexHTML,
-                    path.join(__dirname, "../", "zimoli/main.js"),
-                    path.join(__dirname, "../", "zimoli/zimoli.js"),
-                ].concat(polyfills) : [],
+                indexHTML ? [indexHTML] : [],
                 indexHTML ? aapis_root : []
-            ), lastBuildTime, public_path)
+            ), lastBuildTime, public_path, POLYFILL)
                 .then(toApplication)
                 .then(function (response) {
                     var pbpath = public_path.replace(/[\/\\]+$/, '');

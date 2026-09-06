@@ -1,5 +1,7 @@
 "use strict";
 var path = require('path');
+var fs = require("fs").promises;
+
 var memery = require("../efront/memery");
 var compile = require("./compile");
 var { include_required, pages_root, rest_coms } = require("./environment");
@@ -9,11 +11,10 @@ var isRest = rest_coms ? function (restcoms, p) {
 var isOutside = function (r) {
     return !r || !getPathIn(pages_root, r);
 };
-function build(pages_root, lastBuiltTime, dest_root) {
+async function build(pages_root, lastBuiltTime, dest_root, POLYFILL) {
     var responseTree = Object.create(null);
     var filterMap = Object.create(null);
     var destpathMap = Object.create(null);
-    var resolve;
     var dependenceMap = Object.create(null);
     var restRequired = Object.create(null);
     var builder = async function (roots) {
@@ -93,46 +94,59 @@ function build(pages_root, lastBuiltTime, dest_root) {
             });
         });
         await Promise.all(reqs);
-        return Object.keys(deps);
+        return Object.keys(deps).filter(root => filterMap[root] ? false : filterMap[root] = true);
     };
-    return new Promise(async function (ok) {
-        resolve = function () {
-            ok(responseTree);
-        };
-        var roots = [].concat(pages_root || [])
-        roots = await getBuildRoot(roots);
+    var roots = [].concat(pages_root || [])
+    roots = await getBuildRoot(roots);
 
-        if (rest_coms) {
-            var fs = require("fs").promises;
-            var path = require("path");
-            var rest = [].concat(rest_coms);
-            var finded = Object.create(null);
-            while (rest.length) {
-                // 只处理一级
-                var [p, n] = rest.pop();
-                var files = await fs.readdir(path.join(p, n), { withFileTypes: true });
-                for (var f of files) {
-                    if (/^[#\.]|\_test\.[^\.\/\\]*$/.test(f.name)) continue;
-                    if (f.isDirectory()) {
-                        rest.push([p, path.join(n, f.name)]);
-                    }
-                    else {
-                        if (!/\.([cm]?jsx?|xht|tsx?|vue)$/i.test(f.name)) continue;
-                        var name = path.join(n, f.name).replace(/[\\\/]/g, '$').replace(/\.[^\.\/]+$/, '');
-                        if (name in finded) continue;
-                        finded[name] = true;
-                        roots.push(name);
-                    }
+
+    if (rest_coms) {
+        var rest = [].concat(rest_coms);
+        var finded = Object.create(null);
+        while (rest.length) {
+            // 只处理一级
+            var [p, n] = rest.pop();
+            var files = await fs.readdir(path.join(p, n), { withFileTypes: true });
+            for (var f of files) {
+                if (/^[#\.]|\_test\.[^\.\/\\]*$/.test(f.name)) continue;
+                if (f.isDirectory()) {
+                    rest.push([p, path.join(n, f.name)]);
+                }
+                else {
+                    if (!/\.([cm]?jsx?|xht|tsx?|vue)$/i.test(f.name)) continue;
+                    var name = path.join(n, f.name).replace(/[\\\/]/g, '$').replace(/\.[^\.\/]+$/, '');
+                    if (name in finded) continue;
+                    finded[name] = true;
+                    roots.push(name);
                 }
             }
         }
-        while (roots.length) {
-            roots = await builder(roots);
-            roots = roots.filter(root => filterMap[root] ? false : filterMap[root] = true);
-            if (!memery.EMIT) break;
+    }
+    roots = await builder(roots);
+    var index = getWebIndex(responseTree);
+    if (index) {
+        var [htmldata, isZimoliDetected, poweredByComment] = checkIndex(index.data);
+        htmldata = Buffer.from(htmldata);
+        htmldata.iswebindex = true;
+        htmldata.isZimoliDetected = isZimoliDetected;
+        htmldata.poweredByComment = poweredByComment;
+        if (isZimoliDetected) {
+            var polyfills = [
+                path.join(__dirname, "../", "zimoli/main.js"),
+                path.join(__dirname, "../", "zimoli/zimoli.js")
+            ];
+            if (POLYFILL) {
+                polyfills.push(
+                    path.join(__dirname, "../", "basic_/Promise.js"),
+                    path.join(__dirname, "../", "basic_/[]map.js")
+                )
+            }
+            polyfills=await getBuildRoot(polyfills);
+            roots.push.apply(roots, polyfills);
         }
-        return resolve();
-    });
+    }
+    if (memery.EMIT) while (roots.length) roots = await builder(roots);
+    return responseTree;
 }
 
 module.exports = build;

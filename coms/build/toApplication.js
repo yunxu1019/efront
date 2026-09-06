@@ -71,8 +71,9 @@ var encoded = memory.ENCRYPT;
 var ReleaseTime = new Date();
 ReleaseTime = String(ReleaseTime);
 var buildHtml = function (html, code, outsideMain, responseTree) {
-    var isZimoliDetected = false;
-    var poweredByComment;
+    var isZimoliDetected = html.isZimoliDetected;
+    var poweredByComment = html.poweredByComment;
+    var iswebindex = html.iswebindex;
     html = html.toString();
     cssDataMap = Object.create(null);
 
@@ -121,28 +122,10 @@ var buildHtml = function (html, code, outsideMain, responseTree) {
     });
     for (var k in cssDataMap) delete responseTree[k];
     cssDataMap = null;
-    var html = html
-        .replace(/^\s*(<!doctype[^>]*?>\s*)?\<\!\-\-([\s\S]*?)\-\-\!?>\s*/i, function (_, doctype, message) {
-            // `${doctype}<!--${message}\r\n${efrontReloadVersionAttribute}-->`
-            poweredByComment = _;
-            return "";
-        })
-        .replace(/<\!\-\-([\s\S]*?)\-\-\!?>\s*/g, (_, a) => {
-            if (/^\s*\[[\s\S]*\]\s*$/.test(a)) return _;
-            return '';
-        })
+    if (!iswebindex) [html, isZimoliDetected, poweredByComment] = checkIndex(html);
+    html = html
         .replace(/<title>(.*?)<\/title>/i, `<title>${memory.TITLE || "$1"}</title>`)
         .replace(/<script\b[\s\S]*?<\/script>(\s*)/ig, function (script, s) {
-            if (/(["'`])(?:PURGE|POST)\1\s*,\s*(['`"])comm\/main\2/i.test(script)) {
-                isZimoliDetected = true;
-                return "";
-            }
-            if (/<script\s[^>]*?(type\s*=\s*)?(["']|)efront\-?(?:hook|main|host|script|loader)\1[^>]*?>/i.test(script)) {
-                isZimoliDetected = true;
-            }
-            if (/\b((delete|ignore)oncompile|efrontworker)\b/i.test(script)) {
-                return "";
-            }
             a: if (!outsideMain && setting.is_file_target) {
                 var match = /\ssrc=(["']|)(.*?)\1/.exec(script);
                 if (!match) break a;
@@ -200,14 +183,7 @@ var buildHtml = function (html, code, outsideMain, responseTree) {
     }
     return html;
 };
-var mixin = require("../efront/mixin")
-var indexnames = memory.webindex;
-var getTreeIndex = function (tree) {
-    var names = mixin(["/", "*"], indexnames).map(a => a.join(''));
-    for (var n of names) {
-        if (tree[n]) return tree[n];
-    }
-};
+
 var findTreeKey = function (tree, k) {
     if (!k) return k;
     k = path.normalize(k).replace(/\\/g, '/');
@@ -245,8 +221,9 @@ var importCss = function (url, responseTree) {
 function toApplication(responseTree, mainScript) {
     var htmls = Object.keys(responseTree).map(key => responseTree[key]).filter(r => r.isindex);
     if (htmls.length) indexHtml = true;
-    else var indexHtml = getTreeIndex(responseTree);
+    else var indexHtml = getWebIndex(responseTree);
     if (!indexHtml) {
+        var indexnames = memory.webindex;
         var htmlPath = path.join(__dirname, "../../apps", "_index.html");
         indexHtml = {
             time: 0,
