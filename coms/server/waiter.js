@@ -883,9 +883,8 @@ var onConnect = function (req, clientSocket, head) {
     var ended = false;
     var serverSocket = net.connect(+port || 80, hostname, () => {
         ended = true;
-        clientSocket.write('HTTP/1.1 200 Connection Established\r\n\r\n');
-        serverSocket.write(head);
         serverSocket.pipe(clientSocket);
+        clientSocket.write('HTTP/1.1 200 Connection Established\r\n\r\n');
         clientSocket.pipe(serverSocket);
     });
     var end = function (e) {
