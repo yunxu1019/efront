@@ -3,6 +3,9 @@ var https_ = require("https");
 var cross = cross_.bind(function (callback, onerror) {
     var response, responseObject, responseType = "", decoder, error;
     var headers = {};
+    /**
+     * @type {https_}
+     */
     var http = null;
     var send = async function (data) {
         var { hostname, port, path, auth } = parseURL(xhr.url);
@@ -13,6 +16,9 @@ var cross = cross_.bind(function (callback, onerror) {
             headers["Content-Length"] = data.length;
         }
         if (/^\[/.test(hostname)) hostname = hostname.replace(/^\[(.*?)\]$/, "$1");
+        /**
+         * @type { http_.RequestOptions}
+         */
         var options = {
             method: xhr.method,
             hostname,
@@ -21,6 +27,7 @@ var cross = cross_.bind(function (callback, onerror) {
             auth,
             headers: headers,
         };
+        var agent_socket = null;
         if (proxy_url) {
             var proxy = parseURL(proxy_url);
             await new Promise((ok, oh) => (/^https\:/.test(proxy_url) ? https_ : http_).request({
@@ -29,6 +36,7 @@ var cross = cross_.bind(function (callback, onerror) {
                 method: 'CONNECT',
                 path: hostname + ":" + port,
             }).on('connect', function (res, socket, head) {
+                agent_socket = socket;
                 if (res.statusCode !== 200) {
                     oh(i18n`代理隧道创建失败，状态码：${res.statusCode}`);
                     return;
@@ -62,6 +70,10 @@ var cross = cross_.bind(function (callback, onerror) {
             res.on("end", function () {
                 response = Buffer.concat(data);
                 xhr.readyState = 4;
+                http = null;
+                if (options.agent) {
+                    agent_socket.destroy();
+                }
                 callback();
             });
             xhr.readyState = 2;
