@@ -6,7 +6,7 @@ async function copyToClipboard(text, mime = 'text/plain') {
         const clipboardItem = new ClipboardItem({ [mime]: text });
         try {
             await navigator.clipboard.write([clipboardItem]);
-            alert("已复制");
+            alert(i18n`已复制`);
             return;
         } catch (e) { console.log(e) };
     }
@@ -41,6 +41,6 @@ async function copyToClipboard(text, mime = 'text/plain') {
         selection.addRange(range);
     }
     remove(span);
-    if (res) alert("已复制");
+    if (res) alert(i18n`已复制`);
 
 }

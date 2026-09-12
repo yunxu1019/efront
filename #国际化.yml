@@ -1,3 +1,321 @@
+- zh-CN: 接口版本
+  zh-TW: 介面版本
+  en:    Interface Version
+  ja:    インターフェースバージョン
+  fr:    "Version de l'interface"
+  ru:    Версия интерфейса
+  ko:    인터페이스 버전
+  de:    Schnittstellenversion
+  it:    "Versione dell'interfaccia"
+  th:    เวอร์ชันอินเทอร์เฟซ
+  vi:    Phiên bản giao diện
+  ar:    إصدار الواجهة
+  nl:    Interfaceversie
+  fi:    Rajapintaversio
+  el:    Έκδοση διεπαφής
+  es:    Versión de la interfaz
+  pt:    Versão da interface
+  hu:    Interfész verzió
+  sv:    Gränssnittsversion
+  da:    Grænsefladeversion
+  cs:    Verze rozhraní
+  pl:    Wersja interfejsu
+  bg:    Версия на интерфейса
+  et:    Liidese versioon
+  ro:    Versiune interfață
+  sl:    Različica vmesnika
+  af:    Koppelvlakweergawe
+  am:     የበይነገጽ ስሪት
+  bn:    ইন্টারফেস সংস্করণ
+  ca:    Versió de la interfície
+  fa:    نسخه رابط
+  fil:   Bersyon ng Interface
+  gu:    ઇન્ટરફેસ સંસ્કરણ
+  he:    גרסת ממשק
+  hi:    इंटरफ़ेस संस्करण
+  hr:    Verzija sučelja
+  id:    Versi Antarmuka
+  kn:    ಇಂಟರ್ಫೇಸ್ ಆವೃತ್ತಿ
+  lt:    Sąsajos versija
+  lv:    Saskarnes versija
+  ml:    ഇന്റർഫേസ് പതിപ്പ്
+  mr:    इंटरफेस आवृत्ती
+  ms:    Versi Antarmuka
+  nb:    Grensesnittversjon
+  sk:    Verzia rozhrania
+  sr:    Верзија интерфејса
+  sw:    Toleo la Kiolesura
+  ta:    இடைமுக பதிப்பு
+  te:    ఇంటర్‌ফের‍್స్ వెర్షన్
+  tr:    Arayüz Sürümü
+  uk:    Версія інтерфейсу
+  ur:    انٹرفیس ورژن
+
+- zh-CN: 已复制
+  zh-TW: 已複製
+  en:    Copied
+  ja:    コピーしました
+  fr:    Copié
+  ru:    Скопировано
+  ko:    복사됨
+  de:    Kopiert
+  it:    Copiato
+  th:    คัดลอกแล้ว
+  vi:    Đã sao chép
+  ar:    تم النسخ
+  nl:    Gekopieerd
+  fi:    Kopioitu
+  el:    Αντιγράφηκε
+  es:    Copiado
+  pt:    Copiado
+  hu:    Másolva
+  sv:    Kopierat
+  da:    Kopieret
+  cs:    Zkopírováno
+  pl:    Skopiowano
+  bg:    Копирано
+  et:    Kopeeritud
+  ro:    Copiat
+  sl:    Kopirano
+  af:    Gekopieer
+  am:    ተገልብጧል
+  bn:    কপি করা হয়েছে
+  ca:    Copiat
+  fa:    کپی شد
+  fil:   Nakopya na
+  gu:    કૉપિ કર્યું
+  he:    הועתק
+  hi:    कॉपी किया गया
+  hr:    Kopirano
+  id:    Disalin
+  kn:    ನಕಲಿಸಲಾಗಿದೆ
+  lt:    Nukopijuota
+  lv:    Kopēts
+  ml:    പകർത്തി
+  mr:    कॉपी केले
+  ms:    Disalin
+  nb:    Kopiert
+  sk:    Skopírované
+  sr:    Копирано
+  sw:    Imenakiliwa
+  ta:    நகலெடுக்கப்பட்டது
+  te:    కాపీ చేయబడింది
+  tr:    Kopyalandı
+  uk:    Скопійовано
+  ur:    کاپی ہو گیا
+
+- zh-CN: 发现循环引用
+  zh-TW: 發現循環參照
+  en:    Circular reference detected
+  ja:    循環参照が検出されました
+  fr:    Référence circulaire détectée
+  ru:    Обнаружена циклическая ссылка
+  ko:    순환 참조가 감지되었습니다
+  de:    Zirkelbezug erkannt
+  it:    Riferimento circolare rilevato
+  th:    ตรวจพบการอ้างอิงแบบวนซ้ำ
+  vi:    Phát hiện tham chiếu vòng
+  ar:    تم اكتشاف مرجع دائري
+  nl:    Circulaire verwijzing gedetecteerd
+  fi:    Kehäviittaus havaittu
+  el:    Εντοπίστηκε κυκλική αναφορά
+  es:    Referencia circular detectada
+  pt:    Referência circular detectada
+  hu:    Körkörös hivatkozás észlelve
+  sv:    Cirkulär referens upptäckt
+  da:    Cirkulær reference fundet
+  cs:    Zjištěna cyklická reference
+  pl:    Wykryto odwołanie cykliczne
+  bg:    Открита е циклична препратка
+  et:    Tuvastati ringviide
+  ro:    Referință circulară detectată
+  sl:    Zaznan krožni sklic
+  af:    Sirkelverwysing bespeur
+  am:    ክብ ማጣቀሻ ተገኝቷል
+  bn:    বৃত্তাকার রেফারেন্স সনাক্ত করা হয়েছে
+  ca:    Referència circular detectada
+  fa:    مرجع چرخشی شناسایی شد
+  fil:   May nakitang circular reference
+  gu:    ચક્રીય સંદર્ભ મળ્યો
+  he:    זוהתה הפניה מעגלית
+  hi:    चक्रीय संदर्भ मिला
+  hr:    Otkrivena je kružna referenca
+  id:    Referensi melingkar terdeteksi
+  kn:    ವೃತ್ತಾಕಾರದ ಉಲ್ಲೇಖ ಕಂಡುಬಂದಿದೆ
+  lt:    Aptikta ciklinė nuoroda
+  lv:    Konstatēta cikliska atsauce
+  ml:    സർക്കുലർ റഫറൻസ് കണ്ടെത്തി
+  mr:    वर्तुळाकार संदर्भ आढळला
+  ms:    Rujukan bulat dikesan
+  nb:    Sirkelreferanse funnet
+  sk:    Bola zistená cyklická referencia
+  sr:    Откривена је кружна референца
+  sw:    Marejeleo ya mduara yamegunduliwa
+  ta:    வட்டக் குறிப்பு கண்டறியப்பட்டது
+  te:    వృత్తాකාර సూచన కనుగొనబడింది
+  tr:    Döngüsel başvuru algılandı
+  uk:    Виявлено циклічне посилання
+  ur:    سرکلر حوالہ پایا گیا
+
+- zh-CN: 当前文件夹启动开发环境服务器，仅用于外部非工程测试
+  zh-TW: 目前資料夾啟動開發環境伺服器，僅用於外部非工程測試
+  en:    "Start the development environment server in the current folder, for external non-project testing only."
+  ja:    現在のフォルダーで開発環境サーバーを起動します（外部の非プロジェクトテスト専用）。
+  fr:    "Démarrer le serveur de développement dans le dossier actuel, uniquement pour les tests externes hors projet."
+  ru:    Запустить сервер среды разработки в текущей папке (только для внешнего непроектного тестирования).
+  ko:    현재 폴더에서 개발 환경 서버를 시작합니다. 외부 비프로젝트 테스트용으로만 사용됩니다.
+  de:    "Entwicklungsumgebungsserver im aktuellen Ordner starten (nur für externe, projektfremde Tests)."
+  it:    "Avvia il server dell'ambiente di sviluppo nella cartella corrente, solo per test esterni non di progetto."
+  th:    เริ่มเซิร์ฟเวอร์สภาพแวดล้อมการพัฒนาในโฟลเดอร์ปัจจุบัน สำหรับการทดสอบภายนอกที่ไม่ใช่โครงการเท่านั้น
+  vi:    "Khởi chạy máy chủ môi trường phát triển trong thư mục hiện tại, chỉ dành cho thử nghiệm bên ngoài ngoài dự án."
+  ar:    تشغيل خادم بيئة التطوير في المجلد الحالي، مخصص للاختبار الخارجي غير المتعلق بالمشروع فقط.
+  nl:    "Start de ontwikkelomgevingsserver in de huidige map, alleen voor externe niet-projecttests."
+  fi:    "Käynnistä kehitysympäristöpalvelin nykyisessä kansiossa, vain ulkoista ei-projektitestausta varten."
+  el:    "Εκκίνηση του διακομιστή περιβάλλοντος ανάπτυξης στον τρέχοντα φάκελο, μόνο για εξωτερικές δοκιμές εκτός έργου."
+  es:    "Iniciar el servidor de entorno de desarrollo en la carpeta actual, solo para pruebas externas que no sean del proyecto."
+  pt:    "Iniciar o servidor do ambiente de desenvolvimento na pasta atual, apenas para testes externos fora do projeto."
+  hu:    "Fejlesztői környezeti szerver indítása az aktuális mappában, kizárólag külső, nem projekt szintű teszteléshez."
+  sv:    "Starta utvecklingsmiljöservern i den aktuella mappen, endast för externa icke-projekttester."
+  da:    "Start udviklingsmiljøserveren i den aktuelle mappe, kun til ekstern ikke-projekttest."
+  cs:    "Spustit server vývojového prostředí v aktuální složce, pouze pro externí neprojektové testování."
+  pl:    "Uruchom serwer środowiska programistycznego w bieżącym folderze, wyłącznie do zewnętrznych testów nieprojektowych."
+  bg:    "Стартиране на сървъра за среда на разработка в текущата папка, само за външно непроектно тестване."
+  et:    "Käivita arenduskeskkonna server praeguses kaustas, ainult väliseks mitte-projektipõhiseks testimiseks."
+  ro:    "Porniți serverul mediului de dezvoltare în folderul curent, doar pentru teste externe care nu țin de proiect."
+  sl:    "Zaženite strežnik razvojnega okolja v trenutni mapi, samo za zunanje ne-projektno testiranje."
+  af:    "Begin die ontwikkelingsomgewing-bediener in die huidige vouer, slegs vir eksterne nie-projektoetse."
+  am:    የልማት አካባቢ አገልጋይን አሁን ባለው ፎልደር ውስጥ ያስጀምሩ፣ ለውጫዊ ከፕሮጀክት ውጭ ለሆኑ ሙከራዎች ብቻ የተዘጋጀ።
+  bn:    "বর্তমান ফোল্ডারে ডেভেলপমেন্ট এনভায়রনমেন্ট সার্ভার চালু করুন, শুধুমাত্র বাহ্যিক অ-প্রকল্প পরীক্ষার জন্য।"
+  ca:    "Inicieu el servidor d'entorn de desenvolupament a la carpeta actual, només per a proves externes fora del projecte."
+  fa:    راه‌اندازی سرور محیط توسعه در پوشه فعلی، فقط برای تست‌های خارجی غیرپروژه‌ای.
+  fil:   "Simulan ang development environment server sa kasalukuyang folder, para lamang sa panlabas na hindi pang-proyektong pagsubok."
+  gu:    "વર્તમાન ફોલ્ડરમાં ડેવલપમેન્ટ એન્વાયર્નમેન્ટ સર્વર શરૂ કરો, ફક્ત બાહ્ય બિન-પ્રોજેક્ટ પરીક્ષણ માટે."
+  he:    "הפעל את שרת סביבת הפיתוח בתיקייה הנוכחية, לבדיקות חיצוניות שאינן קשורות לפרויקט בלבד."
+  hi:    "वर्तमान फ़ोल्डर में विकास परिवेश सर्वर प्रारंभ करें, केवल बाहरी गैर-परियोजना परीक्षण के लिए।"
+  hr:    "Pokrenite poslužitelj razvojnog okruženja u trenutnoj mapi, samo za vanjsko izvanprojektno testiranje."
+  id:    "Mulai server lingkungan pengembangan di folder saat ini, hanya untuk pengujian non-proyek eksternal."
+  kn:    "ಪ್ರಸ್ತುತ ಫೋಲ್ಡರ್‌ನಲ್ಲಿ ಡೆವಲಪ್‌ಮೆಂಟ್ ಎನ್ವಿರಾನ್‌ಮೆಂಟ್ ಸರ್ವರ್ ಅನ್ನು ಪ್ರಾರಂಭಿಸಿ, ಕೇವಲ ಬಾಹ್ಯ ಪ್ರಾಜೆಕ್ಟೇತರ ಪರೀಕ್ಷೆಗಾಗಿ."
+  lt:    "Paleisti kūrimo aplinkos serverį esamame aplanke, tik išoriniam ne projektiniam testavimui."
+  lv:    "Palaist izstrādes vides serveri pašreizējā mapē, tikai ārējai ne-projekta testēšanai."
+  ml:    "നിലവിലെ ഫോൾഡറിൽ ഡെവലപ്‌മെൻ്റ് എൻവയോൺമെൻ്റ് സെർവർ ആരംഭിക്കുക, ബാഹ്യ നോൺ-പ്രോജക്റ്റ് ടെസ്റ്റിംഗിനായി മാത്രം."
+  mr:    "सध्याच्या फोल्डरमध्ये डेव्हलपमेंट एन्व्हायर्नमेंट सर्व्हर सुरू करा, फक्त बाह्य नॉन-प्रकल्प चाचणीसाठी."
+  ms:    "Mulakan pelayan persekitaran pembangunan dalam folder semasa, hanya untuk ujian bukan projek luaran."
+  nb:    "Start utviklingsmiljøserveren i gjeldende mappe, kun for ekstern ikke-prosjekttesting."
+  sk:    "Spustiť server vývojového prostredia v aktuálnom priečinku, iba na externé neprojektové testovanie."
+  sr:    "Покрените сервер развојног окружења у тренутној фасцикли, само за спољно непројектно тестирање."
+  sw:    "Anzisha seva ya mazingira ya uundaji katika folda ya sasa, kwa majaribio ya nje yasiyo ya mradi pekee."
+  ta:    "தற்போதைய கோப்புறையில் மேம்பாட்டு சூழல் சேவையகத்தைத் தொடங்கவும், வெளிப்புற திட்டமற்ற சோதனைக்கு மட்டுமே."
+  te:    "ప్రస్తుత ఫోల్డర్‌లో డెవలప్‌మెంట్ ఎన్విరాన్‌మెంట్ సర్వర్‌ను ప్రారంభించండి, కేవలం `<=` బాహ్య ప్రాజెక్టేతర పరీక్షల కోసం మాత్రమే."
+  tr:    "Geliştirme ortamı sunucusunu geçerli klasörde başlatın, yalnızca harici proje dışı testler içindir."
+  uk:    "Запустити сервер середовища розробки в поточній папці, лише для зовнішнього непроєктного тестування."
+  ur:    موجودہ فولڈر میں ڈیولپمنٹ انوائرمنٹ سرور شروع کریں، صرف بیرونی غیر پروجیکٹ ٹیسٹنگ کے لیے۔
+
+- zh-CN: 在当前文件夹启动生产环境服务器，用于临时无鉴权服务器搭建
+  zh-TW: 在目前資料夾啟動生產環境伺服器，用於臨時無鑑權伺服器架設
+  en:    "Start a production environment server in the current folder, used for temporarily setting up an unauthenticated server"
+  ja:    現在のフォルダーで本番環境サーバーを起動し、一時的な認証なしサーバーの構築に使用します
+  fr:    "Démarrer un serveur de production dans le dossier actuel, utilisé pour configurer temporairement un serveur sans authentification"
+  ru:    Запустить сервер производственной среды в текущей папке для временной настройки сервера без аутентификации
+  ko:    현재 폴더에서 운영 환경 서버를 시작하여 임시 비인증 서버 구축에 사용합니다
+  de:    "Starten Sie einen Produktionsserver im aktuellen Ordner, der für die temporäre Einrichtung eines Servers ohne Authentifizierung verwendet wird"
+  it:    "Avvia un server di produzione nella cartella corrente, utilizzato per configurare temporaneamente un server senza autenticazione"
+  th:    เริ่มเซิร์ฟเวอร์สภาพแวดล้อมการใช้งานจริงในโฟลเดอร์ปัจจุบัน สำหรับการตั้งค่าเซิร์ฟเวอร์แบบไม่มีการยืนยันตัวตนชั่วคราว
+  vi:    "Khởi động máy chủ môi trường sản xuất trong thư mục hiện tại, dùng để thiết lập tạm thời máy chủ không cần xác thực"
+  ar:    قم بتشغيل خادم بيئة الإنتاج في المجلد الحالي، ويُستخدم لإعداد خادم مؤقت بدون مصادقة
+  nl:    "Start een productieserver in de huidige map, gebruikt voor het tijdelijk opzetten van een server zonder authenticatie"
+  fi:    "Käynnistä tuotantoympäristön palvelin nykyisessä kansiossa, käytetään tilapäisen tunnistautumattoman palvelimen pystyttämiseen"
+  el:    "Εκκινήστε έναν διακομιστή περιβάλλοντος παραγωγής στον τρέχοντα φάκελο, που χρησιμοποιείται για την προσωρινή δημιουργία διακομιστή χωρίς έλεγχο ταυτότητας"
+  es:    "Iniciar un servidor de producción en la carpeta actual, utilizado para configurar temporalmente un servidor sin autenticación"
+  pt:    "Iniciar um servidor de produção na pasta atual, usado para configurar temporariamente um servidor sem autenticação"
+  hu:    "Indítson el egy termelési környezetű szervert a jelenlegi mappában, amely egy ideiglenes, hitelesítés nélküli szerver létrehozására szolgál"
+  sv:    "Starta en produktionsserver i den aktuella mappen, används för att tillfälligt konfigurera en server utan autentisering"
+  da:    "Start en produktionsserver i den aktuelle mappe, der bruges til midlertidigt at opsætte en server uden godkendelse"
+  cs:    "Spustit server produkčního prostředí v aktuální složce, který slouží k dočasnému nastavení serveru bez ověření"
+  pl:    "Uruchom serwer produkcyjny w bieżącym folderze, używany do tymczasowego skonfigurowania serwera bez uwierzytelniania"
+  bg:    "Стартиране на сървър за производствена среда в текущата папка, използван за временно настройване на сървър без удостоверяване"
+  et:    "Käivitage tootmiskeskkonna server praeguses kaustas, mida kasutatakse ajutise ilma autentimiseta serveri seadistamiseks"
+  ro:    "Porniți un server de producție în folderul curent, utilizat pentru configurarea temporară a unui server fără autentificare"
+  sl:    "Zaženite produkcijski strežnik v trenutni mapi, ki se uporablja za začasno nastavitev strežnika brez preverjanja pristnosti"
+  af:    "Begin 'n produksie-omgewing bediener in die huidige gids, gebruik vir die tydelike opstelling van 'n bediener sonder stawing"
+  am:    ጊዜያዊ ማረጋገጫ የሌለው አገልгаይ ለመገንባት በወቅታዊው ፎልደር ውስጥ የፕሮዳክሽን አካባቢ አገልጋይ ያስጀምሩ
+  bn:    "বর্তমান ফোল্ডারে একটি প্রোডাকশন এনভায়রনমেন্ট সার্ভার চালু করুন, যা সাময়িকভাবে প্রমাণীকরণহীন সার্ভার সেট আপ করার জন্য ব্যবহৃত হয়"
+  ca:    "Inicia un servidor de producció a la carpeta actual, utilitzat per configurar temporalment un servidor sense autenticació"
+  fa:    راه اندازی سرور محیط تولید در پوشه فعلی، مورد استفاده برای راه اندازی موقت سرور بدون احراز هویت
+  fil:   "Simulan ang isang production environment server sa kasalukuyang folder, na ginagamit para sa pansamantalang pag-setup ng walang-pagpapatunay na server"
+  gu:    "વર્તમાન ફોલ્ડરમાં પ્રોડક્શન એન્વાયર્નમેન્ટ સર્વર શરૂ કરો, જેનો ઉપયોગ અસ્થાયી રૂપે પ્રમાણીકરણ વિનાના સર્વર સેટઅપ માટે થાય છે"
+  he:    "הפעל שרת סביבת ייצור בתיקייה הנוכחית, המשמש להקמה זמנית של שרת ללא אימות"
+  hi:    "वर्तमान फ़ोल्डर में प्रोडक्शन वातावरण सर्वर प्रारंभ करें, जिसका उपयोग अस्थायी रूप से बिना प्रमाणीकरण वाले सर्वर को सेटअप करने के लिए किया जाता है"
+  hr:    "Pokrenite poslužitelj produkcijskog okruženja u trenutnoj mapi, koji se koristi za privremeno postavljanje poslužitelja bez provjere autentičnosti"
+  id:    "Mulai server lingkungan produksi di folder saat ini, digunakan untuk menyiapkan server tanpa autentikasi sementara"
+  kn:    "ಪ್ರಸ್ತುತ ಫೋಲ್ಡರ್‌ನಲ್ಲಿ ಪ್ರೊಡಕ್ಷನ್ ಪರಿಸರ ಸರ್ವರ್ ಅನ್ನು ಪ್ರಾರಂಭಿಸಿ, ಇದನ್ನು ತಾತ್ಕಾಲಿಕವಾಗಿ ದೃಢೀಕರಣವಿಲ್ಲದ ಸರ್ವರ್ ಅನ್ನು ಹೊಂದಿಸಲು ಬಳಸಲಾಗುತ್ತದೆ"
+  lt:    "Paleiskite gamybos aplinkos serverį dabartiniame aplanke, naudojamą laikinam serveriui be autentifikavimo nustatyti"
+  lv:    "Palaidiet ražošanas vides serveri pašreizējā mapē, ko izmanto pagaidu servera bez autentifikācijas iestatīšanai"
+  ml:    "നിലവിലെ ഫോൾഡറിൽ ഒരു പ്രൊഡക്ഷൻ എൻവയോൺമെന്റ് സെർവർ ആരംഭിക്കുക, ഇത് താൽക്കാലികമായി പ്രാമാണീകരണമില്ലാത്ത സെർവർ സജ്ജീകരിക്കുന്നതിന് ഉപയോഗിക്കുന്നു"
+  mr:    "सध्याच्या फोल्डरमध्ये प्रोडक्शन एन्व्हायर्नमेंट सर्व्हर सुरू करा, जो तात्पुरत्या स्वरूपात विना-प्रमाणीकरण सर्व्हर सेटअप करण्यासाठी वापरला जातो"
+  ms:    "Mulakan pelayan persekitaran pengeluaran dalam folder semasa, digunakan untuk menyediakan pelayan tanpa pengesahan buat sementara waktu"
+  nb:    "Start en produksjonsmiljøserver i gjeldende mappe, brukt til å midlertidig sette opp en server uten autentisering"
+  sk:    "Spustite server produkčného prostredia v aktuálnom priečinku, ktorý slúži na dočasné nastavenie servera bez overenia"
+  sr:    "Покрените сервер продукционог окружења у тренутној фасцикли, који се користи за привремено подешавање сервера без аутентификације"
+  sw:    "Anzisha seva ya mazingira ya uzalishaji katika folda ya sasa, inayotumiwa kuanzisha seva ya muda isiyo na uthibitishaji"
+  ta:    "தற்போதைய கோப்புறையில் தயாரிப்பு சூழல் சேவையகத்தைத் தொடங்கவும், இது தற்காலிகமாக அங்கீகாரமற்ற சேவையகத்தை அமைப்பதற்குப் பயன்படுகிறது"
+  te:    "ప్రస్తుత ఫోల్డర్‌లో ప్రొడక్షన్ ఎన్విరాన్‌మెంట్ సర్వర్‌ను ప్రారంభించండి, ఇది తాత్కాలికంగా ప్రమాణీకరణ లేని సర్వర్‌ను సెటప్ చేయడానికి ఉపయోగించబడుతుంది"
+  tr:    "Mevcut klasörde, geçici olarak kimlik doğrulamasız sunucu kurulumu için kullanılan bir üretim ortamı sunucusu başlatın"
+  uk:    Запустити сервер виробничого середовища в поточній папці для тимчасового налаштування сервера без автентифікації
+  ur:    موجودہ فولڈر میں پروڈکشن ماحول کا سرور شروع کریں، جو عارضی طور پر بغیر توثیق کے سرور قائم کرنے کے لیے استعمال ہوتا ہے
+
+- zh-CN: 在当前文件夹启动服务器，以处理核心数为准启动多个子进程
+  zh-TW: 在目前資料夾啟動伺服器，以處理器核心數為準啟動多個子行程。
+  en:    "Start the server in the current directory, launching multiple child processes based on the number of CPU cores."
+  ja:    現在のフォルダーでサーバーを起動し、CPUコア数に基づいて複数の子プロセスを起動します。
+  fr:    "Démarrer le serveur dans le dossier actuel, en lançant plusieurs processus enfants selon le nombre de cœurs de processeur."
+  ru:    "Запустить сервер в текущей папке, запустив несколько дочерних процессов в соответствии с количеством ядер процессора."
+  ko:    "현재 폴더에서 서버를 시작하고, CPU 코어 수에 따라 여러 자식 프로세스를 시작합니다."
+  de:    Starten Sie den Server im aktuellen Ordner und starten Sie mehrere Kindprozesse basierend auf der Anzahl der CPU-Kerne.
+  it:    "Avvia il server nella cartella corrente, avviando più processi figlio in base al numero di core della CPU."
+  th:    เริ่มต้นเซิร์ฟเวอร์ในโฟลเดอร์ปัจจุบัน โดยเริ่มต้นกระบวนการย่อยหลายรายการตามจำนวนคอร์ของ CPU
+  vi:    "Khởi động máy chủ trong thư mục hiện tại, bắt đầu nhiều tiến trình con dựa trên số lõi CPU."
+  ar:    ابدأ تشغيل الخادم في المجلد الحالي، مع تشغيل عمليات فرعية متعددة بناءً على عدد أنوية المعالج.
+  nl:    Start de server in de huidige map en start meerdere subprocessen op basis van het aantal CPU-cores.
+  fi:    Käynnistä palvelin nykyisessä kansiossa ja käynnistä useita aliprosesseja suorittimen ydinten määrän perusteella.
+  el:    "Εκκινήστε το διακομιστή στον τρέχοντα φάκελο, ξεκινώντας πολλαπλές θυγατρικές διεργασίες με βάση τον αριθμό των πυρήνων της CPU."
+  es:    "Iniciar el servidor en la carpeta actual, iniciando múltiples procesos hijo según el número de núcleos de la CPU."
+  pt:    "Iniciar o servidor na pasta atual, iniciando múltiplos processos filhos com base no número de núcleos da CPU."
+  hu:    "Indítsa el a szervert az aktuális mappában, több alfolyamat elindításával a CPU-magok száma alapján."
+  sv:    Starta servern i den aktuella mappen och starta flera underprocesser baserat på antalet CPU-kärnor.
+  da:    "Start serveren i den aktuelle mappe, og start flere underprocesser baseret på antallet af CPU-kerner."
+  cs:    Spusťte server v aktuální složce a spusťte několik podprocesů na základě počtu jader procesoru.
+  pl:    "Uruchom serwer w bieżącym folderze, uruchamiając wiele procesów potomnych w oparciu o liczbę rdzeni procesora."
+  bg:    "Стартирайте сървъра в текущата папка, като стартирате множество дъщерни процеси въз основа на броя на процесорните ядра."
+  et:    "Käivitage server praeguses kaustas, käivitades mitu alamprotsessi vastavalt CPU tuumade arvule."
+  ro:    "Porniți serverul în folderul curent, lansând mai multe procese secundare pe baza numărului de nuclee CPU."
+  sl:    Zaženite strežnik v trenutni mapi in zaženite več podrejenih procesov glede na število procesorskih jeder.
+  af:    "Begin die bediener in die huidige vouer, en begin verskeie kind-prosesse gebaseer op die aantal SVE-kerne."
+  am:    በአሁኑ ፎልደር ውስጥ አገልጋዩን ያስጀምሩ፣ በሲፒዩ ኮሮች ብዛት ላይ በመመስረት በርካታ ንዑስ ሂደቶችን ያስጀምሩ።
+  bn:    "বর্তমান ফোল্ডারে সার্ভারটি শুরু করুন, সিপিইউ কোর সংখ্যার উপর ভিত্তি করে একাধিক চাইল্ড প্রসেস শুরু করুন।"
+  ca:    "Inicieu el servidor a la carpeta actual, iniciant diversos processos fills en funció del nombre de nuclis de la CPU."
+  fa:    سرور را در پوشه فعلی راه‌اندازی کنید و چندین فرآیند فرزند را بر اساس تعداد هسته‌های پردازنده اجرا کنید.
+  fil:   "Simulan ang server sa kasalukuyang folder, na naglulunsad ng maraming child process batay sa bilang ng mga core ng CPU."
+  gu:    "વર્તમાન ફોલ્ડરમાં સર્વર શરૂ કરો, સીપીયુ કોરની સંખ્યાના આધારે બહુવિધ ચાઇલ્ડ પ્રક્રિયાઓ શરૂ કરો।"
+  he:    "הפעל את השרת בתיקייה הנוכחית, תוך הפעלת מספר תהליכי בן בהתאם למספר ליבות המעבד."
+  hi:    "वर्तमान फ़ोल्डर में सर्वर प्रारंभ करें, सीपीयू कोर की संख्या के आधार पर कई चाइल्ड प्रोसेस शुरू करें।"
+  hr:    "Pokrenite poslužitelj u trenutnoj mapi, pokrećući više podprocesa na temelju broja CPU jezgri."
+  id:    "Jalankan server di folder saat ini, luncurkan beberapa proses anak berdasarkan jumlah inti CPU."
+  kn:    "ಪ್ರಸ್ತುತ ಫೋಲ್ಡರ್‌ನಲ್ಲಿ ಸರ್ವರ್ ಅನ್ನು ಪ್ರಾರಂಭಿಸಿ, ಸಿಪಿಯು ಕೋರ್‌ಗಳ ಸಂಖ್ಯೆಯ ಆಧಾರದ ಮೇಲೆ ಅನೇಕ ಚೈಲ್ಡ್ ಪ್ರಕ್ರಿಯೆಗಳನ್ನು ರನ್ ಮಾಡಿ."
+  lt:    "Paleiskite serverį dabartiniame aplanke, paleisdami kelis antrinius procesus, atsižvelgiant į procesoriaus branduolių skaičių."
+  lv:    "Palaidiet serveri pašreizējā mapē, palaižot vairākus apakšprocesus, pamatojoties uz CPU kodolu skaitu."
+  ml:    സിപിയു കോറുകളുടെ എണ്ണത്തെ അടിസ്ഥാനമാക്കി ഒന്നിലധികം ചൈൽഡ് പ്രോസസ്സുകൾ ആരംഭിച്ച് നിലവിലെ ഫോൾഡറിൽ സെർവർ ആരംഭിക്കുകം.
+  mr:    "सध्याच्या फोल्डरमध्ये सर्व्हर सुरू करा, सीपीयू कोरच्या संख्येवर आधारित एकाधिक चाइल्ड प्रक्रिया सुरू करा।"
+  ms:    "Mulakan pelayan dalam folder semasa, melancarkan berbilang proses anak berdasarkan bilangan teras CPU."
+  nb:    "Start serveren i gjeldende mappe, og start flere underprosesser basert på antall CPU-kjerner."
+  sk:    Spustite server v aktuálnom priečinku a spustite niekoľko podprocesov na základe počtu jadier procesora.
+  sr:    "Покрените сервер у тренутној фасцикли, покрећући више подпроцеса на основу броја ЦПУ језгара."
+  sw:    "Anzisha seva kwenye folda ya sasa, ukianzisha michakato mingi ya mtoto kulingana na idadi ya cores za CPU."
+  ta:    "தற்போதைய கோப்புறையில் சேவையகத்தைத் தொடங்கவும், CPU கோர்களின் எண்ணிக்கையின் அடிப்படையில் பல குழந்தை செயல்முறைகளைத் தொடங்கவும்."
+  te:    "ప్రస్తుత ఫోల్డర్‌లో సర్వర్‌ని ప్రారంభించండి, CPU కోర్ల సంఖ్య ఆధారంగా బహుళ చైల్డ్ ప్రక్రియలను ప్రారంభించండి."
+  tr:    Sunucuyu geçerli klasörde başlatın ve CPU çekirdeği sayısına göre birden çok alt işlem başlatın.
+  uk:    "Запустити сервер у поточній папці, запустивши кілька дочірніх процесів відповідно до кількості ядер процесора."
+  ur:    موجودہ فولڈر میں سرور شروع کریں، اور CPU کور کی تعداد کی بنیاد پر متعدد چائلڈ پروسیسز شروع کریں۔
+
 - zh-CN: 请配置密钥（API Key）后使用
   zh-TW: 請配寘金鑰（API Key）後使用
   en:    Please configure the API Key before use
