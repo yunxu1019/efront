@@ -1,5 +1,15 @@
 
 [中文版](./readme.md)
+
+# Invitation to Test
+
+**Flame Proxy** shares your Android device's network proxy with other devices (such as iOS, Windows, etc.) easily and effortlessly.
+
+Currently in Closed Testing (available in regions where Google Play paid content is supported). Participants can use a test key/card to download and use it for free.
+
+[Testing Link](https://play.google.com/apps/testing/cc.efront.burning)
+
+
 *efront*&ensp;is a development tool that can be used independently to develop projects or to use only one of its functions
 # efront ideology
 1. Each file only exports one piece of data, which can be any of boolean, number, string, function, object, bigint, null, undefined

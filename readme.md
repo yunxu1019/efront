@@ -1,3 +1,8 @@
+# 邀请测试
+**火焰代理**，将安卓设备上好用的网络梯子以代理的形式分享给其他设备iOS/Windows等，简单易用。
+封闭测试中（目前在 Google Play 可付费地区提供），参与封闭测试的人员可使用测试卡免费下载使用。
+[邀测链接](https://play.google.com/apps/testing/cc.efront.burning)
+
 <b style="font-size:24px;background:red;color:#fff;">
 凭什么狗日的<span style="border:1px solid">极兔</span>规定它不送货它就能不送货，狗日的邮政管理局，就像个冯巩一样的传话筒，把投诉信息转交给极兔那些兔孙再让那些兔孙义正言辞的转回来，狗日的中共尽是制定一些糊弄人的法律，纵容骗子行骗，纵容假货横行，纵容任何一个经手你的物品的人肆意处置你的物品，纵容任何一个在你必经之路上设岗的人肆意践踏你的人权，一个靠游击偷袭起家，靠通敌让土窃国的政权，怎么不早点倒台。
 </b>
@@ -160,6 +165,7 @@ efront 默认读取当前路径下的`_envs/`和用户目录的`.efront/_envs/`�
 * 如果要导出无服务器项目，不要使用异步方法加载本地文件的数据
 * 从 efront2.5 开始`template`将被识别为 efront 保留字，专门用来指代同名的 html 文件的内容
 * 从 efront3.29 开始`.xht`文件将被识别为组件文件，如果文件内未提供入口，入口函数将由 efront 自动生成并填充
+
 # 相关链接
 
 [efront 在线文档](https://efront.cc/docs/)
@@ -175,4 +181,4 @@ efront 默认读取当前路径下的`_envs/`和用户目录的`.efront/_envs/`�
 
 # 讨论群
   QQ群: 710029752
-  Telegram: https://t.me/+y6VF1P1MTXlhN2Y1
+  Telegram: https://t.me/yuejs
