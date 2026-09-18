@@ -209,7 +209,7 @@ var createGetter = function (target, search, isprop = true) {
             if (/^\{/.test(search)) search = `(${search})`;
             search = renderExpress(search);
             if (isprop) var getter = $$eval.bind(target, search, scopeList);
-            else if (variableOnlyReg.test(search)) getter = $$eval.bind(target, search + "(event)");
+            else if (variableOnlyReg.test(search)) getter = $$eval.bind(target, search + ".call(this,event)");
             else getter = $$eval.bind(target, search);
             return getter;
         case "object":
