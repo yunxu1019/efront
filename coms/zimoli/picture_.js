@@ -110,7 +110,13 @@ function picture_(image = document.createElement("div")) {
     on("append")(image, loadParams);
     image.init = loadParams;
     image.locked = false;
-
+    image.getShape = function () {
+        return [image.x, image.y, image.scaled, image.rotate];
+    };
+    image.setShape = function (shapeArray) {
+        [x, y, scaled, rotated] = shapeArray;
+        shape();
+    };
     on("dblclick")(image, function (event) {
         if (event.defaultPrevented) return;
         event.preventDefault();
@@ -290,6 +296,12 @@ function picture_(image = document.createElement("div")) {
     var shaped_rotate = 0, rotated = 0;
     var rotatexy = function (x1, y1, x2, y2) {
         var { left, top } = getScreenPosition(image);
+        var computedStyle = getComputedStyle(image);
+        var scale = +computedStyle.scale;
+        if (scale) {
+            left *= scale;
+            top *= scale;
+        }
         var centerx = left + image.clientLeft + image.clientWidth / 2, centery = top + image.clientTop + image.clientHeight / 2;
         // var deltax = x2 - x1, deltay = y2 - y1;
         // var rx = x1 - centerx, ry = y1 - centery;
@@ -299,7 +311,11 @@ function picture_(image = document.createElement("div")) {
         // delta *= sign > 0 ? 1 : -1;
         if (isequal(x1, centerx) && isequal(y1, centery) || isequal(x2, centerx) && isequal(y2, centery)) return;
         var delta = Math.atan2(y2 - centery, x2 - centerx) - Math.atan2(y1 - centery, x1 - centerx);
-        rotated += delta * 180 / Math.PI, updatexy(), shape();
+        rotated += delta * 180 / Math.PI;
+        if (rotated >= 360) rotated -= 360;
+        if (rotated < 0) rotated += 360;
+        rotated = (rotated * 100 + .5 >>> 0) / 100;
+        updatexy(), shape();
     }
     var updatexy = function () {
         var deg = rotated - shaped_rotate;
@@ -332,6 +348,9 @@ function picture_(image = document.createElement("div")) {
         var h = Math.max(y1, y2, y3, y4) - t;
         return [c1, c2, w, h];
     };
+    image.scaleBy = function (ratio) {
+        scale(this.clientWidth >> 1, this.clientHeight >> 1, ratio);
+    }
     image.update = function (animate) {
         if (image.locked) {
             updatexy();
@@ -353,6 +372,7 @@ function picture_(image = document.createElement("div")) {
     bind('resize')(image, image.update);
 
     image.rotateTo = function (deg) {
+        if (rotated === deg) return;
         rotated = deg;
         updatexy();
         shape();
@@ -381,6 +401,7 @@ function picture_(image = document.createElement("div")) {
         } else {
             r += deg;
         }
+        if (rotated === r) return;
         rotated = r;
         updatexy();
         shape();

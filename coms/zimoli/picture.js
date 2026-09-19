@@ -6,6 +6,10 @@ var _createImage = function (url, callback, iscurrent) {
         imgpic = new Image;
         imgpic.src = url.src;
     }
+    else if (typeof url === 'object' && /^canvas$/i.test(url.tagName)) {
+        imgpic = url;
+        imgpic.complete = true;
+    }
     else {
         imgpic = document.createElement('img');
         imgpic.src = url;
@@ -35,12 +39,14 @@ var create = function (url, key, report_error) {
         }
     }
     var p = this;
+    if (report_error) p.current = image;
     var createImage = p.createImage || _createImage;
 
     image.shape = function (x, y, scaled, rotate) {
-        var style = get_style(x, y, scaled, rotate);
+        var style = get_style(x, y, scaled, rotate, p.mirror);
+        console.log(style, p.mirror)
         css(imgpic, style);
-        if (imgpic) dispatch(p, 'scaled');
+        if (imgpic && !p.buzy) dispatch(p, 'scaled');
     };
     image.close = function () {
         if (!p.touchclose) return false;
@@ -89,7 +95,7 @@ var create = function (url, key, report_error) {
     createImage(url, image.setImage, report_error);
 
 
-    var get_style = function (x, y, scaled, rotate) {
+    var get_style = function (x, y, scaled, rotate, mirror) {
         var width = image.width * scaled;
         var height = image.height * scaled;
         var [left, top, marginLeft, marginTop] = coordIn([image.clientWidth, image.clientHeight], [x, y, width, height]);
@@ -100,7 +106,7 @@ var create = function (url, key, report_error) {
             left,
             top,
             marginLeft,
-            transform: `rotate(${rotate}deg)`,
+            transform: mirror ? `rotateZ(${rotate}deg) rotateY(180deg)` : `rotate(${rotate}deg)`,
             marginTop
         };
     }
@@ -115,8 +121,8 @@ addClass(广告, 'adv');
 var alink = anchor2('http://efront.cc/baiplay', 'http://efront.cc/baiplay');
 alink.target = "_blank";
 appendChild(广告, alink);
-function picture(url, to = 0, key) {
-
+function picture() {
+    var to = 0, key, url;
     var images = {};
     var cacheLength = 8;
     var gen = function (index, ratio) {
@@ -142,9 +148,31 @@ function picture(url, to = 0, key) {
         }
         return images[index];
     };
-    if (isElement(url)) {
-        var urls = [];
-        var p = slider(url);
+    var urls = [], element;
+    for (var a of arguments) {
+        if (a instanceof Array) {
+            urls.push.apply(urls, a);
+        }
+        else if (isElement(a)) {
+            if (/^(img|canvas)$/i.test(a.tagName)) {
+                urls.push(a);
+            }
+            else {
+                if (!element) element = a;
+            }
+        }
+        else if (typeof a === 'string') {
+            if (!url) url = a, urls.push(a);
+            else if (key) urls.push(key), key = a;
+            else key = a;
+        }
+        else if (typeof a === 'number') {
+            if (key) urls.push(key), key = null;
+            to = a;
+        }
+    }
+    if (element) {
+        var p = slider(element, gen);
         care(p, function (e) {
             urls = [].concat(e);
             p.src = gen;
@@ -157,7 +185,7 @@ function picture(url, to = 0, key) {
         });
     } else {
         var urls = [].concat(url);
-        var p = slider(gen, false);
+        var p = slider(gen, element, false);
     }
     if (isFinite(to)) p.go(to);
     p.getScale = function () {
@@ -165,12 +193,43 @@ function picture(url, to = 0, key) {
         return 1;
     };
     p.initialStyle = 'backdrop-filter:blur(0);opacity:0;';
+    p.update = function () {
+        var current = p.current;
+        if (!current) return;
+        p.buzy = true;
+        current.update(false);
+        p.buzy = false;
+    };
+    p.setShape = function (shape) {
+        var current = p.current;
+        setTimeout(current);
+        if (!current) return;
+        p.buzy = true;
+        current.setShape(shape);
+        p.buzy = false;
+    };
+    p.scaleBy = function (ratio) {
+        var current = p.current;
+        if (!current) return;
+        p.buzy = true;
+        current.scaleBy(ratio);
+        p.buzy = false;
+    };
+    p.reshape = function () {
+        var current = p.current;
+        if (!current) return;
+        p.buzy = true;
+        var shape = current.getShape();
+        current.setShape(shape);
+        p.buzy = false;
+    };
     p.rotateTo = function (deg) {
         var img = p.current;
         if (!img) return;
         img.rotateTo(deg);
         return deg;
     };
+
     p.rotateBy = function (deg) {
         var img = p.current;
         if (!img) return;
