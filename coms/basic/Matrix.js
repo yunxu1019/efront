@@ -26,24 +26,56 @@ function matrix3d(factor) {
     );
 }
 
-function transform(B, dots) {
-    var dimention = Math.sqrt(B.length - 1) | 0;
-    if (dots.length % dimention !== 0) throw notMatchLength;
+function applyTo(B, dots, dim1 = Math.sqrt(B.length - 1) >>> 0) {
+    if (dots.length % dim1 !== 0) throw notMatchLength;
     if (dots === B) B = B.slice(0);
     var ds = dots.slice(0);
-    var dim2 = B.length % dimention !== 0 ? dimention + 1 : dimention;
-    for (var cx = 0, dx = dots.length; cx < dx; cx += dimention) {
-        for (var cy = 0, dy = dimention; cy < dy; cy++) {
+    var [dim2, dim] = size(B);
+    if (dim < dim1) throw notMatchLength;
+    var dd = dim * dim2;
+    for (var cx = 0, dx = dots.length; cx < dx; cx += dim1) {
+        for (var cy = 0, dy = dim1; cy < dy; cy++) {
             var sum = 0;
-            for (var ct = 0, dt = dimention; ct < dt; ct++) {
+            for (var ct = 0, dt = dim1; ct < dt; ct++) {
                 sum += ds[cx + ct] * B[ct * dim2 + cy];
             }
-            sum += B[dimention * dim2 + cy];
+            sum += B[dd + cy];
             dots[cx + cy] = sum;
         }
     }
     return dots;
 }
+
+function shadowRect(B, dots, dim1 = Math.sqrt(B.length - 1) >>> 0) {
+    if (dots.length % dim1 !== 0) throw notMatchLength;
+    var [dim2, dim] = size(B);
+    if (dim < dim1) throw notMatchLength;
+    var dd = dim * dim2;
+    var minx = Infinity, miny = Infinity, maxx = -Infinity, maxy = -Infinity;
+    for (var cx = 0, dx = dots.length; cx < dx; cx += dim1) {
+        var x = dots[cx] * B[0] + dots[cx + 1] * B[dim2] + B[dd];
+        var y = dots[cx] * B[1] + dots[cx + 1] * B[dim2 + 1] + B[dd + 1];
+        if (x < minx) minx = x;
+        if (x > maxx) maxx = x;
+        if (y < miny) miny = y;
+        if (y > maxy) maxy = y;
+    }
+    return [minx, miny, maxx, maxy];
+}
+
+function rectarea(dots, dim) {
+    var minx = Infinity, miny = Infinity, maxx = -Infinity, maxy = -Infinity;
+    for (var cx = 0, dx = dots.length; cx < dx; cx += dim) {
+        var x = dots[cx];
+        var y = dots[cx + 1];
+        if (x < minx) minx = x;
+        if (x > maxx) maxx = x;
+        if (y < miny) miny = y;
+        if (y > maxy) maxy = y;
+    }
+    return [minx, miny, maxx, maxy];
+}
+
 
 function translate(A, delta) {
     var [dim2, dim] = size(A);
@@ -55,7 +87,7 @@ function translate(A, delta) {
 }
 
 function 逆(A) {
-    var dim = Math.sqrt(A.length) | 0;
+    var dim = Math.sqrt(A.length) >>> 0;
     if (dim * dim !== A.length) throw notMatchLength;
     var E = new Array(A.length).fill(0);
     for (var cx = 0, dx = dim; cx < dx; cx++)E[cx * dim + cx] = 1;
@@ -114,7 +146,7 @@ function 逆(A) {
 
 function multiply(A, B) {
     if (A.length !== B.length) throw notMatchLength;
-    var dim = Math.sqrt(A.length) | 0;
+    var dim = Math.sqrt(A.length) >>> 0;
     if (dim * dim !== A.length) throw notMatchLength;
     var X = A.slice(0);
     for (var cx = 0, dx = A.length; cx < dx; cx += dim) {
@@ -157,14 +189,53 @@ function transpose(A) {
     return A;
 }
 
+
 class Matrix extends Array {
     static multiply = multiply;
-    static transform = transform;
+    static transform = applyTo;
     static translate = translate;
     static matrix2d = matrix2d;
     static matrix3d = matrix3d;
     static resolve = resolve;
+    static parse(str) {
+        str = str.replace(/^\s*matrix(?:3d)?\s*\(([\s\S]*?)\)\s*$/, '$1');
+        var arr = str.trim().split(/[\s,]+/).map(a => +a || 0);
+        switch (arr.length) {
+            case 9://2d
+                return new Matrix(
+                    arr[0], arr[1], arr[2],
+                    arr[3], arr[4], arr[5],
+                    arr[6], arr[7], arr[8]
+                );
+            case 6:// 2d
+                return new Matrix(
+                    arr[0], arr[1], 0,
+                    arr[2], arr[3], 0,
+                    arr[4], arr[5], 1
+                );
+            case 16://3d;
+                return new Matrix(
+                    arr[0], arr[1], arr[2], arr[3],
+                    arr[4], arr[5], arr[6], arr[7],
+                    arr[8], arr[9], arr[10], arr[11],
+                    arr[12], arr[13], arr[14], arr[15],
+                )
+            case 12://3d
+                return new Matrix(
+                    arr[0], arr[1], arr[2], 0,
+                    arr[3], arr[4], arr[5], 0,
+                    arr[6], arr[7], arr[8], 0,
+                    arr[9], arr[10], arr[11], 1,
+                )
+        }
+    }
     static 逆 = 逆;
+    static rect2d(dots) {
+        return rectarea(dots, 2);
+    }
+    static rect3d(dots) {
+        return rectarea(dots, 3);
+    }
     static create2d(theta = 0) {
         return matrix2d(theta);
     }
@@ -220,13 +291,25 @@ class Matrix extends Array {
         this.dirty();
         return multiply(this, a);
     }
-    transform(dots) {
-        if (dots instanceof Array) return transform(this, dots);
+    applyTo(dots) {
+        if (dots instanceof Array) return applyTo(this, dots);
         if (arguments.length > 1) {
             var a = Array.prototype.slice.apply(arguments, 0);
-            return transform(this, a);
+            return applyTo(this, a);
         }
         return dots;
+    }
+    apply2d(dots) {
+        return applyTo(this, dots, 2);
+    }
+    apply3d(dots) {
+        return applyTo(this, dots, 3);
+    }
+    shadowRect2d(dots) {
+        return shadowRect(this, dots, 2);
+    }
+    shadowRect3d(dots) {
+        return shadowRect(this, dots, 3);
     }
     resolve(s) {
         var A = this.slice().inverse();
@@ -240,7 +323,7 @@ class Matrix extends Array {
         return `matrix3d(${this.map(a => +a.toFixed(6))})`;
     }
 }
-
+Matrix.prototype.transform = Matrix.prototype.applyTo;
 Matrix.MathMatrix = Matrix;
 
 
@@ -289,7 +372,7 @@ var norm = function (vector) {
 
 
 function size(A) {
-    var dim = Math.sqrt(A.length - 1) | 0;
+    var dim = Math.sqrt(A.length - 1) >>> 0;
     var dim2 = dim;
     if (A.length % dim !== 0) {
         dim2++;
