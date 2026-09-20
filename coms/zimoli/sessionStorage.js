@@ -59,9 +59,12 @@ if (!sessionStorage) sessionStorage = new class Storage {
         _sessionStorage = {};
     }
 };
-if (!document.cookie) {
-    clear();
-} else {
-    read();
+try {
+    if (!document.cookie) {
+        clear();
+    } else {
+        read();
+    }
+} catch {
 }
 on("beforeunload")(window, save);
