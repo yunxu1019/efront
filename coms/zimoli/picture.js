@@ -44,7 +44,6 @@ var create = function (url, key, report_error) {
 
     image.shape = function (x, y, scaled, rotate) {
         var style = get_style(x, y, scaled, rotate, p.mirror);
-        console.log(style, p.mirror)
         css(imgpic, style);
         if (imgpic && !p.buzy) dispatch(p, 'scaled');
     };
