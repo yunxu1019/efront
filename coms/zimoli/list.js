@@ -611,7 +611,7 @@ function ylist(container, generator, $Y) {
     list.moveFocus = moveFocus_;
     //导出方法
     list.go = scrollTo_;
-    this.scrollTo = scrollTo_;
+    list.scrollTo = scrollTo_;
 
     if (list.scrollBy !== scrollBy_ && !/^i(Phone|Pod|Watch|Pad)|^Mac/i.test(navigator.platform)) list.scrollBy_ = list.scrollBy;
     list.scrollBy = scrollBy_;
