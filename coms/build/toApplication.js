@@ -368,8 +368,10 @@ var cacheData = function (data, name) {
     var mod = `${isAsync ? 'async ' : ''}function${isYield ? '*' : ''}/*${name}*/(${argNames}){\r\n${functionBody}\r\n}`;
     if (strs) strs = `[${strs.map(enstring)}]`;
     if (required) required = `[${required.split(';').map(crstring)}]`;
+    if (args.indexOf('arriswise') < 0 && argNames.length > 0) argNames = ', []';
+    else argNames = '';
     if (args) args = `[${args.map(crstring)}]`;
-    data = `[${mod}, ${args}, ${required}, ${strs}]`;
+    data = `[${mod}, ${args}, ${required}, ${strs}${argNames}]`;
     if (scanner2(data).envs.fmat) console.log(name)
     return data;
 };

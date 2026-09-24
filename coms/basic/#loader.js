@@ -302,7 +302,7 @@ var loadModule = function (url, then, prebuilds = {}) {
             if (data instanceof Array) {
                 var [mod, args = [], required = [], strs = [], argNames] = data;
                 if (!requires_count) strs = strs.map(toRem);
-                if (mod.length) argNames = /^[^\(]*\(([^\)]*)\)/.exec(mod)[1].split(',');
+                if (mod.length && !argNames) argNames = /^[^\(]*\(([^\)]*)\)/.exec(mod)[1].split(',');
             }
             else {
                 var afterfix = url.slice(name.length);
