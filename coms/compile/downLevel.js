@@ -86,7 +86,7 @@ var killdec = function (queue, i, getobjname, _var = 'var', killobj, islet) {
         if (typeof k === 'number' && k < 0) {
             if (iter) throw new Error(i18n`暂不支持在当前语境读取尾部非剩余元素`);
             dp = 1;
-            k = `${tmpname}["length"]>${doged - k - 1}?${tmpname}[${tmpname}["length"] - ${-k}]:undefined`;
+            k = `${tmpname}["length"]>${doged - k - 1}?${tmpname}[${tmpname}["length"] - ${-k}]:void 0`;
         } else {
             if (rootenvs.Symbol && /\[\d+\]/.test(k) && iter) {
                 var inc = parseInt(k.slice(1, k.length - 1));
@@ -111,7 +111,7 @@ var killdec = function (queue, i, getobjname, _var = 'var', killobj, islet) {
             }
             else {
                 var n = getobjname(deep);
-                write([{ text: n, type: EXPRESS, istmp: true }], `${tmpname},${n}=${n}!==undefined?${n}:`);
+                write([{ text: n, type: EXPRESS, istmp: true }], `${tmpname},${n}=${n}!==void 0?${n}:`);
                 var skiped = splice2(d[2], d[3], d[4]);
                 killobj(skiped);
                 splice(queue, i, 0, ...skiped);
@@ -133,7 +133,7 @@ var killdec = function (queue, i, getobjname, _var = 'var', killobj, islet) {
             var tmpv = scanner2(`${index++ > 0 ? ',' : ''}${objname}=${k}`)
             splice(queue, i, 0, ...tmpv);
             i += tmpv.length;
-            write(v, `${objname}!==undefined?${objname}:`, x < total - 1);
+            write(v, `${objname}!==void 0?${objname}:`, x < total - 1);
             var skiped = splice2(d[2], d[3], d[4]);
             killobj(skiped);
             splice(queue, i, 0, ...skiped);
@@ -161,7 +161,7 @@ var killdec = function (queue, i, getobjname, _var = 'var', killobj, islet) {
         splice(queue, i, 0, ...sname);
         i += sname.length;
         if (!value && islet) {
-            value = "undefined";
+            value = "void 0";
         }
         if (value) {
             var q = scanner2("=" + value);
@@ -185,7 +185,7 @@ var killdec = function (queue, i, getobjname, _var = 'var', killobj, islet) {
         iname = getobjname(deep++);
         tname = getobjname(deep);
         init() {
-            var init = scanner2(`${index++ > 0 ? ',' : ''}${this.iname}=(${tmpname}[Symbol["iterator"]]||Array["prototype"][Symbol["iterator"]])["call"](${tmpname}),${this.tname}=undefined`);
+            var init = scanner2(`${index++ > 0 ? ',' : ''}${this.iname}=(${tmpname}[Symbol["iterator"]]||Array["prototype"][Symbol["iterator"]])["call"](${tmpname}),${this.tname}=void 0`);
             splice(queue, i, 0, ...init);
             i += init.length;
         }
@@ -291,7 +291,7 @@ var killdec = function (queue, i, getobjname, _var = 'var', killobj, islet) {
             if (hasnext) next = next.next;
             var n = indexof(queue, next, i);
             if (islet && o.type === EXPRESS) {
-                if (!next || next.type !== STRAP || !/^(in|of)$/.test(next.text)) splice(queue, i + 1, 0, ...scanner2('=undefined'));
+                if (!next || next.type !== STRAP || !/^(in|of)$/.test(next.text)) splice(queue, i + 1, 0, ...scanner2('=void 0'));
                 n += 2;
             }
             if (o.type === SCOPED) {
@@ -381,7 +381,7 @@ var killdec = function (queue, i, getobjname, _var = 'var', killobj, islet) {
                         var objname = getobjname(0);
                         q = scanner2(`(${objname} =)`);
                         q[0].push(...splice(queue, i, i2 - i));
-                        q[0].push(...scanner2(`${a[0]},${objname}!== undefined ? ${objname}: `), ...splice2(a[2], a[3], a[4]));
+                        q[0].push(...scanner2(`${a[0]},${objname}!== void 0 ? ${objname}: `), ...splice2(a[2], a[3], a[4]));
                         i2 = i;
                     }
                     splice(queue, i = i2, 0, ...q);
@@ -678,7 +678,7 @@ var killcls = function (body, i, letname_, getname_, killobj) {
         while (m) {
             var [prop, m] = getprop(o, m);
             var pvalue = prop.value;
-            if (!pvalue.length || pvalue.length === 1 && pvalue[0].text === ';') prop.value = scanner2('undefined;');
+            if (!pvalue.length || pvalue.length === 1 && pvalue[0].text === ';') prop.value = scanner2('void 0;');
             else if (!prop.sfunc) killobj(prop.value);
             if (!tempname && (prop.get || prop.set)) tempname = getname_("tmp");
             if (prop.hidden) {
@@ -1079,7 +1079,7 @@ var killobj = function (body, getobjname, getletname, getname_, letname_, deep =
                     break;
                 case "new":
                     if (o.next?.needle) {
-                        o.text = 'undefined';
+                        o.text = 'void 0';
                         o = o.next;
                         var e = snapExpressFoot(o).next;
                         splice2(o.queue, o, e);
@@ -1443,7 +1443,7 @@ var killarg = function (head, body, _getname, setarg = true) {
             var start = o;
             while (o && (o.type !== STAMP || o.text !== ',')) o = o.next;
             var assign = splice2(head, start, o);
-            argcodes.push(`if(${aname}===undefined)${aname}${createString(assign)}`);
+            argcodes.push(`if(${aname}===void 0)${aname}${createString(assign)}`);
             if (o) o = o.next;
         }
         namemap[aname] = true;
@@ -1453,7 +1453,7 @@ var killarg = function (head, body, _getname, setarg = true) {
         argcodes.unshift.apply(argcodes, anames.map((a, i) => {
             if (a === cname) cname = '';
             var n = anames.length - i;
-            return `${a}=arguments["length"]>${collect + n - 1}?arguments[arguments["length"] - ${n}]:undefined`;
+            return `${a}=arguments["length"]>${collect + n - 1}?arguments[arguments["length"] - ${n}]:void 0`;
         }));
 
         if (cname) argcodes.unshift(`var ${cname}=${patchMark}slice(arguments,${collect}${index > collect ? `,${collect - index}` : ""})`), rootenvs[patchMark + 'slice'] = true;
