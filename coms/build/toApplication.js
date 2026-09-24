@@ -385,14 +385,22 @@ var patchData = function (mainScriptData, mainScript, responseTree) {
         up = Infinity;
         limit = Infinity;
     }
-    var rests = Object.keys(responseTree).filter((k) => {
+    var totalup = 0;
+    var keeys = Object.keys(responseTree).filter(k => {
         var v = responseTree[k];
         if (!isEfrontCode(v)) return false;
         if (v === mainScript) return false;
+        return true;
+    });
+    keeys.sort((a, b) => {
+        return responseTree[a].data.length - responseTree[b].data.length;
+    });
+    var rests = keeys.filter((k) => {
+        var v = responseTree[k];
         var data = v.data;
-        if (data.length > up) return true;
-        up += data.length;
-        if (up > limit) return true;
+        if (up > 0 && data.length > up) return true;
+        totalup += data.length;
+        if (totalup > limit) return true;
         cached.push(k);
         return v.isrest;
     }).sort();
