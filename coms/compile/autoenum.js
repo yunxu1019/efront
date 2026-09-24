@@ -244,7 +244,7 @@ function getFirstBreak(o, labels = []) {
             continue;
         case STRAP:
             if (m.type === STRAP && m.text === 'break') {
-                if (!m.isend) m = m.next;
+                if (!m.isend && m.next) m = m.next;
                 var n = m.text;
                 var i = labels.lastIndexOf(n);
                 if (i >= 0) {
