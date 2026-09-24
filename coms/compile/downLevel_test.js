@@ -548,3 +548,5 @@ return cls0 }(function () {})`);
 assert(downLevel(`geta=()=>({[a]:1})`), `geta = function () { return ((_ = {},
 _[a] = 1, _))
 var _ }`);
+assert(downLevel(`if(){var a;const b;let c = c=>c(a,b);}`), `if ()(function (b, c) { a; b; c =function (c) { return c(a, b) }; }(b, c))
+var a, tmp, b, c `);

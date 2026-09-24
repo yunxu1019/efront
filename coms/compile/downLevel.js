@@ -1744,6 +1744,7 @@ var down = function (scoped) {
     if (funcMark) rootenvs[funcMark] = true;
     var vars = Object.assign(Object.create(null), scoped.vars);
     var envs = Object.assign(Object.create(null), scoped.envs);
+    var varscope = scoped;
     var objnames = [];
 
     var _getname = getname.bind(null, vars, envs);
@@ -1809,6 +1810,7 @@ var down = function (scoped) {
         for (var k of lets) vars[k] = true, delete envs[k];
         backEach(body, function (o, i) {
             if (o.type === STRAP && /^(const|let|var)$/.test(o.text)) splice(body, i, 1);
+            if (o.kind === 'var') delete varscope.vars[o.tack];
         });
         if (isswitch) splice(wbody, 0, 0, bpp, bp, body);
         else splice(wrapper, wrapper.length - 2, 1, body), wbody = body;
