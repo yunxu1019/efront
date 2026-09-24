@@ -223,7 +223,6 @@ var isypop = function (target) {
     var padding = offsetParent ? parseFloat(getComputedStyle(offsetParent).paddingTop) + parseFloat(getComputedStyle(offsetParent).paddingBottom) : 0;
     if (offsetParent && target.offsetTop / target.offsetHeight < .2 && (offsetParent.clientWidth - padding) / target.offsetWidth > 1.5) return true;
 };
-var isxpop = arriswise(isypop, arguments);
 var popup_as_extra = function (element, target, style) {
     element.target = target;
     if (style) {
@@ -370,7 +369,6 @@ var _as_yextra = function (global, innerWidth, innerHeight, element, target, poi
     onmounted(element, reshape);
     global(element, false);
 };
-var _as_xextra = arriswise(_as_yextra, arguments);
 var popup_as_single = function (element, z) {
     if (!isMounted(element)) css(element, `z-index:${isFinit(z) ? z : zIndex()};`);
     global(element, false);
@@ -440,6 +438,7 @@ var global = function (element, issingle) {
     popup.global &&
         issingle !== false ? popup.global(element, true) : appendChild(document.body, element);
 };
+var [_as_xextra, isxpop] = arriswise([_as_yextra, isypop], arguments);
 var popup_as_yextra = _as_yextra.bind(null, global, innerWidth, innerHeight);
 var popup_as_xextra = _as_xextra.bind(null, global, innerHeight, innerWidth);
 var cleanup = new Cleanup(rootElements);

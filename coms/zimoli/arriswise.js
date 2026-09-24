@@ -34,10 +34,11 @@ var replaceArg = function (arg) {
     return arg;
 };
 function build(func, argNames, argsArr, isWrapper) {
-    var newf = String(func).replace(regexps, rep);
-    if (isWrapper) newf = newf.replace(/^\s*function[\s\S]*?\{([\s\S]*)\}\s*$/, "$1");
-    else newf = "return " + newf;
-    return Function.apply(null, argNames.map(replaceArg).concat(newf))
+    if (isWrapper) func = String(func).replace(/^[^\}]*?\{([\s\S]*)\}\s*$/, "$1");
+    else if (func instanceof Array) func = `return[${func}]`;
+    else func = "return " + func;
+    func = func.replace(regexps, rep);
+    return Function.apply(null, argNames.map(replaceArg).concat(func))
         .apply(this, argsArr.map(replaceArg));
 }
 var arriswise = function (func, args = []) {

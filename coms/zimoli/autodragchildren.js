@@ -76,9 +76,7 @@ var scrollX = function (targetBox, moveChildren) {
     }
     return scrollDelta;
 };
-var scrollY = arriswise(scrollX, arguments);
-var moveMarginY = arriswise(moveMarginX, arguments);
-var moveChildrenY = arriswise(moveChildrenX, arguments);
+var [scrollY, moveMarginY, moveChildrenY] = arriswise([scrollX, moveMarginX, moveChildrenX], arguments);
 var getMoveFuncs = function (child) {
     child = child instanceof Array ? child[0] : child;
     if (child && /cell|inline/i.test(getComputedStyle(child).display)) {

@@ -54,8 +54,7 @@ var keyup = function () {
         remove(menu);
     }
 };
-var keyleft = arriswise(keyup, arguments);
-var keyright = arriswise(keydown, arguments);
+var [keyleft, keyright] = arriswise([keyup, keydown], arguments);
 function keyalt() {
     if (this === document.activeElement) this.blur();
     else {
