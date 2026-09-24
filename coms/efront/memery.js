@@ -12,7 +12,7 @@
 // 然而，美好总是那么短暂，我又一次在该死的尘世醒来。
 // 她的样子一点点模糊，一点点离我而去
 var path = require("path");
-var false_reg = /^(0|false|null|uset|none|undefined|nil|unset)$/i;
+var false_reg = /^(false|null|uset|none|undefined|nil|unset|\.f\.)$/i;
 var test = a => !!a && !false_reg.test(a);
 var env = process.env;
 if (!env.cd && !env.CD) {
@@ -45,7 +45,8 @@ var set = function (k, v) {
             v = +v;
             break;
         case "boolean":
-            v = !false_reg.test(v);
+            if (numreg.test(v)) v = +v;
+            else v = !false_reg.test(v);
             break;
     }
     this[n] = v;
@@ -53,6 +54,7 @@ var set = function (k, v) {
     if (fixme[n]) fixpath(n);
     if (isEmpty(v) || this[n] === defaults[n]) delete seted[n];
 };
+var numreg = /^[\+\-]?(?:(\d*\.)?\d+|0[xbo]\d+)$/i;
 var get = function (name, _default, fix, limits) {
     var env = this || process.env;
     if (name in namemap) {
@@ -84,7 +86,7 @@ var get = function (name, _default, fix, limits) {
                         _default = false;
                         break;
                     default:
-                        if (/^\d+$/.test(v)) _default = 0;
+                        if (numreg.test(v)) _default = 0;
                 }
             }
             switch (typeof _default) {
@@ -92,7 +94,8 @@ var get = function (name, _default, fix, limits) {
                     value = +v;
                     break;
                 case "boolean":
-                    value = !false_reg.test(v);
+                    if (numreg.test(v)) v = +v;
+                    else value = !false_reg.test(v);
                     break;
                 case "object":
                     if (Array.isArray(_default)) {
@@ -371,13 +374,14 @@ Object.keys(memery).forEach(function (key) {
     if (isHandled(setted)) _memery[key] = setted;
 });
 Object.keys(fixme).forEach(fixpath);
-var setDebug = function () {
+var setDebug = function (v) {
+    var dbg = v != false;
     var debug = {
-        ENCRYPT: false,
-        COMPRESS: -1,
-        KEEPSPACE: true,
+        ENCRYPT: !dbg,
+        COMPRESS: v < 0 ? v : !v,
+        KEEPSPACE: dbg,
         BREAK: true,
-        COMMENT: true,
+        COMMENT: dbg,
         AUTOEVAL: true,
     };
     for (var k in debug) {
@@ -386,13 +390,13 @@ var setDebug = function () {
 };
 Object.defineProperty(memery, 'DEBUG', {
     set(v) {
-        if (v) setDebug();
+        setDebug(v);
     },
     get() {
         return !_memery.COMPRESS || !_memery.ENCRYPT;
     }
 })
-if (get("DEBUG", false)) {
+if (get("DEBUG") != null) {
     // 检错模式
-    setDebug();
+    setDebug(get("DEBUG", false));
 }
