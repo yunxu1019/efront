@@ -559,6 +559,7 @@ var loadJsBody = function (data, filename, fullpath, lessdata, commName, classNa
         code_body.unshift.apply(code_body, template);
     }
     code_body.unshift.apply(code_body, prepareCodeBody);
+    code.requote = commbuilder.requote !== false;
     if (breakflag === false);
     else if (!islive || commbuilder.compress === false) {
         code.relink();

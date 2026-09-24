@@ -299,22 +299,29 @@ var loadModule = function (url, then, prebuilds = {}) {
             // <!--
             if (!data) undefinedModules[name] = true;
             // -->
-            var afterfix = url.slice(name.length);
-            var [argNames, body, args, required, strs, isAsync, isYield] = getArgs(data, afterfix);
-            if (isProduction) {
-                strs = strs.map ? strs.map(toRem) : strs;
-            } else {
-                body = toRem(body);
+            if (data instanceof Array) {
+                var [mod, args = [], required = [], strs = [], argNames] = data;
+                if (!requires_count) strs = strs.map(toRem);
+                if (mod.length) argNames = /^[^\(]*\(([^\)]*)\)/.exec(mod)[1].split(',');
             }
-            var mod = createFunction(name, body, argNames, isAsync, isYield);
+            else {
+                var afterfix = url.slice(name.length);
+                var [argNames, body, args, required, strs, isAsync, isYield] = getArgs(data, afterfix);
+                if (isProduction) {
+                    if (!requires_count) strs = strs.map(toRem);
+                } else {
+                    body = toRem(body);
+                }
+                var mod = createFunction(name, body, argNames, isAsync, isYield);
+                if (required) {
+                    required = required.split(';').filter(a => !!a);
+                    if (afterfix) required = required.map(r => r + afterfix);
+                }
+            }
             mod.args = args;
             mod.argNames = argNames;
             mod.strs = strs;
             var loadedCount = 0;
-            if (required) {
-                required = required.split(';').filter(a => !!a);
-                if (afterfix) required = required.map(r => r + afterfix);
-            }
             required = required ? get_relatives(name, required) : [];
             mod.required = required;
             mod.file = name;
@@ -791,7 +798,7 @@ var initPixelDecoder = function () {
         }
         init("css", function (css) {
             var onresize = function () {
-                var fontSize = calcPixel(16) * .75 + "pt";
+                var fontSize = calcPixel(16) * 0.2645833 + "mm";
                 css("html", {
                     fontSize
                 });

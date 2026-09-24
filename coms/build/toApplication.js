@@ -358,6 +358,22 @@ var replaceTree = function (data, xTreeName, code) {
         }
     )
 }
+
+var enstring = a => typeof a === 'string' ? strings.encode(a, "'") : String(a);
+var crstring = a => typeof a === 'string' ? strings.encode(a, '"') : String(a);
+var cacheData = function (data, name) {
+    var [argNames, functionBody, args, required, strs] = getArgs(data);
+    var [, isAsync, isYield] = /^(~?)(\*?)/.exec(functionBody);
+    if (isAsync || isYield) functionBody = functionBody.slice(+!!isAsync + +!!isYield);
+    var mod = `${isAsync ? 'async ' : ''}function${isYield ? '*' : ''}/*${name}*/(${argNames}){\r\n${functionBody}\r\n}`;
+    if (strs) strs = `[${strs.map(enstring)}]`;
+    if (required) required = `[${required.split(';').map(crstring)}]`;
+    if (args) args = `[${args.map(crstring)}]`;
+    data = `[${mod}, ${args}, ${required}, ${strs}]`;
+    if (scanner2(data).envs.fmat) console.log(name)
+    return data;
+};
+
 var patchData = function (mainScriptData, mainScript, responseTree) {
     var up = memory.EFRONTUP;
     var limit = memory.EFRONTSUM;
@@ -386,7 +402,7 @@ var patchData = function (mainScriptData, mainScript, responseTree) {
         var code = "{\r\n\t" + cached.sort().map(k => {
             var v = responseTree[k];
             if (!v.isrest) delete responseTree[k];
-            return `["${v.name}"]:${strings.encode(String(v.data))}`;
+            return `["${v.name}"]:${cacheData(String(v.data), v.name)}`;
         }).join(",\r\n\t") + "\r\n}";
         mainScriptData = replaceTree(mainScriptData, xTreeName, code);
     }
@@ -401,7 +417,7 @@ var patchData = function (mainScriptData, mainScript, responseTree) {
         var xTreeName = /(?:\bversionTree\s*|\[\s*(["'])versionTree\1\s*\])\s*[\:\=]\s*(.+?)\b/m.exec(mainScriptData);
         if (xTreeName) xTreeName = xTreeName[2];
         else xTreeName = "versionTree";
-        var code = "{\r\n" + Object.keys(versionTree).map(k => `["${k}"]:${strings.encode(versionTree[k], `'`)}`).join(",\r\n\t") + "\r\n}";
+        var code = "{\r\n" + Object.keys(versionTree).map(k => `["${k}"]:${enstring(versionTree[k])}`).join(",\r\n\t") + "\r\n}";
         mainScriptData = replaceTree(mainScriptData, xTreeName, code)
     }
     else {
@@ -472,6 +488,7 @@ module.exports = async function (responseTree) {
     mainScriptData = patchData(mainScriptData, mainScript, responseTree);
     commbuilder.compress = false;
     commbuilder.prepare = false;
+    commbuilder.requote = false;
     mainScriptData = await commbuilder(mainScriptData, mainScript.url, mainScript.realpath, []);
     memory.EXPORT_AS = '';
     memory.EXPORT_TO = "this";

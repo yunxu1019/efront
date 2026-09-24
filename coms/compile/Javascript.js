@@ -454,9 +454,10 @@ var removeQuote = function (o, c, i) {
     if (c.prev) c.prev.next = ch;
     if (c.next) c.next.prev = cf;
 }
-var mindpath = '';
+var mindpath = '', requote;
 Javascript.prototype.detour = function (body, ie) {
     context = this;
+    requote = body.requote;
     var envs = rootenvs = Object.create(null);
     ricode = require("../basic/strings").ricode;
     mindpath = body.fullpath;
@@ -646,7 +647,7 @@ function detour(o, ie) {
                     }
                 }
                 if (!o.isprop) {
-                    if (/^'/.test(o.text)) o.text = recode(o.text);
+                    if (requote && /^'/.test(o.text)) o.text = recode(o.text);
                     break;
                 }
             case PROPERTY:

@@ -313,7 +313,9 @@ function toComponent(responseTree, isWebProject) {
             if (!isFinite(index)) {
                 var i = a;
                 if (a === "\\import") i = `[${getEncodedIndex("url")},function(b){return function(a,c){return c={},c[b]=a,c}}]`;
-                else if (memery.EMIT && a !== '\\decrypt') console.warn(i18n`编译异常`, module_key, a);
+                else if (memery.EMIT && a !== '\\decrypt') {
+                    console.warn(i18n`编译异常`, module_key, a);
+                }
                 saveOnly(i, a);
                 index = destMap[a];
             }

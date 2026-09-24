@@ -1,5 +1,5 @@
 function till(kill, i, arr) {
-    var s = kill = "_" + i + kill.replace(/[&\^%\?@#\\]/g, '_');
+    var s = kill = kill.replace(/[&\^%\?@#\\]/g, '_') + "$" + i;
     var i = 1;
     while (kill in this) {
         kill = s + "_" + i++;
