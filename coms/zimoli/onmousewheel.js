@@ -1,4 +1,4 @@
-var _onmousewheel = "onmousewheel" in window || "onmousewheel" in document ? on("mousewheel.passive") : on("DOMMouseScroll.passive");
+var mousewheel = "onmousewheel" in window || "onmousewheel" in document ? "mousewheel" : "DOMMouseScroll";
 var addDeltaY = function (event) {
     if (isNumber(event.deltaY)) return;
     if (isNumber(event.wheelDeltaY)) {
@@ -22,10 +22,15 @@ var addDeltaY = function (event) {
     } else if (isNumber(event.wheelDelta)) {
         event.deltaY = event.wheelDelta;
     }
-}
+};
+var _onmousewheel = on(mousewheel + '.passive');
 var onmousewheel = function (target, handler) {
     return _onmousewheel(target, function (event) {
         addDeltaY(event);
         return handler.call(this, event);
     });
 };
+onmousewheel.on = function (k) {
+    if (!k) return _onmousewheel;
+    return on(mousewheel + '.' + k);
+}

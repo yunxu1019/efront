@@ -903,11 +903,17 @@ var createEmiter = function (on) {
          */
         var emit = createGetter(this, search, false);
         var onkey;
+        var k = key.toLowerCase();
         if (key === 'mounted' || key === 'mount') {
             onkey = on === once ? oncemount : onmounted;
         }
-        else if (key === 'wheel' || key === 'mousewheel') {
-            onkey = on === once ? once.emit.bind(null, onmousewheel) : onmousewheel;
+        else if ((k = k.replace(/^(?:([\w\.]+)\.)?(?:(?:mouse)?wheel)(?:\.([\.\w]+))?$/i, (_, a, b) => {
+            var res = [];
+            if (a) res.push(a);
+            if (b) res.push(b);
+            return res.join('.');
+        })).length !== key.length) {
+            onkey = on === once ? once.emit.bind(null, onmousewheel.on(k)) : onmousewheel.on(k);
         }
         else {
             onkey = on(key);
