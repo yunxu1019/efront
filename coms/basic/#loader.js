@@ -1,4 +1,3 @@
-"use strict";
 var window = this;
 var isProduction = true;
 // <!-- isProduction = false; -->
