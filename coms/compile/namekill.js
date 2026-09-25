@@ -2,7 +2,7 @@ function till(kill, i, arr) {
     var s = kill = kill.replace(/[&\^%\?@#\\]/g, '_') + "$" + i;
     var i = 1;
     while (kill in this) {
-        kill = s + "_" + i++;
+        kill = s + "$" + i++;
     }
     return kill;
 }
