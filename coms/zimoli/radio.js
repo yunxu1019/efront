@@ -39,7 +39,6 @@ function main(elem = document.createElement("radio-group")) {
         if (!isEmpty(elem.value)) {
             elem.setValue(elem.value);
         }
-        console.log("options", options)
     });
     elem.setValue = function (key) {
         var { options } = $scoped.get(this);

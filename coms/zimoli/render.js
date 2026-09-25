@@ -730,15 +730,24 @@ class Model {
         userChanged = true;
     }
     hook(elem, emit) {
-        var binder = new Binder2(this.gs, this.target !== elem ? this.sv.bind(this.target) : this.sv);
-        binder.call(elem);
-        this.bd = binder;
+        var sv = this.sv;
         if (emit !== false) {
             this.emit = emit;
             this.value = this.gv.call(this.target);
             eventsBinders.forEach(on => on(this.target, this, true));
             this.target = elem;
+            var sv1 = sv;
+            var that = this;
+            sv = function (value) {
+                sv1.call(this, value);
+                that.value = that.gv.call(elem);
+            };
         }
+        else {
+        }
+        var binder = new Binder2(this.gs, this.target !== elem ? sv.bind(this.target) : sv);
+        binder.call(elem);
+        this.bd = binder;
         return binder;
     }
 }
@@ -893,7 +902,6 @@ class Emitter {
         }
         if (res && isFunction(res.then)) res.then(digest, reject);
         return res;
-
     }
 }
 var createEmiter = function (on) {
