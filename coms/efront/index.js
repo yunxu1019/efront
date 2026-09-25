@@ -1041,9 +1041,11 @@ var run = async function (type, value1, value2, value3) {
             case "cooks":
             case "https":
             case "lives":
+            case "lives.":
             case "devs":
             case "tests":
             case "starts":
+            case "starts.":
                 if (value2) {
                     [value2 = memery.HTTPS_PORT, value1 = 0] = [value1, value2];
                 } else if (value1) {
@@ -1155,9 +1157,9 @@ userdata.getItem("memery").then(async function (mm) {
             return true;
         }
         var m = null;
-        if (m = /^--(inspect|debug)(-brk)?(\=\d*)?$/.exec(a)) {
+        if (m = /^--(inspect|debug)(-brk)?(\=[\+\-]?\d*)?$/.exec(a)) {
             restArgv.push(a);
-            if (m[1] === "inspect" || m[2] || m[3]) {
+            if (m[1] === "inspect" || m[2] || m[3] > 0) {
                 return;
             }
         }
