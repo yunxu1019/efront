@@ -193,6 +193,12 @@ var _ifempty = {
     get islive() {
         return !!memery.LIVETIME;
     },
+    get ENCRYPT() {
+        return true;
+    },
+    get EXTT() {
+        return '.txt';
+    },
     get LIVETIME() {
         return 0;
     },
@@ -309,7 +315,7 @@ var memery = module.exports = {
     DESTPATH: getfullpath("DESTPATH, DEST_PATH"),
     PUBLIC_NAME: get("PUBLIC_NAME", ''),
     IN_WATCH_MODE: get("IN_WATCH_MODE", false),
-    ENCRYPT: get("ENCRYPT, CRYPT, ENCODE", true),
+    ENCRYPT: get("ENCRYPT, CRYPT, ENCODE"),
     COMPRESS: get("COMPRESS, PRESS, ENCODE"),
     KEEPPROP: get("KEEPPROP,KEEPPROPS"),
     HIDEPROP: get("HIDEPROP,HIDEPROPS"),
@@ -389,6 +395,7 @@ var setDebug = function (v) {
         BREAK: true,
         COMMENT: dbg,
         AUTOEVAL: true,
+        EXTT:'.js',
     };
     for (var k in debug) {
         if (!isHandled(_memery[k])) _memery[k] = debug[k];
