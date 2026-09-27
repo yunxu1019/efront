@@ -11,7 +11,7 @@ var net = require("net");
 message.listen();
 var cert = server$cert;
 var quitme = require("../efront/quitme");
-var { HTTPS_PORT, HTTP_PORT } = memery;
+var { HTTPS_PORT, HTTP_PORT, LIVETIME } = memery;
 HTTP_PORT = +HTTP_PORT || 0;
 HTTPS_PORT = +HTTPS_PORT || 0;
 var liveload = require("./liveload");
@@ -24,9 +24,36 @@ var closeListener = function () {
         if (isFunction(quitme)) quitme();
     }
 };
+var quittimeer = 0;
+var quitAfter = async function (livetime) {
+    var quitTime = +new Date + livetime;
+    // 时间相关的信息暂不国际化，避免歧义，用户可自行复制中文字符串去翻译
+    var msg = () => `${filterTime(quitTime)}服务器将关闭`;
+    var msg1 = null;
+    if (livetime > 30000) {
+        while (quitTime - new Date > 30000) {
+            quittimeer = wait(1000);
+            await quittimeer;
+            var tmp = msg();
+            if (msg1 !== tmp) console.info(tmp);
+            msg1 = tmp;
+        }
+    }
+    while (quitTime - new Date > 100) {
+        console.info(`服务器将在${(quitTime - new Date) / 1000}秒后关闭`);
+        quittimeer = wait(1000);
+        await quittimeer;
+    }
+    console.info(`服务器关闭`);
+    message.send('quit');
+}
+if (LIVETIME > 0 && LIVETIME < Infinity) {
+    quitAfter(LIVETIME * 1000);
+}
 require("./watch").start();
 recover.start();
 var safeQuitProcess = function () {
+    quittimeer.cancel();
     clearInterval(checker_interval);
     require("./watch").close();
     memery.islive = false;

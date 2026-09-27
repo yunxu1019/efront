@@ -13,6 +13,7 @@
 // 她的样子一点点模糊，一点点离我而去
 var path = require("path");
 var false_reg = /^(false|null|uset|none|undefined|nil|unset|\.f\.)$/i;
+var inf_reg = /^(true|NaN|[+\-]?Infinity|\.t\.)$/i;
 var test = a => !!a && !false_reg.test(a);
 var env = process.env;
 if (!env.cd && !env.CD) {
@@ -91,6 +92,8 @@ var get = function (name, _default, fix, limits) {
             }
             switch (typeof _default) {
                 case "number":
+                    if (false_reg.test(v)) value = 0;
+                    else if (inf_reg.test(v)) value = Infinity;
                     value = +v;
                     break;
                 case "boolean":
@@ -188,7 +191,10 @@ var _ifempty = {
         return memery.istest;
     },
     get islive() {
-        return !!memery.LIVEMODE;
+        return !!memery.LIVETIME;
+    },
+    get LIVETIME() {
+        return 0;
     },
     get fileroot() {
         return memery.webroot;
