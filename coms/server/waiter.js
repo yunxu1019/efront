@@ -53,7 +53,7 @@ if (LIVETIME > 0 && LIVETIME < Infinity) {
 require("./watch").start();
 recover.start();
 var safeQuitProcess = function () {
-    quittimeer.cancel();
+    if (quittimeer) quittimeer.cancel();
     clearInterval(checker_interval);
     require("./watch").close();
     memery.islive = false;
