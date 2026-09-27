@@ -151,7 +151,7 @@ var bindLoadings = function (reg, data, rootfile, replacer = a => a, deep) {
     return run(data, rootfile, 1);
 };
 
-var useInternalReg = /^\s*(['"`])(?:use|#?include)\s+(.+?)\1(\s*;)?\s*$/img;
+var useInternalReg = /^\s*(['"`])(?:use|#?include)\s+([^\s'"`,;]+)\1(\s*;)?\s*$/img;
 var fsp = fs.promises;
 var replaceIncludes = function (data, fullpath) {
     var lastIndex = 0;
