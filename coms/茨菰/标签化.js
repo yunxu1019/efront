@@ -102,7 +102,8 @@ var codecolor = function (c) {
     var setPredef = o => setExpress(o, 'predef');
     var setOutside = o => setExpress(o, 'outside');
     if (used) for (var k in envs) {
-        used[k].forEach(k in predefs ? setPredef : setOutside);
+        var os = used[k];
+        if (os) os.forEach(k in predefs ? setPredef : setOutside);
     }
     if (c.program) var { space_exp: spaceReg, control_reg } = c.program;
     if (spaceReg) var unspaceReg = new RegExp(`(?:${spaces.avoid(光标)})+`, 'g');
