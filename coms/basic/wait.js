@@ -1,6 +1,8 @@
 var waiter = Symbol('wait');
 async function check(call, time = 80, step = +time >>> 8 | 20) {
+    var res;
     while (!(res = await call()) && time > 0) await new Promise(ok => call[waiter] = setTimeout(ok, step)), time -= step
+    return res;
 }
 async function cancelCheck() {
     clearTimeout(this[waiter][waiter]);
