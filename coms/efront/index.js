@@ -46,7 +46,8 @@ var setenv = function (evn, cover) {
     var dist = memery;
     for (var k in evn) {
         var k1 = k.toUpperCase();
-        if (cover !== false || dist[k1] === undefined) memery.set(k1, evn[k]);
+        var v = evn[k];
+        if (cover !== false || dist[k1] === undefined) memery.set(k1, v);
     }
 };
 var startServer = function () {
@@ -65,8 +66,9 @@ var startDevelopEnv = function () {
     memery.islive = true;
     require("../server/main");
 };
+var https_port_first = false;
 var setAppnameAndPorts = function (args) {
-    var appname = memery.APP, http_port, https_port;
+    var appname, http_port, https_port;
     for (var cx = 0, dx = args.length; cx < dx; cx++) {
         var arg = args[cx];
         if (isEmpty(arg)) continue;
@@ -77,7 +79,19 @@ var setAppnameAndPorts = function (args) {
             appname = arg;
         }
     }
-    if (!http_port && !https_port) http_port = memery.HTTP_PORT;
+    if (https_port_first) {
+        arg = http_port;
+        http_port = https_port;
+        https_port = arg;
+    }
+    if (!http_port && !https_port) {
+        if (https_port_first) https_port = memery.HTTPS_PORT;
+        else http_port = memery.HTTP_PORT;
+    }
+    if (appname === '.') {
+        memery.PUBLIC_PATH = memery.PAGE_PATH = process.cwd();
+    }
+    else if (!appname) appname = memery.APP || "";
     setenv({
         app: appname,
         http_port: http_port,
@@ -692,14 +706,13 @@ var commands = {
         startDevelopEnv(appname, http_port, https_port);
     },
 
-    live(http_port, https_port) {
+    live(http_port, https_port, app) {
         detectEnvironment().then(function () {
-            startDevelopEnv(memery.APP || "", http_port, https_port);
+            startDevelopEnv(app, http_port, https_port);
         }).catch(console.error);
     },
     "live."(http_port, https_port) {
-        memery.PAGE_PATH = process.cwd();
-        this.live(http_port, https_port);
+        this.live(http_port, https_port, '.');
     },
     cook() {
         setAppnameAndPorts(arguments);
@@ -811,7 +824,7 @@ var commands = {
         }
         var fullpath = process.cwd();
         var src = [fullpath];
-        memery.islive = memery.LIVEMODE !== false;
+        memery.islive = true;
         await detectEnvironment(",reptile,basic");
         var mixin = require("./mixin");
         if (memery.PAGE_PATH) {
@@ -1046,24 +1059,12 @@ var run = async function (type, value1, value2, value3) {
             case "tests":
             case "starts":
             case "starts.":
-                if (value2) {
-                    [value2 = memery.HTTPS_PORT, value1 = 0] = [value1, value2];
-                } else if (value1) {
-                    value2 = value1;
-                    value1 = 0;
-                } else {
-                    value2 = memery.HTTPS_PORT;
-                    value1 = 0;
-                }
-                argv = [type, value1, value2];
+                https_port_first = true;
             default:
                 type = helps[type].key;
                 if (type instanceof Array) {
                     help(type[0]);
                 } else {
-                    if (/^(live|cook)$/.test(type)) {
-                        if (!argv[1] && !argv[2]) argv[1] = memery.HTTP_PORT, argv[2] = 0;
-                    }
                     await commands[type].apply(commands, argv.slice(1));
                 }
         }
