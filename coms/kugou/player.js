@@ -226,14 +226,14 @@ var $scope = {
     draw(buf) {
         if (!player || !player.offsetHeight || !$scope.dance) return cast($scope.dance, { theta: $scope.quickTheta || 0 });
         buf = Array.prototype.map.call(buf, a => (a / 128.0 - 1) * 2 / 9 + 0.6);
-        var width = freePixel(player.offsetWidth);
-        var height = 72;
+        var width = player.offsetWidth;
         var ratio = 1 / width * buf.length;
         var buf = Array.prototype.map.call(buf, (y, i) => [i / buf.length, y]);
         var { sin, cos } = Math;
         var { currentTheta } = $scope;
         if (player.offsetHeight <= calcPixel(80)) {
             var avatar = player.querySelector(".avatar");
+            var height = avatar.offsetHeight;
             var { clientTop, clientWidth, offsetLeft } = avatar;
             var offsetWidth = clientWidth;
             offsetLeft += clientTop;
