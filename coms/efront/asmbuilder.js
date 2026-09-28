@@ -20,7 +20,7 @@ function clean() {
 }
 function enterqueue(name, type, row) {
     if (procsMap[name] || datas[name]) {
-        console.log(row)
+        console.warn(row)
         throw new Error(i18n`重复定义: ${name}`);
     }
     procsMap[name] = queue.length

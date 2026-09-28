@@ -102,7 +102,7 @@ class File {
                 data = inflateRawSync(data);
                 break;
             default:
-                console.log(this.name, this.method);
+                console.warn(this.name, this.method);
                 throw new Error(i18n`压缩算法不支持`);
         }
         var c32 = crc(data) >>> 0;

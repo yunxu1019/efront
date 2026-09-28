@@ -52,7 +52,7 @@ var api = function () {
     var url = baseUrl + uri;
     var req = function () {
         onstart && onstart();
-        prefix && console.log(i18n`正在` + prefix);
+        prefix && console.info(i18n`正在` + prefix);
         var clear = function () {
             req.ing = false;
             api.count--;
@@ -242,7 +242,7 @@ var api = function () {
             }
             runner = req;
             req();
-            console.log(i18n`队列有${api.inqueue}个请求`);
+            console.info(i18n`队列有${api.inqueue}个请求`);
         } else {
             if (req.ing) {
                 return;

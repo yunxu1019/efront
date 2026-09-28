@@ -34,9 +34,9 @@
 //     }
 // }, 9);
 // prefix = Object.keys(prefix).sort((a, b) => a - b).map(k => prefix[k]);
-// console.log(tree)
+// console.info(tree)
 // var prefix = [...];
-// console.log(prefix)
+// console.info(prefix)
 // for (var cx = 0, ci = 0, cs = prefix[0]; cx < prefix.length; cx++) {
 //     if (prefix[cx + 1] !== prefix[cx] + 1) {
 //         prefix.splice(ci + 1, cx - ci, prefix[cx] - prefix[ci]);
@@ -49,7 +49,7 @@
 //         ci = cx + 1;
 //     };
 // }
-// console.log(prefix)
+// console.info(prefix)
 
 var prefix = function (source) {
     var src = [];

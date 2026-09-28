@@ -84,7 +84,7 @@ await async function () {
     var interupt = function (e) {
         if (this == 'r' && !running) return;
         console.fail(this, currentIndex, currentTest + "\r\n");
-        console.log(currentText);
+        console.info(currentText);
         if (e) console.trace(e);
         process.exit();
     };
@@ -141,11 +141,11 @@ await async function () {
             running = false;
         } catch { de = null; }
         if (!text && de) {
-            console.log(de)
+            console.info(de)
             console.fail(ti, f);
             throw de;
         }
         console.pass(ti, path.relative(testpath, f));
     }, 1, null);
-    console.log(`\r\n完成 ${testFiles.length} 个测试项！`);
+    console.info(`\r\n完成 ${testFiles.length} 个测试项！`);
 }();

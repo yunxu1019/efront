@@ -44,7 +44,7 @@ var efronthook = `function (body, window) {
     xhr.onreadystatechange = function () {
         if (xhr.readyState === 4) {
             new Function(xhr.responseText).call(window);
-            console.log("%cefront%c live", 'color:#360', 'color:333');
+            console.info("%cefront%c live", 'color:#360', 'color:333');
         }
     };
     xhr.open('PURGE', 'comm/main');

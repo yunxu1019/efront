@@ -14,6 +14,5 @@ var exportCodes = function (commName) {
         });
         // var blob = new Blob([code], { type: "text/plain" });
         download(html, commName + ".html", "text/html");
-        console.log(html.length);
     });
 };

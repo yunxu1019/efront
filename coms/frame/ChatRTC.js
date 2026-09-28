@@ -34,7 +34,9 @@ class ChatRTC {
             var channel = event.channel;
             var label = channel.label;
             var waiter = this.waiters[label];
-            console.log('data-channel', channel, waiter);
+            // <!--
+            console.info('data-channel', channel, waiter);
+            // -->
             if (waiter) {
                 delete this.waiters[label];
                 waiter(channel);
@@ -44,7 +46,9 @@ class ChatRTC {
         };
         this.ready = new Promise((ok, oh) => {
             peerConnection.oniceconnectionstatechange = function () {
-                console.log('completed', this.iceConnectionState)
+                // <!--
+                console.info('completed', this.iceConnectionState)
+                // -->
                 if (this.iceConnectionState === 'completed') {
                     ok();
                 }
@@ -170,7 +174,6 @@ var stopTracks = function (localStream) {
     }
 }
 var oncandidate = function (event) {
-    console.log(event, 'icedidate');
     var candidate = event.candidate;
     if (!candidate) return this.emitDidate(null);
     var { sdpMid, candidate, sdpMLineIndex, usernameFragment } = candidate;

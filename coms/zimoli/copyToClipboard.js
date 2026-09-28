@@ -8,7 +8,11 @@ async function copyToClipboard(text, mime = 'text/plain') {
             await navigator.clipboard.write([clipboardItem]);
             alert(i18n`已复制`);
             return;
-        } catch (e) { console.log(e) };
+        } catch (e) {
+            // <!--
+            console.error(e)
+            // -->
+        };
     }
     var span = document.createElement('span');
     span.setAttribute('user-select', 'all');

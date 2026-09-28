@@ -214,7 +214,6 @@ var skipAssignment = function (o, cx) {
             }
             break;
         default:
-            // console.log(o);
             // throw new Error('代码结构异常！');
             next();
             break loop;

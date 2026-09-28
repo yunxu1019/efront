@@ -86,7 +86,9 @@
                     zimoli();
                 }
             } catch (e) {
-                console.log(e);
+                // <!--
+                console.error(e);
+                // -->
             }
             $scoped.get(this).pending = false;
         })

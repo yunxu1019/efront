@@ -614,8 +614,9 @@ var validApi = function (api, params) {
             });
         }
         if (lacks.length) {
-
-            console.log(i18n`跳过了缺少参数的请求:${api.id} ${api.name} ${api.url}\r\n缺少参数：${lacks.join(', ')}`);
+            //<!--
+            console.info(i18n`跳过了缺少参数的请求:${api.id} ${api.name} ${api.url}\r\n缺少参数：${lacks.join(', ')}`);
+            //-->
             return false;
         }
     }

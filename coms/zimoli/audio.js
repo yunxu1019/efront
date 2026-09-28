@@ -117,7 +117,6 @@ class Source {
         var context = new AudioContext;
         var audio = document.createElement("audio");
         this.gain = context.createGain();
-        console.log(this.gain);
         audio.src = cross.getCrossUrl(this.url);
         this.audio = audio;
         var source = context.createMediaElementSource(audio);

@@ -43,7 +43,7 @@ module.exports = async function (root) {
     } catch { }
     var log = function (k) {
         var key = k;
-        console.log();
+        console.line();
         if (!globals[key]) console.line(`<red2>${key}</red2><gray>:</gray> ${needs[k].map(a => `<gray>${path.dirname(a)}/</gray><gray>${path.basename(a)}</gray>`).join("<gray>|</gray>")}`);
         else console.line(`<white>${key}</white><gray>: ${needs[k].join('|')}</gray>`);
     };
@@ -81,7 +81,7 @@ module.exports = async function (root) {
         if (isFolder) {
             args.forEach(log);
         } else {
-            console.log();
+            console.line();
             console.line(args.map(a => {
                 var c = color(a);
                 var u = undeclares[a];

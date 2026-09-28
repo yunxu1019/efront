@@ -365,7 +365,7 @@ var createScoped = function (code) {
         var o = code[cx];
         if (o && (o.type & (SPACE | COMMENT) || o.type === STAMP && o.text === ';')) continue;
         if (!o.isprop) {
-            console.log(createString([o]), o.type, createString(code))
+            console.warn(createString([o]), o.type, createString(code))
             throw new Error(i18n`结构异常`);
         }
         var p = [], v = [];

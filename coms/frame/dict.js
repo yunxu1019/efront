@@ -12,7 +12,6 @@ function main(types, elem) {
             popup(editer);
             move.bindPosition(editer, [.5, .5]);
             on("changed")(editer, function () {
-                console.log(this.value, field)
                 data[field.key] = this.value;
             });
         }

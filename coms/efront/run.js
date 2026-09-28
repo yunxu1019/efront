@@ -86,7 +86,7 @@ function fromComponent(env, base) {
                                 result.args = [];
                             }
                         } catch (e) {
-                            console.log(url1, require.resolve)
+                            console.warn(url1, require.resolve)
                             onerror(url1);
                         }
                     }
@@ -225,7 +225,7 @@ module.exports = async function (mainpath, args) {
             mainLoaderPromise.then(function (loader) {
                 new Function(loader).call(window);
             }).catch(function (e) {
-                console.log(e, Date)
+                console.warn(e, Date)
                 console.error(i18n`启动失败`);
             });
         }

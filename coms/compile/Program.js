@@ -854,11 +854,11 @@ class Program {
 
             var start = entry_reg.lastIndex = index;
             var match = entry_reg.exec(text);
-            if (!match) throw console.log(text.charCodeAt(index), text.charAt(index), start, index, text.length), new Error('编译器内部异常');
+            if (!match) throw console.warn(text.charCodeAt(index), text.charAt(index), start, index, text.length), new Error('编译器内部异常');
             var end = match[0].length + match.index;
             index = end;
             var m = match[0];
-            if (!m) throw console.log(m, match.index), new Error('编译器内部异常，解析错误');
+            if (!m) throw console.warn(m, match.index), new Error('编译器内部异常，解析错误');
             if (cache_stamp && !stamp_reg.test(m)) push_stamp();
             var last = cache_stamp || queue.last;
 
@@ -1221,6 +1221,7 @@ class Program {
             }
         }
         setIon(origin.last, powermap);
+        origin.end = index;
         return origin;
     }
     commit() {

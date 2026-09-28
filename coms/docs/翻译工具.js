@@ -301,7 +301,9 @@ var detailScope = {
             });
             更新翻译数();
         } catch (e) {
-            console.log(e)
+            // <!--
+            console.error(e)
+            // -->
             // var e = JSON.parse(e.responseText).error;
             // if (error?.message) {
             //     alert(error.message, 'error');

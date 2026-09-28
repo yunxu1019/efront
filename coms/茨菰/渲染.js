@@ -3,7 +3,6 @@ var { SCOPED, QUOTED, SPACE, STAMP, STRAP, EXPRESS, PROPERTY } = compile$common;
 
 var rows = function (type, text) {
     if (typeof text !== 'string') {
-        console.log(text)
         return [];
     }
     type = String(type).toLowerCase();

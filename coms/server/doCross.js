@@ -97,7 +97,9 @@ async function cross(req, res, referer) {
         }
     }
     catch (e) {
-        console.log(e, $url)
+        // <!--
+        console.trace(e);
+        // -->
         res.writeHead(403, utf8error);
         return res.end(i18n[getHeader(req.headers, "accept-language")]`请求无效!`);
     }

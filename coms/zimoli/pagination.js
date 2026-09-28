@@ -25,7 +25,6 @@ function main(element) {
     });
     var pglist = page.querySelector('xlist');
     onmounted(page, function () {
-        console.log(pglist)
         pglist.XScrollBoxId = 1;
         pglist.go(0);
     });

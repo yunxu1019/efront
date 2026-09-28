@@ -473,7 +473,7 @@ var commands = {
                 stream.close();
             }
         });
-        console.log(i18n`完成：` + dist);
+        console.info(i18n`完成：` + dist);
     },
     request(address, quitable = false) {
         var opt = this.parse(address);
@@ -754,7 +754,7 @@ var commands = {
             }
             else {
                 console.info(i18n`当前可执行文件的扫描路有\r\n`);
-                console.log(plist.join("\r\n"));
+                console.info(plist.join("\r\n"));
             }
         }
         if (!pathname) {
@@ -796,7 +796,7 @@ var commands = {
     },
     pathxrm(pathname) {
         this.setxpath(pathname, true);
-        console.log(i18n`删除成功！`);
+        console.info(i18n`删除成功！`);
     },
     async password() {
         await new Promise(ok => setTimeout(ok, require("../basic/isProduction") ? 0 : 360));
@@ -966,10 +966,10 @@ var run = async function (type, value1, value2, value3) {
                     console.info(i18n`已设置如下 ${km.length} 个环境变量：\r\n\r\n`);
                     for (var k in mm) {
                         console.line("  ", `<green2>${k}</green2>`, "= ");
-                        console.log(mm[k]);
+                        console.line(mm[k]);
                     }
-                    console.log();
-                    console.log();
+                    console.line();
+                    console.line();
                 }
                 console.info(i18n`未修改过的默认变量如下：\r\n\r\n`);
                 var md = false;
@@ -978,9 +978,9 @@ var run = async function (type, value1, value2, value3) {
                     md = true;
                     mm[k] = true;
                     console.line("  ", `<white>${k}</white>`, "= ");
-                    console.log(memery.defaults[k]);
+                    console.info(memery.defaults[k]);
                 }
-                if (md) console.log(), console.log();
+                if (md) console.line(), console.line();
                 md = false;
                 for (var k in memery) {
                     if (k in mm) continue;
@@ -990,7 +990,7 @@ var run = async function (type, value1, value2, value3) {
                         console.info(i18n`其他环境变量如下：\r\n\r\n`)
                     }
                     console.line("  ", `<gray>${k}</gray>`, "= ");
-                    console.log(memery[k]);
+                    console.line(memery[k]);
                 }
                 break;
             case "from":
@@ -1111,7 +1111,7 @@ var quit = function (e) {
     if (quit.name === 'quit') {
         console.begin("red2");
         console.line(i18n` 错误 `);
-        console.log(e);
+        console.trace(e);
         console.end();
     } else {
         console.error(e);
@@ -1122,7 +1122,7 @@ var quit = function (e) {
 };
 process.on("exit", function () {
     if (!/win32/.test(process.platform)) {
-        console.log();
+        process.stdout.write("\r\n");
     }
 });
 process.on('uncaughtException', function (e) {

@@ -145,7 +145,7 @@ async function pullFileWithRTC(scope, file) {
     appendChild(span, msg);
     var tipbox = alert(span, false);
     var report = lazy(function () {
-        // <!-- console.log("接收端发送",writed); -->
+        // <!-- console.info("接收端发送",writed); -->
         msg.innerText = ` (${size(file.size, 2)}\\${size(writed, 2)})`;
         var a = new Uint8Array(16);
         var high = writed / 0x100000000 | 0;
@@ -161,24 +161,24 @@ async function pullFileWithRTC(scope, file) {
         channel.send(a);
     }, -60);
     channel.onopen = async function () {
-        // <!-- console.log('接收端打开') -->
+        // <!-- console.info('接收端打开') -->
         report();
     };
     channel.onclose = async function () {
-        // <!-- console.log('接收端关闭') -->
+        // <!-- console.info('接收端关闭') -->
         if (writed === file.size) tipbox.setText(`接收完成`, 'success');
         else tipbox.setText('接收异常', "error");
         await writable.close();
     };
     channel.onerror = function (event) {
-        // <!-- console.log('接收端异常',event) -->
+        // <!-- console.info('接收端异常',event) -->
     };
     var offer = await rtc.initOffer();
     scope.send('accept', { file: file.id, channel: pullid, offer })
     channel.onmessage = async function (event) {
         var buff = new Uint8Array(event.data);
         writed += buff.length;
-        // <!-- console.log('接收端收到', writed, file.size); -->
+        // <!-- console.info('接收端收到', writed, file.size); -->
         await writable.write(buff);
         report();
     }
@@ -203,7 +203,7 @@ async function pushFileWithRTC(scope, file, msg) {
         if (!opened) opened = true;
         var [low, high] = new Uint32Array(event.data);
         reported = high * 0x100000000 + low;
-        // <!-- console.log('发送端收到', size(writed), size(reported)); -->
+        // <!-- console.info('发送端收到', size(writed), size(reported)); -->
         if (reported < writed) return;
         var readed1 = readed;
         readed = reader.read();
@@ -213,21 +213,21 @@ async function pushFileWithRTC(scope, file, msg) {
             remote.close();
             return;
         }
-        // <!-- console.log("发送",size(value.length)); -->
+        // <!-- console.info("发送",size(value.length)); -->
         writed += value.length;
         for (var cx = 0, dx = value.length; cx < dx;) {
             remote.send(value.slice(cx, cx += sizeLimit));
         }
     }
     remote.onclose = function () {
-        // <!-- console.log("发送端关闭") -->
+        // <!-- console.info("发送端关闭") -->
     }
     remote.onerror = function (event) {
-        // <!-- console.log("发送端异常",event) -->
+        // <!-- console.info("发送端异常",event) -->
     }
     var opened = false;
     remote.onopen = async function () {
-        // <!-- console.log("发送端打开") -->
+        // <!-- console.info("发送端打开") -->
         opened = true;
     };
     if (remote.readyState === 'open') {

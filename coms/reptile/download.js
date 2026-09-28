@@ -9,7 +9,6 @@ function download(urls, folder) {
         return new Promise(function (ok, oh) {
             fs.writeFile(path.join(folder, urls.name), data, function (error) {
                 if (error) return oh(error);
-                console.log(urls.href, urls.name);
                 return ok();
             });
         })

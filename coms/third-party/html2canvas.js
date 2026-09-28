@@ -7047,4 +7047,3 @@ var renderElement = function (element, opts) {
         });
     });
 };
-console.log(html2canvas);

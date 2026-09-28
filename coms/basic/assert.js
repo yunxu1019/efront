@@ -26,7 +26,7 @@ if (!format) format = a => a, clog = function () {
         }
         else args.push(a);
     }
-    console.log(...args);
+    console.info(...args);
 };
 
 

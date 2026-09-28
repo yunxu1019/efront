@@ -25,7 +25,7 @@ module.exports = async function (root, find) {
                 await find(data, fullpath);
             }
         } catch (e) {
-            //<!--console.log(e)-->
+            //<!--console.trace(e)-->
             console.error(i18n`读取出错了，路径:`, fullpath);
         }
     }
