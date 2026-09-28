@@ -370,7 +370,7 @@ function toComponent(responseTree, isWebProject) {
     var saveOnlyGlobal = function (globalName) {
         var data = globalName;
         var isGlobal = data in globals;
-        if (!/^['"]/.test(data) && !(data in safeGlobals)) {
+        if (!/^['"]/.test(data) && !(data in compile$safeGlobals)) {
             data = `typeof ${data}!=="undefined"?${data}:void 0`;
         }
         switch (globalName) {
@@ -586,7 +586,7 @@ function toComponent(responseTree, isWebProject) {
     }`: `function (){ return function (i, a) { return a in T[i] ? T[i][a] : T[i](a) } }`};` : ""}
     else R = function (Q, A) {${outsideAsync ? `
         var C = [];` : ''}
-        if (!(~c + E | ~c + M)) return s[c][0];
+        if (!(~c + E && ~c + M)) return s[c][0];
         var r = s[${getEncodedIndex(`/${freg.source}/`, 'regexp') - 1}], I, g = [], i, k = a[m] - 1, f = a[k], l = r[e](f);
         for (i = 0; i < k; i++) g[i] = ${responseTree.module || responseTree.exports
             ? `a[i] === M ? (I = I || {}, I[B] = Q, I) : a[i] === E ? (I = I || {}, I[B] = Q) : ${destMap["\\import"] ? `a[i] === ${destMap["\\import"]}?T[a[i]]()(A):` : ""}`
