@@ -37,4 +37,3 @@ crc.table = T;
 crc.init = function (sign) {
     table(sign, T);
 };
-module.exports = crc;
