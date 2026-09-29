@@ -397,7 +397,9 @@ File.prototype.update = async function () {
             }
         } catch (e) {
             buffer = e;
-            console.warn(e);
+            // <!--
+            console.trace(e);
+            // -->
             console.error(i18n`编译错误:`, that.pathname);
         }
     }

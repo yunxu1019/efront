@@ -15,7 +15,9 @@ var reportError = function (error) {
             alertError('无法发现指定的硬件设备。');
             break;
         default:
+            // <!--
             console.warn(error);
+            // -->
             alertError(`[${error.code}:${error.name}] 无法打开设备。`);
             break;
     }

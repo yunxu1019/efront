@@ -49,7 +49,9 @@ var objectEqual = function (o1, o2, deep) {
     try {
         if (deep === 0 && o1.toString instanceof Function && o2.toString instanceof Function && !o1.join && !o2.join) return o1.toString() === o2.toString();
     } catch (e) {
-        console.warn(e);
+        // <!--
+        console.trace(e);
+        // -->
     }
     return true;
 };

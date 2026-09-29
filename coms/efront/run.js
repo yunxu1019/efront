@@ -225,7 +225,7 @@ module.exports = async function (mainpath, args) {
             mainLoaderPromise.then(function (loader) {
                 new Function(loader).call(window);
             }).catch(function (e) {
-                console.warn(e, Date)
+                console.trace(e);
                 console.error(i18n`启动失败`);
             });
         }
