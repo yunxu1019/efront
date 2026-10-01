@@ -103,7 +103,7 @@ var isRealpath = function (pathname) {
         run();
     });
 };
-var linesEnabled = 1;
+var linesEnabled = 2;
 
 async function compile(buildInfo) {
     var { last_build_time: lastBuildTime, dest_root: destroot } = setting;

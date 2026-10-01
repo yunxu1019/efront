@@ -57,12 +57,12 @@ var lonejsbuilder = async function (data, filename, fullpath, watchurls) {
     info.data = res;
     info.time = res.time;
     responseTree[info.url] = info;
-    var infos = build.getNexts(res);
-
+    var loaded = Object.create(null);
+    var infos = await build.getNexts(info, responseTree, loaded);
     time = +time;
     while (infos.length) {
         infos.forEach(a => a.builder = lonebuilder);
-        infos = await build(infos, responseTree);
+        infos = await build(infos, responseTree, loaded);
     }
     for (var k in responseTree) {
         var r = responseTree[k];

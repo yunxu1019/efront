@@ -96,7 +96,6 @@ class WaterRipple {
         // 交互索引 old_index, new_index
         this.old_index = this.new_index;
         this.new_index = temp;
-        // console.log(this.old_index,this.new_index)
         var i = 0;
         // 设置像素索引和振幅索引
         this.map_index = this.old_index;

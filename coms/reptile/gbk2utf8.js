@@ -47,7 +47,7 @@ while (points.length) {
 //         saved = end;
 //     }
 // }
-// console.log(map2.join());
+// console.info(map2.join());
 // fs.writeFileSync("bb.txt",map.join(""));
 
 module.exports = function gbk2utf8(buff) {

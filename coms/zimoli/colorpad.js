@@ -234,7 +234,6 @@ function main(e) {
         val.style.color = a > .6 ? color.pair(lc) : "#000";
         elem.value = value;
         dispatch(elem, 'change');
-        // console.log(value, hex.value, valuergb, valuehsl);
     };
     var trim = function (a) {
         if (a < 0) a = 0;

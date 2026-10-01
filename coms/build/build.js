@@ -19,7 +19,7 @@ var filter = function (r) {
     }
     return false;
 };
-async function collectDeps(r, ignormap, responseTree) {
+async function collectDeps(r, responseTree, ignormap) {
     if (!r.data) return;
     var { required = [], refered, imported } = r;
     if (!imported) return;
@@ -112,7 +112,7 @@ async function build(infos, responseTree, ignoreMap = Object.create(null)) {
     infos.forEach(storeToTree, responseTree);
     var rest = [];
     for (var r of infos) {
-        var nexts = await collectDeps(r, ignoreMap, responseTree);
+        var nexts = await collectDeps(r, responseTree, ignoreMap);
         if (nexts) for (var n of nexts) {
             if (!n) continue;
             rest.push(n);

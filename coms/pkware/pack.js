@@ -79,7 +79,6 @@ function tohuff(buff, result = [], type_limit) {
     });
     var size = getIndexFromOrderedArray(b, 1, (m, n) => a[m] >= n, false);
     if (a[b[size]] > 0) size++;
-    if (size + 1 > b.length) console.log(a.slice(420), buff.filter(a => a > 512), b.slice(420))
 
     var c = new Uint32Array(b.buffer, 0, size + 1).map(_ => a[_]);
     c = createHuffman(c);

@@ -44,7 +44,6 @@ var chessmen_cells = "車馬相仕帥仕相馬車砲砲兵兵兵兵兵卒卒卒�
                     step_count = -step_count;
                     delta_step = -delta_step;
                 }
-                console.log(current_cell, cell)
 
                 if (cell.chessman === null) {
                     // 移棋
@@ -77,7 +76,6 @@ var chessmen_cells = "車馬相仕帥仕相馬車砲砲兵兵兵兵兵卒卒卒�
                     }
                 } else {
                     // ...
-                    console.log(cell.chessman);
                 }
                 uncheck();
             } else {
