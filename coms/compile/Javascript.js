@@ -455,8 +455,10 @@ var removeQuote = function (o, c, i) {
     if (c.next) c.next.prev = cf;
 }
 var mindpath = '', requote;
+var broken;
 Javascript.prototype.detour = function (body, ie) {
     context = this;
+    broken = body.broken >>> 0;
     requote = body.requote;
     var envs = rootenvs = Object.create(null);
     ricode = require("../basic/strings").ricode;
@@ -466,6 +468,7 @@ Javascript.prototype.detour = function (body, ie) {
         body.used[k] = envs[k];
         envs[k] = body.envs[k] = true;
     }
+    if (broken) body.broken = broken;
     mindpath = '';
     rootenvs = null;
     context = null;
@@ -518,6 +521,7 @@ function detour(o, ie) {
             case STAMP:
                 if (o.text === "?.") {
                     o = detourNullishSeek(o, ie);
+                    broken++;
                     continue;
                 }
                 else if (o.text === '.') {
@@ -525,6 +529,7 @@ function detour(o, ie) {
                     remove(o);
                     if (n.type === EXPRESS) {
                         n.text = `[${recode(n.text)}]`;
+                        broken++;
                     }
                     o = n;
                     continue;
@@ -533,6 +538,7 @@ function detour(o, ie) {
             case EXPRESS:
                 if (/^\?\./.test(o.text)) {
                     o = detourNullishSeek(o, ie);
+                    broken++;
                     continue;
                 }
                 var text = o.text.replace(/^\.\.\./, '');
@@ -570,6 +576,7 @@ function detour(o, ie) {
                 break;
             case QUOTED:
                 if (o.length) {
+                    broken++;
                     if (!o.prev || o.prev.type & (STAMP | STRAP)) {
                         o.type = SCOPED;
                         var noemit = o.noemit;
@@ -637,6 +644,7 @@ function detour(o, ie) {
                 else {
                     if (/^`/.test(o.text)) {
                         o.text = o.text.replace(/^`|`$/g, '');
+                        broken++;
                         var template = detourTemplate([o], []);
                         o.type = SCOPED;
                         o.entry = "(";
@@ -665,6 +673,7 @@ function detour(o, ie) {
                         else text = recode(o.text);
                         collectProperty(o, o.text);
                     }
+                    broken++;
                     if (text) {
                         if (o.short) {
                             unshort(o, text);
@@ -692,6 +701,7 @@ function detour(o, ie) {
                     else if (!o.next || o.next.type !== STAMP || o.next.text !== "=") {
                         insertAfter(o, { text: "=", type: STAMP }, { text: "undefined", type: VALUE, isExpress: true });
                     }
+                    broken++;
                 }
                 break;
         }

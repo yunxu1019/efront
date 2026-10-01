@@ -404,7 +404,7 @@ var doOptions = async function (req, res, type) {
             }
             break;
         case "clear":
-            doGet.reset();
+            await message.send("unload");
             res.write(i18n[getHeader(req.headers, "accept-language")]`清理完成`);
             break;
         case "recert":
@@ -705,18 +705,24 @@ var requestListener = async function (req, res) {
     }
     if (/^\/\:/.test(url)) {
         var option = url.slice(2);
+        var type = /^(\w+)(?:[\-\/\!]([\/\!\'\(\)\-\.\w]*))?(?:[\?\:\+\*]([\s\S]*))?$/.exec(option);
         if (option === version) res.setHeader("Powered-By", version);
         else if (!/^(?:\:\:1?|(?:\:\:ffff\:)?127\.0\.0\.1)$/i.test(remoteAddress)) {
         }
-        else switch (option) {
+        else switch (type[1]) {
             case "quit":
             case "exit":
                 let ports = portedServersList.filter(a => a && a.listening).map(a => a.address().port);
                 message.send('quit');
                 res.end(i18n[getHeader(headers, "accept-language")]`已关闭${ports.join("、")}端口`);
                 return;
+            case "unload":
+                message.send('unload', encode62.timedecode(type[2]));
+                break;
+            case "ipcend":
+                message.send('ipcend', encode62.timedecode(type[2]));
+                break;
         }
-        var type = /^(\w+)(?:[\-\/\!]([\/\!\'\(\)\-\.\w]*))?(?:[\?\:\+\*]([\s\S]*))?$/.exec(option);
         if (type) return doOptions(req, res, type).catch(function (e) {
             res.writeHead(403);
             res.end(String(e));
@@ -1113,6 +1119,9 @@ var getCertList = async function () {
     }
     return certlist;
 }
+message.unload = async function () {
+    doGet.reset();
+};
 message.reloadCert = async function () {
     var certlist = await getCertList();
     createCertedServer(certlist);

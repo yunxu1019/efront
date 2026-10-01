@@ -22,11 +22,9 @@ function reportMissing(responseTree) {
     var typedColors = Object.create(null);
     var allDependence = Object.create(null);
     for (var k in responseTree) {
-        let dependence = responseTree[k].dependence;
-        if (!dependence) continue;
-
-        dependence.forEach(saveDeleted);
-        var requiredMap = dependence.requiredMap;
+        let { imported, requiredMap } = responseTree[k];
+        if (!imported) continue;
+        imported.forEach(saveDeleted);
         for (var r in requiredMap) {
             saveDeleted(r);
             if (requiredMap[r] !== r) saveDeleted(requiredMap[r]);
@@ -39,12 +37,12 @@ function reportMissing(responseTree) {
                 if (globals[t]) typedColors[p][globals[t]] = true;
             }
         }
-        allDependence[p] = dependence;
+        allDependence[p] = imported;
     }
     var missingMap = Object.create(null);
     var missingMap2 = Object.create(null);
     for (var k in deletedMap) {
-        if (k in safeGlobals) continue;
+        if (k in compile$safeGlobals) continue;
         if (!memery.POLYFILL && k in globals) continue;
         for (var p of deletedMap[k]) {
             var typeofs = typeofMap[p];

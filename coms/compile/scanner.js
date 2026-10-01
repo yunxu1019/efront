@@ -22,9 +22,9 @@ function test(test, count) {
 //         // var t2=test(function(){
 //         //     "\r\n\u2028\u2029".indexOf(" ");
 //         // },10000000);//700+
-//         // console.log(t1,t2);
+//         // console.info(t1,t2);
 //     }();
-// console.log(single_quote_scanner.call("''", 0))
+// console.info(single_quote_scanner.call("''", 0))
 
 
 
@@ -40,7 +40,7 @@ function test(test, count) {
 // var t2 = test(function () {
 //     single_quote_scanner2.call(string,0)
 // }, count);//1202+
-// console.log(t1, t2);
+// console.info(t1, t2);
 function single_quote_scanner(index) {
     var reg = /\\[\s\S]|'/g;
     reg.lastIndex = index + 1;
@@ -76,7 +76,7 @@ function single_quote_scanner2(index) {
 // var t2 = test(function () {
 //     double_quote_scanner2.call(string,0)
 // }, count);//1128+
-// console.log(t1, t2);
+// console.info(t1, t2);
 function double_quote_scanner(index) {
     var reg = /\\[\s\S]|"/g;
     reg.lastIndex = index + 1;
@@ -112,7 +112,7 @@ function double_quote_scanner2(index) {
 // var t2 = test(function () {
 //     regexp_quote_scanner2.call(string,0)
 // }, count);//1200+
-// console.log(t1, t2);
+// console.info(t1, t2);
 function regexp_quote_scanner(index) {
     var reg = /\\[\s\S]|\[(\\[\s\S]|[^\]])+\]|\/[\w]*/g;
     reg.lastIndex = index + 1;
@@ -146,7 +146,7 @@ function regexp_quote_scanner2(index) {
 // var t2 = test(function () {
 //     template_quote_scanner2.call(string, 0)
 // }, count); //2500+
-// console.log(t1, t2);
+// console.info(t1, t2);
 
 function template_quote_scanner(index, blocks) {
     index++;
@@ -198,7 +198,7 @@ function template_quote_scanner2(index, blocks) {
 // var t2 = test(function () {
 //     multi_comment_scanner2.call(string, 0);
 // }, count); //266+
-// console.log(t1, t2);
+// console.info(t1, t2);
 function multi_comment_scanner(index) {
     var reg = /\*\//g;
     reg.lastIndex = index + 1;
@@ -232,7 +232,7 @@ function multi_comment_scanner2(index) {
 // var t2 = test(function () {
 //     single_comment_scanner2.call(string, 0);
 // }, count); //3340+
-// console.log(t1, t2);
+// console.info(t1, t2);
 function single_comment_scanner(index) {
     var reg = /[\r\n\u2028\u2029]/g;
     reg.lastIndex = index + 1;
@@ -292,7 +292,7 @@ function single_comment_scanner2(index) {
 // var t2 = test(function () {
 //     single_comment_scanner2.call(string, 0);
 // }, count); //3354+
-// console.log(t1, t2);
+// console.info(t1, t2);
 function block_code_scanner(index, blocks = [], keepdeep = Infinity) {
     var save = (blocks instanceof Array) ? function (scanner, children) {
         if (deep < keepdeep && saved_index < index) {
@@ -634,9 +634,9 @@ var scanner = module.exports = function (s, keepdeep) {
     // for (var i = 0; i < 1000; i++) {
     //     block_code_scanner.call(s, 0, blocks);
     // }//angular 1.5.3 x1000 7.0s
-    // console.log(+new Date - time);
+    // console.info(+new Date - time);
     block_code_scanner.call(s, 0, blocks, keepdeep);
-    // console.log(blocks.map(a => s.slice(a.start, a.end)).join())
+    // console.info(blocks.map(a => s.slice(a.start, a.end)).join())
     return blocks;
 };
 scanner.autoskip = function (code, start) {

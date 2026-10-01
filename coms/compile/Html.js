@@ -56,7 +56,9 @@ var fixElement = function (o) {
             else o1.text = text;
         }
     }
-
+    fixAttributes(o);
+}
+var fixAttributes = function (o) {
     if (!o.attributes) return;
     var attributes = [];
     var needValue = false;
@@ -118,7 +120,8 @@ var fixElement = function (o) {
     });
     relink(attributes);
     o.attributes = attributes;
-}
+};
+
 
 class Html extends Javascript {
     // value_reg = ignore;
@@ -175,6 +178,7 @@ var decode = strings.decode;
 var decode2 = function (s) {
     return decode(s, true);
 }
+
 Html.prototype.createScoped = function (code) {
     progExp.mindpath = this.mindpath;
     var used = Object.create(null);
@@ -201,6 +205,7 @@ Html.prototype.createScoped = function (code) {
                     vars = _vars;
                 }
                 else {
+                    fixAttributes(c);
                     if (c.tagName === 'SCRIPT') {
                         scriptNodes.push(c);
                         tempNodes.push(c);
@@ -212,8 +217,6 @@ Html.prototype.createScoped = function (code) {
                         c.isStyle = true;
                     }
                 }
-
-
                 break;
             case PROPERTY:
                 if (c.next && c.next.type === STAMP && c.next.text === '=') {
@@ -301,8 +304,14 @@ Html.prototype.createScoped = function (code) {
     scoped.scripts = scripts;
     scoped.styles = styles;
     var rootNodes = code.filter(a => !/^(script|style)$/i.test(a.tagName) && !(a.type & (SPACE | COMMENT)));
+    var rootInner;
     if (rootNodes.length === 1 && rootNodes[0].type === ELEMENT) {
-        scoped.outerHTML = this.createString(rootNodes);
+        Object.defineProperty(scoped, 'outerHTML', {
+            get() {
+                if (scoped._outerHTML) return scoped._outerHTML;
+                return scoped._outerHTML = common.createString(rootNodes);
+            }
+        })
         var root = rootNodes[0];
         scoped.tagName = root.tagName;
         var attrs = rootNodes[0].attributes;
@@ -322,11 +331,17 @@ Html.prototype.createScoped = function (code) {
             }
         }
         scoped.attributes = attributes;
-        scoped.innerHTML = this.createString(rootNodes[0]);
+        rootInner = rootNodes[0];
     }
     else {
-        scoped.innerHTML = this.createString(rootNodes);
+        rootInner = rootNodes;
     }
+    Object.defineProperty(scoped, 'innerHTML', {
+        get() {
+            if (scoped._innerHTML) return scoped._innerHTML;
+            return scoped._innerHTML = common.createString(rootInner);
+        }
+    })
     scoped.envs = envs;
     scoped.vars = vars;
     scoped.used = used;

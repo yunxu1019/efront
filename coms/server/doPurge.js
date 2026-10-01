@@ -1,5 +1,5 @@
 "use strict";
-var finalpacker = efront$finalpacker;
+var livepacker = efront$livepacker;
 var getRequestEnv = require("./getRequestEnv");
 var handle = Object.create(null);
 
@@ -19,7 +19,7 @@ module.exports = async function (req, res) {
         var memery = require("../efront/memery");
         if (!memery.MSIE) {
             memery.MSIE = true;
-            finalpacker.reset();
+            livepacker.reset();
         }
     }
     var env = await getRequestEnv(req);
@@ -28,7 +28,7 @@ module.exports = async function (req, res) {
         res.end(i18n[getHeader(req.headers, "accept-language")]`未没找到匹配的资源：${url}`);
     };
     if (env.APP) url = url.replace(new RegExp("^\\/" + env.APP + "\\/"), "/");
-    finalpacker.call(env, url, async function (result, type) {
+    livepacker.call(env, url, async function (result, type) {
         if (result instanceof Array) {
             req.args = result;
             result = result.pop();

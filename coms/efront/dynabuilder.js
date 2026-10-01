@@ -1,5 +1,6 @@
 var path = require('path');
 var memery = require("./memery");
+var htmlbuilder = lonebuilder.html;
 var dynareg = /<script[^>]*>\s*\<\!\-\-[\s\S]*?\-\-\!?\>\s*\<\/script\>|\<([%\?]|script)(?:(?<=%)|(?:(?<=[\?])(?:php|jsp|asp))|(?<=\<script)[^\>]*?serverside[^\>]*\>)([\s\S]*?)(?:\<\/(?=script)\1\>|\1\>)/gi;
 var seekreg = new RegExp(`^\\s*(?:\\=\\s*|return\\s+|)[^\\d\\s${punkreg.source.slice(1)}[^\\s${punkreg.source.slice(1)}*\\s*$`);
 var commparse = commbuilder.parse;
@@ -30,7 +31,8 @@ var globals = Object.assign(Object.create(null), prebuilds, {
     __filename: '',
     __dirname: ''
 });
-async function dynabuilder(buff, fileurl, filepath) {
+async function dynabuilder(buff, fileurl, filepath, watchurls) {
+    buff = await htmlbuilder.apply(this, arguments);
     var that = this;
     var time = +new Date;
     var imported = [];
@@ -71,7 +73,7 @@ async function dynabuilder(buff, fileurl, filepath) {
         data1 = splited.join('');
     }
     data = Buffer.from(data1);
-    data.time = new Date - time;
+    data.time = new Date - time + (watchurls.time || 0);
     data.imported = imported;
     data.required = required;
     return data;

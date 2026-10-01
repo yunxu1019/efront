@@ -19,6 +19,7 @@ var equal_reg = /^(?:[\+\-\*\/~\^&\|%]|\*\*|>>>?|<<)?\=$|^(?:\+\+|\-\-)$/;
 var needhead_reg = /^\?|^\.(?:[^\.]|$)|^\[/;
 var needfoot_reg = /(\:\:|\.)$/;
 import * as  strings from "../basic/strings.js";
+import * as safeGlobals from "./safeGlobals.js";
 var skipAssignment = function (o, cx) {
     if (!o) return;
     var next = arguments.length === 1 ? function () {
@@ -563,6 +564,7 @@ var createScoped = function (parsed, wash) {
     var used = Object.create(null); var vars = Object.create(null), lets = vars;
     var scoped = [], funcbody = scoped, argscope = scoped, thisscope = scoped, labelused = used;
     funcbody.isroot = true;
+    var hasYield = false;
     Object.defineProperty(scoped, 'body', { value: parsed, enumerable: false, configurable: true });
     scoped.isfunc = true;
     var dec = function (map, o) {
@@ -625,6 +627,7 @@ var createScoped = function (parsed, wash) {
                     switch (o.text) {
                         case "yield":
                             scoped.yield = false;
+                            hasYield = true;
                             break;
                         case "await":
                             scoped.await = false;
@@ -1020,13 +1023,15 @@ var createScoped = function (parsed, wash) {
     scoped.caps = used;
     for (var k in used) patchScoped(used[k], scoped);
     var envs = Object.create(null);
-    for (var u in used) {
-        if (!(u in vars)) {
-            if (!/^(this|arguments)$/.test(u)) envs[u] = true;
+    for (var k in used) {
+        if (!(k in vars)) {
+            if (/^(this|arguments)$/.test(k)) continue;
+            envs[k] = true;
         }
     }
     if (vars.yield) scoped.yield = false;
     if (vars.await) scoped.await = false;
+    scoped.hasYield = hasYield;
     y: if (scoped.yield !== false && envs.yield) {
         for (var s of scoped) if (s.isfunc && s.envs.yield) break y;
         for (var s of used.yield) if (s.kind || s.isprop || hasEqual(s)) break y;
@@ -1054,6 +1059,71 @@ var createScoped = function (parsed, wash) {
     scoped.envs = envs;
     return scoped;
 };
+var getlones = function (code) {
+    var { used, envs } = code;
+    var lones = Object.create(null);
+    loop: for (var k in envs) {
+        var u = used[k];
+        if (k in safeGlobals && u.length === 1) {
+            lones[k] = true;
+            continue;
+        }
+        if (u.length <= 2) {
+            var [o, o2] = u;
+            var p = o.prev;
+            if (p && p.type === STRAP && p.text === "typeof") {
+                if (!o2) {
+                    lones[k] = true;
+                    continue;
+                }
+            }
+            else continue loop;
+            var tmp = [];
+            for (var i = 0; i < 10; i++) {
+                o = o.next;
+                if (o === o2) {
+                    switch (tmp.join('')) {
+                        case "==void0?void0:":
+                        case "!=void0?":
+                        case "!=void0&&":
+                            lones[k] = true;
+                    }
+                    continue loop;
+                }
+                switch (o.type) {
+                    case QUOTED:
+                        if (o.text.length !== 11 || strings.decode(o.text) !== 'undefined') continue loop;
+                        tmp.push('void0');
+                        break;
+                    case STAMP:
+                        var text = o.text;
+                        if (text.length == 3 && /==$/.test(text)) tmp.push(text.slice(0, 2));
+                        else tmp.push(text);
+                        break;
+                    case EXPRESS:
+                        if (o.text !== 'undefined') continue loop;
+                        tmp.push('void0');
+                        break;
+                    case STRAP:
+                        switch (o.text) {
+                            case "undefined":
+                                tmp.push("void0");
+                                break;
+                            case "void":
+                                tmp.push('void');
+                                break;
+                            default: continue loop;
+                        }
+                    case VALUE:
+                        tmp.push("0");
+                        break;
+                    default: continue loop
+                }
+            }
+        }
+    }
+    return lones;
+}
 var hasEqual = function (s) {
     while (s) {
         if (s.equal) return true;
@@ -1202,7 +1272,7 @@ var getDeclared = function (o, kind, queue) {
                 o = getnext(f);
                 break;
             default:
-                console.log(createString(pickSentence(o.queue)), o.text, o.type);
+                console.warn(createString(pickSentence(o.queue)), o.text, o.type);
                 throw new Error(i18n`代码结构异常`);
         }
         if (!o) break;
@@ -1364,6 +1434,7 @@ var link = function (list, p, n) {
 var relink = function (list) {
     return link(list, null, null);
 };
+
 var rehead = function (list) {
     for (var cx = 0, dx = list.length; cx < dx; cx++) {
         var o = list[cx];
@@ -1869,7 +1940,7 @@ var insertBefore = function () {
     var [o] = arguments;
     var queue = this || o.queue;
     var index = queue.indexOf(o);
-    if (index < 0) throw console.log(createString(pickArgument(queue)), createString([o])), new Error('节点不在队列中');
+    if (index < 0) throw console.warn(createString(pickArgument(queue)), createString([o])), new Error('节点不在队列中');
     var os = [].slice.call(arguments, 1);
     queue.splice.apply(queue, [index, 0].concat(os));
     var prev = o && getprev(o), next = o;
@@ -2073,6 +2144,7 @@ export {
     remove,
     createString,
     createScoped,
+    getlones,
     createExpressList,
     snapSentenceHead,
     pickArgument,

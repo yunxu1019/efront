@@ -6,14 +6,7 @@ var deflate = require("zlib").deflateSync;
 function getUInt32BE(integer) {
     return [integer >>> 24, integer >>> 16 & 0xff, integer >>> 8 & 0xff, integer & 0xff];
 }
-// -function getUInt32BE_test(integer){
-//     var buf=Buffer.alloc(4);
-//     buf.writeInt32BE(0x01020304);
-//     console.log(buf,Buffer.from(getUInt32BE(0x01020304)));
-//     var type=parseType("IHDR");
-//     buf.writeInt32BE(0x49484452)
-//     console.log(buf,Buffer.from(type));
-// }();
+
 function parseType(type) {
     return [type.charCodeAt(0), type.charCodeAt(1), type.charCodeAt(2), type.charCodeAt(3)];
 }

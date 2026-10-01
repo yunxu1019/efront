@@ -28,7 +28,7 @@ var replace = function (dir, deep) {
         if (/(["'`])user? strict\1/i.test(code)) {
 
             var data = code.replace(/^(?:\s*(["'`])user? strict\1\s*;?\s*[\r\n]*)+/i, "\"use strict\";\r\n");
-            if (code !== data) fs.writeFileSync(dir, data), console.log(dir);
+            if (code !== data) fs.writeFileSync(dir, data), console.info(dir);
         }
     }
 }

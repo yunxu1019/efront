@@ -210,7 +210,7 @@ function unpack(buff) {
                         mode = decodeLEB128(res)[0];
                         break;
                     default:
-                        console.log(type1);
+                        console.warn(type1);
                         throw new Error(i18n`编码异常！`);
                 }
                 break;

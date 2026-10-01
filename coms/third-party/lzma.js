@@ -206,7 +206,7 @@ var fcall = function (func, input, outLength) {
             setUint32LE(result, input.length);
             result.set(HEAP8.subarray(outOffset, outOffset + ret), 4);
         }
-        if (ret < 0) throw console.log(ret), new Error("编码错误！");
+        if (ret < 0) throw console.warn(ret), new Error("编码错误！");
         return result;
     }
     var ret = func(...cArgs);

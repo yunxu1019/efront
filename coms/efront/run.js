@@ -18,7 +18,7 @@ var mainLoaderPromise = new Promise(function (ok, oh) {
 });
 var loadedmap = Object.create(null);
 function fromComponent(env, base) {
-    var packer = require("./finalpacker").bind(env);
+    var packer = require("./livepacker").bind(env);
     var pathname = this.location.pathname;
     var resolve_options = Object.assign({}, resolve_config, { paths: [pathname].concat(resolve_config.paths) });
     var requestInternet = fromInternet("");

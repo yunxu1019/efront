@@ -24,7 +24,7 @@ var replace = function (dir, deep) {
         var buffer = fs.readFileSync(dir);
         var data = String(buffer).replace(/\r\n|\r|\n|\u2028|\u2029/g, "\r\n");
         fs.writeFileSync(dir, data);
-        console.log(dir);
+        console.info(dir);
     }
 }
 replace("./", 5);

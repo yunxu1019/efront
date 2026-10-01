@@ -59,6 +59,6 @@ Promise.all([
             shell: true
         });
     } else {
-        console.log("无需重新编译");
+        console.info("无需重新编译\r\n");
     }
-}).catch(console.log);
+}).catch(console.trace);

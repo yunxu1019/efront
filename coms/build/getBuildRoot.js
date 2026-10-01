@@ -5,12 +5,9 @@ var path = require("path");
 var isLib = require("../efront/isLib");
 var libs_root = isLib.libs_root;
 var getPathIn = require("./getPathIn");
-var memery = require("../efront/memery");
 var {
     comms_root,
     pages_root,
-    PAGE_PATH,
-    aapis_root,
     ignore_path,
 } = require("./environment");
 var erroredFiles = Object.create(null);
@@ -29,112 +26,115 @@ var getScriptsUrlInHtmlFile = function (fileinfo) {
         while (base.length) url.push(base.pop());
         return url.reverse().join('/');
     };
-    return Promise.all(
-        [].concat(fileinfo.fullpath).map(function (fullpath) {
-            return new Promise(function (ok, oh) {
-                fullpath = path.resolve(fullpath);
-                fs.readFile(fullpath, function (error, data) {
-                    if (error) return ok([]);
-                    var result = [], ignorelist = [], workerlist = [];
-                    String(data).replace(/<script\s[^\>]*?\bsrc\=('.+?'|".+?"|.+?)[\s|\>]/ig, function (_, url) {
-                        if (/ignoreoncompile|efrontworker/i.test(_)) {
-                            ignorelist.push(result.length);
-                        }
-                        result.push(url.replace(/^(['"])(.+?)\1$/g, "$2"));
-                    });
-                    var res = result.map(url => url.replace(/\?[\s\S]*?$/, "").replace(/\\/g, "/")).map(burl);
-                    res.ignore = ignorelist;
-                    var bodyTag = /<body\s[^\>]*?\>/i.exec(data);
-                    if (bodyTag) {
-                        var mainPath = '';
-                        bodyTag[0].replace(/(?:main|main\-path|main)\=(['"]|)([^\"\']+)\1/i, function (m, q, c) {
-                            mainPath = c;
-                        });
-                        if (mainPath) {
-                            res.main = mainPath;
-                        }
-                    }
-                    ok(res);
-                });
+    return new Promise(function (ok, oh) {
+        var realpath = fileinfo.realpath;
+        fs.readFile(realpath, function (error, data) {
+            if (error) return ok([]);
+            var result = [], ignorelist = [];
+            String(data).replace(/<!--[\s\S]*?-->/g, '').replace(/<script\s[^\>]*?\bsrc\=('.+?'|".+?"|.+?)[\s|\>]/ig, function (_, url) {
+                if (/ignoreoncompile|efrontworker/i.test(_)) {
+                    ignorelist.push(result.length);
+                }
+                result.push(url.replace(/^(['"])(.+?)\1$/g, "$2"));
             });
-        })
-    );
-};
-var filterHtmlImportedJs = function (roots) {
-    var promises = roots.filter(function (url) {
-        return /\.(xht|html?|jsp|asp|php)$/i.test(url);
-    }).map(getBuildInfo).filter(a => !!a).map(getScriptsUrlInHtmlFile);
-    return Promise.all(promises).then(function (datas) {
-        var urls = [].concat.apply([], datas);
-        var mainPaths = urls.filter(d => !!d.main).map(d => d.main);
-        var ignoreJsMap = {};
-        urls.forEach(a => {
-            if (a.ignore) {
-                a.ignore.forEach(b => {
-                    ignoreJsMap[a[b]] = true;
+            var res = result.map(url => url.replace(/\?[\s\S]*?$/, "").replace(/\\/g, "/")).map(burl);
+            res.ignore = ignorelist;
+            var bodyTag = /<body\s[^\>]*?\>/i.exec(data);
+            if (bodyTag) {
+                var mainPath = '';
+                bodyTag[0].replace(/(?:main|main\-path|main)\=(['"]|)([^\"\']+)\1/i, function (m, q, c) {
+                    mainPath = c;
                 });
-            }
-        })
-        urls = [].concat.apply([], urls);
-        var simpleJsMap = {};
-        var regUrls = [], ignoreUrls = [];
-        urls.forEach(function (url) {
-            simpleJsMap[url] = true;
-            try {
-                var regsource = new RegExp(url.replace(/[\.\/\^\$\:]/g, "\\$&").replace(/\*/g, ".*?")).source;
-                if (ignoreJsMap[url]) {
-                    ignoreUrls.push(regsource);
-                } else {
-                    regUrls.push(regsource);
+                if (mainPath) {
+                    res.main = BuildInfo.fromPage(mainPath, path.join(realpath, '..', mainPath));
                 }
-            } catch (e) { }
-        });
-        var creatReg = urls => new RegExp(`^(?:${urls.join("|")})$`, "i");
-        var urlsReg = creatReg(regUrls);
-        var ignoreReg = creatReg(ignoreUrls);
-        var test = (r, m, t) => t in m || t.slice(1) in m || r.test(t) || r.test(t.slice(1));
-        roots = roots.map(function (root) {
-            if (test(ignoreReg, ignoreJsMap, root)) {
-                return '';
             }
-            var found = test(urlsReg, simpleJsMap, root);
+            ok(res);
+        });
+    });
+};
+var filterHtmlImportedJs = async function (infos) {
+    var promises = infos.filter(function ({ url }) {
+        return /\.(xht|html?|jsp|asp|php)$/i.test(url);
+    }).map(getScriptsUrlInHtmlFile);
+    var datas = await Promise.all(promises);
+    var urls = [].concat.apply([], datas);
+    var mainPaths = urls.filter(d => !!d.main).map(d => d.main);
+    var ignoreJsMap = {};
+    urls.forEach(a => {
+        if (a.ignore) {
+            a.ignore.forEach(b => {
+                ignoreJsMap[a[b]] = true;
+            });
+        }
+    })
+    urls = [].concat.apply([], urls);
+    var simpleJsMap = {};
+    var regUrls = [], ignoreUrls = [];
+    urls.forEach(function (url) {
+        simpleJsMap[url] = true;
+        try {
+            var regsource = new RegExp(url.replace(/[\.\/\^\$\:]/g, "\\$&").replace(/\*/g, ".*?")).source;
+            if (ignoreJsMap[url]) {
+                ignoreUrls.push(regsource);
+            } else {
+                regUrls.push(regsource);
+            }
+        } catch (e) { }
+    });
+    var creatReg = urls => new RegExp(`^(?:${urls.join("|")})$`, "i");
+    var urlsReg = creatReg(regUrls);
+    var ignoreReg = creatReg(ignoreUrls);
+    var test = (r, m, t) => t in m || t.slice(1) in m || r.test(t) || r.test(t.slice(1));
+    var founed = new Set;
+    infos = infos.map(function (info) {
+        var { url, realpath, destpath } = info;
+        if (test(ignoreReg, ignoreJsMap, url)) {// 忽略文件，目标代码中不出现
+            return;
+        }
+        var found = test(urlsReg, simpleJsMap, url);
+        if (found) {
+            var info = BuildInfo.fromLone(url, realpath);
+            founed.add(info);
+            return info;
+        }
+        if (/^\/.*?\.js$/i.test(url)) {
+            for (var fpath of [url, destpath, realpath]) {
+                if (fpath in simpleJsMap || urlsReg.test(fpath)) {
+                    found = true;
+                    break;
+                }
+            }
             if (found) {
-                return "*" + root.slice(1);
-            }
-            if (/^\/.*?\.js$/i.test(root)) {
-                var buildinfo = getBuildInfo(root);
-                for (var fpath of [buildinfo.url, buildinfo.destpath].concat(buildinfo.fullpath)) {
-                    if (fpath in simpleJsMap || urlsReg.test(fpath)) {
-                        found = true;
-                        break;
-                    }
-                }
-                if (found) return "*" + path.relative(PAGE_PATH.split(",")[0], fpath).replace(/[\\\/]+/g, "/");
-            }
-            return root;
-        }).filter(a => !!a);
-        var urlsMap = {};
-        mainPaths = mainPaths.map(m => m.replace(/\.[^\.]*$/i, "") + ".js");
-        roots = roots.concat(mainPaths).filter(name => {
-            name = String(name).replace(/\.[mc]?[jt]sx?$/i, "") + ".js";
-            var keep = !urlsMap[name];
-            if (keep) urlsMap[name] = true;
-            return keep;
-        });
-        for (let cx = roots.length; cx >= 0; cx--) {
-            let url = roots[cx];
-            if (!/^\*/.test(url) && /\.html?$/i.test(url) && url.replace(/\.html?$/i, ".js") in urlsMap) {
-                roots.splice(cx, 1);
+                info = BuildInfo.fromLone(url, realpath);
+                founed.add(info);
+                return info;
+
             }
         }
-        return roots;
+        return info;
+    }).filter(a => !!a);
+    var urlsMap = Object.create(null);
+    infos = infos.concat(mainPaths).filter(({ url }) => {
+        url = url.replace(/\.[cm][tj]sx?$/i, '.js');
+        var keep = !urlsMap[url];
+        if (keep) urlsMap[url] = true;
+        return keep;
     });
+    infos = infos.filter(info => {
+        if (founed.has(info)) return true;
+        var { url } = info;
+        if (/\.html?$/i.test(url) && url.replace(/\.html?$/i, ".js") in urlsMap) return false;
+        return true;
+    });
+    return infos;
 };
 function paddExtension(file) {
     var parents = [""].concat(/^\.*[\/\\]/.test(file) ? pages_root.concat(comms_root, libs_root) : comms_root.concat(pages_root, libs_root));
     return detectWithExtension(file, comexts, parents);
 }
-var commap = getBuildInfo.commap["?"];
+var fromFile = BuildInfo.fromFile;
+var fromFolder = BuildInfo.fromFolder;
 var getBuildRoot = async function (files, matchFileOnly) {
     files = [].concat(files || []);
     if (!files.length) return files;
@@ -145,48 +145,11 @@ var getBuildRoot = async function (files, matchFileOnly) {
         if (!(f in indexMap)) {
             result.push(f);
         }
-        indexMap[f] = indexMap[file1];
+        indexMap[f.url] = indexMap[file1];
     };
-    var saveComm = function (rel, file) {
-        if (!memery.MODULES && isLib(file)) {
-            saveLlib(rel);
-            return;
-        }
-        var name = String(rel)
-            .replace(/[\\\/]+/g, "$");
-        save(name);
-    };
-    var savePage = function (rel) {
-        var name = String(rel).replace(/[\\\/]+/g, "/");
-        save("/" + name);
-    };
-    var saveCopy = function (rel) {
-        var name = "*" + String(rel).replace(/[\\\/]+/g, "/");
-        save(name);
-    };
-    var saveLlib = function (rel) {
-        var name = "\\" + String(rel).replace(/[\\\/]+/g, "/");
-        save(name);
-    };
-    var saveAapi = function (rel) {
-        var name = "-" + String(rel).replace(/[\\\/]+/g, "/");
-        save(name);
-    };
-    var saveFolder = function (folder) {
-        var rel = getPathIn(comms_root, folder);
-        if (rel) {
-            saveComm(rel, folder);
-            return true;
-        }
-        var rel = getPathIn(pages_root, folder);
-        if (rel) {
-            savePage(rel);
-            return true;
-        }
-        return false;
-    };
+    files.reverse();
     while (files.length) {
-        var file = files.shift();
+        var file = files.pop();
         if (!file) continue;
         var file1 = file;
         if (file in indexMap) {
@@ -197,33 +160,9 @@ var getBuildRoot = async function (files, matchFileOnly) {
             var stat = await fsp.stat(file);
             if (stat.isFile()) {
                 if (/\.less$/i.test(file)) continue;
-                if (file in commap) {
-                    saveComm(commap[file], file);
-                    continue;
-                }
-                var rel = getPathIn(aapis_root, file);
+                var rel = fromFile(file);
                 if (rel) {
-                    saveAapi(rel, file);
-                    continue;
-                }
-                var rel = getPathIn(comms_root, file);
-                if (rel) {
-                    saveComm(rel, file);
-                    continue;
-                }
-                var rel = getPathIn(pages_root, file);
-                if (rel) {
-                    savePage(rel);
-                    continue;
-                }
-                var rel = getPathIn(PAGE_PATH.split(","), file);
-                if (rel) {
-                    saveCopy(rel);
-                    continue;
-                }
-                if (/\.png$/i.test(file)) {
-                    var name = path.parse(file).base.replace(/[\\\/]+/g, "/");
-                    save("." + name);
+                    save(rel);
                     continue;
                 }
                 if (!erroredFiles[file]) console.warn(`<gray>${file}</gray>`, "已跳过");
@@ -231,19 +170,21 @@ var getBuildRoot = async function (files, matchFileOnly) {
             }
             else if (matchFileOnly) {
                 var f = path.join(file, 'package.json');
-
                 if (fs.existsSync(f)) {
                     var data = await fsp.readFile(f);
                     var d = JSON.parse(
                         String(data)
                     );
                     var f = path.join(file, d.main || 'index');
-                    await paddExtension(f);
-                    saveFolder(file);
+                    f = await paddExtension(f);
+                    var rel = fromFolder(file, f);
                 } else {
                     f = path.join(file, 'index');
-                    await paddExtension(f);
-                    saveFolder(file);
+                    f = await paddExtension(f);
+                    rel = fromFolder(file, f);
+                }
+                if (rel) {
+                    save(rel);
                 }
             }
             else {
@@ -258,11 +199,11 @@ var getBuildRoot = async function (files, matchFileOnly) {
                 });
             }
         } catch (e) {
-            if (erroredFiles[file1]) return;
+            if (erroredFiles[file1]) break;
             if (/^\w+$/.test(file1)) {
                 try {
                     require.resolve(file1);
-                    return;
+                    break;
                 } catch { }
             }
             erroredFiles[file1] = true;
@@ -271,14 +212,13 @@ var getBuildRoot = async function (files, matchFileOnly) {
         }
     }
     var result = await filterHtmlImportedJs(result);
-    var res = [];
     if (matchFileOnly) {
+        var res = [];
         result.forEach(function (a) {
-            return res[indexMap[a]] = a;
+            return res[indexMap[a.url]] = a;
         });
-    } else {
-        res = result;
+        result = res;
     }
-    return res;
+    return result;
 };
 module.exports = getBuildRoot;

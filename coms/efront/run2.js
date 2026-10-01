@@ -1,13 +1,8 @@
 "use strict";
 var fs = require("fs");
 var fsp = fs.promises;
-var os = require("os");
-var path = require("path");
-var parseURL = require("../basic/parseURL");
-var userAgent = "Efront/1.0";
 var memery = require("./memery");
 var mixin = require("./mixin");
-var commbuilder = require('./commbuilder');
 var getPathIn = require("../build/getPathIn");
 var searchList = mixin(memery.COMS_PATH).map(a => a[0]).filter(fs.existsSync);
 module.exports = async function (mainpath, args) {

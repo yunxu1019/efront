@@ -175,7 +175,7 @@
         var code = compile$scanner2(xhr.response);
         code.fix();
         envs = code.envs;
-        if (props.less) envs.cless = true;
+        if (props.less) envs["&style"] = true;
         required = [];
         if (envs.require) code.used.require.forEach(r => {
             var next = r.next;
@@ -227,7 +227,7 @@
             if (lessdata) {
                 lessdata = compile$素馨(lessdata, "." + cssWrap);
                 if (code.isExpressQueue()) {
-                    jstext = `return cless(${jstext},\`${lessdata}\`,"${cssWrap}")`;
+                    jstext = `return &style(${jstext},\`${lessdata}\`,"${cssWrap}")`;
                 }
                 else {
                     var entryName;
@@ -235,7 +235,7 @@
                     else if (vars.Main) entryName = 'Main';
                     else if (vars.MAIN) entryName = "MAIN";
                     else if (vars[commName]) entryName = commName;
-                    if (entryName) jstext += `\r\nreturn cless(${entryName},\`${lessdata}\`,"${cssWrap}")`;
+                    if (entryName) jstext += `\r\nreturn &style(${entryName},\`${lessdata}\`,"${cssWrap}")`;
                 }
             }
             else {
@@ -282,6 +282,7 @@
                     if (isProduction) throw i18n`这个文件的内容不能在线运行`;
                 }
             }
+            if (envs["&style"]) code.revar();
             var argNames = Object.keys(envs);
             var args = await Promise.all(argNames.map(a => init(a + "*" + live, null, {
                 ["init*" + live]: init,

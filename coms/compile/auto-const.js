@@ -92,36 +92,37 @@ var setEnvDefinedConsts = function (used, k, v) {
 var setMapDefinedConsts = function (used, k, consts) {
     var u = used[k];
     if (!u) return;
-    for (var o of u) {
+    used[k] = u.filter(o => {
         var exp = pickAssignment(o);
         var e = exp[exp.length - 1];
-        if (!isSimpleEqual(exp, o)) continue;
+        if (!isSimpleEqual(exp, o)) return true;
         if (e !== o) {
-            if (e.prev !== o) continue;
-            if (o.text !== k) continue;
+            if (e.prev !== o) return true;
+            if (o.text !== k) return true;
             var t = null;
             switch (e.type) {
-                default: continue;
+                default: return true;
                 case EXPRESS:
                     t = e.text;
                     t = t.replace(/^\./, '');
-                    if (/[\.\[]/.test(t)) continue;
+                    if (/[\.\[]/.test(t)) return true;
                     break;
                 case SCOPED:
-                    if (e.entry !== "[" || e.first !== e.last) continue;
+                    if (e.entry !== "[" || e.first !== e.last) return true;
                     var t = getOnlyString(e);
                     break;
             }
-            if (!t || !(t in consts)) continue;
+            if (!t || !(t in consts)) return true;
             var c = consts[t];
             o.type = c[0];
             o.text = c[1];
             if (c[2]) o.isdigit = true;
             remove(e);
-            continue;
+            return o.type !== EXPRESS;
         }
         set1Equal(exp, consts, used);
-    }
+        return o.type !== EXPRESS;
+    })
 };
 var getMaped = require("./getMaped");
 var maped = Object.create(null);
@@ -288,12 +289,22 @@ var autoConst = function (code, fullpath, ignoreImported) {
         var consts = loadConsts(p, this);
         if (!consts) {
             var s = simples[p];
-            if (s) setEnvDefinedConsts(used, k, s);
+            if (s) {
+                setEnvDefinedConsts(used, k, s);
+                delete used[k];
+                delete envs[k];
+            }
             continue;
         }
-        setMapDefinedConsts(used, k, consts)
+        setMapDefinedConsts(used, k, consts);
     }
     if (propable) autoprop.addKeepBody(code);
+    for (var k in envs) {
+        if (!used[k] || !used[k].length) {
+            delete envs[k];
+            delete used[k];
+        }
+    }
     return code;
 };
 autoConst.loadConsts = loadConsts;

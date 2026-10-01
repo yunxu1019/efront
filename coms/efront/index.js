@@ -365,13 +365,13 @@ var commands = {
                     var codecolor = require('../茨菰/标签化');
                     suggests.map(s => {
                         if (s.suggest) {
-                            console.log(console.format(`<yellow>${fullpath}:${s[0].row}:${s[0].col}</yellow>`));
+                            console.line(console.format(`<yellow>${fullpath}:${s[0].row}:${s[0].col}</yellow>\r\n`));
                             s.envs = c.envs;
                             codecolor(s, colors.wrap, c.envs);
-                            console.log(" ", i18n`建议`, createString(s));
+                            console.line(" ", i18n`建议`, createString(s));
                             var suggest = scanner2(s.suggest);
                             codecolor(suggest, colors.wrap, c.envs);
-                            console.log(" ", i18n`改为`, createString(suggest));
+                            console.line(" ", i18n`改为`, createString(suggest));
                         }
                     });
                 }
@@ -648,7 +648,7 @@ var commands = {
             var reg = new RegExp(names.join("|"));
             if (folders.indexOf("_envs") < 0) {
                 if (folders.filter(a => reg.test(a)).length < 2) {
-                    console.log(folders)
+                    console.info(folders)
                     throw new Error(i18n`请在空目录或efront目录执行创建操作!`);
                 }
             }

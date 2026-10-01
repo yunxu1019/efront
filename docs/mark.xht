@@ -125,7 +125,6 @@
                 if (/\.md$/i.test(href)) {
                     href = md.replace(/[^\/]+$/, "") + href;
                     href = decodeURI(href);
-                    console.log(href)
                     go('/mark/' + href);
                 }
                 else {

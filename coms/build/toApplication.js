@@ -4,7 +4,6 @@ var path = require("path");
 var fs = require("fs");
 var report = require("./report");
 var setting = require("./setting");
-var getArgs = require('./getArgs');
 var strings = require("../basic/strings");
 var r21 = "'()*+,-./0123456789:;"
 var r29 = "?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[";
@@ -12,7 +11,6 @@ var r34 = "]^_`abcdefghijklmnopqrstuvwxyz{|}~";
 var memory = require("../efront/memery");
 var toComponent = require("./toComponent");
 var scanner2 = require("../compile/scanner2");
-var patchDependence = require("./getDependence");
 var { createString } = require('../compile/common');
 var codetemp = function (delta) {
     var temp = [];
@@ -123,9 +121,12 @@ var buildHtml = function (html, code, outsideMain, responseTree) {
     for (var k in cssDataMap) delete responseTree[k];
     cssDataMap = null;
     if (!iswebindex) [html, isZimoliDetected, poweredByComment] = checkIndex(html);
+    let efrontReloadVersionAttribute = "efront-reload-version";
     html = html
         .replace(/<title>(.*?)<\/title>/i, `<title>${memory.TITLE || "$1"}</title>`)
         .replace(/<script\b[\s\S]*?<\/script>(\s*)/ig, function (script, s) {
+            if (script.slice(8, efrontReloadVersionAttribute.length + 8) === efrontReloadVersionAttribute) return s;
+            if (/<script\scompiledinfo="[^"]+ with efront/.test(script)) return isZimoliDetected = true, s;
             a: if (!outsideMain && setting.is_file_target) {
                 var match = /\ssrc=(["']|)(.*?)\1/.exec(script);
                 if (!match) break a;
@@ -148,7 +149,6 @@ var buildHtml = function (html, code, outsideMain, responseTree) {
     if (memory.IN_WATCH_MODE) {
         let WATCH_PORT = memory.WATCH_PORT;
         let reloadVersion = memory.WATCH_PROJECT_VERSION;
-        let efrontReloadVersionAttribute = "efront-reload-version";
         html = html.replace(/(<\/head>)/i, (_, head) => `\r\n<script ${efrontReloadVersionAttribute}=${reloadVersion}>
         -function(){
             "use strict";
@@ -225,15 +225,14 @@ function toApplication(responseTree, mainScript) {
     if (!indexHtml) {
         var indexnames = memory.webindex;
         var htmlPath = path.join(__dirname, "../../apps", "_index.html");
-        indexHtml = {
+        indexHtml = new BuildInfo(...{
             time: 0,
-            needed: true,
             fullpath: htmlPath,
             data: fs.readFileSync(htmlPath),
             realpath: htmlPath,
             version: fs.statSync(htmlPath).mtime,
             destpath: path.join(indexnames[0]),
-        };
+        });
         htmls.push(indexHtml);
         responseTree["/" + indexnames[0]] = indexHtml;
     }
@@ -241,6 +240,7 @@ function toApplication(responseTree, mainScript) {
     if (mainScript) {
         var outsideMain = EXTRACT ? "main-" + mainScript.queryfix + ".js" : "";
         htmls.forEach(function (response) {
+            delete response.writed;
             response.data = buildHtml(response.data, mainScript.data, outsideMain, responseTree);
         });
         if (outsideMain) {
@@ -250,6 +250,21 @@ function toApplication(responseTree, mainScript) {
     }
     return responseTree;
 }
+var imageIndex = 0;
+var imagerep = function (e, k, destpath, responseTree) {
+    if (typeof e !== "string") return String(e);
+    return strings.encode(e.replace(/(["`']|)data(\.\w+)\:([\w\+\/\=,;\-\.]+)\1/gi, function (_, quote, ext, data) {
+        var match = /^([\w\-\.\/]+;base64)?,([\w\+\/\-\=]+)$/i.exec(data);
+        if (!match) return _;
+        do {
+            imageIndex++;
+            var name = k + "-" + imageIndex + ext;
+        } while (name in responseTree);
+        var dp = destpath.replace(/\.[\w]+$/, '') + '-' + imageIndex + ext;
+        responseTree[name] = { destpath: dp, type: '*', data: Buffer.from(match[2], "base64"), realpath: true, url: name };
+        return quote + dp.replace(/\\/g, '/') + quote;
+    }));
+};
 var rebuildData = function (responseTree) {
     var keys = Object.keys(responseTree).sort();
     var keysmap = Object.create(null);
@@ -287,48 +302,31 @@ var rebuildData = function (responseTree) {
             o.destpath = m[1] + k1 + m[2];
         }
     });
-
+    imageIndex = 0;
+    var quoted = compile$breakcode2.quoted;
+    Object.keys(quoted).forEach(function (k) {
+        quoted[k] = imagerep(quoted[k], "image", "image", responseTree);
+    });
     Object.keys(responseTree).forEach(function (k) {
-        var imageIndex = 0;
-        var rep = function (e) {
-            if (typeof e !== "string") return String(e);
-
-            return strings.encode(e.replace(/(["`']|)data(\.\w+)\:([\w\+\/\=,;\-\.]+)\1/gi, function (_, quote, ext, data) {
-                var match = /^([\w\-\.\/]+;base64)?,([\w\+\/\-\=]+)$/i.exec(data);
-                if (!match) return _;
-                do {
-                    imageIndex++;
-                    var name = k + "-" + imageIndex + ext;
-                } while (name in responseTree);
-                var destpath = response.destpath.replace(/\.[\w]+$/, '') + '-' + imageIndex + ext;
-                responseTree[name] = { destpath, type: '*', data: Buffer.from(match[2], "base64"), realpath: true, url: name };
-                return quote + destpath.replace(/\\/g, '/') + quote;
-            }));
-        };
         var response = responseTree[k];
+        if (response.writed) return;
         if (markIndex(k, response)) return;
         if (!isEfrontCode(response)) return;
-        var data = String(response.data);
-        var { argNames, args, required, dependenceNamesOffset, strs, strend } = getArgs(data);
-        if (strs && strs.length > 0) {
-            strs = `[${strs.map(rep)}]`;
-            var strslen = strs.length.toString(36);
-            data = response.data = data.slice(0, dependenceNamesOffset) + (strslen.length + 1 + strslen) + strs + data.slice(strend);
-        }
-        if (!dependenceNamesOffset) return;
-        if (args) args = args.map(a => {
+        imageIndex = 0;
+        var { imported, required, requiredMap, destpath, strkeeps } = response;
+        if (strkeeps) strkeeps.forEach(o => {
+            o.text = imagerep(o.text, k, destpath, responseTree);
+        });
+        response.imageid = imageIndex;
+        if (imported) response.imported = imported.map(a => {
             if (!(a in renmap)) return a;
             return renmap[a];
         });
-        var requiredMap = response.dependence.requiredMap;
-        if (required) required = required.split(";").map(a => {
+        if (required) response.required = required.map(a => {
             a = requiredMap[a] || a;
             if (a in renmap) a = renmap[a];
             return a;
-        }).join(";");
-        var argstr = args.concat(argNames, !required ? [] : required).join(",");
-        var arglen = argstr.length.toString(36);
-        response.data = arglen.length + 1 + arglen + argstr + data.slice(dependenceNamesOffset);
+        });
     });
 };
 var markIndex = function (key, r) {
@@ -343,8 +341,9 @@ var markIndex = function (key, r) {
 };
 var isEfrontCode = function (response) {
     if (!response) return;
-    if (/^[\*\\\+\-]|^\/.*?\.[^\\\/]+$/.test(response.name) || !response.data) return;
-    if (response.type === "*" || response.type === '+' || response.type === '-') return;
+    if (!response.data) return;
+    var type = response.type;
+    if (type !== "" && type !== '/') return;
     if (response.isindex) return;
     return true;
 };
@@ -361,24 +360,23 @@ var replaceTree = function (data, xTreeName, code) {
 
 var enstring = a => typeof a === 'string' ? strings.encode(a, "'") : String(a);
 var crstring = a => typeof a === 'string' ? strings.encode(a, '"') : String(a);
-var cacheData = function (data, name) {
-    var [argNames, functionBody, args, required, strs] = getArgs(data);
-    var [, isAsync, isYield] = /^(~?)(\*?)/.exec(functionBody);
-    if (isAsync || isYield) functionBody = functionBody.slice(+!!isAsync + +!!isYield);
-    var mod = `${isAsync ? 'async ' : ''}function${isYield ? '*' : ''}/*${name}*/(${argNames}){\r\n${functionBody}\r\n}`;
-    if (strs) strs = `[${strs.map(enstring)}]`;
-    if (required) required = `[${required.split(';').map(crstring)}]`;
-    if (args.indexOf('arriswise') < 0 && argNames.length > 0) argNames = ', []';
-    else argNames = '';
-    if (args) args = `[${args.map(crstring)}]`;
-    data = `[${mod}, ${args}, ${required}, ${strs}${argNames}]`;
-    if (scanner2(data).envs.fmat) console.log(name)
-    return data;
+var cacheData = function (response) {
+    var { imported, prequoted, required, params, name, isAsync, strkeys, isYield } = response;
+    var mod = `${isAsync ? 'async ' : ''}function${isYield ? '*' : ''}/*${name}*/(${params}){\r\n${prequoted}${String(response.data)}\r\n}`;
+    if (required) required = `[${required.map(crstring)}]`;
+    else required = '';
+    if (imported.indexOf('arriswise') < 0 && params.length > 0) params = ', []';
+    else params = '';
+    if (imported.indexOf('arriswise') >= 0 && strkeys) var strs = `, [${strkeys.join(',')}]`;
+    else strs = ", ";
+    if (imported) imported = `[${imported.map(crstring)}]`;
+    response = `[${mod}, ${imported}, ${required}, ${strs}${params}]`;
+    return response;
 };
 
 var patchData = function (mainScriptData, mainScript, responseTree) {
     var up = memory.EFRONTUP;
-    var limit = memory.EFRONTSUM;
+    var limit = memory.EFRONTSUM && 0;
     var versionTree = {};
     var cached = [];
     if (setting.is_file_target) {
@@ -404,7 +402,6 @@ var patchData = function (mainScriptData, mainScript, responseTree) {
         cached.push(k);
         return v.isrest;
     }).sort();
-
     if (cached.length) {
         var xTreeName = /(?:\bresponseTree\s*|\[\s*(["'])responseTree\1\s*\])\s*[\:\=]\s*(.+?)\b/m.exec(mainScriptData);
         if (xTreeName) xTreeName = xTreeName[2];
@@ -412,13 +409,16 @@ var patchData = function (mainScriptData, mainScript, responseTree) {
         var code = "{\r\n\t" + cached.sort().map(k => {
             var v = responseTree[k];
             if (!v.isrest) delete responseTree[k];
-            return `["${v.name}"]:${cacheData(String(v.data), v.name)}`;
+            return `["${v.name}"]:${cacheData(v)}`;
         }).join(",\r\n\t") + "\r\n}";
         mainScriptData = replaceTree(mainScriptData, xTreeName, code);
     }
     rests.forEach(function (k) {
         var v = responseTree[k];
-        v.data = encrypt(v.data, encoded);
+        if (!v.writed) {
+            var data = commbuilder.live(v.data);
+            v.data = encrypt(data, encoded);
+        }
         var responseVersion = crc.string(String(v.data)).toString(36) + (+v.data.length).toString(36);
         versionTree[v.name] = responseVersion;
     });
@@ -436,9 +436,11 @@ var patchData = function (mainScriptData, mainScript, responseTree) {
     return mainScriptData;
 };
 module.exports = async function (responseTree) {
+    responseTree = Object.assign(Object.create(null), responseTree);
     if (encoded) encoded = setting.version_mark;
-    rebuildData(responseTree);
     var mainScript = responseTree.main || responseTree["main.js"];
+    if (mainScript) delete responseTree[mainScript.url];
+    rebuildData(responseTree);
     var realmain = path.join(__dirname, "../zimoli/main.js");
     nomain: if (!mainScript || mainScript.realpath !== realmain) {
         for (var k in responseTree) {
@@ -463,12 +465,12 @@ module.exports = async function (responseTree) {
 
 
     commbuilder.loadonly = true;
-    var mainScriptData = await commbuilder(mainScript.data, "main.js", mainScript.realpath, []);
+    var maincode = scanner2(mainScriptData.toString(), mainScript.realpath, 'js');
+    await commbuilder.lonelyjs(maincode, mainScript.realpath, BuildInfo.commap, []);
     if (!memory.ENCRYPT) {
-        mainScriptData = scanner2(mainScriptData, mainScript.realpath);
-        mainScriptData.helpcode = true;
-        mainScriptData = mainScriptData.toString()
+        maincode.helpcode = true;
     }
+    mainScriptData = maincode.toString();
     commbuilder.loadonly = false;
     var missing = Object.keys(responseTree).filter(k => !responseTree[k].data);
     var versionVariableName;
@@ -496,14 +498,19 @@ module.exports = async function (responseTree) {
         .replace(/(['"`]|)efrontsign\1\s*\:\s*(['"`])\2/, `$1efrontsign$1:$2?${mainScript.queryfix}$2`)
         .replace(/decrypt(\.sign|\[(['"`])sign\1\])/, `parseInt("${encoded}",36)%128`);
     mainScriptData = patchData(mainScriptData, mainScript, responseTree);
-    commbuilder.compress = false;
     commbuilder.prepare = false;
     commbuilder.requote = false;
     mainScriptData = await commbuilder(mainScriptData, mainScript.url, mainScript.realpath, []);
     memory.EXPORT_AS = '';
     memory.EXPORT_TO = "this";
-    var maindata = { url: mainScript.url, destpath: mainScript.destpath, type: '', occurs: mainScriptData.occurs, time: mainScript.time, realpath: mainScript.realpath, data: mainScriptData };
-    patchDependence(maindata);
+    var maindata = new BuildInfo(...{
+        url: mainScript.url,
+        destpath: mainScript.destpath,
+        type: '',
+        time: mainScript.time,
+        realpath: mainScript.realpath,
+        data: mainScriptData,
+    });
     var newTree = Object.create(null);
     missing.forEach(k => newTree[k] = {});
     Object.assign(newTree, { main: maindata }, array_map ? { "[]map": {} } : {});

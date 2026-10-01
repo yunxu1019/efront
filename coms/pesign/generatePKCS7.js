@@ -252,7 +252,6 @@ async function generatePKCS7(fileHash, privateKey, cert) {
             )
         )
     );
-    // console.log(`生成 PKCS#7 DER 长度: ${SignedData.length} 字节`);
     // contentInfo.sign = signature;
     return SignedData;
 }

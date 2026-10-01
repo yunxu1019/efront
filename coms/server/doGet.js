@@ -18,7 +18,7 @@ Cache.mime = mime;
 var getfile = function (url, exts) {
     return filecache.seek(url, exts);
 };
-var filecache = new Cache(SERVER_ROOT_PATH, function (data, filename, fullpath) {
+var filecache = new Cache(SERVER_ROOT_PATH, async function (data, filename, fullpath, watchurls) {
     var origin_size = data.length;
     if (/\.css$/i.test(fullpath)) {
         if (memery.APP) {
@@ -31,10 +31,10 @@ var filecache = new Cache(SERVER_ROOT_PATH, function (data, filename, fullpath) 
             }));
         }
     }
-    if (memery.TRANSFER && /\.([mc]?[tj]sx?|html?|json|css|less)$/i.test(fullpath)) {
-        data = Buffer.from(transfer(data));
+    if (/\.([mc]?[tj]sx?|html?|json|css|less)$/i.test(fullpath)) {
+        if (memery.TRANSFER) data = Buffer.from(transfer(data));
     }
-    var data = filebuilder(data, filename, fullpath);
+    var data = await filebuilder.call(this, data, filename, fullpath, watchurls);
     if (data instanceof Function) {
         if (checkAccess(fullpath)) {
             throw i18n`请不要在共享路径中创建服务器脚本！`;

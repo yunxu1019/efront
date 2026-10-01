@@ -1,3 +1,4 @@
+var message = require('../message');
 var checkServerState = function (checkwith, version, reportdata) {
     return new Promise(function (ok, oh) {
         var v = "/:" + version;
@@ -7,8 +8,9 @@ var checkServerState = function (checkwith, version, reportdata) {
             protocol = +port === 443 ? "https" : 'http';
         }
         else protocol = protocol.replace(/\:$/, '');
+        var ishttps = /^https/.test(protocol);
         if (!port) {
-            port = /^https/.test(protocol) ? 443 : 80;
+            port = ishttps ? 443 : 80;
         }
         var http = require(protocol, '');
         var req = http.request({
@@ -23,6 +25,7 @@ var checkServerState = function (checkwith, version, reportdata) {
             if (reportdata) return ok();
             if (powered === version) {
                 ok(i18n`检查到${port}可以正常访问\r\n`);
+                message.send('ported', port << 1 | ishttps);
             } else {
                 oh(i18n`端口异常`);
             }

@@ -67,7 +67,7 @@ var loadwebcoms = async function () {
 
 var comsextt = [".js", ".mjs", ".ts"];
 
-var prepareFunction = function (pathname) {
+var prepareFunction = function (pathname, isfolder) {
     if (loadedModules[pathname]) return loadedModules[pathname];
     if (loadingTree[pathname]) return loadingTree[pathname];
     return loadingTree[pathname] = new Promise(async function (ok, oh) {
@@ -88,6 +88,7 @@ var prepareFunction = function (pathname) {
         fs.readFile(pathname, function (error, data) {
             if (error) return oh(error);
             var f = createFunction(data, pathname, pathname);
+            if (isfolder) f.isfolder = true;
             loadedModules[pathname] = f;
             delete loadingTree[pathname];
             f.prepare().then(function () {
@@ -97,8 +98,7 @@ var prepareFunction = function (pathname) {
     });
 };
 
-var createModule = function (required, pathmap, modname) {
-    if (typeof modname === "number") modname = required[modname];
+var createModule = function (pathmap, modname) {
     var prebuilds = this.prebuilds;
     if (prebuilds && hasOwnProperty.call(prebuilds, modname)) return prebuilds[modname];
     if (hasOwnProperty.call(pathmap, modname)) return require2(pathmap[modname]);
@@ -117,7 +117,7 @@ var createModule = function (required, pathmap, modname) {
     try {
         return require(modname);
     } catch {
-        console.error(i18n`加载${modname}失败，引用队列为：` + "\r\n  <red> " + invokingStack.slice().reverse().join(" </red>\r\n  <red> ") + " </red>\r\n");
+        console.error(i18n`加载${modname}失败，引用队列为：` + "\r\n   <red>" + invokingStack.slice().filter((_, i) => i & 1).map((a, i) => invokingStack[i << 1] + "</red><gray>" + a).reverse().join("</gray>\r\n   <red>") + "</red>\r\n");
     }
 };
 var rootmap = Object.create(null);
@@ -180,7 +180,7 @@ var prepareModule = function (dirname, required, prebuilds, pathmap, modname) {
                 }
                 if (!index) return;
                 fullpath = path.join(fullpath, index);
-                await prepareFunction(fullpath);
+                await prepareFunction(fullpath, true);
                 pathmap[modname] = rootmap[modname1] = fullpath;
             }
         });
@@ -196,20 +196,30 @@ var formatModname = function (n, c) {
     ns[ns.length - 1] = c + ns[ns.length - 1] + color.Reset;
     return ns.join("/");
 }
-var createNoCircle = function (required, pathmap, modname) {
-    var i = require_queue.indexOf(modname);
+var createNoCircle = function (required, pathmap, modname, index, arr) {
+    if (typeof modname === 'number') modname = required[modname];
+    if (!modname) throw console.warn(arguments), new Error('请传入函数名');
+    var modname1 = modname;
+    if (this.isfolder) {
+        modname1 += '/';
+    }
+    var arri = arr && arr.i;
+    if (arri) invokingStack.push(arri[index]);
+    var i = require_queue.indexOf(modname1);
     if (i >= 0) {
-        modname = formatModname(modname, color.FgRed);
-        console.warn(i18n`发现循环引用`, '\r\n  ', [modname].concat(require_queue.slice(i + 1).map(a => formatModname(a, color.FgYellow)), modname).join(' <= '));
+        modname1 = formatModname(modname1, color.FgRed);
+        console.warn(i18n`发现循环引用`, '\r\n  ', [modname1].concat(require_queue.slice(i + 1).map(a => formatModname(a, color.FgYellow)), modname1).join(' <= '));
         return;
     }
-    require_queue.push(modname);
-    var res = createModule.call(this, required, pathmap, modname);
+    require_queue.push(modname1);
+    var res = createModule.call(this, pathmap, modname);
     require_queue.pop();
+    if (arri) invokingStack.pop();
     return res;
 };
 var createFromParsed = function (parsed, pathname, prebuilds) {
-    var { params, imported, prequoted, data, required, isAsync, isYield } = parsed;
+    var { params, imported, prequoted, required, isAsync, isYield, requiredi, importedi } = parsed;
+    var data = parsed.toString();
     var func = vm.runInThisContext(`[${isAsync ? 'async ' : ""}function${isYield ? "*" : ""}(${params ? params.join(",") : ''}){${prequoted ? prequoted.map(a => a.text).join('') : ''}${data}}][0]`, {
         filename: pathname,
         breakOnSigint: true
@@ -220,6 +230,8 @@ var createFromParsed = function (parsed, pathname, prebuilds) {
     func.require.cache = required_cache;
     func.imported = imported;
     func.required = required;
+    func.requiredi = requiredi;
+    func.importedi = importedi;
     func.prebuilds = prebuilds;
     func.pathname = pathname;
     wrapPrepare(func);

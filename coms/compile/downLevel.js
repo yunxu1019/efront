@@ -8,7 +8,7 @@ var {
     snapExpressFoot, isEval, canbeTemp, rename, isHalfSentence, skipFunction, getDeclared, skipAssignment, skipSentenceQueue, createScoped, createString, splice, relink, rolink, pickSentence, snapExpressHead, needBreakBetween } = require("./common");
 var splice2 = function (q, from, to, ...a) {
     var cx = q.indexOf(from);
-    if (cx < 0) throw console.log(
+    if (cx < 0) throw console.warn(
         splice2.caller,
         `${mindpath}:${q.row}:${q.col}`,
         console.format(`\r\n<red2>${i18n`自`}</red2>`),
@@ -19,7 +19,7 @@ var splice2 = function (q, from, to, ...a) {
         createString(pickSentence(from))
     ), new Error(i18n`结构异常`);
     var dx = to ? q.indexOf(to, cx) : q.length;
-    if (dx < 0) throw console.log(
+    if (dx < 0) throw console.warn(
         splice2.caller,
         `${mindpath}:${q.row}:${q.col}`,
         console.format(`\r\n<yellow>${i18n`自`}</yellow>`),
@@ -87,12 +87,14 @@ var killdec = function (queue, i, getobjname, _var = 'var', killobj, islet) {
             if (iter) throw new Error(i18n`暂不支持在当前语境读取尾部非剩余元素`);
             dp = 1;
             k = `${tmpname}["length"]>${doged - k - 1}?${tmpname}[${tmpname}["length"] - ${-k}]:void 0`;
+            broken++;
         } else {
             if (rootenvs.Symbol && /\[\d+\]/.test(k) && iter) {
                 var inc = parseInt(k.slice(1, k.length - 1));
                 inc++;
                 while (iter.index < inc) iter.next();
                 k = iter.tname + `["value"]`;
+                broken++;
             }
             else if (/^[\[\.]/.test(k)) k = tmpname + k;
             else k = tmpname + "." + k;
@@ -185,16 +187,19 @@ var killdec = function (queue, i, getobjname, _var = 'var', killobj, islet) {
         iname = getobjname(deep++);
         tname = getobjname(deep);
         init() {
+            broken++;
             var init = scanner2(`${index++ > 0 ? ',' : ''}${this.iname}=(${tmpname}[Symbol["iterator"]]||Array["prototype"][Symbol["iterator"]])["call"](${tmpname}),${this.tname}=void 0`);
             splice(queue, i, 0, ...init);
             i += init.length;
         }
         return() {
+            broken++;
             var retn = scanner2(`${index++ > 0 ? "," : ''}${this.tname}=(!${this.tname}||!${this.tname}["done"])&&typeof ${this.iname}["return"]==="function"&&${this.iname}["return"]()`);
             splice(queue, i, 0, ...retn);
             i += retn.length;
         }
         next() {
+            broken++;
             var inext = scanner2(`${index++ > 0 ? "," : ""}${this.tname}=${this.iname}["next"]()`);
             splice(queue, i, 0, ...inext);
             i += inext.length;
@@ -615,6 +620,7 @@ var setprop = function (prop, k, d, q, tempname) {
             tmp = tmp[tmp.length - 1];
             tmp = tmp[tmp.length - 1];
             d[prop.name] = tmp;
+            broken++;
         }
         insert1(d[prop.name], null, ...rescan.keep`[${prop.get ? '"get"' : '"set"'}]=${pv},${tempname}`);
     }
@@ -657,9 +663,13 @@ var killcls = function (body, i, letname_, getname_, killobj) {
     if (o) {
         var next = o;
         while (next && !next.isClass) next = next.next;
-        base = createString(splice2(body, o, o = next));
+        base = createString(splice2(body, o, next));
+        o.type = COMMENT;
+        o = next;
     }
-    if (base === 'Array') base = patchMark + 'Array', rootenvs[patchMark + "Array"] = true;
+    if (base === 'Array' && rootenvs.Array) {
+        base = patchMark + 'Array', rootenvs[base] = true;
+    }
     var index = 0;
     while (o && o.isClass) {
         var scoped = o.scoped;
@@ -711,11 +721,13 @@ var killcls = function (body, i, letname_, getname_, killobj) {
                         insert1(assign, null, ...scanner2(`#["get"](this)${prop.name}=`), ...prop.value);
                     }
                 }
+                broken++;
                 continue;
             }
             var k = prop.static ? clz.name : `${clz.name}["prototype"]`;
             var d = prop.static ? static_ : define_;
             if (prop.get || prop.set || prop.static) {
+                if (!prop.static) broken++;
                 if (prop.name) {
                     setprop(prop, k, d, defines, tempname);
                 }
@@ -763,6 +775,7 @@ var killcls = function (body, i, letname_, getname_, killobj) {
                     var n = o.next;
                     if (!n || n.type !== SCOPED || n.entry !== "(") return;
                     o.text = base + '["call"]';
+                    broken++;
                     if (!inited) {
                         insert1(o.queue, skipAssignment(o), ...assign);
                     }
@@ -778,9 +791,10 @@ var killcls = function (body, i, letname_, getname_, killobj) {
                     if (!/^super(\.|\[|$)/.test(o.text)) return;
                     o.text = `${base}["prototype"]` + o.text.replace(/^super/, '');
                     insert1(o.queue, o.next, ...scanner2('["bind"](this)'));
+                    broken++;
                 })
             }
-            if (!inited) constructor[1].unshift(...scanner2(`\r\nvar ${newt}=${base}["apply"](this,arguments)||this;\r\n`), ...assign);
+            if (!inited) constructor[1].unshift(...scanner2(`\r\nvar ${newt}=${base}["apply"](this,arguments)||this;\r\n`), ...assign), broken++;
         }
         else {
             constructor[1].unshift(...assign);
@@ -864,6 +878,7 @@ var killspr = function (body, i, _getobjname, killobj) {
     }
     if (!m) return i + 1;
     var c = scanner2('["concat"]()');
+    broken++;
     if (o.entry === '(') {
         var r = snapExpressHead(o);
         if (r.type === STRAP && r.text === "new") {
@@ -948,6 +963,7 @@ var killspr = function (body, i, _getobjname, killobj) {
             }
         }
         splice(body, i++, 0, ...scanner2('["apply"]'));
+        broken++;
         var m1 = skipAssignment(m);
         if (index > 0 || m1 && m1.next) {
             var h = splice(o, 2, o.length - 2);
@@ -1153,6 +1169,7 @@ var killobj = function (body, getobjname, getletname, getname_, letname_, deep =
                 var varname = o.hidden;
                 o.text = o.text.slice(varname.length);
                 insert1(body, o, ...scanner2(`#["get"](${varname})`));
+                broken++;
                 i = body.indexOf(o, i);
             }
         }
@@ -1250,6 +1267,7 @@ var unforin = function (o, getnewname_, killobj) {
     insert1(s, null,
         ...scanner2(`,${tname}=[];for(${hasdeclare ? 'var ' : ''}${hasdeclare ? f.text : kname} in ${sname})${tname}["push"](${hasdeclare ? f.text : kname});`)
     );
+    broken++;
     insert1(o.queue, o.prev, ...s);
     splice(o, 0, o.length, ...scanner2(`${kname}=0;${kname}<${tname}["length"]&&`));
     var c = scanner2(`(=${tname}[${kname}],true);${kname}++`);
@@ -1310,6 +1328,7 @@ var unforof = function (o, getnewname, used, killobj) {
         if (!n) n = pnames[i] = getnewname();
         return n;
     }
+    broken++;
     if (useSimpleLoop) {
         splice(o, o.length, 0, ...scanner2(`${iname}=0;${iname}<${oname}["length"]&&(,true);${iname}++`));
         splice(p, p.length, 0, ...scanner2(`=${oname}[${iname}]`));
@@ -1453,6 +1472,7 @@ var killarg = function (head, body, _getname, setarg = true) {
         argcodes.unshift.apply(argcodes, anames.map((a, i) => {
             if (a === cname) cname = '';
             var n = anames.length - i;
+            broken++;
             return `${a}=arguments["length"]>${collect + n - 1}?arguments[arguments["length"] - ${n}]:void 0`;
         }));
 
@@ -1987,10 +2007,13 @@ function downLevel(data) {
 }
 var patchMark = '&';
 var mindpath = "";
+var broken = false;
 var downcode = downLevel.code = function (code) {
     rootenvs = code.envs;
     mindpath = code.fullpath;
-    rootHyper = rootenvs.Symbol || code.yield || code.async || rootenvs.Set || rootenvs.Map;
+    broken = code.broken >>> 0;
+    // 暂不考虑跨文件使用步进函数的情况，太吃内存
+    rootHyper = rootenvs.Symbol || code.yield || code.async || rootenvs.Set || rootenvs.Map || code.hasYield;
     var patchMark_ = patchMark;
     if (code.patchMark) patchMark = code.patchMark;
     down(code.scoped);
@@ -1999,6 +2022,14 @@ var downcode = downLevel.code = function (code) {
         delete rootenvs["#"];
         if (!code.vars["#"]) splice(code, 0, 0, ...scanner2(`var # = new WeakMap`));
         if (!rootenvs.WeakMap) rootenvs.WeakMap = true;
+    }
+    if (broken) code.broken = broken;
+    if (rootenvs[patchMark + 'Array']) {
+        var used = code.used;
+        var ArrayUsed = used.Array;
+        ArrayUsed = ArrayUsed.filter(a => a.type === EXPRESS);
+        if (!ArrayUsed.length) delete used.Array, delete rootenvs.Array;
+        else used.Array = ArrayUsed;
     }
     rootenvs = null;
     patchMark = patchMark_;

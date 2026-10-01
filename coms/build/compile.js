@@ -1,8 +1,8 @@
 "use strict";
 var fs = require("fs");
 var path = require("path");
-var spaces = require("../basic/spaces");
-var getDepedence = require("./getDependence");
+var fsp = fs.promises;
+var setting = require("./setting");
 var searchPath = require("./searchPath");
 var globals = require("../efront/globals");
 var window = {
@@ -104,23 +104,14 @@ var isRealpath = function (pathname) {
     });
 };
 var linesEnabled = 1;
-function wait(args) {
-    return new Promise(ok => {
-        var t = setInterval(function () {
-            if (!linesEnabled) return;
-            clearInterval(t);
-            ok();
-        }, 12);
-    }).then(function () {
-        return compile.apply(null, args);
-    });
-}
 
-async function compile() {
-    var [buildInfo, lastBuildTime, destroot] = arguments;
-    if (!linesEnabled) return wait(arguments);
+async function compile(buildInfo) {
+    var { last_build_time: lastBuildTime, dest_root: destroot } = setting;
+    if (!linesEnabled) await wait(function () {
+        return linesEnabled
+    });
     linesEnabled--;
-    var { searchpath, searchname, fullpath, realpath, name, url, builder, extt, destpath } = buildInfo;
+    var { searchpath, searchname, realpath, name, url, builder, extt, destpath } = buildInfo;
     var componentId = getComponentId();
     destpath = path.join(destroot, destpath);
     var fullpath;
@@ -130,53 +121,32 @@ async function compile() {
     else if (realpath) {
         fullpath = [realpath];
     }
-    else {
-        fullpath = [].concat(fullpath);
-    }
     return new Promise(function (ok, oh) {
-        var responseText,
+        var responseText = buildInfo.data,
             responsePath,
             responseTime = 0,
             responseVersion,
             responseWithWarning,
-            writeNeeded,
-            isPackaged,
+            writeNeeded = !buildInfo.writed,
             moduleValue;
-
+        var watchurls = buildInfo.watchurls;
+        if (!watchurls) watchurls = buildInfo.watchurls = [], watchurls.time = 0;
         var resolve = function () {
             if (responseText instanceof Buffer) {
                 responseTime = responseText.time || 0;
-                buildInfo.occurs = responseText.occurs;
-                buildInfo.isYield = responseText.isYield;
-                buildInfo.isAsync = responseText.isAsync;
-                buildInfo.isBroken = responseText.isBroken;
             }
+            if (watchurls.time) responseTime = watchurls.time;
             Object.assign(buildInfo, {
-                needed: writeNeeded,
                 data: responseText,
                 realpath: responsePath,
                 version: responseVersion,
                 builtin: moduleValue,
-                isPackaged,
                 time: responseTime,
                 warn: responseWithWarning
             });
-
-            if (responseText instanceof Promise) {
-                responseText.then(function (data) {
-                    buildInfo.data = data;
-                    buildInfo.time = data.time;
-                    buildInfo.occurs = data.occurs;
-                    buildInfo.isAsync = data.isAsync;
-                    buildInfo.isYield = data.isYield;
-                    buildInfo.isBroken = data.isBroken;
-                    ok(buildInfo);
-                    linesEnabled++;
-                });
-            } else {
-                ok(buildInfo);
-                linesEnabled++;
-            }
+            if (writeNeeded) delete buildInfo.writed;
+            ok(buildInfo);
+            linesEnabled++;
         };
         var setRealpath = function (_filepath) {
             fs.stat(_filepath, function (error, stat) {
@@ -207,11 +177,10 @@ async function compile() {
                 var response = function (buffer, p = _filepath) {
                     var id = $split(buildInfo.destpath.replace(/\..*$/, "")).pop();
                     id = '/' + componentId + ' ' + id.replace(/^[\s\S]*?([^\-\\\/\:\.\s]*)$/, "$1");
-                    responseText = builder(buffer, id, p, []);
+                    if (buffer && builder) watchurls.splice(0, watchurls.length), responseText = builder(buffer, id, p, watchurls), writeNeeded = true;
+                    else if (buffer) writeNeeded = true, responseText = buffer;
                     responsePath = _filepath;
-                    isPackaged = isDirectory;
                     responseVersion = stat.mtime;
-                    writeNeeded = true;
                     if (responseText instanceof Promise) {
                         responseText.then(function (res) {
                             responseText = res;
@@ -248,19 +217,17 @@ async function compile() {
                         response(buffer);
                     });
                 };
-                var reader = function (hasless) {
-                    if (!fs.existsSync(destpath)) return loader();
-                    return fs.readFile(destpath, function (error, buffer) {
-                        if (error) throw new Error(i18n`读取已编译数据失败！url:${url}`);
-                        if (hasless === false && getDepedence({ data: buffer }).indexOf("cless") >= 0) {
-                            return loader();
-                        }
-                        writeNeeded = false;
-                        responsePath = _filepath;
-                        responseText = buffer;
-                        responseVersion = stat.mtime;
-                        resolve();
-                    });
+                var reader = async function () {
+                    if (!await fsp.exists(destpath)) return loader();
+                    for (var wurl of watchurls) {
+                        if (!await fsp.exists(wurl)) return loader();
+                        var stat = await fsp.stat(wurl);
+                        if (stat.mtime > lastBuildTime) return loader();
+                    }
+                    writeNeeded = false;
+                    responsePath = _filepath;
+                    responseVersion = stat.mtime;
+                    resolve();
                 };
                 if (lastBuildTime - stat.mtime > 10000 && !require('../efront/memery').indexreg.test(destpath)) {
                     var statless = function () {
@@ -299,7 +266,7 @@ async function compile() {
             });
         };
         var findRealpath = function () {
-            if (fullpath instanceof Array && !fullpath.length) {
+            if (!fullpath || !fullpath.length) {
                 if (window.modules[name]) console.info(i18n`${url} 将被内置模块替换！`), moduleValue = window.modules[name];
                 else if (!window.hasOwnProperty(name)) {
                     var color = globals[url] || colors.FgRed2;

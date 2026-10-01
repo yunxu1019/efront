@@ -1235,7 +1235,7 @@ var poplabel = function (result) {
                 var r = result[cx];
                 if (r.indexOf(b) >= 0) { break }
             }
-            if (cx < 0) throw console.log(result.map(r => createString(r)), e.text, createString([b.prev, b])), i18n`break语句异常`;
+            if (cx < 0) throw console.warn(result.map(r => createString(r)), e.text, createString([b.prev, b])), i18n`break语句异常`;
             end.push({ type: VALUE, isdigit: true, text: String(b.continue ? b.continue.contat - cx : result.length - cx) }, { type: STAMP, text: "," }, { type: VALUE, isdigit: true, text: "0" });
             relink(end);
         }

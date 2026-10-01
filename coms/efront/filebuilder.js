@@ -5,6 +5,7 @@ var builder;
 var path = require("path");
 var memery = require("./memery");
 var fs = require("fs");
+var htmlbuilder = lonebuilder.html;
 var xmlhttprequest_codetext = '';
 var getXMLHttpRequest = function () {
     if (!xmlhttprequest_codetext) {
@@ -191,11 +192,12 @@ var buildreload = function (buff) {
 };
 var str2array = require("../basic/str2array");
 var indexreg = new RegExp(`(${str2array(memery.INDEX_NAME).join('|')})\\.[^\/\\\.]+$`);
-if (memery.istest) builder = function (buff, name, fullpath) {
+if (memery.istest) builder = function (buff, name, fullpath, watchurls) {
     var dev = buff;
     var that = this;
     if (/\.(?:jsp|php|asp)$/i.test(fullpath)) {
         return function (req, res) {
+            data = htmlbuilder.call(that, buff, name, fullpath, watchurls);
             var data = fixpixel(buff);
             data = buildreload(data);
             data = buildjsp(data, name, fullpath);
@@ -205,11 +207,17 @@ if (memery.istest) builder = function (buff, name, fullpath) {
 
     else if (indexreg.test(fullpath) || /\.html?$/i.test(fullpath) && /^\s*<!Doctype/i.test(buff.slice(0, 100).toString())) {
         return function () {
+            data = htmlbuilder.call(that, buff, name, fullpath, watchurls);
             var data = fixpixel(buff);
             data = buildreload(data);
             data.mime = dev.mime || 'text/html;charset=utf-8';
             return data;
         };
+    }
+    else if (/(\.[cm]js|html?|css|less|json)$/i.test(fullpath)) {
+        data = lonebuilder.call(that, buff, name, fullpath, watchurls);
+        data.mime = dev.mime;
+        return data;
     }
     return dev;
 };

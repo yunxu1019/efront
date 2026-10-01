@@ -1,6 +1,5 @@
 var setupenv = require("./setupenv");
 var mixin = require("./mixin");
-var extendIfNeeded = require("../basic/extendIfNeeded");
 var fs = require("fs");
 var fsp = fs.promises;
 var path = require("path");
@@ -80,27 +79,17 @@ async function readFrom(fullpath, deep, cmap, map, loadernames) {
     return constEnvFiles;
 }
 
-
 var reptileback = path.join(__dirname, '../reptile');
 var zimolifront = path.join(__dirname, '../zimoli');
 var loadermain = path.join(zimolifront, "main.js");
-async function getCommap(appname, isfront, deep = 6) {
+async function loadFromPathList(comspath, deep = 6) {
     var id = cacheid;
-    var env = setupenv(appname);
     var cmap = Object.create(null);
     var res = Object.create(null);
     var ser = Object.create(null);
     var loadernames = [];
     var constEnvFiles = [];
-    var mixcoms = mixin(env.COMS_PATH, env.COMM);
-    var coms = [];
-    for (var [a, n] of mixcoms) {
-        var p = path.join(a, n);
-        if (!fs.existsSync(p)) continue;
-        if (!isfront && p === zimolifront) continue;
-        if (isfront && p === reptileback) continue;
-        if (coms.indexOf(p) >= 0) continue;
-        coms.push(p);
+    for (var p of comspath) {
         var consts = await readFrom(p, deep, cmap, res, loadernames);
         if (id !== cacheid) return;
         if (consts.length) constEnvFiles.push.apply(constEnvFiles, consts);
@@ -141,16 +130,10 @@ async function getCommap(appname, isfront, deep = 6) {
     }
     Object.defineProperty(res, "~", { value: cer, enumerable: false, writable: false, configurable: false });
     Object.defineProperty(res, "?", { value: ser, enumerable: false, writable: false, configurable: false });
-    Object.defineProperty(res, "/", { value: coms, enumerable: false, writable: false, configurable: false });
+    Object.defineProperty(res, "/", { value: comspath, enumerable: false, writable: false, configurable: false });
     Object.defineProperty(res, ":", { value: mer, enumerable: false, writable: false, configurable: false });
     Object.defineProperty(res, "&", { value: cmap, enumerable: false, writable: false, configurable: false });
     if (loadernames.length) Object.defineProperty(res, ";", { value: loadermain, enumerable: false, writable: false, configurable: false });
-    Object.defineProperty(res, "#", {
-        enumerable: false,
-        configurable: false,
-        writable: false,
-        value: await 国际化(coms.concat(mixin(env.PAGE_PATH, env.PAGE).map(a => path.join.apply(path, a)).filter(a => fs.existsSync(a))), memery.I18NNAME)
-    });
     for (var [p, p1, constMap] of constEnvFiles) {
         var consts = loadConsts(p1, res);
         for (var k in consts) {
@@ -163,6 +146,27 @@ async function getCommap(appname, isfront, deep = 6) {
             constMap[k] = v;
         }
     }
+    return res;
+}
+async function getCommap(appname, isfront, deep = 6) {
+    var env = setupenv(appname);
+    var mixcoms = mixin(env.COMS_PATH, env.COMM);
+    var coms = [];
+    for (var [a, n] of mixcoms) {
+        var p = path.join(a, n);
+        if (!fs.existsSync(p)) continue;
+        if (!isfront && p === zimolifront) continue;
+        if (isfront && p === reptileback) continue;
+        if (coms.indexOf(p) >= 0) continue;
+        coms.push(p);
+    }
+    var res = await loadFromPathList(coms, deep);
+    Object.defineProperty(res, "#", {
+        enumerable: false,
+        configurable: false,
+        writable: false,
+        value: await 国际化(coms.concat(mixin(env.PAGE_PATH, env.PAGE).map(a => path.join.apply(path, a)).filter(a => fs.existsSync(a))), memery.I18NNAME)
+    });
     return res;
 }
 var reset = function () {
@@ -201,5 +205,6 @@ async function main(appname, isfront, deep) {
     } while (id !== cacheid);
     return res;
 };
+main.load = loadFromPathList;
 main.reset = reset;
 module.exports = main;

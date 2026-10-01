@@ -44,12 +44,15 @@ var deepwr = function (dir, data) {
     });
 }
 function write(responseTree, public_path) {
-    var values = Object.values(responseTree).filter(a => !!a.destpath);
+    var values = Object.values(responseTree).filter(a => !!a.destpath && !a.writed);
     if (values.length) console.info(i18n`正在写入文件..`);
     var PUBLIC_PATH = environment.PUBLIC_PATH;
     if (!/^\.\.|^$/.test(path.relative(public_path, PUBLIC_PATH))) throw new Error(i18n`请不要在非发布目录写文件！`);
-    return queue.call(values, function ({ destpath, data }) {
+    return queue.call(values, function (response) {
+        var { destpath, data, realpath, url } = response;
         if (!/^\.\./.test(path.relative(destpath, PUBLIC_PATH))) throw new Error(i18n`请不要将文件写入非发布目录！`);
+        if (data == null) throw console.warn(url, realpath), new Error('发现异常数据');
+        response.writed = true;
         return deepwr(path.join(public_path, destpath), data);
     });
 }

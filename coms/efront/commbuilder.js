@@ -1,20 +1,22 @@
 "use strict";
 var {
     COMMENT, SCOPED, STAMP, STRAP, QUOTED,
-    createString,
+    relink,
+    setqueue,
     replace,
     splice, insertAfter, skipAssignment, skipSentenceQueue, snapSentenceHead,
     VALUE, EXPRESS, SCOPED, SPACE
 } = require("../compile/common");;
 var showMemery = require("./showMemery");
 var scanner2 = require("../compile/scanner2");
-var breakcode = require("../compile/breakcode");
+var breakcode = require("../compile/breakcode2");
 var strings = require("../basic/strings");
 var getEntryName = require("./getEntryName");
 var inCom = require("./inCom");
 var inPage = require("./inPage");
 var fs = require("fs");
 var path = require("path");
+const fsp = fs.promises;
 var memery = require("./memery");
 var islive = memery.islive;
 var AUTOEVAL = memery.AUTOEVAL;
@@ -35,6 +37,7 @@ var $split = require("../basic/$split");
 var getMaped = require("../compile/getMaped");
 var backEach = require("../basic/backEach");
 var downLevel = require("../compile/downLevel");
+var detectPath = require("../reptile/detectWithExtension").detect;
 var isbooted = typeof seek === 'function';
 // var downLevel = require("./downLevel");
 var skipreg = /^\s*(['"`])use\s+(strict|asm|strip)\1(?:\s*;)?\s*$/;
@@ -152,67 +155,37 @@ var bindLoadings = function (reg, data, rootfile, replacer = a => a, deep) {
 };
 
 var useInternalReg = /^\s*(['"`])(?:use|#?include)\s+([^\s'"`,;]+)\1(\s*;)?\s*$/img;
-var fsp = fs.promises;
-var replaceIncludes = function (data, fullpath) {
-    var lastIndex = 0;
-    var splited = [];
-    var dirname = path.dirname(fullpath);
-    var data1 = data.replace(useInternalReg, function (m, q, p, c, i) {
-        if (/^\s*(['"`])use\s+strict\1/i.test(m)) return m;
-        var fp = path.join(dirname, p);
-        if (!/\.([mc]?jsx?|h)$/.test(fp) || !fs.existsSync(fp)) {
-            var realName = path.basename(p).replace(/\..*$/, "") || "main";
-            realName = realName.replace(/\-(\w)/g, (_, a) => a.toUpperCase());
-            return `var ${realName}=require(${q}${p}${q})${c || ''}`;
-        }
-        splited.push(data.slice(lastIndex, i), fsp.readFile(fp));
-        lastIndex = i + m.length;
-        return m;
-    });
-    if (lastIndex === 0) return data1;
-    if (lastIndex < data.length) {
-        splited.push(data.slice(lastIndex));
+
+var replaceJSData = function (data, realPath) {
+    data = String(data);
+    var realName = path.basename(realPath).replace(/\..*$/, "") || "main";
+    realName = realName.replace(/\-(\w)/g, (_, a) => a.toUpperCase());
+    if (/\.(?:pem|html?|xml|glsl|te?xt|ini|props?|log)$/i.test(realPath)) {
+        return `var ${realName}=\`${data}\`;`;
     }
-    return Promise.all(splited).then(a => a.join(""));
+    if (/\.json$/i.test(realPath)) {
+        return `var ${realName}=${data};`;
+    }
+    if (/\.ya?ml$/i.test(realPath)) {
+        data = parseYML(data);
+        data = JSON.stringify(data);
+        return `var ${realName}=${data};`;
+    }
+    if (/\.h$/i.test(realPath)) {
+        return data;
+    }
+    if (!/\.([mc]?[jt]sx?)$/.test(realPath)) {
+        return `var ${realName}=${data}`;
+    }
+    data = data;
+    data = data.replace(skipreg, '');
+    return data;
 };
 var loadUseBody = async function (source, fullpath, watchurls) {
     var replacer = function (data, realPath) {
         var timer = new Timer;
         watchurls.push(realPath);
-        var realName = path.basename(realPath).replace(/\..*$/, "") || "main";
-        realName = realName.replace(/\-(\w)/g, (_, a) => a.toUpperCase());
-        if (/\.(?:pem|html?|xml|glsl|te?xt|ini|props?|log)$/i.test(realPath)) {
-            return `var ${realName}=\`${data.toString()}\`;`;
-        }
-        if (/\.json$/i.test(realPath)) {
-            return `var ${realName}=${data};`;
-        }
-        if (/\.ya?ml$/i.test(realPath)) {
-            data = parseYML(data);
-            data = JSON.stringify(data);
-            return `var ${realName}=${data};`;
-        }
-        if (/\.h$/i.test(realPath)) {
-            return data;
-        }
-        if (!/\.([mc]?[jt]sx?)$/.test(realPath)) {
-            return `var ${realName}=${JSON.stringify(data)}`;
-        }
-        data = data.toString();
-        data = trimNodeEnvHead(data);
-        data = data.replace(/^\s*(["`'])use strict\1\s*;?/, '');
-        if (!new RegExp(useInternalReg.source, 'ig').test(source)) {
-            var commName = realName;
-        }
-        if (!commName) commName = realName;
-        if (~loadJsBody(data, 'main.js', 'main.js', '', 'main', '').imported.indexOf('module')) {
-            var module_reg = /\bmodule(.exports|\[(['"`])exports\1\])\s*=/g;
-            if (module_reg.test(data)) {
-                data = data.replace(module_reg, commName ? "var " + commName + " =" : "return ");
-                watchurls.time += +timer;
-                return data;
-            }
-        }
+        data = replaceJSData(data, realPath);
         watchurls.time += +timer;
         return data;
     };
@@ -225,20 +198,30 @@ var loadUseBody = async function (source, fullpath, watchurls) {
         return typeof data !== 'object' ? JSON.stringify(data) : match;
     })
 };
-var getRequiredPaths = function (data) {
-    var pathReg = /\b(?:go|popup|zimoli)\(\s*(['"`])([^\{\}]+?)\1\s*?[\),]/g;
-    var requiredPaths = {};
-    var result = pathReg.exec(data);
-    while (result) {
-        requiredPaths[result[2].replace(/^[@#!]+/, "")] = true;
-        result = pathReg.exec(data);
+var getPathToPrepare = function (o) {
+    var n = o.next;
+    if (!n || n.type != SCOPED || n.entry !== '(') {
+        return;
     }
-    return Object.keys(requiredPaths);
+    var first = n.first;
+    if (!first || first.type !== QUOTED || first.length) return;
+    var next = first.next;
+    if (next) {
+        if (next.type !== STAMP || next.text !== ',') return;
+    }
+    var prepath = strings.decode(first.text);
+    return prepath.replace(/^[@#!]+/, "");
 };
 
-var trimNodeEnvHead = function (data) {
-    data = String(data || "").replace(/^\s*\#\!/, '//');
-    return data;
+var trimBashHead = function (code) {
+    for (var i = 0; i < Math.min(2, code.length); i++) {
+        var o = code[i];
+        if (o.type === COMMENT && /^#\!/.test(o.text)) {
+            code.splice(i, 1);
+            code.bashhead = o.text;
+            break;
+        }
+    }
 };
 var removePrequoted = function (code) {
     var o = code.first;
@@ -309,20 +292,18 @@ var wrapReturnLess = function (r, cless_var, lessnode, className) {
     return n;
 }
 var i18npath = path.join(__dirname, "../basic/i18n.js");
-var loadJsBody = function (data, filename, fullpath, lessdata, commName, className, htmlData) {
-    if (data.length > 0x200) show_building(fullpath);
-    data = trimNodeEnvHead(data);
-    var destpaths = commbuilder.prepare === false ? [] : getRequiredPaths(data);
-    var code = scanner2(data, fullpath, 'js');
+
+var pareJsCode = function (code, fullpath, commap) {
+    if (code.end > 0x200) show_building(fullpath);
     if (memery.torgb) code.keepcolor = false;
-    var hasExport = code.export || !code.first;
-    var prequoted = removePrequoted(code);
+    trimBashHead(code);
+    code.prequoted = removePrequoted(code);
     code.newSpread();
     code.fix();
-    if (this && this["#"]) {
-        translate(this["#"], code);
+    if (commap && commap["#"]) {
+        translate(commap["#"], code);
         if (i18npath === fullpath) {
-            let i18ndata = this["#"][1];
+            let i18ndata = commap["#"][1];
             let ls = code.used.supports;
             let i18nSupports = require("../basic/i18n-supports");
             if (ls && ls[0].next && ls[0].next.next) {
@@ -340,7 +321,7 @@ var loadJsBody = function (data, filename, fullpath, lessdata, commName, classNa
                     },"id":${strings.encode(a.id)
                     },"key":${strings.encode(a.key)
                     }}`).join(",\r\n")}]`);
-                translate(this["#"], i18nSupports);
+                translate(commap["#"], i18nSupports);
                 ls.push(...i18nSupports[0]);
             }
             let lm = code.used.languageMap;
@@ -357,24 +338,178 @@ var loadJsBody = function (data, filename, fullpath, lessdata, commName, classNa
         // 数据依赖其他文件
         // 为防止其他文件变更后页面刷新不及时
         // 这里仅在没有端口打开时处理导入式变量
-        code = autoConst.call(this, code, fullpath, memery.ported);
-        code = autoiota(code);
-        code = autoenum(code);
-        code = autoeval(code);
+        autoConst.call(commap, code, fullpath, memery.ported);
+        autoiota(code);
+        autoenum(code);
+        autoeval(code);
     }
-    else code = autoConst.call(this, code, fullpath, true);
+    else autoConst.call(commap, code, fullpath, true);
     if (memery.POLYFILL) {
-        code = polyfill(code);
+        polyfill(code);
     }
+}
+
+var loadStaticFile = async function (filepath, folderpath, commap, watchurls) {
+    if (/^\.+[\\\/]/.test(filepath)) filepath = path.join(folderpath, filepath);
+    else {
+        var temppath = commap[filepath];
+        if (temppath) filepath = temppath;
+        else {
+            [, temppath, commap, folderpath] = await detectPath(filepath, null, [folderpath, memery.COMS_PATH, memery.PAGE_PATH]);
+            filepath = path.join(folderpath, temppath + commap);
+        }
+    }
+    var data = await fsp.readFile(filepath);
+    if (watchurls) watchurls.push(filepath);
+    return [String(data), filepath];
+}
+
+var saveOneToArray = function (one, arr) {
+    if (!one) return;
+    if (arr.indexOf(one) < 0) arr.push(one);
+};
+var saveOneToThis = function (one) {
+    if (!one) return;
+    if (this.indexOf(one) < 0) this.push(one);
+};
+
+var loadJsStatic = function* (code, fullpath, commap, watchurls) {
+    var rest = [code];
+    var folderpath = path.dirname(fullpath);
+    if (commbuilder.prepare !== false) var prepares = code.prepares = [];
+    var refered = code.refered = [];
+
+    while (rest.length) {
+        var code = rest.pop();
+        var dist = [];
+        var lastcx = 0;
+        for (var cx = 0, dx = code.length; cx < dx; cx++) {
+            var o = code[cx];
+            b: switch (o.type) {
+                case SCOPED: rest.push(o);
+                    break;
+                case QUOTED:
+                    if (o.length) {
+                        rest.push(o);
+                        break;
+                    }
+                    var m;
+                    if (m = useInternalReg.exec(o.text)) {
+                        if (skipreg.test(m[0])) break;
+                        var [data, filepath] = yield loadStaticFile(m[2], folderpath, commap, watchurls);
+                        data = replaceJSData(data, filepath);
+                        data = scanner2(data, filepath, 'js');
+                        var emiter = loadJsStatic(data, filepath, commap, watchurls);
+                        for (var { value, done } = emiter.next(); !done; { value, done } = emiter.next(value)) {
+                            value = yield value;
+                        }
+                        data.refered.forEach(saveOneToThis, refered);
+                        if (prepares) data.prepares.forEach(saveOneToThis, prepares);
+                        if (cx > lastcx) {
+                            dist.push(code.slice(lastcx, cx));
+                        }
+                        dist.push(data);
+                        lastcx = cx + 1;
+                    }
+                    break;
+                case EXPRESS: switch (o.text) {
+                    case "require":
+                        var reqpath = getPathToPrepare(o);
+                        if (!reqpath) break b;
+                        if (!/\.json$/i.test(reqpath)) break b;
+                        var [reqpath] = yield loadStaticFile(reqpath, folderpath, commap, watchurls);
+                        var nn = o.next;
+                        var json = JSON.parse(reqpath);
+                        while (nn && json instanceof Object) {
+                            nn = nn.next;
+                            if (!nn || nn.type != EXPRESS || /^\.[^\.]/.test(nn.text)) break b;
+                            var text = nn.text;
+                            text = text.split('.');
+                            for (var cy = 1, dy = text.length; cy < dy; cy++) {
+                                var k = text[cy];
+                                if (k in json) json = json[k];
+                                else break b;
+                            }
+                            if (json !== undefined && !(json instanceof Object)) {
+                                if (cx > lastcx) dist.push(code.slice(lastcx, cx));
+                                switch (typeof json) {
+                                    case "object":
+                                        dist.push({ type: STRAP, text: 'null' });
+                                        break;
+                                    case "string":
+                                        dist.push({ type: QUOTED, text: strings.encode(json) });
+                                        break;
+                                    case "number":
+                                        dist.push({ type: VALUE, text: String(json), isdigit: true });
+                                        break;
+                                    case "boolean":
+                                        dist.push({ type: VALUE, text: String(json) });
+                                        break;
+                                }
+                                cx = code.indexOf(nn, cx);
+                                lastcx = cx + 1;
+                                break b;
+                            }
+                        }
+                        break b;
+                    case "popup":
+                    case "zimoli":
+                    case "go":
+                        var prepath = getPathToPrepare(o);
+                        if (prepares) saveOneToArray(prepath, prepares);
+                        saveOneToArray(prepath, refered);
+                        break;
+                    case "init":
+                        var initpath = getPathToPrepare(o);
+                        saveOneToArray(initpath, refered);
+                        break;
+                }
+            }
+        }
+        if (dist.length) {
+            dist = dist.concat.apply([], dist);
+            code.splice(0, lastcx, ...dist);
+            relink(code);
+            setqueue(code);
+        }
+    }
+}
+var asyncLoopLoadStatic = async function (value, emier) {
+    do {
+        var { value, done } = emier.next(await value);
+    } while (!done);
+};
+var loopLoadStatic = function name(code, fullpath, commap, watchurls, next) {
+    var emiter = loadJsStatic(code, fullpath, commap, watchurls);
+    var { value, done } = emiter.next();
+    if (!done) return asyncLoopLoadStatic(value, emiter).then(next);
+    return next();
+}
+
+var loneJsCode = function (code, fullpath, commap, watchurls) {
+    var loneJsNext = function () {
+        pareJsCode(code, fullpath, commap);
+        fairJsCode(code, fullpath, commap, {});
+        return code;
+    };
+    return loopLoadStatic(code, fullpath, commap, watchurls, loneJsNext);
+};
+
+var loadJsBody = function (data, filename, fullpath, watchurls, ...args) {
+    var code = scanner2(data, fullpath, 'js');
+    var next = liveJsNext.bind(this, code, filename, fullpath, ...args);
+    return loopLoadStatic(code, fullpath, this, watchurls, next);
+}
+
+var liveJsNext = function (code, filename, fullpath, lessdata, commName, className, htmlData) {
+    var hasExport = code.export || !code.first;
+    var destpaths = code.prepares;
+    pareJsCode(code, fullpath, this);
     var {
         vars: declares,
         used: allVariables,
         envs: undeclares,
-        async: isAsync,
-        return: hasReturn,
-        yield: isYield
     } = code;
-    var isBroken = false;
     if (commbuilder.typeofMap) {
         var typeofs = [];
         Object.keys(undeclares).forEach(k => {
@@ -385,6 +520,7 @@ var loadJsBody = function (data, filename, fullpath, lessdata, commName, classNa
                 };
             }
         });
+        code.typeofs = typeofs;
     }
     var globalsmap = {};
     if (hasExport) globalsmap.exports = 'exports';
@@ -398,20 +534,13 @@ var loadJsBody = function (data, filename, fullpath, lessdata, commName, classNa
         }
     }
     commName = getEntryName(declares, commName);
-    var cless_var = 'cless';
+    var cless_var = '\\style';
     var hasless = typeof lessdata === "string";
     if (hasless) {
-        if (!declares[cless_var]) {
-            globalsmap.cless = cless_var;
-        } else {
-            do {
-                cless_var = "cless_" + Math.random().toString(36).slice(2);
-            } while (declares[cless_var]);
-            globalsmap.cless = cless_var;
-        }
+        globalsmap["&style"] = cless_var;
     }
     var prepareCodeBody = [];
-    if (destpaths.length) {
+    if (destpaths?.length) {
         var stringifiedpaths = destpaths.length === 1 ? JSON.stringify(destpaths[0]) : JSON.stringify(destpaths);
         if (globalsmap.go) {
             prepareCodeBody = scanner2(`go.prepare(${stringifiedpaths});`);
@@ -433,20 +562,16 @@ var loadJsBody = function (data, filename, fullpath, lessdata, commName, classNa
             console.warn(i18n`将不处理此文件的页面自动预载<gray>${fullpath}</gray>`);
         }
     }
-    var code_body = code;
     if (!undeclares.exports && !code.return && code.isExpressQueue()) {
         //如果整个函数只有一个表达式或一个变量，直接反回其本身
-        while (code_body.length && (code_body[code_body.length - 1].type === SPACE || code_body[code_body.length - 1].type === code_body.STAMP && /[,;]/.test(code_body[code_body.length - 1].text))) {
-            code_body.pop();
-        }
-        if (!code_body.length && code_body.exportEmpty) {
-            code_body = scanner2(`return {}`);
+        while (code.length && (code[code.length - 1].type === SPACE || code[code.length - 1].type === code.STAMP && /[,;]/.test(code[code.length - 1].text))) {
+            code.pop();
         }
         code.forEach(c => c.isExpress = true);
-        if (hasless) code_body.unshift(
+        if (hasless) code.unshift(
             { type: EXPRESS, text: cless_var },
             code.relink(Object.assign(
-                code_body.splice(0, code_body.length).concat(
+                code.splice(0, code.length).concat(
                     { type: STAMP, text: ',' },
                     {
                         type: QUOTED,
@@ -455,13 +580,13 @@ var loadJsBody = function (data, filename, fullpath, lessdata, commName, classNa
                     { type: STAMP, text: ',' },
                     {
                         type: QUOTED,
-                        text: JSON.stringify(className)
+                        text: JSON.stringify(className),
+                        keep: true,
                     }
                 ), { type: SCOPED, isExpress: true, entry: "(", leave: ")" }))
-        ), code_body.first = code_body[0];
-
-        code_body.splice(
-            code_body.indexOf(code_body.first), 0,
+        ), code.first = code[0];
+        code.splice(
+            code.indexOf(code.first), 0,
             { type: STRAP, text: "return", transive: true }
         );
         code.relink();
@@ -473,9 +598,9 @@ var loadJsBody = function (data, filename, fullpath, lessdata, commName, classNa
         }
         if (hasless && code.return) {
             var less = scanner2(`var &cless=${strings.encode(lessdata, "'")};`);
-            code_body.unshift(...less);
+            less[3].keep = true;
+            code.unshift(...less);
             lessdata = '&cless';
-            var lessused = less;
             declares[lessdata] = lessdata;
             allVariables['&cless'] = less.used['&cless'];
             for (var r of code.return) {
@@ -503,14 +628,14 @@ var loadJsBody = function (data, filename, fullpath, lessdata, commName, classNa
             if (hasless) {
                 lessdata = strings.encode(lessdata);
             }
-            code_body.push(
+            code.push(
                 { type: SPACE, text: "\r\n" },
                 { type: STRAP, text: "return", transive: true }
             )
             if (hasless) {
-                code_body.push({ type: EXPRESS, text: commName }, { type: STAMP, text: '=' });
-                code_body.push(
-                    { type: code_body.EXPRESS, text: cless_var },
+                code.push({ type: EXPRESS, text: commName }, { type: STAMP, text: '=' });
+                code.push(
+                    { type: code.EXPRESS, text: cless_var },
                     code.relink(Object.assign([
                         { type: EXPRESS, text: commName },
                         { type: STAMP, text: ',' },
@@ -525,9 +650,9 @@ var loadJsBody = function (data, filename, fullpath, lessdata, commName, classNa
                     })),
                 )
             } else {
-                code_body.push({ type: code_body.EXPRESS, text: commName });
+                code.push({ type: code.EXPRESS, text: commName });
             }
-            code.relink(code_body);
+            code.relink(code);
         }
     }
     if (templateName) {
@@ -556,37 +681,47 @@ var loadJsBody = function (data, filename, fullpath, lessdata, commName, classNa
         for (var k in declares) {
             if (!allVariables[k]) allVariables[k] = used[k];
         }
-        code_body.unshift.apply(code_body, template);
+        code.unshift.apply(code, template);
     }
-    code_body.unshift.apply(code_body, prepareCodeBody);
+    code.unshift.apply(code, prepareCodeBody);
+    fairJsCode(code, fullpath, this, globalsmap);
+    return code;
+};
+var fairJsCode = function (code, fullpath, commap, globalsmap) {
     code.requote = commbuilder.requote !== false;
+    var {
+        async: isAsync,
+        yield: isYield,
+        envs: undeclares,
+        used: allVariables,
+    } = code;
+
     if (breakflag === false);
-    else if (!islive || commbuilder.compress === false) {
+    else if (!islive) {
         code.relink();
         if (memery.BREAK) code.break();
         if (!memery.UPLEVEL) {
             if (!memery.BREAK) code.detour(false);
-            code = downLevel.code(code);
-            isBroken = true;
+            downLevel.code(code);
+            isAsync = false;
+            isYield = false;
         }
         var {
-            vars: declares,
             used: allVariables,
             envs: undeclares
         } = code;
-        code_body = code;
+        if (memery.BREAK) breakcode(code);
     }
     else if (memery.ported && memery.MSIE) {
         code.relink();
         code.detour();
-        code = downLevel.code(code);
-        isBroken = true;
+        downLevel.code(code);
+        isAsync = false;
+        isYield = false;
         var {
-            vars: declares,
             used: allVariables,
             envs: undeclares
         } = code;
-        code_body = code;
     }
     if (undeclares.require) var required = allVariables.require;
     var globals = Object.keys(undeclares);
@@ -616,11 +751,11 @@ var loadJsBody = function (data, filename, fullpath, lessdata, commName, classNa
         return r;
     }).filter(a => !!a);
     var params = globals.map(g => globalsmap[g]);
-    if (this && this["?"]) {
-        globals = rethink(this, globals, fullpath);
+    if (commap && commap["?"]) {
+        globals = rethink(commap, globals, fullpath);
         if (required instanceof Array) {
             var required_paths = required.map(r => r.value);
-            required_paths = rethink(this, required_paths, fullpath);
+            required_paths = rethink(commap, required_paths, fullpath);
             required.forEach((r, i) => {
                 var p = required_paths[i];
                 r.value = p;
@@ -628,62 +763,69 @@ var loadJsBody = function (data, filename, fullpath, lessdata, commName, classNa
             });
         }
     }
-    var required_map = {}, required_paths = [];
+    var required_map = {}, required_paths = [], requiredi = [];
     if (required instanceof Array) required.forEach((r, i) => {
         if (!required_map[r.value]) {
             required_map[r.value] = required_paths.length;
+            requiredi.push(r.row ? `:${r.row}:${r.col}` : '');
             required_paths.push(r.value);
         }
-        if (commbuilder.compress !== false) {
-            r.value = required_map[r.value];
-            r.text = String(r.value);
-            r.type = VALUE;
-            r.isdigit = true;
-        }
+        r.value = required_map[r.value];
+        r.text = String(r.value);
+        r.type = VALUE;
+        r.isdigit = true;
     });
-    code_body.helpcode = memery.HELPCODE;
-    data = code_body.toString();
-    return {
-        imported: globals,
-        required: required_paths,
-        occurs: code.occurs,
-        data,
-        isAsync,
-        typeofs,
-        isYield,
-        isBroken,
-        prequoted,
-        params
-    };
-};
-
-var buildPress2 = function (imported, params, data, args, strs, fullpath) {
-    var press = memery.COMPRESS;
-    if (imported.length > 0) {
-        var code = scanner2(`var [${params.concat(args || [])}];${data}`, fullpath);
-        if (press) code.press(memery.KEEPSPACE, press);
-        else code.revar();
-        params = code[1].filter(a => a.type !== code.STAMP).map(c => c.text);
-        code.splice(0, 2);
+    globals.i = params.map(a => {
+        var o = allVariables[a];
+        if (!o || !o.length) return "";
+        o = o[0];
+        return o.row ? `:${o.row}:${o.col}` : "";
+    });
+    required_paths.i = requiredi;
+    code.helpcode = memery.HELPCODE;
+    code.imported = globals;
+    if (required) {
+        code.required = required_paths;
+        code.reqlinks = required;
     }
-    else if (args.length > 0) {
-        strs = eval(strs);
-        var code = scanner2(`var ${args.map((a, i) => {
-            var s = strs[i];
-            if (typeof s === 'string') s = strings.encode(s);
-            else if (s instanceof RegExp) s = `/${s.source}/${s.flags}`;
-            return `${a}=${s}`;
-        }).join(',')};${data}`, fullpath);
+    code.isYield = isYield;
+    code.params = params;
+    code.isAsync = isAsync;
+    if (!islive) buildPress2(code, code.strkeys);
+    else revarCode(code);
+    return code;
+};
+var wrapParams = function (code, params) {
+    code.rescan();
+    var { vars, used } = code;
+    var params1 = params.map(a => {
+        vars[a] = true;
+        used[a].push(a = { text: a });
+        return a;
+    });
+    return params1;
+};
+var unwrapParams = function (code, params1) {
+    if (!params1) return;
+    var { params, vars } = code;
+    params.forEach(a => { delete vars[a]; });
+    params1 = params1.map(a => a.text);
+    params.splice(0, params.length, ...params1);
+};
+var buildPress2 = function (code, strkeys) {
+    var press = memery.COMPRESS;
+    if (strkeys?.length) {
+        var params1 = wrapParams(code, strkeys ? code.params.concat(strkeys) : code.params);
         if (press) code.press(memery.KEEPSPACE, press);
         else code.revar();
+        unwrapParams(code, params1);
     }
     else {
-        var code = scanner2(data, fullpath);
+        var params1 = wrapParams(code, code.params);
         if (press) code.press(memery.KEEPSPACE, press);
         else code.revar();
+        unwrapParams(code, params1);
     }
-    data = code.toString();
-    return [params, data];
 };
 var extname = require('path').extname;
 var rethink = function (mmap, imported, fullpath) {
@@ -698,38 +840,32 @@ var rethink = function (mmap, imported, fullpath) {
     });
     return realimport;
 };
-var revarCode = function (params, data, fullpath) {
-    var code = scanner2(`var [${params}];${data}`, fullpath);
-    code.revar();
-    params = code[1].filter(a => a.type !== code.STAMP).map(c => c.text);
-    code.splice(0, 3);
-    data = code.toString();
-    return [params, data, code.occurs];
-};
-var buildResponse = function ({ imported, prequoted, params, data, required, occurs, isAsync, isYield, isBroken }, compress, fullpath) {
-    fullpath += "->.js";
-    if (!islive && compress !== false) {
-        if (memery.BREAK) var [data, args, strs] = breakcode(data, occurs), strs = `[${strs}]`;
-        else args = [], strs = "[]";
-        [params, data] = buildPress2(imported, params, data, args, strs, fullpath);
-        if (imported.length > 0) {
-            var strlength = strs.length.toString(36);
-        } else {
-            strs = '';
+var revarCode = function (code) {
+    var params = code.params;
+    a: {
+        for (var k of params) if (/^[@#%\^&\?\\]/.test(k)) {
+            break a;
         }
+        return;
     }
-    else {
-        if (params.length > 0) {
-            for (var p in occurs) if (/^[@#%\^&\?\\]/.test(p)) {
-                [params, data, occurs] = revarCode(params, data, fullpath);
-                break;
-            }
 
-        }
+    var params1 = wrapParams(code, params);
+    code.revar();
+    unwrapParams(code, params1);
+    return params;
+};
+var liveResponse = function (code) {
+    var { imported, prequoted, params, required, strkeys, isAsync, isYield } = code;
+    var data = code.toString();
+    if (strkeys?.length > 0) {
+        var strs = code.strkeys.map(k => breakcode.quoted[k]);
+        var strlength = strs.length.toString(36);
+    } else {
         strs = '';
     }
+    var data = code.toString();
     var _arguments = [...imported, ...params];
-    if (required.length >= 1) {
+    if (required) {
         _arguments.push(required.join(';'));
     }
     _arguments = _arguments.join(',');
@@ -738,17 +874,13 @@ var buildResponse = function ({ imported, prequoted, params, data, required, occ
     if (prequoted) {
         data = prequoted.map(a => a.text).join('') + data;
     }
-    if (!isBroken) {
-        if (isYield) data = "*" + data;
-        if (isAsync) data = "~" + data;
-    }
+    if (isYield) data = "*" + data;
+    if (isAsync) data = "~" + data;
     // [参数长度*2 参数列表]? [字符串列表长度*2 字符串数组]? 代码块
     data = (_arguments.length ? length + _arguments : "") + (strs && strs.length > 2 && imported.length > 0 ? strlength.length + 1 + strlength + strs : '') + (+data.charAt(0) > 1 ? ";" : "") + data;
     data = Buffer.from(data);
-    data.occurs = occurs;
     data.isAsync = isAsync;
     data.isYield = isYield;
-    data.isBroken = isBroken;
     return data;
 };
 var getFileData = function (fullpath) {
@@ -779,13 +911,15 @@ var renderImageUrl = function (data, filepath, watchurls) {
         if (pagepath) {
             data = pagepath.replace(/\\/g, '/');
         } else {
-            data = `data:${mime};base64,` + Buffer.from(data).toString("base64");
-            if (data.length > 8 * 1024) {// chrome,firefox的长度限制均为9929
-                if (islive || commbuilder.compress === false) {
+            if (data.length / 6 * 8 > 8 * 1024) {// chrome,firefox的长度限制均为9929
+                if (islive) {
                     data = ":comm/" + compath.replace(/\\/g, '/');
                 } else {
-                    data = "data" + path.extname(realpath) + data.slice(4);
+                    data = "data" + path.extname(realpath) + `:${mime};base64,` + Buffer.from(data).toString('base64');
                 }
+            }
+            else {
+                data = `data:${mime};base64,` + Buffer.from(data).toString("base64");
             }
         }
         var quote = match[match.length - 1];
@@ -797,7 +931,7 @@ var renderImageUrl = function (data, filepath, watchurls) {
     };
     return bindLoadings(urlReg, data, filepath, replacer, false);
 };
-var renderLessData = function (data, lesspath, commName, watchurls, className) {
+var renderLessData = function (data, commName, lesspath, watchurls, className = '') {
     if (data.length > 0x1000) show_building(lesspath);
     data = data || '';
     var that = this;
@@ -827,7 +961,7 @@ var renderLessData = function (data, lesspath, commName, watchurls, className) {
     return Promise.resolve(lessresult)
         .then(function (lessdata) {
             var timeStart = new Date;
-            var lessData = compile$素馨(lessdata, "." + className);
+            var lessData = compile$素馨(lessdata, className && "." + className);
             watchurls.time += new Date - timeStart;
             return lessData;
         }).then(function (lessData) {
@@ -853,7 +987,7 @@ var renderLessData = function (data, lesspath, commName, watchurls, className) {
 };
 
 function prepare(filename, fullpath) {
-    var commName = fullpath.match(/(?:^|[\\\/\[\]\(\)\{\}])([#@%&\?\^\:\$\-_\w\u3000-\uffff][\-\w\u3000-\uffff]*?)(\.[^\.]*)?$/i);
+    var commName = fullpath.match(/(?:^|[\\\/\[\]\(\)\{\}])([#@%&\?\^\:\$\-_\w\u3000-\uffff][\-\w\u3000-\uffff]*?)(\.[^\\\/]*)?$/i);
     if (!commName && !/^\.js$/i.test(filename)) console.warn(i18n`文件名无法生成导出变量！`, fullpath, filename);
     commName = commName && commName[1];
     var className = filename.replace(/[\\\/\:\.]+/g, "-");
@@ -894,14 +1028,11 @@ async function getXhtPromise(xhtdata, filename, fullpath, watchurls, extraJs, ex
         var styles = extraCss || '';
         var scripts = extraJs || '';
     }
-    timer.pause();
-    if (scripts) scripts = await loadUseBody.call(this, scripts, fullpath, watchurls);
-    timer.resume();
     var jscode = scanner2(scripts, fullpath, 'js');
     jscode.fix();
     var jscope = jscode.scoped
     timer.pause();
-    if (styles) styles = await renderLessData.call(this, styles, fullpath, commName, watchurls, lessName);
+    if (styles) styles = await renderLessData.call(this, styles, commName, fullpath, watchurls, lessName);
     timer.resume();
     var jsvars = jscope.vars;
     var jsenvs = jscope.envs;
@@ -909,7 +1040,7 @@ async function getXhtPromise(xhtdata, filename, fullpath, watchurls, extraJs, ex
     if (jsenvs.template) entryTack = 'template';
     if (!xhtdata || entryTack || !htmltext && !scoped.outerHTML) {
         if (xhtdata) htmltext = `{toString:()=>${compile$wraphtml(await renderImageUrl.call(this, scoped.outerHTML || scoped.innerHTML, fullpath, watchurls))}}`;
-        var res = loadJsBody.call(this, scripts, filename, fullpath, styles, commName, className, htmltext);
+        var res = await loadJsBody.call(this, scripts, filename, fullpath, watchurls, styles, commName, className, htmltext);
         watchurls.time += +timer;
         return res;
     }
@@ -929,7 +1060,7 @@ async function getXhtPromise(xhtdata, filename, fullpath, watchurls, extraJs, ex
     }
     var scope = Object.keys(Object.assign({}, scoped.vars, scoped.envs)).filter(e => e in this || e in jsused || e in xused && xused[e].length > 0);
     if (scope.length) {
-        var htcode = scanner2(htmltext);
+        var htcode = scanner2(htmltext, fullpath, 'js');
         var htused = htcode.used;
         var jsvars = Object.assign({}, jscope.vars, scoped.vars);
         var jsenvs = jscope.envs;
@@ -1106,7 +1237,7 @@ async function getXhtPromise(xhtdata, filename, fullpath, watchurls, extraJs, ex
     ${xhtrender}
     return elem;
     }`;
-    var res = loadJsBody.call(this, xht, filename, fullpath, styles, commName, className)
+    var res = await loadJsBody.call(this, xht, filename, fullpath, watchurls, styles, commName, className)
     watchurls.time += +timer;
     return res;
 }
@@ -1143,18 +1274,14 @@ function getMouePromise(data, filename, fullpath, watchurls) {
     }
     var promise = new Promise((ok, oh) => {
         function fire() {
-            var timeStart = new Date;
             if (htmlData) {
                 jsData = `var template=${compile$wraphtml(htmlData)};\r\n` + jsData;
                 if (lessData) {
-                    jsData += `;\r\ntemplate=cless(template,\`${lessData}\`,"${className}")`;
+                    jsData += `;\r\ntemplate=&cless(template,\`${lessData}\`,"${className}")`;
                 }
                 jsData += `;\r\nextend(exports,Vue.compile(template))`;
             }
-            var data = loadJsBody.call(this, jsData, filename, fullpath, null, commName);
-            time += new Date - timeStart;
-            promise.time = time;
-            ok(data);
+            ok(loadJsBody.call(this, jsData, filename, fullpath, watchurls, null, commName));
         }
         if (htmlData) {
             var htmlpromise = renderImageUrl.call(this, htmlData, fullpath, watchurls).then(function (a) {
@@ -1162,7 +1289,7 @@ function getMouePromise(data, filename, fullpath, watchurls) {
             });
         }
         if (lessData) {
-            var lesspromise = renderLessData.call(this, lessData, fullpath, commName, watchurls, lessName).then(data => {
+            var lesspromise = renderLessData.call(this, lessData, commName, fullpath, watchurls, lessName).then(data => {
                 lessData = data;
                 time += lesspromise.time;
             });
@@ -1181,19 +1308,13 @@ function getHtmlPromise(data, filename, fullpath, watchurls) {
     var time = 0;
     var promise = getFileData(lesspath).then((lessdata) => {
         if (lessdata instanceof Buffer) {
-            var lessPromise = renderLessData.call(this, lessdata, lesspath, commName, watchurls, lessName);
+            var lessPromise = renderLessData.call(this, lessdata, commName, lesspath, watchurls, lessName);
             return lessPromise.then(data => {
                 lessData = data;
                 time += lessPromise.time;
             });
         }
-    }).then(() => {
-        var timeStart = new Date;
-        var data = loadJsBody.call(this, jsData, filename, fullpath, lessData, commName, className);
-        time += new Date - timeStart;
-        promise.time = time;
-        return data;
-    });
+    }).then(() => loadJsBody.call(this, jsData, filename, fullpath, watchurls, lessData, commName, className));
     return promise;
 }
 
@@ -1209,7 +1330,7 @@ function getScriptPromise(data, filename, fullpath, watchurls) {
         var timer = new Timer;
         var [commName] = prepare(filename, fullpath);
         if (!/\.[mc]?js$/i.test(fullpath)) data = await coffee(fullpath, data);
-        data = loadJsBody.call(that, data, filename, fullpath, null, commName);
+        data = await loadJsBody.call(that, data, filename, fullpath, watchurls, null, commName);
         p.time = +timer;
         return data;
     });
@@ -1219,7 +1340,6 @@ function commbuilder(buffer, filename, fullpath, watchurls) {
     showMemery();
     filename = String(filename || '');
     fullpath = String(fullpath || "");
-    var compress = commbuilder.compress;
     var data = String(buffer), promise;
     watchurls.time = 0;
     if (/\.xht$/i.test(fullpath)) {
@@ -1227,13 +1347,13 @@ function commbuilder(buffer, filename, fullpath, watchurls) {
     }
     else if (/\.json$/i.test(fullpath)) {
         var timeStart = new Date;
-        var data = loadJsBody("(" + String(buffer) + ")", filename, fullpath);
+        var data = loadJsBody("(" + String(buffer) + ")", filename, fullpath, watchurls);
         data.time = new Date - timeStart;
         promise = Promise.resolve(data);
     }
     else if (/\.ya?ml$/i.test(fullpath)) {
         var timeStart = new Date;
-        var data = loadJsBody(`return ${JSON.stringify(parseYML(String(buffer)))}`, filename, fullpath);
+        var data = loadJsBody(`return ${JSON.stringify(parseYML(String(buffer)))}`, filename, fullpath, watchurls);
         data.time = new Date - timeStart;
         promise = Promise.resolve(data);
     }
@@ -1278,8 +1398,8 @@ function commbuilder(buffer, filename, fullpath, watchurls) {
                     data.data = "var " + codes.join(",") + ";\r\n" + data.data;
                 }
             }
-            data = buildResponse(data, compress, fullpath);
-            data.path = fullpath;
+            data.live = liveResponse;
+            data.fullpath = fullpath;
             data.time = new Date - timeStart + (watchurls.time || 0) + (promise.time || 0);
             clear_console();
             showMemery();
@@ -1288,41 +1408,36 @@ function commbuilder(buffer, filename, fullpath, watchurls) {
     }
     return promise1 || data;
 }
-var parse_ = function (data, filename, fullpath, compress, breakcode) {
+commbuilder.livebuilder = function () {
+    return commbuilder.apply(this, arguments).then(liveResponse);
+};
+commbuilder.live = liveResponse;
+commbuilder.revar = revarCode;
+commbuilder.lonelyjs = loneJsCode;
+commbuilder.lonelycss = renderLessData;
+var parse = function (data, filename, fullpath, compress, breakcode = true) {
+    data = String(data);
     var savedflag = breakflag;
     breakflag = !!breakcode;
-    var savedCompress = commbuilder.compress;
-    commbuilder.compress = breakflag;
     var autoeval = AUTOEVAL;
     AUTOEVAL = memery.run2eval;
-    var [commName, lessName, className] = prepare(filename, fullpath);
     if (/\.(?:pem|html?|xml|glsl|txt|log)$/i.test(fullpath)) data = `return ${strings.encode(data)}`;
-    else if (/\.(?:json)$/i.test(fullpath)) data = `var ${commName} = ` + data;
+    else if (/\.(?:json)$/i.test(fullpath)) data = `return ` + data.trim();
     autoprop.disabled = true;
-    var res = loadJsBody.call(this, data, filename, fullpath, null, commName, lessName, className);
-    if (compress === 2) [res.params, res.data] = buildPress2([], [], res.data, [], [], fullpath + "->.js");
-    else if (compress) [res.params, res.data] = buildPress2(res.imported, res.params, res.data, [], [], fullpath + "->.js");
-    else if (breakcode || breakcode === 0) [res.params, res.data, res.occurs] = revarCode(res.params, res.data, fullpath + "->.js");
-    autoprop.disabled = false;
-    if (savedCompress === undefined) delete commbuilder.compress;
-    else commbuilder.compress = savedCompress;
-    AUTOEVAL = autoeval;
-    breakflag = savedflag;
-    return res;
+    var [commName] = prepare(filename, fullpath);
+    var res = loadJsBody.call(this, data, filename, fullpath, null, null, commName);
+    var next = function (res) {
+        if (compress === 2) buildPress2(res);
+        else if (compress) buildPress2(res);
+        else if (breakcode || breakcode === 0) revarCode(res);
+        autoprop.disabled = false;
+        AUTOEVAL = autoeval;
+        breakflag = savedflag;
+        return res;
+    };
+    if (res.then) return res = res.then(next);
+    else return next(res);
 };
-commbuilder.parse = function (data, filename = 'main', fullpath = './main.js', compress, breakcode = 0) {
-    data = String(data);
-    if (/\.[mc]?[tj]sx?$/i.test(fullpath)) {
-        data = replaceIncludes(data, fullpath);
-        if (typeof data.then === 'function') return data.then((data) => parse_.call(this, data, filename, fullpath, compress, breakcode));
-    }
-    var res = parse_.call(this, data, filename, fullpath, compress, breakcode);
-    return res;
-};
-commbuilder.break = function (data, filename, fullpath, compress) {
-    var parsed = commbuilder.parse(data, filename, fullpath, compress, true);
-    var { imported, params, data, required, occurs, isAsync, isYield, isBroken } = parsed;
-    var [data, res, val] = breakcode(data, occurs);
-    return [data, res, val, isAsync, isYield, isBroken];
-}
+commbuilder.parse = parse;
+
 module.exports = commbuilder;

@@ -194,7 +194,7 @@ var scrollTo_ = function (itemIndex) {
         }
         offsetBottom = bottom_item.offsetTop + bottom_item.offsetHeight;
         ratioTop = top_item.offsetTop + top_item.offsetHeight * ratio;
-        if (count++ > 600) throw console.log(
+        if (count++ > 600) throw console.warn(
             `头部下标`, index,
             `当前下标`, offset,
             `缓冲尺寸`, cache_height,

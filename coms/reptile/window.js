@@ -36,5 +36,5 @@ else {
     });
     window.globalThis = window.global = window.top = window.window = window;
     module.exports = window;
-for(var k in global)if((!(k in window)))console.log(k)
+for(var k in global)if((!(k in window)))console.warn(k)
 }

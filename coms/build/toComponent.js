@@ -94,7 +94,10 @@ function setDistpath(response, altername) {
     var DESTNAME = String(memery.PUBLIC_NAME || altername).replace(/\.\w*$/, '').replace(/[\$\/\\]index$/i, '') + memery.EXTT;
     if (DESTNAME) response.destpath = DESTNAME;
 }
+var quotedMap = compile$breakcode2.quoted;
+
 function toComponent(responseTree, isWebProject) {
+    responseTree = Object.assign(Object.create(null), responseTree);
     var thisContext = "";
     var exportName = memery.EXPORT_TO || EXPORT_TO;
     if (/^(this|globalThis|window|global)$/.test(exportName)) thisContext = exportName;
@@ -117,33 +120,24 @@ function toComponent(responseTree, isWebProject) {
 
     var destMap = Object.create(null), dest = [];
 
-    var paramsMap = Object.create(null);
     var avoidMap = scanner2.avoid || Object.create(null);
-    var getEfrontKey = function (k, type) {
-        k = String(k);
+    var getEfrontKey = function (name, type) {
+        name = String(name);
+        var key = name;
         if (type === 'global') {
-            var key = k;
             if (!destMap[key]) {
                 saveOnlyGlobal(key);
             }
         } else {
-            if (type === 'string') k = strings_decode(k);
-            var key = k.replace(/[^\w\$]+/g, "_");
-            if (key.length > 8) {
-                key = key.slice(0, 8);
-            }
-            if (!/^\_/.test(key)) key = "_" + key;
-            var hasOwnProperty = {}.hasOwnProperty;
-            var id = 0;
-            while (hasOwnProperty.call(paramsMap, key) && paramsMap[key] !== k || key in avoidMap && avoidMap[key] !== type) {
-                key = key.replace(/\d+?$/, '') + ++id;
+            if (type === 'string') {
+                key = compile$breakcode2.getkey(name);
             }
             if (!destMap[key]) {
-                paramsMap[key] = k;
-                if (type === 'string') k = strings_encode(k);
-                if (type === 'string') k = encode(k);
-                avoidMap[key] = type;
-                saveOnly(k, key);
+                if (/^\\[TR]/.test(name)) {
+                    name = quotedMap[name];
+                    if (/^\\T/.test(name)) name = encode(quotedMap[name]);
+                }
+                saveOnly(name, key);
             }
         }
         return key;
@@ -186,117 +180,13 @@ function toComponent(responseTree, isWebProject) {
         if (type === 'string') key = strings_encode(key);
         return destMap[getEfrontKey(key, type)];
     };
-    var warningMap = Object.create(null);
-    var saveCode = function (module_body, module_key, reqMap, occurs) {
-        var this_module_params = Object.create(null);
+    var saveCode = function (response, module_key) {
         var needAwaits = false;
-        var appendExtractedParam = function ($key) {
-            if (this_module_params[$key]) return this_module_params[$key];
-            var $arg = $key;
-            var id = 0;
-            while ($arg in occurs) {
-                $arg = $key + ++id;
-            }
-            occurs[$arg] = true;
-            this_module_params[$key] = $arg;
-            module_body.splice(module_body.length >> 1, 0, $key);
-            module_body.splice(module_body.length - 1, 0, $arg);
-            return $arg;
-        }
-        var setMatchedConstString = function (k, isReq) {
-            if (/^(['"`])user?\s+(strict|asm|strip)\1$/i.test(k)) return k;
-            if (k.length < 3) return k;
-            if (isReq) {
-                var refer = strings_decode(k);
-                if (reqMap && {}.hasOwnProperty.call(reqMap, refer)) {
-                    var reqer = reqMap[refer];
-                    var reqed = getFromTree(destMap, reqer);
-                    if (reqed) {
-                        needAwaits = true;
-                        return reqed;
-                    }
-                    if (!warningMap[reqer]) {
-                        warningMap[reqer] = true;
-                        console.warn(i18n`目标文件存在外部引用项${responseTree[reqer] ? ", " + responseTree[reqer].warn : `: <blue2>${reqer}</blue2>`}`);
-                    }
-                    if (reqer in libsTree) {
-                        var libdir = path.relative(PUBLIC_PATH, libsTree[reqer].realpath).replace(/\\/g, '/');
-                        k = strings_encode(libdir);
-                    } else if (/^[\.\/]/.test(refer)) {
-                        k = path.relative(PUBLIC_PATH, path.join(path.dirname(responseTree[module_key].realpath), refer)).replace(/\\/g, '/');
-                        k = strings_encode(k);
-                    } else {
-                        k = strings_encode(reqMap[refer]);
-                    }
-                    has_outside_require = true;
-                }
-            }
-            if (!memery.BREAK) return k;
-            var $key = getEfrontKey(k, 'string');
-            $key = appendExtractedParam($key);
-            return $key;
-        };
-
-        var setMatchedConstRegExp = function (k) {
-            k = k.replace(/^(\/)([\s\S]*)(\/\w*)$/, breakreg);
-            var $key = getEfrontKey(k, 'regexp');
-            $key = appendExtractedParam($key);
-            return $key;
-        };
-        var module_string = module_body[module_body.length - 1];
-        var [, isAsync, isYield] = /^(~?)(\*?)/.exec(module_string);
-        if (isAsync || isYield) module_string = module_string.slice(+!!isAsync + +!!isYield);
+        var { isAsync, isYield, params, imported, strkeys } = response;
         if (isAsync) outsideAsync = true;
-        var code_blocks = scanner(module_string);
-        var argList = module_body.slice(0, module_body.length >> 1)
-        var hasRequire = argList.indexOf('require') >= 0 || argList.indexOf('init') >= 0 || argList.indexOf('popup') >= 0;
-        var requireTestReg = new RegExp(`(^|${efront$punkreg.source})\\s*(${argList.filter(a => /^(require|init|popup)$/.test(a)).join('|')})$`);
-        var findRequire = function (string, end) {
-            var i = end - 1;
-            while (/^\s+$/.test(string.charAt(i))) i--;
-            if (string.charAt(i) !== '(') return;
-            i--;
-            while (/^\s+$/.test(string.charAt(i))) i--;
-            var s = string.slice(i > 7 ? i - 7 : 0, i + 1);
-            if (requireTestReg.test(s)) return true;
-        }
-        var replaceMatchedString = function (block) {
-            if (block.type === block.template_quote_scanner) {
-                var { start, end } = block;
-                if (block.children) {
-                    var res = [];
-                    for (var c of block.children) {
-                        res.push(
-                            module_string.slice(start, c.start),
-                            replaceMatchedString(c).trim()
-                        );
-                        start = c.end;
-                    }
-                    res.push(module_string.slice(start, end));
-                    return res.join('');
-                }
-            }
-            var block_string = module_string.slice(block.start, block.end);
-            if (block.type === block.double_quote_scanner) {
-                if (hasRequire) {
-                    var isRequire = !!findRequire(module_string, block.start);
-                }
-                var padStart = /^[\(\[\s]$/.test(module_string.charAt(block.start - 1)) ? "" : " ";
-                var padEnd = /^[\[\(\.\s\,\;\]\)]$/.test(module_string.charAt(block.end)) ? "" : ' ';
-                return padStart + setMatchedConstString(block_string, isRequire) + padEnd;
-            }
-            if (block.type === block.regexp_quote_scanner) {
-                return setMatchedConstRegExp(block_string);
-            }
-            return block_string;
-        };
-        module_string = code_blocks.map(replaceMatchedString).join("");
-        module_string = `${isAsync ? "async " : ""}function${isYield ? "*" : ""}(${module_body.slice(module_body.length >> 1, module_body.length - 1)}){${compress ? "" : "\r\n"}${module_string}${compress ? "" : "\r\n"}}`;
-        if (compress) {
-            module_string = scanner2(module_string).press(keepspace, compress).toString();
-        }
         if (needAwaits) getEncodedIndex('Promise', 'global');
-        saveOnly(`[${module_body.slice(0, module_body.length >> 1).map(function (a) {
+        var module_string = `${isAsync ? "async " : ""}function${isYield ? "*" : ""}(${params}){${compress ? "" : "\r\n"}${String(response.data)}${compress ? "" : "\r\n"}}`;
+        imported = imported.map(function (a) {
             var index = destMap[a];
             if (a === "__dirname" || a === "__filename") {
                 initDirname();
@@ -320,7 +210,11 @@ function toComponent(responseTree, isWebProject) {
                 index = destMap[a];
             }
             return index;
-        }).concat(module_string)}]`, module_key);
+        });
+        if (strkeys) imported = imported.concat(strkeys.map(strk => {
+            return getEfrontKey(strk, 'quoted');
+        }));
+        saveOnly(`[${imported},${module_string}]`, module_key);
     };
     var hasDirname = false;
     var initDirname = function () {
@@ -427,12 +321,12 @@ function toComponent(responseTree, isWebProject) {
         return getEncodedIndex(i, 'global');
     };
     var saveImportedItem = function (d) {
-        d.imported = d.imported.map(saveImported);
+        if (!d.writed) var imported1 = d.imported.map(saveImported);
         var module = d.module.replace(/"(imported\s*-\s*\d+)"/g, imported);
         if (compress) {
             module = scanner2(module).press(keepspace, compress).toString();
         }
-        saveOnly(`[${d.imported.join(',')},${module}]`, d.importedid);
+        saveOnly(`[${imported1.join(',')},${module}]`, d.importedid);
     };
     for (var k in responseTree) {
         if (!Object.prototype.hasOwnProperty.call(responseTree, k)) continue;
@@ -457,31 +351,18 @@ function toComponent(responseTree, isWebProject) {
             if (data instanceof Buffer) {
                 response.data = String(data);
             }
-            var dependence = response.dependence;
             if (response.isAsync) outsideAsync = true;
-            if (dependence) {
-                result.push([k, dependence.require, dependence.requiredMap, [].concat(dependence, dependence.args, String(response.data || '').slice(dependence.offset)), response.occurs]);
-            }
-            else result.push([k, null, null, [response.data], response.occurs]);
-        }
-    }
-    if (result.length === 1) {
-        var [k, required, reqMap, module_body] = result[0];
-        var isSingleFile = module_body.length === 1 && (!required || required.length === 0);
-        if (isSingleFile && !memery.EMIT && !memery.ENCRYPT && !memery.BREAK && !memery.COMPRESS) {
-            responseTree[k].data = module_body[module_body.length - 1].replace(/^(@?)(\*?)/, '');
-            setDistpath(responseTree[k], k);
-            return responseTree;
+            result.push([k, response]);
         }
     }
     console.info(i18n`正在合成`);
-    if (array_map && array_map.data) saveCode([String(array_map.data)], "map", null, array_map.occurs);
+    if (array_map && array_map.data) saveCode(array_map, "map");
     var circle_result, PUBLIC_APP, public_index, last_result_length = result.length, origin_result_length = last_result_length
     while (result.length) {
         for (var cx = result.length - 1, dx = 0; cx >= dx; cx--) {
-            var [k, required, reqMap, module_body, occurs] = result[cx];
-
-            required = (required || []).map(k => reqMap[k]);
+            var [k, response] = result[cx];
+            var { required = [], requiredMap: reqMap, imported: imports = [], refered = [], reqlinks } = response;
+            required = required.map(k => reqMap[k]);
             var ok = true;
             for (var r of required) {
                 if (!getFromTree(destMap, r)) {
@@ -492,11 +373,11 @@ function toComponent(responseTree, isWebProject) {
                     }
                 }
             }
-            var errored = module_body.slice(0, module_body.length >> 1).filter(saveGlobal);
+            var errored = imports.concat(required, refered).filter(saveGlobal);
             if (errored.length) {
                 console.warn(i18n`在 ${`<yellow>${k}</yellow>`} 中检测到可能不存在的外部变量：`, `<cyan2>${errored.join("<gray>,</gray> ")}</cyan2>`);
             }
-            if (responseTree[k].data == null) {
+            if (!responseTree[k].realpath) {
                 result.splice(cx, 1);
                 continue;
             }
@@ -504,7 +385,11 @@ function toComponent(responseTree, isWebProject) {
                 result.splice(cx, 1);
                 var startTime = new Date;
                 console.info(i18n`压缩(${origin_result_length - result.length}/${origin_result_length}):`, k);
-                saveCode(module_body, k, reqMap, occurs);
+                if (reqlinks) reqlinks.forEach(r => {
+                    var id = required[r.value];
+                    r.text = String(destMap[id]);
+                });
+                saveCode(response, k);
                 responseTree[k].time += new Date - startTime;
             }
         }
@@ -546,8 +431,11 @@ function toComponent(responseTree, isWebProject) {
         saveOnly(simple_compress(`[${dest.length + 1},${args.map(a => args[a])},function(h,${args}){return ${decoder}}]`), "\\decrypt");
     }
     var hasRequire;
-    saveOnlyGlobal('module');
-    saveOnlyGlobal('exports');
+    var hasModule = responseTree.module || responseTree.exports;
+    if (hasModule) {
+        saveOnlyGlobal('module');
+        saveOnlyGlobal('exports');
+    }
     if (array_map) polyfill_map = polyfill_map.replace(/\$(\w+)/g, function (_, w) {
         return getEncodedIndex(w, 'string') - 1;
     });
@@ -568,8 +456,8 @@ function toComponent(responseTree, isWebProject) {
         T: 'this',
         P: `s[${getEncodedIndex(`Function`, 'global') - 1}]`,
         R: undefined,
-        E: destMap.exports,
         m: `length`,
+        E: destMap.exports,
         M: destMap.module,
         A: `s[${getEncodedIndex('Array', 'global') - 1}]`,
     };
@@ -585,12 +473,13 @@ function toComponent(responseTree, isWebProject) {
         return r;
     }`: `function (){ return function (i, a) { return a in T[i] ? T[i][a] : T[i](a) } }`};` : ""}
     else R = function (Q, A) {${outsideAsync ? `
-        var C = [];` : ''}
-        if (!(~c + E && ~c + M)) return s[c][0];
+        var C = [];` : ''}${hasModule ? `
+        if (!(~c + E && ~c + M)) return s[c][0];`: ''}
+
         var r = s[${getEncodedIndex(`/${freg.source}/`, 'regexp') - 1}], I, g = [], i, k = a[m] - 1, f = a[k], l = r[e](f);
-        for (i = 0; i < k; i++) g[i] = ${responseTree.module || responseTree.exports
+        for (i = 0; i < k; i++) g[i] = ${hasModule
             ? `a[i] === M ? (I = I || {}, I[B] = Q, I) : a[i] === E ? (I = I || {}, I[B] = Q) : ${destMap["\\import"] ? `a[i] === ${destMap["\\import"]}?T[a[i]]()(A):` : ""}`
-            : ''} a[i] === c + 1 ? I ? Q : f : a[i] ? T[a[i]]() : T[0]${outsideAsync ? `, g[i] && g[i][N] instanceof P && C[T[${getEncodedIndex("push")}]()](i, g[i])` : ''};
+            : ''} a[i] === c + 1 ? f : a[i] ? T[a[i]]() : T[0]${outsideAsync ? `, g[i] && g[i][N] instanceof P && C[T[${getEncodedIndex("push")}]()](i, g[i])` : ''};
         ${encoded ? `if (!(${destMap["\\decrypt"] - 1}-c)) g[0] = s[M - 1];` : ''}
         g = g[o]([f, g, l ? l[1][q](',') : []]);${outsideAsync ? `
         if (C[m]) return T[${getEncodedIndex(`Promise`, 'global')}]()[T[${getEncodedIndex("all")}]()](C)[N](function (G) {

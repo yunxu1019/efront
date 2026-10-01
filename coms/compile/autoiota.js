@@ -105,7 +105,7 @@ var arrayFillMap = function (a, i, as) {
         nnn.unshift({ type: STAMP, text: ',' });
         nnn.unshift.apply(nnn, n);
         a.text = "ArrayFill";
-        splice(as, i, 1);
+        as.splice(i, 1);
         if (!this.envs.ArrayFill) this.envs.ArrayFill = true;
         if (!this.used.ArrayFill) this.used.ArrayFill = [];
         this.used.ArrayFill.push(a);

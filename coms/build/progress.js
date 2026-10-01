@@ -1,4 +1,5 @@
 var fs = require("fs");
+var fsp = fs.promises;
 var path = require("path");
 var environment = require("./environment");
 var {
@@ -52,8 +53,9 @@ var getBuiltVersion = async function (filepath) {
         }
     });
 };
-
+var loadToTree = Object.create(null);
 function builder(cleanAfterBuild = false, cleanBeforeBuild = false) {
+    if (cleanBeforeBuild) loadToTree = Object.create(null);
     memery.WATCH_PROJECT_VERSION++;
     console.stamp();
     if (builder.ing) return reload++;
@@ -91,11 +93,12 @@ function builder(cleanAfterBuild = false, cleanBeforeBuild = false) {
             }
             require("../compile/scanner2").avoid = Object.create(null);
             var toComponent = require("./toComponent");
-            commbuilder.compress = false;
             commbuilder.prepare = false;
             var polyfills = POLYFILL ? [path.join(__dirname, "../", "basic_/[]map.js")] : [];
         }
-        promise = loadData(polyfills.concat(public_app), 0, public_path, false)
+        setting.dest_root = public_path;
+        setting.last_build_time = 0;
+        promise = loadData(polyfills.concat(public_app), false, loadToTree)
             .then(toComponent)
             .then(function (response) {
                 return write(response, PUBLIC_PATH);
@@ -110,8 +113,6 @@ function builder(cleanAfterBuild = false, cleanBeforeBuild = false) {
         setting.is_commponent_package = false;
         setting.is_file_target = /\.html?$/i.test(memery.APP);
         commbuilder.prepare = !setting.is_file_target;
-        var toApplication = require("./toApplication");
-
         promise = getBuiltVersion(public_path).then(async function (version) {
             if (version) {
                 var [mark, lastBuildTime] = version;
@@ -131,10 +132,12 @@ function builder(cleanAfterBuild = false, cleanBeforeBuild = false) {
             if (!indexHTML) {
                 console.warn(i18n`项目内未发面主页面`);
             }
+            setting.dest_root = public_path;
+            setting.last_build_time = lastBuildTime;
             return loadData(pages_root.concat(
                 indexHTML ? [indexHTML] : [],
                 indexHTML ? aapis_root : []
-            ), lastBuildTime, public_path, POLYFILL)
+            ), POLYFILL, loadToTree)
                 .then(toApplication)
                 .then(function (response) {
                     var pbpath = public_path.replace(/[\/\\]+$/, '');
@@ -143,12 +146,19 @@ function builder(cleanAfterBuild = false, cleanBeforeBuild = false) {
                     var writeApplication = function () {
                         return write(response, pbpath);
                     };
-                    var rename = (a, b) => new Promise(function (ok, oh) {
-                        fs.rename(a, b, function (err) {
-                            if (err) return oh(err);
-                            else return ok();
-                        });
-                    });
+                    var rename = async (a, b) => {
+                        var error = null;
+                        for (var cx = 0, dx = 3; cx < dx; cx++) {
+                            try {
+                                await fsp.rename(a, b);
+                                break;
+                            } catch (e) {
+                                error = e;
+                                await wait(200);
+                            }
+                        }
+                        if (error) throw error;
+                    };
                     if (cleanAfterBuild) {
                         if (!fs.existsSync(pbpath)) return writeApplication();
                         return clean(temppath2).then(function () {
@@ -163,17 +173,20 @@ function builder(cleanAfterBuild = false, cleanBeforeBuild = false) {
                             return clean(temppath1);
                         });
                     }
-
-                    for (var k in response) {
-                        if (response[k].needed === false) {
-                            delete response[k];
-                        }
-                    }
                     return writeApplication();
                 })
-                .then(finish).then(function () {
+                .then(finish).then(async function () {
                     builder.ing = false;
                     if (reload) builder();
+                    else {
+                        var ipc = require("../server/ipc");
+                        if (ipc.exists()) {
+                            console.info(i18n`发现已存在的efront服务，正尝试通知其更新`);
+                            await ipc.dispach('unload ' + public_path);
+                            console.time();
+                            console.info(i18n`已通知efront刷新服务页面\r\n`);
+                        }
+                    }
                 });
         });
     } else {
@@ -183,8 +196,7 @@ function builder(cleanAfterBuild = false, cleanBeforeBuild = false) {
         process.exit(1);
     }
     if (promise) promise.catch(function (e) {
-        console.log(e);
-        console.error(e);
+        console.trace(e);
         if (cleanBeforeBuild) {
             process.exit(1);
         }

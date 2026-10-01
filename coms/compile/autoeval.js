@@ -716,6 +716,14 @@ function presetFunction(os, fn) {
         o.fn = fn;
     }
 }
+var removeEnv = function (used, envs, k) {
+    var u = used[k];
+    if (u) {
+        u = u.filter(o => o.type === EXPRESS);
+        if (u.length) used[k] = u;
+        else delete used[k], delete envs[k];
+    }
+}
 module.exports = function autoeval(body) {
     var { used, envs } = body;
     number_reg = body.program.number_reg;
@@ -738,5 +746,7 @@ module.exports = function autoeval(body) {
     }
     if (!calc) calc = calc_;
     calculate(body);
+    if (numberEnabled) removeEnv(used, envs, 'Number');
+    if (mathEnabled) removeEnv(used, envs, 'Math');
     return body;
 }

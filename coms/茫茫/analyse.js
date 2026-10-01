@@ -212,8 +212,6 @@ function analyse(text) {
         getWord(word).update();
     }
     return result;
-    // words = words.map(a => String.fromCodePoint(+a));
-    // window.console.log(words, remap);
 }
 function parse(codes) {
     var result = [];

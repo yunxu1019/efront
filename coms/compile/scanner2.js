@@ -68,7 +68,33 @@ var compress = function (scoped, maped = Object.create(null)) {
         scoped.forEach(s => compress(s, maped));
     }
 };
-
+var rescan = function (list) {
+    var pi = 0, f = null, p = null, n = null;
+    list.first = null;
+    for (var cx = 0, dx = list.length; cx < dx; cx++) {
+        var o = list[cx];
+        o.prev = p;
+        var type = o.type;
+        if (type & (COMMENT | SPACE)) continue;
+        if (!f) list.first = o;
+        while (pi < cx) list[pi++].next = o;
+        f = p = o;
+        switch (type) {
+            case SCOPED:
+                rescan(o);
+                break;
+            case QUOTED:
+                if (o.length) rescan(o);
+                break;
+            case ELEMENT:
+                if (o.attributes) rescan(o.attributes);
+        }
+    }
+    while (pi < cx) list[pi++].next = n;
+    list.last = f;
+    setqueue(list);
+    return list;
+};
 class Code extends Array {
     COMMENT = COMMENT
     SPACE = SPACE
@@ -146,24 +172,6 @@ class Code extends Array {
     set scoped(w) {
         this._scoped = w;
     }
-    get occurs() {
-        var rest = [this.scoped];
-        var occurs = Object.create(null);
-        Object.assign(occurs, this.scoped.envs);
-        while (rest.length) {
-            var scoped = rest.pop();
-            for (var k in scoped.vars) {
-                if (k in occurs) continue;
-                occurs[k] = true;
-            }
-            if (scoped.lets !== scoped.vars) for (var k in scoped.lets) {
-                if (k in occurs) continue;
-                occurs[k] = true;
-            }
-            rest.push(...scoped);
-        }
-        return occurs;
-    }
     getUndecleared() {
         var res = Object.create(null);
         for (var k in this.envs) {
@@ -186,6 +194,7 @@ class Code extends Array {
         return this;
     }
     revar() {
+        this.pressed = true;
         createNameList = renameHashName;
         compress(this.scoped);
         createNameList = createShortList;
@@ -210,6 +219,10 @@ class Code extends Array {
         relink(list);
         setqueue(list);
         return list;
+    }
+    rescan(list = this) {
+        delete list._scoped;
+        rescan(list);
     }
 }
 function getNodeAt(code, row, col) {

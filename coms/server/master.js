@@ -3,9 +3,70 @@ var message = require("../message");
 var clients = require("./clients");
 var fs = require("fs");
 var path = require("path");
+var getPathIn = require("../build/getPathIn");
 var memery = require("../efront/memery");
 var recover = require("./recover");
-
+var ipc = require('./ipc');
+var rpc = function (type, data) {
+    otherported.forEach(port => {
+        var ishttps = port & 1;
+        port = port >> 1;
+        var http = require(ishttps ? "https" : "http");
+        var path = "/:" + type;
+        if (data) path += '-' + encode62.timeencode(String(data));
+        var req = http.request({
+            method: "OPTIONS",
+            path,
+            hostname: '127.0.0.1',
+            port,
+        });
+        req.on('error', function () {
+            var i = otherported.indexOf(port);
+            otherported.splice(i, 1);
+        });
+        req.end();
+    });
+};
+var ipcstart = function () {
+    ipc.listen(function (event, data) {
+        switch (event) {
+            case "unload":
+                rpc('unload', data);
+                if (!getPathIn(memery.webroot, data)) break;
+                message.unload(data);
+                break;
+            case "ported":
+                data = +data;
+                if (otherported.indexOf(data) < 0) otherported.push(data);
+                break;
+        }
+    });
+};
+ipcstart();
+message.ipcstart = ipcstart;
+var otherported = [], thisported = [];
+message.ipcend = function (data) {
+    if (!data) return;
+    data.split(',').map(port => {
+        port = +port;
+        if (thisported.indexOf(port) >= 0) return;
+        if (otherported.indexOf(port) < 0) otherported.push(port);
+    });
+    ipcstart();
+};
+message.ported = function (port) {
+    if (thisported.indexOf(port) < 0) thisported.push(port);
+    var i = otherported.indexOf(port);
+    if (i >= 0) otherported.splice(i, 1);
+    if (ipc.ported()) return;
+    ipc.dispach("ported", port);
+}
+message.unload = function (madepath) {
+    if (!madepath || !getPathIn([memery.webroot], madepath)) return;
+    console.time();
+    console.info(i18n`静态页面刷新\r\n`);
+    waiters.forEach(w => message.send(w, 'unload'));
+};
 var quitting = [];
 /**
  * @type {[:Worker]}
@@ -23,6 +84,8 @@ var end = function () {
 recover.start();
 var afterend = function () {
     recover.destroy();
+    ipc.remove();
+    rpc('ipcend', otherported);
     watch.close();
     process.removeAllListeners();
     if (process.stdin.unref) process.stdin.unref();

@@ -247,7 +247,7 @@ var memery = module.exports = {
         }
         return noproxy;
     },
-    LIVEMODE: get("LIVEMODE,LIVE"),
+    LIVETIME: get("LIVEMODE,LIVE,LIVETIME"),
     COOKMODE: get("COOKMODE,COOK", false),
     HELPCODE: get("HELPCODE"),
     RESTCOMS: get("RESTCOMS,EXTRACOMS,REST_COMS,EXTRA_COMS,REST,EXTRA,REST_COMM,EXTRA_COMM,REST_MODULES,EXTRA_MODULES"),

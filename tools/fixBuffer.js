@@ -29,11 +29,11 @@ var replace = function (dir, deep) {
             if (size.split(",").length === 2 || /(SIGNATURE|data|name|value)$/.test(size)) result = `Buffer.from(${size})`;
             else if (/(length|size|num|width|height|\d+)$/i.test(size)) result = `Buffer.alloc(${size})`;
             else replaceCount--;
-            match !== result && console.log(dir, match, result);
+            match !== result && console.info(dir, match, result);
             return result;
         });
         data.replace(/\bnew\s+Buffer\b.*?\)/g, function (match) {
-            console.log(dir, match);
+            console.info(dir, match);
         });
         replaceCount > 0 && fs.writeFileSync(dir, data);
     }
