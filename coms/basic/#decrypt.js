@@ -10,6 +10,8 @@ var uncode = function (text) {
     return sum;
 }
 var decrypt = function (text, start) {
+    start = +start;
+    if (start != start) return text;
     var rest = [];
     for (var cx = 0, dx = text.length; cx < dx; cx++) {
         var delta = text.charCodeAt(cx);

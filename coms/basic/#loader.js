@@ -140,8 +140,8 @@ var readFile = function (names, then) {
         }
         responseTree[name] = text;
         flushTree(loadingTree, key);
-        clearTimeout(flush_to_storage_timer);
-        flush_to_storage_timer = setTimeout(saveResponseTreeToStorage, 200);
+        // clearTimeout(flush_to_storage_timer);
+        // flush_to_storage_timer = setTimeout(saveResponseTreeToStorage, 200);
         readingCount--;
         // <!--
         if (readingCount === 0) {
@@ -234,7 +234,7 @@ var killCircle = function () {
             if (~penddings[b].indexOf(a)) return a + "%c>>%c";
             return a + "%c^%c";
         });
-        console.log.apply(console, [].concat.apply(
+        console.warn.apply(console, [].concat.apply(
             [`代码文件存在环形引用，未能成功加载: \r\n[ >>%c${circle.join("")}%c ]`],
             circle.map(a => ['color:#fff;background:#c24', 'color:#333;background:transparent'])
         ));
@@ -251,10 +251,10 @@ var multiModules = {};
 // -->
 var hasOwnProperty = {}.hasOwnProperty;
 "use ./#decrypt.js";
-var loadModule = function (url, then, prebuilds = {}) {
+var loadModule = function (url, then, prebuilds) {
     var name = url.replace(/[\*~][\s\S]*$/, '');
     if (/^(?:module|exports|define|\\import|require|window|global|undefined)$/.test(name)) return then();
-    if ((hasOwnProperty.call(prebuilds, url)) || hasOwnProperty.call(modules, url) || (!hasOwnProperty.call(forceRequest, name) && !/^on/.test(name) && window[name] !== null && window[name] !== void 0)
+    if (prebuilds && (hasOwnProperty.call(prebuilds, url)) || hasOwnProperty.call(modules, url) || (!hasOwnProperty.call(forceRequest, name) && !/^on/.test(name) && window[name] !== null && window[name] !== void 0)
     ) return then();
     preLoad(url);
     var key = keyprefix + url;
@@ -299,9 +299,9 @@ var loadModule = function (url, then, prebuilds = {}) {
             if (!data) undefinedModules[name] = true;
             // -->
             if (data instanceof Array) {
-                var [mod, args = [], required = [], strs = [], argNames] = data;
+                var [mod, args = [], required, strs = [], argNames] = data;
                 if (!requires_count) strs = strs.map(toRem);
-                if (mod.length && !argNames) argNames = /^[^\(]*\(([^\)]*)\)/.exec(mod)[1].split(',');
+                if (mod.length && !argNames) argNames = /^[^\(]*\(([^\)]*)\)/.exec(mod)[1].split(',').map(a => a.trim());
             }
             else {
                 var afterfix = url.slice(name.length);
@@ -346,7 +346,7 @@ var loadModule = function (url, then, prebuilds = {}) {
                 for (var moduleName of args) {
                     if (moduleName === url) {
                         // <!--
-                        // console.log(`检查到自我引用的代码 %c>> ${url} <<%c `, "color:#c46", 'color:');
+                        // console.info(`检查到自我引用的代码 %c>> ${url} <<%c `, "color:#c46", 'color:');
                         // -->
                         response();
                         continue;
@@ -389,7 +389,7 @@ var getArgs = function (text, aftfix) {
     }
     var [, isAsync, isYield] = /^(~?)(\*?)/.exec(functionBody);
     if (isAsync || isYield) functionBody = functionBody.slice(+!!isAsync + +!!isYield);
-    return [argNames || [], functionBody, args || [], required || '', strs || [], !!isAsync, !!isYield];
+    return [argNames || [], functionBody, args || [], required, strs || [], !!isAsync, !!isYield];
 };
 var get_relatives = function (name, required, prefix = "") {
     return required.map(r => {
@@ -445,7 +445,7 @@ Meta.prototype.resolve = function (url) {
     return resolve(url, this.path);
 }
 function Exports() { }
-var createModule = function (exec, originNames, compiledNames, prebuilds = {}, argfix) {
+var createModule = function (exec, originNames, compiledNames, prebuilds, argfix) {
     if (argfix in exec) return exec[argfix];
     var module = {};
     var exports = module.exports = exec[argfix] || new Exports;
@@ -455,7 +455,7 @@ var createModule = function (exec, originNames, compiledNames, prebuilds = {}, a
     if (required) required = required.map(a => loadedModules[keyprefix + a]);
     var argsList = originNames.map(function (aName) {
         var argName = aName.replace(/[\*~][\s\S]*$/, '');
-        if (hasOwnProperty.call(prebuilds, argName)) {
+        if (prebuilds && hasOwnProperty.call(prebuilds, argName)) {
             return prebuilds[argName];
         }
         if (argName === "module") {
@@ -500,12 +500,12 @@ var createModule = function (exec, originNames, compiledNames, prebuilds = {}, a
             return exec.apply(_this, requires.map(a => init(a)));
         };
         var result, created;
-        if (prebuilds.init) {
+        if (prebuilds && prebuilds.init) {
             var prebuilds2 = {};
             for (var k in prebuilds) if (hasOwnProperty.call(prebuilds, k)) prebuilds2[k] = prebuilds[k];
             prebuilds = prebuilds2;
         }
-        var isCless = argName === 'cless';
+        var isCless = argName === '&style';
         if (isCless && exec[argName]) return exec[argName];
         var promise = init(aName, function (res) {
             if (isCless) res = exec[argName] = res.bind(document.createElement('style'));
@@ -867,49 +867,7 @@ var initIfNotDefined = function (defined, path, onload) {
     if (defined === void 0) init(path, a => onload(a) | hook(--requires_count));
     else hook(--requires_count);
 };
-try { var localStorage = window.localStorage; } catch { forceRequest.localStorage = forceRequest.sessionStorage = true }
-var flush_to_storage_timer = 0,
-    responseTree_storageKey = "zimoliAutoSavedResponseTree" + location.pathname;
-var loadResponseTreeFromStorage = preventCodeStorage ? function () { } : function () {
-    "use ./crc.js";
-    var load = function (name) {
-        var data = localStorage.getItem(responseTree_storageKey);
-        if (!data) return;
-        var responseTextArray = data.split("，");
-        for (var cx = 0, dx = responseTextArray.length; cx < dx; cx++) {
-            var kv = responseTextArray[cx].split("：");
-            var [responseName, version, responseText] = kv;
-            preLoadVersionTree[responseName] = version;
-            preLoadResponseTree[responseName] = responseText;
-        }
-    };
-    var preLoadResponseTree = {};
-    var preLoadVersionTree = {};
-    load();
-    preLoad = function (responseName) {
-        if (hasOwnProperty.call(responseTree, responseName)) return;
-        var version = preLoadVersionTree[responseName];
-        if (!version) return;
-        var responseText = preLoadResponseTree[responseName];
-        var sum = crc.string(responseText).toString(36);
-        if (sum + version.slice(sum.length) === versionTree[responseName])
-            responseTree[responseName] = responseText;
-        // else window.console.log(responseName, sum, version, versionTree[responseName]);
-    };
-};
 var preLoad = function () { };
-
-if (localStorage) loadResponseTreeFromStorage();
-var saveResponseTreeToStorage = preventCodeStorage || !localStorage ? function () { } : function () {
-    var responseTextArray = [];
-    for (var k in versionTree) {
-        if (hasOwnProperty.call(responseTree, k)) responseTextArray.push(
-            k + "：" + versionTree[k] + "：" + responseTree[k]
-        );
-    }
-    var data = responseTextArray.join("，");
-    localStorage.setItem(responseTree_storageKey, data);
-};
 
 initIfNotDefined([].map, "[]map", map => map);
 "use ../basic_/#checkPromise.js";
