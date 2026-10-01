@@ -43,7 +43,9 @@ var create = function (url, key, report_error) {
     var createImage = p.createImage || _createImage;
 
     image.shape = function (x, y, scaled, rotate) {
-        var style = get_style(x, y, scaled, rotate, p.mirror);
+        var style = get_style(x, y, scaled, rotate);
+        if (p.mirror) addClass(image, 'mirror');
+        else removeClass(image, 'mirror');
         css(imgpic, style);
         if (imgpic && !p.buzy) dispatch(p, 'scaled');
     };
@@ -94,7 +96,7 @@ var create = function (url, key, report_error) {
     createImage(url, image.setImage, report_error);
 
 
-    var get_style = function (x, y, scaled, rotate, mirror) {
+    var get_style = function (x, y, scaled, rotate) {
         var width = image.width * scaled;
         var height = image.height * scaled;
         var [left, top, marginLeft, marginTop] = coordIn([image.clientWidth, image.clientHeight], [x, y, width, height]);
@@ -105,7 +107,7 @@ var create = function (url, key, report_error) {
             left,
             top,
             marginLeft,
-            transform: mirror ? `rotateZ(${rotate}deg) rotateY(180deg)` : `rotate(${rotate}deg)`,
+            transform: `rotate(${rotate}deg)`,
             marginTop
         };
     }
