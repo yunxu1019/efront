@@ -377,7 +377,7 @@ var pushstep = function (result, step) {
     }
     else if (q.await_) {
         if (!step.awaited) {
-            step.unshift(...rescan.keep`${q.name}=${ret_};`), relink(step);
+            step.unshift(...rescan`${q.name}=${ret_};`), relink(step);
             step.awaited = true;
         }
         result.push(step);

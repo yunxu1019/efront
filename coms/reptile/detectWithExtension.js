@@ -38,7 +38,7 @@ async function detect(filenames, extensions, folders) {
     return findedFolder;
 }
 async function detectWithExtension(filenames, extensions, folders) {
-    res = await detect(filenames, extensions, folders);
+    var res = await detect(filenames, extensions, folders);
     return res[0];
 }
 detectWithExtension.detect = detect;

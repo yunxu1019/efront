@@ -24,7 +24,7 @@ var lonecssbuilder = async function (data, filename, fullpath, watchurls) {
 };
 var lonetoString = function (code) {
     var data = code.toString();
-    if (res.prequoted) data = code.prequoted + data;
+    if (code.prequoted) data = code.prequoted + data;
     return data;
 }
 var lonejsbuilder = async function (data, filename, fullpath, watchurls) {

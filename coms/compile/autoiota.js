@@ -122,6 +122,10 @@ var arrayFillMap = function (a, i, as) {
 };
 module.exports = function (body) {
     var envs = body.envs;
-    if (envs.Array) backEach(body.used.Array, arrayFillMap, body);
+    if (envs.Array) {
+        var usedArray = body.used.Array;
+        backEach(usedArray, arrayFillMap, body);
+        if (!usedArray.length) delete envs.Array;
+    }
     return body;
 };
