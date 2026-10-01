@@ -1,6 +1,6 @@
 var KMGT = 'KMGT';
 "use ./KMGT.txt"
-module.exports = function (f, fix) {
+function size(f, fix) {
     var log = Math.log(f) / Math.LN2 / 10 | 0;
     f /= Math.pow(2, log * 10);
     f = f.toFixed(fix >= 0 ? fix : 2);
