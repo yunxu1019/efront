@@ -673,7 +673,6 @@ var src2 = function (search) {
 }
 var gtValue = function () { return this.value };
 var stValue = function (v) {
-    console.log(this)
     this.value = v
 };
 var gtChecked = function () { return this.checked };
@@ -724,9 +723,9 @@ class Model {
         if (value === this.value) {
             return;
         }
-        this.ss.call(this.target, value);
+        this.ss.call(this.wrapper || elem, value);
         this.value = value;
-        this.bd.value = this.gs.call(this.target, value);
+        this.bd.value = this.gs.call(this.wrapper || elem, value);
         if (isFunction(this.emit?.call)) {
             this.emit.call(this.target);
         }
@@ -747,7 +746,9 @@ class Model {
         }
         else {
         }
-        var binder = new Binder2(this.gs, this.target !== elem ? sv.bind(this.target) : sv);
+        var gs = this.gs;
+        if (elem !== this.target) gs = gs.bind(elem), sv = sv.bind(this.target), this.wrapper = elem;
+        var binder = new Binder2(gs, sv);
         binder.call(elem);
         this.bd = binder;
         return binder;
