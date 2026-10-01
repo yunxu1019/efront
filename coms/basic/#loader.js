@@ -140,8 +140,6 @@ var readFile = function (names, then) {
         }
         responseTree[name] = text;
         flushTree(loadingTree, key);
-        // clearTimeout(flush_to_storage_timer);
-        // flush_to_storage_timer = setTimeout(saveResponseTreeToStorage, 200);
         readingCount--;
         // <!--
         if (readingCount === 0) {
