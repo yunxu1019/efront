@@ -871,10 +871,9 @@ var createScoped = function (parsed, wash) {
                         o = getnext(o);
                     }
                 }
-                if (!isFunction) while (o.type !== SCOPED) {
+                if (!isFunction) while (o && o.type !== SCOPED) {
                     o = run(o, 0);
                     o = getnext(o);
-                    if (!o) break;
                 }
                 if (!o);
                 else if (o.entry === "(") {
