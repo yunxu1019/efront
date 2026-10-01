@@ -1,3 +1,321 @@
+- zh-CN: 静态页面刷新
+  zh-TW: 靜態頁面重繪
+  en:    Static page refresh
+  ja:    静的ページ更新
+  fr:    Actualisation statique de la page
+  ru:    Статическое обновление страницы
+  ko:    정적 페이지 새로 고침
+  de:    Statische Seitenaktualisierung
+  it:    Aggiornamento statico della pagina
+  th:    รีเฟรชหน้าแบบคงที่
+  vi:    Làm mới trang tĩnh
+  ar:    تحديث صفحة ثابتة
+  nl:    Statische pagina vernieuwen
+  fi:    Sivun staattinen päivitys
+  el:    Στατική ανανέωση σελίδας
+  es:    Actualización de página estática
+  pt:    Atualização estática da página
+  hu:    Statikus oldalfrissítés
+  sv:    Statisk siduppdatering
+  da:    Statisk sideopdatering
+  cs:    Statické obnovení stránek
+  pl:    Statyczne odświeżanie strony
+  bg:    Статично обновяване на страницата
+  et:    Lehekülje staatiline värskendamine
+  ro:    Actualizare statică a paginii
+  sl:    Statično osveževanje strani
+  af:    Statiese bladsy verfris
+  am:    ስታቲክ ገጽ ማደስ
+  bn:    স্থির পৃষ্ঠা রিফ্রেশ করুন
+  ca:    Actualització estàtica de la pàgina
+  fa:    تازه سازی صفحه استاتیک
+  fil:   Stock label
+  gu:    સ્થિર પાનું તાજું કરો
+  he:    עדכון דף סטטי
+  hi:    स्थिर पृष्ठ ताज़ा करें
+  hr:    Statično osvježavanje stranice
+  id:    Pembaruan halaman statis
+  kn:    ಸ್ಥಿರ ಪುಟವನ್ನು ನವೀಕರಿಸು
+  lt:    Statinis puslapio atnaujinimas
+  lv:    Statiskā lapas atjaunināšana
+  ml:    സ്ഥിര പേജ് പുതുക്കുക
+  mr:    स्थिर पृष्ठ ताजे करा
+  ms:    Kemas semula halaman statik
+  nb:    Statisk side forfriskning
+  sk:    Statické obnovenie stránky
+  sr:    Освежавање статичке странице
+  sw:    Refresh ukurasa static
+  ta:    நிலையான பக்க புதுப்பிப்பு
+  te:    స్థిర పేజీ రిఫ్రెష్
+  tr:    Statik sayfa yenileme
+  uk:    Статичне оновлення сторінки
+  ur:    جامد صفحہ تازہ کاری
+
+- zh-CN: 文件：$1
+  zh-TW: 檔案：$1
+  en:    "File: $1"
+  ja:    ファイル:$1
+  fr:    "Fichier: $1"
+  ru:    "Документ: $1"
+  ko:    "파일: $1"
+  de:    "Datei: $1"
+  it:    "File: $1"
+  th:    "ไฟล์: \\$1"
+  vi:    "Tập tin: $1"
+  ar:    "الوثائق : $1"
+  nl:    "Bestanden: $1"
+  fi:    "Tiedostot: $1"
+  el:    "Αρχεία: $1"
+  es:    "Documento: $1"
+  pt:    "Arquivos: $1"
+  hu:    "Fájlok: $1"
+  sv:    "Arkiv: $1"
+  da:    "Filer: $1"
+  cs:    "Soubor: $1"
+  pl:    "Pliki: $1"
+  bg:    "Файлове: $1"
+  et:    "Failid: $1"
+  ro:    "Fișiere: $1"
+  sl:    "Datoteka: $1"
+  af:    "Lêer: $1"
+  am:    "ፋይሎች: $1"
+  bn:    "ফাইল: $1"
+  ca:    "Arxiu: $1"
+  fa:    "فایل: $1"
+  fil:   "File: $1"
+  gu:    "ફાઇલો: $1"
+  he:    "קובץ: $1"
+  hi:    "फ़ाइलें: $1"
+  hr:    "Datoteke: $1"
+  id:    "File: $1"
+  kn:    "ಕಡತಗಳು: $1"
+  lt:    "Failai: $1"
+  lv:    "Fails: $1"
+  ml:    "ഫയലുകൾ: $1"
+  mr:    "फाइल्स: $1"
+  ms:    "Fail: $1"
+  nb:    "File: $1"
+  sk:    "Súbor: $1"
+  sr:    "Датотека: $1"
+  sw:    "Faili: $1"
+  ta:    "கோப்புகள்: $1"
+  te:    "ఫైళ్ళు: $1"
+  tr:    "Dosya: $1"
+  uk:    "Файли: $1"
+  ur:    "فائلیں: $1"
+
+- zh-CN: 路径：$1
+  zh-TW: 路徑：$1
+  en:    "Path: $1"
+  ja:    パス:$1
+  fr:    "Chemin: $1"
+  ru:    "Путь: $1"
+  ko:    "경로: $1"
+  de:    "Der Weg: $1"
+  it:    "Percorso: $1"
+  th:    "เส้นทาง: \\$1"
+  vi:    "Đường dẫn: $1"
+  ar:    المسار:$1
+  nl:    "De weg: $1"
+  fi:    "Polku: $1"
+  el:    "Διαδρομή: $1"
+  es:    "Ruta: $1"
+  pt:    "Caminho: $1"
+  hu:    "Utazás: $1"
+  sv:    "Vägen: $1"
+  da:    "Vejen: $1"
+  cs:    "Cesta: $1"
+  pl:    "Ścieżka: $1"
+  bg:    "Пътят: $1"
+  et:    "Tee: $1"
+  ro:    "Calea: $1"
+  sl:    "Pot: $1"
+  af:    "Pad: $1"
+  am:    "መንገድ: $1"
+  bn:    "পথ: $1"
+  ca:    "Camí: $1"
+  fa:    "مسیر: $1"
+  fil:   "Path: $1"
+  gu:    "પાથ: $1"
+  he:    "מסלול: $1"
+  hi:    "रास्ता: $1"
+  hr:    "Put: $1"
+  id:    "Jalur: $1"
+  kn:    "ಪಥ: $1"
+  lt:    "Kelionė: $1"
+  lv:    "Ceļš: $1"
+  ml:    "വഴി: $1"
+  mr:    "मार्ग: $1"
+  ms:    "Jalur: $1"
+  nb:    "Veien: $1"
+  sk:    "Cesta: $1"
+  sr:    "Пут: $1"
+  sw:    Njia ya $1
+  ta:    "பாதை: $1"
+  te:    "మార్గం: $1"
+  tr:    "Yol: $1"
+  uk:    "Шлях: $1"
+  ur:    "راستہ: $1"
+
+- zh-CN: 不要在独立代码中使用相对路径！
+  zh-TW: 不要在獨立程式碼中使用相對路徑！
+  en:    Do not use relative paths in independent code!
+  ja:    スタンドアロンコードで相対パスを使用しないでください！
+  fr:    "N'utilisez pas de chemins relatifs dans le Code autonome!"
+  ru:    Не используйте относительный путь в независимом коде!
+  ko:    독립 실행형 코드에서 상대 경로를 사용하지 마십시오!
+  de:    Verwenden Sie keine relativen Pfade in unabhängigen Codes!
+  it:    Non usare percorsi relativi in codice indipendente!
+  th:    อย่าใช้เส้นทางสัมพัทธ์ในรหัสแบบสแตนด์อโลน!
+  vi:    Đừng sử dụng đường dẫn tương đối trong mã độc lập!
+  ar:    لا تستخدم المسار النسبي في قانون مستقل !
+  nl:    Gebruik geen relatieve paden in onafhankelijke code!
+  fi:    Älä käytä suhteellista polkua itsenäisessä koodissa!
+  el:    Μην χρησιμοποιείτε σχετικές διαδρομές σε ανεξάρτητο κώδικα!
+  es:    ¡¡ No uses caminos relativos en códigos independientes!
+  pt:    Não use caminhos relativos em código independente!
+  hu:    Ne használjon relatív útvonalakat független kódban!
+  sv:    Använd inte relativ väg i oberoende kod!
+  da:    Brug ikke relative stier i uafhængig kode!
+  cs:    Nepoužívejte relativní cestu v samostatném kódu!
+  pl:    Nie używaj ścieżek względnych w kodu niezależnym!
+  bg:    Не използвайте относителни пътища в самостоятелен код!
+  et:    Ärge kasutage sõltumatu koodi suhtelist teed!
+  ro:    Nu folosiți calea relativă în codul independent!
+  sl:    Ne uporabljajte relativnih poti v neodvisni kodi!
+  af:    Moenie relatiewe paaie in onafhanklike kode gebruik nie!
+  am:    በገለልተኛ ኮድ ውስጥ አንጻራዊ መንገድ አይጠቀሙ!
+  bn:    স্বাধীন কোডে আপেক্ষিক পথ ব্যবহার করবেন না!
+  ca:    No utilitzeu el camí relatiu en el codi independent!
+  fa:    از مسیر نسبی در کد مستقل استفاده نکنید!
+  fil:   Huwag gamitin ang mga relatibong landas sa independent code!
+  gu:    સ્વતંત્ર કોડમાં સંબંધિત પાથનો ઉપયોગ કરશો નહીં!
+  he:    אל תשתמשו בדרכים יחסיות בקוד עצמאי!
+  hi:    स्वतंत्र कोड में सापेक्ष पथ का उपयोग न करें!
+  hr:    Ne koristite relativnu stazu u samostalnom kodu!
+  id:    Jangan gunakan jalur relatif dalam kode independen!
+  kn:    ಸ್ವತಂತ್ರ ಕೋಡ್ಗಳಲ್ಲಿ ಸಾಪೇಕ್ಷ ಮಾರ್ಗವನ್ನು ಬಳಸಬೇಡಿ!
+  lt:    Nenaudokite santykinių kelių atskirame kode!
+  lv:    Nelietojiet relatīvo ceļu neatkarīgajā kodā!
+  ml:    സ്വതന്ത്ര കോഡിൽ ആപേക്ഷിക പാത ഉപയോഗിക്കരുത്!
+  mr:    स्वतंत्र कोडमध्ये सापेक्ष मार्ग वापरू नका!
+  ms:    Jangan gunakan laluan relatif dalam kod bebas!
+  nb:    Bruk ikke relative stier i uavhengig kode!
+  sk:    Nepoužívajte relatívnu cestu v samostatnom kóde!
+  sr:    Не користите релативне стазе у независном коду!
+  sw:    Usitumie njia ya uhusiano katika kanuni ya kujitegemea!
+  ta:    சுயாதீன குறியீட்டில் சார்புடைய பாதைகளைப் பயன்படுத்த வேண்டாம்!
+  te:    స్వతంత్ర కోడ్ లో సాపేక్ష మార్గం ఉపయోగించవద్దు!
+  tr:    Bağımsız kodlarda göreli yollar kullanmayın!
+  uk:    Не використовуйте відносний шлях в незалежному коді!
+  ur:    آزاد کوڈ میں رشتہ دار راستے استعمال نہ کریں!
+
+- zh-CN: 发现已存在的efront服务，正尝试通知其更新
+  zh-TW: 發現已存在的efront服務，正嘗試通知其更新
+  en:    Found an existing frontend service and is attempting to notify it of an update
+  ja:    既存のefrontサービスを検出し、更新を通知しようとしています
+  fr:    Un service efront existant a été détecté et tente de le notifier des mises à jour
+  ru:    "Обнаружена уже существующая служба efront, которая пытается сообщить об обновлении"
+  ko:    이미 존재하는 efront 서비스가 발견되어 업데이트를 알리는 중
+  de:    "Es wurde ein vorhandener efront-Dienst gefunden, der versucht, über Updates zu informieren"
+  it:    Trovato un servizio efront esistente che sta cercando di avvisarlo degli aggiornamenti
+  th:    พบบริการ efront ที่มีอยู่แล้วและพยายามแจ้งการอัปเดต
+  vi:    Tìm thấy dịch vụ efront đã tồn tại và đang cố gắng thông báo cập nhật cho nó
+  ar:    العثور على خدمة فعالة ، في محاولة لإبلاغ التحديثات
+  nl:    Een bestaande efront-service is gevonden en probeert de update op de hoogte te stellen
+  fi:    "Löysi jo olemassa olevan efront-palvelun, joka yrittää ilmoittaa sen päivityksistä"
+  el:    Ανακαλύφθηκε μια ήδη υπάρχουσα υπηρεσία efront που προσπαθεί να ενημερώσει για την ενημέρωσή της
+  es:    Descubre un servicio efront existente y está tratando de informarle de su actualización
+  pt:    Serviço efront já encontrado e tentando notificar sua atualização
+  hu:    "Megtalált egy meglévő efront szolgáltatás, és megpróbálja értesíteni a frissítéseket"
+  sv:    Upptäckte en befintlig efront-tjänst som försöker meddela om uppdateringar
+  da:    "Opdaget en eksisterende efront-tjeneste, der forsøger at underrette om opdateringer"
+  cs:    "Byla zjištěna již existující služba efront, která se snaží informovat o jejích aktualizacích"
+  pl:    "Znaleziono istniejącą usługę efront, która próbuje powiadomić o jej aktualizacji"
+  bg:    "Открива съществуваща услуга efront, която се опитва да уведоми за актуализациите си"
+  et:    Avastas olemasoleva efront teenuse ja üritab teavitada selle värskendustest
+  ro:    Serviciul efront existent a fost descoperit și încearcă să-și notifice actualizările
+  sl:    Našel sem obstoječo frontend storitev in jo poskuša obvestiti o posodobitvi
+  af:    "Gevind 'n bestaande voorkant diens en probeer om dit te kennis van 'n opdateer"
+  am:    "ቀደም ሲል ነባር efront አገልግሎት አግኝቷል, እሱን ዝማኔዎች ለማሳወቅ እየሞከረ ነው"
+  bn:    ইতিমধ্যে বিদ্যমান efront পরিষেবা আবিষ্কার করা হয়েছে এবং তাদের আপডেট অবহিত করার চেষ্টা করছে
+  ca:    "S' ha trobat un servei efront existent i s' està intentant notificar-lo de l' actualització"
+  fa:    پیدا کردن یک سرویس efront موجود که در حال تلاش برای اطلاع رسانی به روزرسانی آن است
+  fil:   May natagpuan na serbisyo sa frontend at sinusubukan itong ipaalam sa isang update
+  gu:    "efront સેવા પહેલેથી જ હાજર છે, તેના સુધારાઓને સૂચિત કરવાનો પ્રયાસ કરી રહી છે"
+  he:    גילה שירות efront קיים ומנסה להודיע על עדכונים
+  hi:    पहले से ही मौजूद efront सेवा की खोज कर रहे हैं और अपने अपडेट को सूचित करने की कोशिश कर रहे हैं
+  hr:    Pronađen postojeći efront servis koji pokušava obavijestiti o njegovim ažuriranjima
+  id:    Temukan layanan efront yang sudah ada dan mencoba memberi tahu pembaruannya
+  kn:    "ಈಗಾಗಲೇ ಅಸ್ತಿತ್ವದಲ್ಲಿರುವ efront ಸೇವೆಯನ್ನು ಕಂಡುಕೊಂಡಿದೆ, ಅದರ ನವೀಕರಣಗಳನ್ನು ತಿಳಿಸಲು ಪ್ರಯತ್"
+  lt:    Rado egzistuojančią efront paslaugą ir bando pranešti apie jos atnaujinimą
+  lv:    "Atklājiet esošu efront pakalpojumu, kas mēģina informēt par atjauninājumiem"
+  ml:    "നിലവിലുള്ള efront സേവനം കണ്ടെത്തി, അതിന്റെ അപ്ഡേറ്റുകൾ അറിയിക്കാൻ ശ്രമിക്കുന്നു"
+  mr:    आधीच अस्तित्वात असलेली efront सेवा आढळली आणि त्याच्या अद्यतनांना सूचित करण्याचा प्रयत्न करत आहे
+  ms:    Menemukan perkhidmatan efront yang sedia ada dan cuba untuk memaklumkan kemas kini mereka
+  nb:    Fant en eksisterende frontentend service og prøver å informere den om en oppdatering.
+  sk:    "Zistila existujúcu službu efront, ktorá sa snaží informovať o jej aktualizácii"
+  sr:    Пронађен је постојећи фронтенд сервис и покушава да га обавести о ажурирању
+  sw:    Kugundua huduma ya efront zilizopo tayari ambazo zinajaribu kuwajulisha updates zao
+  ta:    "ஏற்கனவே உள்ள efront சேவையைக் கண்டறிந்து, அதன் புதுப்பிப்புகளை அறிவிக்க முயற்சிக்கிறது"
+  te:    "ఇప్పటికే ఉన్న efront సేవ కనుగొనబడింది, దాని నవీకరణలకు తెలియజేయడానికి ప్రయత్నిస్తోంది"
+  tr:    Mevcut bir efront hizmeti keşfedildi ve güncellemelerini bildirmeye çalışıyor
+  uk:    "Виявлено існуючий сервіс efront, який намагається повідомити про його оновлення"
+  ur:    پہلے سے ہی موجود efront سروس کا پتہ چلتا ہے اور اس کی تازہ کاری کو مطلع کرنے کی کوشش کر رہا ہے
+
+- zh-CN: 已通知efront刷新服务页面
+  zh-TW: 已通知efront重繪服務頁面
+  en:    Notify Front to refresh the service page
+  ja:    efrontにサービスページの更新を通知しました
+  fr:    "Efront a été informé de l'actualisation de la page de service"
+  ru:    Уведомление об обновлении страницы службы Efront
+  ko:    efront에 서비스 페이지 새로 고침 알림
+  de:    Benachrichtigung über die efront Update Service-Seite
+  it:    Pagina del servizio di aggiornamento di efront notificata
+  th:    efront ได้รับการแจ้งเตือนให้รีเฟรชหน้าบริการ
+  vi:    Efront được thông báo làm mới trang dịch vụ
+  ar:    أبلغ efront تحديث صفحة الخدمة
+  nl:    De service-pagina van efront is op de hoogte gesteld
+  fi:    Ilmoitettu efrontin päivityspalvelusivulta
+  el:    Ειδοποιήθηκε η σελίδα της υπηρεσίας ανανέωσης efront
+  es:    Se ha notificado a efront que actualice la página de servicio
+  pt:    Página do serviço de atualização do efront foi notificada
+  hu:    Értesítés az efront frissítő szolgáltatási oldalról
+  sv:    Efront uppdaterar servicesidan
+  da:    Efront opdatering service side meddelt
+  cs:    Byla oznámena stránka Refresh Service efront
+  pl:    Powiadomił efront o stronie usługi odświeżania
+  bg:    Страница за обновяване на услугите на efront е уведомена
+  et:    Teavitatud efront värskendada teenuse lehekülge
+  ro:    Pagina de serviciu de reîmprospătare a efront a fost notificată
+  sl:    Obvesti sprednjo stran za osvežitev strani storitev
+  af:    Merk voorkant om die diens bladsy te herstel
+  am:    efront ማደስ አገልግሎት ገጽ አሳውቀዋል
+  bn:    efront রিফ্রেশ পরিষেবা পৃষ্ঠা অবহিত করা হয়েছে
+  ca:    Pàgina del servei de refresc de efront notificada
+  fa:    صفحه خدمات Refresh efront
+  fil:   Notify Front to refresh the service page
+  gu:    efront સેવા પાનાંને તાજું કરવા માટે સૂચિત
+  he:    הודעה על דף השירות Refresh efront
+  hi:    सूचित efront ताज़ा सेवा पृष्ठ
+  hr:    Obavijest efront osvježavanje usluge stranice
+  id:    Pemberitahuan halaman layanan refresh efront
+  kn:    efront ನವೀಕರಣ ಸೇವೆ ಪುಟಕ್ಕೆ ತಿಳಿಸಲಾಗಿದೆ
+  lt:    Apie efront atnaujinimo paslaugų puslapį buvo pranešta
+  lv:    Paziņots efront atjaunošanas pakalpojumu lapa
+  ml:    efront പുതുക്കുക സേവന പേജ് അറിയിച്ചിരിക്കുന്നു
+  mr:    efront रिफ्रेश सेवा पृष्ठ सूचित
+  ms:    Laman perkhidmatan refresh efront telah dimaklumkan
+  nb:    Informer fronten for å oppdatere servicesiden
+  sk:    Stránka aktualizácie služby efront bola oznámená
+  sr:    Обавестите Фронт да освежите сервисну страницу
+  sw:    Ilijulishwa efront refresh huduma ukurasa
+  ta:    efront புதுப்பிக்க சேவை பக்கம் அறிவிக்கப்பட்டது
+  te:    efront రిఫ్రెష్ సర్వీస్ పేజీ తెలియజేయబడింది
+  tr:    Efront Yenileme Hizmetleri Sayfası Bildirildi
+  uk:    Повідомлення про сторінку служби оновлення efront
+  ur:    مطلع efront تازہ کاری سروس صفحہ
+
 - zh-CN: 接口版本
   zh-TW: 介面版本
   en:    Interface Version
@@ -25,7 +343,7 @@
   ro:    Versiune interfață
   sl:    Različica vmesnika
   af:    Koppelvlakweergawe
-  am:     የበይነገጽ ስሪት
+  am:    የበይነገጽ ስሪት
   bn:    ইন্টারফেস সংস্করণ
   ca:    Versió de la interfície
   fa:    نسخه رابط
