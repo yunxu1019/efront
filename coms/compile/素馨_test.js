@@ -84,8 +84,17 @@ test(`
         top: 12px- @avatar-top;
     }
 `,'a{top:24px;}');
-common.createString.debug = true;
 Program.debug = true;
+test(`
+.turn[active]>b {
+    width: 100px;
+    color: #921;
+}
+.turn>b>span:nth-child(1) {
+    display: none;
+}
+`,`.turn[active]>b{width:100px;color:#921;}\r\n.turn>b>span:nth-child(1){display:none;}`);
+Program.debug=false;
 test(`@type(@len){
     &[ntype="@{len}"] {
     @w: @len/2+1.4;
@@ -96,8 +105,6 @@ test(`@type(@len){
         }
         @type(1)
         `, '>[nlist]{width:1.9em;}');
-Program.debug = false;
-common.createString.debug = false;
 assert(素馨(`:not(a):not(b){c:d}`, 'abc'), `abc :not(a):not(b){c:d;}`);
 assert(素馨(`&:not(a):not(b){c:d}`, 'abc'), `abc:not(a):not(b){c:d;}`);
 assert(素馨(`:scope{&:not(a):not(b){c:d}}`, 'abc'), `abc:not(a):not(b){c:d;}`);

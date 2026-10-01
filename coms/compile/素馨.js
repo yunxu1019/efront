@@ -644,7 +644,7 @@ var eval2 = function (props) {
             continue;
         }
         if (p.used) {
-            var match = /^([@\.#][^\s,]+)\s*\(([\s\S]*?)\)\s*$/.exec(k);
+            var match = /^([@\.#][^\s,\:]+)\s*\(([\s\S]*?)\)\s*$/.exec(k);
             if (!match) continue;
             if (presets.test(match[1])) continue;
             var [, name, args] = match;
