@@ -718,10 +718,12 @@ var requestListener = async function (req, res) {
                 return;
             case "unload":
                 message.send('unload', encode62.timedecode(type[2]));
-                break;
+                res.end();
+                return;
             case "ipcend":
                 message.send('ipcend', encode62.timedecode(type[2]));
-                break;
+                res.end();
+                return;
         }
         if (type) return doOptions(req, res, type).catch(function (e) {
             res.writeHead(403);
