@@ -672,7 +672,10 @@ var src2 = function (search) {
     };
 }
 var gtValue = function () { return this.value };
-var stValue = function (v) { this.value = v };
+var stValue = function (v) {
+    console.log(this)
+    this.value = v
+};
 var gtChecked = function () { return this.checked };
 var stChecked = function (v) { this.checked = v };
 var gtHtml = function () {
@@ -735,12 +738,11 @@ class Model {
             this.emit = emit;
             this.value = this.gv.call(this.target);
             eventsBinders.forEach(on => on(this.target, this, true));
-            this.target = elem;
             var sv1 = sv;
             var that = this;
             sv = function (value) {
                 sv1.call(this, value);
-                that.value = that.gv.call(elem);
+                that.value = that.gv.call(this);
             };
         }
         else {
