@@ -295,14 +295,8 @@ function picture_(image = document.createElement("div")) {
     });
     var shaped_rotate = 0, rotated = 0;
     var rotatexy = function (x1, y1, x2, y2) {
-        var { left, top } = getScreenPosition(image);
-        var computedStyle = getComputedStyle(image);
-        var scale = +computedStyle.scale;
-        if (scale) {
-            left *= scale;
-            top *= scale;
-        }
-        var centerx = left + image.clientLeft + image.clientWidth / 2, centery = top + image.clientTop + image.clientHeight / 2;
+        var { left, top, width, height } = getScreenPosition(image);
+        var centerx = left + width / 2, centery = top + height / 2;
         // var deltax = x2 - x1, deltay = y2 - y1;
         // var rx = x1 - centerx, ry = y1 - centery;
         // var sign = -ry * deltax + rx * deltay;
