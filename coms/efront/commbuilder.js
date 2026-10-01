@@ -1203,7 +1203,7 @@ async function getXhtPromise(xhtdata, filename, fullpath, watchurls, extraJs, ex
             createElement = 'document.createElement(';
     }
     if (htmltext !== '``' || attributes || tagName && jsvars[tagName] || commName && jsvars[commName]) {
-        var xhtrender = `render(elem,scope);`;
+        var xhtrender = `render(elem,scope,-1);`;
         xhtrender = async
             ? `${xhtmain}.apply(elem,arguments).then(function(scope){${xhtrender}})`
             : `var scope=${xhtmain}.apply(elem,arguments);${xhtrender}`;

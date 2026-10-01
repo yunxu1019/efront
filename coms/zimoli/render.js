@@ -209,7 +209,7 @@ var createGetter = function (target, search, isprop = true) {
             if (/^\{/.test(search)) search = `(${search})`;
             search = renderExpress(search);
             if (isprop) var getter = $$eval.bind(target, search, scopeList);
-            else if (variableOnlyReg.test(search)) getter = $$eval.bind(target, search + ".call(this,event)");
+            else if (variableOnlyReg.test(search)) getter = $$eval.bind(target, search + thistarget);
             else getter = $$eval.bind(target, search);
             return getter;
         case "object":
@@ -1498,7 +1498,7 @@ function renderLock(element) {
     }
     return false;
 }
-var eagermount = false, renderlock = null;
+var eagermount = false, renderlock = null, thistarget;
 function render(element, scope, parentScopes, lazy = true) {
     // <!--
     if (isNode(element)) Object.defineProperties(element, $weaks);
@@ -1508,6 +1508,8 @@ function render(element, scope, parentScopes, lazy = true) {
     if (isFinite(scope) && arguments.length === 2) lazy = scope, scope = undefined;
     else if (isFinite(parentScopes) && arguments.length === 3) lazy = parentScopes, parentScopes = undefined;
     var renderonce = lazy === 0;
+    if (lazy === -1) thistarget = + ".call(this,event)";
+    else thistarget = "(event)";
     if (haslock) eagermount = !+lazy;
     var e = renderElement(element, scope, parentScopes, renderonce);
     if (if_top_length < if_top.length) if_top.splice(if_top_length, if_top.length - if_top_length);
