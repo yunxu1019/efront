@@ -382,7 +382,10 @@
         }
         catch (e) {
             alert(i18n`提取文本时存在异常`, "error");
-            console.error(e, f.path);
+            console.error(f.path);
+            // <!--
+            console.trace(e);
+            // -->
             return [];
         }
     };

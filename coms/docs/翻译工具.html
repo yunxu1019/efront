@@ -24,7 +24,7 @@
     </field>
 </lattice>
 <div foot>
-    <a @click="baidu2" -bind="actname"></a>
+    <a @click="baidu2()" -bind="actname"></a>
     <label @click="baiduAll=!baiduAll" -if="!!item?">
         <checker -value=baiduAll></checker>${i18n`自动换行`}
     </label>

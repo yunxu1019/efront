@@ -1501,6 +1501,10 @@ var createString = function (parsed) {
             case COMMENT:
                 // 每一次要远行，我都不得不对自己的物品去粗取精。取舍之间，什么重要，什么不是那么重要，都有了一道明显的分界线。
                 if (uncomment) break;
+                if (!helpcode) {
+                    result.push(o.text);
+                    break;
+                }
                 var tmp = o.text, opentmp = false;
                 if (helpreg.test(tmp)) {
                     opentmp = true;

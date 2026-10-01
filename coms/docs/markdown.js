@@ -126,7 +126,9 @@ function markdown(text) {
             }
             return s1 + 茨菰$上色(t, c) + s2;
         } catch (e) {
-            console.error(e);
+            // <!--
+            console.trace(e);
+            // -->
             return c;
         }
     }).replace(/\s*((&nbsp;\s*)+)/g, "$1").split(/\r\n|\r|\n/).forEach(richtext);
