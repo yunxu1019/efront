@@ -489,7 +489,7 @@ function toComponent(responseTree, isWebProject) {
         r[T[${getEncodedIndex(`cache`)}]()] = s[${getEncodedIndex('require', "builtin") - 1}][T[${getEncodedIndex('cache')}]()];
         r[T[${getEncodedIndex(`resolve`)}]()] = s[${getEncodedIndex('require', "builtin") - 1}][T[${getEncodedIndex('resolve')}]()];
         return r;
-    }`: `function (i, a) { return T[i](a) }`};` : ""}
+    }`: `function(r){return T[c + 1] = function(){return r},r = function (i, a) { return T[i](a) }}`};` : ""}
     else R = function (Q, A) {${outsideAsync ? `
         var C = [];` : ''}${hasModule ? `
         if (!(~c + E && ~c + M)) return s[c][0];`: ''}
