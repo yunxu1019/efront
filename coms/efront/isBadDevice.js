@@ -1,4 +1,3 @@
-"use strict";
 // 检查性能
 var isBadDevice;
 

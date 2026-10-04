@@ -7,7 +7,10 @@ var strings = require("../basic/strings");
 var split = require("../basic/$split");
 var path = require("path");
 var fs = require('fs');
-var { STAMP, QUOTED, SCOPED, EXPRESS, COMMENT, pickArgument, remove, splice, insertBefore, VALUE, pickAssignment, createString } = require("./common");
+var {
+    STAMP, QUOTED, SCOPED, EXPRESS, COMMENT,
+    pickArgument, remove, insertBefore, pickAssignment
+} = require("./common");
 var getExported = function (code) {
     var used = code.used;
     var exports = used.exports;
@@ -139,7 +142,7 @@ var loadConsts = function (fullpath, commap) {
     if (!consts) {
         if (code.isExpressQueue()) {
             var last = code.last;
-            while (last?.type === STAMP && last.text === ';') last = last.prev;
+            while (last && last.type === STAMP && last.text === ';') last = last.prev;
             if (!last) return;
             var lp = last.prev;
             if (last.isdigit && (!lp || lp.type === STAMP && /^[,\=]$/.test(lp.text))) {
@@ -153,7 +156,7 @@ var loadConsts = function (fullpath, commap) {
 
 var getOnlyString = function (q) {
     var f = q.first;
-    if (f !== q.last || f?.type !== QUOTED || f.length) return;
+    if (f !== q.last || f && f.type !== QUOTED || f.length) return;
     var t = strings.decode(f.text);
     return t;
 };
@@ -187,7 +190,7 @@ var set1Equal = function (exp, consts, used) {
                 removeFromList(u, o);
                 u.unshift(o);
             }
-            if (e?.type === STAMP && e.text === ',') e = e.next;
+            if (e && e.type === STAMP && e.text === ',') e = e.next;
             o = e;
         }
         insertBefore(f, ...collected);
@@ -197,7 +200,7 @@ var isSimpleEqual = function (exp, o) {
     var f = exp[0];
     if (!f) return false;
     var eq = f.equal;
-    return eq === f.next && eq?.next === o;
+    return eq && eq === f.next && eq.next === o;
 }
 var setRequiredConsts = function (code, upath, commap, propable) {
     var requires = code.used.require;
@@ -205,7 +208,7 @@ var setRequiredConsts = function (code, upath, commap, propable) {
     var used = code.used;
     for (var r of requires) {
         var q = r.next;
-        if (q?.type !== SCOPED || q.entry !== '(') continue;
+        if (!q || q.type !== SCOPED || q.entry !== '(') continue;
         var t = getOnlyString(q);
         if (!t) continue;
         var p = getMaped(upath, commap, t);
@@ -251,10 +254,10 @@ var setRequiredConsts = function (code, upath, commap, propable) {
 }
 var proped = new Set();
 var autoConst = function (code, fullpath, ignoreImported) {
-    var vmap = this?.["&"];
+    var vmap = this["&"];
     var { envs, used, envs } = code;
     var p = path.dirname(fullpath);
-    var mp = vmap?.[p];
+    var mp = vmap && vmap[p];
     if (mp) {
         for (var k in envs) if (k in mp) {
             setEnvDefinedConsts(used, k, mp[k]);
@@ -263,7 +266,7 @@ var autoConst = function (code, fullpath, ignoreImported) {
             continue;
         }
     }
-    var mmap = this?.[":"];
+    var mmap = this[":"];
     if (!mmap) return code;
     var url = mmap[fullpath];
     var upath = split(url);

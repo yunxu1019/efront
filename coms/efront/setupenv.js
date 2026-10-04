@@ -1,9 +1,7 @@
-"use strict";
 var loadenv = require("./loadenv");
 var path = require("path");
 var fs = require("fs");
 var memery = require("./memery");
-var extendIfNeed = require("../basic/extendIfNeeded");
 var isEmpty = require("../basic/isEmpty");
 var env = process.env;
 var envpath = memery.ENVS_PATH;

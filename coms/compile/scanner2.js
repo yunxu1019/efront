@@ -1,4 +1,3 @@
-"use strict";
 var createShortName = require("./namelist");
 var createShortList = function (keys, prevent) {
     return createShortName(keys.length, prevent);
@@ -24,6 +23,8 @@ const {
     skipSentenceQueue,
     rename,
     relink,
+    createString,
+    pickSentence,
     setqueue
 } = require("./common");
 
@@ -73,6 +74,10 @@ var rescan = function (list) {
     list.first = null;
     for (var cx = 0, dx = list.length; cx < dx; cx++) {
         var o = list[cx];
+        //<!--
+        // if (o.scaned) throw console.warn(cx, o, list.indexOf(o)), new Error('发现复用节点');
+        // o.scaned = [list, cx];
+        //-->
         o.prev = p;
         var type = o.type;
         if (type & (COMMENT | SPACE)) continue;

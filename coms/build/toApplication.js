@@ -1,4 +1,3 @@
-"use strict";
 var crc = require("../basic/crc");
 var path = require("path");
 var fs = require("fs");
@@ -151,7 +150,6 @@ var buildHtml = function (html, code, outsideMain, responseTree) {
         let reloadVersion = memory.WATCH_PROJECT_VERSION;
         html = html.replace(/(<\/head>)/i, (_, head) => `\r\n<script ${efrontReloadVersionAttribute}=${reloadVersion}>
         -function(){
-            "use strict";
             var load = function(url, onload, method){
                 var xhr = new XMLHttpRequest;
                 xhr.open(method, url);

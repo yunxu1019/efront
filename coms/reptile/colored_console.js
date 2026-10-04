@@ -4,7 +4,6 @@ var colored = Object.create(null);
 var lazy = require("../basic/lazy");
 var colors = require("./colors");
 var renderTags = require("../basic/renderTags");
-var strings = require("../basic/strings");
 var lastLogLength = 0;
 var needNextLine = false;
 var getColor = function (c) {
@@ -101,7 +100,7 @@ var write = function (hasNewLine, str) {
         var label = logger.tip ? fgColor + bgColor + logger.tip + reset : '';
         var time_stamp = '';
         var mark = [time_stamp, label].filter(a => !!a)
-        var str = Array.prototype.map.call(arguments, a => renderColor(a)).join(" ").split(/\r\n|\r|\n/).map(a => {
+        var str = Array.prototype.map.call(arguments, formatDulp).join(" ").split(/\r\n|\r|\n/).map(a => {
             if (a) return mark.concat(a).join(' ');
             else return a;
         }).join(EOL);
@@ -177,6 +176,52 @@ var formatRows = function (arg, rows, deep, entry, leave) {
 };
 var deepobjs = [];
 var circleobjs = [];
+var dulpobjs = null;
+var getkvs = function (arg, keys, deep) {
+    var ks = keys.slice(0, 100);
+    if (deep > 3 && deep + keys.length > 5) {
+        var kvs = [];
+        if (keys.length > 0) kvs.push(bindColor('gray', `.. 共 ${keys.length} 个属性`));
+    }
+    else {
+        deepobjs.push(arg);
+        var kvs = ks.map(k => `${/[\:'"`\[\{\(\r\n\u2028\u2029]|^\s|\s$/.test(k) ? format(k, deep) : k}: ${format(arg[k], deep)}`);
+        deepobjs.pop();
+        if (keys.length > ks.length) kvs.push(bindColor('gray', `.. 其他 ${keys.length - ks.length} 个属性`));
+    }
+    return kvs;
+}
+var formatArg = function (arg) {
+    arg = format(arg, 0);
+    return arg;
+};
+var formatDulp = function (arg) {
+    // 仅用在查错阶段，不兼容buffer数据，性能很差
+    dulpobjs = [];
+    markDulp(arg);
+    arg = format(arg, 0);
+    dulpobjs = null;
+    return arg;
+}
+const dulpkey = Symbol('dulp'), dulpdesc = {
+    enumerable: false,
+    writable: true,
+    value: 1,
+};
+var markDulp = function (arg) {
+    if (arg === null) return;
+    switch (typeof arg) {
+        case "object":
+        case "function":
+            if (arg[dulpkey]) {
+                arg[dulpkey]++;
+                return;
+            }
+            Object.defineProperty(arg, dulpkey, dulpdesc);
+            if (arg instanceof Array) arg.forEach(markDulp);
+            else Object.keys(arg).forEach(k => markDulp(arg[k]));
+    }
+}
 var format = function (arg, deep = 0) {
     deep++;
     if (arg === null) return String(arg);
@@ -184,58 +229,70 @@ var format = function (arg, deep = 0) {
         if (deep > 1) return bindColor("green", arg);
         return arg;
     }
-    if (typeof arg === 'function') return bindColor('cyan', `[${arg.constructor.name}${arg.name ? ": " + arg.name : " (匿名)"}]`);
-    if (/^(number|boolean)$/.test(typeof arg)) return bindColor('yellow', arg);
+    if (/^(number|boolean|symbol)$/.test(typeof arg)) return bindColor('yellow', arg);
     if (arg === undefined) return bindColor('gray', 'undefined');
+    var mark = '';
+    if (dulpobjs && arg[dulpkey] > 1) {
+        var di = dulpobjs.indexOf(arg);
+        if (di >= 0) {
+            mark = bindColor('red2', `<复用#${di + 1}>`);
+        }
+        else {
+            dulpobjs.push(arg);
+            mark = bindColor('red2', `<复用#${dulpobjs.length}>`);
+        }
+    }
+    if (typeof arg === 'function') return mark + bindColor('cyan', `[${arg.constructor.name}${arg.name ? ": " + arg.name : " (匿名)"}]`);
     if (typeof arg === "object") {
         if (deepobjs.indexOf(arg) >= 0) {
             var ci = circleobjs.indexOf(arg);
             if (ci < 0) ci = circleobjs.length, circleobjs.push(arg);
-            return bindColor("cyan", `[循环点 *${ci + 1}]`);
+            return mark + bindColor("cyan", `[循环点 *${ci + 1}]`);
         }
         if (arg instanceof Error) {
-            if (deep > 1) return String(arg.message);
-            return String(arg.stack || arg.message);
+            if (deep > 1) return mark + String(arg.message);
+            return mark + String(arg.stack || arg.message);
         }
         if (arg instanceof Buffer || arg instanceof ArrayBuffer || arg instanceof SharedArrayBuffer) {
             var data = new Uint8Array(arg.buffer || arg, arg.byteOffset || 0, arg.byteLength);
-            return bindColor('magenta', `<${arg.constructor.name} ${Array.prototype.slice.call(data, 0, 20).map(a => a < 16 ? "0" + a.toString(16) : a.toString(16)).join(' ')}${arg.byteLength > 20 ? ` ... 其他 ${arg.byteLength - 20} 字节` : ''}>`);
+            return mark + bindColor('magenta', `<${arg.constructor.name} ${Array.prototype.slice.call(data, 0, 20).map(a => a < 16 ? "0" + a.toString(16) : a.toString(16)).join(' ')}${arg.byteLength > 20 ? ` ... 其他 ${arg.byteLength - 20} 字节` : ''}>`);
         }
-        else if (isFinite(arg.length)) {
+        else if (isFinite(arg.length) && arg.constructor) {
             var entry = "[";
             var leave = "]";
             entry = `${arg.constructor.name}(${arg.length})${entry}`;
-            if (arg.length === 0) return entry + leave;
             if (deep > 3 && deep + arg.length > 5) return `${entry} ... ${leave}`;
             deepobjs.push(arg);
             var res = Array.prototype.slice.call(arg, 0, 100).map(a => format(a, deep));
             deepobjs.pop();
             if (arg.length > res.length) res.push(bindColor('gray', `.. 其他 ${arg.length - res.length} 项`));
-            return formatRows(arg, res, deep, entry, leave);
+            var keys = Object.keys(arg);
+            for (var cx = keys.length - 1, dx = Math.max(keys.length - 100, 0); cx >= dx; cx--) {
+                var k = keys[cx];
+                if (+k === k >>> 0) {
+                    keys = keys.slice(cx + 1);
+                    break;
+                }
+            }
+            var kvs = getkvs(arg, keys, deep);
+            res = res.concat(kvs);
+            return mark + formatRows(arg, res, deep, entry, leave);
         }
         if (arg.constructor === Date) {
-            return bindColor('purple', formatDate.call(arg));
+            return mark + bindColor('purple', formatDate.call(arg));
         }
         if (arg.constructor === RegExp) {
-            return bindColor('red2', `/${arg.source}/`) + bindColor('cyan', arg.flags);
+            return mark + bindColor('red2', `/${arg.source}/`) + bindColor('cyan', arg.flags);
         }
         var keys = Object.keys(arg);
-        var ks = keys.slice(0, 100);
-        if (deep > 3 && deep + keys.length > 5) {
-            var kvs = [];
-            if (keys.length > 0) kvs.push(bindColor('gray', `.. 共 ${keys.length} 个属性`));
-        }
-        else {
-            deepobjs.push(arg);
-            var kvs = ks.map(k => `${/[\:'"`\[\{\(\r\n\u2028\u2029]|^\s|\s$/.test(k) ? format(k, deep) : k}: ${format(arg[k], deep)}`);
-            deepobjs.pop();
-            if (keys.length > ks.length) kvs.push(bindColor('gray', `.. 其他 ${keys.length - ks.length} 个属性`));
-        }
+        var kvs = getkvs(arg, keys, deep);
         var entry = '{';
-        if (arg.constructor && arg.constructor !== Object) entry = arg.constructor.name + entry;
-        return formatRows(arg, kvs, deep, entry, '}');
+        if (!arg.constructor) entry = "[null]" + entry;
+        else if (arg.constructor !== Object) entry = arg.constructor.name + entry;
+
+        return mark + formatRows(arg, kvs, deep, entry, '}');
     }
-    return String(arg);
+    return mark + String(arg);
 };
 var toLength = function (n, a = -1) {
     n = String(n);
@@ -271,10 +328,10 @@ colored.time = function (date = new Date, str) {
 };
 
 colored.type = function () {
-    write1(false, Array.prototype.map.call(arguments, a => format(a)).join(' '));
+    write1(false, Array.prototype.map.call(arguments, formatArg).join(' '));
 };
 colored.line = function () {
-    write1(true, Array.prototype.map.call(arguments, a => format(a)).join(' '));
+    write1(true, Array.prototype.map.call(arguments, formatArg).join(' '));
 };
 var _log = console.log;
 colored.log = function () {
@@ -307,5 +364,6 @@ if (typeof i18n !== 'undefined') {
     colored.warn.tip = i18n`注意`;
     colored.error.tip = i18n`错误`;
 }
+console.markDulp = markDulp;
 colored.render = renderColor;
 module.exports = colored;

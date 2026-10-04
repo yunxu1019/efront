@@ -4,9 +4,11 @@ var {
     relink,
     setqueue,
     replace,
+    createString,
     splice, insertAfter, skipAssignment, skipSentenceQueue, snapSentenceHead,
     VALUE, EXPRESS, SCOPED, SPACE
 } = require("../compile/common");;
+var safeGlobals = require("../compile/safeGlobals.js");
 var showMemery = require("./showMemery");
 var scanner2 = require("../compile/scanner2");
 var breakcode = require("../compile/breakcode2");
@@ -474,12 +476,12 @@ var loadJsStatic = function* (code, fullpath, commap, watchurls) {
         }
     }
 }
-var asyncLoopLoadStatic = async function (value, emier) {
+var asyncLoopLoadStatic = async function (value, emiter) {
     do {
-        var { value, done } = emier.next(await value);
+        var { value, done } = emiter.next(await value);
     } while (!done);
 };
-var loopLoadStatic = function name(code, fullpath, commap, watchurls, next) {
+var loopLoadStatic = function (code, fullpath, commap, watchurls, next) {
     var emiter = loadJsStatic(code, fullpath, commap, watchurls);
     var { value, done } = emiter.next();
     if (!done) return asyncLoopLoadStatic(value, emiter).then(next);
@@ -496,7 +498,7 @@ var loneJsCode = function (code, fullpath, commap, watchurls) {
 };
 
 var loadJsBody = function (data, filename, fullpath, watchurls, ...args) {
-    var code = scanner2(data, fullpath, 'js');
+    var code = typeof data === 'object' ? data : scanner2(data, fullpath, 'js');
     var next = liveJsNext.bind(this, code, filename, fullpath, ...args);
     return loopLoadStatic(code, fullpath, this, watchurls, next);
 }
@@ -598,7 +600,7 @@ var liveJsNext = function (code, filename, fullpath, lessdata, commName, classNa
         }
         if (hasless && code.return) {
             var less = scanner2(`var &cless=${strings.encode(lessdata, "'")};`);
-            less[3].keep = true;
+            less[3].noemit = true;
             code.unshift(...less);
             lessdata = '&cless';
             declares[lessdata] = lessdata;
@@ -687,6 +689,33 @@ var liveJsNext = function (code, filename, fullpath, lessdata, commName, classNa
     fairJsCode(code, fullpath, this, globalsmap);
     return code;
 };
+var getRequiredLink = function (req) {
+    var { next: c } = req;
+    if (!c || c.type !== SCOPED || c.entry !== "(") return;
+    var r = c.first;
+    if (!r) return;
+    var rn = r.next;
+    if (rn && (rn.type !== STAMP || rn.text !== ',')) return;
+    if (r.type & ~(QUOTED | VALUE) || r.length || /^\//.test(r.text)) return;
+    if (r.type === VALUE) return r;
+    var text = strings.decode(r.text);
+    if (r === c.last) {
+        var text1 = text.replace(/[\?#][\s\S]*$/, "");
+        if (text1 !== text) {
+            r.text = strings.encode(text1);
+            insertAfter(r,
+                { type: STAMP, text: ',' },
+                {
+                    type: QUOTED,
+                    text: strings.encode(text.slice(text1.length))
+                });
+            text = text1;
+        }
+    }
+    r.value = text.replace(/[\\]+/g, '/');
+    relink(c);
+    return r;
+}
 var fairJsCode = function (code, fullpath, commap, globalsmap) {
     code.requote = commbuilder.requote !== false;
     var {
@@ -695,7 +724,34 @@ var fairJsCode = function (code, fullpath, commap, globalsmap) {
         envs: undeclares,
         used: allVariables,
     } = code;
-
+    if (undeclares.require) var required = allVariables.require;
+    if (required) required = required.map(req => {
+        var r = getRequiredLink(req);
+        if (r && r.type === QUOTED) return r;
+    }).filter(a => !!a);
+    if (commap["?"] && required) {
+        var required_paths = required.map(r => r.value);
+        required_paths = rethink(commap, required_paths, fullpath);
+        required.forEach((r, i) => {
+            var p = required_paths[i];
+            r.value = p;
+            r.text = strings.encode(p);
+        });
+    }
+    var required_map = {}, required_paths = [], requiredi = [];
+    if (required) required.forEach((r, i) => {
+        if (!required_map[r.value]) {
+            required_map[r.value] = required_paths.length;
+            requiredi.push(r.row ? `:${r.row}:${r.col}` : '');
+            required_paths.push(r.value);
+        }
+        if (r.value in commap) {
+            r.value = required_map[r.value];
+            r.text = String(r.value);
+            r.type = VALUE;
+        }
+        r.isdigit = true;
+    });
     if (breakflag === false);
     else if (!islive) {
         code.relink();
@@ -723,58 +779,15 @@ var fairJsCode = function (code, fullpath, commap, globalsmap) {
             envs: undeclares
         } = code;
     }
-    if (undeclares.require) var required = allVariables.require;
     var globals = Object.keys(undeclares);
     globals.forEach(g => globalsmap[g] = g);
     globals = Object.keys(globalsmap);
-    if (required instanceof Array) required = required.map(({ next: c }, cx) => {
-        if (!c || c.type !== SCOPED || c.entry !== "(") return;
-        var r = c.first;
-        var rn = r.next;
-        if (rn && (rn.type !== STAMP || rn.text !== ',')) return;
-        if (r.type !== QUOTED || r.length || r.text[0] === '/') return;
-        var text = strings.decode(r.text);
-        if (r === c.last) {
-            var text1 = text.replace(/[\?#][\s\S]*$/, "");
-            if (text1 !== text) {
-                r.text = strings.encode(text1);
-                insertAfter(r,
-                    { type: STAMP, text: ',' },
-                    {
-                        type: QUOTED,
-                        text: strings.encode(text.slice(text1.length))
-                    });
-                text = text1;
-            }
-        }
-        r.value = text.replace(/[\\]+/g, '/');
-        return r;
-    }).filter(a => !!a);
+
     var params = globals.map(g => globalsmap[g]);
     if (commap && commap["?"]) {
         globals = rethink(commap, globals, fullpath);
-        if (required instanceof Array) {
-            var required_paths = required.map(r => r.value);
-            required_paths = rethink(commap, required_paths, fullpath);
-            required.forEach((r, i) => {
-                var p = required_paths[i];
-                r.value = p;
-                r.text = strings.encode(p);
-            });
-        }
     }
-    var required_map = {}, required_paths = [], requiredi = [];
-    if (required instanceof Array) required.forEach((r, i) => {
-        if (!required_map[r.value]) {
-            required_map[r.value] = required_paths.length;
-            requiredi.push(r.row ? `:${r.row}:${r.col}` : '');
-            required_paths.push(r.value);
-        }
-        r.value = required_map[r.value];
-        r.text = String(r.value);
-        r.type = VALUE;
-        r.isdigit = true;
-    });
+
     globals.i = params.map(a => {
         var o = allVariables[a];
         if (!o || !o.length) return "";
@@ -784,15 +797,15 @@ var fairJsCode = function (code, fullpath, commap, globalsmap) {
     required_paths.i = requiredi;
     code.helpcode = memery.HELPCODE;
     code.imported = globals;
-    if (required) {
-        code.required = required_paths;
-        code.reqlinks = required;
-    }
     code.isYield = isYield;
     code.params = params;
     code.isAsync = isAsync;
     if (!islive) buildPress2(code, code.strkeys);
     else revarCode(code);
+    if (required) {
+        code.required = required_paths;
+        code.reqlinks = required;
+    }
     return code;
 };
 var wrapParams = function (code, params) {
@@ -800,6 +813,7 @@ var wrapParams = function (code, params) {
     var { vars, used } = code;
     var params1 = params.map(a => {
         vars[a] = true;
+        if (!used[a]) console.warn(a, code.fullpath);
         used[a].push(a = { text: a });
         return a;
     });
@@ -835,20 +849,13 @@ var rethink = function (mmap, imported, fullpath) {
     var refpath = refname ? $split(refname) : [];
     var realimport = imported.map(m => {
         var a = getMaped(refpath, mmap, m);
-        if (a && a !== fullpath) m = rmap[a] in globalThis && extname(a) === extname(m) ? fmap[a] || m : rmap[a] || m;
+        if (a && a !== fullpath) m = rmap[a] in safeGlobals && extname(a) === extname(m) ? fmap[a] || m : rmap[a] || m;
         return m;
     });
     return realimport;
 };
 var revarCode = function (code) {
     var params = code.params;
-    a: {
-        for (var k of params) if (/^[@#%\^&\?\\]/.test(k)) {
-            break a;
-        }
-        return;
-    }
-
     var params1 = wrapParams(code, params);
     code.revar();
     unwrapParams(code, params1);
@@ -1006,7 +1013,7 @@ var getValidName = function (prefix, used) {
     return prefix;
 }
 var Timer = require("../basic/Timer");
-const { isDeclareOnly } = require("../compile/common");
+const { isDeclareOnly } = require("../compile/common.js");
 async function getXhtPromise(xhtdata, filename, fullpath, watchurls, extraJs, extraCss) {
     var timer = new Timer;
     var [commName, lessName, className] = prepare(filename, fullpath);
@@ -1340,7 +1347,7 @@ function commbuilder(buffer, filename, fullpath, watchurls) {
     showMemery();
     filename = String(filename || '');
     fullpath = String(fullpath || "");
-    var data = String(buffer), promise;
+    var data = buffer instanceof Buffer ? String(buffer) : buffer, promise;
     watchurls.time = 0;
     if (/\.xht$/i.test(fullpath)) {
         promise = getXhtPromise.call(this, buffer, filename, fullpath, watchurls);
@@ -1398,7 +1405,6 @@ function commbuilder(buffer, filename, fullpath, watchurls) {
                     data.data = "var " + codes.join(",") + ";\r\n" + data.data;
                 }
             }
-            data.live = liveResponse;
             data.fullpath = fullpath;
             data.time = new Date - timeStart + (watchurls.time || 0) + (promise.time || 0);
             clear_console();
@@ -1415,7 +1421,7 @@ commbuilder.live = liveResponse;
 commbuilder.revar = revarCode;
 commbuilder.lonelyjs = loneJsCode;
 commbuilder.lonelycss = renderLessData;
-var parse = function (data, filename, fullpath, compress, breakcode = true) {
+var parse = function (data, filename, fullpath, compress, breakcode = memery.get("DETOUR")) {
     data = String(data);
     var savedflag = breakflag;
     breakflag = !!breakcode;
@@ -1427,9 +1433,6 @@ var parse = function (data, filename, fullpath, compress, breakcode = true) {
     var [commName] = prepare(filename, fullpath);
     var res = loadJsBody.call(this, data, filename, fullpath, null, null, commName);
     var next = function (res) {
-        if (compress === 2) buildPress2(res);
-        else if (compress) buildPress2(res);
-        else if (breakcode || breakcode === 0) revarCode(res);
         autoprop.disabled = false;
         AUTOEVAL = autoeval;
         breakflag = savedflag;
@@ -1439,5 +1442,5 @@ var parse = function (data, filename, fullpath, compress, breakcode = true) {
     else return next(res);
 };
 commbuilder.parse = parse;
-
+commbuilder.press = buildPress2;
 module.exports = commbuilder;

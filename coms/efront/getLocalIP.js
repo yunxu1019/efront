@@ -1,4 +1,3 @@
-"use strict";
 var os = require("os");
 module.exports = function () {
     var networkInterfaces = os.networkInterfaces();

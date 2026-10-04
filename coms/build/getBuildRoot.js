@@ -1,4 +1,3 @@
-"use strict";
 var fs = require("fs");
 var fsp = fs.promises;
 var path = require("path");

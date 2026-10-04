@@ -1,4 +1,3 @@
-"use strict";
 var { recode, ricode, ticode, encode, decode } = require("../basic/strings");
 var Program = require("./Program");
 var Node = require("./Node");
@@ -396,7 +395,6 @@ var scan = function (data) {
     return js.exec(data);
 };
 var detourTemplate = function (raw, params) {
-    var spliter = new Node({ text: ",", type: STAMP });
     var template = scan(`&extend([],{["raw"]:[]})`);
     var _extends = rootenvs["&extend"];
     if (!_extends) {
@@ -406,12 +404,12 @@ var detourTemplate = function (raw, params) {
     var str0 = template[1].first;
     var str1 = template[1][2][2];
     for (var r of raw) {
-        str0.push({ text: recode("`" + r.text + "`"), type: QUOTED }, spliter);
-        str1.push({ text: encode(r.text), type: QUOTED }, spliter);
+        str0.push({ text: recode("`" + r.text + "`"), type: QUOTED }, { text: ",", type: STAMP });
+        str1.push({ text: encode(r.text), type: QUOTED }, { text: ",", type: STAMP });
     }
     str0.pop();
     str1.pop();
-    for (var p of params) template.push(spliter), hasComma(p) ? template.push(p) : template.push(...p);
+    for (var p of params) template.push({ text: ",", type: STAMP }), hasComma(p) ? template.push(p) : template.push(...p);
     return template;
 };
 
@@ -499,6 +497,7 @@ var detourNullishSeek = function (o, ie) {
 }
 function addCrypt(c) {
     var scoped = [c];
+    c.noemit = true;
     scoped.entry = '(';
     scoped.leave = ')';
     scoped.type = SCOPED;
@@ -553,9 +552,23 @@ function detour(o, ie) {
                     var [, varname] = match;
                     o.hidden = varname;
                 }
-                text = text.replace(/\.([^\.\[\!\=\:]+)/g, (_, a) => ie === undefined || context.strap_reg.test(a) || /^#/.test(a) ? `[${autoprop(a, hidden)}]` : _);
+                var replaced = false;
+                text = text.replace(/\.([^\.\[\!\=\:]+)/g, (_, a) => {
+                    replaced = true;
+                    return ie === undefined || context.strap_reg.test(a) || /^#/.test(a) ? `[${autoprop(a, hidden)}]` : _;
+                });
                 if (hasdot) text = "..." + text;
-                o.text = text;
+                if (replaced) {
+                    var o1 = scan(text);
+                    if (o1.type & (STAMP | EXPRESS | STRAP)) {
+                        var o0 = o1.shift();
+                        insertAfter(o, ...o1);
+                        o.text = o0.text;
+                    }
+                    else {
+                        replace(o, ...o1);
+                    }
+                }
                 break;
             case VALUE:
                 o.text = String(o.text).replace(/_/g, '')
@@ -581,17 +594,19 @@ function detour(o, ie) {
                         o.type = SCOPED;
                         var noemit = o.noemit;
                         o.entry = '[';
-                        o.leave = `]["join"]("")`;
+                        o.leave = `]`;
+                        insertAfter(o, ...scan(`["join"]("")`))
                         for (var cx = o.length - 1; cx >= 0; cx--) {
                             var c = o[cx];
                             if (c.type === PIECE) {
                                 if (noemit && ricode !== ticode) {
-                                    splice(o, cx, 1, ...addCrypt({ type: QUOTED, text: ricode("`" + c.text + "`") }), { type: STAMP, text: ',' });
+                                    splice(o, cx, 1, ...addCrypt({ type: QUOTED, text: ricode("`" + c.text + "`"), noemit: true }), { type: STAMP, text: ',' });
                                 }
                                 else {
                                     c.type = QUOTED;
                                     c.text = (noemit ? ricode : recode)("`" + c.text + "`");
                                     splice(o, cx + 1, 0, { type: STAMP, text: ',' });
+                                    c.noemit = true;
                                 }
                             }
                             else {

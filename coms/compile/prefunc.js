@@ -1,4 +1,4 @@
-var { COMMENT, SPACE, STRAP, EXPRESS, STAMP, skipAssignment, isHalfSentence, splice } = common;
+var { COMMENT, SPACE, STRAP, EXPRESS, STAMP, skipAssignment, createString, isHalfSentence, splice } = common;
 // 将当前代码队列中的function及class声明提前
 var prefunc = function (sbody) {
     var fx = 0;

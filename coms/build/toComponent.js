@@ -5,6 +5,7 @@ var _strings = require("../basic/strings");
 var crypt1 = require("./crypt1");
 var memery = require("../efront/memery");
 var globals = require("../efront/globals");
+var { VALUE } = require("../compile/common");
 var { public_app, SOURCEDIR, EXPORT_TO: EXPORT_TO, PUBLIC_PATH } = require("./environment");
 if (SOURCEDIR) SOURCEDIR = path.dirname(public_app);
 else SOURCEDIR = PUBLIC_PATH;
@@ -59,7 +60,7 @@ var polyfill_map = `function (f, t) {
     for (; c < d; c++)r[c] = f[e](t, s[c], c, s);
     return r
 }`;
-var crypt_code = memery.crypt_code || new Date / 1000 ^ Math.random() * 3600;
+var crypt_code = new Date / 1000 ^ Math.random() * 3600;
 var encoded = memery.ENCRYPT;
 var compress = memery.COMPRESS;
 var keepspace = memery.KEEPSPACE;
@@ -97,6 +98,7 @@ function setDistpath(response, altername) {
 var quotedMap = compile$breakcode2.quoted;
 
 function toComponent(responseTree, isWebProject) {
+    crypt_code = memery.crypt_code;
     responseTree = Object.assign(Object.create(null), responseTree);
     var thisContext = "";
     var exportName = memery.EXPORT_TO || EXPORT_TO;
@@ -132,10 +134,11 @@ function toComponent(responseTree, isWebProject) {
             if (type === 'string') {
                 key = compile$breakcode2.getkey(name);
             }
+            if (!/^\\/.test(key)) key = "\\" + key;
             if (!destMap[key]) {
-                if (/^\\[TR]/.test(name)) {
-                    name = quotedMap[name];
-                    if (/^\\T/.test(name)) name = encode(quotedMap[name]);
+                if (/^\\[TR]/.test(key)) {
+                    name = quotedMap[key];
+                    if (/^\\T/.test(key)) name = encode(quotedMap[key]);
                 }
                 saveOnly(name, key);
             }
@@ -180,12 +183,30 @@ function toComponent(responseTree, isWebProject) {
         if (type === 'string') key = strings_encode(key);
         return destMap[getEfrontKey(key, type)];
     };
+    var initDecoder = function () {
+        if (encoded) {
+            saveOnlyGlobal('module');
+            var args = [];
+            var argcount = 0;
+            var decoder = decoderSource.replace(/\$\w+|String/g, function (w) {
+                var isString = /^\$/.test(w);
+                if (isString) w = w.slice(1);
+                do {
+                    var a = String.fromCharCode("a".charCodeAt(0) + argcount++);
+                } while (~"acsh".indexOf(a));
+                args.push(a);
+                args[a] = getEncodedIndex(w, isString ? "string" : 'global');
+                return a;
+            });
+            saveOnly(simple_compress(`[${dest.length + 1},${args.map(a => args[a])},function(h,${args}){return ${decoder}}]`), "\\decrypt");
+            return decoder;
+        }
+    };
     var saveCode = function (response, module_key) {
         var needAwaits = false;
         var { isAsync, isYield, params, imported, strkeys } = response;
         if (isAsync) outsideAsync = true;
         if (needAwaits) getEncodedIndex('Promise', 'global');
-        var module_string = `${isAsync ? "async " : ""}function${isYield ? "*" : ""}(${params}){${compress ? "" : "\r\n"}${String(response.data)}${compress ? "" : "\r\n"}}`;
         imported = imported.map(function (a) {
             var index = destMap[a];
             if (a === "__dirname" || a === "__filename") {
@@ -212,8 +233,9 @@ function toComponent(responseTree, isWebProject) {
             return index;
         });
         if (strkeys) imported = imported.concat(strkeys.map(strk => {
-            return getEfrontKey(strk, 'quoted');
+            return destMap[getEfrontKey(strk, 'quoted')];
         }));
+        var module_string = `${isAsync ? "async " : ""}function${isYield ? "*" : ""}(${params}){${compress ? "" : "\r\n"}${String(response.data)}${compress ? "" : "\r\n"}}`;
         saveOnly(`[${imported},${module_string}]`, module_key);
     };
     var hasDirname = false;
@@ -278,6 +300,10 @@ function toComponent(responseTree, isWebProject) {
                     hasRequire = true;
                     saveOnly.apply(null, args);
                 }
+                break;
+            case "\\decrypt":
+                initDecoder();
+                isGlobal = true;
                 break;
             case "module":
                 data = `[${crypt_code}]`;
@@ -361,19 +387,19 @@ function toComponent(responseTree, isWebProject) {
     while (result.length) {
         for (var cx = result.length - 1, dx = 0; cx >= dx; cx--) {
             var [k, response] = result[cx];
-            var { required = [], requiredMap: reqMap, imported: imports = [], refered = [], reqlinks } = response;
-            required = required.map(k => reqMap[k]);
+            var { required, requiredMap: reqMap, imported: imports = [], reqlinks } = response;
+            if (required) required = required.map(k => reqMap[k] || k);
             var ok = true;
-            for (var r of required) {
-                if (!getFromTree(destMap, r)) {
-                    let resp = getFromTree(responseTree, r);
+            if (required) for (var r of required) {
+                if (!destMap[r]) {
+                    let resp = responseTree[r];
                     if (resp && resp.data) {
                         ok = false;
                         break;
                     }
                 }
             }
-            var errored = imports.concat(required, refered).filter(saveGlobal);
+            var errored = imports.filter(saveGlobal);
             if (errored.length) {
                 console.warn(i18n`在 ${`<yellow>${k}</yellow>`} 中检测到可能不存在的外部变量：`, `<cyan2>${errored.join("<gray>,</gray> ")}</cyan2>`);
             }
@@ -386,8 +412,14 @@ function toComponent(responseTree, isWebProject) {
                 var startTime = new Date;
                 console.info(i18n`压缩(${origin_result_length - result.length}/${origin_result_length}):`, k);
                 if (reqlinks) reqlinks.forEach(r => {
-                    var id = required[r.value];
-                    r.text = String(destMap[id]);
+                    if (r.type === VALUE) {
+                        var id = required[r.value];
+                        if (destMap[id]) r.text = String(destMap[id]);
+                        else throw new Error(`模块引用异常`);
+                    }
+                    else {
+                        has_outside_require = true;
+                    }
                 });
                 saveCode(response, k);
                 responseTree[k].time += new Date - startTime;
@@ -415,21 +447,6 @@ function toComponent(responseTree, isWebProject) {
         return getEfrontKey(`"${str}"`, "string");
     });
     report(responseTree);
-    if (encoded) {
-        var args = [];
-        var argcount = 0;
-        var decoder = decoderSource.replace(/\$\w+|String/g, function (w) {
-            var isString = /^\$/.test(w);
-            if (isString) w = w.slice(1);
-            do {
-                var a = String.fromCharCode("a".charCodeAt(0) + argcount++);
-            } while (~"acsh".indexOf(a));
-            args.push(a);
-            args[a] = getEncodedIndex(w, isString ? "string" : 'global');
-            return a;
-        });
-        saveOnly(simple_compress(`[${dest.length + 1},${args.map(a => args[a])},function(h,${args}){return ${decoder}}]`), "\\decrypt");
-    }
     var hasRequire;
     var hasModule = responseTree.module || responseTree.exports;
     if (hasModule) {
@@ -462,20 +479,20 @@ function toComponent(responseTree, isWebProject) {
         A: `s[${getEncodedIndex('Array', 'global') - 1}]`,
     };
     var decoder = `
-        if (typeof a !== z || ${constIndex.map(c => `${c} === c`).join(" || ")}) return a;
+        if (typeof a !== z || !(${constIndex.map(c => `${c} - c`).join(" && ")})) return a;
         return T[${destMap["\\decrypt"]}]()(a)`;
     var realize = `
     if (!(a instanceof A)) ${encoded ? `R = function () {${decoder}}` : `return T[c + 1] = function () { return a }`};${hasRequire ? `
-    else if(!a[m]) R = ${has_outside_require ? `function(){
-        var r = function (i, a) { a = a || ""; return i[m] ? s[${getEncodedIndex("require", "builtin") - 1}](i) : a in T[i] ? T[i][a] : T[i](a) };
+    else if(!a[m]) return T[c + 1] = ${has_outside_require ? `function(r){
+        T[c + 1] = function(){return r};
+        r = function (i, a) { a = a || ""; return i[m] ? s[${getEncodedIndex("require", "builtin") - 1}](i+a) : T[i](a) };
         r[T[${getEncodedIndex(`cache`)}]()] = s[${getEncodedIndex('require', "builtin") - 1}][T[${getEncodedIndex('cache')}]()];
         r[T[${getEncodedIndex(`resolve`)}]()] = s[${getEncodedIndex('require', "builtin") - 1}][T[${getEncodedIndex('resolve')}]()];
         return r;
-    }`: `function (){ return function (i, a) { return a in T[i] ? T[i][a] : T[i](a) } }`};` : ""}
+    }`: `function (i, a) { return T[i](a) }`};` : ""}
     else R = function (Q, A) {${outsideAsync ? `
         var C = [];` : ''}${hasModule ? `
         if (!(~c + E && ~c + M)) return s[c][0];`: ''}
-
         var r = s[${getEncodedIndex(`/${freg.source}/`, 'regexp') - 1}], I, g = [], i, k = a[m] - 1, f = a[k], l = r[e](f);
         for (i = 0; i < k; i++) g[i] = ${hasModule
             ? `a[i] === M ? (I = I || {}, I[B] = Q, I) : a[i] === E ? (I = I || {}, I[B] = Q) : ${destMap["\\import"] ? `a[i] === ${destMap["\\import"]}?T[a[i]]()(A):` : ""}`
@@ -488,11 +505,12 @@ function toComponent(responseTree, isWebProject) {
         });`: ""}
         return f[y](I ? I[B] : T[0], g);
     };
-    return T[c + 1] = function (S) {
-        T[c + 1] = function () {
+    return T[c + 1] = function (a,S) {
+        a=~c+(a||'');
+        if(!T[a]) T[a] = function () {
             return S;
-        };
-        return S=R(S={},a)${outsideAsync ? `, S && S[N] instanceof P && S[N](function (s) { S = s }), S` : ''}
+        }, S=R(S={},a)${outsideAsync ? `, S && S[N] instanceof P && S[N](function (s) { S = s });` : ';'}
+        return T[a]();
     }`;
     var declears = scanner2(realize).envs;
     declears = Object.keys(declears).filter(k => !/^[acs]$/.test(k)).map(k => {

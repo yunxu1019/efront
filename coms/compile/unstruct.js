@@ -372,14 +372,30 @@ var pushstep = function (result, step) {
         return;
     }
     var q = result[result.length - 1];
-    if (!q) {
+    if (result.await_) step.awaited = true, delete result.await_;
+    if (!q || step.awaited) {
         result.push(step);
     }
     else if (q.await_) {
-        if (!step.awaited) {
-            step.unshift(...rescan`${q.name}=${ret_};`), relink(step);
+        if (!step.awaited) b: {
+            a: {
+                var name = q.name;
+                if (name instanceof Array) name = canbeTemp(name);
+                if (name === step[2]) q.name = [cloneNode(name)];
+                if (!name) break b;
+                if (name.text) name = name.text;
+
+                if (step.length === 3 && step[0].type & (SCOPED | EXPRESS) && step[1].type === STAMP && step[2].type === EXPRESS) {
+                    if (step[1].text === '=' && step[2].text === name) {
+                        step[2].text = ret_;
+                        break a;
+                    }
+                }
+                step.unshift(...rescan`${name}=${ret_};`), relink(step);
+            }
             step.awaited = true;
         }
+        delete q.await_;
         result.push(step);
     }
     else if (q.ret_) {
@@ -494,7 +510,7 @@ var _return = function (r) {
     }
     else if (e === YIELD) {
         x = stepReturn(name, 3);
-        r.await_ = !r.skip;
+        if (!r.await_ && !r.skip) r.await_ = true;
     }
     else if (e === NEXT) {
         x = stepReturn(name, 1);
@@ -599,7 +615,7 @@ var _invoke = function (t, getname) {
                         if (isexp) constNames[m.text] = true;
                         continue;
                     }
-                    var s = createScoped(cloneNode(o.slice(ay, cy)));
+                    var s = createScoped(o.slice(ay, cy));
                     for (var k in s.used) {
                         if (k in constNames) {
                             constStart = cy + 1;
@@ -624,6 +640,8 @@ var _invoke = function (t, getname) {
                     || m[0].type === VALUE
                 );
                 if (isexp) continue;
+                m.isExpress = iseval;
+                var awaited = false;
                 if (!iseval || m[m.length - 1] === o.last) {
                     var q = toqueue(m, getdeepname, 1);
                     if (q.length > 1 && queue.length) {
@@ -632,7 +650,14 @@ var _invoke = function (t, getname) {
                         if (q0f?.type === STRAP && !q0f.transive) remove_end_comma(queue[queue.length - 1]);
                     }
                     var qe = q[q.length - 1];
-                    splice(o, by, ey - by, ...qe?.name ? cloneNode(qe.name) : []);
+                    var name = [];
+                    if (qe) {
+                        if (m[m.length - 1] === o.last && qe.await_) name = [{ type: EXPRESS, text: ret_ }], awaited = true;
+                        else if (qe.name) {
+                            name = cloneNode(qe.name);
+                        }
+                    }
+                    splice(o, by, ey - by, ...name);
                     cy = by + 1;
                 }
                 else {
@@ -644,6 +669,12 @@ var _invoke = function (t, getname) {
                     cy = -1;
                 }
                 cache.push(...q);
+                if (awaited) {
+                    delete qe.await_;
+                    flushqueue(result, queue), queue = [];
+                    flushqueue(result, cache), cache = [];
+                    result.await_ = true;
+                }
                 nameindex++;
             }
             if (iseval && o.entry === "(" && o.length === 1 && canbeOnce(o)) {
@@ -761,9 +792,11 @@ var popexp = function (explist) {
     }
     if (!asn.ret_ && asn.length) {
         if (asn.name) {
+            var awaited = asn.awaited;
             asn = createExpressList(asn);
             if (asn.length > 1) {
                 explist.push(...asn.slice(0, asn.length - 1));
+                if (awaited) asn[0].awaited = true;
             }
             asn = asn.pop();
             asn.shift();
@@ -920,6 +953,7 @@ var ternary = function (body, getname, ret) {
     var q = explist[explist.length - 1];
     // if (!q) throw `语法错误: <red>${createString(body)}</red> \r\n行列位置: ${ equals[0].row }:${ equals[0].col }`
     var n = q.name;
+
     var i = equals.length - 1;
     var isSimpleAssign = true;
     while (i >= 0) {
@@ -965,6 +999,7 @@ var ternary = function (body, getname, ret) {
         else an = n;
         asn = uncurve(asn);
         ass.push(equals[i], ...asn);
+        ass = cloneNode(ass);
         relink(ass);
         if (evals.length) ass[0].set = getnextname(0);
         if (an) ass.name = cloneNode(an);
@@ -1281,6 +1316,10 @@ function toqueue(body, getname, ret = false, result = []) {
         if (o.text !== text) return;
         retn = [YIELD];
         retn.skip = skip;
+        var isExpress = body.isExpress;
+        if (isExpress) {
+            retn.await_ = true;
+        }
         ret = true;
         bx = ++cx;
         return retn;
@@ -1470,7 +1509,9 @@ function toqueue(body, getname, ret = false, result = []) {
                 continue;
             }
             b = ternary(b, getname, ret);
-            for (a of b) pushstep(result, a);
+            for (a of b) {
+                pushstep(result, a);
+            }
         }
         if (retn) {
             if (a) retn.name = a.name;

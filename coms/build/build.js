@@ -83,7 +83,7 @@ var filterLoaded = function (a) {
     dependenceMap[url] = a.url;
     for (var k in this) {
         var response = this[k];
-        var dependence = response.refered.concat(response.required, response.imported);
+        var dependence = [].concat(response.refered || [], response.required || [], response.imported || []);
         if (!dependence.length) continue;
         for (var cx = 0, dx = dependence.length; cx < dx; cx++) {
             var d = dependence[cx];

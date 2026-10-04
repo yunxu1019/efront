@@ -1,4 +1,3 @@
-"use strict";
 var fs = require("fs");
 var loadjson = module.exports = function loadjson(url) {
     var data = fs.readFileSync(url);

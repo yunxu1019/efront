@@ -1,4 +1,3 @@
-"use strict";
 var scanner2 = require("../compile/scanner2");
 var strings = require("../basic/strings");
 function getRequired(data) {

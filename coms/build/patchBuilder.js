@@ -1,4 +1,3 @@
-"use strict";
 var commbuilder = efront$commbuilder;
 var lonebuilder = efront$lonebuilder;
 var htmlbuilder = lonebuilder.html;

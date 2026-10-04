@@ -1,5 +1,5 @@
 try {
-    var localStorage = (this || globalThis).localStorage;
+    var localStorage = this && this.localStorage;
 } catch { }
 return localStorage || {
     getItem() { },

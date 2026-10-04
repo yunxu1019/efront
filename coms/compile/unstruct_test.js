@@ -7,7 +7,7 @@ innerjs.defaultType = STRAP;
 function test(codetext, expect, ret = false) {
     var code = scanner2(codetext, innerjs), i = -2;
     code.scoped;
-    try { code = unstruct(code, () => ++i >= 0 ? "_" + i : '_', ret && "@"); } catch (e) { console.log(r); throw e }
+    code = unstruct(code, () => ++i >= 0 ? "_" + i : '_', ret && "@");
     assert(code.map(createString).join(";\r\n "), expect, r++);
 }
 test('var o = loaded[f.name] = f.isFile() ? new File(p, rebuild, limit) : new Directory(p, rebuild, limit)', "_ = f.name; _0 = f.isFile(); if (!_0) return [1, 0]; _0 = new File(p, rebuild, limit); loaded[_] = _0; o = _0; return [2, 0];\r\n _0 = new Directory(p, rebuild, limit); loaded[_] = _0; o = _0; return [1, 0]");
@@ -46,17 +46,23 @@ test('a * a ?? b * c * c ** d', "_ = a * a; if (_ != null) return [1, 0]; _ = b 
 test('a * a && await b*c', "_ = a * a; if (!_) return [2, 0]; _ = b; return [_, 1];\r\n _ = @; _ * c", true);
 test("await a", "_ = a; return [_, 1]", true);
 test("yield a", "return [a, 3]", true);
-test("!a.done&&(b=await a.value)", "_ = !a.done; if (!_) return [2, 0]; _ = a.value; return [_, 1];\r\n _ = @; b = _; _", true);
+unstruct.debug = true; r++;
+test("!a.done&&(b=await a.value)", "_ = !a.done; if (!_) return [2, 0]; _ = a.value; return [_, 1];\r\n b = @; _", true);
+unstruct.debug = false; r++;
 test("a=1?2:3", `if (false) return [1, 0]; a = 2; return [2, 0];\r\n a = 3; return [1, 0]`)
 test("await a()", "_ = a(); return [_, 1]", true);
 test("yield a()", "_ = a(); return [_, 3]", true);
-test("a = await a()", "_ = a(); return [_, 1];\r\n _ = @; a = _", true);
-test("a = yield a()", "_ = a(); return [_, 3];\r\n _ = @; a = _", true);
+test("a = await a()", "_ = a(); return [_, 1];\r\n a = @", true);
+test("a = yield a()", "_ = a(); return [_, 3];\r\n a = @", true);
+test("[a] = yield a()", "_ = a(); return [_, 3];\r\n [a] = @", true);
+test("a = (yield a)[0]", "return [a, 3];\r\n _ = @; a = _[0]", true);
+test("[a] = ((yield a))", "return [a, 3];\r\n _ = @; [a] = _", true);
+test("[yield a,yield b]", "return [a, 3];\r\n return [b, 3];\r\n [a, b]", true);
 test("(1+ +1)", "_ = 1 + +1; _", true);
-test("await a(await b)", "_ = b; return [_, 1];\r\n _ = @; _ = a(_); return [_, 1]", true);
-test("await a(await b).s(await c)", "_ = b; return [_, 1];\r\n _ = @; _ = a(_); _0 = c; return [_0, 1];\r\n _0 = @; _ = _.s(_0); return [_, 1]", true);
-test("a*a + await a(await b).s(await c)", "_ = a * a, _0 = b; return [_0, 1];\r\n _0 = @; _0 = a(_0); _1 = c; return [_1, 1];\r\n _1 = @; _0 = _0.s(_1); return [_0, 1];\r\n _0 = @; _ + _0", true);
-test("a*a + await a(await b(await c)).s(await c)", "_ = a * a, _0 = c; return [_0, 1];\r\n _0 = @; _0 = b(_0); return [_0, 1];\r\n _0 = @; _0 = a(_0); _1 = c; return [_1, 1];\r\n _1 = @; _0 = _0.s(_1); return [_0, 1];\r\n _0 = @; _ + _0", true);
+test("await a(await b)", "_ = b; return [_, 1];\r\n _ = a(@); return [_, 1]", true);
+test("await a(await b).s(await c)", "_ = b; return [_, 1];\r\n _ = a(@); _0 = c; return [_0, 1];\r\n _ = _.s(@); return [_, 1]", true);
+test("a*a + await a(await b).s(await c)", "_ = a * a, _0 = b; return [_0, 1];\r\n _0 = a(@); _1 = c; return [_1, 1];\r\n _0 = _0.s(@); return [_0, 1];\r\n _0 = @; _ + _0", true);
+test("a*a + await a(await b(await c)).s(await c)", "_ = a * a, _0 = c; return [_0, 1];\r\n _0 = b(@); return [_0, 1];\r\n _0 = a(@); _1 = c; return [_1, 1];\r\n _0 = _0.s(@); return [_0, 1];\r\n _0 = @; _ + _0", true);
 test("await a, await b", "_ = a; return [_, 1];\r\n _ = @; _ = b; return [_, 1]", true);
 test("await a * b, await b", "_ = a; return [_, 1];\r\n _ = @; _ * b; _ = b; return [_, 1]", true);
 test("if(a);", "if (!a) return [1, 0]; return [1, 0]", true);
@@ -74,7 +80,7 @@ test("for(var a in b) a.push()", "for (var a in b) a.push()", true);
 test("for(;;)", "return [0, 0]", true);
 test("for(a in b)", "for (a in b)", true);
 test("for(a of b)", "for (a of b)", true);
-test(`var [size, names] = memery.SIGNITEMS? await enpack(readfrom, hd, 7, key, cert) : await enpack(readfrom, hd, 7);`, 'if (!memery.SIGNITEMS) return [2, 0]; _ = enpack(readfrom, hd, 7, key, cert); return [_, 1];\r\n _ = @; [size, names] = _; return [3, 0];\r\n _ = enpack(readfrom, hd, 7); return [_, 1];\r\n _ = @; [size, names] = _; return [1, 0]', true)
+test(`var [size, names] = memery.SIGNITEMS? await enpack(readfrom, hd, 7, key, cert) : await enpack(readfrom, hd, 7);`, 'if (!memery.SIGNITEMS) return [2, 0]; _ = enpack(readfrom, hd, 7, key, cert); return [_, 1];\r\n [size, names] = @; return [3, 0];\r\n _ = enpack(readfrom, hd, 7); return [_, 1];\r\n [size, names] = @; return [1, 0]', true)
 test("for await(a of b)", "for await(a of b)", true);
 test("for(a = os[Symbol.iterator] || os[Symbol.asyncIterator] || Array.prototype[Symbol.iterator], a = a.call(os), b = a.next(); !b.done && (o = b.value, true); b = a.next())", "_ = Symbol.iterator; _ = os[_]; if (_) return [1, 0]; _ = Symbol.asyncIterator; _ = os[_]; if (_) return [1, 0]; _ = Symbol.iterator; _ = Array.prototype[_];\r\n a = _; a = a.call(os); b = a.next(); return [1, 0];\r\n _ = !b.done; if (!_) return [1, 0]; o = b.value; _ = true;\r\n if (!_) return [1, 0]; b = a.next(); return [-1, 0]", true);
 test("for(a=0;a<1;a++)", `a = 0; return [1, 0];\r\n _ = a < 1; if (!_) return [1, 0]; a++; return [0, 0]`, true);
@@ -180,5 +186,4 @@ test(`menus[0].c += menus[0][str_name] += [str__v_, version[0], str__v_1][str_jo
 test(`new Array(2).join("") + 1`, `_0 = new Array(2); _ = _0.join(""), _ + 1`);
 test(`new window.Array(2).join("") + 1`, `_0 = new window.Array(2); _ = _0.join(""), _ + 1`);
 test(`readbuff(h, offset += 2, length)`, `_ = offset + 2; offset = _; readbuff(h, _, length)`);
-unstruct.debug = true; r++;
 test('a[i] = a[--i]', `_ = i; _0 = --i; _0 = a[_0]; a[_] = _0`, true);

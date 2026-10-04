@@ -1,5 +1,5 @@
 var { VALUE, EXPRESS, QUOTED, SCOPED } = require("./common");
-var { decode } = require("../basic/strings");
+var { decode, kicode } = require("../basic/strings");
 // <!--
 var getRegExp = function () {
     var readable = [], start, end, prefix = "";
@@ -77,7 +77,7 @@ var getRegExp = function () {
     for (var cx = +readable[cx] + 1 >>> 0, dx = 0x10ffff; cx < dx; cx++) {
         try {
             if ((cx & 0xffff) === 0) console.info(`正在检查0x${cx.toString(16)}-0x${(cx + 0xffff).toString(16)}`);
-            eval(`(function(a${String.fromCodePoint(cx)}9_){}())`);
+            eval(`(function(a${String.fromCodePoint(cx)}9=9){}())`);
             if (!start) start = cx, end = cx;
             else end = cx;
         } catch {
@@ -99,6 +99,8 @@ var getRegExp = function () {
     });
     return `/(?:[${reg}])+/g`;
 }
+// -->
+// <!--
 // console.info(getRegExp());
 // -->
 // 正则表达式，用于匹配各语种的非变量名字符，不含首字符，由前边的函数生成
@@ -106,23 +108,22 @@ var everReg = /(?:[$0-9A-Z_a-z\u00aa\u00b5\u00b7\u00ba\u00c0-\u00d6\u00d8-\u00f6
 
 var getReadableKey = function (text) {
     var type = /^\//.test(text) ? 'R' : 'T';
-    if (type === 'T') text = decode(text);
-    if (currentMap && text in currentMap) return currentMap[text];
-    var avaiable = [, type];
+    var avaiable = [""];
     text.slice(0, 20).replace(everReg, function (a) {
-        avaiable.push(a);
+        a = a.replace(/[\ud800-\udbff]([^\udc00-\udfff]|$)/g, '$1');
+        a = a.replace(/([^\ud800-\udbff]|^)[\udc00-\udfff]/g, '$1');
+        if (a) avaiable.push(a);
     });
-    avaiable.push(type);
-    var k = type + avaiable.join('\\');
+    var k = "\\" + type + avaiable.join('_');
     k = k.replace(/(\d+)px/ig, "$1_px");
-
     var i = 0;
     if (k in quotedMap && text !== quotedMap[k]) {
         var i = 0;
-        while (k + i in quotedMap && text !== quotedMap[k + i]) i++;
-        k += i;
-        quotedMap[k] = text;
+        var s = k + i;
+        while (s in quotedMap && text !== quotedMap[s]) s = k + ++i;
+        k = s;
     }
+    quotedMap[k] = text;
     if (currentMap) currentMap[text] = k;
     return k;
 }
@@ -132,22 +133,24 @@ var strkeeps = null;
 var trimStringLiteral = function (code) {
     for (var o of code) switch (o.type) {
         case QUOTED:
-            if (!o.length) throw new Error("无法处理有参数的模板串！");
-            if (o.keep) {
+            if (o.length) throw new Error("无法处理有参数的模板串！");
+            if (o.noemit) {
                 strkeeps.push(o);
                 continue;
             }
+            if (o.text.length < 3) continue;
             o.text = getReadableKey(o.text);
             o.type = EXPRESS;
             break;
         case SCOPED:
-            o.forEach(trimStringLiteral);
+            trimStringLiteral(o);
             break;
     }
 };
 function breakcode(code) {
     currentMap = Object.create(null);
     strkeeps = [];
+    trimStringLiteral(code);
     var keys = Object.keys(currentMap).map(k => currentMap[k]);
     code.strkeys = keys;
     code.strkeeps = strkeeps;

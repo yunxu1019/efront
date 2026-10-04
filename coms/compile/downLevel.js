@@ -3,6 +3,8 @@ var strings = require("../basic/strings");
 var Program = scanner2.Program;
 var {
     STAMP, SCOPED, STRAP, EXPRESS,
+    insertBefore,
+    replace,
     mergeTo, pickAssignment,
     COMMENT, SPACE, PROPERTY, VALUE, LABEL, QUOTED,
     snapExpressFoot, isEval, canbeTemp, rename, isHalfSentence, skipFunction, getDeclared, skipAssignment, skipSentenceQueue, createScoped, createString, splice, relink, rolink, pickSentence, snapExpressHead, needBreakBetween } = require("./common");
@@ -629,7 +631,7 @@ var setprop = function (prop, k, d, q, tempname) {
         insert1(q, null, ...prop.value);
     }
 }
-var rootenvs = null, rootHyper;
+var rootenvs = null, rootHyper, rootused = null;
 var killcls = function (body, i, letname_, getname_, killobj) {
     var extends_ = [];
     var o = body[i];
@@ -664,7 +666,8 @@ var killcls = function (body, i, letname_, getname_, killobj) {
         var next = o;
         while (next && !next.isClass) next = next.next;
         base = createString(splice2(body, o, next));
-        o.type = COMMENT;
+        o.killed = true;
+        if (base) o.type = COMMENT;
         o = next;
     }
     if (base === 'Array' && rootenvs.Array) {
@@ -1168,7 +1171,9 @@ var killobj = function (body, getobjname, getletname, getname_, letname_, deep =
                 }
                 var varname = o.hidden;
                 o.text = o.text.slice(varname.length);
-                insert1(body, o, ...scanner2(`#["get"](${varname})`));
+                var gt = scanner2(`#["get"](${varname})`);
+                if (o.text) insertBefore(o, ...gt);
+                else replace(o, ...gt);
                 broken++;
                 i = body.indexOf(o, i);
             }
@@ -2010,6 +2015,7 @@ var mindpath = "";
 var broken = false;
 var downcode = downLevel.code = function (code) {
     rootenvs = code.envs;
+    var used = rootused = code.used;
     mindpath = code.fullpath;
     broken = code.broken >>> 0;
     // 暂不考虑跨文件使用步进函数的情况，太吃内存
@@ -2025,13 +2031,13 @@ var downcode = downLevel.code = function (code) {
     }
     if (broken) code.broken = broken;
     if (rootenvs[patchMark + 'Array']) {
-        var used = code.used;
         var ArrayUsed = used.Array;
         ArrayUsed = ArrayUsed.filter(a => a.type === EXPRESS);
         if (!ArrayUsed.length) delete used.Array, delete rootenvs.Array;
         else used.Array = ArrayUsed;
     }
     rootenvs = null;
+    rootused = null;
     patchMark = patchMark_;
     return code;
 };

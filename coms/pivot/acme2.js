@@ -129,7 +129,8 @@ var makeKeyPair = async function (modulusLength = 2048) {
     public_key = toBase64(new Uint8Array(public_key));
     return [private_key, public_key];
 };
-var subtle = globalThis.crypto?.subtle;
+var crypto = globalThis && globalThis.crypto;
+var subtle = crypto && crypto.subtle;
 var acme2 = new class {
     email = '';
     kid = '';
@@ -227,7 +228,8 @@ var acme2 = new class {
     }
     async getTermsOfService() {
         var data = await data1.from("directory");
-        var termsOfService = data?.meta?.termsOfService;
+        var meta = data && data.meta;
+        var termsOfService = meta && meta.termsOfService;
         return termsOfService;
     }
     getAccount(params) {

@@ -1,6 +1,6 @@
 var { VALUE, QUOTED, EXPRESS, STRAP, relink, setqueue, } = require("./common");
 var Node = require("./Node");
-var cloneChild = o => cloneNode(o);
+var cloneChild = function (o) { return cloneNode(o) };
 var cloneNode = function (o, keep) {
     var c = o;
     if (c instanceof Array && !c.text) {

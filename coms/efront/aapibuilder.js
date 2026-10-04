@@ -1,4 +1,3 @@
-"use strict";
 var message = require("../message");
 /**
  * 读取参数

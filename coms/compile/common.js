@@ -662,6 +662,7 @@ var createScoped = function (parsed, wash) {
                     }
                     else {
                         var u = o.text;
+                        if (!u) console.warn(o)
                         if (/^\.\.\./.test(u)) u = u.slice(3);
                         var u = u.replace(/^([^\.\[\?\s\:]*)[\s\S]*$/, '$1');
                         if (!u) break;
@@ -1476,7 +1477,7 @@ var createString = function (parsed) {
     else debug = '';
     var helpreg = debug ? new RegExp(/^\/[\/\*]\s*/.source + debug + /\:?\s*\<\!--/.source, "i") : /^\/[\/\*]\s*\<\!--/;
     var lasttype = SPACE;
-    var uncomment = parsed.comment === false;
+    var uncomment = parsed.comment === false || !keepspace;
     var result = [], cacheresult, finalresult = result;
     var helpcolor = parsed.keepcolor === false;
     var intag = false;
@@ -1499,7 +1500,7 @@ var createString = function (parsed) {
         switch (o.type) {
             case COMMENT:
                 // 每一次要远行，我都不得不对自己的物品去粗取精。取舍之间，什么重要，什么不是那么重要，都有了一道明显的分界线。
-                if (uncomment) break;
+                if (uncomment) return;
                 if (!helpcode) {
                     result.push(o.text);
                     break;
@@ -1536,6 +1537,7 @@ var createString = function (parsed) {
                 return;
             case SPACE:
                 if (!autospace || keepspace || lasttype === COMMENT) {
+                    if (!keepspace) console.log('space',parsed.fullpath,autospace,lasttype===COMMENT,uncomment)
                     result.push(o.text);
                     lasttype = SPACE;
                     break;
@@ -1820,10 +1822,10 @@ var canbeTemp = function (body, strip = false) {
         }
         break;
     }
-    if (body[cx] !== body[dx]) return false;
+    if (body[cx] !== body[dx]) return null;
     var o = body[cx];
-    if (!o) return false;
-    return o.type === EXPRESS && (strip || !/[\.\[]/.test(o.text)) || o.type === VALUE || o.type === QUOTED && !o.length;
+    if (!o) return null;
+    if (o.type === EXPRESS && (strip || !/[\.\[]/.test(o.text)) || o.type === VALUE || o.type === QUOTED && !o.length) return o;
 };
 var canbeDuplicate = function (body) {
     for (var b of body) {
@@ -1939,7 +1941,6 @@ var pickAssignment = function (n) {
     return values;
 }
 var insertBefore = function () {
-    "use strict";
     var [o] = arguments;
     var queue = this || o.queue;
     var index = queue.indexOf(o);
