@@ -376,7 +376,7 @@ var cacheData = function (response) {
 
 var patchData = function (mainScriptData, mainScript, responseTree) {
     var up = memory.EFRONTUP;
-    var limit = memory.EFRONTSUM && 0;
+    var limit = memory.EFRONTSUM;
     var versionTree = {};
     var cached = [];
     if (setting.is_file_target) {
