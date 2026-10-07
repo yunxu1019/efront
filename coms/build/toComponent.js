@@ -226,6 +226,7 @@ function toComponent(responseTree, isWebProject) {
                 return destMap[realkey];
             }
             if (!isFinite(index)) {
+                if (/^\\[RT]/.test(a)) return getEncodedIndex(a, 'quoted');
                 var i = a;
                 if (a === "\\import") i = `[${getEncodedIndex("url")},function(b){return function(a,c){return c={},c[b]=a,c}}]`;
                 else if (memery.EMIT && a !== '\\decrypt') {

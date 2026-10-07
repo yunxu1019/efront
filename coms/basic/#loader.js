@@ -639,7 +639,7 @@ var init = function (url, then, prebuilds, keeppage) {
         }
         var args = module.args || [];
 
-        if (!args || !args.length) {
+        if (!module.length) {
             var created = module.call(window);
             then(modules[url] = module[''] = created);
             return;

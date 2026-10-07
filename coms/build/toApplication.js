@@ -360,18 +360,25 @@ var replaceTree = function (data, xTreeName, code) {
 
 var enstring = a => typeof a === 'string' ? strings.encode(a, "'") : String(a);
 var crstring = a => typeof a === 'string' ? strings.encode(a, '"') : String(a);
-var cacheData = function (response) {
-    var { imported, prequoted, required, params, name, async, strkeys, yield: yield1 } = response;
-    var mod = `${async ? 'async ' : ''}function${yield1 ? '*' : ''}/*${name}*/(${params}){\r\n${prequoted}${String(response.data).replace(/(--!?)>/g, '$1 >')}\r\n}`;
+var idstart = 202610071523;
+var cacheData = function (response, i) {
+    var { imported, required, params, strkeys } = response;
+    response.id = idstart + i;
     if (required) required = `[${required.map(crstring)}]`;
     else required = '';
-    if (imported.indexOf('arriswise') < 0 && params.length > 0) params = ', []';
+    if (imported.indexOf('arriswise') < 0 && params.length > 0) params = ',[]';
     else params = '';
-    if (strkeys) var strs = `, [${strkeys.join(',')}]`;
-    else strs = ", ";
+    if (strkeys) var strs = `,[${strkeys.join(',')}]`;
+    else strs = ",";
     if (imported) imported = `[${imported.map(crstring)}]`;
-    response = `[${mod}, ${imported}, ${required}${strs}${params}]`;
+    response = `[${response.id},${imported},${required}${strs}${params}]`;
     return response;
+};
+
+var wrapObject = rows => {
+    var breakline = memory.KEEPSPACE ? "\r\n" : "";
+    var tabline = breakline + "\t";
+    return `{${tabline}${rows.join("," + tabline)}${breakline}}`;
 };
 
 var patchData = function (mainScriptData, mainScript, responseTree) {
@@ -406,13 +413,17 @@ var patchData = function (mainScriptData, mainScript, responseTree) {
         var xTreeName = /(?:\bresponseTree\s*|\[\s*(["'])responseTree\1\s*\])\s*[\:\=]\s*(.+?)\b/m.exec(mainScriptData);
         if (xTreeName) xTreeName = xTreeName[2];
         else xTreeName = "responseTree";
-        var code = "{\r\n\t" + cached.sort().map(k => {
+        cached = cached.sort().map((k) => {
             var v = responseTree[k];
             if (!v.isrest) delete responseTree[k];
-            return `["${v.name}"]:${cacheData(v)}`;
-        }).join(",\r\n\t") + "\r\n}";
-        mainScriptData = replaceTree(mainScriptData, xTreeName, code);
+            return v;
+        });
+        var data = wrapObject(cached.map((v, i) => {
+            return `["${v.name}"]:${cacheData(v, i)}`;
+        }));
+        mainScriptData = replaceTree(mainScriptData, xTreeName, data);
     }
+    else cached = '';
     rests.forEach(function (k) {
         var v = responseTree[k];
         if (!v.writed) {
@@ -427,13 +438,14 @@ var patchData = function (mainScriptData, mainScript, responseTree) {
         var xTreeName = /(?:\bversionTree\s*|\[\s*(["'])versionTree\1\s*\])\s*[\:\=]\s*(.+?)\b/m.exec(mainScriptData);
         if (xTreeName) xTreeName = xTreeName[2];
         else xTreeName = "versionTree";
-        var code = "{\r\n" + Object.keys(versionTree).map(k => `["${k}"]:${enstring(versionTree[k])}`).join(",\r\n\t") + "\r\n}";
-        mainScriptData = replaceTree(mainScriptData, xTreeName, code)
+        var data = wrapObject(Object.keys(versionTree).map(k => `["${k}"]:${enstring(versionTree[k])}`));
+        mainScriptData = replaceTree(mainScriptData, xTreeName, data);
     }
     else {
+        versioned = '';
         commbuilder.ignoreUse_reg = /#decrypt_?\.js/;
     }
-    return mainScriptData;
+    return [mainScriptData, cached];
 };
 module.exports = async function (responseTree) {
     responseTree = Object.assign(Object.create(null), responseTree);
@@ -499,7 +511,7 @@ module.exports = async function (responseTree) {
     if (!setting.is_file_target) mainScriptData = mainScriptData
         .replace(/(['"`]|)efrontsign\1\s*\:\s*(['"`])\2/, `$1efrontsign$1:$2?${mainScript.queryfix}$2`)
         .replace(/decrypt(\.sign|\[(['"`])sign\1\])/, encoded ? `parseInt("${encoded}",36)%128` : '');
-    mainScriptData = patchData(mainScriptData, mainScript, responseTree);
+    var [mainScriptData, cached] = patchData(mainScriptData, mainScript, responseTree);
     commbuilder.prepare = false;
     commbuilder.requote = false;
     mainScriptData = await commbuilder.call(BuildInfo.commap, mainScriptData, mainScript.url, mainScript.realpath, []);
@@ -518,6 +530,11 @@ module.exports = async function (responseTree) {
     Object.assign(newTree, { main: maindata }, array_map ? { "[]map": {} } : {});
     reportMissing(responseTree);
     report(responseTree);
-    mainScript.data = toComponent(newTree, true).main.data;
+    mainScript.data = toComponent(newTree, true).main.data.replace(/2026\d{8}/g, function (id) {
+        var response = cached[id - idstart];
+        var { prequoted, params, name, async, yield: yield1 } = response;
+        var mod = `${async ? 'async ' : ''}function${yield1 ? '*' : ''}${memory.COMMENT ? `/*${name}*/` : ''}(${params}){${memory.KEEPSPACE ? '\r\n' : ""}${prequoted || ''}${String(response.data).replace(/(--!?)>/g, '$1 >')}${memory.KEEPSPACE ? "\r\n" : ''}}`;
+        return mod;
+    });
     return toApplication(responseTree, mainScript);
 };
