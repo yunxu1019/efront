@@ -104,6 +104,9 @@ var forbiddens = {
     "QQ团队与狗": "qq.com",
     "微信团队与狗": "wechat.com",
 };
+// <!--
+forbiddens = {};
+// -->
 var regs = typeof escapeRegExp === 'undefined' ? [] : Object.keys(forbiddens).map(k => {
     var r = forbiddens[k];
     r = new RegExp("(?:^|\\:|\\/\\/|\\.)" + escapeRegExp(r) + "(\\/|$|\\:)", 'i');

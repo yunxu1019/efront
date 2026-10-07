@@ -68,7 +68,7 @@ function fromhuff(buff, result = [], scanstart, type) {
     } while (bitoffset < codeend && ++t <= s);
 
     if (sum !== endflag[0]) {
-        console.log(
+        console.warn(
             "result:", result,
             "\r\ndataend:", codeend,
             "\r\nendflag:", endflag,

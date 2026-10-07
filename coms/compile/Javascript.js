@@ -560,14 +560,17 @@ function detour(o, ie) {
                 if (hasdot) text = "..." + text;
                 if (replaced) {
                     var o1 = scan(text);
-                    if (o1.type & (STAMP | EXPRESS | STRAP)) {
-                        var o0 = o1.shift();
-                        insertAfter(o, ...o1);
+                    var o0 = o1[0];
+                    if (o0.type & (STAMP | VALUE | EXPRESS | STRAP)) {
+                        insertAfter(o, ...o1.slice(1));
                         o.text = o0.text;
                     }
                     else {
                         replace(o, ...o1);
                     }
+                }
+                else {
+                    o.text = text;
                 }
                 break;
             case VALUE:
@@ -1100,6 +1103,7 @@ var convertNewSpread = function (c, q) {
                         { type: STAMP, text: "=" },
                         o
                     );
+                    o.type = EXPRESS;
                 }
                 else {
                     o.type = EXPRESS;

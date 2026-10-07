@@ -27,6 +27,25 @@ BuildInfo.prototype = {
     set imported(v) {
         this.data.imported = v;
     },
+    get prequoted() {
+        return this.data.prequoted;
+    },
+    // 函数是否与异步函数返回值一致
+    get isAsync() {
+        return this.data.isAsync;
+    },
+    // 函数是否与步进函数返回值一致
+    get isYield() {
+        return this.data.isYield;
+    },
+    // 当前状态是否需要包装异步函数
+    get async() {
+        return this.data.async;
+    },
+    // 当前状态是否需要包装步进函数
+    get yield() {
+        return this.data.yield;
+    },
     get required() {
         return this.data.required;
     },
@@ -39,7 +58,6 @@ BuildInfo.prototype = {
     get refered() {
         return this.data.refered;
     },
-
     get strkeys() {
         return this.data.strkeys;
     },

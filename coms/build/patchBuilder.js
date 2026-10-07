@@ -92,4 +92,5 @@ function patchBuilder(info) {
     info.builder = builder;
 }
 patchBuilder.load = updatemap;
+
 return patchBuilder;

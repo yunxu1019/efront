@@ -70,21 +70,20 @@ var compress = function (scoped, maped = Object.create(null)) {
     }
 };
 var rescan = function (list) {
-    var pi = 0, f = null, p = null, n = null;
-    list.first = null;
+    //<!--
+    list.forEach(o => {
+        if (o.scaned) throw console.warn(cx, o, list.indexOf(o)), new Error('发现复用节点');
+        o.scaned = true;
+    });
+    list.forEach(o => {
+        delete o.scaned;
+    });
+    //-->
+    relink(list);
+    setqueue(list);
     for (var cx = 0, dx = list.length; cx < dx; cx++) {
         var o = list[cx];
-        //<!--
-        // if (o.scaned) throw console.warn(cx, o, list.indexOf(o)), new Error('发现复用节点');
-        // o.scaned = [list, cx];
-        //-->
-        o.prev = p;
-        var type = o.type;
-        if (type & (COMMENT | SPACE)) continue;
-        if (!f) list.first = o;
-        while (pi < cx) list[pi++].next = o;
-        f = p = o;
-        switch (type) {
+        switch (o.type) {
             case SCOPED:
                 rescan(o);
                 break;
@@ -93,11 +92,9 @@ var rescan = function (list) {
                 break;
             case ELEMENT:
                 if (o.attributes) rescan(o.attributes);
+                break;
         }
     }
-    while (pi < cx) list[pi++].next = n;
-    list.last = f;
-    setqueue(list);
     return list;
 };
 class Code extends Array {

@@ -251,7 +251,7 @@ function toApplication(responseTree, mainScript) {
 var imageIndex = 0;
 var imagerep = function (e, k, destpath, responseTree) {
     if (typeof e !== "string") return String(e);
-    return strings.encode(e.replace(/(["`']|)data(\.\w+)\:([\w\+\/\=,;\-\.]+)\1/gi, function (_, quote, ext, data) {
+    return strings.recode(e.replace(/(["`']|)data(\.\w+)\:([\w\+\/\=,;\-\.]+)\1/gi, function (_, quote, ext, data) {
         var match = /^([\w\-\.\/]+;base64)?,([\w\+\/\-\=]+)$/i.exec(data);
         if (!match) return _;
         do {
@@ -303,7 +303,9 @@ var rebuildData = function (responseTree) {
     imageIndex = 0;
     var quoted = compile$breakcode2.quoted;
     Object.keys(quoted).forEach(function (k) {
-        quoted[k] = imagerep(quoted[k], "image", "image", responseTree);
+        if (/^\\T/.test(k)) {
+            quoted[k] = imagerep(quoted[k], "image", "image", responseTree);
+        }
     });
     Object.keys(responseTree).forEach(function (k) {
         var response = responseTree[k];
@@ -359,16 +361,16 @@ var replaceTree = function (data, xTreeName, code) {
 var enstring = a => typeof a === 'string' ? strings.encode(a, "'") : String(a);
 var crstring = a => typeof a === 'string' ? strings.encode(a, '"') : String(a);
 var cacheData = function (response) {
-    var { imported, prequoted, required, params, name, isAsync, strkeys, isYield } = response;
-    var mod = `${isAsync ? 'async ' : ''}function${isYield ? '*' : ''}/*${name}*/(${params}){\r\n${prequoted}${String(response.data)}\r\n}`;
+    var { imported, prequoted, required, params, name, async, strkeys, yield: yield1 } = response;
+    var mod = `${async ? 'async ' : ''}function${yield1 ? '*' : ''}/*${name}*/(${params}){\r\n${prequoted}${String(response.data).replace(/(--!?)>/g, '$1 >')}\r\n}`;
     if (required) required = `[${required.map(crstring)}]`;
     else required = '';
     if (imported.indexOf('arriswise') < 0 && params.length > 0) params = ', []';
     else params = '';
-    if (imported.indexOf('arriswise') >= 0 && strkeys) var strs = `, [${strkeys.join(',')}]`;
+    if (strkeys) var strs = `, [${strkeys.join(',')}]`;
     else strs = ", ";
     if (imported) imported = `[${imported.map(crstring)}]`;
-    response = `[${mod}, ${imported}, ${required}, ${strs}${params}]`;
+    response = `[${mod}, ${imported}, ${required}${strs}${params}]`;
     return response;
 };
 
@@ -461,10 +463,8 @@ module.exports = async function (responseTree) {
     var mainScriptData = mainScript.data;
     var array_map = responseTree["[]map"] || responseTree["[]map.js"];
 
-
     commbuilder.loadonly = true;
-    var maincode = scanner2(mainScriptData.toString(), mainScript.realpath, 'js');
-    await commbuilder.lonelyjs(maincode, mainScript.realpath, BuildInfo.commap, []);
+    var maincode = await commbuilder.call(BuildInfo.commap, mainScriptData, 'main', mainScript.realpath, []);
     if (!memory.ENCRYPT) {
         maincode.helpcode = true;
     }
@@ -487,6 +487,10 @@ module.exports = async function (responseTree) {
             var parsed = parseKV(modules, ',', ":");
             Object.keys(parsed).forEach(k => prebuilds[k] = true);
             missing = missing.filter(k => !responseTree[k].type && !prebuilds[responseTree[k].url] && !/^[\.\[\]]/.test(k));
+            if (encoded && responseTree["\\decrypt"]) {
+                if (missing.indexOf("\\decrypt") < 0) missing.push("\\decrypt");
+                delete responseTree["\\decrypt"].warn;
+            }
             return `${prefix}${missing.map(k => responseTree[k].warn ? `"${k}":window["${k}"]` : k).join(",\r\n")}${missing.length ? ',' : ''}\r\n${modules}${aftfix}`;
         })
         .replace(/(?:\.send|\[\s*(["'])send\1\s*\])\s*\((.*?)\)/g, (match, quote, data) => (versionVariableName = data || "", quote ? `[${quote}send${quote}]()` : ".send()"))
@@ -494,11 +498,11 @@ module.exports = async function (responseTree) {
     if (memory.EXTRACT || !setting.is_file_target) mainScript.queryfix = crc(Buffer.from(mainScriptData)).toString(36).replace(/^\-/, "");
     if (!setting.is_file_target) mainScriptData = mainScriptData
         .replace(/(['"`]|)efrontsign\1\s*\:\s*(['"`])\2/, `$1efrontsign$1:$2?${mainScript.queryfix}$2`)
-        .replace(/decrypt(\.sign|\[(['"`])sign\1\])/, `parseInt("${encoded}",36)%128`);
+        .replace(/decrypt(\.sign|\[(['"`])sign\1\])/, encoded ? `parseInt("${encoded}",36)%128` : '');
     mainScriptData = patchData(mainScriptData, mainScript, responseTree);
     commbuilder.prepare = false;
     commbuilder.requote = false;
-    mainScriptData = await commbuilder(mainScriptData, mainScript.url, mainScript.realpath, []);
+    mainScriptData = await commbuilder.call(BuildInfo.commap, mainScriptData, mainScript.url, mainScript.realpath, []);
     memory.EXPORT_AS = '';
     memory.EXPORT_TO = "this";
     var maindata = new BuildInfo(...{

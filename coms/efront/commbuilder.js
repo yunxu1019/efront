@@ -229,7 +229,7 @@ var removePrequoted = function (code) {
     var o = code.first;
     var prequoted;
     var { QUOTED, STAMP, EXPRESS, STRAP, SCOPED } = code;
-    while (o && o.type === QUOTED && skipreg.test(o.text)) {
+    while (o && o.type === QUOTED && !o.length && skipreg.test(o.text)) {
         prequoted = o;
         o = o.next;
         while (o && o.type === STAMP && o.text === ';') {
@@ -348,6 +348,39 @@ var pareJsCode = function (code, fullpath, commap) {
     else autoConst.call(commap, code, fullpath, true);
     if (memery.POLYFILL) {
         polyfill(code);
+    }
+    var { envs: undeclares, used: allVariables } = code;
+    if (undeclares.require) var required = allVariables.require;
+    if (required) required = required.map(req => {
+        var r = getRequiredLink(req);
+        if (r && r.type === QUOTED) { return r; }
+    }).filter(a => !!a);
+    if (commap["?"] && required) {
+        var required_paths = required.map(r => r.value);
+        required_paths = rethink(commap, required_paths, fullpath);
+        required.forEach((r, i) => {
+            var p = required_paths[i];
+            r.value = p;
+            r.text = strings.encode(p);
+        });
+    }
+    var required_map = {}, required_paths = [], requiredi = [];
+    if (required) required.forEach((r, i) => {
+        if (!required_map[r.value]) {
+            required_map[r.value] = required_paths.length;
+            requiredi.push(r.row ? `:${r.row}:${r.col}` : '');
+            required_paths.push(r.value);
+        }
+        if (r.value in commap) {
+            r.value = required_map[r.value];
+            r.text = String(r.value);
+            r.type = VALUE;
+        }
+        r.isdigit = true;
+    });
+    required_paths.i = requiredi;
+    if (required) {
+        code.required = required_paths;
     }
 }
 
@@ -491,7 +524,6 @@ var loopLoadStatic = function (code, fullpath, commap, watchurls, next) {
 var loneJsCode = function (code, fullpath, commap, watchurls) {
     var loneJsNext = function () {
         pareJsCode(code, fullpath, commap);
-        fairJsCode(code, fullpath, commap, {});
         return code;
     };
     return loopLoadStatic(code, fullpath, commap, watchurls, loneJsNext);
@@ -696,8 +728,8 @@ var getRequiredLink = function (req) {
     if (!r) return;
     var rn = r.next;
     if (rn && (rn.type !== STAMP || rn.text !== ',')) return;
-    if (r.type & ~(QUOTED | VALUE) || r.length || /^\//.test(r.text)) return;
-    if (r.type === VALUE) return r;
+    if (r.type & (VALUE | EXPRESS)) return r;
+    if (r.type !== QUOTED || r.length || /^\//.test(r.text)) return;
     var text = strings.decode(r.text);
     if (r === c.last) {
         var text1 = text.replace(/[\?#][\s\S]*$/, "");
@@ -716,7 +748,7 @@ var getRequiredLink = function (req) {
     relink(c);
     return r;
 }
-var fairJsCode = function (code, fullpath, commap, globalsmap) {
+var fairJsCode = function (code, fullpath, commap, globalsmap, keepstring = false) {
     code.requote = commbuilder.requote !== false;
     var {
         async: isAsync,
@@ -724,34 +756,6 @@ var fairJsCode = function (code, fullpath, commap, globalsmap) {
         envs: undeclares,
         used: allVariables,
     } = code;
-    if (undeclares.require) var required = allVariables.require;
-    if (required) required = required.map(req => {
-        var r = getRequiredLink(req);
-        if (r && r.type === QUOTED) return r;
-    }).filter(a => !!a);
-    if (commap["?"] && required) {
-        var required_paths = required.map(r => r.value);
-        required_paths = rethink(commap, required_paths, fullpath);
-        required.forEach((r, i) => {
-            var p = required_paths[i];
-            r.value = p;
-            r.text = strings.encode(p);
-        });
-    }
-    var required_map = {}, required_paths = [], requiredi = [];
-    if (required) required.forEach((r, i) => {
-        if (!required_map[r.value]) {
-            required_map[r.value] = required_paths.length;
-            requiredi.push(r.row ? `:${r.row}:${r.col}` : '');
-            required_paths.push(r.value);
-        }
-        if (r.value in commap) {
-            r.value = required_map[r.value];
-            r.text = String(r.value);
-            r.type = VALUE;
-        }
-        r.isdigit = true;
-    });
     if (breakflag === false);
     else if (!islive) {
         code.relink();
@@ -759,21 +763,17 @@ var fairJsCode = function (code, fullpath, commap, globalsmap) {
         if (!memery.UPLEVEL) {
             if (!memery.BREAK) code.detour(false);
             downLevel.code(code);
-            isAsync = false;
-            isYield = false;
+            if (memery.BREAK && !keepstring) breakcode(code);
         }
         var {
             used: allVariables,
             envs: undeclares
         } = code;
-        if (memery.BREAK) breakcode(code);
     }
     else if (memery.ported && memery.MSIE) {
         code.relink();
         code.detour();
         downLevel.code(code);
-        isAsync = false;
-        isYield = false;
         var {
             used: allVariables,
             envs: undeclares
@@ -794,18 +794,22 @@ var fairJsCode = function (code, fullpath, commap, globalsmap) {
         o = o[0];
         return o.row ? `:${o.row}:${o.col}` : "";
     });
-    required_paths.i = requiredi;
     code.helpcode = memery.HELPCODE;
     code.imported = globals;
     code.isYield = isYield;
     code.params = params;
     code.isAsync = isAsync;
+    if (code.prequoted) {
+        code.prequoted.forEach(o => {
+            if (o.type === QUOTED) o.noemit = true;
+        });
+        code.unshift(...code.prequoted);
+        delete code.prequoted;
+    }
+    code.rescan();
+    if (code.required) code.reqlinks = code.used.require.map(getRequiredLink).filter(a => !!a);
     if (!islive) buildPress2(code, code.strkeys);
     else revarCode(code);
-    if (required) {
-        code.required = required_paths;
-        code.reqlinks = required;
-    }
     return code;
 };
 var wrapParams = function (code, params) {
@@ -813,7 +817,9 @@ var wrapParams = function (code, params) {
     var { vars, used } = code;
     var params1 = params.map(a => {
         vars[a] = true;
+        // <!--
         if (!used[a]) console.warn(a, code.fullpath);
+        // -->
         used[a].push(a = { text: a });
         return a;
     });
@@ -862,15 +868,17 @@ var revarCode = function (code) {
     return params;
 };
 var liveResponse = function (code) {
-    var { imported, prequoted, params, required, strkeys, isAsync, isYield } = code;
+    var { imported, prequoted, params, required, strkeys, await: await1, yield: yield1 } = code;
     var data = code.toString();
-    if (strkeys?.length > 0) {
-        var strs = code.strkeys.map(k => breakcode.quoted[k]);
+    var data = code.toString();
+    var quoted = breakcode.quoted;
+    if (imported.length && strkeys?.length > 0) {
+        var strs = `[${strkeys.map(k => quoted[k]).join(',')}]`;
         var strlength = strs.length.toString(36);
     } else {
         strs = '';
+        if (strkeys?.length) data = "var " + params.splice(imported.length).map((a, i) => `${a}=${quoted[strkeys[i]]}`).join(',') + ";" + data;
     }
-    var data = code.toString();
     var _arguments = [...imported, ...params];
     if (required) {
         _arguments.push(required.join(';'));
@@ -881,13 +889,11 @@ var liveResponse = function (code) {
     if (prequoted) {
         data = prequoted.map(a => a.text).join('') + data;
     }
-    if (isYield) data = "*" + data;
-    if (isAsync) data = "~" + data;
+    if (yield1) data = "*" + data;
+    if (await1) data = "~" + data;
     // [参数长度*2 参数列表]? [字符串列表长度*2 字符串数组]? 代码块
-    data = (_arguments.length ? length + _arguments : "") + (strs && strs.length > 2 && imported.length > 0 ? strlength.length + 1 + strlength + strs : '') + (+data.charAt(0) > 1 ? ";" : "") + data;
+    data = (_arguments.length || strs.length ? length + _arguments : "") + (strs && strs.length > 2 && imported.length > 0 ? strlength.length + 1 + strlength + strs : '') + (+data.charAt(0) > 1 ? ";" : "") + data;
     data = Buffer.from(data);
-    data.isAsync = isAsync;
-    data.isYield = isYield;
     return data;
 };
 var getFileData = function (fullpath) {
@@ -1405,7 +1411,6 @@ function commbuilder(buffer, filename, fullpath, watchurls) {
                     data.data = "var " + codes.join(",") + ";\r\n" + data.data;
                 }
             }
-            data.fullpath = fullpath;
             data.time = new Date - timeStart + (watchurls.time || 0) + (promise.time || 0);
             clear_console();
             showMemery();
@@ -1441,6 +1446,7 @@ var parse = function (data, filename, fullpath, compress, breakcode = memery.get
     if (res.then) return res = res.then(next);
     else return next(res);
 };
+commbuilder.fair = fairJsCode;
 commbuilder.parse = parse;
 commbuilder.press = buildPress2;
 module.exports = commbuilder;

@@ -917,7 +917,7 @@ var killspr = function (body, i, _getobjname, killobj) {
             }
         }
         else if (r === pp) {
-            if (p.type === SCOPED && p.entry === "[" && !/[\.\[]/.test(rt)) {
+            if (p.type === SCOPED && p.entry === "[" && rt && !/[\.\[]/.test(rt)) {
                 splice(o, 0, 0, ...scanner2(rt + ","));
                 p = r;
                 done = true;
@@ -1356,6 +1356,7 @@ var unforof = function (o, getnewname, used, killobj) {
 };
 var unarrow = function (body, i) {
     var o = body[i];
+    var scoped = o.scoped;
     var p = o.prev;
     var n = o.next;
     var b = n, h = p;
@@ -1368,6 +1369,7 @@ var unarrow = function (body, i) {
     if (p && p.type !== SCOPED || p.entry !== "(") {
         h = scanner2("()")[0];
         splice(h, 0, 0, ...splice(body, i, 1, h));
+        scoped.head = h;
     }
     if (n.type !== SCOPED || !n.brace) {
         var nni = skipAssignment(body, ni);
@@ -1379,12 +1381,12 @@ var unarrow = function (body, i) {
         splice(b, 0, 0, { type: STRAP, transive: true, text: "return" }, ...q);
         relink(b);
         nni = indexof(body, b, ni) + 1;
+        scoped.body = b;
     }
     else nni = ni + 1;
     var bd = body.slice(pi, nni);
     if (p?.async) bd.unshift({ type: STRAP, text: 'async' });
     relink(bd);
-    down(createScoped(bd));
     return nni;
 };
 var getname = function (vars, envs, k) {
@@ -1761,7 +1763,6 @@ var newpunc = function (body, i, newname) {
     return hi;
 }
 var down = function (scoped) {
-    if (scoped.isArraw) return;
     var inAsync = scoped.async;
     var inAster = scoped.yield;
     var funcMark = [, "aster", "async", "asyncAster"][inAsync << 1 | inAster];
@@ -1898,15 +1899,16 @@ var down = function (scoped) {
 
     var markcodes = [];
     var { caps } = scoped;
-    if (scoped.isfunc && scoped.caps.this && (funcMark || scoped.insett)) {
+    if (scoped.isfunc && scoped.caps.this && (scoped.insett || funcMark)) {
+        // 内部有非作用此域的this指向此作用域，或者此作用域将被打碎重组
         let tn = _getname("this_");
         rename(scoped.caps, "this", tn);
-        caps.this.forEach(o => o.origin = 'this');
         caps[tn] = caps.this;
         delete caps.this;
         markcodes.push(`${tn}=this`);
     }
-    if (scoped.isfunc && scoped.caps.arguments && (funcMark || scoped.inseta)) {
+    if (scoped.isfunc && scoped.caps.arguments && (scoped.inseta || funcMark)) {
+        // 内部有非作用此域的代码用到此作用域的arguments，或者此作用域将被打碎重组
         let an = _getname("arguments_");
         caps.arguments.forEach(o => (o.origin = 'arguments', o.type = EXPRESS));
         rename(caps, "arguments", an);
@@ -1952,7 +1954,7 @@ var down = function (scoped) {
         if (!scoped.body && scoped.head?.next?.brace) scoped.body = scoped.head.next;
         if (scoped.head) var [argsmap, argcodes] = killarg(scoped.head, scoped.body, _letname, false);
         else argcodes = [];
-        if ((markcodes.length || argcodes.length) && !funcMark) precode(markcodes.concat(argcodes).join(";") + ";");
+        if ((markcodes.length || argcodes.length) && !funcMark) precode(markcodes.concat(argcodes).join(";") + ";"), markcodes = [];
         if (scoped.body) scoped.body.keeplet = false, _killobj(_getname, scoped.body);
         scoped.forEach(kill);
         var requeue = null, requeuei = -1, requeuee = -1;
@@ -1967,6 +1969,12 @@ var down = function (scoped) {
             unstruct.debug = downLevel.debug;
             var body = scanner2(`return ${funcMark}()`);
             var body3 = body[body.length - 1];
+            if (argcodes.length) {
+                // 默认参数随后续代码一同打碎，以兼容参数中的异步语句
+                argcodes = scanner2(argcodes.join(';') + ";\r\n");
+                _killobj(_getname, argcodes);
+                splice(scoped.body, 0, 0, ...argcodes);
+            }
             var code = unawait(scoped.body, _getname, argname);
             code.forEach(function (c) {
                 revar(c);
@@ -1978,10 +1986,10 @@ var down = function (scoped) {
                 body3.push({ type: SPACE, text: '\r\n' }, ...f);
             });
             splice(scoped.body, 0, scoped.body.length);
-            if (markcodes.length || argcodes.length) {
-                argcodes = scanner2(markcodes.concat(argcodes).join(';') + ";\r\n");
-                _killobj(_getname, argcodes);
-                splice(scoped.body, 0, 0, ...argcodes);
+            if (markcodes.length) {
+                // this,arguments仅重命名赋值，无需降级
+                markcodes = scanner2(markcodes.join(';') + ";\r\n");
+                splice(scoped.body, 0, 0, ...markcodes);
             }
             splice(scoped.body, scoped.body.length, 0, ...body);
             for (var k in envs) if (!(k in scoped.envs)) vars[k] = true;

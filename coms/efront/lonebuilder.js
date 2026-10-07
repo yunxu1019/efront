@@ -9,6 +9,7 @@ var { lonelyjs, lonelycss } = commbuilder;
 var BuildInfo = build$BuildInfo;
 var commap = BuildInfo.commap;
 var lonebuilder = commbuilder.bind(BuildInfo.commap);
+var fairJsCode = commbuilder.fair;
 var Timer = require("../basic/Timer");
 var toComponent = require("../build/toComponent");
 var build = build$build;
@@ -22,11 +23,7 @@ var lonecssbuilder = async function (data, filename, fullpath, watchurls) {
     data.time = watchurls.time;
     return data;
 };
-var lonetoString = function (code) {
-    var data = code.toString();
-    if (code.prequoted) data = code.prequoted + data;
-    return data;
-}
+
 var lonejsbuilder = async function (data, filename, fullpath, watchurls) {
     if (commap !== BuildInfo.commap) lonebuilder = commbuilder.bind(BuildInfo.commap), commap = BuildInfo.commap;
     if (!watchurls.time) watchurls.time = 0;
@@ -37,11 +34,11 @@ var lonejsbuilder = async function (data, filename, fullpath, watchurls) {
     var time = new Timer;
     var lonely = false;
 
-    var { imported, required } = res;
+    var { envs, required } = res;
     a: {
         res.rescan();
         var lones = getlones(res);
-        for (var a of imported) {
+        for (var a in envs) {
             if (!(a in lones) && a in this) break a;
         }
         if (required) for (var a of required) {
@@ -50,11 +47,12 @@ var lonejsbuilder = async function (data, filename, fullpath, watchurls) {
         lonely = true;
     }
     if (lonely) {
-        return lonetoString(res);
+        fairJsCode(code, fullpath, BuildInfo.commap, {}, true);
+        return res.toString();
     }
     var responseTree = Object.create(null);
     var info = BuildInfo.fromLone(filename, fullpath);
-    info.data = res;
+    info.data = fairJsCode(res, fullpath, BuildInfo.commap, {});
     info.time = res.time;
     responseTree[info.url] = info;
     var loaded = Object.create(null);
@@ -69,7 +67,7 @@ var lonejsbuilder = async function (data, filename, fullpath, watchurls) {
         if (r.time) time += r.time;
     }
     var res = toComponent(responseTree, true)[info.url];
-    var data = lonetoString(res);
+    var data = res.toString();
     return data;
 };
 var isdyna = function (scriptNode) {

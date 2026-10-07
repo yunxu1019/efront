@@ -23,10 +23,12 @@ var memery = require("../efront/memery");
 var strings = require("../basic/strings");
 var { decode, encode } = strings;
 var crypt1 = require("./crypt1");
+var isWebProject = false;
 var crypt1_ricode = function (source) {
     source = decode(source);
     source = crypt1(source, memery.crypt_code);
     source = encode(source, "'");
+    if (isWebProject) source = source.replace(/[><&]/g, a => "\\x" + a.charCodeAt(0).toString(16));
     return source;
 };
 require("../compile/namelist").makeSource(memery.SCITER);
@@ -55,6 +57,13 @@ var getBuiltVersion = async function (filepath) {
 };
 var loadToTree = Object.create(null);
 function builder(cleanAfterBuild = false, cleanBeforeBuild = false) {
+    if (memery.ENCRYPT) {
+        do {
+            var crypt_code = new Date / 1000 ^ Math.random() * 3600;
+        } while (crypt_code & 0x7f === 0 || crypt_code < 0x100);
+        memery.crypt_code = crypt_code;
+        strings.ricode = crypt1_ricode;
+    }
     if (cleanBeforeBuild) loadToTree = Object.create(null);
     memery.WATCH_PROJECT_VERSION++;
     console.stamp();
@@ -84,13 +93,6 @@ function builder(cleanAfterBuild = false, cleanBeforeBuild = false) {
             //导出组件
             var public_path = path.join(PUBLIC_PATH, public_app);
             setting.is_commponent_package = true;
-            if (memery.ENCRYPT) {
-                do {
-                    var crypt_code = new Date / 1000 ^ Math.random() * 3600;
-                } while (crypt_code & 0x7f === 0);
-                memery.crypt_code = crypt_code;
-                strings.ricode = crypt1_ricode;
-            }
             require("../compile/scanner2").avoid = Object.create(null);
             var toComponent = require("./toComponent");
             commbuilder.prepare = false;
@@ -106,6 +108,7 @@ function builder(cleanAfterBuild = false, cleanBeforeBuild = false) {
             .then(finish)
     } else if (fs.existsSync(pages_root[0]) && fs.statSync(pages_root[0]).isDirectory()) {
         //导出项目
+        isWebProject = true;
         require("../efront/isLib").dispose();
         if (memery.EXTT === undefined) memery.EXTT = '.txt';
         console.info(i18n`正在编译项目`, `<cyan>${PUBLIC_APP}</cyan>\r\n`);
@@ -148,8 +151,9 @@ function builder(cleanAfterBuild = false, cleanBeforeBuild = false) {
                     };
                     var rename = async (a, b) => {
                         var error = null;
-                        for (var cx = 0, dx = 3; cx < dx; cx++) {
+                        for (var cx = 0, dx = 10; cx < dx; cx++) {
                             try {
+                                error = null;
                                 await fsp.rename(a, b);
                                 break;
                             } catch (e) {

@@ -594,6 +594,7 @@ var createScoped = function (parsed, wash) {
             var isAsync = false;
             var isAster = false;
             var function_obj = null;
+            var arraw = null;
             if (o.type === STAMP && equal_reg.test(o.text)) {
                 var p = snapExpressHead(getprev(o));
                 if (!p || p.type & (STRAP | STAMP) || p.type !== EXPRESS && !p.isExpress) {
@@ -657,6 +658,7 @@ var createScoped = function (parsed, wash) {
                     if (on && on.type === STAMP && on.text === "=>") {
                         isScope = true;
                         isArraw = true;
+                        arraw = on;
                         var p = getprev(o);
                         isAsync = p?.type === STRAP && p.text === 'async';
                     }
@@ -790,6 +792,7 @@ var createScoped = function (parsed, wash) {
                         var p = getprev(o);
                         var n = getnext(o);
                         if (n?.type === STAMP && n.text === "=>") {
+                            arraw = n;
                             isArraw = true;
                             isScope = true;
                             if (p?.type === STRAP && p.text === 'async') {
@@ -838,10 +841,13 @@ var createScoped = function (parsed, wash) {
                     scoped.vars = vars;
                     lets = vars;
                     if (isFunction) {
-                        vars.this = true, vars.arguments = true;
                         scoped.aster = isAster;
+                        vars.this = true, vars.arguments = true;
                         thisscope = scoped;
                         argscope = scoped;
+                    }
+                    else {
+                        arraw.scoped = scoped;
                     }
                     labelused = used;
                     scoped.async = isAsync;
@@ -1419,6 +1425,15 @@ var rolink = function (list) {
 var link = function (list, p, n) {
     var pi = 0, f = null;
     list.first = null;
+    // <!--
+    list.forEach(o=>{
+        if (o.linked) throw new Error('发现重复节点');
+        o.linked = true;
+    });
+    list.forEach(o=>{
+        delete o.linked;
+    });
+    // -->
     for (var cx = 0, dx = list.length; cx < dx; cx++) {
         var o = list[cx];
         o.prev = p;
@@ -1537,7 +1552,6 @@ var createString = function (parsed) {
                 return;
             case SPACE:
                 if (!autospace || keepspace || lasttype === COMMENT) {
-                    if (!keepspace) console.log('space',parsed.fullpath,autospace,lasttype===COMMENT,uncomment)
                     result.push(o.text);
                     lasttype = SPACE;
                     break;

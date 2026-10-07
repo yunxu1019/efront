@@ -39,10 +39,11 @@ async function collectDeps(r, responseTree, ignormap) {
         return ignormap[a] = true;
     })
     b = b.map(a => responseTree[a] || BuildInfo.fromRoot(a));
-    if (!include_required && !outside) return b;
+    if (!include_required && outside) return b;
     if (refered && refered.length) required = required.concat(refered);
     required = required.filter(r => {
         if (filter(r)) return true;
+        if (!include_required && isOutside(r)) return;
         if (ignormap) {
             if (ignormap[r]) return;
             ignormap[r] = true;

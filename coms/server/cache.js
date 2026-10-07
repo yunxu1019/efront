@@ -122,7 +122,7 @@ Directory.prototype.update = async function (updateonly) {
     var pmap = this.pmap;
     var defaultpower = pmap ? pmap["*"] : 2025;
     var newmap = Object.create(null), changed = Object.create(null);
-    for (var f of files) {
+    if (files instanceof Array) for (var f of files) {
         var fname = f.name;
         if (/^#/.test(fname)) continue;
         var o = loaded[fname];
