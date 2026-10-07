@@ -87,7 +87,7 @@ var isdyna = function (scriptNode) {
 var lonehtmlbuilder = async function (data, filename, fullpath, watchurls) {
     if (!watchurls.time) watchurls.time = 0;
     var timer = new Timer;
-    var hcode = scanner2(String(data), 'html');
+    var hcode = scanner2(String(data), fullpath, 'html');
     var { richNodes } = hcode.scoped;
     for (var c of richNodes) {
         var innerText = c.innerText.replace(/^\s*\<!--([\s\S]*)--!?\>\s*$/, "$1").trim();

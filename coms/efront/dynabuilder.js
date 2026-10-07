@@ -1,7 +1,7 @@
 var path = require('path');
 var memery = require("./memery");
 var htmlbuilder = lonebuilder.html;
-var dynareg = /<script[^>]*>\s*\<\!\-\-[\s\S]*?\-\-\!?\>\s*\<\/script\>|\<([%\?]|script)(?:(?<=%)|(?:(?<=[\?])(?:php|jsp|asp))|(?<=\<script)[^\>]*?serverside[^\>]*\>)([\s\S]*?)(?:\<\/(?=script)\1\>|\1\>)/gi;
+var dynareg = /\<([%\?]|script)(?:(?<=%)|(?:(?<=[\?])(?:php|jsp|asp))|(?<=\<script)[^\>]*?serverside[^\>]*\>)([\s\S]*?)(?:\<\/(?=script)\1\>|\1\>)/gi;
 var seekreg = new RegExp(`^\\s*(?:\\=\\s*|return\\s+|)[^\\d\\s${punkreg.source.slice(1)}[^\\s${punkreg.source.slice(1)}*\\s*$`);
 var commparse = commbuilder.parse;
 var SError = function (msg) {

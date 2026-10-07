@@ -21,6 +21,7 @@ var deepwr = function (dir, data) {
             if (fs.existsSync(dirname)) {
                 if (!paths.length) {
                     if (fs.existsSync(dir)) fs.unlinkSync(dir);
+                    if (!(data instanceof Buffer || data instanceof Uint8Array || typeof data === 'string')) data = String(data);
                     fs.writeFile(dir, data, function (err) {
                         if (err) return oh(err);
                         else ok();
