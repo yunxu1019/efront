@@ -9,7 +9,7 @@ var path = require("path");
 var fs = require('fs');
 var {
     STAMP, QUOTED, SCOPED, EXPRESS, COMMENT,
-    pickArgument, remove, insertBefore, pickAssignment
+    pickArgument, remove, insertBefore, pickAssignment, insertAfter,
 } = require("./common");
 var getExported = function (code) {
     var used = code.used;
@@ -82,10 +82,10 @@ var setEnvDefinedConsts = function (used, k, v) {
         t = t.slice(a.tack.length);
         var comment = { type: COMMENT, text: `/*${k}*/` };
         if (t) {
-            insertBefore(a, comment, { type: EXPRESS, text: t });
+            insertAfter(a, comment, { type: EXPRESS, text: t });
         }
         else {
-            insertBefore(a, comment);
+            insertAfter(a, comment);
         }
         a.type = v[0];
         a.text = v[1];

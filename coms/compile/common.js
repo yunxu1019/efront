@@ -1426,11 +1426,11 @@ var link = function (list, p, n) {
     var pi = 0, f = null;
     list.first = null;
     // <!--
-    list.forEach(o=>{
+    list.forEach(o => {
         if (o.linked) throw new Error('发现重复节点');
         o.linked = true;
     });
-    list.forEach(o=>{
+    list.forEach(o => {
         delete o.linked;
     });
     // -->
@@ -1516,6 +1516,10 @@ var createString = function (parsed) {
             case COMMENT:
                 // 每一次要远行，我都不得不对自己的物品去粗取精。取舍之间，什么重要，什么不是那么重要，都有了一道明显的分界线。
                 if (uncomment) return;
+                if (lasttype === STAMP && /\/$/.test(result[result.length - 1])) {
+                    lasttype = SPACE;
+                    result.push(' ');
+                }
                 if (!helpcode) {
                     result.push(o.text);
                     break;
