@@ -152,7 +152,13 @@ var getBuildRoot = async function (files, matchFileOnly) {
         if (!file) continue;
         var file1 = file;
         if (file in indexMap) {
-            file = await paddExtension(file);
+            if (matchFileOnly) try {
+                file = await paddExtension(file);
+            } catch (e) {
+                save(BuildInfo.fromWarn(file, e));
+                continue;
+            }
+            else file = await paddExtension(file);
         }
         if (getPathIn(ignore_path, file)) continue;
         try {

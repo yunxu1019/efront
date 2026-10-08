@@ -128,7 +128,7 @@ var fromComm = function (rel, file) {
 };
 var fromNoop = function (name) {
     return new BuildInfo(...{
-        type: "",
+        type: "*",
         url: name,
         name: name,
         extt: '',
@@ -154,6 +154,9 @@ var fromDyna = function (rel, file) {
     info.isback = true;
     return info;
 };
+var fromWarn = function (rel, error) {
+    return new BuildInfo(...{ type: "*", url: rel, name: rel, warning: error })
+}
 var fromLone = function (rel, file) {
     var info = realInfo("~", '', "/" + rel, file);
     info.islone = true;
@@ -175,7 +178,6 @@ var fromAapi = function (rel, file) {
 var fromAbpi = function (rel) {
     var file = backmap[rel];
     if (file) return realInfo("+", "#abpi", rel, file, '.png');
-    return fromNoop(rel);
 }
 var fromFolder = function (folder) {
     var rel = getPathIn(comms_root, folder);
@@ -226,6 +228,7 @@ BuildInfo.fromLone = fromLone;
 BuildInfo.fromAapi = fromAapi;
 BuildInfo.fromAbpi = fromAbpi;
 BuildInfo.fromFile = fromFile;
+BuildInfo.fromWarn = fromWarn;
 BuildInfo.fromFolder = fromFolder;
 BuildInfo.match = match;
 BuildInfo.noopbuilder = noopbuilder;

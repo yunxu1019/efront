@@ -117,9 +117,6 @@ async function compile(buildInfo) {
     if (searchpath && searchname) {
         fullpath = await searchPath(searchpath, searchname, extt);
     }
-    else if (realpath) {
-        fullpath = [realpath];
-    }
     return new Promise(function (ok, oh) {
         var responseText = buildInfo.data,
             responsePath,
@@ -291,7 +288,8 @@ async function compile(buildInfo) {
                 findRealpath();
             }
         }
-        findRealpath();
+        if (realpath) setRealpath(realpath);
+        else findRealpath();
     });
 
 }

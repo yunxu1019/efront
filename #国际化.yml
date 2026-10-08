@@ -1,3 +1,56 @@
+- zh-CN: 存在异常依赖项
+  zh-TW: 存在异常依賴項
+  en:    There are abnormal dependencies present
+  ja:    例外依存の存在
+  fr:    Présence de dépendances anormales
+  ru:    Необычная зависимость
+  ko:    예외 종속성 있음
+  de:    Es gibt ungewöhnliche Abhängigkeiten
+  it:    Esiste una dipendenza anormale
+  th:    การพึ่งพิงที่ผิดปกติ
+  vi:    Có phụ thuộc ngoại lệ
+  ar:    هناك استثناءات التبعية
+  nl:    Er zijn abnormale afhankelijkheden
+  fi:    Poikkeukselliset riippuvuudet
+  el:    Υπάρχει ασυνήθιστη εξάρτηση
+  es:    Hay Dependencia anormal
+  pt:    Existem dependências anormais
+  hu:    Szabványos függőség létezik
+  sv:    Det finns onormalt beroende
+  da:    Der findes unormale afhængigheder
+  cs:    Existují neobvyklé závislosti
+  pl:    Istnieją niezwykłe zależności
+  bg:    Има необичайна зависимост
+  et:    Erakorralised sõltuvused
+  ro:    Există dependențe anormale
+  sl:    Obstajajo nenormalne odvisnosti.
+  af:    Daar is onnormale afhanklikhede voorsien
+  am:    ያልተለመደ ጥገኛነት አለ
+  bn:    অস্বাভাবিক নির্ভরতা আছে
+  ca:    Existeix una dependència anormal
+  fa:    وابستگی های غیر معمولی وجود دارد
+  fil:   May mga hindi normal na dependencies na kasalukuyan
+  gu:    અસામાન્ય નિર્ભરતાઓ હાજર છે
+  he:    יש תלויות יוצאות דופן
+  hi:    असामान्य निर्भरता मौजूद है
+  hr:    Postoji neobična ovisnost
+  id:    Ada ketergantungan yang tidak normal
+  kn:    ಅಸಾಮಾನ್ಯ ಅವಲಂಬನೆಗಳಿವೆ
+  lt:    Yra neįprastos priklausomybės
+  lv:    Pastāv neparasta atkarība
+  ml:    അസാധാരണമായ ആശ്രിതത്വം ഉണ്ട്
+  mr:    असामान्य अवलंबिती
+  ms:    Terdapat ketergantungan yang tidak biasa
+  nb:    Det finnes unormale avhengigheter
+  sk:    Existujú neobvyklé závislosti
+  sr:    Постоје ненормалне зависности
+  sw:    Kuna kutegemea isiyo ya kawaida
+  ta:    அசாதாரணமான சார்புகள் உள்ளன
+  te:    అసాధారణమైన ఆధారపడటాలు ఉన్నాయి
+  tr:    Olağandışı Bağımlılıklar Var
+  uk:    Існує незвичайна залежність
+  ur:    غیر معمولی انحصار موجود ہے
+
 - zh-CN: 静态页面刷新
   zh-TW: 靜態頁面重繪
   en:    Static page refresh

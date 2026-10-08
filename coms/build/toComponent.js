@@ -227,12 +227,12 @@ function toComponent(responseTree, isWebProject) {
             }
             if (!isFinite(index)) {
                 if (/^\\[RT]/.test(a)) return getEncodedIndex(a, 'quoted');
-                var i = a;
-                if (a === "\\import") i = `[${getEncodedIndex("url")},function(b){return function(a,c){return c={},c[b]=a,c}}]`;
-                else if (memery.EMIT && a !== '\\decrypt') {
-                    console.warn(i18n`编译异常`, module_key, a);
+                if (a === "\\import") saveOnly(`[${getEncodedIndex("url")},function(b){return function(a,c){return c={},c[b]=a,c}}]`, a);
+                else if (memery.EMIT && a !== '\\decrypt' && !(a in globals)) {
+                    console.warn(i18n`存在异常依赖项`, module_key, a);
+                    saveOnly(a, a);
                 }
-                saveOnly(i, a);
+                else saveOnlyGlobal(a);
                 index = destMap[a];
             }
             return index;
@@ -459,6 +459,7 @@ function toComponent(responseTree, isWebProject) {
         saveOnlyGlobal('exports');
     }
     if (hasEncode) initDecoder();
+    if (!hasModule) hasModule = destMap.module;
     if (array_map) polyfill_map = polyfill_map.replace(/\$(\w+)/g, function (_, w) {
         return getEncodedIndex(w, 'string') - 1;
     });

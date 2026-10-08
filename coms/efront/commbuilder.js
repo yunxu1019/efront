@@ -536,7 +536,7 @@ var loadJsBody = function (data, filename, fullpath, watchurls, ...args) {
 }
 
 var liveJsNext = function (code, filename, fullpath, lessdata, commName, className, htmlData) {
-    var hasExport = code.export || !code.first;
+    var hasExport = code.export;
     var destpaths = code.prepares;
     pareJsCode(code, fullpath, this);
     var {
@@ -570,9 +570,6 @@ var liveJsNext = function (code, filename, fullpath, lessdata, commName, classNa
     commName = getEntryName(declares, commName);
     var cless_var = '\\style';
     var hasless = typeof lessdata === "string";
-    if (hasless) {
-        globalsmap["&style"] = cless_var;
-    }
     var prepareCodeBody = [];
     if (destpaths?.length) {
         var stringifiedpaths = destpaths.length === 1 ? JSON.stringify(destpaths[0]) : JSON.stringify(destpaths);
@@ -609,16 +606,17 @@ var liveJsNext = function (code, filename, fullpath, lessdata, commName, classNa
                     { type: STAMP, text: ',' },
                     {
                         type: QUOTED,
+                        noemit: true,
                         text: JSON.stringify(lessdata),
                     },
                     { type: STAMP, text: ',' },
                     {
                         type: QUOTED,
                         text: JSON.stringify(className),
-                        keep: true,
+                        noemit: true,
                     }
                 ), { type: SCOPED, isExpress: true, entry: "(", leave: ")" }))
-        ), code.first = code[0];
+        ), code.first = code[0], globalsmap["&style"] = cless_var;
         code.splice(
             code.indexOf(code.first), 0,
             { type: STRAP, text: "return", transive: true }
@@ -637,6 +635,7 @@ var liveJsNext = function (code, filename, fullpath, lessdata, commName, classNa
             lessdata = '&cless';
             declares[lessdata] = lessdata;
             allVariables['&cless'] = less.used['&cless'];
+            globalsmap["&style"] = cless_var;
             for (var r of code.return) {
                 lessnode = {
                     type: EXPRESS,
@@ -667,15 +666,16 @@ var liveJsNext = function (code, filename, fullpath, lessdata, commName, classNa
                 { type: STRAP, text: "return", transive: true }
             )
             if (hasless) {
+                globalsmap["&style"] = cless_var;
                 code.push({ type: EXPRESS, text: commName }, { type: STAMP, text: '=' });
                 code.push(
                     { type: code.EXPRESS, text: cless_var },
                     code.relink(Object.assign([
                         { type: EXPRESS, text: commName },
                         { type: STAMP, text: ',' },
-                        lessnode || { type: QUOTED, text: lessdata },
+                        lessnode || { type: QUOTED, text: lessdata, noemit: true },
                         { type: STAMP, text: ',' },
-                        { type: QUOTED, text: JSON.stringify(className) },
+                        { type: QUOTED, text: JSON.stringify(className), noemit: true },
                     ], {
                         entry: "(",
                         isExpress: true,
