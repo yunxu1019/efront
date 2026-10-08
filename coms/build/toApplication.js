@@ -136,7 +136,7 @@ var buildHtml = function (html, code, outsideMain, responseTree) {
                 if (!scriptData) break a;
                 if (!responseTree[k].isrest) delete responseTree[k];
                 if (memory.COMPRESS) {
-                    scriptData = scanner2(scriptData.toString()).press(memory.KEEPSPACE).toString();
+                    scriptData = scanner2(scriptData.toString()).press(memory.KEEPSPACE, memory.COMPRESS).toString();
                 }
                 return `<script>\r\n//<![CDATA[\r\n${scriptData}\r\n//]]>\r\n</script>${s}`;
             }

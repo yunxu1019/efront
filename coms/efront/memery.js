@@ -391,12 +391,12 @@ var setDebug = function (v) {
     var dbg = v != false;
     var debug = {
         ENCRYPT: !dbg,
-        COMPRESS: v < 0 ? v : !v,
+        COMPRESS: isFinite(memery.get('COMPRESS')) ? v : -1,
         KEEPSPACE: dbg,
         BREAK: true,
         COMMENT: dbg,
         AUTOEVAL: true,
-        EXTT:'.js',
+        EXTT: '.js',
     };
     for (var k in debug) {
         if (!isHandled(_memery[k])) _memery[k] = debug[k];
