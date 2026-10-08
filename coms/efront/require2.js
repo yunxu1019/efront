@@ -198,7 +198,7 @@ var formatModname = function (n, c) {
 }
 var createNoCircle = function (required, pathmap, modname, index, arr) {
     if (typeof modname === 'number') modname = required[modname];
-    if (!modname) throw console.warn(arguments), new Error('请传入函数名');
+    if (!modname) throw new Error('请传入函数名');
     var modname1 = modname;
     if (this.isfolder) {
         modname1 += '/';
