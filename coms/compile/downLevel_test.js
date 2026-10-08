@@ -73,14 +73,14 @@ assert(downLevel(`={a,[a]:c}={}`), '= _ = {}, a = _.a, c = _[a]\nvar _');
 var tmp = scanner2(`var {window}=this`); tmp.helpcode = false; tmp.detour(); assert(downLevel.code(tmp).toString(), `var window = this["window"]`);
 assert(downLevel(`function (){var [a]=a;}`), "function () { var a = a[0]; }")
 i++// 参数解构
-assert(downLevel(`function ([a]){}`), "function (arg) { var a = arg[0]; }")
-assert(downLevel(`function ([a],b){}`), "function (arg0, b) { var a = arg0[0]; }")
-assert(downLevel(`function ([a],{b}){}`), "function (arg0, arg1) { var a = arg0[0], b = arg1.b; }")
+assert(downLevel(`function ([a]){}`), "function (arg0_) { var a = arg0_[0];\n}")
+assert(downLevel(`function ([a],b){}`), "function (arg0_, b) { var a = arg0_[0];\n}")
+assert(downLevel(`function ([a],{b}){}`), "function (arg0_, arg1_) { var a = arg0_[0];\nvar b = arg1_.b;\n}")
 assert(downLevel(`function (){var {a},{b};}`), "function () { var a, b; }")
 assert(downLevel(`function (){var {a}=a,{b}=a;}`), "function () { var a = a.a, b = a.b; }")
-assert(downLevel(`function (a=b){}`), "function (a) { if (a === void 0) a = b; }")
-assert(downLevel(`function (a=b,[c],d,e=f){}`), "function (a, arg1, d, e) { if (a === void 0) a = b; var c = arg1[0]; if (e === void 0) e = f; }")
-assert(downLevel(`function (arg1=b,[c],d,e=f){}`), "function (arg1, arg2, d, e) { if (arg1 === void 0) arg1 = b; var c = arg2[0]; if (e === void 0) e = f; }")
+assert(downLevel(`function (a=b){}`), "function () { var a = arguments[0];\nif (a === void 0) a = b;\n}")
+assert(downLevel(`function (a=b,[c],d,e=f){}`), "function () { var a = arguments[0];\nif (a === void 0) a = b;\nvar c = (arguments[1])[0];\nvar d = arguments[2];\nvar e = arguments[3];\nif (e === void 0) e = f;\n}")
+assert(downLevel(`function (arg1=b,[c],d,e=f){}`), "function () { var arg1 = arguments[0];\nif (arg1 === void 0) arg1 = b;\nvar c = (arguments[1])[0];\nvar d = arguments[2];\nvar e = arguments[3];\nif (e === void 0) e = f;\n}")
 i++// class降级
 assert(downLevel(`class a {}`), "function a() {}")
 var tmp = scanner2('export class a{a(){}}'); tmp.fix(); assert(downLevel.code(tmp).toString(), `exports.a = function (a) { a["prototype"].a = function () {}\nreturn a }(function a() {})`);
@@ -203,8 +203,16 @@ assert(downLevel(`=[a,b,...c,d,e,f,...g]`), `= [a, b]["concat"](&slice(c), [d, e
 assert(downLevel(`=[a,b,...c,d,...e]`), `= [a, b]["concat"](&slice(c), [d], &slice(e))`)
 assert(downLevel(`[...new Set(keys)]`), '&values(new Set(keys))');
 assert(downLevel(`[...new Array(20)]`), '&slice(new Array(20))');
-downLevel.debug = true; i++;
 assert(downLevel(`a=[]["concat"](...b)`), `a = (_ = [])["concat"]["apply"](_, b)\r
+var _`)
+downLevel.debug = true; i++;
+assert(downLevel(`a={async check(...args) {return this.each(args, (a) => require("./checkVariable")(a))}}`), `a = (_ = {},
+_.check = function () { this_ = this; arguments_ = arguments;
+return &async(
+function () {
+args = &slice(arguments_, 0); _0 = function (a) { return require("./checkVariable")(a) }; _0 = this_.each(args, _0); return [_0, 2]
+})
+var args, this_, arguments_, _0 }, _)
 var _`)
 downLevel.debug = false; i++;
 assert(downLevel(`a(...b)`), `a["apply"](null, b)`)
@@ -227,18 +235,18 @@ assert(downLevel(`diagnostic.relatedInformation.push(...relatedInformation);`), 
 assert(downLevel(`const typeNames = [79 /* Identifier */, ...typeKeywords];`), `var typeNames = [79/* Identifier */]["concat"](&slice(typeKeywords));`);
 i++// 箭头函数
 assert(downLevel(`a=>k`), "function (a) { return k }")
-assert(downLevel(`function (a,...b,b){}`), `function (a, b) { b = arguments["length"] > 1 ? arguments[arguments["length"] - 1] : void 0; }`)
+assert(downLevel(`function (a,...b,b){}`), `function (a) { var b = &slice(arguments, 1, -1);\nvar b = arguments[arguments["length"] - 1];\n}`)
 assert(downLevel(`(a)=>k`), "function (a) { return k }")
-assert(downLevel(`(a=1)=>k`), "function (a) { if (a === void 0) a = 1; return k }")
-assert(downLevel(`([a])=>b`), "function (arg) { var a = arg[0]; return b }")
-assert(downLevel(`map(([a])=>a)`), "map(function (arg) { var a = arg[0]; return a })")
+assert(downLevel(`(a=1)=>k`), "function () { var a = arguments[0];\nif (a === void 0) a = 1;\nreturn k }")
+assert(downLevel(`([a])=>b`), "function (arg0_) { var a = arg0_[0];\nreturn b }")
+assert(downLevel(`map(([a])=>a)`), "map(function (arg0_) { var a = arg0_[0];\nreturn a })")
 assert(downLevel(`var [_, R, G, B, A] = rgbHex.exec(color).map(a => parseInt(a + a, 16));`), "var _0 = rgbHex.exec(color).map(function (a) { return parseInt(a + a, 16) }), _ = _0[0], R = _0[1], G = _0[2], B = _0[3], A = _0[4];\nvar _0")
 assert(downLevel(`if (/^(?:select|input|textarea)$/i.test(initialEvent.target.tagName) || getTargetIn(a => a.nodrag || a.hasAttribute('nodrag'), initialEvent.target)) return;`), "if (/^(?:select|input|textarea)$/i.test(initialEvent.target.tagName) || getTargetIn(function (a) { return a.nodrag || a.hasAttribute('nodrag') }, initialEvent.target)) return;")
 i++// 对象收集
-assert(downLevel(`function (a,...b){}`), `function (a) { var b = &slice(arguments, 1); }`)
-assert(downLevel(`function (a,...b,c){}`), `function (a, c) { var b = &slice(arguments, 1, -1); c = arguments["length"] > 1 ? arguments[arguments["length"] - 1] : void 0; }`)
-assert(downLevel(`function (a,...,c){}`), `function (a, c) { c = arguments["length"] > 1 ? arguments[arguments["length"] - 1] : void 0; }`)
-assert(downLevel(`(...a) => k`), `function () { var a = &slice(arguments, 0); return k }`)
+assert(downLevel(`function (a,...b){}`), `function (a) { var b = &slice(arguments, 1);\n}`)
+assert(downLevel(`function (a,...b,c){}`), `function (a) { var b = &slice(arguments, 1, -1);\nvar c = arguments[arguments["length"] - 1];\n}`)
+assert(downLevel(`function (a,...,c){}`), `function (a) { var c = arguments[arguments["length"] - 1];\n}`)
+assert(downLevel(`(...a) => k`), `function () { var a = &slice(arguments, 0);\nreturn k }`)
 assert(downLevel(`for await(o of os) noSymbol`), `return &async(\r
 function () {\r
 return [8, 8]\r
@@ -510,7 +518,10 @@ function (_) {\r
 return [_, 2]\r
 })\r
 var _0 }`)
-assert(downLevel(`function(a=b=>b,c){c}`), 'function (a, c) { if (a === void 0) a = function (b) { return b }; c }')
+assert(downLevel(`function(a=b=>b,c){c}`), `function () { var a = arguments[0];\r
+if (a === void 0) a = function (b) { return b };\r
+var c = arguments[1];\r
+c }`)
 assert(downLevel(`Object.defineProperty(dis, f.key, {get() {}, set(v) {}})`), `Object.defineProperty(dis, f.key, (_ = {},\r
 _.get = function () {},\r
 _.set = function (v) {}, _))\r

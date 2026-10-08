@@ -200,26 +200,48 @@ var formatDulp = function (arg) {
     dulpobjs = [];
     markDulp(arg);
     arg = format(arg, 0);
+    unmarkDulp(arg);
     dulpobjs = null;
     return arg;
 }
 const dulpkey = Symbol('dulp'), dulpdesc = {
     enumerable: false,
     writable: true,
+    configurable: true,
     value: 1,
 };
-var markDulp = function (arg) {
+const fresh = Symbol('fresh');
+var unmarkDulp = function (arg) {
     if (arg === null) return;
     switch (typeof arg) {
         case "object":
         case "function":
-            if (arg[dulpkey]) {
-                arg[dulpkey]++;
-                return;
+            delete arg[dulpkey];
+            if (arg instanceof Array) arg.forEach(unmarkDulp);
+            else Object.keys(arg).forEach(k => unmarkDulp(arg[k]));
+    }
+}
+var markDulp = function (arg) {
+    var rest = [arg];
+    var deep = 0;
+    while (rest.length) {
+        deep++;
+        for (var arg of rest.splice(0, rest.length)) {
+            if (arg === null) continue;
+            switch (typeof arg) {
+                case "object":
+                case "function":
+                    if (arg[dulpkey]) {
+                        arg[dulpkey]++;
+                        continue;
+                    }
+                    Object.defineProperty(arg, dulpkey, dulpdesc);
+                    Object.defineProperty(arg, fresh, dulpdesc);
+                    arg[fresh] = deep;
+                    if (arg instanceof Array) arg.forEach(a => rest.push(a));
+                    else Object.keys(arg).forEach(k => rest.push(arg[k]));
             }
-            Object.defineProperty(arg, dulpkey, dulpdesc);
-            if (arg instanceof Array) arg.forEach(markDulp);
-            else Object.keys(arg).forEach(k => markDulp(arg[k]));
+        }
     }
 }
 var format = function (arg, deep = 0) {
@@ -232,6 +254,9 @@ var format = function (arg, deep = 0) {
     if (/^(number|boolean|symbol)$/.test(typeof arg)) return bindColor('yellow', arg);
     if (arg === undefined) return bindColor('gray', 'undefined');
     var mark = '';
+
+    var isFresh = arg[fresh] === deep;
+    if (isFresh) delete arg[fresh];
     if (dulpobjs && arg[dulpkey] > 1) {
         var di = dulpobjs.indexOf(arg);
         if (di >= 0) {
@@ -261,21 +286,26 @@ var format = function (arg, deep = 0) {
             var entry = "[";
             var leave = "]";
             entry = `${arg.constructor.name}(${arg.length})${entry}`;
-            if (deep > 3 && deep + arg.length > 5) return `${entry} ... ${leave}`;
-            deepobjs.push(arg);
-            var res = Array.prototype.slice.call(arg, 0, 100).map(a => format(a, deep));
-            deepobjs.pop();
-            if (arg.length > res.length) res.push(bindColor('gray', `.. 其他 ${arg.length - res.length} 项`));
-            var keys = Object.keys(arg);
-            for (var cx = keys.length - 1, dx = Math.max(keys.length - 100, 0); cx >= dx; cx--) {
-                var k = keys[cx];
-                if (+k === k >>> 0) {
-                    keys = keys.slice(cx + 1);
-                    break;
-                }
+            if (deep > 3 && deep + arg.length > 5) return mark + `${entry} ... ${leave}`;
+            if (isFresh) {
+                deepobjs.push(arg);
+                var res = Array.prototype.slice.call(arg, 0, 100).map(a => format(a, deep));
+                deepobjs.pop();
+                if (arg.length > res.length) res.push(bindColor('gray', `.. 其他 ${arg.length - res.length} 项`));
             }
-            var kvs = getkvs(arg, keys, deep);
-            res = res.concat(kvs);
+            else res = [];
+            if (isFresh) {
+                var keys = Object.keys(arg);
+                for (var cx = keys.length - 1, dx = Math.max(keys.length - 100, 0); cx >= dx; cx--) {
+                    var k = keys[cx];
+                    if (+k === k >>> 0) {
+                        keys = keys.slice(cx + 1);
+                        break;
+                    }
+                }
+                var kvs = getkvs(arg, keys, deep);
+                res = kvs.concat(res);
+            }
             return mark + formatRows(arg, res, deep, entry, leave);
         }
         if (arg.constructor === Date) {
@@ -284,12 +314,14 @@ var format = function (arg, deep = 0) {
         if (arg.constructor === RegExp) {
             return mark + bindColor('red2', `/${arg.source}/`) + bindColor('cyan', arg.flags);
         }
-        var keys = Object.keys(arg);
-        var kvs = getkvs(arg, keys, deep);
+        if (isFresh) {
+            var keys = Object.keys(arg);
+            var kvs = getkvs(arg, keys, deep);
+        }
+        else kvs = [];
         var entry = '{';
         if (!arg.constructor) entry = "[null]" + entry;
         else if (arg.constructor !== Object) entry = arg.constructor.name + entry;
-
         return mark + formatRows(arg, kvs, deep, entry, '}');
     }
     return mark + String(arg);

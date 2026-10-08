@@ -950,7 +950,7 @@ var createScoped = function (parsed, wash) {
                         if (n1) n1 = getnext(n1);
                     }
                 }
-                var map = isFunction ? vars : lets;
+                var map = isFunction || isArraw ? vars : lets;
                 var keepscope = isFunction || !!scoped.body || !!scoped.head;
                 if (!keepscope) for (var k in map) {
                     keepscope = true;

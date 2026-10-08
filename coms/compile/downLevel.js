@@ -5,6 +5,7 @@ var {
     STAMP, SCOPED, STRAP, EXPRESS,
     insertBefore,
     replace,
+    collectArgument,
     mergeTo, pickAssignment,
     COMMENT, SPACE, PROPERTY, VALUE, LABEL, QUOTED,
     snapExpressFoot, isEval, canbeTemp, rename, isHalfSentence, skipFunction, getDeclared, skipAssignment, skipSentenceQueue, createScoped, createString, splice, relink, rolink, pickSentence, snapExpressHead, needBreakBetween } = require("./common");
@@ -1420,70 +1421,70 @@ var getname = function (vars, envs, k) {
 };
 var killarg = function (head, body, _getname, setarg = true) {
     var argcodes = [];
-    var o = head.first;
-    var index = 0;
-    var collect = 0, cname, anames = [];
     var namemap = Object.create(null);
-    while (o) {
-        var aname = null;
-        var is3darg = false;
-        var a = o;
-        if (o.type === STAMP && o.text === '...') {
-            o = o.next;
-            is3darg = true;
+    var args = collectArgument(head);
+    head.splice(0, head.length);
+    for (var cx = 0, dx = args.length; cx < dx; cx++) {
+        var arg = args[cx];
+        relink(arg);
+        var o = arg.first;
+        if (!o || o !== arg.last) {
+            break;
         }
-        if (o.type === SCOPED) {
-            aname = _getname(head.length > 1 ? 'arg' + index : 'arg');
-            var dec = splice2(head, o, o = o.next, { type: EXPRESS, text: aname });
-            dec = `${createString(dec)}=${aname}`;
-            if (/^var\s/.test(argcodes[argcodes.length - 1])) argcodes[argcodes.length - 1] += ',' + dec;
-            else argcodes.push(`var ` + dec);
+        if (o.type & (EXPRESS | VALUE | STAMP)) {
+            if (/^\.\.\./.test(o.text)) break;
+            namemap[o.text] = true;
+            head.push(o, { type: STAMP, text: ',' });
         }
-        else if (o.type & (EXPRESS | VALUE)) {
-            if (!is3darg) is3darg = is3dots(o);
-            aname = o.text;
-            if (is3darg) {
-                cname = aname.replace(/^\.\.\./, '');
-                splice2(head, a.prev || a, o = skipAssignment(o));
-                collect = index + 1;
+        else if (o.type === SCOPED) {
+            var aname = _getname("arg" + cx + '_');
+            namemap[aname] = true;
+            head.push({ text: aname, type: EXPRESS }, { type: STAMP, text: ',' });
+            argcodes.push(`var ${createString(arg)}=${aname}`);
+        }
+    }
+    head.pop();
+    relink(head);
+    var hascollect = false;
+    for (; cx < dx; cx++) {
+        var arg = args[cx];
+        relink(arg);
+        var o = arg.first;
+        if (!o) break;
+
+        var argname = hascollect ? `arguments[arguments["length"]-${dx - cx}]` : `arguments[${cx}]`;
+        if (o.type & (EXPRESS | VALUE | STAMP)) a: {
+            var text = o.text;
+            if (/^\.\.\./.test(text)) {
+                text = text.slice(3);
+                argname = `${patchMark}slice(arguments,${cx}${cx + 1 === dx ? "" : "," + (cx + 1 - dx)})`
+                hascollect = true;
+            }
+            if (!text.length) {
+                o = o.next;
+                if (!o) continue;
+                if (o.type & (EXPRESS | VALUE)) {
+                    text = o.text;
+                }
+                else break a;
+            }
+            argcodes.push(`var ${text}=${argname}`);
+            if (!hascollect && o !== arg.last) {
+                argcodes.push(`if(${text}===void 0)${createString(arg)}`);
+            }
+        }
+        else if (o.type === SCOPED) {
+            if (o === arg.last) {
+                argcodes.push(`var ${createString(arg)}=${argname}`);
             }
             else {
-                o = o.next;
-                if (collect) {
-                    anames.push(aname);
-                }
-                index++;
+                var aname = _getname('arg' + cx + "_");
+                var i = arg.indexOf(o);
+                arg = arg.slice(i + 1);
+                argcodes.push(`var ${aname}=${argname}; if(${aname}===void 0)${aname}=${createString(arg)}`);
+                argcodes.push(`var ${createString([o])}=${aname}`);
             }
         }
-        else if (is3darg) {
-            splice2(head, a.prev || a, o = skipAssignment(o));
-            aname = '...';
-            cname = '';
-            collect = index + 1;
-        }
-        else throw new Error(i18n`参数声明异常！`);
-        if (o && o.type === STAMP) {
-            if (o.text === ',') {
-                o = o.next; continue;
-            }
-            var start = o;
-            while (o && (o.type !== STAMP || o.text !== ',')) o = o.next;
-            var assign = splice2(head, start, o);
-            argcodes.push(`if(${aname}===void 0)${aname}${createString(assign)}`);
-            if (o) o = o.next;
-        }
-        namemap[aname] = true;
-    }
-    if (collect > 0) {
-        collect--;
-        argcodes.unshift.apply(argcodes, anames.map((a, i) => {
-            if (a === cname) cname = '';
-            var n = anames.length - i;
-            broken++;
-            return `${a}=arguments["length"]>${collect + n - 1}?arguments[arguments["length"] - ${n}]:void 0`;
-        }));
-
-        if (cname) argcodes.unshift(`var ${cname}=${patchMark}slice(arguments,${collect}${index > collect ? `,${collect - index}` : ""})`), rootenvs[patchMark + 'slice'] = true;
     }
     if (argcodes.length && setarg) {
         if (!body) {
@@ -1503,7 +1504,7 @@ var killarg = function (head, body, _getname, setarg = true) {
         }
         else body.unshift(...scanner2(argcodes.join(";") + ";")), relink(body);
     }
-    return [namemap, argcodes];
+    return [namemap, argcodes.join(";\r\n")];
 };
 var revar = function (body) {
     for (var i = 0; i < body.length; i++) {
@@ -1899,6 +1900,7 @@ var down = function (scoped) {
 
     var markcodes = [];
     var { caps } = scoped;
+
     if (scoped.isfunc && scoped.caps.this && (scoped.insett || funcMark)) {
         // 内部有非作用此域的this指向此作用域，或者此作用域将被打碎重组
         let tn = _getname("this_");
@@ -1906,6 +1908,24 @@ var down = function (scoped) {
         caps[tn] = caps.this;
         delete caps.this;
         markcodes.push(`${tn}=this`);
+    }
+    if (scoped.isfunc && scoped.head) {
+        // 此时这里的this没有新增，旧的this也已变更，只有新增的arguments是当前函数的参数
+        var [argsmap, argcodes] = killarg(scoped.head, null, _letname, false);
+        if (argcodes) {
+            argcodes = scanner2(argcodes, 'js');
+            var argused = argcodes.used;
+            if (argused.arguments) {
+                if (!caps.arguments) caps.arguments = argused.arguments;
+                else {
+                    caps.arguments = caps.arguments.concat(argused.arguments);
+                }
+            }
+            for (var k in argused.vars) {
+                delete scoped.vars[k];
+                vars[k] = true;
+            }
+        }
     }
     if (scoped.isfunc && scoped.caps.arguments && (scoped.inseta || funcMark)) {
         // 内部有非作用此域的代码用到此作用域的arguments，或者此作用域将被打碎重组
@@ -1952,9 +1972,6 @@ var down = function (scoped) {
     };
     if (scoped.isfunc) {
         if (!scoped.body && scoped.head?.next?.brace) scoped.body = scoped.head.next;
-        if (scoped.head) var [argsmap, argcodes] = killarg(scoped.head, scoped.body, _letname, false);
-        else argcodes = [];
-        if ((markcodes.length || argcodes.length) && !funcMark) precode(markcodes.concat(argcodes).join(";") + ";"), markcodes = [];
         if (scoped.body) scoped.body.keeplet = false, _killobj(_getname, scoped.body);
         scoped.forEach(kill);
         var requeue = null, requeuei = -1, requeuee = -1;
@@ -1964,17 +1981,16 @@ var down = function (scoped) {
             scoped.body = pickAssignment(scoped.arraw);
             requeuee = requeue.indexOf(scoped.body[scoped.body.length - 1], requeuei) + 1;
         }
+        if (argcodes) {
+            // 默认参数随后续代码一同打碎，以兼容参数中的异步语句
+            _killobj(_getname, argcodes);
+            splice(scoped.body, 0, 0, ...argcodes, { type: SPACE, text: ";\r\n" });
+        }
         if (funcMark) {
             var argname = _letname("_");
             unstruct.debug = downLevel.debug;
             var body = scanner2(`return ${funcMark}()`);
             var body3 = body[body.length - 1];
-            if (argcodes.length) {
-                // 默认参数随后续代码一同打碎，以兼容参数中的异步语句
-                argcodes = scanner2(argcodes.join(';') + ";\r\n");
-                _killobj(_getname, argcodes);
-                splice(scoped.body, 0, 0, ...argcodes);
-            }
             var code = unawait(scoped.body, _getname, argname);
             code.forEach(function (c) {
                 revar(c);

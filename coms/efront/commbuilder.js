@@ -750,6 +750,7 @@ var getRequiredLink = function (req) {
 }
 var fairJsCode = function (code, fullpath, commap, globalsmap, keepstring = false) {
     code.requote = commbuilder.requote !== false;
+    breakflag = true;
     var {
         async: isAsync,
         yield: isYield,
@@ -806,14 +807,13 @@ var fairJsCode = function (code, fullpath, commap, globalsmap, keepstring = fals
         code.unshift(...code.prequoted);
         delete code.prequoted;
     }
-    code.rescan();
+    if (breakflag !== false) code.rescan();
     if (code.required) code.reqlinks = code.used.require.map(getRequiredLink).filter(a => !!a);
     if (!islive) buildPress2(code, code.strkeys);
     else revarCode(code);
     return code;
 };
 var wrapParams = function (code, params) {
-    code.rescan();
     var { vars, used } = code;
     var params1 = params.map(a => {
         vars[a] = true;
@@ -1360,13 +1360,13 @@ function commbuilder(buffer, filename, fullpath, watchurls) {
     }
     else if (/\.json$/i.test(fullpath)) {
         var timeStart = new Date;
-        var data = loadJsBody("(" + String(buffer) + ")", filename, fullpath, watchurls);
+        var data = loadJsBody.call(this, "(" + String(buffer) + ")", filename, fullpath, watchurls);
         data.time = new Date - timeStart;
         promise = Promise.resolve(data);
     }
     else if (/\.ya?ml$/i.test(fullpath)) {
         var timeStart = new Date;
-        var data = loadJsBody(`return ${JSON.stringify(parseYML(String(buffer)))}`, filename, fullpath, watchurls);
+        var data = loadJsBody.call(this, `return ${JSON.stringify(parseYML(String(buffer)))}`, filename, fullpath, watchurls);
         data.time = new Date - timeStart;
         promise = Promise.resolve(data);
     }

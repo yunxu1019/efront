@@ -70,15 +70,6 @@ var compress = function (scoped, maped = Object.create(null)) {
     }
 };
 var rescan = function (list) {
-    //<!--
-    list.forEach(o => {
-        if (o.scaned) throw console.warn(cx, o, list.indexOf(o)), new Error('发现复用节点');
-        o.scaned = true;
-    });
-    list.forEach(o => {
-        delete o.scaned;
-    });
-    //-->
     relink(list);
     setqueue(list);
     for (var cx = 0, dx = list.length; cx < dx; cx++) {
