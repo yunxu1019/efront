@@ -764,7 +764,7 @@ var liveJsNext = function (code, filename, fullpath, lessdata, commName, classNa
     }
     code.unshift.apply(code, prepareCodeBody);
     fairJsCode(code, fullpath, this, globalsmap);
-    if (memery.ported && !islive) buildPress2(code, code.strkeys);
+    if (!islive) buildPress2(code, code.strkeys);
     else revarCode(code);
     return code;
 };
