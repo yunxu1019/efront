@@ -185,7 +185,7 @@ var _ifempty = {
         return memery.BREAK;
     },
     get WAITER_NUMBER() {
-        return memery.islive ? 1 : require("os").cpus().length;
+        return memery.islive ? 1 : cpuslength > 1 ? cpuslength - 1 : 1;
     },
     get HELPCODE() {
         return memery.istest;
