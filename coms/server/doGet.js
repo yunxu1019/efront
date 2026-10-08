@@ -200,7 +200,7 @@ var adapter = function (data, url, req, res) {
 /**
  * doGet
  */
-var doGet = module.exports = async function (req, res) {
+var doGet = module.exports = function (req, res) {
     var url = req.url;
     var download = /\*([\s\S]*)$/.exec(url);
     if (download) req.download = download[1];

@@ -48,12 +48,18 @@ var lonejsbuilder = async function (data, filename, fullpath, watchurls) {
     }
     if (lonely) {
         fairJsCode(code, fullpath, BuildInfo.commap, {}, true);
+        if (memery.COMPRESS) res.press(memery.KEEPSPACE, memery.COMPRESS);
+        else res.revar();
         return res.toString();
     }
     var responseTree = Object.create(null);
     var info = BuildInfo.fromLone(filename, fullpath);
-    info.data = fairJsCode(res, fullpath, BuildInfo.commap, {});
+    fairJsCode(res, fullpath, BuildInfo.commap, {});
+    if (memery.COMPRESS) commbuilder.press(res, res.strkeys);
+    else commbuilder.revar(res);
+    info.data = res;
     info.time = res.time;
+
     responseTree[info.url] = info;
     var loaded = Object.create(null);
     var infos = await build.getNexts(info, responseTree, loaded);

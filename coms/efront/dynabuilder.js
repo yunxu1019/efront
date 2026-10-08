@@ -49,12 +49,12 @@ async function dynabuilder(buff, fileurl, filepath, watchurls) {
             if (a in globals) continue;
             if (required.indexOf(a) < 0) required.push(a);
         }
-        return `<script serverside>${res.data}</script>`;
+        return `<script serverside>${res}</script>`;
     }
     var data1 = data.replace(dynareg, function (match, split, content, index) {
         if (/^\<\!\-\-/.test(match)) return match;
         if (!seekreg.test(content)) {
-            var res = commparse.call(that, content, fileurl, filepath, memery.COMPRESS ? 2 : false, false);
+            var res = commparse.call(that, content, fileurl, filepath, memery.COMPRESS ? 2 : true, false);
             if (typeof res.then === 'function') {
                 splited.push(data.slice(lastIndex, index), res);
                 lastIndex = index + match.length;

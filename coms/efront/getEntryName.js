@@ -10,7 +10,9 @@ var getEntryName = function (vars, commName) {
     }
     if (!commName) return null;
     if (commName in vars) return commName;
-    commName = commName.replace(/\-(\w)/g, (_, a) => a.toUpperCase());
+    commName = commName.replace(/[\-](\w)/g, (_, a) => a.toUpperCase());
+    if (commName in vars) return commName;
+    commName = commName.replace(/[_](\w)/g, (_, a) => a.toUpperCase());
     if (commName in vars) return commName;
     commName = commName[0].toUpperCase() + commName.slice(1);
     if (commName in vars) return commName;

@@ -520,6 +520,52 @@ var loopLoadStatic = function (code, fullpath, commap, watchurls, next) {
     if (!done) return asyncLoopLoadStatic(value, emiter).then(next);
     return next();
 }
+var toName = function (fullpath) {
+    if (/[\\\/](index|main)(\.[^\\\/]*)?$/.test(fullpath)) {
+        fullpath = path.dirname(fullpath);
+    }
+    var filename = path.basename(fullpath).replace(/\.[^\\\/]*$/, '');
+    var prefix = /^[#@%&\?\^\:\-]/.exec(filename);
+    var commName = breakcode.tokey(filename);
+    if (/preventOverflowScrolling/.test(fullpath)) console.log(fullpath, commName);
+    if (prefix) commName = prefix[0] + commName;
+    return commName;
+}
+var patchReturn = function (code, fullpath) {
+    if (code.return) return;
+    var undeclares = code.envs;
+    if (!undeclares.exports && !code.return && code.isExpressQueue()) {
+        //如果整个函数只有一个表达式或一个变量，直接反回其本身
+        while (code.length && (code[code.length - 1].type === SPACE || code[code.length - 1].type === code.STAMP && /[,;]/.test(code[code.length - 1].text))) {
+            code.pop();
+        }
+        code.forEach(c => c.isExpress = true);
+        code.splice(
+            code.indexOf(code.first), 0,
+            { type: STRAP, text: "return", transive: true }
+        );
+        code.relink();
+    } else {
+        if (undeclares.module) {
+            commName = `module["exports"]`;
+        } else if (undeclares.exports) {
+            commName = "exports";
+        }
+        else {
+            var commName = toName(fullpath);
+            commName = getEntryName(code.vars, commName);
+        }
+        if (commName) {
+            code.push(
+                { type: SPACE, text: "\r\n" },
+                { type: STRAP, text: "return", transive: true },
+                { type: code.EXPRESS, text: commName }
+            )
+            code.scoped.return = [code[code.length - 1]];
+            code.relink(code);
+        }
+    }
+}
 
 var loneJsCode = function (code, fullpath, commap, watchurls) {
     var loneJsNext = function () {
@@ -719,6 +765,8 @@ var liveJsNext = function (code, filename, fullpath, lessdata, commName, classNa
     }
     code.unshift.apply(code, prepareCodeBody);
     fairJsCode(code, fullpath, this, globalsmap);
+    if (memery.ported && !islive) buildPress2(code, code.strkeys);
+    else revarCode(code);
     return code;
 };
 var getRequiredLink = function (req) {
@@ -809,8 +857,6 @@ var fairJsCode = function (code, fullpath, commap, globalsmap, keepstring = fals
     }
     if (breakflag !== false) code.rescan();
     if (code.required) code.reqlinks = code.used.require.map(getRequiredLink).filter(a => !!a);
-    if (!islive) buildPress2(code, code.strkeys);
-    else revarCode(code);
     return code;
 };
 var wrapParams = function (code, params) {
@@ -1000,9 +1046,8 @@ var renderLessData = function (data, commName, lesspath, watchurls, className = 
 };
 
 function prepare(filename, fullpath) {
-    var commName = fullpath.match(/(?:^|[\\\/\[\]\(\)\{\}])([#@%&\?\^\:\$\-_\w\u3000-\uffff][\-\w\u3000-\uffff]*?)(\.[^\\\/]*)?$/i);
+    var commName = toName(fullpath);
     if (!commName && !/^\.js$/i.test(filename)) console.warn(i18n`文件名无法生成导出变量！`, fullpath, filename);
-    commName = commName && commName[1];
     var className = filename.replace(/[\\\/\:\.]+/g, "-");
     if (!/\-/.test(className)) className += "- " + className;
     var shortName = className.replace(/^.*?([^\-\s]*)$/g, "$1");
@@ -1434,14 +1479,19 @@ var parse = function (data, filename, fullpath, compress, breakcode = memery.get
     AUTOEVAL = memery.run2eval;
     if (/\.(?:pem|html?|xml|glsl|txt|log)$/i.test(fullpath)) data = `return ${strings.encode(data)}`;
     else if (/\.(?:json)$/i.test(fullpath)) data = `return ` + data.trim();
-    autoprop.disabled = true;
-    var [commName] = prepare(filename, fullpath);
-    var res = loadJsBody.call(this, data, filename, fullpath, null, null, commName);
-    var next = function (res) {
+    var code = scanner2(data);
+    var that = this;
+    var res = loneJsCode(code, fullpath, that, []);
+    var next = function (code) {
+        autoprop.disabled = true;
+        patchReturn(code, fullpath);
+        fairJsCode(code, fullpath, that, {}, true);
+        if (compress) buildPress2(code, code.strkeys);
+        else revarCode(code);
         autoprop.disabled = false;
         AUTOEVAL = autoeval;
         breakflag = savedflag;
-        return res;
+        return code;
     };
     if (res.then) return res = res.then(next);
     else return next(res);
