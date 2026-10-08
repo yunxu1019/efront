@@ -527,7 +527,6 @@ var toName = function (fullpath) {
     var filename = path.basename(fullpath).replace(/\.[^\\\/]*$/, '');
     var prefix = /^[#@%&\?\^\:\-]/.exec(filename);
     var commName = breakcode.tokey(filename);
-    if (/preventOverflowScrolling/.test(fullpath)) console.log(fullpath, commName);
     if (prefix) commName = prefix[0] + commName;
     return commName;
 }
