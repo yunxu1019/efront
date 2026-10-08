@@ -1469,11 +1469,13 @@ var killarg = function (head, body, _getname, setarg = true) {
                 else break a;
             }
             argcodes.push(`var ${text}=${argname}`);
+            if (hascollect) rootenvs["&slice"] = true;
             if (!hascollect && o !== arg.last) {
                 argcodes.push(`if(${text}===void 0)${createString(arg)}`);
             }
         }
         else if (o.type === SCOPED) {
+            if (hascollect) rootenvs["&slice"] = true;
             if (o === arg.last) {
                 argcodes.push(`var ${createString(arg)}=${argname}`);
             }
@@ -2001,18 +2003,17 @@ var down = function (scoped) {
                 if (body3.length) body3.push({ type: STAMP, text: "," });
                 body3.push({ type: SPACE, text: '\r\n' }, ...f);
             });
-            splice(scoped.body, 0, scoped.body.length);
-            if (markcodes.length) {
-                // this,arguments仅重命名赋值，无需降级
-                markcodes = scanner2(markcodes.join(';') + ";\r\n");
-                splice(scoped.body, 0, 0, ...markcodes);
-            }
-            splice(scoped.body, scoped.body.length, 0, ...body);
+            splice(scoped.body, 0, scoped.body.length, ...body);
             for (var k in envs) if (!(k in scoped.envs)) vars[k] = true;
             delete vars[argname];
             scoped.vars = Object.create(null);
             scoped.async = false;
             scoped.yield = false;
+        }
+        if (markcodes.length) {
+            // this,arguments仅重命名赋值，无需降级
+            markcodes = scanner2(markcodes.join(',') + ";\r\n");
+            splice(scoped.body, 0, 0, ...markcodes);
         }
         var vars1 = Object.keys(vars).filter(k => !(k in scoped.vars));
         scoped.vars = vars;
