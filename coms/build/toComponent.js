@@ -499,10 +499,10 @@ function toComponent(responseTree, isWebProject) {
     }`: `function(r){return T[c + 1] = function(){return r},r = function (i, a) { return T[i](a) }}`};` : ""}
     else R = function (Q, A) {${outsideAsync ? `
         var C = [];` : ''}${hasModule ? `
-        if (!(~c + E && ~c + M)) return s[c][0];`: ''}
+        if (!(${destMap.exports ? `~c + E &&` : ''} ~c + M)) return s[c][0];` : ''}
         var r = s[${getEncodedIndex(`/${freg.source}/`, 'regexp') - 1}], I, g = [], i, k = a[m] - 1, f = a[k], l = r[e](f);
         for (i = 0; i < k; i++) g[i] = ${hasModule
-            ? `a[i] === M ? (I = I || {}, I[B] = Q, I) : a[i] === E ? (I = I || {}, I[B] = Q) : ${destMap["\\import"] ? `a[i] === ${destMap["\\import"]}?T[a[i]]()(A):` : ""}`
+            ? `a[i] === M ? (I = I || {}, I[B] = Q, I) :${destMap.exports ? ` a[i] === E ? (I = I || {}, I[B] = Q) :` : ''} ${destMap["\\import"] ? `a[i] === ${destMap["\\import"]}?T[a[i]]()(A):` : ""}`
             : ''} a[i] === c + 1 ? f : a[i] ? T[a[i]]() : T[0]${outsideAsync ? `, g[i] && g[i][N] instanceof P && C[T[${getEncodedIndex("push")}]()](i, g[i])` : ''};
         ${hasEncode ? `if (!(${destMap["\\decrypt"] - 1}-c)) g[0] = s[M - 1];` : ''}
         g = g[o]([f, g, l ? l[1][q](',') : []]);${outsideAsync ? `
