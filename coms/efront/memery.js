@@ -160,6 +160,7 @@ var fixpath = function (key) {
 var geturlpath = name => get(name, null, 1);
 var getdirpath = (name, _default) => get(name, _default, 2);
 var getfullpath = (name, _default) => get(name, _default, 3);
+var cpuslength = require("os").cpus().length;
 var PUBLIC_PATH = getfullpath("PUBLIC_PATH", 'public');
 var webindex, indexreg, denoindex;
 var str2array = require("../basic/str2array");
