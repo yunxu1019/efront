@@ -1478,12 +1478,22 @@ var setqueue = function (list, queue = list) {
     var v = { value: queue, configurable: true, enumerable: false };
     for (var o of list) delete o.queue, Object.defineProperty(o, 'queue', v);
 };
-var createString = function (parsed) {
+const linked = Symbol("linked");
+class Link {
+    toString() {
+        return this.text;
+    }
+}
+var createFlat = function (parsed, links, keeps) {
     var autospace = parsed.autospace !== false;
     var keepspace = parsed.keepspace !== false;
     var patchspace = autospace && keepspace;
     var helpcode = parsed.helpcode;
     var express_reg = parsed.program?.express_reg;
+    if (links) var reqlinks = parsed.reqlinks;
+    if (reqlinks) reqlinks.forEach(req => {
+        req[linked] = true;
+    });
     if (typeof helpcode === 'string') {
         if (express_reg && !express_reg.test(helpcode.replace(/[\/\||,]/g, ''))) throw new Error(i18n`辅助级别异常：` + debug);
         if (/[\/\|,]/i.test(helpcode)) var debug = `(?:${helpcode.replace(/[\/\|,]/g, '|')})`;
@@ -1614,7 +1624,14 @@ var createString = function (parsed) {
                 if (!o.length && o.text) {
                     if (prev?.istype && lasttype !== SPACE) result.push(" ");
                     if (helpcolor) o.text = color.transform(o.text);
-                    result.push(o.text);
+                    if (keeps && o.keep) {
+                        var link = new Link;
+                        link.type = o.type;
+                        link.text = o.text;
+                        result.push(link);
+                        keeps.push(link);
+                    }
+                    else result.push(o.text);
                     break;
                 }
             case SCOPED:
@@ -1691,7 +1708,17 @@ var createString = function (parsed) {
                             result.push(" ");
                         }
                     }
-                    result.push(o.text);
+                    if (o[linked]) {
+                        var link = new Link;
+                        link.type = o.type;
+                        link.text = o.text;
+                        link.id = o.id;
+                        link.isdigit = o.isdigit;
+                        link.value = o.value;
+                        result.push(link);
+                        links.push(link);
+                    }
+                    else result.push(o.text);
                 }
                 else {
                     result.push(o);
@@ -1704,8 +1731,52 @@ var createString = function (parsed) {
     if (pend?.type === COMMENT && /^\/\//.test(pend.text)) {
         finalresult.push('\r\n');
     }
-    return finalresult.join("");
-}
+    if (reqlinks) reqlinks.forEach(o => delete o[linked]);
+    return finalresult;
+};
+var lineToString = function () {
+    return this.join('');
+};
+var createLine = function (code) {
+    var links = [], keeps = [];
+    var flat = createFlat(code, links, keeps);
+    var line = Array(links.length + keeps.length << 1 | 1);
+    var ci = 0;
+    var li = 0;
+    for (var cx = 0, dx = flat.length; cx < dx; cx++) {
+        var o = flat[cx];
+        if (o instanceof Link) {
+            if (ci < cx) {
+                line[li++] = flat.slice(ci, cx).join('');
+            }
+            ci = cx + 1;
+            line[li++] = o;
+        }
+    }
+    if (ci < dx) {
+        line[li++] = flat.slice(ci, dx).join('');
+    }
+    if (li < line.length) line.splice(li, line.length - li);
+    line.imported = code.imported;
+    line.required = code.required;
+    line.refered = code.refered;
+    line.strkeys = code.strkeys;
+    line.params = code.params;
+    line.typeofs = code.typeofs;
+    line.isAsync = code.isAsync;
+    line.isYield = code.isYield;
+    line.async = code.async;
+    line.yield = code.yield;
+    line.await = code.await;
+    line.reqlinks = links;
+    line.strkeeps = keeps;
+    line.toString = lineToString;
+    if (code.prequoted) line.prequoted = code.prequoted.map(a => ({ text: a.text, type: a.type }));
+    return line;
+};
+var createString = function (parsed) {
+    return createFlat(parsed).join('');
+};
 var rename = function (used, from, to) {
     if (from === to) return;
     var list = used[from];
@@ -2164,6 +2235,7 @@ export {
     getFuncBody,
     patchArrawScope,
     remove,
+    createLine,
     createString,
     createScoped,
     getlones,

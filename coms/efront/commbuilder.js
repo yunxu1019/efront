@@ -3,8 +3,7 @@ var {
     COMMENT, SCOPED, STAMP, STRAP, QUOTED,
     relink,
     setqueue,
-    replace,
-    createString,
+    createLine,
     splice, insertAfter, skipAssignment, skipSentenceQueue, snapSentenceHead,
     VALUE, EXPRESS, SCOPED, SPACE
 } = require("../compile/common");;
@@ -766,7 +765,7 @@ var liveJsNext = function (code, filename, fullpath, lessdata, commName, classNa
     fairJsCode(code, fullpath, this, globalsmap);
     if (!islive) buildPress2(code, code.strkeys);
     else revarCode(code);
-    return code;
+    return createLine(code);
 };
 var getRequiredLink = function (req) {
     var { next: c } = req;
@@ -1490,7 +1489,7 @@ var parse = function (data, filename, fullpath, compress, breakcode = memery.get
         autoprop.disabled = false;
         AUTOEVAL = autoeval;
         breakflag = savedflag;
-        return code;
+        return createLine(code);
     };
     if (res.then) return res = res.then(next);
     else return next(res);

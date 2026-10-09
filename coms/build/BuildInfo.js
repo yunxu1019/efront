@@ -67,12 +67,6 @@ BuildInfo.prototype = {
     get params() {
         return this.data.params;
     },
-    get isAsync() {
-        return this.data.isAsync;
-    },
-    get isYield() {
-        return this.data.isYield;
-    },
 };
 Object.defineProperty(BuildInfo, 'commap', {
     get() {
