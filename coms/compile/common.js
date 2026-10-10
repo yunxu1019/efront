@@ -1624,9 +1624,10 @@ var createFlat = function (parsed, links, keeps) {
                 if (!o.length && o.text) {
                     if (prev?.istype && lasttype !== SPACE) result.push(" ");
                     if (helpcolor) o.text = color.transform(o.text);
-                    if (keeps && o.keep) {
+                    if (keeps && o.noemit) {
                         var link = new Link;
                         link.type = o.type;
+                        if (o.relink) link.relink = true;
                         link.text = o.text;
                         result.push(link);
                         keeps.push(link);

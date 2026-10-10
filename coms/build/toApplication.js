@@ -258,7 +258,7 @@ var imagerep = function (e, k, destpath, responseTree) {
             imageIndex++;
             var name = k + "-" + imageIndex + ext;
         } while (name in responseTree);
-        var dp = destpath.replace(/\.[\w]+$/, '') + '-' + imageIndex + ext;
+        var dp = destpath.replace(/\.[^\\\/]*$/, '') + '-' + imageIndex + ext;
         responseTree[name] = { destpath: dp, type: '*', data: Buffer.from(match[2], "base64"), realpath: true, url: name };
         return quote + dp.replace(/\\/g, '/') + quote;
     }));
@@ -293,7 +293,7 @@ var rebuildData = function (responseTree) {
         var k1 = renmap[k];
         delete responseTree[k];
         responseTree[k1] = o;
-        o.name = k1;
+        o.url = k1;
         k1 = k1.replace(/^[\s\S]*?([^\/\\]*?)(\.[^\/\\\.]+)?$/, '$1');
         var m = /^([\s\S]*?)[^\/\\]*?(\.[^\/\\\.]+)?$/.exec(o.destpath);
         if (m[1]) {
@@ -312,8 +312,15 @@ var rebuildData = function (responseTree) {
         if (markIndex(k, response)) return;
         if (!isEfrontCode(response)) return;
         imageIndex = 0;
-        var { imported, required, requiredMap, destpath, strkeeps } = response;
+        var { imported, required, requiredMap, destpath, strkeeps, requiredMap } = response;
         if (strkeeps) strkeeps.forEach(o => {
+            if (o.relink) {
+                var text = strings.decode(o.text);
+                var text1 = response.requiredMap[text] || text;
+                text1 = renmap[text1] || text1;
+                if (text1 !== text) o.text = strings.encode(text);
+                return;
+            }
             o.text = imagerep(o.text, k, destpath, responseTree);
         });
         response.imageid = imageIndex;
@@ -418,7 +425,7 @@ var patchData = function (mainScriptData, mainScript, responseTree) {
             return v;
         });
         var data = wrapObject(cached.map((v, i) => {
-            return `["${v.name}"]:${cacheData(v, i)}`;
+            return `["${v.url}"]:${cacheData(v, i)}`;
         }));
         mainScriptData = replaceTree(mainScriptData, xTreeName, data);
     }
@@ -430,7 +437,7 @@ var patchData = function (mainScriptData, mainScript, responseTree) {
             v.data = encrypt(data, encoded);
         }
         var responseVersion = crc.string(String(v.data)).toString(36) + (+v.data.length).toString(36);
-        versionTree[v.name] = responseVersion;
+        versionTree[v.url] = responseVersion;
     });
     var versioned = Object.keys(versionTree);
     if (versioned.length) {
@@ -531,8 +538,9 @@ module.exports = async function (responseTree) {
     report(responseTree);
     mainScript.data = toComponent(newTree, true).main.data.replace(/2026\d{8}/g, function (id) {
         var response = cached[id - idstart];
-        var { prequoted, params, name, async, yield: yield1 } = response;
-        var mod = `${async ? 'async ' : ''}function${yield1 ? '*' : ''}${memory.COMMENT ? `/*${name}*/` : ''}(${params}){${memory.KEEPSPACE ? '\r\n' : ""}${prequoted || ''}${String(response.data).replace(/(--!?)>/g, '$1 >')}${memory.KEEPSPACE ? "\r\n" : ''}}`;
+        var { prequoted, params, url, async, yield: yield1, data } = response;
+        data = String(data).replace(/(--!?)>/g, '$1&gt;').replace(/<!--/g, "&gt;--");
+        var mod = `${async ? 'async ' : ''}function${yield1 ? '*' : ''}${memory.COMMENT ? `/*${url}*/` : ''}(${params}){${memory.KEEPSPACE ? '\r\n' : ""}${prequoted || ''}${data}${memory.KEEPSPACE ? "\r\n" : ''}}`;
         return mod;
     });
     return toApplication(responseTree, mainScript);

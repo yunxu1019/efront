@@ -85,14 +85,17 @@ async function compile(buildInfo) {
         realpath = fullpath[0];
     }
     if (!realpath) {
-        if (window.modules[url]) console.info(i18n`${url} 将被内置模块替换！`);
-        else if (!window.hasOwnProperty(url)) {
-            var color = globals[url] || colors.FgRed2;
-            var colored = `${color}${url}${colors.Reset}`;
-            buildInfo.warn = globals[url] ? colored : i18n`没有发现文件：${colored}`;
+        if (!buildInfo.writed) {
+            if (window.modules[url]) console.info(i18n`${url} 将被内置模块替换！`);
+            else if (!window.hasOwnProperty(url)) {
+                var color = globals[url] || colors.FgRed2;
+                var colored = `${color}${url}${colors.Reset}`;
+                buildInfo.warn = globals[url] ? colored : i18n`没有发现文件：${colored}`;
+            }
+            else console.info(i18n`${url} 将使用运行环境的全局变量`);
         }
-        else console.info(i18n`${url} 将使用运行环境的全局变量`);
         delete buildInfo.data;
+        buildInfo.writed = true;
         return;
     }
     try {
@@ -116,6 +119,7 @@ async function compile(buildInfo) {
     }
     if (buildInfo.mtime) console.info(`文件变化，正在重新编译${url}`);
     buildInfo.mtime = new Date;
+    delete buildInfo.writed;
     var buffer = null;
     if (!stat.isFile()) {
         if (!stat.isDirectory()) {

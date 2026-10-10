@@ -99,7 +99,7 @@ var quotedMap = compile$breakcode2.quoted;
 
 function toComponent(responseTree, isWebProject) {
     crypt_code = memery.crypt_code;
-    responseTree = Object.assign(Object.create(null), responseTree);
+    responseTree = shallowClone(responseTree, 2);
     var thisContext = "";
     var exportName = memery.EXPORT_TO || EXPORT_TO;
     if (/^(this|globalThis|window|global)$/.test(exportName)) thisContext = exportName;
@@ -392,9 +392,14 @@ function toComponent(responseTree, isWebProject) {
     while (result.length) {
         for (var cx = result.length - 1, dx = 0; cx >= dx; cx--) {
             var [k, response] = result[cx];
-            var { required, requiredMap: reqMap, imported: imports = [], reqlinks } = response;
+            var { required, requiredMap: reqMap, imported: imports = [], reqlinks, strkeeps } = response;
             if (required && reqMap) required = required.map(k => reqMap[k] || k);
             var ok = true;
+            if (strkeeps && reqMap) for (var r of strkeeps) {
+                if (!r.relink) continue;
+                var t = reqMap[strings.decode(r.text)];
+                if (t) r.text = strings.encode(r.text);
+            }
             if (required) for (var r of required) {
                 if (!destMap[r]) {
                     let resp = responseTree[r];

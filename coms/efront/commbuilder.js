@@ -199,7 +199,7 @@ var loadUseBody = async function (source, fullpath, watchurls) {
         return typeof data !== 'object' ? JSON.stringify(data) : match;
     })
 };
-var getPathToPrepare = function (o) {
+var getPathToPrepare = function (o, noemit) {
     var n = o.next;
     if (!n || n.type != SCOPED || n.entry !== '(') {
         return;
@@ -210,6 +210,7 @@ var getPathToPrepare = function (o) {
     if (next) {
         if (next.type !== STAMP || next.text !== ',') return;
     }
+    if (noemit) first.noemit = true;
     var prepath = strings.decode(first.text);
     return prepath.replace(/^[@#!]+/, "");
 };
@@ -489,12 +490,12 @@ var loadJsStatic = function* (code, fullpath, commap, watchurls) {
                     case "popup":
                     case "zimoli":
                     case "go":
-                        var prepath = getPathToPrepare(o);
+                        var prepath = getPathToPrepare(o, true);
                         if (prepares) saveOneToArray(prepath, prepares);
                         saveOneToArray(prepath, refered);
                         break;
                     case "init":
-                        var initpath = getPathToPrepare(o);
+                        var initpath = getPathToPrepare(o, true);
                         saveOneToArray(initpath, refered);
                         break;
                 }
@@ -854,7 +855,16 @@ var fairJsCode = function (code, fullpath, commap, globalsmap, keepstring = fals
         delete code.prequoted;
     }
     if (breakflag !== false) code.rescan();
-    if (code.required) code.reqlinks = code.used.require.map(getRequiredLink).filter(a => !!a);
+    var used = code.used;
+    if (code.required) code.reqlinks = used.require.map(getRequiredLink).filter(a => !!a);
+    var setlink = function (o) {
+        if (o) o.relink = true;
+    };
+    if (used.init) used.init.map(getRequiredLink).forEach(setlink);
+    if (used.zimoli) used.zimoli.map(getRequiredLink).forEach(setlink);
+    if (used.go) used.go.map(getRequiredLink).forEach(setlink);
+    if (used.popup) used.popup.map(getRequiredLink).forEach(setlink);
+
     return code;
 };
 var wrapParams = function (code, params) {

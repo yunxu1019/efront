@@ -1,5 +1,4 @@
 var { VALUE, EXPRESS, QUOTED, SCOPED } = require("./common");
-var { decode, kicode } = require("../basic/strings");
 // <!--
 var getRegExp = function () {
     var readable = [], start, end, prefix = "";

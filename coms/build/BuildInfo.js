@@ -67,6 +67,9 @@ BuildInfo.prototype = {
     get params() {
         return this.data.params;
     },
+    get time() {
+        return this.data?.time || this.watchurls?.time;
+    }
 };
 Object.defineProperty(BuildInfo, 'commap', {
     get() {
@@ -95,7 +98,6 @@ var realInfo = function (type, dest, rel, realpath, extt1) {
     return new BuildInfo(...{
         type,
         url,
-        name,
         extt,
         realpath,
         destpath,
@@ -109,12 +111,10 @@ var fromComm = function (rel, file) {
     var url = String(rel).replace(/[\\\/]+/g, "$");
     var name = url.replace(/\.[^\.]*$/, '');
     var extt = url.slice(name.length);
-    name = name.replace(/\-([\s\S])/g, (_, a) => a.toUpperCase());
     var destpath = path.join("comm", name + memery.EXTT);
     return new BuildInfo(...{
         type: '',
         url,
-        name,
         extt,
         realpath: file,
         destpath,
@@ -124,7 +124,6 @@ var fromNoop = function (name) {
     return new BuildInfo(...{
         type: "*",
         url: name,
-        name: name,
         extt: '',
         destpath: name,
         islone: true,
@@ -140,7 +139,7 @@ var fromPage = function (rel, file) {
     if (!/\.([cm]?[jt]sx?|xht|vuex?)$/i.test(file)) {
         return fromLone(rel, file);
     }
-    return realInfo("/", 'page', "/" + rel, file, memery.EXTT);
+    return realInfo("/", 'page', "/" + rel.replace(/\.[^\\\/]*$/, ''), file, memery.EXTT);
 };
 var fromDyna = function (rel, file) {
     var info = realInfo("%", '', "/" + rel, file);
@@ -149,7 +148,7 @@ var fromDyna = function (rel, file) {
     return info;
 };
 var fromWarn = function (rel, error) {
-    return new BuildInfo(...{ type: "*", url: rel, name: rel, warning: error })
+    return new BuildInfo(...{ type: "*", url: rel, warning: error })
 }
 var fromLone = function (rel, file) {
     var info = realInfo("~", '', "/" + rel, file);
@@ -164,7 +163,6 @@ var fromLlib = function (rel, file) {
 };
 var fromAapi = function (rel, file) {
     var info = realInfo("-", "#aapi", rel, file, ".png");
-    info.url = info.name + '.png'
     info.islone = true;
     info.isback = true;
     return info;
@@ -211,6 +209,8 @@ var fromFile = function (file) {
 }
 BuildInfo.fromRoot = function (rel) {
     if (rel in commap) return fromComm(rel, commap[rel]);
+    var rel1 = rel.replace(/[\-]([a-z])/i, (_, a) => a.toUpperCase());
+    if (rel1 in commap) return fromComm(rel, commap[rel1]);
     return fromNoop(rel);
 };
 BuildInfo.fromComm = fromComm;
