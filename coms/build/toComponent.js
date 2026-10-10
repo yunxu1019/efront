@@ -99,7 +99,7 @@ var quotedMap = compile$breakcode2.quoted;
 
 function toComponent(responseTree, isWebProject) {
     crypt_code = memery.crypt_code;
-    responseTree = shallowClone(responseTree, 2);
+    responseTree = Object.assign(Object.create(null), responseTree);
     var thisContext = "";
     var exportName = memery.EXPORT_TO || EXPORT_TO;
     if (/^(this|globalThis|window|global)$/.test(exportName)) thisContext = exportName;
