@@ -1,3 +1,4 @@
+var path = require('path');
 var { include_required, pages_root, rest_coms } = require("./environment");
 var isRest = rest_coms ? function (restcoms, p) {
     return getPathIn(restcoms, p);
