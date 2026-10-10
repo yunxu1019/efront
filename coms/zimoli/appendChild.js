@@ -83,10 +83,7 @@ function insertAfter(alreadyMounted, obj, transition) {
 
 appendChild.before = insertBefore;
 appendChild.after = insertAfter;
-/**
- * 相当于 insertBefore
- */
-appendChild.insert = function (parent, element, relative = parent.childNodes[0] || null) {
+appendChild.insert = function (parent, element, relative) {
     if (!relative) {
         appendChild(parent, element);
     } else {

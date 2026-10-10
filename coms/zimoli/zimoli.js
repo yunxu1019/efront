@@ -454,7 +454,8 @@ function create(pagepath, args, from, needroles, zimolidata) {
 
 }
 var createEmptyHistory = function (emptyState, allowForward = true) {
-    var h = [emptyState];
+    var h = [];
+    if (emptyState != null) h.push(emptyState);
     h.index = 0;
     h.lastIndex = 0;
     h.wardable = allowForward;
@@ -695,7 +696,7 @@ function addGlobal(element, name = null, isBack) {
                 remove(oldElement);
                 oldElement = oldPrev || oldPare?.firstChild;
             }
-            if (isBack || !oldElement) appendChild.insert(body, element);
+            if (isBack || !oldElement) appendChild.insert(body, element, oldElement);
             else appendChild.after(oldElement, element);
         }
         global[name] = element;

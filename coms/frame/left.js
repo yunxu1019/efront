@@ -14,9 +14,9 @@ function main() {
         popup,
         menus: frame$route,
     }, this));
-    on('append')(page, function () {
+    on('append')(page, lazy(function () {
         frame$route.open();
-    });
+    }));
     view(page)
     return page;
 }
