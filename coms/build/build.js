@@ -51,7 +51,8 @@ async function collectDeps(r, responseTree, ignormap) {
         if (responseTree[r]) b.push(responseTree[r]);
         else b.push(BuildInfo.fromRoot(r));
     });
-    var required2 = required.map(r => /^\.+[\\\/]/.test(r) ? path.join(imported.dirname, r) : r);
+    var dirname = path.dirname(r.realpath);
+    var required2 = required.map(r => /^\.+[\\\/]/.test(r) ? path.join(dirname, r) : r);
     var required3 = await getBuildRoot(required2, true);
     var map = r.requiredMap = {};
     required3.forEach((r, cx) => {

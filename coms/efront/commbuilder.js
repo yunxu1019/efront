@@ -41,7 +41,7 @@ var downLevel = require("../compile/downLevel");
 var detectPath = require("../reptile/detectWithExtension").detect;
 var isbooted = typeof seek === 'function';
 // var downLevel = require("./downLevel");
-var skipreg = /^\s*(['"`])use\s+(strict|asm|strip)\1(?:\s*;)?\s*$/;
+var skipreg = /^\s*(['"`])use\s+(strict|asm|strip|multithreading)\1(?:\s*;)?\s*$/;
 var breakflag = null;
 var bindLoadings = function (reg, data, rootfile, replacer = a => a, deep) {
     var ignoreUse_reg = commbuilder.ignoreUse_reg;
@@ -1339,7 +1339,7 @@ function getMouePromise(data, filename, fullpath, watchurls) {
         console.warn(i18n`文件中存在冗余数据<gray>${fullpath}</gray>:<data>${data.length > 12 ? data.slice(0, 10) + '...' : data}</data>`);
     }
     var promise = new Promise((ok, oh) => {
-        function fire() {
+        var fire = () => {
             if (htmlData) {
                 jsData = `var template=${compile$wraphtml(htmlData)};\r\n` + jsData;
                 if (lessData) {
