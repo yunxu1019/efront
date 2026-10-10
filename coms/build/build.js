@@ -104,7 +104,7 @@ var storeToTree = function (r) {
     if (r.realpath && isRest(r.realpath) || r.url in restRequired) r.isrest = true;
 };
 async function build(infos, responseTree, ignoreMap = Object.create(null)) {
-    infos = infos.filter(filterLoaded, responseTree);
+    infos = infos.map(a => responseTree[a.url] || a).filter(filterLoaded, responseTree);
     for (var cx = 0, dx = infos.length; cx < dx; cx++) {
         var info = infos[cx];
         var info = await compile(info);

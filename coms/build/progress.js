@@ -32,31 +32,9 @@ var crypt1_ricode = function (source) {
     return source;
 };
 require("../compile/namelist").makeSource(memery.SCITER);
-var getBuiltVersion = async function (filepath) {
-    try {
-        filepath = await detectWithExtension(memery.INDEX_NAME, memery.INDEX_EXTENSIONS, [filepath]);
-    } catch {
-        return;
-    }
-    return new Promise(function (ok) {
-        fs.stat(filepath, function (error, stats) {
-            if (error) return ok();
-            if (!stats.isFile()) return ok();
-            fs.readFile(filepath, function (error, data) {
-                if (error) return ok();
-                ok(data);
-            });
-        });
-    }).then(function (data) {
-        var version = /\bcompiledinfo(?:\-(\w+))\s*=\s*(['"`])(.*?GMT[+\-]\d{4})\b.*?\2/i.exec(data);
-        if (version) {
-            var timepart = version[3];
-            return [version[1], new Date(timepart)];
-        }
-    });
-};
+
 var loadToTree = Object.create(null);
-function builder(cleanAfterBuild = false, cleanBeforeBuild = false) {
+async function builder(cleanAfterBuild = false, cleanBeforeBuild = false) {
     if (memery.ENCRYPT) {
         do {
             var crypt_code = new Date / 1000 ^ Math.random() * 3600;
@@ -116,83 +94,73 @@ function builder(cleanAfterBuild = false, cleanBeforeBuild = false) {
         setting.is_commponent_package = false;
         setting.is_file_target = /\.html?$/i.test(memery.APP);
         commbuilder.prepare = !setting.is_file_target;
-        promise = getBuiltVersion(public_path).then(async function (version) {
-            if (version) {
-                var [mark, lastBuildTime] = version;
-                if (!setting.is_file_target) setting.version_mark = mark;
-            }
-            if (cleanBeforeBuild) {
-                lastBuildTime = 0;
-            }
+        try {
+            var indexHTML = await detectWithExtension(memery.INDEX_NAME, memery.INDEX_EXTENSIONS, pages_root);
+        } catch {
             try {
-                var indexHTML = await detectWithExtension(memery.INDEX_NAME, memery.INDEX_EXTENSIONS, pages_root);
+                indexHTML = await detectWithExtension(memery.INDEX_NAME, memery.INDEX_EXTENSIONS, [PAGE_PATH]);
             } catch {
-                try {
-                    indexHTML = await detectWithExtension(memery.INDEX_NAME, memery.INDEX_EXTENSIONS, [PAGE_PATH]);
-                } catch {
+            }
+        }
+        if (!indexHTML) {
+            console.warn(i18n`项目内未发面主页面`);
+        }
+        setting.dest_root = public_path;
+        return loadData(pages_root.concat(
+            indexHTML ? [indexHTML] : [],
+            indexHTML ? aapis_root : []
+        ), POLYFILL, loadToTree)
+            .then(toApplication)
+            .then(function (response) {
+                var pbpath = public_path.replace(/[\/\\]+$/, '');
+                var temppath1 = pbpath + "#1";
+                var temppath2 = pbpath + "#2";
+                var writeApplication = function () {
+                    return write(response, pbpath);
+                };
+                var rename = async (a, b) => {
+                    var error = null;
+                    for (var cx = 0, dx = 10; cx < dx; cx++) {
+                        try {
+                            error = null;
+                            await fsp.rename(a, b);
+                            break;
+                        } catch (e) {
+                            error = e;
+                            await wait(200);
+                        }
+                    }
+                    if (error) throw error;
+                };
+                if (cleanAfterBuild) {
+                    if (!fs.existsSync(pbpath)) return writeApplication();
+                    return clean(temppath2).then(function () {
+                        return write(response, temppath2);
+                    }).then(function () {
+                        return clean(temppath1);
+                    }).then(function () {
+                        return rename(pbpath, temppath1);
+                    }).then(function () {
+                        return rename(temppath2, pbpath);
+                    }).then(function () {
+                        return clean(temppath1);
+                    });
                 }
-            }
-            if (!indexHTML) {
-                console.warn(i18n`项目内未发面主页面`);
-            }
-            setting.dest_root = public_path;
-            setting.last_build_time = lastBuildTime;
-            return loadData(pages_root.concat(
-                indexHTML ? [indexHTML] : [],
-                indexHTML ? aapis_root : []
-            ), POLYFILL, loadToTree)
-                .then(toApplication)
-                .then(function (response) {
-                    var pbpath = public_path.replace(/[\/\\]+$/, '');
-                    var temppath1 = pbpath + "#1";
-                    var temppath2 = pbpath + "#2";
-                    var writeApplication = function () {
-                        return write(response, pbpath);
-                    };
-                    var rename = async (a, b) => {
-                        var error = null;
-                        for (var cx = 0, dx = 10; cx < dx; cx++) {
-                            try {
-                                error = null;
-                                await fsp.rename(a, b);
-                                break;
-                            } catch (e) {
-                                error = e;
-                                await wait(200);
-                            }
-                        }
-                        if (error) throw error;
-                    };
-                    if (cleanAfterBuild) {
-                        if (!fs.existsSync(pbpath)) return writeApplication();
-                        return clean(temppath2).then(function () {
-                            return write(response, temppath2);
-                        }).then(function () {
-                            return clean(temppath1);
-                        }).then(function () {
-                            return rename(pbpath, temppath1);
-                        }).then(function () {
-                            return rename(temppath2, pbpath);
-                        }).then(function () {
-                            return clean(temppath1);
-                        });
+                return writeApplication();
+            })
+            .then(finish).then(async function () {
+                builder.ing = false;
+                if (reload) builder();
+                else {
+                    var ipc = require("../server/ipc");
+                    if (ipc.exists()) {
+                        console.info(i18n`发现已存在的efront服务，正尝试通知其更新`);
+                        await ipc.dispach('unload ' + public_path);
+                        console.time();
+                        console.info(i18n`已通知efront刷新服务页面\r\n`);
                     }
-                    return writeApplication();
-                })
-                .then(finish).then(async function () {
-                    builder.ing = false;
-                    if (reload) builder();
-                    else {
-                        var ipc = require("../server/ipc");
-                        if (ipc.exists()) {
-                            console.info(i18n`发现已存在的efront服务，正尝试通知其更新`);
-                            await ipc.dispach('unload ' + public_path);
-                            console.time();
-                            console.info(i18n`已通知efront刷新服务页面\r\n`);
-                        }
-                    }
-                });
-        });
+                }
+            });
     } else {
         console.error(
             new Error(i18n`要发布或打包的项目不存在:${PUBLIC_APP}`)

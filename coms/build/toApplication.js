@@ -309,7 +309,6 @@ var rebuildData = function (responseTree) {
     });
     Object.keys(responseTree).forEach(function (k) {
         var response = responseTree[k];
-        if (response.writed) return;
         if (markIndex(k, response)) return;
         if (!isEfrontCode(response)) return;
         imageIndex = 0;
@@ -450,9 +449,9 @@ var patchData = function (mainScriptData, mainScript, responseTree) {
 module.exports = async function (responseTree) {
     responseTree = Object.assign(Object.create(null), responseTree);
     if (encoded) encoded = setting.version_mark;
-    var mainScript = responseTree.main || responseTree["main.js"];
-    if (mainScript) delete responseTree[mainScript.url];
     rebuildData(responseTree);
+    var mainScript = responseTree.main;
+    if (mainScript) mainScript = Object.assign(Object.create(null), mainScript), delete responseTree[mainScript.url];
     var realmain = path.join(__dirname, "../zimoli/main.js");
     nomain: if (!mainScript || mainScript.realpath !== realmain) {
         for (var k in responseTree) {
