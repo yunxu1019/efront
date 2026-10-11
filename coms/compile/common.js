@@ -1530,10 +1530,6 @@ var createFlat = function (parsed, links, keeps) {
                     lasttype = SPACE;
                     result.push(' ');
                 }
-                if (!helpcode) {
-                    result.push(o.text);
-                    break;
-                }
                 var tmp = o.text, opentmp = false;
                 if (helpreg.test(tmp)) {
                     opentmp = true;
@@ -1560,6 +1556,7 @@ var createFlat = function (parsed, links, keeps) {
                 }
                 if (keepspace && !opentmp) {
                     if (patchspace && lasttype !== SPACE && lasttype !== EXPRESS) result.push(" ");
+                    if (/^\//.test(tmp)) tmp = tmp.replace(/<(!--)/g, '<\\$1').replace(/(--!?)>/g, '$1\\>');
                     result.push(tmp);
                     if (/^\/\//.test(tmp)) lasttype = COMMENT;
                 }
@@ -1620,10 +1617,18 @@ var createFlat = function (parsed, links, keeps) {
                     if (o.length) o.forEach(run);
                 }
                 break;
+            case PIECE:
+                result.push(o.text.replace(/<(!--)/g, '<\\$1').replace(/(--!?)>/g, '$1\\>'));
+                break;
             case QUOTED:
                 if (!o.length && o.text) {
                     if (prev?.istype && lasttype !== SPACE) result.push(" ");
                     if (helpcolor) o.text = color.transform(o.text);
+                    if (/^\//.test(o.text)) {
+                        if (lasttype === STAMP && /\/$/.test(result[result.length - 1])) {
+                            result.push(' ');
+                        }
+                    }
                     if (keeps && o.noemit) {
                         var link = new Link;
                         link.type = o.type;
@@ -1632,7 +1637,7 @@ var createFlat = function (parsed, links, keeps) {
                         result.push(link);
                         keeps.push(link);
                     }
-                    else result.push(o.text);
+                    else result.push(o.text.replace(/<(!--)/g, '<\\$1').replace(/(--!?)>/g, '$1\\>'));
                     break;
                 }
             case SCOPED:
@@ -1688,7 +1693,10 @@ var createFlat = function (parsed, links, keeps) {
                             else if (autospace) result.push(' ');
                         }
                         else if (lasttype === STAMP) {
-                            if (autospace) if (!p.unary || /[\+\-]$/.test(p.text) && p.text === o.text) result.push(" ");
+                            if (autospace) {
+                                // -->和<!--这里已然修复
+                                if (!p.unary || /[\+\-]$/.test(p.text) && p.text === o.text) result.push(" ");
+                            }
                         }
                         else if (/^(\+\+|\-\-)$/.test(p.text) && getprev(p)) {
                             if (o.unary) {

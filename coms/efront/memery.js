@@ -392,7 +392,7 @@ var setDebug = function (v) {
     var dbg = v != false;
     var debug = {
         ENCRYPT: !dbg,
-        COMPRESS: isFinite(memery.get('COMPRESS')) ? v : -1,
+        COMPRESS: Number.isFinite(v) ? v : get("COMPRESS") === false ? false : -1,
         KEEPSPACE: dbg,
         BREAK: true,
         COMMENT: dbg,

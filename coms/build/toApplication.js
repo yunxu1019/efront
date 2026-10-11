@@ -251,7 +251,7 @@ function toApplication(responseTree, mainScript) {
 var imageIndex = 0;
 var imagerep = function (e, k, destpath, responseTree) {
     if (typeof e !== "string") return String(e);
-    return strings.recode(e.replace(/(["`']|)data(\.\w+)\:([\w\+\/\=,;\-\.]+)\1/gi, function (_, quote, ext, data) {
+    return e.replace(/(["`']|)data(\.\w+)\:([\w\+\/\=,;\-\.]+)\1/gi, function (_, quote, ext, data) {
         var match = /^([\w\-\.\/]+;base64)?,([\w\+\/\-\=]+)$/i.exec(data);
         if (!match) return _;
         do {
@@ -261,7 +261,7 @@ var imagerep = function (e, k, destpath, responseTree) {
         var dp = destpath.replace(/\.[^\\\/]*$/, '') + '-' + imageIndex + ext;
         responseTree[name] = { destpath: dp, type: '*', data: Buffer.from(match[2], "base64"), realpath: true, url: name };
         return quote + dp.replace(/\\/g, '/') + quote;
-    }));
+    }).replace(/<(!--)/g, '<\\$1').replace(/(--!?)>/g, '$1\\>');
 };
 var rebuildData = function (responseTree) {
     var keys = Object.keys(responseTree).sort();
@@ -539,7 +539,6 @@ module.exports = async function (responseTree) {
     mainScript.data = toComponent(newTree, true).main.data.replace(/2026\d{8}/g, function (id) {
         var response = cached[id - idstart];
         var { prequoted, params, url, async, yield: yield1, data } = response;
-        data = String(data).replace(/(--!?)>/g, '$1&gt;').replace(/<!--/g, "&gt;--");
         var mod = `${async ? 'async ' : ''}function${yield1 ? '*' : ''}${memory.COMMENT ? `/*${url}*/` : ''}(${params}){${memory.KEEPSPACE ? '\r\n' : ""}${prequoted || ''}${data}${memory.KEEPSPACE ? "\r\n" : ''}}`;
         return mod;
     });
