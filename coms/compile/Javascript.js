@@ -673,7 +673,7 @@ function detour(o, ie) {
                     }
                 }
                 if (!o.isprop) {
-                    if (requote) o.text = recode(o.text);
+                    if (requote && /^['"]/.test(o.text)) o.text = recode(o.text);
                     break;
                 }
             case PROPERTY:
