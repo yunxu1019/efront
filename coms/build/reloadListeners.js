@@ -15,7 +15,7 @@ var listener = function (socket) {
     socket.on('data', function (data) {
         data = String(data);
         var match = /^(\w+)\s+(\S+)\s+HTTP\/[\d\.]+\r\n/i.exec(data.slice(0, 100));
-        if (!match) return socket.distroy();
+        if (!match) return socket.destroy();
         var [, method, url] = match;
         var headers = {};
         var end = 0;
