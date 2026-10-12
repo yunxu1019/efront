@@ -7,7 +7,7 @@ var checkIndex = function (html) {
             poweredByComment = _;
             return "";
         })
-        .replace(/(<script[^>]*?>|<style[^>]*?>\s*)?<\!\-\-([\s\S]*?)\-\-\!?>\s*/g, (_, richtag, a) => {
+        .replace(/(<script[^>]*?>\s*|<style[^>]*?>\s*)?<\!\-\-([\s\S]*?)\-\-\!?>\s*/ig, function (_, richtag, a) {
             if (richtag) return _;
             if (/^\s*\[[\s\S]*\]\s*$/.test(a)) return _;
             return '';
