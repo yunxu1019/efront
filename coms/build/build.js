@@ -69,18 +69,39 @@ async function collectDeps(r, responseTree, ignormap) {
 
 var restRequired = Object.create(null);
 var dependenceMap = Object.create(null);
-var destpathMap = Object.create(null);
+var loadedMap = Object.create(null);
 var filterLoaded = function (a) {
     if (!a || !a.destpath) return false;
-    var destpath = a.destpath;
-    if (!destpathMap[destpath]) {
-        destpathMap[destpath] = a;
+    var url = a.url;
+    if (!loadedMap[url]) {
+        loadedMap[url] = a;
         return true;
     }
     var url = a.url;
-    var a = destpathMap[destpath];
-    if (!(url in this)) {
-        this[url] = a;
+    var a = loadedMap[url];
+    var rest = [a];
+    while (rest.length) {
+        var a1 = rest.pop();
+        var url1 = a1.url;
+        if (!(url1 in this)) {
+            this[url1] = a1;
+            if (!a1.data) continue;
+            var { imported, required, refered, requiredMap } = a1;
+            if (imported) for (var s of imported) {
+                var r = loadedMap[s];
+                if (r) rest.push(r);
+            }
+            if (required) for (var s of required) {
+                s = requiredMap[s] || s;
+                var r = loadedMap[s];
+                if (r) rest.push(r);
+            }
+            if (refered) for (var s of refered) {
+                s = requiredMap[s] || s;
+                var r = loadedMap[s];
+                if (r) rest.push(r);
+            }
+        }
     }
     if (url === a.url) return false;
     dependenceMap[url] = a.url;
@@ -126,6 +147,6 @@ async function build(infos, responseTree, ignoreMap = Object.create(null)) {
 build.reset = function () {
     restRequired = Object.create(null);
     dependenceMap = Object.create(null);
-    destpathMap = Object.create(null);
+    loadedMap = Object.create(null);
 }
 build.getNexts = collectDeps;
