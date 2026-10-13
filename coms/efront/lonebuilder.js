@@ -110,9 +110,9 @@ var lonehtmlbuilder = async function (data, filename, fullpath, watchurls) {
         if (codetext) {
             c.splice(0, c.length);
             c.push(
-                { type: hcode.COMMENT, text: memery.KEEPSPACE ? "<!--\r\n" : '<!--' },
+                { type: hcode.COMMENT, text: '<!--\r\n' },
                 { type: hcode.PIECE, text: String(codetext) },
-                { type: hcode.COMMENT, text: memery.KEEPSPACE ? "\r\n-->" : '-->' }
+                { type: hcode.COMMENT, text: '\r\n-->' }
             );
         }
     }
