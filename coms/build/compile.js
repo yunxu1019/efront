@@ -149,7 +149,7 @@ async function compile(buildInfo) {
     else delete buildInfo.data;
 }
 
-var linesEnabled = 1;
+var linesEnabled = 2;
 module.exports = async function (buildInfo) {
     if (!linesEnabled) await wait(function () {
         return linesEnabled
