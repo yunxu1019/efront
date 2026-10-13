@@ -1525,10 +1525,9 @@ var createFlat = function (parsed, links, keeps) {
         switch (o.type) {
             case COMMENT:
                 // 每一次要远行，我都不得不对自己的物品去粗取精。取舍之间，什么重要，什么不是那么重要，都有了一道明显的分界线。
-                if (uncomment) return;
+                var space = '';
                 if (lasttype === STAMP && /\/$/.test(result[result.length - 1])) {
-                    lasttype = SPACE;
-                    result.push(' ');
+                    space = ' ';
                 }
                 var tmp = o.text, opentmp = false;
                 if (helpreg.test(tmp)) {
@@ -1537,6 +1536,7 @@ var createFlat = function (parsed, links, keeps) {
                     tmp = tmp.replace(helpreg, '');
                     cacheresult = [];
                     result = cacheresult;
+                    if (space) result.push(space);
                     result.push("/* [[ 开发辅助代码: */");
                 }
                 if (/--\!?\>\s*(?:\*\/)?$/.test(tmp) && result !== finalresult) {
@@ -1544,6 +1544,7 @@ var createFlat = function (parsed, links, keeps) {
                     tmp = tmp.replace(/\s*--\!?\>\s*(?:\*\/)?$/, "");
                     if (tmp) {
                         result.push(tmp);
+                        if (/\/$/.test(tmp)) result.push(" ");
                     }
                     result.push("/* ]] */");
                     opentmp = true;
@@ -1555,10 +1556,13 @@ var createFlat = function (parsed, links, keeps) {
                     if (tmp) result.push("\r\n", tmp);
                 }
                 if (keepspace && !opentmp) {
-                    if (patchspace && lasttype !== SPACE && lasttype !== EXPRESS) result.push(" ");
+                    if (patchspace && lasttype !== SPACE && lasttype !== EXPRESS) result.push(" "), space = '';
                     if (/^\//.test(tmp)) tmp = tmp.replace(/<(!--)/g, '<\\$1').replace(/(--!?)>/g, '$1\\>');
-                    result.push(tmp);
-                    if (/^\/\//.test(tmp)) lasttype = COMMENT;
+                    if (!uncomment) {
+                        if (space) result.push(space);
+                        result.push(tmp);
+                    }
+                    else if (/^\/\//.test(tmp)) lasttype = COMMENT;
                 }
                 return;
             case SPACE:
