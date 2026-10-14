@@ -131,7 +131,7 @@ var fromNoop = function (name) {
 };
 var fromPage = function (rel, file) {
     if (/\.html?$/i.test(rel, file)) {
-        return realInfo("/", '', "/" + rel, file);
+        return fromCopy(rel, file);
     }
     if (/\.(jsp|asp|php)$/i.test(file)) {
         return fromDyna(rel, file);
@@ -139,7 +139,7 @@ var fromPage = function (rel, file) {
     if (!/\.([cm]?[jt]sx?|xht|vuex?)$/i.test(file)) {
         return fromLone(rel, file);
     }
-    return realInfo("/", 'page', "/" + rel.replace(/\.[^\\\/]*$/, ''), file, memery.EXTT);
+    return realInfo("/", 'page', "/" + rel, file, memery.EXTT);
 };
 var fromDyna = function (rel, file) {
     var info = realInfo("%", '', "/" + rel, file);

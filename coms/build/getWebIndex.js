@@ -6,7 +6,7 @@ return function (tree) {
         var t = tree[n];
         if (!t) continue;
         var { type } = t;
-        if (type === '/' || type === '%') {
+        if (type === '*' || type === '%') {
             return t;
         }
     }

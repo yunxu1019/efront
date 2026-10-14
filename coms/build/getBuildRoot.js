@@ -57,17 +57,16 @@ var filterHtmlImportedJs = async function (infos) {
         return /\.(xht|html?|jsp|asp|php)$/i.test(url);
     }).map(getScriptsUrlInHtmlFile);
     var datas = await Promise.all(promises);
-    var urls = [].concat.apply([], datas);
-    var mainPaths = urls.filter(d => !!d.main).map(d => d.main);
+    var mainPaths = datas.filter(d => !!d.main).map(d => d.main);
     var ignoreJsMap = {};
-    urls.forEach(a => {
+    datas.forEach(a => {
         if (a.ignore) {
             a.ignore.forEach(b => {
                 ignoreJsMap[a[b]] = true;
             });
         }
     })
-    urls = [].concat.apply([], urls);
+    var urls = [].concat.apply([], datas);
     var simpleJsMap = {};
     var regUrls = [], ignoreUrls = [];
     urls.forEach(function (url) {
@@ -108,9 +107,9 @@ var filterHtmlImportedJs = async function (infos) {
                 info = BuildInfo.fromLone(url, realpath);
                 founed.add(info);
                 return info;
-
             }
         }
+        if (info.type === '/') info.url = url.replace(/\.[^\\\/]*$/, '');
         return info;
     }).filter(a => !!a);
     var urlsMap = Object.create(null);
