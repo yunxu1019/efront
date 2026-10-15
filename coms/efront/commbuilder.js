@@ -797,7 +797,6 @@ var getRequiredLink = function (req) {
 }
 var fairJsCode = function (code, fullpath, commap, globalsmap, keepstring = false) {
     code.requote = commbuilder.requote !== false;
-    breakflag = true;
     var {
         async: isAsync,
         yield: isYield,
@@ -854,7 +853,7 @@ var fairJsCode = function (code, fullpath, commap, globalsmap, keepstring = fals
         code.unshift(...code.prequoted);
         delete code.prequoted;
     }
-    if (breakflag !== false) code.rescan();
+    code.rescan();
     var used = code.used;
     if (code.required) code.reqlinks = used.require.map(getRequiredLink).filter(a => !!a);
     var setlink = function (o) {

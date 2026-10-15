@@ -182,6 +182,9 @@ var _ifempty = {
     get COMMENT() {
         return false;
     },
+    get UPLEVEL() {
+        return memery.islive;
+    },
     get AUTOEVAL() {
         return memery.BREAK;
     },
@@ -195,7 +198,7 @@ var _ifempty = {
         return !!memery.LIVETIME;
     },
     get ENCRYPT() {
-        return true;
+        return !memery.islive;
     },
     get EXTT() {
         return '.txt';
@@ -264,7 +267,7 @@ var memery = module.exports = {
     STRICT: get('STRICT,USE_STRICT,STRICT_MODE', false),
     DNS: get("DNS", ''),
     IPV4FIRST: get("IPV4FIRST, IPV4", true),
-    MSIE: get("IE,MSIE,Trident,IEXPLORE,DETOUR"),
+    MSIE: get("IE,MSIE,Trident,IEXPLORE"),
     DHT_PORT: get('DHT_PORT', 0),
     LOCAL_HOSTS: get("LOCAL_HOSTS,LOCAL_HOST,LOCALHOSTS,LOCALHOST,HOSTS,HOST"),
     RECROSS_LIMIT: get("RECROSS_LIMIT,RETRY,RETRY_LIMIT,RECROSSLIMIT,RETRYLIMIT", 2),
@@ -339,7 +342,7 @@ var memery = module.exports = {
     EMIT: get("EMIT,DEEP,LINK", true),
     FORCE: get("AUDIT,FORCE_AUDIT,AUDIT_FORCE,FORCE", false),
     BREAK: get("BREAK,DETOUR"),
-    UPLEVEL: get("UPLEVEL", false),
+    UPLEVEL: get("UPLEVEL"),
     get torgb() {
         return this.ported && this.TORGB;
     },
