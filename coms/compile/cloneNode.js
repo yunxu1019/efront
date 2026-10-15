@@ -12,6 +12,7 @@ var cloneNode = function (o, keep) {
         c.istype = o.istype;
         c.brace = o.brace;
         c.isExpress = o.isExpress;
+        if (o.seekref) c.seekref = o.seekref;
         if (o.isObject) c.isObject = true;
         if (o.isClass) c.isClass = true;
         relink(c);
