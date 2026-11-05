@@ -1,3 +1,5 @@
+global.escapeRegExp = require("./escapeRegExp");
+var strings = require("./strings");
 function test_recode(a, b = a) {
     assert(strings.recode(a), b, true);
 }

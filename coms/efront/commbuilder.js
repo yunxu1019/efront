@@ -531,7 +531,11 @@ var toName = function (fullpath) {
     return commName;
 }
 var patchReturn = function (code, fullpath) {
-    if (code.return) return;
+    if (code.return) {
+        var rt = code.return;
+        var r = skipSentenceQueue(rt[rt.length - 1]);
+        if (!r) return;
+    }
     var undeclares = code.envs;
     if (!undeclares.exports && !code.return && code.isExpressQueue()) {
         //如果整个函数只有一个表达式或一个变量，直接反回其本身

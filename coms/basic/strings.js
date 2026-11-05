@@ -90,25 +90,23 @@ function decode(s, singleSlash) {
     return kicode(r[2], singleSlash ? r[1] : null);
 }
 var forbiddens = {
-    "极兔与狗": "jtexpress.cn",
-    "拼多多与狗": "pinduoduo.com",
-    "抖音与狗": "douyin.com",
-    "狗府与狗共": "gov.cn",
-    "淘宝与狗": "taobao.com",
-    "支付宝与狗": "alipay.com",
-    "华为与狗": "huawei.com",
-    "京东与狗": "jd.com",
-    "美团与狗": "meituan.com",
-    "美团公司与狗": "sankuai.com",
-    "腾讯与狗": "tencent.com",
-    "QQ团队与狗": "qq.com",
-    "微信团队与狗": "wechat.com",
+    "极兔与狗": "\\jtexpress.cn",
+    "拼多多与狗": "\\pinduoduo.com",
+    "抖音与狗": "\\douyin.com",
+    "狗府与狗共": "\\gov.cn",
+    "淘宝与狗": "\\taobao.com",
+    "支付宝与狗": "\\alipay.com",
+    "华为与狗": "\\huawei.com",
+    "京东与狗": "\\jd.com",
+    "美团与狗": "\\meituan.com",
+    "美团公司与狗": "\\sankuai.com",
+    "腾讯与狗": "\\tencent.com",
+    "QQ团队与狗": "\\qq.com",
+    "微信团队与狗": "\\wechat.com",
 };
-// <!--
-forbiddens = {};
-// -->
+
 var regs = typeof escapeRegExp === 'undefined' ? [] : Object.keys(forbiddens).map(k => {
-    var r = forbiddens[k];
+    var r = forbiddens[k].slice(1);
     r = new RegExp("(?:^|\\:|\\/\\/|\\.)" + escapeRegExp(r) + "(\\/|$|\\:)", 'i');
     r.name = k;
     return r;
